@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
   Select,
@@ -12,10 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedVenue, setSelectedVenue] = useState<string | undefined>();
+  const { toast } = useToast();
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -47,7 +49,7 @@ const Calendar = () => {
     },
   });
 
-  const { data: availability } = useQuery({
+  const { data: availability, refetch: refetchAvailability } = useQuery({
     queryKey: ['venue_availability', selectedVenue, date],
     enabled: !!selectedVenue && !!date,
     queryFn: async () => {
@@ -76,6 +78,32 @@ const Calendar = () => {
       return data;
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('venue_availability_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'venue_availability',
+          filter: selectedVenue ? `venue_id=eq.${selectedVenue}` : undefined,
+        },
+        (payload) => {
+          toast({
+            title: "Availability Updated",
+            description: "The venue's availability has been updated.",
+          });
+          refetchAvailability();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedVenue, refetchAvailability, toast]);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
