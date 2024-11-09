@@ -40,7 +40,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         url,
-        message: 'Note: During development, only authorized test users can access this application. Please ensure your Google account is added as a test user in the Google Cloud Console.'
+        message: 'Note: Please ensure your Google account has access to this application in production.'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -50,10 +50,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in calendar-auth:', error)
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: 'If you are a developer, please ensure OAuth credentials are properly configured and test users are added in Google Cloud Console.'
-      }),
+      JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500 

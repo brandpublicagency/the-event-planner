@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 const REDIRECT_URI = `${Deno.env.get('SUPABASE_URL')}/functions/v1/calendar-callback`
-const FRONTEND_URL = 'https://run.gptengineer.app/projects/145ff380-6fc0-4704-aeb2-e63118838c5d'
+const FRONTEND_URL = 'https://your-production-domain.com/calendar'  // Update this with your production URL
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,12 +23,12 @@ serve(async (req) => {
 
     if (error) {
       console.error('OAuth error:', error)
-      return Response.redirect(`${FRONTEND_URL}/calendar?error=${encodeURIComponent(error)}`)
+      return Response.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`)
     }
 
     if (!code) {
       console.error('No code provided in callback')
-      return Response.redirect(`${FRONTEND_URL}/calendar?error=no_code`)
+      return Response.redirect(`${FRONTEND_URL}?error=no_code`)
     }
 
     console.log('Exchanging code for tokens')
@@ -50,14 +50,14 @@ serve(async (req) => {
     
     if (tokens.error) {
       console.error('Token exchange error:', tokens.error)
-      return Response.redirect(`${FRONTEND_URL}/calendar?error=${encodeURIComponent(tokens.error)}`)
+      return Response.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(tokens.error)}`)
     }
 
     console.log('Successfully obtained tokens')
     
-    return Response.redirect(`${FRONTEND_URL}/calendar?success=true`)
+    return Response.redirect(`${FRONTEND_URL}?success=true`)
   } catch (error) {
     console.error('Error in calendar-callback:', error)
-    return Response.redirect(`${FRONTEND_URL}/calendar?error=internal_error`)
+    return Response.redirect(`${FRONTEND_URL}?error=internal_error`)
   }
 })
