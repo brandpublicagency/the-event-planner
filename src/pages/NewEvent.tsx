@@ -14,7 +14,11 @@ import { ArrowLeft } from "lucide-react";
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      status: 'Inquiry'
+    }
+  });
 
   const { data: venues } = useQuery({
     queryKey: ['venues'],
@@ -31,6 +35,20 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
+      // If a package is selected, get its venues
+      if (data.package_id) {
+        const { data: packageData } = await supabase
+          .from('packages')
+          .select('*')
+          .eq('id', data.package_id)
+          .single();
+
+        if (packageData) {
+          data.base_price = packageData.base_price;
+          data.discount_percentage = packageData.discount_percentage;
+        }
+      }
+
       const { error } = await supabase
         .from('events')
         .insert([{
@@ -72,7 +90,7 @@ const NewEvent = () => {
         </div>
       </div>
 
-      <div className="max-w-3xl">
+      <div className="max-w-5xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormSection 
