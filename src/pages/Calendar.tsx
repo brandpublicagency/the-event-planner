@@ -3,14 +3,29 @@ import { Card } from "@/components/ui/card";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Cal, { getCalApi } from "@calcom/embed-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Calendar = () => {
+  const { toast } = useToast();
+
   useEffect(() => {
     (async function () {
-      const cal = await getCalApi();
-      cal("init");
+      try {
+        const cal = await getCalApi();
+        // Initialize with configuration
+        cal("init", {
+          origin: "https://app.cal.com",
+        });
+      } catch (error) {
+        console.error("Failed to initialize Cal:", error);
+        toast({
+          title: "Calendar Error",
+          description: "Failed to load the calendar. Please try refreshing the page.",
+          variant: "destructive",
+        });
+      }
     })();
-  }, []);
+  }, [toast]);
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -40,6 +55,12 @@ const Calendar = () => {
           <Cal
             calLink="info@warmkaroo.com"
             style={{ width: "100%", height: "800px", overflow: "hidden" }}
+            config={{
+              name: profile?.full_name || "",
+              email: "",
+              theme: "light",
+              hideEventTypeDetails: false,
+            }}
           />
         </Card>
       </div>
