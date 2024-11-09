@@ -74,6 +74,110 @@ export type Database = {
           },
         ]
       }
+      package_inclusions: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          item: string
+          package_id: string | null
+          quantity: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          item: string
+          package_id?: string | null
+          quantity?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          item?: string
+          package_id?: string | null
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_inclusions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      package_venues: {
+        Row: {
+          package_id: string
+          venue_id: string
+        }
+        Insert: {
+          package_id: string
+          venue_id: string
+        }
+        Update: {
+          package_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_venues_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_venues_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packages: {
+        Row: {
+          accommodation_nights: number | null
+          accommodation_rooms: number | null
+          base_price: number
+          created_at: string
+          description: string | null
+          discount_percentage: number
+          id: string
+          max_guests: number | null
+          name: string
+          package_type: Database["public"]["Enums"]["package_type"]
+        }
+        Insert: {
+          accommodation_nights?: number | null
+          accommodation_rooms?: number | null
+          base_price: number
+          created_at?: string
+          description?: string | null
+          discount_percentage: number
+          id?: string
+          max_guests?: number | null
+          name: string
+          package_type: Database["public"]["Enums"]["package_type"]
+        }
+        Update: {
+          accommodation_nights?: number | null
+          accommodation_rooms?: number | null
+          base_price?: number
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number
+          id?: string
+          max_guests?: number | null
+          name?: string
+          package_type?: Database["public"]["Enums"]["package_type"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -529,6 +633,7 @@ export type Database = {
         | "Celebration"
         | "Conference"
         | "Other"
+      package_type: "full_package" | "medium_package" | "venue_only"
     }
     CompositeTypes: {
       [_ in never]: never

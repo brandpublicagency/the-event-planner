@@ -1,3 +1,7 @@
+import type { EventsTable, ProfilesTable, VenueAvailabilityTable, VenuesTable, PackagesTable, PackageVenuesTable, PackageInclusionsTable } from './tables.types';
+import type { DatabaseEnums } from './enums.types';
+import type { DatabaseFunctions } from './functions.types';
+
 export type Json =
   | string
   | number
