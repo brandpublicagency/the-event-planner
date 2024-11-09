@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 const Calendar = () => {
   useEffect(() => {
-    // Initialize Cal.com embed
     (async function () {
-      const Cal = (await import("@calcom/embed-react")).default;
-      Cal("init");
+      const cal = await getCalApi();
+      cal("init");
     })();
   }, []);
 
@@ -37,9 +37,9 @@ const Calendar = () => {
       
       <div className="grid gap-8">
         <Card className="p-6">
-          <div 
-            data-cal-link={profile?.cal_username || "team/default"} 
-            style={{ minHeight: "800px" }} 
+          <Cal
+            calLink={profile?.cal_username || "team/default"}
+            style={{ width: "100%", height: "800px", overflow: "hidden" }}
           />
         </Card>
       </div>
