@@ -35,7 +35,7 @@ const Login = () => {
         </div>
         <div className="text-white">
           <blockquote className="text-2xl font-light mb-4">
-            "This app has revolutionized how we plan and manage our events. It's intuitive and powerful."
+            “You can always amend a big plan, but you can never expand a little one. I don’t believe in little plans. I believe in plans big enough to meet a situation which we can’t possibly foresee now.” – Harry S. Truman
           </blockquote>
           <p className="text-zinc-400">Sarah Johnson</p>
         </div>
