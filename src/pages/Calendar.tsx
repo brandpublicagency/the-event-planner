@@ -38,7 +38,7 @@ const Calendar = () => {
       <div className="grid gap-8">
         <Card className="p-6">
           <Cal
-            calLink={profile?.cal_username || "team/default"}
+            calLink="info@warmkaroo.com"
             style={{ width: "100%", height: "800px", overflow: "hidden" }}
           />
         </Card>
