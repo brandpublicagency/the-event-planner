@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { UseFormReturn } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Building2, BedDouble, Users } from "lucide-react";
+import { Building2, Users } from "lucide-react";
 
 interface PackageSelectionProps {
   form: UseFormReturn<any>;
@@ -21,8 +21,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
           *,
           package_venues:package_venues(
             venues:venues(*)
-          ),
-          package_inclusions:package_inclusions(*)
+          )
         `)
         .order('base_price');
       
@@ -88,33 +87,12 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                         </span>
                       </div>
                       
-                      {pkg.accommodation_rooms && (
-                        <div className="flex items-center gap-2">
-                          <BedDouble className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">
-                            {pkg.accommodation_rooms} rooms for {pkg.accommodation_nights} nights
-                          </span>
-                        </div>
-                      )}
-
                       {pkg.max_guests && (
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-muted-foreground" />
                           <span className="text-sm">Up to {pkg.max_guests} guests</span>
                         </div>
                       )}
-                    </div>
-
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Includes:</p>
-                      <ul className="space-y-1">
-                        {pkg.package_inclusions?.map((inclusion) => (
-                          <li key={inclusion.id} className="text-sm flex items-start gap-2">
-                            <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>{inclusion.item}</span>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   </CardContent>
                 </Card>

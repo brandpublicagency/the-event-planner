@@ -9,16 +9,21 @@ import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
+import CompanyDetails from "@/components/forms/CompanyDetails";
 import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const form = useForm({
     defaultValues: {
-      status: 'Inquiry'
+      status: 'Inquiry',
+      event_type: 'Wedding'
     }
   });
+
+  const eventType = form.watch("event_type");
 
   const { data: venues } = useQuery({
     queryKey: ['venues'],
@@ -35,7 +40,6 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // If a package is selected, get its venues
       if (data.package_id) {
         const { data: packageData } = await supabase
           .from('packages')
@@ -100,19 +104,30 @@ const NewEvent = () => {
               <EventBasicInfo form={form} venues={venues} />
             </FormSection>
 
-            <FormSection 
-              title="Bride Details" 
-              description="Enter the bride's contact information."
-            >
-              <BrideDetails form={form} />
-            </FormSection>
+            {eventType === "Wedding" ? (
+              <>
+                <FormSection 
+                  title="Bride Details" 
+                  description="Enter the bride's contact information."
+                >
+                  <BrideDetails form={form} />
+                </FormSection>
 
-            <FormSection 
-              title="Groom Details" 
-              description="Enter the groom's contact information."
-            >
-              <GroomDetails form={form} />
-            </FormSection>
+                <FormSection 
+                  title="Groom Details" 
+                  description="Enter the groom's contact information."
+                >
+                  <GroomDetails form={form} />
+                </FormSection>
+              </>
+            ) : (
+              <FormSection 
+                title="Company Details" 
+                description="Enter the company's information."
+              >
+                <CompanyDetails form={form} />
+              </FormSection>
+            )}
 
             <div className="flex justify-end space-x-4">
               <Button 

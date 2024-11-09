@@ -21,6 +21,31 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FormField
           control={form.control}
+          name="event_type"
+          render={({ field }) => (
+            <FormItem className="col-span-2">
+              <FormLabel>Event Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select event type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Wedding">Wedding</SelectItem>
+                  <SelectItem value="Corporate Event">Corporate Event</SelectItem>
+                  <SelectItem value="Celebration">Celebration</SelectItem>
+                  <SelectItem value="Conference">Conference</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -87,31 +112,6 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
                   />
                 </PopoverContent>
               </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="event_type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Event Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select event type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Wedding">Wedding</SelectItem>
-                  <SelectItem value="Corporate Event">Corporate Event</SelectItem>
-                  <SelectItem value="Celebration">Celebration</SelectItem>
-                  <SelectItem value="Conference">Conference</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}
