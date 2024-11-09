@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import BrideDetails from "@/components/forms/BrideDetails";
@@ -30,10 +30,14 @@ const EditEvent = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
-      form.reset(data);
-    },
   });
+
+  // Set form data when event is loaded
+  React.useEffect(() => {
+    if (event) {
+      form.reset(event);
+    }
+  }, [event, form]);
 
   const onSubmit = async (data: any) => {
     try {
