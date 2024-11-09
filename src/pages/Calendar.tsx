@@ -56,7 +56,7 @@ const Calendar = () => {
       <h2 className="text-3xl font-bold tracking-tight">Calendar</h2>
       
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="bg-white rounded-lg flex items-center justify-center p-8">
+        <div className="bg-white rounded-lg p-8 flex items-center justify-center">
           <CalendarComponent
             mode="single"
             selected={date}
@@ -66,8 +66,11 @@ const Calendar = () => {
         </div>
 
         <div className="bg-white rounded-lg p-8">
-          <div className="flex gap-4 mb-6">
-            <Select onValueChange={handleMonthChange} defaultValue={months[new Date().getMonth()]}>
+          <div className="flex gap-4 mb-6 justify-center">
+            <Select 
+              onValueChange={handleMonthChange} 
+              defaultValue={months[futureDate?.getMonth() || 0]}
+            >
               <SelectTrigger className="w-[180px] bg-white border-zinc-200 hover:bg-zinc-50 transition-colors">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
@@ -84,7 +87,10 @@ const Calendar = () => {
               </SelectContent>
             </Select>
 
-            <Select onValueChange={handleYearChange} defaultValue={new Date().getFullYear().toString()}>
+            <Select 
+              onValueChange={handleYearChange} 
+              defaultValue={futureDate?.getFullYear().toString()}
+            >
               <SelectTrigger className="w-[120px] bg-white border-zinc-200 hover:bg-zinc-50 transition-colors">
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
