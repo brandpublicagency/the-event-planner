@@ -8,8 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./components/Sidebar";
 import Index from "./pages/Index";
 import Clients from "./pages/Clients";
+import NewClient from "./pages/NewClient";
 import Projects from "./pages/Projects";
+import NewProject from "./pages/NewProject";
 import Tasks from "./pages/Tasks";
+import NewTask from "./pages/NewTask";
 import Documents from "./pages/Documents";
 import Login from "./pages/Login";
 
@@ -59,8 +62,11 @@ const App = () => (
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/clients" element={<Clients />} />
+                      <Route path="/clients/new" element={<NewClient />} />
                       <Route path="/projects" element={<Projects />} />
+                      <Route path="/projects/new" element={<NewProject />} />
                       <Route path="/tasks" element={<Tasks />} />
+                      <Route path="/tasks/new" element={<NewTask />} />
                       <Route path="/documents" element={<Documents />} />
                     </Routes>
                   </div>
