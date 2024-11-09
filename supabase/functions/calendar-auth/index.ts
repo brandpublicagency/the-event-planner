@@ -40,7 +40,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         url,
-        message: 'Note: Please ensure your Google account has access to this application in production.'
+        message: 'Connecting to Google Calendar...'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
