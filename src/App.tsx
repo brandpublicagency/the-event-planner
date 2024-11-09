@@ -7,13 +7,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./components/Sidebar";
 import Index from "./pages/Index";
-import Clients from "./pages/Clients";
-import NewClient from "./pages/NewClient";
-import Projects from "./pages/Projects";
-import NewProject from "./pages/NewProject";
-import Tasks from "./pages/Tasks";
-import NewTask from "./pages/NewTask";
+import Events from "./pages/Events";
+import Calendar from "./pages/Calendar";
 import Documents from "./pages/Documents";
+import NewEvent from "./pages/NewEvent";
+import EventDetails from "./pages/EventDetails";
 import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
@@ -61,12 +59,10 @@ const App = () => (
                   <div className="flex-1 overflow-auto">
                     <Routes>
                       <Route path="/" element={<Index />} />
-                      <Route path="/clients" element={<Clients />} />
-                      <Route path="/clients/new" element={<NewClient />} />
-                      <Route path="/projects" element={<Projects />} />
-                      <Route path="/projects/new" element={<NewProject />} />
-                      <Route path="/tasks" element={<Tasks />} />
-                      <Route path="/tasks/new" element={<NewTask />} />
+                      <Route path="/events" element={<Events />} />
+                      <Route path="/events/new" element={<NewEvent />} />
+                      <Route path="/events/:id" element={<EventDetails />} />
+                      <Route path="/calendar" element={<Calendar />} />
                       <Route path="/documents" element={<Documents />} />
                     </Routes>
                   </div>

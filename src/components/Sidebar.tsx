@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { LogOut, Home, Users, FolderKanban, ListTodo, FileText } from "lucide-react";
+import { LogOut, Home, Calendar, FileText, CalendarDays } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ const Sidebar = ({ className }: SidebarProps) => {
       )}
     >
       <div className="flex h-14 items-center border-b border-zinc-200 px-4">
-        <span className="text-lg font-semibold">Dashboard</span>
+        <span className="text-lg font-semibold">Event Planner</span>
       </div>
       <nav className="flex-1 space-y-1 p-2">
         <Link to="/">
@@ -36,31 +36,22 @@ const Sidebar = ({ className }: SidebarProps) => {
             Dashboard
           </Button>
         </Link>
-        <Link to="/clients">
+        <Link to="/events">
           <Button
-            variant={location.pathname === "/clients" ? "secondary" : "ghost"}
+            variant={location.pathname === "/events" ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-            <Users className="mr-2 h-4 w-4" />
-            Clients
+            <CalendarDays className="mr-2 h-4 w-4" />
+            Upcoming Events
           </Button>
         </Link>
-        <Link to="/projects">
+        <Link to="/calendar">
           <Button
-            variant={location.pathname === "/projects" ? "secondary" : "ghost"}
+            variant={location.pathname === "/calendar" ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-            <FolderKanban className="mr-2 h-4 w-4" />
-            Projects
-          </Button>
-        </Link>
-        <Link to="/tasks">
-          <Button
-            variant={location.pathname === "/tasks" ? "secondary" : "ghost"}
-            className="w-full justify-start"
-          >
-            <ListTodo className="mr-2 h-4 w-4" />
-            Tasks
+            <Calendar className="mr-2 h-4 w-4" />
+            Calendar
           </Button>
         </Link>
         <Link to="/documents">
@@ -69,7 +60,7 @@ const Sidebar = ({ className }: SidebarProps) => {
             className="w-full justify-start"
           >
             <FileText className="mr-2 h-4 w-4" />
-            Documents
+            Planning Documents
           </Button>
         </Link>
       </nav>
