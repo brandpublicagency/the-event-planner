@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -42,7 +42,37 @@ const Calendar = () => {
           description: data.message,
           duration: 6000,
         });
-        window.location.href = data.url;
+
+        // Open the authorization URL in a popup window
+        const popup = window.open(
+          data.url,
+          'Google Calendar Authorization',
+          'width=600,height=700,left=200,top=100'
+        );
+
+        // Handle popup closed
+        const checkPopup = setInterval(() => {
+          if (popup?.closed) {
+            clearInterval(checkPopup);
+            // Check URL parameters for success/error
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('success')) {
+              toast({
+                title: "Success",
+                description: "Calendar successfully connected!",
+                duration: 3000,
+              });
+            } else if (params.get('error')) {
+              toast({
+                title: "Error",
+                description: "Failed to connect calendar. Please try again.",
+                variant: "destructive",
+                duration: 3000,
+              });
+            }
+          }
+        }, 500);
+
       } else {
         throw new Error('No authorization URL returned');
       }
