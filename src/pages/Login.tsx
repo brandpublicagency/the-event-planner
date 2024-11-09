@@ -20,17 +20,63 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-        <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Welcome Back
-        </h2>
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          theme="light"
-          providers={[]}
-        />
+    <div className="flex min-h-screen">
+      {/* Left side - Dark section */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-between p-12">
+        <div>
+          <div className="flex items-center gap-2 text-white">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="font-medium">Done</span>
+          </div>
+        </div>
+        <div className="text-white">
+          <blockquote className="text-2xl font-light mb-4">
+            "This app has saved me countless hours of work and helped me deliver stunning results to my clients faster than ever before."
+          </blockquote>
+          <p className="text-zinc-400">Sofia Davis</p>
+        </div>
+      </div>
+
+      {/* Right side - Light section */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-sm">
+          <h1 className="text-2xl font-semibold mb-1">Welcome back</h1>
+          <p className="text-zinc-600 mb-8">Please enter your details to sign in</p>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  borderRadius: '6px',
+                  backgroundColor: '#18181B',
+                  color: 'white',
+                  border: 'none',
+                },
+                input: {
+                  borderRadius: '6px',
+                  border: '1px solid #E4E4E7',
+                  backgroundColor: 'white',
+                },
+                anchor: {
+                  color: '#18181B',
+                  textDecoration: 'none',
+                },
+              },
+              className: {
+                container: 'w-full',
+                button: '!bg-primary hover:!bg-primary/90 transition-colors',
+                input: 'focus:border-primary focus:ring-primary',
+              },
+            }}
+            theme="custom"
+            providers={[]}
+          />
+        </div>
       </div>
     </div>
   );
