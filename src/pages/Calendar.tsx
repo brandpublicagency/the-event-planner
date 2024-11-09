@@ -14,7 +14,7 @@ const Calendar = () => {
         const cal = await getCalApi();
         cal("init", {
           origin: "https://app.cal.com",
-          uiMode: "light"
+          theme: "light"
         });
       } catch (error) {
         console.error("Failed to initialize Cal:", error);
@@ -58,7 +58,7 @@ const Calendar = () => {
             config={{
               name: profile?.full_name || "",
               theme: "light",
-              hideEventTypeDetails: "false"
+              hideEventTypeDetails: false
             }}
           />
         </Card>
