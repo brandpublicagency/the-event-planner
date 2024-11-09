@@ -1,7 +1,13 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
@@ -43,15 +49,42 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         control={form.control}
         name="event_date"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col">
             <FormLabel>Event Date</FormLabel>
-            <FormControl>
-              <Input 
-                type="datetime-local" 
-                {...field}
-                className="h-12 px-4 text-base bg-white border border-zinc-200 hover:border-zinc-300 focus:border-zinc-300 focus:ring-zinc-300 transition-colors"
-              />
-            </FormControl>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {field.value ? (
+                      format(new Date(field.value), "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      const currentDate = field.value ? new Date(field.value) : new Date();
+                      date.setHours(currentDate.getHours(), currentDate.getMinutes());
+                      field.onChange(date.toISOString());
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
             <FormMessage />
           </FormItem>
         )}
