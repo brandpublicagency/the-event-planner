@@ -1,39 +1,87 @@
-import { LayoutDashboard, ListTodo, FolderKanban, Users, FileText, Settings } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { LogOut, Home, Users, FolderKanban, ListTodo, FileText } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const Sidebar = ({ className }: SidebarProps) => {
   const location = useLocation();
-  
-  const navigation = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/" },
-    { name: "Tasks", icon: ListTodo, path: "/tasks" },
-    { name: "Projects", icon: FolderKanban, path: "/projects" },
-    { name: "Clients", icon: Users, path: "/clients" },
-    { name: "Documents", icon: FileText, path: "/documents" },
-  ];
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="flex h-16 items-center border-b px-6">
-        <h1 className="text-xl font-semibold text-gray-900">ProjectHub</h1>
+    <div
+      className={cn(
+        "flex h-screen w-64 flex-col border-r border-zinc-200 bg-white",
+        className
+      )}
+    >
+      <div className="flex h-14 items-center border-b border-zinc-200 px-4">
+        <span className="text-lg font-semibold">Dashboard</span>
       </div>
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={`nav-link ${location.pathname === item.path ? "active" : ""}`}
+      <nav className="flex-1 space-y-1 p-2">
+        <Link to="/">
+          <Button
+            variant={location.pathname === "/" ? "secondary" : "ghost"}
+            className="w-full justify-start"
           >
-            <item.icon className="sidebar-icon" />
-            {item.name}
-          </Link>
-        ))}
-      </nav>
-      <div className="border-t p-4">
-        <Link to="/settings" className="nav-link">
-          <Settings className="sidebar-icon" />
-          Settings
+            <Home className="mr-2 h-4 w-4" />
+            Dashboard
+          </Button>
         </Link>
+        <Link to="/clients">
+          <Button
+            variant={location.pathname === "/clients" ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Clients
+          </Button>
+        </Link>
+        <Link to="/projects">
+          <Button
+            variant={location.pathname === "/projects" ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <FolderKanban className="mr-2 h-4 w-4" />
+            Projects
+          </Button>
+        </Link>
+        <Link to="/tasks">
+          <Button
+            variant={location.pathname === "/tasks" ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <ListTodo className="mr-2 h-4 w-4" />
+            Tasks
+          </Button>
+        </Link>
+        <Link to="/documents">
+          <Button
+            variant={location.pathname === "/documents" ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Documents
+          </Button>
+        </Link>
+      </nav>
+      <div className="border-t border-zinc-200 p-4">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-500 hover:bg-red-50 hover:text-red-600"
+          onClick={handleLogout}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
       </div>
     </div>
   );
