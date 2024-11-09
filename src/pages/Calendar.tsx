@@ -12,9 +12,8 @@ const Calendar = () => {
     (async function () {
       try {
         const cal = await getCalApi();
-        // Initialize with configuration
         cal("init", {
-          origin: "https://cal.com",
+          origin: "https://app.cal.com",
         });
       } catch (error) {
         console.error("Failed to initialize Cal:", error);
