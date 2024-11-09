@@ -14,7 +14,10 @@ interface MetricCardProps {
 
 const MetricCard = ({ title, value, icon, trend, onClick }: MetricCardProps) => {
   return (
-    <Card className="cursor-pointer transition-all hover:shadow-md" onClick={onClick}>
+    <Card 
+      className="cursor-pointer transition-all duration-300 bg-gradient-to-r hover:from-white hover:to-zinc-50" 
+      onClick={onClick}
+    >
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="text-sm text-zinc-600">{title}</div>
