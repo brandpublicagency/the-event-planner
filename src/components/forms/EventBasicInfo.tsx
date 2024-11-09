@@ -46,7 +46,11 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
           <FormItem>
             <FormLabel>Event Date</FormLabel>
             <FormControl>
-              <Input type="datetime-local" {...field} />
+              <Input 
+                type="datetime-local" 
+                {...field}
+                className="h-12 px-4 text-base bg-white border border-zinc-200 hover:border-zinc-300 focus:border-zinc-300 focus:ring-zinc-300 transition-colors"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
