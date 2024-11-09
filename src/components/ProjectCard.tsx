@@ -4,10 +4,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Only initialize OpenAI if API key is available
+const openai = import.meta.env.VITE_OPENAI_API_KEY 
+  ? new OpenAI({
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true
+    })
+  : null;
 
 interface ProjectCardProps {
   title: string;
@@ -23,6 +26,12 @@ const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick 
 
   useEffect(() => {
     const generateDescription = async () => {
+      // Only attempt to generate if OpenAI client is available
+      if (!openai) {
+        console.log('OpenAI API key not configured, using default description');
+        return;
+      }
+
       try {
         const completion = await openai.chat.completions.create({
           messages: [
@@ -35,7 +44,7 @@ const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick 
               content: `Generate a brief, engaging description for this event: ${title}. Keep it under 100 characters.`
             }
           ],
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o-mini",
         });
 
         const generatedDescription = completion.choices[0]?.message?.content;
