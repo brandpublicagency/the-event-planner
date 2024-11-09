@@ -31,6 +31,10 @@
   .nav-link.active {
     @apply bg-zinc-100 text-zinc-900;
   }
+
+  .badge-status {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
 }
 
 /* Sidebar styles */

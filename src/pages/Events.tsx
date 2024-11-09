@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Calendar as CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, parseISO, isSameMonth } from "date-fns";
 
 const Events = () => {
   const navigate = useNavigate();
@@ -27,12 +29,49 @@ const Events = () => {
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  // Group events by month
+  const groupedEvents = events?.reduce((groups: any, event) => {
+    const date = parseISO(event.event_date);
+    const monthYear = format(date, 'MMMM yyyy');
+    
+    if (!groups[monthYear]) {
+      groups[monthYear] = [];
+    }
+    
+    groups[monthYear].push(event);
+    return groups;
+  }, {});
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Confirmed':
+        return 'bg-green-100 text-green-800';
+      case 'Tentative':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Inquiry':
+        return 'bg-blue-100 text-blue-800';
+      case 'Cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Upcoming Events</h2>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Upcoming Events</h2>
+          <p className="text-muted-foreground">Manage your upcoming events and bookings</p>
+        </div>
         <Button onClick={() => navigate('/events/new')}>
           <Plus className="mr-2 h-4 w-4" />
           New Event
@@ -47,46 +86,59 @@ const Events = () => {
       </div>
 
       <ScrollArea className="h-[calc(100vh-12rem)]">
-        <div className="grid gap-4">
-          {events?.map((event) => (
-            <Card 
-              key={event.id} 
-              className="cursor-pointer hover:bg-accent"
-              onClick={() => navigate(`/events/${event.id}`)}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl font-medium">
-                  {event.name}
-                </CardTitle>
-                <span className={`px-2 py-1 rounded-full text-sm ${
-                  event.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                  event.status === 'Tentative' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {event.status}
-                </span>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Date</p>
-                    <p>{format(new Date(event.event_date), 'PPP')}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Venue</p>
-                    <p>{event.venue?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Type</p>
-                    <p>{event.event_type}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Guests</p>
-                    <p>{event.pax || 'TBC'}</p>
-                  </div>
+        <div className="space-y-8">
+          {groupedEvents && Object.entries(groupedEvents).map(([monthYear, monthEvents]: [string, any]) => (
+            <div key={monthYear} className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-semibold text-lg">{monthYear}</h3>
+                <Badge variant="secondary" className="ml-2">
+                  {monthEvents.length} events
+                </Badge>
+              </div>
+              
+              <div className="rounded-md border">
+                <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr] px-4 py-3 text-sm font-medium text-muted-foreground">
+                  <div>Event Details</div>
+                  <div>Date</div>
+                  <div>Venue</div>
+                  <div>Type</div>
+                  <div>Guests</div>
+                  <div>Status</div>
                 </div>
-              </CardContent>
-            </Card>
+                <Separator />
+                {monthEvents.map((event: any, index: number) => (
+                  <div
+                    key={event.id}
+                    className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr] items-center px-4 py-3 hover:bg-muted/50 cursor-pointer"
+                    onClick={() => navigate(`/events/${event.id}`)}
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium">{event.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {event.bride_name && event.groom_name 
+                          ? `${event.bride_name} & ${event.groom_name}`
+                          : event.client_address}
+                      </span>
+                    </div>
+                    <div>{format(parseISO(event.event_date), 'dd MMM yyyy')}</div>
+                    <div>{event.venue?.name || 'TBC'}</div>
+                    <div>
+                      <Badge variant="outline">
+                        {event.event_type}
+                      </Badge>
+                    </div>
+                    <div>{event.pax || 'TBC'}</div>
+                    <div>
+                      <Badge className={getStatusColor(event.status)}>
+                        {event.status}
+                      </Badge>
+                    </div>
+                    {index !== monthEvents.length - 1 && <Separator className="col-span-6 my-0" />}
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </ScrollArea>
