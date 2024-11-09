@@ -13,7 +13,10 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick }: ProjectCardProps) => {
   return (
-    <Card className="cursor-pointer transition-all hover:shadow-md" onClick={onClick}>
+    <Card 
+      className="cursor-pointer bg-white transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
+      onClick={onClick}
+    >
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         <p className="mt-2 text-sm text-gray-500">{description}</p>

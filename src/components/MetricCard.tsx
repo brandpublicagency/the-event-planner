@@ -15,7 +15,7 @@ interface MetricCardProps {
 const MetricCard = ({ title, value, icon, trend, onClick }: MetricCardProps) => {
   return (
     <Card 
-      className="cursor-pointer transition-all duration-300 bg-gradient-to-r hover:from-white hover:to-zinc-50" 
+      className="cursor-pointer bg-white transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
       onClick={onClick}
     >
       <CardContent className="p-6">

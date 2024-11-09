@@ -30,7 +30,6 @@ const tasks: Task[] = [
     type: "documentation",
     dueDate: "2024-02-03",
   },
-  // Add more tasks as needed
 ];
 
 const TaskList = () => {
@@ -44,7 +43,7 @@ const TaskList = () => {
   };
 
   return (
-    <Card>
+    <Card className="bg-white">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Tasks</CardTitle>
         <Badge variant="outline" className="text-xs">
@@ -56,7 +55,7 @@ const TaskList = () => {
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center px-4 py-3 hover:bg-zinc-50 cursor-pointer"
+              className="flex items-center px-4 py-3 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white cursor-pointer"
               onClick={() => handleTaskClick(task.id)}
             >
               <Checkbox className="mr-4" />

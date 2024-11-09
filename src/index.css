@@ -21,7 +21,7 @@
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all hover:border-zinc-300;
+    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white;
   }
   
   .nav-link {
