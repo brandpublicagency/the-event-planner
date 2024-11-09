@@ -16,7 +16,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
       const { data, error } = await supabase
         .from('packages')
         .select('*')
-        .order('base_price', { ascending: false });
+        .order('base_price', { ascending: true });
       
       if (error) throw error;
       return data;
@@ -107,7 +107,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                       </CardHeader>
                       <CardContent>
                         {venue.capacity && (
-                          <div className="text-sm text-muted-foreground mb-2">
+                          <div className="text-sm text-muted-foreground">
                             Up to {venue.capacity} guests
                           </div>
                         )}
