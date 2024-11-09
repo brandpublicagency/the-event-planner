@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -29,34 +29,23 @@ const Calendar = () => {
     (event) => date && format(new Date(event.event_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
 
-  const handlePreviousMonth = () => {
-    if (date) {
-      const newDate = new Date(date);
-      newDate.setMonth(date.getMonth() - 1);
-      setDate(newDate);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (date) {
-      const newDate = new Date(date);
-      newDate.setMonth(date.getMonth() + 1);
-      setDate(newDate);
-    }
-  };
-
   const handleGoogleCalendarSync = async () => {
     try {
-      // This would typically be handled by your backend
+      const response = await fetch('/api/calendar/authorize', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        throw new Error('Failed to get authorization URL');
+      }
+    } catch (error) {
       toast({
         title: "Google Calendar",
         description: "Calendar sync feature coming soon!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sync with Google Calendar",
-        variant: "destructive",
       });
     }
   };
@@ -65,32 +54,20 @@ const Calendar = () => {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Calendar</h2>
-        <Button onClick={handleGoogleCalendarSync} variant="outline">
-          <CalendarIcon className="mr-2 h-4 w-4" />
+        <Button onClick={handleGoogleCalendarSync} variant="outline" className="gap-2">
+          <CalendarIcon className="h-4 w-4" />
           Sync with Google Calendar
         </Button>
       </div>
       
       <div className="grid gap-8">
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <Button variant="outline" onClick={handlePreviousMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <h3 className="text-lg font-semibold">
-              {date ? format(date, 'MMMM yyyy') : ''}
-            </h3>
-            <Button variant="outline" onClick={handleNextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          
           <div className="flex justify-center">
             <CalendarComponent
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="rounded-md border-none"
+              className="rounded-md border-none w-full max-w-3xl"
               disabled={(date) => date > new Date(2025, 12, 31) || date < new Date(2000, 0, 1)}
             />
           </div>
