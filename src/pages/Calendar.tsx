@@ -1,30 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
-import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import Cal, { getCalApi } from "@calcom/embed-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { useState } from "react";
 
 const Calendar = () => {
-  const { toast } = useToast();
-
-  useEffect(() => {
-    (async function () {
-      try {
-        const cal = await getCalApi();
-        cal("init", {
-          origin: "https://app.cal.com",
-        });
-      } catch (error) {
-        console.error("Failed to initialize Cal:", error);
-        toast({
-          title: "Calendar Error",
-          description: "Failed to load the calendar. Please try refreshing the page.",
-          variant: "destructive",
-        });
-      }
-    })();
-  }, [toast]);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -51,14 +33,20 @@ const Calendar = () => {
       
       <div className="grid gap-8">
         <Card className="p-6">
-          <Cal
-            calLink={profile?.cal_username || "info@warmkaroo.com"}
-            style={{ width: "100%", height: "800px", overflow: "hidden" }}
-            config={{
-              name: profile?.full_name || "",
-              hideEventTypeDetails: "false"
-            }}
-          />
+          <div className="flex items-center space-x-4">
+            <CalendarIcon className="h-6 w-6" />
+            <h3 className="text-lg font-medium">
+              {profile?.full_name || "Your"} Calendar
+            </h3>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <CalendarComponent
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              className="rounded-md border"
+            />
+          </div>
         </Card>
       </div>
     </div>
