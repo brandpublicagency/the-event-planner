@@ -14,6 +14,7 @@ const Calendar = () => {
         const cal = await getCalApi();
         cal("init", {
           origin: "https://app.cal.com",
+          theme: "light",
         });
       } catch (error) {
         console.error("Failed to initialize Cal:", error);
@@ -52,13 +53,12 @@ const Calendar = () => {
       <div className="grid gap-8">
         <Card className="p-6">
           <Cal
-            calLink="info@warmkaroo.com"
+            calLink={profile?.cal_username || "info@warmkaroo.com"}
             style={{ width: "100%", height: "800px", overflow: "hidden" }}
             config={{
               name: profile?.full_name || "",
-              email: "",
               theme: "light",
-              hideEventTypeDetails: "false"
+              hideEventTypeDetails: false
             }}
           />
         </Card>
