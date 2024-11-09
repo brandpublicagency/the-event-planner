@@ -15,7 +15,6 @@ const Calendar = () => {
         // Initialize with configuration
         cal("init", {
           origin: "https://cal.com",
-          uiBaseUrl: "https://app.cal.com",
         });
       } catch (error) {
         console.error("Failed to initialize Cal:", error);
