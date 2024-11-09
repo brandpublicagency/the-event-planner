@@ -31,21 +31,21 @@ const Calendar = () => {
 
   const handleGoogleCalendarSync = async () => {
     try {
-      const response = await fetch('/api/calendar/authorize', {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const { data, error } = await supabase.functions.invoke('calendar-auth');
       
-      if (response.ok) {
-        const { url } = await response.json();
-        window.location.href = url;
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
       } else {
-        throw new Error('Failed to get authorization URL');
+        throw new Error('No authorization URL returned');
       }
     } catch (error) {
+      console.error('Calendar sync error:', error);
       toast({
-        title: "Google Calendar",
-        description: "Calendar sync feature coming soon!",
+        title: "Error",
+        description: "Failed to initiate calendar sync. Please try again.",
+        variant: "destructive"
       });
     }
   };
