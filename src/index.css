@@ -6,29 +6,29 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
     --radius: 0.5rem;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
   }
 }
 
 @layer components {
   .sidebar-icon {
-    @apply h-5 w-5 text-gray-500 transition-colors duration-200;
+    @apply h-4 w-4 text-zinc-500 transition-colors duration-200;
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-6 shadow-sm transition-all hover:shadow-md;
+    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all hover:border-zinc-300;
   }
   
   .nav-link {
-    @apply flex items-center gap-3 rounded-md px-3 py-2 text-gray-700 transition-colors hover:bg-gray-100 hover:text-primary;
+    @apply flex items-center gap-2.5 rounded-md px-3 py-2 text-zinc-600 transition-colors hover:bg-zinc-100 text-sm;
   }
   
   .nav-link.active {
-    @apply bg-primary-50 text-primary;
+    @apply bg-zinc-100 text-zinc-900;
   }
 }
