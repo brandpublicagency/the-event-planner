@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Search, Calendar as CalendarIcon, Edit, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,11 +9,26 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const Events = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -36,6 +51,30 @@ const Events = () => {
       return data;
     },
   });
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+      
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Group events by month
   const groupedEvents = events?.reduce((groups: any, event) => {
@@ -65,6 +104,23 @@ const Events = () => {
     }
   };
 
+  const filteredEvents = Object.entries(groupedEvents || {}).reduce(
+    (acc: any, [monthYear, monthEvents]: [string, any]) => {
+      const filteredMonthEvents = (monthEvents as any[]).filter(
+        (event) =>
+          event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.bride_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.groom_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.client_address?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      if (filteredMonthEvents.length > 0) {
+        acc[monthYear] = filteredMonthEvents;
+      }
+      return acc;
+    },
+    {}
+  );
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -89,13 +145,18 @@ const Events = () => {
       <div className="flex items-center space-x-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search events..." className="pl-8" />
+          <Input 
+            placeholder="Search events..." 
+            className="pl-8" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
       </div>
 
       <ScrollArea className="h-[calc(100vh-12rem)]">
         <div className="space-y-8">
-          {groupedEvents && Object.entries(groupedEvents).map(([monthYear, monthEvents]: [string, any]) => (
+          {Object.entries(filteredEvents).map(([monthYear, monthEvents]: [string, any]) => (
             <div key={monthYear} className="space-y-4">
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5 text-muted-foreground" />
@@ -106,20 +167,20 @@ const Events = () => {
               </div>
               
               <div className="rounded-md border">
-                <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr] px-4 py-3 text-sm font-medium text-muted-foreground">
+                <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr,0.5fr] px-4 py-3 text-sm font-medium text-muted-foreground">
                   <div>Event Details</div>
                   <div>Date</div>
                   <div>Venue</div>
                   <div>Type</div>
                   <div>Guests</div>
                   <div>Status</div>
+                  <div>Actions</div>
                 </div>
                 <Separator />
                 {monthEvents.map((event: any, index: number) => (
                   <div
                     key={event.id}
-                    className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr] items-center px-4 py-3 hover:bg-muted/50 cursor-pointer"
-                    onClick={() => navigate(`/events/${event.id}`)}
+                    className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,1fr,0.5fr] items-center px-4 py-3 hover:bg-muted/50"
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{event.name}</span>
@@ -142,7 +203,44 @@ const Events = () => {
                         {event.status}
                       </Badge>
                     </div>
-                    {index !== monthEvents.length - 1 && <Separator className="col-span-6 my-0" />}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(`/events/${event.id}/edit`)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this event? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(event.id)}
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                    {index !== monthEvents.length - 1 && <Separator className="col-span-7 my-0" />}
                   </div>
                 ))}
               </div>
