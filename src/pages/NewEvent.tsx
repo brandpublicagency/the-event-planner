@@ -11,7 +11,6 @@ import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
 import { ArrowLeft } from "lucide-react";
-import { useEffect } from "react";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -40,14 +39,15 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
+      // If package_id is provided, try to get package details
       if (data.package_id) {
-        const { data: packageData } = await supabase
+        const { data: packageData, error: packageError } = await supabase
           .from('packages')
           .select('*')
           .eq('id', data.package_id)
           .single();
 
-        if (packageData) {
+        if (!packageError && packageData) {
           data.base_price = packageData.base_price;
           data.discount_percentage = packageData.discount_percentage;
         }
@@ -68,10 +68,11 @@ const NewEvent = () => {
       });
 
       navigate('/events');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating event:', error);
       toast({
         title: "Error",
-        description: "Failed to create event",
+        description: error.message || "Failed to create event",
         variant: "destructive",
       });
     }

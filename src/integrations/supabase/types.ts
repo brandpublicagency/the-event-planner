@@ -15,6 +15,10 @@ export type Database = {
           bride_mobile: string | null
           bride_name: string | null
           client_address: string | null
+          company_address: string | null
+          company_name: string | null
+          company_vat: string | null
+          contact_person: string | null
           created_at: string
           created_by: string | null
           event_date: string
@@ -33,6 +37,10 @@ export type Database = {
           bride_mobile?: string | null
           bride_name?: string | null
           client_address?: string | null
+          company_address?: string | null
+          company_name?: string | null
+          company_vat?: string | null
+          contact_person?: string | null
           created_at?: string
           created_by?: string | null
           event_date: string
@@ -51,6 +59,10 @@ export type Database = {
           bride_mobile?: string | null
           bride_name?: string | null
           client_address?: string | null
+          company_address?: string | null
+          company_name?: string | null
+          company_vat?: string | null
+          contact_person?: string | null
           created_at?: string
           created_by?: string | null
           event_date?: string
