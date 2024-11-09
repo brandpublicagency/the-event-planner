@@ -1,6 +1,5 @@
 import { Target, ListTodo, Users, Rocket } from "lucide-react";
 import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
 import MetricCard from "@/components/MetricCard";
 import TaskList from "@/components/TaskList";
 import ProjectCard from "@/components/ProjectCard";
@@ -25,7 +24,6 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
       <div className="flex-1 overflow-auto">
         <Header />
         <main className="p-6">
