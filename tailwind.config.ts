@@ -72,12 +72,13 @@ export default {
       },
       keyframes: {
         shine: {
-          "0%": { transform: "translate(-100%, -100%)" },
-          "100%": { transform: "translate(100%, 100%)" },
+          "0%": { transform: "translate(-100%, -100%)", opacity: "0" },
+          "50%": { opacity: "0.2" },
+          "100%": { transform: "translate(100%, 100%)", opacity: "0" },
         },
       },
       animation: {
-        shine: "shine 2.5s ease-in-out infinite",
+        shine: "shine 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
       },
     },
   },
