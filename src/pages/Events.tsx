@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO, isSameMonth } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 const Events = () => {
   const navigate = useNavigate();
@@ -19,8 +19,16 @@ const Events = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          *,
-          venue:venues(name)
+          id,
+          name,
+          pax,
+          event_date,
+          event_type,
+          status,
+          venue:venues(name),
+          bride_name,
+          groom_name,
+          client_address
         `)
         .order('event_date', { ascending: true });
       

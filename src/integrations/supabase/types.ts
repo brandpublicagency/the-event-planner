@@ -28,6 +28,7 @@ export type Database = {
           groom_name: string | null
           id: string
           name: string
+          package_id: string | null
           pax: number | null
           status: Database["public"]["Enums"]["event_status"] | null
           venue_id: string | null
@@ -50,6 +51,7 @@ export type Database = {
           groom_name?: string | null
           id?: string
           name: string
+          package_id?: string | null
           pax?: number | null
           status?: Database["public"]["Enums"]["event_status"] | null
           venue_id?: string | null
@@ -72,11 +74,19 @@ export type Database = {
           groom_name?: string | null
           id?: string
           name?: string
+          package_id?: string | null
           pax?: number | null
           status?: Database["public"]["Enums"]["event_status"] | null
           venue_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "events_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_venue_id_fkey"
             columns: ["venue_id"]

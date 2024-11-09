@@ -10,7 +10,7 @@ interface PackageSelectionProps {
 }
 
 const PackageSelection = ({ form }: PackageSelectionProps) => {
-  const { data: packages } = useQuery({
+  const { data: packages, isError: isPackagesError } = useQuery({
     queryKey: ['packages'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -19,11 +19,11 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
         .order('base_price', { ascending: true });
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  const { data: venues } = useQuery({
+  const { data: venues, isError: isVenuesError } = useQuery({
     queryKey: ['venues'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +32,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
         .order('name');
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -42,6 +42,10 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
       currency: 'ZAR'
     }).format(price);
   };
+
+  if (isPackagesError || isVenuesError) {
+    return <div className="text-red-500">Error loading packages or venues</div>;
+  }
 
   return (
     <FormField
