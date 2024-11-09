@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 const PROJECT_URL = 'https://run.gptengineer.app'
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/calendar-callback`
 
 const corsHeaders = {
