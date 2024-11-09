@@ -70,6 +70,14 @@ export default {
         lg: ['1rem', '1.75rem'],
         xl: ['1.125rem', '1.75rem'],
       },
+      keyframes: {
+        shine: {
+          "100%": { transform: "translateX(200%)" },
+        },
+      },
+      animation: {
+        shine: "shine 1.5s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
