@@ -9,6 +9,71 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      events: {
+        Row: {
+          bride_email: string | null
+          bride_mobile: string | null
+          bride_name: string | null
+          client_address: string | null
+          created_at: string
+          created_by: string | null
+          event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          groom_email: string | null
+          groom_mobile: string | null
+          groom_name: string | null
+          id: string
+          name: string
+          pax: number | null
+          status: Database["public"]["Enums"]["event_status"] | null
+          venue_id: string | null
+        }
+        Insert: {
+          bride_email?: string | null
+          bride_mobile?: string | null
+          bride_name?: string | null
+          client_address?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          groom_email?: string | null
+          groom_mobile?: string | null
+          groom_name?: string | null
+          id?: string
+          name: string
+          pax?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          venue_id?: string | null
+        }
+        Update: {
+          bride_email?: string | null
+          bride_mobile?: string | null
+          bride_name?: string | null
+          client_address?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          groom_email?: string | null
+          groom_mobile?: string | null
+          groom_name?: string | null
+          id?: string
+          name?: string
+          pax?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          venue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -30,6 +95,30 @@ export type Database = {
         }
         Relationships: []
       }
+      venues: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -38,7 +127,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      event_status:
+        | "Inquiry"
+        | "Tentative"
+        | "Confirmed"
+        | "Completed"
+        | "Cancelled"
+      event_type:
+        | "Wedding"
+        | "Corporate Event"
+        | "Celebration"
+        | "Conference"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
