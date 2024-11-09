@@ -16,11 +16,9 @@ serve(async (req) => {
 
   try {
     console.log('Starting Google Calendar authorization flow')
-    console.log('Client ID:', GOOGLE_OAUTH_CLIENT_ID)
-    console.log('Redirect URI:', REDIRECT_URI)
     
-    if (!GOOGLE_OAUTH_CLIENT_ID) {
-      throw new Error('GOOGLE_OAUTH_CLIENT_ID is not set')
+    if (!GOOGLE_OAUTH_CLIENT_ID || !GOOGLE_OAUTH_CLIENT_SECRET) {
+      throw new Error('Missing OAuth configuration')
     }
 
     const scopes = [
@@ -34,12 +32,16 @@ serve(async (req) => {
       `&response_type=code` +
       `&scope=${encodeURIComponent(scopes.join(' '))}` +
       `&access_type=offline` +
-      `&prompt=consent`
+      `&prompt=consent` +
+      `&include_granted_scopes=true`
 
     console.log('Generated authorization URL:', url)
 
     return new Response(
-      JSON.stringify({ url }),
+      JSON.stringify({ 
+        url,
+        message: 'Note: During development, only authorized test users can access this application. Please ensure your Google account is added as a test user in the Google Cloud Console.'
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
@@ -48,7 +50,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in calendar-auth:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'If you are a developer, please ensure OAuth credentials are properly configured and test users are added in Google Cloud Console.'
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500 

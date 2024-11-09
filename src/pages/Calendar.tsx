@@ -36,6 +36,12 @@ const Calendar = () => {
       if (error) throw error;
       
       if (data?.url) {
+        // Show the development message to users
+        toast({
+          title: "Development Mode",
+          description: data.message,
+          duration: 6000,
+        });
         window.location.href = data.url;
       } else {
         throw new Error('No authorization URL returned');
@@ -44,8 +50,9 @@ const Calendar = () => {
       console.error('Calendar sync error:', error);
       toast({
         title: "Error",
-        description: "Failed to initiate calendar sync. Please try again.",
-        variant: "destructive"
+        description: error.message || "Failed to initiate calendar sync. Please try again.",
+        variant: "destructive",
+        duration: 6000,
       });
     }
   };
