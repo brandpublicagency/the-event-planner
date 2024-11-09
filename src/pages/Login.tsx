@@ -30,14 +30,14 @@ const Login = () => {
               <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="font-medium">Done</span>
+            <span className="font-medium">Event Planner</span>
           </div>
         </div>
         <div className="text-white">
           <blockquote className="text-2xl font-light mb-4">
-            "This app has saved me countless hours of work and helped me deliver stunning results to my clients faster than ever before."
+            "This app has revolutionized how we plan and manage our events. It's intuitive and powerful."
           </blockquote>
-          <p className="text-zinc-400">Sofia Davis</p>
+          <p className="text-zinc-400">Sarah Johnson</p>
         </div>
       </div>
 
