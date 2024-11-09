@@ -8,9 +8,7 @@ const Calendar = () => {
     // Initialize Cal.com embed
     (async function () {
       const Cal = (await import("@calcom/embed-react")).default;
-      Cal("init", {
-        origin: "https://cal.com",
-      });
+      Cal("init");
     })();
   }, []);
 
