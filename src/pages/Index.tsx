@@ -3,8 +3,19 @@ import Header from "@/components/Header";
 import MetricCard from "@/components/MetricCard";
 import TaskList from "@/components/TaskList";
 import ProjectCard from "@/components/ProjectCard";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const { toast } = useToast();
+
+  const handleMetricClick = (metric: string) => {
+    toast({
+      title: `${metric} clicked`,
+      description: `You clicked on the ${metric} metric.`,
+    });
+  };
+
   const projects = [
     {
       title: "Website Redesign",
@@ -35,36 +46,50 @@ const Index = () => {
               value={12}
               icon={<Target className="h-5 w-5" />}
               trend={{ value: 8, isUpward: true }}
+              onClick={() => handleMetricClick("Total Projects")}
             />
             <MetricCard
               title="Active Tasks"
               value={67}
               icon={<ListTodo className="h-5 w-5" />}
               trend={{ value: 12, isUpward: true }}
+              onClick={() => handleMetricClick("Active Tasks")}
             />
             <MetricCard
               title="Team Members"
               value={24}
               icon={<Users className="h-5 w-5" />}
+              onClick={() => handleMetricClick("Team Members")}
             />
             <MetricCard
               title="Completed Projects"
               value={128}
               icon={<Rocket className="h-5 w-5" />}
               trend={{ value: 4, isUpward: true }}
+              onClick={() => handleMetricClick("Completed Projects")}
             />
           </div>
 
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Tasks</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Tasks</h2>
+                <Button variant="outline" size="sm" onClick={() => toast({ title: "View All Tasks", description: "Navigating to all tasks page." })}>
+                  View All
+                </Button>
+              </div>
               <TaskList />
             </div>
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Active Projects</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Active Projects</h2>
+                <Button variant="outline" size="sm" onClick={() => toast({ title: "View All Projects", description: "Navigating to all projects page." })}>
+                  View All
+                </Button>
+              </div>
               <div className="space-y-4">
                 {projects.map((project) => (
-                  <ProjectCard key={project.title} {...project} />
+                  <ProjectCard key={project.title} {...project} onClick={() => toast({ title: `Project: ${project.title}`, description: "Opening project details." })} />
                 ))}
               </div>
             </div>
