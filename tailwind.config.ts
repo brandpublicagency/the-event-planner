@@ -72,11 +72,12 @@ export default {
       },
       keyframes: {
         shine: {
-          "100%": { transform: "translateX(200%)" },
+          "0%": { transform: "translate(-100%, -100%)" },
+          "100%": { transform: "translate(100%, 100%)" },
         },
       },
       animation: {
-        shine: "shine 1.5s ease-in-out infinite",
+        shine: "shine 2.5s ease-in-out infinite",
       },
     },
   },
