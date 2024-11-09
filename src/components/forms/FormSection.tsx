@@ -10,7 +10,7 @@ const FormSection = ({ title, description, children }: FormSectionProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-zinc-900">{title}</h3>
+        <h3 className="text-lg font-medium text-zinc-900">{title}</h3>
         {description && (
           <p className="text-sm text-zinc-500">{description}</p>
         )}
