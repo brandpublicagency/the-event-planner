@@ -5,9 +5,11 @@ import TaskList from "@/components/TaskList";
 import ProjectCard from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleMetricClick = (metric: string) => {
     toast({
@@ -74,7 +76,11 @@ const Index = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Recent Tasks</h2>
-                <Button variant="outline" size="sm" onClick={() => toast({ title: "View All Tasks", description: "Navigating to all tasks page." })}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate("/tasks")}
+                >
                   View All
                 </Button>
               </div>
@@ -83,7 +89,11 @@ const Index = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Active Projects</h2>
-                <Button variant="outline" size="sm" onClick={() => toast({ title: "View All Projects", description: "Navigating to all projects page." })}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate("/projects")}
+                >
                   View All
                 </Button>
               </div>
