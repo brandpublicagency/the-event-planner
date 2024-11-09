@@ -24,12 +24,12 @@ serve(async (req) => {
 
     if (error) {
       console.error('OAuth error:', error)
-      return Response.redirect(`${PROJECT_URL}/calendar?error=${encodeURIComponent(error)}`)
+      return Response.redirect(`${PROJECT_URL}/#/calendar?error=${encodeURIComponent(error)}`)
     }
 
     if (!code) {
       console.error('No code provided in callback')
-      return Response.redirect(`${PROJECT_URL}/calendar?error=no_code`)
+      return Response.redirect(`${PROJECT_URL}/#/calendar?error=no_code`)
     }
 
     console.log('Exchanging code for tokens')
@@ -51,14 +51,14 @@ serve(async (req) => {
     
     if (tokens.error) {
       console.error('Token exchange error:', tokens.error)
-      return Response.redirect(`${PROJECT_URL}/calendar?error=${encodeURIComponent(tokens.error)}`)
+      return Response.redirect(`${PROJECT_URL}/#/calendar?error=${encodeURIComponent(tokens.error)}`)
     }
 
     console.log('Successfully obtained tokens')
     
-    return Response.redirect(`${PROJECT_URL}/calendar?success=true`)
+    return Response.redirect(`${PROJECT_URL}/#/calendar?success=true`)
   } catch (error) {
     console.error('Error in calendar-callback:', error)
-    return Response.redirect(`${PROJECT_URL}/calendar?error=internal_error`)
+    return Response.redirect(`${PROJECT_URL}/#/calendar?error=internal_error`)
   }
 })
