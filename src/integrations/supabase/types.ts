@@ -98,6 +98,57 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_availability: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          end_time: string
+          event_id: string | null
+          id: string
+          notes: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["availability_type"] | null
+          venue_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          end_time: string
+          event_id?: string | null
+          id?: string
+          notes?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["availability_type"] | null
+          venue_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          end_time?: string
+          event_id?: string | null
+          id?: string
+          notes?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["availability_type"] | null
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_availability_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venue_availability_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       venues: {
         Row: {
           capacity: number | null
@@ -127,9 +178,345 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      gbt_bit_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_bool_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_bool_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_bpchar_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_bytea_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_cash_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_cash_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_date_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_date_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_enum_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_enum_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_float4_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_float4_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_float8_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_float8_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_inet_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int2_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int2_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int4_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int4_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int8_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_int8_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_intv_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_intv_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_intv_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_macad_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_macad_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_macad8_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_macad8_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_numeric_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_oid_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_oid_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_text_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_time_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_time_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_timetz_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_ts_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_ts_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_tstz_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_uuid_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_uuid_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_var_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbt_var_fetch: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey_var_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey_var_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey16_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey16_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey2_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey2_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey32_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey32_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey4_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey4_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey8_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gbtreekey8_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
     }
     Enums: {
+      availability_type: "available" | "tentative" | "booked" | "blocked"
       event_status:
         | "Inquiry"
         | "Tentative"
