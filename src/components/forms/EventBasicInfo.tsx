@@ -16,9 +16,9 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Event Name</FormLabel>
+            <FormLabel>Event Name</FormLabel>
             <FormControl>
-              <Input placeholder="Michelle + Bertus Wedding" {...field} className="bg-white border-zinc-200" />
+              <Input placeholder="Michelle + Bertus Wedding" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -30,9 +30,9 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="pax"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Guest Count</FormLabel>
+            <FormLabel>Guest Count</FormLabel>
             <FormControl>
-              <Input type="number" {...field} className="bg-white border-zinc-200" />
+              <Input type="number" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -44,9 +44,9 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="event_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Event Date</FormLabel>
+            <FormLabel>Event Date</FormLabel>
             <FormControl>
-              <Input type="datetime-local" {...field} className="bg-white border-zinc-200" />
+              <Input type="datetime-local" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -58,10 +58,10 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="event_type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Event Type</FormLabel>
+            <FormLabel>Event Type</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger className="bg-white border-zinc-200">
+                <SelectTrigger>
                   <SelectValue placeholder="Select event type" />
                 </SelectTrigger>
               </FormControl>
@@ -83,10 +83,10 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="venue_id"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Venue</FormLabel>
+            <FormLabel>Venue</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger className="bg-white border-zinc-200">
+                <SelectTrigger>
                   <SelectValue placeholder="Select venue" />
                 </SelectTrigger>
               </FormControl>
@@ -108,10 +108,10 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         name="status"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Status</FormLabel>
+            <FormLabel>Status</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger className="bg-white border-zinc-200">
+                <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
               </FormControl>

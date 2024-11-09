@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
-import ClientDetails from "@/components/forms/ClientDetails";
+import BrideDetails from "@/components/forms/BrideDetails";
+import GroomDetails from "@/components/forms/GroomDetails";
 import { ArrowLeft } from "lucide-react";
 
 const NewEvent = () => {
@@ -82,10 +83,17 @@ const NewEvent = () => {
             </FormSection>
 
             <FormSection 
-              title="Client Details" 
-              description="Enter the contact information for the client."
+              title="Bride Details" 
+              description="Enter the bride's contact information."
             >
-              <ClientDetails form={form} />
+              <BrideDetails form={form} />
+            </FormSection>
+
+            <FormSection 
+              title="Groom Details" 
+              description="Enter the groom's contact information."
+            >
+              <GroomDetails form={form} />
             </FormSection>
 
             <div className="flex justify-end space-x-4">
