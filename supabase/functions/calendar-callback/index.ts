@@ -4,6 +4,7 @@ const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/calendar-callback`
+const DEFAULT_RETURN_URL = 'https://run.gptengineer.app/#/calendar'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,16 +21,19 @@ serve(async (req) => {
     const url = new URL(req.url)
     const code = url.searchParams.get('code')
     const error = url.searchParams.get('error')
-    const state = url.searchParams.get('state') // Get the state parameter
+    const state = url.searchParams.get('state')
+    const returnUrl = state || DEFAULT_RETURN_URL
+
+    console.log('Return URL from state:', returnUrl)
 
     if (error) {
       console.error('OAuth error:', error)
-      return Response.redirect(`${state || 'https://run.gptengineer.app/#/calendar'}?error=${encodeURIComponent(error)}`)
+      return Response.redirect(`${returnUrl}?error=${encodeURIComponent(error)}`)
     }
 
     if (!code) {
       console.error('No code provided in callback')
-      return Response.redirect(`${state || 'https://run.gptengineer.app/#/calendar'}?error=no_code`)
+      return Response.redirect(`${returnUrl}?error=no_code`)
     }
 
     console.log('Exchanging code for tokens')
@@ -51,14 +55,15 @@ serve(async (req) => {
     
     if (tokens.error) {
       console.error('Token exchange error:', tokens.error)
-      return Response.redirect(`${state || 'https://run.gptengineer.app/#/calendar'}?error=${encodeURIComponent(tokens.error)}`)
+      return Response.redirect(`${returnUrl}?error=${encodeURIComponent(tokens.error)}`)
     }
 
     console.log('Successfully obtained tokens')
+    console.log('Redirecting to:', `${returnUrl}?success=true`)
     
-    return Response.redirect(`${state || 'https://run.gptengineer.app/#/calendar'}?success=true`)
+    return Response.redirect(`${returnUrl}?success=true`)
   } catch (error) {
     console.error('Error in calendar-callback:', error)
-    return Response.redirect('https://run.gptengineer.app/#/calendar?error=internal_error')
+    return Response.redirect(`${DEFAULT_RETURN_URL}?error=internal_error`)
   }
 })

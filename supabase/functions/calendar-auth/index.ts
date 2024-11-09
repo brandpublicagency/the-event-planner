@@ -2,9 +2,9 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET')
-const PROJECT_URL = 'https://run.gptengineer.app'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/calendar-callback`
+const APP_URL = 'https://run.gptengineer.app'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +28,8 @@ serve(async (req) => {
       'https://www.googleapis.com/auth/calendar.events'
     ]
 
+    const returnUrl = `${APP_URL}/#/calendar`
+    
     const url = `https://accounts.google.com/o/oauth2/v2/auth` +
       `?client_id=${encodeURIComponent(GOOGLE_OAUTH_CLIENT_ID)}` +
       `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
@@ -36,10 +38,10 @@ serve(async (req) => {
       `&access_type=offline` +
       `&prompt=consent` +
       `&include_granted_scopes=true` +
-      `&state=${encodeURIComponent(PROJECT_URL + '/#/calendar')}`  // Add state parameter for secure redirect
+      `&state=${encodeURIComponent(returnUrl)}`
 
     console.log('Generated authorization URL:', url)
-    console.log('Redirect URI:', REDIRECT_URI)
+    console.log('Return URL:', returnUrl)
 
     return new Response(
       JSON.stringify({ 
