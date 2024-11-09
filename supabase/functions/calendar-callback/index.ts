@@ -3,6 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 const REDIRECT_URI = `${Deno.env.get('SUPABASE_URL')}/functions/v1/calendar-callback`
+const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,16 +20,16 @@ serve(async (req) => {
     console.log('Handling OAuth callback')
     const url = new URL(req.url)
     const code = url.searchParams.get('code')
+    const error = url.searchParams.get('error')
+
+    if (error) {
+      console.error('OAuth error:', error)
+      return Response.redirect(`${FRONTEND_URL}/calendar?error=${encodeURIComponent(error)}`)
+    }
 
     if (!code) {
       console.error('No code provided in callback')
-      return new Response(
-        JSON.stringify({ error: 'No code provided' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400 
-        }
-      )
+      return Response.redirect(`${FRONTEND_URL}/calendar?error=no_code`)
     }
 
     console.log('Exchanging code for tokens')
@@ -47,27 +48,18 @@ serve(async (req) => {
     })
 
     const tokens = await tokenResponse.json()
-    console.log('Successfully obtained tokens')
+    
+    if (tokens.error) {
+      console.error('Token exchange error:', tokens.error)
+      return Response.redirect(`${FRONTEND_URL}/calendar?error=${encodeURIComponent(tokens.error)}`)
+    }
 
+    console.log('Successfully obtained tokens')
+    
     // Redirect back to the frontend with a success message
-    return new Response(
-      null,
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Location': '/',
-        },
-        status: 302
-      }
-    )
+    return Response.redirect(`${FRONTEND_URL}/calendar?success=true`)
   } catch (error) {
     console.error('Error in calendar-callback:', error)
-    return new Response(
-      JSON.stringify({ error: 'Failed to exchange code for tokens' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
-    )
+    return Response.redirect(`${FRONTEND_URL}/calendar?error=internal_error`)
   }
 })
