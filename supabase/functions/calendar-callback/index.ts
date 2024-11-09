@@ -1,22 +1,37 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
-const REDIRECT_URI = `${Deno.env.get('SUPABASE_URL')}/functions/calendar-callback`
+const REDIRECT_URI = `${Deno.env.get('SUPABASE_URL')}/functions/v1/calendar-callback`
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 serve(async (req) => {
-  const url = new URL(req.url)
-  const code = url.searchParams.get('code')
-
-  if (!code) {
-    return new Response(
-      JSON.stringify({ error: 'No code provided' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    )
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    console.log('Handling OAuth callback')
+    const url = new URL(req.url)
+    const code = url.searchParams.get('code')
+
+    if (!code) {
+      console.error('No code provided in callback')
+      return new Response(
+        JSON.stringify({ error: 'No code provided' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
+    }
+
+    console.log('Exchanging code for tokens')
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -32,24 +47,27 @@ serve(async (req) => {
     })
 
     const tokens = await tokenResponse.json()
+    console.log('Successfully obtained tokens')
 
-    // Here you would typically store the tokens securely in your database
-    // associated with the user's account
-
+    // Redirect back to the frontend with a success message
     return new Response(
-      JSON.stringify({ message: 'Calendar connected successfully!' }),
+      null,
       { 
         headers: { 
-          'Content-Type': 'application/json',
-          'Location': '/' // Redirect to your frontend
+          ...corsHeaders,
+          'Location': '/',
         },
         status: 302
       }
     )
   } catch (error) {
+    console.error('Error in calendar-callback:', error)
     return new Response(
       JSON.stringify({ error: 'Failed to exchange code for tokens' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500 
+      }
     )
   }
 })
