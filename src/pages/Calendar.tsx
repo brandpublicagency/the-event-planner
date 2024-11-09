@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { format, addMonths } from "date-fns";
+import { format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -57,90 +57,84 @@ const Calendar = () => {
       <h2 className="text-3xl font-bold tracking-tight">Calendar</h2>
       
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardContent className="p-4">
-            <CalendarComponent
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="rounded-md border"
-            />
-          </CardContent>
-        </Card>
+        <div className="bg-white p-6 rounded-lg">
+          <CalendarComponent
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md"
+          />
+        </div>
 
-        <Card>
-          <CardContent className="p-4 space-y-4">
-            <div className="flex gap-4">
-              <Select onValueChange={handleMonthChange} defaultValue={months[new Date().getMonth()]}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((month) => (
-                    <SelectItem key={month} value={month}>
-                      {month}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="bg-white p-6 rounded-lg space-y-4">
+          <div className="flex gap-4">
+            <Select onValueChange={handleMonthChange} defaultValue={months[new Date().getMonth()]}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select month" />
+              </SelectTrigger>
+              <SelectContent>
+                {months.map((month) => (
+                  <SelectItem key={month} value={month}>
+                    {month}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Select onValueChange={handleYearChange} defaultValue={new Date().getFullYear().toString()}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select onValueChange={handleYearChange} defaultValue={new Date().getFullYear().toString()}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <CalendarComponent
-              mode="single"
-              selected={futureDate}
-              onSelect={setFutureDate}
-              className="rounded-md border"
-              defaultMonth={futureDate}
-            />
-          </CardContent>
-        </Card>
+          <CalendarComponent
+            mode="single"
+            selected={futureDate}
+            onSelect={setFutureDate}
+            className="rounded-md"
+            defaultMonth={futureDate}
+          />
+        </div>
       </div>
 
-      <Card className="mt-4">
-        <CardContent className="p-4">
-          <h3 className="text-lg font-semibold mb-4">
-            Events for {date ? format(date, 'MMMM d, yyyy') : 'Selected Date'}
-          </h3>
-          <div className="space-y-4">
-            {selectedDateEvents?.map((event) => (
-              <div
-                key={event.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <h4 className="font-medium">{event.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(event.event_date), 'h:mm a')}
-                  </p>
-                </div>
-                <span className={`px-2 py-1 rounded-full text-sm ${
-                  event.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                  event.status === 'Tentative' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {event.status}
-                </span>
+      <div className="bg-white p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">
+          Events for {date ? format(date, 'MMMM d, yyyy') : 'Selected Date'}
+        </h3>
+        <div className="space-y-4">
+          {selectedDateEvents?.map((event) => (
+            <div
+              key={event.id}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
+              <div>
+                <h4 className="font-medium">{event.name}</h4>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(event.event_date), 'h:mm a')}
+                </p>
               </div>
-            ))}
-            {(!selectedDateEvents || selectedDateEvents.length === 0) && (
-              <p className="text-muted-foreground">No events scheduled for this date.</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <span className={`px-2 py-1 rounded-full text-sm ${
+                event.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                event.status === 'Tentative' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {event.status}
+              </span>
+            </div>
+          ))}
+          {(!selectedDateEvents || selectedDateEvents.length === 0) && (
+            <p className="text-muted-foreground">No events scheduled for this date.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
