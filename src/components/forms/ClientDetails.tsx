@@ -14,9 +14,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="bride_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bride Name</FormLabel>
+            <FormLabel className="text-zinc-600">Bride Name</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white" />
+              <Input {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -28,9 +28,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="bride_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bride Email</FormLabel>
+            <FormLabel className="text-zinc-600">Bride Email</FormLabel>
             <FormControl>
-              <Input type="email" {...field} className="bg-white" />
+              <Input type="email" {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -42,9 +42,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="bride_mobile"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bride Mobile</FormLabel>
+            <FormLabel className="text-zinc-600">Bride Mobile</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white" />
+              <Input {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -56,9 +56,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="groom_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Groom Name</FormLabel>
+            <FormLabel className="text-zinc-600">Groom Name</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white" />
+              <Input {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -70,9 +70,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="groom_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Groom Email</FormLabel>
+            <FormLabel className="text-zinc-600">Groom Email</FormLabel>
             <FormControl>
-              <Input type="email" {...field} className="bg-white" />
+              <Input type="email" {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -84,9 +84,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="groom_mobile"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Groom Mobile</FormLabel>
+            <FormLabel className="text-zinc-600">Groom Mobile</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white" />
+              <Input {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -98,9 +98,9 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         name="client_address"
         render={({ field }) => (
           <FormItem className="col-span-2">
-            <FormLabel>Address</FormLabel>
+            <FormLabel className="text-zinc-600">Address</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white" />
+              <Input {...field} className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
