@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -32,7 +33,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -44,35 +49,37 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <div className="flex h-screen">
-                  <Sidebar />
-                  <div className="flex-1 overflow-auto">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/events" element={<Events />} />
-                      <Route path="/events/new" element={<NewEvent />} />
-                      <Route path="/events/:id" element={<EventDetails />} />
-                      <Route path="/calendar" element={<Calendar />} />
-                      <Route path="/documents" element={<Documents />} />
-                    </Routes>
+    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <div className="flex h-screen">
+                    <Sidebar />
+                    <div className="flex-1 overflow-auto bg-background">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/events" element={<Events />} />
+                        <Route path="/events/new" element={<NewEvent />} />
+                        <Route path="/events/:id" element={<EventDetails />} />
+                        <Route path="/calendar" element={<Calendar />} />
+                        <Route path="/documents" element={<Documents />} />
+                      </Routes>
+                    </div>
                   </div>
-                </div>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
