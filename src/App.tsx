@@ -14,6 +14,7 @@ import Documents from "./pages/Documents";
 import NewEvent from "./pages/NewEvent";
 import EventDetails from "./pages/EventDetails";
 import Login from "./pages/Login";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const queryClient = new QueryClient();
 
@@ -61,7 +62,11 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <div className="flex h-screen">
-                    <Sidebar />
+                    <div className="w-64 border-r bg-background">
+                      <ScrollArea className="h-full">
+                        <Sidebar />
+                      </ScrollArea>
+                    </div>
                     <div className="flex-1 overflow-auto bg-background">
                       <Routes>
                         <Route path="/" element={<Index />} />
