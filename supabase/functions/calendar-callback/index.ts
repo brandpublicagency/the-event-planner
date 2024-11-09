@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || ''
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 const REDIRECT_URI = `${Deno.env.get('SUPABASE_URL')}/functions/v1/calendar-callback`
-const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
+const FRONTEND_URL = 'https://run.gptengineer.app'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +11,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -56,7 +55,6 @@ serve(async (req) => {
 
     console.log('Successfully obtained tokens')
     
-    // Redirect back to the frontend with a success message
     return Response.redirect(`${FRONTEND_URL}/calendar?success=true`)
   } catch (error) {
     console.error('Error in calendar-callback:', error)
