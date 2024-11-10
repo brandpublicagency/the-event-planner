@@ -22,7 +22,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     <div className={cn("pb-12 relative flex flex-col h-full", className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <div className="mb-8 flex items-center justify-center">
+          <div className="mb-8 flex items-center justify-between">
             <div className={cn(
               "transition-all duration-500 ease-in-out overflow-hidden",
               isCollapsed ? "w-8" : "w-full"
@@ -31,7 +31,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 "transition-opacity duration-500",
                 isCollapsed ? "opacity-0" : "opacity-100"
               )}>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   <img 
                     src={isCollapsed 
                       ? "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
@@ -66,14 +66,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                       : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                   )}
                 >
-                  <div className="flex items-center justify-center w-full">
-                    <Icon className="h-5 w-5 shrink-0" />
-                    {!isCollapsed && (
-                      <span className="ml-3 text-sm font-medium">
-                        {item.label}
-                      </span>
-                    )}
-                  </div>
+                  <Icon className="h-5 w-5 shrink-0" />
+                  {!isCollapsed && (
+                    <span className="ml-3 text-sm font-medium flex-grow text-left">
+                      {item.label}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -90,18 +88,16 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               "transition-all duration-500 ease-in-out rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             )}
           >
-            <div className="flex items-center justify-center w-full">
-              {isCollapsed ? (
-                <ChevronRight className="h-5 w-5 shrink-0" />
-              ) : (
-                <>
-                  <ChevronLeft className="h-5 w-5 shrink-0" />
-                  <span className="ml-3 text-sm font-medium">
-                    Collapse
-                  </span>
-                </>
-              )}
-            </div>
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5 shrink-0" />
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5 shrink-0" />
+                <span className="ml-3 text-sm font-medium flex-grow text-left">
+                  Collapse
+                </span>
+              </>
+            )}
           </button>
         </div>
       </div>
