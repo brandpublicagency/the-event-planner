@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import OpenAI from "openai";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -16,6 +18,20 @@ const ChatBox = () => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Fetch PDF content
+  const { data: pdfContents } = useQuery({
+    queryKey: ['pdf-contents'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pdf_processed_content')
+        .select('content')
+        .not('content', 'is', null);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,18 +53,26 @@ const ChatBox = () => {
     setIsLoading(true);
 
     try {
+      // Prepare context from PDF contents
+      const pdfContext = pdfContents
+        ?.map(doc => doc.content)
+        .filter(Boolean)
+        .join('\n\n');
+
       const completion = await openai.chat.completions.create({
         messages: [
           {
             role: "system" as const,
-            content: "You are a friendly event planning assistant. Help users plan and organize their events effectively."
+            content: `You are a friendly event planning assistant. Help users plan and organize their events effectively. 
+            Here is some additional context from our documents that might be helpful:
+            ${pdfContext || 'No additional context available.'}`
           },
           ...newMessages.map(msg => ({
             role: msg.isUser ? ("user" as const) : ("assistant" as const),
             content: msg.text
           }))
         ],
-        model: "gpt-4o-mini",
+        model: "gpt-4",
       });
 
       const botResponse = completion.choices[0]?.message?.content;
