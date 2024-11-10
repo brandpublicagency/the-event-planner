@@ -1,10 +1,8 @@
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeMinimal } from "@supabase/auth-ui-shared";
 
 const Login = () => {
-  const supabaseClient = useSupabaseClient();
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
@@ -19,7 +17,7 @@ const Login = () => {
           </h2>
         </div>
         <Auth
-          supabaseClient={supabaseClient}
+          supabaseClient={supabase}
           appearance={{
             theme: ThemeMinimal,
             variables: {
