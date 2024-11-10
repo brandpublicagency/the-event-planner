@@ -20,7 +20,7 @@ const Login = () => {
       <div className="relative hidden h-full flex-col bg-zinc-900 p-10 text-white lg:flex dark:border-r">
         <div className="relative z-20 flex items-center text-lg font-medium">
           <img 
-            src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WK-Logo.svg"
+            src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WK-Light-Logo.svg"
             alt="WarmKaroo Logo" 
             className="h-[100px]"
           />
