@@ -48,11 +48,11 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
                             <Checkbox />
-                            <span className="font-medium whitespace-nowrap">
-                              {format(parseISO(event.event_date), 'dd MMM yyyy')}
-                            </span>
                             <span className="text-xs px-2 py-0.5 bg-zinc-100 text-zinc-600 rounded">
                               {event.event_code}
+                            </span>
+                            <span className="font-medium whitespace-nowrap">
+                              {format(parseISO(event.event_date), 'dd MMM yyyy')}
                             </span>
                           </div>
                         </div>
