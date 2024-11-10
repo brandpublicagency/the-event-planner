@@ -32,10 +32,10 @@ interface EventsTableProps {
   handleDelete: (id: string) => Promise<void>;
 }
 
-const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTableProps) => {
+const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
   const navigate = useNavigate();
 
-  const handleStatusChange = async (eventId: string, newStatus: string) => {
+  const handleStatusChange = async (eventId: string, newStatus: "Inquiry" | "Tentative" | "Confirmed" | "Completed" | "Cancelled") => {
     try {
       const { error } = await supabase
         .from('events')
@@ -45,6 +45,23 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
       if (error) throw error;
     } catch (error) {
       console.error('Error updating status:', error);
+    }
+  };
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "Inquiry":
+        return "bg-zinc-100 text-zinc-900";
+      case "Tentative":
+        return "bg-zinc-200 text-zinc-900";
+      case "Confirmed":
+        return "bg-zinc-800 text-white";
+      case "Completed":
+        return "bg-zinc-900 text-white";
+      case "Cancelled":
+        return "bg-zinc-400 text-white";
+      default:
+        return "bg-zinc-100 text-zinc-900";
     }
   };
 
@@ -79,7 +96,7 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                               onValueChange={(value) => handleStatusChange(event.id, value)}
                             >
                               <SelectTrigger className="border-0 h-auto hover:bg-zinc-100 focus:ring-0 p-1">
-                                <Badge variant="outline" className={`w-full justify-center ${getStatusColor(event.status)}`}>
+                                <Badge className={`w-full justify-center ${getStatusStyle(event.status)}`}>
                                   <SelectValue>{event.status}</SelectValue>
                                 </Badge>
                               </SelectTrigger>
@@ -107,6 +124,7 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                         onClick={() => navigate(`/events/${event.id}/edit`)}
                         className="text-zinc-600 hover:text-zinc-100 hover:bg-zinc-800"
                       >
+                        <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </Button>
                       <AlertDialog>
