@@ -58,6 +58,7 @@ const ChatBox = () => {
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Type your message..."
             className="flex-1"
+            autoComplete="off"
           />
           <Button type="submit">Send</Button>
         </div>
