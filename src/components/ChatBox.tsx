@@ -65,7 +65,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-sm">
+    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border border-zinc-300 rounded-lg overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -84,7 +84,7 @@ const ChatBox = () => {
           </div>
         ))}
       </div>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200 bg-white">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-300 bg-white">
         <div className="flex gap-2">
           <Input
             value={newMessage}
