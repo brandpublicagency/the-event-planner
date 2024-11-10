@@ -20,7 +20,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <div className={cn("pb-12 relative flex flex-col h-full", className)}>
-      <div className="space-y-6 py-4 flex-1">
+      <div className="space-y-6 py-4">
         <div className="px-3 py-2">
           <div className="mb-6 flex items-center justify-between">
             {isCollapsed ? (
@@ -80,12 +80,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <div className="absolute bottom-4 w-full px-3">
+      <div className="mt-auto px-3">
         <Button
           variant="ghost"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "w-full justify-center transition-all duration-200",
+            "w-full justify-center transition-all duration-200 mb-4",
             isCollapsed ? 
               "text-white hover:bg-zinc-800" : 
               "text-zinc-600 hover:bg-zinc-100"
