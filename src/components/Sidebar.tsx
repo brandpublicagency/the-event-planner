@@ -20,8 +20,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <div className={cn("pb-12 relative flex flex-col h-full bg-zinc-900", className)}>
-      <div className="space-y-4 py-4 flex flex-col h-full">
-        <div className="px-3 py-2">
+      <div className="flex flex-col h-full">
+        <div className="px-3 py-4">
           <div className="mb-8 flex items-center justify-center">
             <img 
               src={isCollapsed 
@@ -32,7 +32,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               className="h-8"
             />
           </div>
-          <nav className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-8">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -41,23 +41,24 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center justify-center h-10 w-10 relative rounded-md",
+                    "flex items-center h-10",
+                    isCollapsed ? "justify-center" : "px-3",
                     "transition-colors duration-200",
                     isActive 
-                      ? "bg-white text-zinc-900"
-                      : "text-white hover:bg-white/10"
+                      ? "bg-white text-zinc-900 rounded-md"
+                      : "text-white hover:bg-white/10 rounded-md"
                   )}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5 flex-shrink-0" />
                   {!isCollapsed && (
-                    <span className="ml-3 text-white">{item.label}</span>
+                    <span className="ml-3 text-white text-sm font-medium">{item.label}</span>
                   )}
                 </Link>
               );
             })}
-          </nav>
+          </div>
         </div>
-        <div className="mt-auto px-3 py-2">
+        <div className="mt-auto px-3 py-4">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
