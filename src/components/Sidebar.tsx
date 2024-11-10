@@ -38,7 +38,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                       : "https://www.brandpublic.agency/wp-content/uploads/2023/11/WK-Black-Icon.png"
                     }
                     alt="WarmKaroo Logo" 
-                    className="h-8"
+                    className="h-8 transition-transform duration-300 hover:scale-105"
                   />
                   {!isCollapsed && (
                     <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             </div>
           </div>
-          <nav className="flex flex-col space-y-4">
+          <nav className="flex flex-col space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -58,19 +58,35 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10",
+                    "flex items-center h-10 relative group",
                     isCollapsed ? "w-10 justify-center" : "w-full pl-4",
-                    "transition-all duration-500 ease-in-out rounded-md",
+                    "transition-all duration-300 ease-in-out rounded-md",
                     isActive 
-                      ? "bg-zinc-100 text-zinc-900" 
-                      : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                      ? isCollapsed
+                        ? "bg-zinc-800/10 text-zinc-900 shadow-sm"
+                        : "bg-zinc-100 text-zinc-900 shadow-sm"
+                      : "text-zinc-600 hover:text-zinc-900",
+                    !isCollapsed && "hover:bg-zinc-100",
+                    isCollapsed && !isActive && "hover:bg-zinc-800/5"
                   )}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
+                  <Icon className={cn(
+                    "h-5 w-5 shrink-0 transition-transform duration-300",
+                    isActive ? "text-zinc-900" : "text-zinc-600",
+                    "group-hover:scale-110"
+                  )} />
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-medium flex-grow text-left">
+                    <span className={cn(
+                      "ml-3 text-sm font-medium flex-grow text-left transition-colors duration-300",
+                      isActive ? "text-zinc-900" : "text-zinc-600"
+                    )}>
                       {item.label}
                     </span>
+                  )}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                      {item.label}
+                    </div>
                   )}
                 </Link>
               );
@@ -82,16 +98,24 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "flex items-center h-10",
+            "flex items-center h-10 group",
             isCollapsed ? "w-10 justify-center" : "w-full pl-4",
-            "transition-all duration-500 ease-in-out rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+            "transition-all duration-300 ease-in-out rounded-md",
+            isCollapsed
+              ? "hover:bg-zinc-800/5 text-zinc-600"
+              : "hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900"
           )}
         >
           {isCollapsed ? (
-            <ChevronRight className="h-5 w-5 shrink-0" />
+            <>
+              <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
+              <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                Expand
+              </div>
+            </>
           ) : (
             <>
-              <ChevronLeft className="h-5 w-5 shrink-0" />
+              <ChevronLeft className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
               <span className="ml-3 text-sm font-medium flex-grow text-left">
                 Collapse
               </span>
