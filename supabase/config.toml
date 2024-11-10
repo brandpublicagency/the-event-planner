@@ -1,7 +1,1 @@
-project_id = "vmkvmbnclfgxcgxpymaf"
-
-[functions.calendar-auth]
-verify_jwt = false
-
-[functions.calendar-callback]
-verify_jwt = false
+project_id = "gqkhnmlytbvklkyktcwt"
