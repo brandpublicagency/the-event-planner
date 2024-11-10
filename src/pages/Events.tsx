@@ -25,7 +25,7 @@ const Events = () => {
           event_date,
           event_type,
           status,
-          venue:venues(name),
+          venue_id,
           bride_name,
           groom_name,
           client_address

@@ -97,8 +97,8 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
-                          {event.venue?.name && (
-                            <span className="text-sm text-muted-foreground">• {event.venue.name}</span>
+                          {event.venue_id && (
+                            <span className="text-sm text-muted-foreground">• {event.venue_id}</span>
                           )}
                         </div>
                       </div>

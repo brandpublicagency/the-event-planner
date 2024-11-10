@@ -102,11 +102,6 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                         {pkg.description && (
                           <p className="text-muted-foreground text-sm mt-2">{pkg.description}</p>
                         )}
-                        {pkg.max_guests && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Max Guests: {pkg.max_guests}
-                          </p>
-                        )}
                       </div>
                     </Card>
                   ))}
