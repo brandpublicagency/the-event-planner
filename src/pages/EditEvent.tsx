@@ -2,7 +2,7 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const form = useForm();
 
   const { data: event, isLoading } = useQuery({
@@ -23,6 +24,7 @@ const EditEvent = () => {
         .select(`
           *,
           event_venues (
+            venue_id,
             venues (
               id,
               name
@@ -43,9 +45,7 @@ const EditEvent = () => {
     if (event) {
       // Transform venues data for the form
       const venuesData = event.event_venues?.reduce((acc: any, ev: any) => {
-        if (ev.venues) {
-          acc[ev.venues.id] = true;
-        }
+        acc[ev.venue_id] = true;
         return acc;
       }, {});
 
@@ -55,7 +55,6 @@ const EditEvent = () => {
         ...event.wedding_details,
         ...event.corporate_details,
         venues: venuesData,
-        event_date: event.event_date,
       });
     }
   }, [event, form]);
@@ -65,6 +64,10 @@ const EditEvent = () => {
       if (!id) throw new Error('Event ID is required');
       await updateEvent(id, data);
 
+      // Invalidate and refetch queries
+      await queryClient.invalidateQueries({ queryKey: ['events'] });
+      await queryClient.invalidateQueries({ queryKey: ['events', id] });
+
       toast({
         title: "Success",
         description: "Event updated successfully",
@@ -72,6 +75,7 @@ const EditEvent = () => {
 
       navigate('/events');
     } catch (error: any) {
+      console.error('Update error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update event",

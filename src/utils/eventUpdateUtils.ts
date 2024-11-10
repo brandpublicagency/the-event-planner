@@ -1,22 +1,52 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const updateEvent = async (eventCode: string, data: any) => {
-  // Update event details
+  // Start a transaction by using multiple operations
+  const eventUpdate = {
+    name: data.name,
+    event_type: data.event_type,
+    event_date: data.event_date,
+    pax: data.pax,
+    package_id: data.package_id,
+    client_address: data.client_address,
+  };
+
+  // Update main event details
   const { error: eventError } = await supabase
     .from('events')
-    .update({
-      name: data.name,
-      event_type: data.event_type,
-      event_date: data.event_date,
-      pax: data.pax,
-      package_id: data.package_id,
-      client_address: data.client_address,
-    })
+    .update(eventUpdate)
     .eq('event_code', eventCode);
 
   if (eventError) throw eventError;
 
-  // Update wedding or corporate details based on event type
+  // Handle venue relationships
+  if (data.venues) {
+    // First, delete existing venue relationships
+    const { error: deleteError } = await supabase
+      .from('event_venues')
+      .delete()
+      .eq('event_code', eventCode);
+
+    if (deleteError) throw deleteError;
+
+    // Then insert new venue relationships
+    const selectedVenues = Object.entries(data.venues)
+      .filter(([_, selected]) => selected)
+      .map(([venueId]) => ({
+        event_code: eventCode,
+        venue_id: venueId,
+      }));
+
+    if (selectedVenues.length > 0) {
+      const { error: venuesError } = await supabase
+        .from('event_venues')
+        .insert(selectedVenues);
+
+      if (venuesError) throw venuesError;
+    }
+  }
+
+  // Update event type specific details
   if (data.event_type === 'Wedding') {
     const { error: weddingError } = await supabase
       .from('wedding_details')
@@ -38,36 +68,12 @@ export const updateEvent = async (eventCode: string, data: any) => {
         event_code: eventCode,
         company_name: data.company_name,
         contact_person: data.contact_person,
+        contact_email: data.contact_email,
+        contact_mobile: data.contact_mobile,
         company_vat: data.company_vat,
         company_address: data.company_address,
       });
 
     if (corporateError) throw corporateError;
-  }
-
-  // Update venues
-  const selectedVenues = Object.entries(data.venues || {})
-    .filter(([_, selected]) => selected)
-    .map(([venueId]) => ({
-      event_code: eventCode,
-      venue_id: venueId,
-    }));
-
-  // Delete existing venue relationships
-  await supabase
-    .from('event_venues')
-    .delete()
-    .eq('event_code', eventCode);
-
-  // Insert new venue relationships if any exist
-  if (selectedVenues.length > 0) {
-    const { error: venuesError } = await supabase
-      .from('event_venues')
-      .upsert(selectedVenues, {
-        onConflict: 'event_code,venue_id',
-        ignoreDuplicates: true
-      });
-
-    if (venuesError) throw venuesError;
   }
 };
