@@ -10,13 +10,15 @@ const ProfileBox = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data } = await supabase
+      // Get user profile
+      const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      return data;
+      if (error) throw error;
+      return profileData;
     },
   });
 
@@ -42,7 +44,6 @@ const ProfileBox = () => {
         <p className="text-gray-600">Full Name: {profile?.full_name}</p>
         <p className="text-gray-600">Surname: {profile?.surname}</p>
         <p className="text-gray-600">Mobile: {profile?.mobile}</p>
-        <p className="text-gray-600">Email: {profile?.email}</p>
       </div>
     </div>
   );
