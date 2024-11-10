@@ -18,15 +18,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-type EventStatus = "Inquiry" | "Tentative" | "Confirmed" | "Completed" | "Cancelled";
 
 interface EventsTableProps {
   groupedEvents: Record<string, any[]>;
@@ -35,20 +26,6 @@ interface EventsTableProps {
 
 const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
   const navigate = useNavigate();
-
-  const handleStatusChange = async (eventId: string, newStatus: EventStatus) => {
-    try {
-      const { error } = await supabase
-        .from('events')
-        .update({ status: newStatus })
-        .eq('id', eventId);
-
-      if (error) throw error;
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
 
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
@@ -75,29 +52,12 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <Badge variant="outline">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
-                          <Badge variant="secondary">
-                            {event.event_code || `EVENT-${format(parseISO(event.event_date), 'ddMM')}`}
-                          </Badge>
-                          <div className="w-[90px]">
-                            <Select
-                              value={event.status}
-                              onValueChange={(value: EventStatus) => handleStatusChange(event.id, value)}
-                            >
-                              <SelectTrigger className="border-0 h-auto hover:bg-zinc-100 focus:ring-0 p-1">
-                                <span className="text-zinc-900">{event.status}</span>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Inquiry">Inquiry</SelectItem>
-                                <SelectItem value="Tentative">Tentative</SelectItem>
-                                <SelectItem value="Confirmed">Confirmed</SelectItem>
-                                <SelectItem value="Completed">Completed</SelectItem>
-                                <SelectItem value="Cancelled">Cancelled</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
+                          <Badge variant="secondary">
+                            {event.event_code || `EVENT-${format(parseISO(event.event_date), 'ddMM')}`}
+                          </Badge>
                           {event.venues && event.venues.length > 0 && (
                             <span className="text-sm text-muted-foreground">
                               • {event.venues.map((v: any) => v.name).join(' + ')}
