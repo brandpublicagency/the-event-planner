@@ -46,7 +46,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 py-6">
-          <nav className="px-3 space-y-[2px]">
+          <nav className="px-3 space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -59,8 +59,10 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                     "flex items-center h-10 transition-colors duration-200",
                     isCollapsed ? "justify-center w-10" : "px-3",
                     isCollapsed 
-                      ? (isActive ? "text-white" : "text-zinc-400") 
-                      : (isActive ? "text-zinc-900 bg-zinc-50 border border-zinc-200" : "text-zinc-600 hover:bg-zinc-50/50 hover:border hover:border-zinc-200")
+                      ? (isActive ? "text-white" : "text-zinc-300") 
+                      : (isActive 
+                          ? "text-zinc-900 bg-zinc-50 border border-zinc-200" 
+                          : "text-zinc-700 hover:bg-zinc-50/50 hover:border hover:border-zinc-200")
                   )}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -86,8 +88,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-lg transition-colors outline-none ring-0 focus:ring-0",
               isCollapsed 
-                ? "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                ? "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
