@@ -2,13 +2,7 @@ import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import FlipCard from "@/components/FlipCard";
 
 const ProfileBox = () => {
   const navigate = useNavigate();
@@ -28,29 +22,45 @@ const ProfileBox = () => {
     }
   };
 
+  const handleEditProfile = () => {
+    console.log('Edit profile clicked');
+  };
+
   return (
-    <div className="px-3 py-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="w-full">
-          <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 transition-colors duration-200">
-            <Avatar>
-              <AvatarImage src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png" />
-              <AvatarFallback>LM</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-medium">Louisa Marin</p>
-              <p className="text-xs text-zinc-500">louisa@example.com</p>
+    <FlipCard
+      front={
+        <div className="relative h-full w-full">
+          <img
+            src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
+            alt="Profile"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+            <div className="text-white">
+              <div className="text-2xl font-semibold">Louisa Marin</div>
+              <div className="text-sm opacity-80">louisa@example.com</div>
             </div>
           </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[200px]">
-          <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-            <LogOut className="mr-2 h-4 w-4" />
+        </div>
+      }
+      back={
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-sm">Email: louisa@example.com</p>
+            <p className="text-sm">Phone: (555) 123-4567</p>
+            <p className="text-sm">Location: San Francisco, CA</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left text-sm text-red-600 hover:text-red-700 transition-colors"
+          >
+            <LogOut className="mr-2 h-4 w-4 inline-block" />
             Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          </button>
+        </div>
+      }
+      onEdit={handleEditProfile}
+    />
   );
 };
 

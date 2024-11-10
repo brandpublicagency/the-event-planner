@@ -3,11 +3,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
+import FlipCard from "@/components/FlipCard";
 import ChatBox from "@/components/ChatBox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import EventsTable from "@/components/EventsTable";
+import ProfileBox from "@/components/ProfileBox";
 
 const Index = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -46,7 +48,11 @@ const Index = () => {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="h-[300px]">
+          <ProfileBox />
+        </div>
+
         <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
             mode="single"

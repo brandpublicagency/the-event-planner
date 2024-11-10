@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import ProfileBox from "./ProfileBox";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -74,7 +73,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       </div>
       
       <div className="mt-auto">
-        {!isCollapsed && <ProfileBox />}
         <div className="px-3 py-2">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
