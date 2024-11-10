@@ -12,27 +12,8 @@ import { useState } from "react";
 
 const Index = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  
-  const { data: stats } = useQuery({
-    queryKey: ['eventStats'],
-    queryFn: async () => {
-      const currentMonth = new Date().getMonth();
-      const totalGuests = mockEvents.reduce((sum, event) => sum + (event.pax || 0), 0);
-      const weddingsCount = mockEvents.filter(e => e.event_type === 'Wedding').length;
-      const upcomingGuests = mockEvents
-        .filter(e => new Date(e.dueDate).getMonth() === currentMonth)
-        .reduce((sum, event) => sum + (event.pax || 0), 0);
-      
-      return {
-        totalGuests,
-        weddingsCount,
-        upcomingGuests
-      };
-    },
-  });
 
   const handleEditProfile = () => {
-    // You can implement the edit profile logic here
     console.log('Edit profile clicked');
   };
 
@@ -69,6 +50,8 @@ const Index = () => {
           onEdit={handleEditProfile}
         />
 
+        <TaskList />
+
         <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
             mode="single"
@@ -78,28 +61,8 @@ const Index = () => {
           />
         </div>
 
-        <ChatBox />
-
-        <Card className="p-6 space-y-4">
-          <h3 className="font-semibold">Statistics</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total Guests This Month</span>
-              <span className="font-semibold">{stats?.upcomingGuests || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total Weddings</span>
-              <span className="font-semibold">{stats?.weddingsCount || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total Guests Served</span>
-              <span className="font-semibold">{stats?.totalGuests || 0}</span>
-            </div>
-          </div>
-        </Card>
-
-        <div className="col-span-1 md:col-span-2 lg:col-span-3">
-          <TaskList />
+        <div className="col-span-1 md:col-span-3">
+          <ChatBox />
         </div>
       </div>
     </div>
