@@ -29,7 +29,7 @@ const AIGreeting = () => {
               content: "You are a friendly event planning assistant. Generate a warm, personalized greeting for users of an event planning system. Keep it under 100 characters."
             }
           ],
-          model: "gpt-4o",
+          model: "gpt-4o-mini",
         });
 
         const generatedGreeting = completion.choices[0]?.message?.content;
