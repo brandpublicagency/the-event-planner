@@ -3,7 +3,6 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -58,20 +57,33 @@ const Login = () => {
                     },
                   },
                 },
-                className: {
-                  container: 'w-full text-left',
-                  button: 'w-full rounded-md',
-                  input: 'rounded-md',
-                  label: 'text-left',
-                  anchor: 'text-left',
-                  message: 'text-left',
+                style: {
+                  container: {
+                    textAlign: 'left',
+                  },
+                  button: {
+                    width: '100%',
+                    borderRadius: '0.375rem',
+                  },
+                  input: {
+                    borderRadius: '0.375rem',
+                  },
+                  label: {
+                    textAlign: 'left',
+                  },
+                  anchor: {
+                    textAlign: 'left',
+                  },
+                  message: {
+                    textAlign: 'left',
+                  },
                 },
               }}
               theme="light"
               providers={[]}
             />
           </div>
-          <p className="text-left text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <a href="#" className="underline underline-offset-4 hover:text-primary">
               Terms of Service
