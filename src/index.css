@@ -55,7 +55,8 @@
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       background-size: 300% 300%;
-      animation: borderMove 4s ease infinite;
+      animation: borderMove 8s ease infinite;
+      filter: drop-shadow(0 0 4px theme('colors.pink.400'));
     }
   }
 
