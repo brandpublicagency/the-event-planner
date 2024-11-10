@@ -41,6 +41,7 @@ const Events = () => {
 
       return data || [];
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to catch new events
   });
 
   const groupedEvents = events.reduce((groups: any, event) => {

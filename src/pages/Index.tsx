@@ -1,4 +1,3 @@
-import { Calendar } from "@/components/ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -10,7 +9,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -32,7 +30,7 @@ const Index = () => {
         `)
         .gte('event_date', today)
         .order('event_date', { ascending: true })
-        .limit(5); // Only get the next 5 upcoming events
+        .limit(4); // Only get the next 4 upcoming events
 
       if (error) {
         toast({
@@ -98,20 +96,10 @@ const Index = () => {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-fr">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="w-full">
           <ProfileBox />
         </div>
-
-        <div className="w-full bg-primary rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-lg"
-          />
-        </div>
-
         <div className="w-full">
           <ChatBox />
         </div>
