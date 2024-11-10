@@ -8,14 +8,28 @@ import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import PackageSelection from "./PackageSelection";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
-  venues?: any[];
 }
 
-const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
+const VENUES = [
+  { id: 'gallery', name: 'The Gallery' },
+  { id: 'kitchen', name: 'The Kitchen' },
+  { id: 'grand_hall', name: 'The Grand Hall' },
+  { id: 'lawn', name: 'The Lawn' },
+  { id: 'accommodation', name: 'Accommodation' },
+];
+
+const PACKAGES = [
+  { id: 'package_1', name: 'Package 1' },
+  { id: 'package_2', name: 'Package 2' },
+  { id: 'package_3', name: 'Package 3' },
+  { id: 'none', name: 'None' },
+];
+
+const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
   return (
     <div className="space-y-6">
       <FormField
@@ -143,7 +157,63 @@ const EventBasicInfo = ({ form, venues }: EventBasicInfoProps) => {
         />
       </div>
 
-      <PackageSelection form={form} />
+      <FormField
+        control={form.control}
+        name="package"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Package</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select package" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {PACKAGES.map((pkg) => (
+                  <SelectItem key={pkg.id} value={pkg.id}>
+                    {pkg.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="selected_venues"
+        render={() => (
+          <FormItem>
+            <FormLabel>Selected Venues</FormLabel>
+            <div className="grid grid-cols-2 gap-4">
+              {VENUES.map((venue) => (
+                <FormField
+                  key={venue.id}
+                  control={form.control}
+                  name={`venues.${venue.id}`}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        {venue.name}
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 };

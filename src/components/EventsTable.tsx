@@ -44,8 +44,6 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
         .eq('id', eventId);
 
       if (error) throw error;
-
-      // Refresh the page to show the updated status
       window.location.reload();
     } catch (error) {
       console.error('Error updating status:', error);
@@ -77,6 +75,9 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <Badge variant="outline">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
+                          <Badge variant="secondary">
+                            {event.event_code || `EVENT-${format(parseISO(event.event_date), 'ddMM')}`}
+                          </Badge>
                           <div className="w-[90px]">
                             <Select
                               value={event.status}
@@ -97,8 +98,10 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
-                          {event.venue_id && (
-                            <span className="text-sm text-muted-foreground">• {event.venue_id}</span>
+                          {event.venues && event.venues.length > 0 && (
+                            <span className="text-sm text-muted-foreground">
+                              • {event.venues.map((v: any) => v.name).join(' + ')}
+                            </span>
                           )}
                         </div>
                       </div>
