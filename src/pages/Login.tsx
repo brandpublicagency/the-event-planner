@@ -19,7 +19,6 @@ const Login = () => {
   return (
     <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-full flex-col bg-zinc-900 p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <img 
             src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
@@ -64,13 +63,15 @@ const Login = () => {
                   button: 'w-full rounded-md',
                   input: 'rounded-md',
                   label: 'text-left',
+                  anchor: 'text-left',
+                  message: 'text-left',
                 },
               }}
               theme="light"
               providers={[]}
             />
           </div>
-          <p className="px-8 text-center text-sm text-muted-foreground">
+          <p className="text-left text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <a href="#" className="underline underline-offset-4 hover:text-primary">
               Terms of Service
