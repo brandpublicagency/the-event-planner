@@ -91,6 +91,7 @@ const ChatBox = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
+            className="bg-white"
           />
           <Button type="submit" disabled={isLoading}>
             Send

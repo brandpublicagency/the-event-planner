@@ -28,7 +28,7 @@ const Events = () => {
             )
           )
         `)
-        .order('event_date', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) {
         toast({
@@ -43,11 +43,9 @@ const Events = () => {
     },
   });
 
-  // Group events by month
+  // Group events by month, handling events without dates
   const groupedEvents = events.reduce((groups: any, event) => {
-    if (!event.event_date) return groups; // Skip events without dates
-    
-    const date = new Date(event.event_date);
+    const date = event.event_date ? new Date(event.event_date) : new Date(event.created_at);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
       year: 'numeric'
@@ -148,7 +146,7 @@ const Events = () => {
         </div>
       ) : (
         <EventsTable 
-          groupedEvents={filteredEvents}
+          groupedEvents={groupedEvents}
           handleDelete={handleDelete}
         />
       )}
