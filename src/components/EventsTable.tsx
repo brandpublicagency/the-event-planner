@@ -26,16 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type EventStatus = "Inquiry" | "Tentative" | "Confirmed" | "Completed" | "Cancelled";
+
 interface EventsTableProps {
   groupedEvents: Record<string, any[]>;
-  getStatusColor: (status: string) => string;
   handleDelete: (id: string) => Promise<void>;
 }
 
 const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
   const navigate = useNavigate();
 
-  const handleStatusChange = async (eventId: string, newStatus: "Inquiry" | "Tentative" | "Confirmed" | "Completed" | "Cancelled") => {
+  const handleStatusChange = async (eventId: string, newStatus: EventStatus) => {
     try {
       const { error } = await supabase
         .from('events')
@@ -43,25 +44,11 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
         .eq('id', eventId);
 
       if (error) throw error;
+
+      // Refresh the page to show the updated status
+      window.location.reload();
     } catch (error) {
       console.error('Error updating status:', error);
-    }
-  };
-
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Inquiry":
-        return "bg-zinc-100 text-zinc-900";
-      case "Tentative":
-        return "bg-zinc-200 text-zinc-900";
-      case "Confirmed":
-        return "bg-zinc-800 text-white";
-      case "Completed":
-        return "bg-zinc-900 text-white";
-      case "Cancelled":
-        return "bg-zinc-400 text-white";
-      default:
-        return "bg-zinc-100 text-zinc-900";
     }
   };
 
@@ -92,20 +79,18 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           </Badge>
                           <div className="w-[90px]">
                             <Select
-                              defaultValue={event.status}
-                              onValueChange={(value) => handleStatusChange(event.id, value)}
+                              value={event.status}
+                              onValueChange={(value: EventStatus) => handleStatusChange(event.id, value)}
                             >
                               <SelectTrigger className="border-0 h-auto hover:bg-zinc-100 focus:ring-0 p-1">
-                                <Badge className={`w-full justify-center ${getStatusStyle(event.status)}`}>
-                                  <SelectValue>{event.status}</SelectValue>
-                                </Badge>
+                                <span className="text-zinc-900">{event.status}</span>
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="Inquiry" className="text-zinc-900">Inquiry</SelectItem>
-                                <SelectItem value="Tentative" className="text-zinc-900">Tentative</SelectItem>
-                                <SelectItem value="Confirmed" className="text-zinc-900">Confirmed</SelectItem>
-                                <SelectItem value="Completed" className="text-zinc-900">Completed</SelectItem>
-                                <SelectItem value="Cancelled" className="text-zinc-900">Cancelled</SelectItem>
+                                <SelectItem value="Inquiry">Inquiry</SelectItem>
+                                <SelectItem value="Tentative">Tentative</SelectItem>
+                                <SelectItem value="Confirmed">Confirmed</SelectItem>
+                                <SelectItem value="Completed">Completed</SelectItem>
+                                <SelectItem value="Cancelled">Cancelled</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
