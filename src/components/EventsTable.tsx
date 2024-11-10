@@ -62,21 +62,20 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                             <span className="text-base font-medium truncate">{event.name}</span>
                             {event.venues && event.venues.length > 0 && (
                               <span className="text-sm text-muted-foreground whitespace-nowrap">
-                                at {event.venues.map((v: any) => v.name).join(' + ')}
+                                • {event.venues.map((v: any) => v.name).join(' + ')}
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => navigate(`/events/${event.event_code}/edit`)}
-                        className="text-zinc-600"
+                        className="text-zinc-600 rounded-full"
                       >
-                        <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </Button>
                       <AlertDialog>
@@ -84,7 +83,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-zinc-600"
+                            className="text-zinc-600 rounded-full"
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
