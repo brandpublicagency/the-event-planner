@@ -42,7 +42,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 py-6">
-          <nav className="px-3 space-y-1">
+          <nav className="px-3 space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
