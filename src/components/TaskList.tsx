@@ -43,9 +43,9 @@ const TaskList = () => {
   };
 
   return (
-    <Card className="bg-white">
+    <Card className="w-full bg-white">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Tasks</CardTitle>
+        <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
         <Badge variant="outline" className="text-xs">
           {tasks.length} total
         </Badge>
@@ -58,13 +58,13 @@ const TaskList = () => {
               className="flex items-center px-4 py-3 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white cursor-pointer"
               onClick={() => handleTaskClick(task.id)}
             >
-              <Checkbox className="mr-4" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-zinc-500">{task.id}</span>
                   <Badge variant="outline" className="text-xs capitalize">{task.type}</Badge>
                 </div>
                 <div className="mt-1 text-sm">{task.title}</div>
+                <div className="mt-1 text-xs text-zinc-500">Due: {new Date(task.dueDate).toLocaleDateString()}</div>
               </div>
               <div className="ml-4 flex items-center gap-3">
                 <Badge 
