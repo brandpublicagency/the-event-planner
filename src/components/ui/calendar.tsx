@@ -19,21 +19,21 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-6",
-        caption: "flex justify-center pt-1 relative items-center",
+        caption: "flex justify-between items-center px-2 py-4",
         caption_label: "text-lg font-semibold text-primary-900",
-        nav: "flex items-center justify-between px-8 sm:px-12 w-full absolute top-1",
+        nav: "flex items-center gap-1",
         nav_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-zinc-100 active:bg-zinc-200 transition-all"
+          "h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-zinc-100 active:bg-zinc-200 transition-all"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell: "text-zinc-500 rounded-md w-10 font-medium text-[0.875rem] mb-2",
         row: "flex w-full mt-2",
         cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+          "[&:has([aria-selected])]:bg-primary-50",
+          "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
           props.mode === "range"
             ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md"
             : "[&:has([aria-selected])]:rounded-md"
