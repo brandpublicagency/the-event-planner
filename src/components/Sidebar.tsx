@@ -21,17 +21,14 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen",
-        isCollapsed ? "bg-zinc-900 w-[80px]" : "bg-zinc-100 w-64",
+        "relative flex flex-col h-screen bg-white",
+        isCollapsed ? "w-[80px]" : "w-64",
         className
       )}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className={cn(
-          "p-4",
-          isCollapsed ? "border-zinc-800" : "border-zinc-200"
-        )}>
+        <div className="p-4">
           <div className="flex items-center justify-center">
             <img 
               src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
@@ -45,7 +42,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 py-6">
-          <nav className="px-3 space-y-3">
+          <nav className="px-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -55,19 +52,19 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 py-2 px-4 rounded-md font-medium",
+                    "flex items-center h-10 py-2 px-4 rounded-md",
                     isCollapsed ? "justify-center w-10" : "",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-300") 
                       : (isActive 
-                          ? "text-zinc-900 bg-white border-2 border-zinc-300" 
-                          : "text-zinc-700 hover:bg-white hover:border hover:border-zinc-200")
+                          ? "text-zinc-900 bg-zinc-50 border border-zinc-200" 
+                          : "text-zinc-700 hover:bg-zinc-50 hover:border hover:border-zinc-100")
                   )}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm truncate">
+                    <span className="ml-3 text-sm font-medium truncate">
                       {item.label}
                     </span>
                   )}
@@ -78,17 +75,14 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Footer with toggle */}
-        <div className={cn(
-          "p-4",
-          isCollapsed ? "border-zinc-800" : "border-zinc-200"
-        )}>
+        <div className="p-4">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-lg outline-none ring-0 focus:ring-0",
+              "flex items-center justify-center w-10 h-10 rounded-lg outline-none",
               isCollapsed 
-                ? "text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
+                ? "text-zinc-300 hover:bg-zinc-100" 
+                : "text-zinc-700 hover:bg-zinc-50"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
