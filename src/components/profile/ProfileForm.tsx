@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Edit2, Save } from "lucide-react";
@@ -30,8 +29,7 @@ const ProfileForm = ({
 
   return (
     <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold">Profile Details</h3>
+      <div className="flex justify-end">
         {!isEditing ? (
           <Button variant="ghost" size="icon" onClick={handleEdit}>
             <Edit2 className="h-4 w-4" />
