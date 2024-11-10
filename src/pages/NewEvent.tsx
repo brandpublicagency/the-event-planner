@@ -19,7 +19,8 @@ const NewEvent = () => {
   const form = useForm({
     defaultValues: {
       status: 'Inquiry',
-      event_type: 'Wedding'
+      event_type: 'Wedding',
+      venues: {}
     }
   });
 
@@ -44,21 +45,19 @@ const NewEvent = () => {
       if (eventError) throw eventError;
 
       // Create venue relationships if any venues are selected
-      if (data.venues) {
-        const venueRelations = Object.entries(data.venues)
-          .filter(([_, selected]) => selected)
-          .map(([venueId]) => ({
-            event_id: eventCode,  // Use event_id to match the column name
-            venue_id: venueId
-          }));
+      const selectedVenues = Object.entries(data.venues || {})
+        .filter(([_, selected]) => selected)
+        .map(([venueId]) => ({
+          event_id: eventCode,
+          venue_id: venueId
+        }));
 
-        if (venueRelations.length > 0) {
-          const { error: venueError } = await supabase
-            .from('event_venues')
-            .insert(venueRelations);
+      if (selectedVenues.length > 0) {
+        const { error: venueError } = await supabase
+          .from('event_venues')
+          .insert(selectedVenues);
 
-          if (venueError) throw venueError;
-        }
+        if (venueError) throw venueError;
       }
 
       toast({

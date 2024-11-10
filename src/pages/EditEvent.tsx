@@ -24,19 +24,27 @@ const EditEvent = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          event_venues(venue_id)
+        `)
         .eq('event_code', id)
         .single();
       
       if (error) throw error;
-      return data;
+      
+      // Transform venues array to object format
+      const venuesObject = data.event_venues?.reduce((acc: any, ev: any) => {
+        acc[ev.venue_id] = true;
+        return acc;
+      }, {});
+      
+      return { ...data, venues: venuesObject };
     },
   });
 
-  // Set form data when event is loaded
   React.useEffect(() => {
     if (event) {
-      // Convert the event_date string to a Date object for the form
       const formData = {
         ...event,
         event_date: new Date(event.event_date)
@@ -47,20 +55,36 @@ const EditEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Create update object without package_id initially
-      const updateData = { ...data };
-      
-      // Only include package_id if it's actually selected
-      if (!updateData.package_id || updateData.package_id === '') {
-        delete updateData.package_id;
-      }
-
-      const { error } = await supabase
+      // Update event data
+      const { error: eventError } = await supabase
         .from('events')
-        .update(updateData)
+        .update(data)
         .eq('event_code', id);
 
-      if (error) throw error;
+      if (eventError) throw eventError;
+
+      // Update venue relationships
+      const selectedVenues = Object.entries(data.venues || {})
+        .filter(([_, selected]) => selected)
+        .map(([venueId]) => ({
+          event_id: id,
+          venue_id: venueId
+        }));
+
+      // Delete existing venue relationships
+      await supabase
+        .from('event_venues')
+        .delete()
+        .eq('event_id', id);
+
+      // Insert new venue relationships
+      if (selectedVenues.length > 0) {
+        const { error: venueError } = await supabase
+          .from('event_venues')
+          .insert(selectedVenues);
+
+        if (venueError) throw venueError;
+      }
 
       toast({
         title: "Success",
