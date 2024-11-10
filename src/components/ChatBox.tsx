@@ -25,43 +25,45 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="border-gradient h-[450px]">
-      <Card className="h-full flex flex-col">
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${
-                  message.isUser ? "justify-end" : "justify-start"
-                }`}
-              >
+    <div className="relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-lg p-[2px]">
+        <Card className="h-[450px] w-full flex flex-col bg-background">
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.map((message, index) => (
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                    message.isUser
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                  key={index}
+                  className={`flex ${
+                    message.isUser ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {message.text}
+                  <div
+                    className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                      message.isUser
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
+                  >
+                    {message.text}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-        <form onSubmit={handleSubmit} className="p-4 border-t">
-          <div className="flex gap-2">
-            <Input
-              value={inputValue}
-              onChange={handleInputChange}
-              placeholder="Type your message..."
-              className="flex-1"
-              autoComplete="off"
-            />
-            <Button type="submit">Send</Button>
-          </div>
-        </form>
-      </Card>
+              ))}
+            </div>
+          </ScrollArea>
+          <form onSubmit={handleSubmit} className="p-4 border-t">
+            <div className="flex gap-2">
+              <Input
+                value={inputValue}
+                onChange={handleInputChange}
+                placeholder="Type your message..."
+                className="flex-1"
+                autoComplete="off"
+              />
+              <Button type="submit">Send</Button>
+            </div>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };
