@@ -22,24 +22,17 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      // Fetch event with package details
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select(`
           *,
-          packages:packages(
-            id,
-            name,
-            description,
-            base_price
-          )
+          package:packages(*)
         `)
         .eq('event_code', id)
         .single();
       
       if (eventError) throw eventError;
 
-      // Transform event data
       return {
         ...eventData,
         event_date: new Date(eventData.event_date)
