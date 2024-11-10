@@ -28,6 +28,12 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be logged in to create an event');
+      }
+
       // Create the event in Supabase
       const eventCode = `EVENT-${format(new Date(data.event_date), 'ddMMyy')}`;
       
@@ -40,6 +46,7 @@ const NewEvent = () => {
           event_date: data.event_date,
           pax: data.pax,
           package_id: data.package_id,
+          created_by: user.id, // Set the created_by field to the current user's ID
         });
 
       if (eventError) throw eventError;
