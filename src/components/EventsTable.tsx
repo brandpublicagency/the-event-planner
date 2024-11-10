@@ -52,16 +52,13 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                             {event.event_code}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 pl-10">
+                        <div className="flex flex-col pl-[2.25rem]">
                           <span className="text-base font-medium truncate">{event.name}</span>
-                          <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
-                            {event.event_type} / {event.pax} Pax
-                          </Badge>
-                          {event.venues && event.venues.length > 0 && (
-                            <span className="text-sm text-muted-foreground whitespace-nowrap">
-                              • {event.venues.map((v: any) => v.name).join(' + ')}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
+                              {event.event_type} / {event.pax} Pax / {event.venues?.map((v: any) => v.name).join(' + ')}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
