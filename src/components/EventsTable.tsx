@@ -17,6 +17,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EventsTableProps {
   groupedEvents: Record<string, any[]>;
@@ -26,6 +33,19 @@ interface EventsTableProps {
 
 const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTableProps) => {
   const navigate = useNavigate();
+
+  const handleStatusChange = async (eventId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ status: newStatus })
+        .eq('id', eventId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
 
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
@@ -52,9 +72,23 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                           <Badge variant="outline">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
-                          <Badge className={getStatusColor(event.status)}>
-                            {event.status}
-                          </Badge>
+                          <Select
+                            defaultValue={event.status}
+                            onValueChange={(value) => handleStatusChange(event.id, value)}
+                          >
+                            <SelectTrigger className="border-0 p-0 h-auto hover:bg-transparent focus:ring-0">
+                              <Badge variant="outline" className={getStatusColor(event.status)}>
+                                <SelectValue>{event.status}</SelectValue>
+                              </Badge>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Inquiry">Inquiry</SelectItem>
+                              <SelectItem value="Tentative">Tentative</SelectItem>
+                              <SelectItem value="Confirmed">Confirmed</SelectItem>
+                              <SelectItem value="Completed">Completed</SelectItem>
+                              <SelectItem value="Cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
@@ -68,7 +102,7 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                       <Button
                         variant="ghost"
                         onClick={() => navigate(`/events/${event.id}/edit`)}
-                        className="text-zinc-600 hover:text-zinc-900"
+                        className="text-zinc-600 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         Edit
                       </Button>
@@ -76,7 +110,7 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="text-zinc-600 hover:text-zinc-900"
+                            className="text-zinc-600 hover:text-zinc-100 hover:bg-zinc-800"
                           >
                             <Trash className="h-4 w-4 mr-2" />
                             Delete
