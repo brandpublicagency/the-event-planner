@@ -16,12 +16,12 @@ const FlipCard = ({ front, back }: FlipCardProps) => {
     >
       <div className={`relative w-full h-full duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
         <div className="absolute w-full h-full backface-hidden">
-          <Card className="w-full h-full cursor-pointer">
+          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
             {front}
           </Card>
         </div>
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
-          <Card className="w-full h-full cursor-pointer">
+          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
             {back}
           </Card>
         </div>
