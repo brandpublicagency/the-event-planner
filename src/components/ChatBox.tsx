@@ -35,11 +35,11 @@ const ChatBox = () => {
       const completion = await openai.chat.completions.create({
         messages: [
           {
-            role: "system",
+            role: "system" as const,
             content: "You are a helpful event planning assistant. Provide concise and relevant responses to help users plan their events."
           },
           ...newMessages.map(msg => ({
-            role: msg.isUser ? "user" : "assistant",
+            role: msg.isUser ? ("user" as const) : ("assistant" as const),
             content: msg.text
           }))
         ],
