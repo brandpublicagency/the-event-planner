@@ -26,14 +26,14 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               <img 
                 src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
                 alt="WarmKaroo Logo" 
-                className="h-8 w-8 mx-auto"
+                className="h-12 w-12 mx-auto" // Increased from h-8 w-8
               />
             ) : (
               <div className="flex items-center gap-2">
                 <img 
                   src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg" 
                   alt="WarmKaroo Logo" 
-                  className="h-8"
+                  className="h-12" // Increased from h-8
                 />
                 <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
                   Event Planner
