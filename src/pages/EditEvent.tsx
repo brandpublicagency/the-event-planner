@@ -11,6 +11,7 @@ import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -21,25 +22,118 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      // Mock event data
-      return {
-        event_type: "Wedding",
-        event_date: new Date().toISOString(),
-        name: "Sample Event",
-        status: "Confirmed"
-      };
+      // Fetch event details
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select(`
+          *,
+          event_venues (
+            venues (
+              id,
+              name
+            )
+          ),
+          wedding_details (*),
+          corporate_details (*)
+        `)
+        .eq('event_code', id)
+        .single();
+
+      if (eventError) throw eventError;
+      return eventData;
     },
   });
 
   React.useEffect(() => {
     if (event) {
-      form.reset(event);
+      // Transform venues data for the form
+      const venuesData = event.event_venues?.reduce((acc: any, ev: any) => {
+        if (ev.venues) {
+          acc[ev.venues.id] = true;
+        }
+        return acc;
+      }, {});
+
+      // Reset form with event data
+      form.reset({
+        ...event,
+        ...event.wedding_details,
+        ...event.corporate_details,
+        venues: venuesData,
+        event_date: event.event_date ? new Date(event.event_date).toISOString() : null,
+      });
     }
   }, [event, form]);
 
   const onSubmit = async (data: any) => {
     try {
-      // Mock event update
+      // Update event details
+      const { error: eventError } = await supabase
+        .from('events')
+        .update({
+          name: data.name,
+          event_type: data.event_type,
+          event_date: data.event_date,
+          pax: data.pax,
+          package_id: data.package,
+          client_address: data.client_address,
+        })
+        .eq('event_code', id);
+
+      if (eventError) throw eventError;
+
+      // Update wedding or corporate details based on event type
+      if (data.event_type === 'Wedding') {
+        const { error: weddingError } = await supabase
+          .from('wedding_details')
+          .upsert({
+            event_code: id,
+            bride_name: data.bride_name,
+            bride_email: data.bride_email,
+            bride_mobile: data.bride_mobile,
+            groom_name: data.groom_name,
+            groom_email: data.groom_email,
+            groom_mobile: data.groom_mobile,
+          });
+
+        if (weddingError) throw weddingError;
+      } else {
+        const { error: corporateError } = await supabase
+          .from('corporate_details')
+          .upsert({
+            event_code: id,
+            company_name: data.company_name,
+            contact_person: data.contact_person,
+            company_vat: data.company_vat,
+            company_address: data.company_address,
+          });
+
+        if (corporateError) throw corporateError;
+      }
+
+      // Update venues
+      const selectedVenues = Object.entries(data.venues || {})
+        .filter(([_, selected]) => selected)
+        .map(([venueId]) => ({
+          event_code: id,
+          venue_id: venueId,
+        }));
+
+      // Delete existing venue relationships
+      await supabase
+        .from('event_venues')
+        .delete()
+        .eq('event_code', id);
+
+      // Insert new venue relationships
+      if (selectedVenues.length > 0) {
+        const { error: venuesError } = await supabase
+          .from('event_venues')
+          .insert(selectedVenues);
+
+        if (venuesError) throw venuesError;
+      }
+
       toast({
         title: "Success",
         description: "Event updated successfully",
@@ -47,7 +141,6 @@ const EditEvent = () => {
 
       navigate('/events');
     } catch (error: any) {
-      console.error('Error updating event:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update event",
@@ -91,7 +184,7 @@ const EditEvent = () => {
               <EventBasicInfo form={form} />
             </FormSection>
 
-            {event?.event_type === "Wedding" ? (
+            {form.watch('event_type') === "Wedding" ? (
               <>
                 <FormSection 
                   title="Bride Details" 
