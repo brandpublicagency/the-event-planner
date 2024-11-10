@@ -96,7 +96,7 @@ const ProfileBox = () => {
     <div className="h-full">
       <div className="relative h-full">
         <img
-          src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
+          src="https://images.unsplash.com/photo-1721322800607-8c38375eef04"
           alt="Profile"
           className="h-full w-full object-cover"
         />
