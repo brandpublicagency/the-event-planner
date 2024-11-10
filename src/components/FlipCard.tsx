@@ -12,6 +12,17 @@ interface FlipCardProps {
 const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
+  const handleCardClick = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the flip action when clicking edit
+    if (onEdit) {
+      onEdit();
+    }
+  };
+
   return (
     <div className="relative h-full w-full [perspective:1000px]">
       <div
@@ -22,7 +33,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
         <div className="absolute h-full w-full [backface-visibility:hidden]">
           <Card 
             className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
-            onClick={() => setIsFlipped(!isFlipped)}
+            onClick={handleCardClick}
           >
             {front}
             {onEdit && (
@@ -30,10 +41,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
                 variant="outline"
                 size="icon"
                 className="absolute right-4 top-4 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
+                onClick={handleEditClick}
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -43,7 +51,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
         <div className="absolute h-full w-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <Card 
             className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
-            onClick={() => setIsFlipped(!isFlipped)}
+            onClick={handleCardClick}
           >
             <div className="p-6">{back}</div>
           </Card>
