@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import OpenAI from "openai";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import ChatMessage from "./chat/ChatMessage";
+import ChatInput from "./chat/ChatInput";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -20,7 +20,6 @@ const ChatBox = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Fetch PDF content
   const { data: pdfContents } = useQuery({
     queryKey: ['pdf-contents'],
     queryFn: async () => {
@@ -59,6 +58,31 @@ const ChatBox = () => {
     }
   });
 
+  const sendEmail = async (to: string[], subject: string, content: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: { to, subject, html: content }
+      });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Email sent successfully",
+        description: "The email has been sent to the specified recipients.",
+      });
+      
+      return data;
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send email",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
@@ -78,7 +102,6 @@ const ChatBox = () => {
     setIsLoading(true);
 
     try {
-      // Prepare context from PDF contents
       const pdfContext = pdfContents
         ?.map(doc => doc.content)
         .filter(Boolean)
@@ -107,7 +130,6 @@ Pax: ${event.pax}
       const systemMessage: ChatCompletionMessageParam = {
         role: "system",
         content: `You are an expert event planning assistant with access to the following information:
-
 1. Upcoming Events:
 ${eventsContext || 'No upcoming events found.'}
 
@@ -122,6 +144,15 @@ Your role is to help with:
 5. Best Practices & Guidelines
 
 Please use this information to provide accurate and contextual responses about events, schedules, and planning details.`
+
+You can also send emails to clients when needed. To send an email, respond with a JSON object in this format:
+{
+  "action": "send_email",
+  "to": ["recipient@email.com"],
+  "subject": "Email subject",
+  "content": "Email content in HTML format"
+}
+`
       };
 
       const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
@@ -131,12 +162,27 @@ Please use this information to provide accurate and contextual responses about e
 
       const completion = await openai.chat.completions.create({
         messages: [systemMessage, ...userMessages],
-        model: "gpt-4o-mini",
+        model: "gpt-4",
       });
 
       const botResponse = completion.choices[0]?.message?.content;
       if (botResponse) {
-        setMessages([...newMessages, { text: botResponse, isUser: false }]);
+        try {
+          // Check if the response is a JSON object with an email action
+          const jsonResponse = JSON.parse(botResponse);
+          if (jsonResponse.action === "send_email") {
+            await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
+            setMessages([
+              ...newMessages,
+              { text: "Email sent successfully!", isUser: false }
+            ]);
+          } else {
+            setMessages([...newMessages, { text: botResponse, isUser: false }]);
+          }
+        } catch {
+          // If it's not a JSON object, treat it as a regular message
+          setMessages([...newMessages, { text: botResponse, isUser: false }]);
+        }
       }
     } catch (error: any) {
       console.error('Error getting response from OpenAI:', error);
@@ -148,10 +194,6 @@ Please use this information to provide accurate and contextual responses about e
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
   };
 
   return (
@@ -167,49 +209,20 @@ Please use this information to provide accurate and contextual responses about e
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.isUser ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`rounded-3xl px-4 py-2 max-w-[80%] border ${
-                      message.isUser
-                        ? "border-purple-500 text-purple-800 bg-white"
-                        : "border-gray-300 text-gray-800 bg-white"
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
+                <ChatMessage key={index} {...message} />
               ))}
             </div>
           </ScrollArea>
-          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={handleInputChange}
-                placeholder="Type your message..."
-                className="flex-1 rounded-3xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                autoComplete="off"
-                disabled={isLoading}
-              />
-              <Button 
-                type="submit"
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6 text-white hover:text-white"
-                disabled={isLoading}
-              >
-                {isLoading ? "Sending..." : "Send"}
-              </Button>
-            </div>
-          </form>
+          <ChatInput
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+          />
         </Card>
       </div>
     </div>
   );
-
 };
 
 export default ChatBox;
