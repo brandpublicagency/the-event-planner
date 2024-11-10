@@ -51,8 +51,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center w-full h-[45px]",
-                    isCollapsed ? "justify-center px-2" : "px-3",
+                    "flex items-center w-[45px] h-[45px]",
+                    isCollapsed ? "justify-center" : "w-full px-3",
                     "transition-colors duration-200 rounded-md",
                     isActive 
                       ? "bg-zinc-100 text-zinc-900" 
@@ -77,8 +77,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center w-full h-[45px]",
-              isCollapsed ? "justify-center px-2" : "px-3",
+              "flex items-center w-[45px] h-[45px]",
+              isCollapsed ? "justify-center" : "w-full px-3",
               "transition-colors duration-200 rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             )}
           >
