@@ -79,57 +79,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["event_status"] | null
           venue_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "events_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      package_inclusions: {
-        Row: {
-          category: string
-          created_at: string
-          id: string
-          item: string
-          package_id: string | null
-          quantity: number | null
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          id?: string
-          item: string
-          package_id?: string | null
-          quantity?: number | null
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          id?: string
-          item?: string
-          package_id?: string | null
-          quantity?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "package_inclusions_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       package_venues: {
         Row: {
@@ -166,37 +116,31 @@ export type Database = {
           accommodation_nights: number | null
           accommodation_rooms: number | null
           base_price: number
-          created_at: string
+          created_at: string | null
           description: string | null
-          discount_percentage: number
+          discount_percentage: number | null
           id: string
-          max_guests: number | null
           name: string
-          package_type: Database["public"]["Enums"]["package_type"]
         }
         Insert: {
           accommodation_nights?: number | null
           accommodation_rooms?: number | null
           base_price: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
-          discount_percentage: number
+          discount_percentage?: number | null
           id?: string
-          max_guests?: number | null
           name: string
-          package_type: Database["public"]["Enums"]["package_type"]
         }
         Update: {
           accommodation_nights?: number | null
           accommodation_rooms?: number | null
           base_price?: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
-          discount_percentage?: number
+          discount_percentage?: number | null
           id?: string
-          max_guests?: number | null
           name?: string
-          package_type?: Database["public"]["Enums"]["package_type"]
         }
         Relationships: []
       }
@@ -223,6 +167,35 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      selected_packages: {
+        Row: {
+          id: string
+          package_id: string
+          selected_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          package_id: string
+          selected_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          package_id?: string
+          selected_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selected_packages_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       venue_availability: {
         Row: {
@@ -266,36 +239,32 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "venue_availability_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
         ]
       }
       venues: {
         Row: {
-          capacity: number | null
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
+          is_available: boolean | null
           name: string
+          price_per_day: number
         }
         Insert: {
-          capacity?: number | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          is_available?: boolean | null
           name: string
+          price_per_day: number
         }
         Update: {
-          capacity?: number | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          is_available?: boolean | null
           name?: string
+          price_per_day?: number
         }
         Relationships: []
       }
@@ -304,6 +273,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      block_venues_for_package: {
+        Args: {
+          package_uuid: string
+        }
+        Returns: undefined
+      }
       gbt_bit_compress: {
         Args: {
           "": unknown
