@@ -1,131 +1,67 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send } from "lucide-react";
-import OpenAI from "openai";
-import { mockEvents } from "@/data/mockEvents";
-
-const openai = import.meta.env.VITE_OPENAI_API_KEY 
-  ? new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true
-    })
-  : null;
-
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
 
 const ChatBox = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
+  const [inputValue, setInputValue] = useState("");
 
-  const generateEventsContext = () => {
-    return mockEvents.map(event => `
-      Event Code: ${event.event_code}
-      Event: ${event.title}
-      Type: ${event.event_type}
-      Date: ${new Date(event.dueDate).toLocaleDateString()}
-      Status: ${event.status}
-      Progress: ${event.progress}%
-      Team Size: ${event.teamSize} members
-      Venue: ${event.venues.map(v => v.name).join(', ')}
-      Guest Count: ${event.pax || 'TBC'}
-      ${event.event_type === 'Wedding' ? `
-      Bride Name: ${event.bride_name || 'N/A'}
-      Bride Email: ${event.bride_email || 'N/A'}
-      Groom Name: ${event.groom_name || 'N/A'}
-      Groom Email: ${event.groom_email || 'N/A'}
-      Client Address: ${event.client_address || 'N/A'}
-      ` : ''}
-      Description: ${event.description}
-    `).join('\n\n');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !openai) return;
+    if (!inputValue.trim()) return;
 
-    const userMessage = { role: "user" as const, content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      const eventsContext = generateEventsContext();
-      
-      const completion = await openai.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful event planning assistant. You have access to the following events information:
-            
-            ${eventsContext}
-            
-            Use this information to answer questions about events, schedules, venues, client details, and team assignments. Keep your responses concise, professional, and focused on the event planning context. If you don't have specific information about something, acknowledge that and suggest what information might be needed.`
-          },
-          ...messages,
-          userMessage
-        ],
-        model: "gpt-4o-mini",
-      });
-
-      const assistantMessage = {
-        role: "assistant" as const,
-        content: completion.choices[0]?.message?.content || "I apologize, but I couldn't process your request."
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Error in chat:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setMessages([...messages, { text: inputValue, isUser: true }]);
+    setInputValue("");
+    
+    // Simulate AI response
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        text: "I'm here to help! What would you like to know?", 
+        isUser: false 
+      }]);
+    }, 1000);
   };
 
   return (
-    <Card className="p-4 flex flex-col h-[600px] relative border-gradient">
-      <div className="absolute inset-0 rounded-lg border-gradient-mask"></div>
-      <div className="z-10 flex-1 flex flex-col">
-        <h3 className="font-semibold mb-4">Chat Assistant</h3>
-        <ScrollArea className="flex-1 pr-4 h-[calc(100%-8rem)]">
-          <div className="space-y-4">
-            {messages.map((message, index) => (
+    <Card className="flex h-[600px] flex-col">
+      <div className="border-b border-gray-200 p-4">
+        <h2 className="text-lg font-semibold">Chat Assistant</h2>
+      </div>
+      
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
+            >
               <div
-                key={index}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
+                className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                  message.isUser
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-900"
                 }`}
               >
-                <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground ml-auto"
-                      : "bg-muted"
-                  }`}
-                >
-                  {message.content}
-                </div>
+                {message.text}
               </div>
-            ))}
-          </div>
-        </ScrollArea>
-        <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      <form onSubmit={handleSubmit} className="border-t border-gray-200 p-4">
+        <div className="flex gap-2">
           <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about upcoming events or upload a PDF for context..."
-            disabled={isLoading}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-1"
           />
-          <Button type="submit" size="icon" disabled={isLoading}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
+          <Button type="submit">Send</Button>
+        </div>
+      </form>
     </Card>
   );
 };
