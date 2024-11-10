@@ -21,7 +21,7 @@
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white ring-1 ring-zinc-200 ring-offset-0;
+    @apply rounded-lg bg-white p-5 border border-zinc-200 shadow-sm transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white;
   }
   
   .nav-link {
@@ -37,11 +37,11 @@
   }
 
   .glow-border {
-    @apply relative rounded-lg overflow-hidden ring-1 ring-zinc-200 ring-offset-0;
+    @apply relative rounded-lg border border-zinc-200 shadow-sm overflow-hidden;
   }
 
   .card-with-glow {
-    @apply relative rounded-lg overflow-hidden bg-white ring-1 ring-zinc-200 ring-offset-0;
+    @apply relative rounded-lg border border-zinc-200 shadow-sm overflow-hidden bg-white;
   }
 }
 
