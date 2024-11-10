@@ -28,7 +28,7 @@ const ProfileForm = ({
   };
 
   return (
-    <div className="space-y-3" onClick={(e) => e.stopPropagation()}>      
+    <div className="flex flex-col h-full justify-between" onClick={(e) => e.stopPropagation()}>      
       {isEditing ? (
         <div className="space-y-3">
           <Input
@@ -60,7 +60,7 @@ const ProfileForm = ({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm text-zinc-500">Name</p>
@@ -76,7 +76,7 @@ const ProfileForm = ({
               </Button>
             </div>
           </div>
-          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm text-zinc-500">Surname</p>
@@ -92,7 +92,7 @@ const ProfileForm = ({
               </Button>
             </div>
           </div>
-          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm text-zinc-500">Mobile</p>
