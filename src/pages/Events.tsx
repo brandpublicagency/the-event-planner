@@ -41,10 +41,12 @@ const Events = () => {
 
       return data || [];
     },
-    refetchInterval: 5000, // Refetch every 5 seconds to catch new events
   });
 
+  // Group events by month
   const groupedEvents = events.reduce((groups: any, event) => {
+    if (!event.event_date) return groups; // Skip events without dates
+    
     const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
