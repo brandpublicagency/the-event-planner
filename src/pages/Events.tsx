@@ -21,6 +21,42 @@ const Events = () => {
       status: "Confirmed",
       pax: 100,
       venues: [{ name: "Main Hall" }]
+    },
+    {
+      event_code: "EVENT-0115",
+      name: "Corporate Retreat",
+      event_type: "Corporate",
+      event_date: "2024-01-15",
+      status: "Confirmed",
+      pax: 75,
+      venues: [{ name: "Conference Center" }]
+    },
+    {
+      event_code: "EVENT-0125",
+      name: "Birthday Celebration",
+      event_type: "Birthday",
+      event_date: "2024-01-25",
+      status: "Confirmed",
+      pax: 50,
+      venues: [{ name: "Garden Pavilion" }]
+    },
+    {
+      event_code: "EVENT-0205",
+      name: "Tech Conference",
+      event_type: "Corporate",
+      event_date: "2024-02-05",
+      status: "Confirmed",
+      pax: 200,
+      venues: [{ name: "Convention Center" }]
+    },
+    {
+      event_code: "EVENT-0214",
+      name: "Valentine's Day Wedding",
+      event_type: "Wedding",
+      event_date: "2024-02-14",
+      status: "Confirmed",
+      pax: 150,
+      venues: [{ name: "Grand Ballroom" }]
     }
   ];
 
