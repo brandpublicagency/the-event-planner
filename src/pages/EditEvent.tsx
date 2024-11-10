@@ -22,33 +22,26 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      // First fetch the event
+      // Fetch event with package details
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          package:package_id (
+            id,
+            name,
+            description,
+            base_price
+          )
+        `)
         .eq('event_code', id)
         .single();
       
       if (eventError) throw eventError;
 
-      // Then fetch the venues for this event
-      const { data: venueData, error: venueError } = await supabase
-        .from('event_venues')
-        .select('venue_id')
-        .eq('event_id', id);
-
-      if (venueError) throw venueError;
-      
-      // Transform venues array to object format
-      const venuesObject = venueData?.reduce((acc: Record<string, boolean>, ev) => {
-        acc[ev.venue_id] = true;
-        return acc;
-      }, {});
-
-      // Combine event data with venues
+      // Transform event data
       return {
         ...eventData,
-        venues: venuesObject,
         event_date: new Date(eventData.event_date)
       };
     },
@@ -62,36 +55,12 @@ const EditEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Update event data
       const { error: eventError } = await supabase
         .from('events')
         .update(data)
         .eq('event_code', id);
 
       if (eventError) throw eventError;
-
-      // Update venue relationships
-      const selectedVenues = Object.entries(data.venues || {})
-        .filter(([_, selected]) => selected)
-        .map(([venueId]) => ({
-          event_id: id,
-          venue_id: venueId
-        }));
-
-      // Delete existing venue relationships
-      await supabase
-        .from('event_venues')
-        .delete()
-        .eq('event_id', id);
-
-      // Insert new venue relationships
-      if (selectedVenues.length > 0) {
-        const { error: venueError } = await supabase
-          .from('event_venues')
-          .insert(selectedVenues);
-
-        if (venueError) throw venueError;
-      }
 
       toast({
         title: "Success",
