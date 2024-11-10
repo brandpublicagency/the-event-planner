@@ -71,7 +71,7 @@ const Calendar = () => {
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-gradient-to-br from-purple-600/20 to-blue-600/20">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Calendar</h2>
         <CalendarFilters
@@ -83,10 +83,10 @@ const Calendar = () => {
         />
       </div>
       
-      <Card className="p-6">
+      <Card className="p-6 glassmorphism">
         <div className="flex items-center space-x-4">
-          <CalendarIcon className="h-6 w-6" />
-          <h3 className="text-lg font-medium">
+          <CalendarIcon className="h-6 w-6 text-white" />
+          <h3 className="text-lg font-medium text-white">
             {profile?.full_name || "Your"} Calendar
           </h3>
         </div>
@@ -97,12 +97,12 @@ const Calendar = () => {
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="rounded-md border"
+              className="rounded-md border-0"
             />
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-medium">
+            <h4 className="font-medium text-white">
               Availability for {format(date || new Date(), "MMMM yyyy")}
             </h4>
             
