@@ -70,12 +70,9 @@ const Calendar = () => {
   });
 
   // Create a modifiers object for the calendar to highlight event dates
-  const eventDates = events?.reduce((acc: { [key: string]: boolean }, event) => {
-    if (event.event_date) {
-      acc[new Date(event.event_date).toISOString()] = true;
-    }
-    return acc;
-  }, {});
+  const modifiers = {
+    hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || []
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -123,7 +120,7 @@ const Calendar = () => {
               selected={date}
               onSelect={setDate}
               className="rounded-md border"
-              modifiers={{ hasEvent: eventDates }}
+              modifiers={modifiers}
               modifiersStyles={{
                 hasEvent: {
                   backgroundColor: 'rgb(219 234 254)',
