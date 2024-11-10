@@ -25,9 +25,15 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-lg p-[2px]">
-        <Card className="h-[450px] w-full flex flex-col bg-background">
+    <div className="relative h-[450px]">
+      <div 
+        className="absolute inset-0 rounded-lg"
+        style={{
+          background: "linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6)",
+          padding: "1px",
+        }}
+      >
+        <Card className="h-full w-full flex flex-col bg-background">
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
