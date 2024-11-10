@@ -40,36 +40,39 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <FlipCard
           front={
-            <div className="relative h-full w-full bg-zinc-100 rounded-xl p-6">
-              <div className="space-y-4">
-                <div className="text-3xl font-semibold mb-2">John Doe</div>
-                <div className="text-zinc-500 text-sm">Connecting...</div>
-                <div className="mt-8">
+            <div className="relative h-full w-full bg-zinc-100 rounded-3xl p-8 flex flex-col">
+              <div className="flex-1 space-y-4">
+                <div className="text-4xl font-semibold">Louisa Marin</div>
+                <div className="text-zinc-500 text-base flex items-center gap-2">
+                  <span className="inline-block w-4 h-4 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
+                  Connecting
+                </div>
+                <div className="flex-1 flex items-center justify-center">
                   <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=400&q=80"
                     alt="Profile"
-                    className="w-32 h-32 object-cover rounded-lg mx-auto"
+                    className="w-48 h-48 object-cover rounded-xl"
                   />
                 </div>
-                <div className="flex items-center gap-2 mt-4">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">john_doe</span>
-                    <span className="text-xs text-zinc-500">23m ago</span>
-                  </div>
-                  <Button className="ml-auto" variant="secondary">
-                    Add Member
-                  </Button>
+              </div>
+              <div className="flex items-center gap-3 mt-6 pt-4 border-t border-zinc-200">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=400&q=80" />
+                  <AvatarFallback>LM</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">louisa_marin01</span>
+                  <span className="text-xs text-zinc-500">23m ago</span>
                 </div>
+                <Button className="ml-auto rounded-full px-6" variant="secondary">
+                  Add Member
+                </Button>
               </div>
             </div>
           }
           back={
             <div className="space-y-2">
-              <p className="text-sm">Email: john@example.com</p>
+              <p className="text-sm">Email: louisa@example.com</p>
               <p className="text-sm">Phone: (555) 123-4567</p>
               <p className="text-sm">Location: San Francisco, CA</p>
             </div>
