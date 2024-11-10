@@ -54,20 +54,16 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
   };
 
   const handlePackageSelection = async (packageId: string) => {
-    // First check if the package exists
     const selectedPackage = packages?.find(pkg => pkg.id === packageId);
     if (!selectedPackage) {
       console.error('Selected package not found');
       return;
     }
 
-    // Update the form with the package ID
     form.setValue('package_id', packageId);
     
-    // Get all venue IDs associated with this package
     const venueIds = selectedPackage.package_venues.map((pv: any) => pv.venue.id);
     
-    // Update the venue_id in the form if venues are available
     if (venueIds.length > 0) {
       form.setValue('venue_id', venueIds[0]);
     }
@@ -76,19 +72,6 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
   if (isPackagesError || isVenuesError) {
     return <div className="text-red-500">Error loading packages or venues</div>;
   }
-
-  // Filter and rename packages
-  const displayPackages = packages?.filter(pkg => 
-    ['full_package', 'medium_package', 'venue_only'].includes(pkg.package_type)
-  ).map(pkg => ({
-    ...pkg,
-    displayName: pkg.package_type === 'full_package' ? 'Package One' :
-                pkg.package_type === 'medium_package' ? 'Package Two' :
-                'Package Three'
-  }));
-
-  // Filter out Package Two
-  const filteredPackages = displayPackages?.filter(pkg => pkg.package_type !== 'medium_package');
 
   return (
     <FormField
@@ -104,8 +87,13 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
               className="grid grid-cols-1 gap-4"
             >
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredPackages?.map((pkg) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {packages?.filter(pkg => ['full_package', 'medium_package', 'venue_only'].includes(pkg.package_type))
+                    .sort((a, b) => {
+                      const order = { 'full_package': 1, 'medium_package': 2, 'venue_only': 3 };
+                      return order[a.package_type as keyof typeof order] - order[b.package_type as keyof typeof order];
+                    })
+                    .map((pkg) => (
                     <Card 
                       key={pkg.id}
                       className={`relative cursor-pointer transition-all hover:border-primary ${
@@ -115,7 +103,11 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                       <div className="p-6">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-lg font-semibold">{pkg.displayName}</h3>
+                            <h3 className="text-lg font-semibold">
+                              {pkg.package_type === 'full_package' ? 'Package One' :
+                               pkg.package_type === 'medium_package' ? 'Package Two' :
+                               'Package Three'}
+                            </h3>
                             <div className="text-lg text-muted-foreground">{formatPrice(pkg.base_price)}</div>
                           </div>
                           <RadioGroupItem value={pkg.id} />
