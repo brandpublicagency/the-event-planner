@@ -52,15 +52,17 @@ const ProfileForm = ({
               onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
               className="bg-white"
               onClick={handleInputClick}
+              placeholder="Enter your full name"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Surname</label>
+            <label className="text-sm font-medium">Family Name</label>
             <Input
               value={editForm.surname}
               onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
               className="bg-white"
               onClick={handleInputClick}
+              placeholder="Enter your family name"
             />
           </div>
           <div className="space-y-2">
@@ -70,6 +72,7 @@ const ProfileForm = ({
               onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
               className="bg-white"
               onClick={handleInputClick}
+              placeholder="Enter your mobile number"
             />
           </div>
         </div>
@@ -79,7 +82,7 @@ const ProfileForm = ({
             <span className="font-medium text-gray-900">Full Name:</span> {profile?.full_name}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Surname:</span> {profile?.surname}
+            <span className="font-medium text-gray-900">Family Name:</span> {profile?.surname}
           </p>
           <p className="text-gray-600">
             <span className="font-medium text-gray-900">Mobile:</span> {profile?.mobile}
