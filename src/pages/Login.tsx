@@ -43,7 +43,7 @@ const Login = () => {
         
         <div className="flex-1 flex flex-col">
           <div className="mt-auto">
-            <blockquote className="space-y-4">
+            <blockquote className="space-y-3">
               <p className="text-2xl font-light leading-relaxed">
                 "You can always amend a big plan, but you can never expand a little one. I don't believe in little plans. I believe in planes big enough to meet a situation which we can't possibly foresee now."
               </p>
@@ -55,7 +55,7 @@ const Login = () => {
 
       {/* Light section with auth form */}
       <div className="flex flex-col justify-center p-8">
-        <div className="mx-auto w-full max-w-sm space-y-10">
+        <div className="mx-auto w-full max-w-sm space-y-8">
           <div className="space-y-2 text-left">
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
@@ -100,7 +100,7 @@ const Login = () => {
                 button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
                 label: 'text-sm font-medium text-zinc-900 block text-left',
-                divider: 'my-8',
+                divider: 'my-6',
                 anchor: 'text-zinc-900 hover:text-zinc-800 text-left block',
                 message: 'text-left',
               },
