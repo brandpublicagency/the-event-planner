@@ -41,7 +41,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="space-y-6">
+          <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -82,34 +82,26 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <Link
-        onClick={(e) => {
-          e.preventDefault();
-          setIsCollapsed(!isCollapsed);
-        }}
-        to="#"
-        className={cn(
-          "absolute bottom-0 left-0 flex h-[55px] items-center rounded-md transition-colors duration-200",
-          isCollapsed ? 
-            "justify-center px-2 w-full text-white hover:bg-zinc-800" : 
-            "px-3 w-full text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-          isCollapsed && "hover:bg-white hover:text-zinc-900"
-        )}
-      >
-        {isCollapsed ? (
-          <ChevronRight className={cn(
-            "h-5 w-5 transition-colors",
-            "text-white hover:text-zinc-900"
-          )} />
-        ) : (
-          <div className="flex items-center">
+      <div className="absolute bottom-4 left-0 w-full px-3">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "flex h-[40px] w-[40px] items-center justify-center rounded-md transition-colors duration-200",
+            isCollapsed ? 
+              "mx-auto text-white hover:bg-zinc-800" : 
+              "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+          )}
+        >
+          {isCollapsed ? (
+            <ChevronRight className={cn(
+              "h-5 w-5 transition-colors",
+              "text-white hover:text-white"
+            )} />
+          ) : (
             <ChevronLeft className="h-5 w-5 text-zinc-500" />
-            <span className="ml-3 text-sm font-medium">
-              Collapse
-            </span>
-          </div>
-        )}
-      </Link>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
