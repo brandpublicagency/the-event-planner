@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus, Menu } from "lucide-react";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -23,13 +23,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       className={cn(
         "relative flex flex-col h-full transition-all duration-300 ease-in-out",
         isCollapsed ? "w-[80px]" : "w-64",
-        "bg-zinc-900",
+        "bg-zinc-50 border-r border-zinc-200",
         className
       )}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-zinc-800">
+        <div className="p-4 border-b border-zinc-200">
           <div className="flex items-center justify-center">
             <img 
               src={isCollapsed 
@@ -60,13 +60,14 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                     "flex items-center h-10 w-full rounded-lg transition-all duration-200",
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isActive 
-                      ? "bg-white text-zinc-900 font-medium"
-                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                      ? "bg-zinc-900 text-white font-medium"
+                      : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
                   )}
                 >
                   <Icon className={cn(
                     "flex-shrink-0",
-                    isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
+                    isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3",
+                    isActive ? "text-white" : "text-zinc-700"
                   )} />
                   {!isCollapsed && (
                     <span className="text-sm font-medium truncate">
@@ -80,13 +81,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Footer with toggle */}
-        <div className="p-4 border-t border-zinc-800">
+        <div className="p-4 border-t border-zinc-200">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
               "flex items-center justify-center w-full h-10",
               "rounded-lg transition-colors duration-200",
-              "text-zinc-400 hover:text-white hover:bg-zinc-800"
+              "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
