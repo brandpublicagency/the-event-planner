@@ -19,12 +19,12 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-6",
-        caption: "flex justify-center pt-1 relative items-center px-8",
+        caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-lg font-semibold text-primary-900",
-        nav: "space-x-1 flex items-center absolute right-0 left-0",
+        nav: "flex items-center justify-between px-8 sm:px-12 w-full absolute top-1",
         nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 hover:bg-primary-50 transition-colors border-zinc-200"
+          buttonVariants({ variant: "ghost" }),
+          "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-zinc-100 active:bg-zinc-200 transition-all"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -41,7 +41,7 @@ function Calendar({
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-10 w-10 p-0 font-normal aria-selected:opacity-100",
-          "hover:bg-primary-50 hover:text-primary-900 focus:bg-primary-50 focus:text-primary-900",
+          "hover:bg-zinc-100 hover:text-primary-900 focus:bg-zinc-100 focus:text-primary-900",
           "transition-colors duration-200",
           "disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
         ),
@@ -50,7 +50,7 @@ function Calendar({
         day_selected: 
           "bg-primary-900 text-primary-50 hover:bg-primary-800 hover:text-primary-50 focus:bg-primary-900 focus:text-primary-50",
         day_today: "bg-primary-50 text-primary-900",
-        day_outside: "text-zinc-500 opacity-50 aria-selected:bg-primary-50/50 hover:bg-primary-50/50",
+        day_outside: "text-zinc-500 opacity-50 aria-selected:bg-primary-50/50 hover:bg-zinc-100/50",
         day_disabled: "text-zinc-500 opacity-50 hover:bg-transparent cursor-not-allowed",
         day_range_middle:
           "aria-selected:bg-primary-50 aria-selected:text-primary-900",
