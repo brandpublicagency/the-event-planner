@@ -30,7 +30,7 @@ export const EventDateSelect = ({ form }: EventDateSelectProps) => {
                   )}
                 >
                   {field.value ? (
-                    format(new Date(field.value), "PPP")
+                    format(new Date(field.value), "dd MMMM yyyy")
                   ) : (
                     <span>Pick a date</span>
                   )}

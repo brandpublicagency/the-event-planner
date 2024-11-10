@@ -152,11 +152,15 @@ const Calendar = () => {
 
           <div className="space-y-4">
             <h4 className="font-medium">
-              Availability for {format(date || new Date(), 'MMMM yyyy')}
+              Availability for {format(date || new Date(), "MMMM yyyy")}
             </h4>
             
             <AvailabilityList 
-              availability={availability || []} 
+              availability={availability?.map(item => ({
+                ...item,
+                start_time: format(new Date(item.start_time), "dd MMMM yyyy"),
+                end_time: format(new Date(item.end_time), "dd MMMM yyyy")
+              })) || []} 
               getStatusColor={getStatusColor}
             />
           </div>

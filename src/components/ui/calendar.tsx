@@ -37,11 +37,11 @@ function Calendar({
         cell: "h-10 w-10 text-center text-sm p-0 relative",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal hover:bg-transparent"
+          "h-10 w-10 p-0 font-normal text-zinc-900 hover:bg-transparent hover:ring-1 hover:ring-zinc-200 hover:ring-inset rounded-full"
         ),
         day_selected:
-          "text-primary hover:bg-transparent hover:text-primary font-medium",
-        day_today: "text-primary font-medium",
+          "text-zinc-900 hover:text-zinc-900 font-medium ring-1 ring-zinc-900 ring-inset",
+        day_today: "text-zinc-900 font-medium underline underline-offset-4",
         day_outside:
           "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
@@ -51,6 +51,11 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+      }}
+      formatters={{
+        formatCaption: (date, options) => {
+          return format(date, "MMMM yyyy", { locale: options?.locale });
+        }
       }}
       {...props}
     />
