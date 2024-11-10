@@ -25,22 +25,17 @@ const EditEvent = () => {
       // First fetch the event
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          event_venues!event_venues_event_id_fkey(venue_id)
+        `)
         .eq('event_code', id)
         .single();
       
       if (eventError) throw eventError;
-
-      // Then fetch the venues for this event
-      const { data: venueData, error: venueError } = await supabase
-        .from('event_venues')
-        .select('venue_id')
-        .eq('event_id', id);
-
-      if (venueError) throw venueError;
       
       // Transform venues array to object format
-      const venuesObject = venueData.reduce((acc: Record<string, boolean>, ev) => {
+      const venuesObject = eventData.event_venues?.reduce((acc: Record<string, boolean>, ev: any) => {
         acc[ev.venue_id] = true;
         return acc;
       }, {});
