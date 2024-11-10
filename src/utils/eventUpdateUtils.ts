@@ -47,10 +47,12 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
     // Update venue relationships
     if (data.venues) {
       // Delete existing venue relationships
-      await supabase
+      const { error: deleteError } = await supabase
         .from('event_venues')
         .delete()
         .eq('event_code', eventCode);
+
+      if (deleteError) throw deleteError;
 
       // Insert new venue relationships
       const selectedVenues = Object.entries(data.venues)
