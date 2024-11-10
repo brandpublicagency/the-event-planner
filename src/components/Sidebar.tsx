@@ -61,24 +61,26 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                     "flex items-center h-10 relative group",
                     isCollapsed ? "w-10 justify-center" : "w-full pl-4",
                     "transition-all duration-300 ease-in-out rounded-md",
+                    "focus:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0",
                     isActive 
                       ? isCollapsed
-                        ? "bg-zinc-800/10 text-zinc-900 shadow-sm"
+                        ? "bg-zinc-200 text-zinc-900 shadow-sm"
                         : "bg-zinc-100 text-zinc-900 shadow-sm"
                       : "text-zinc-600 hover:text-zinc-900",
                     !isCollapsed && "hover:bg-zinc-100",
-                    isCollapsed && !isActive && "hover:bg-zinc-800/5"
+                    isCollapsed && !isActive && "hover:bg-zinc-200"
                   )}
                 >
                   <Icon className={cn(
                     "h-5 w-5 shrink-0 transition-transform duration-300",
                     isActive ? "text-zinc-900" : "text-zinc-600",
-                    "group-hover:scale-110"
+                    "group-hover:scale-110 group-hover:text-zinc-900"
                   )} />
                   {!isCollapsed && (
                     <span className={cn(
                       "ml-3 text-sm font-medium flex-grow text-left transition-colors duration-300",
-                      isActive ? "text-zinc-900" : "text-zinc-600"
+                      isActive ? "text-zinc-900" : "text-zinc-600",
+                      "group-hover:text-zinc-900"
                     )}>
                       {item.label}
                     </span>
@@ -98,25 +100,26 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "flex items-center h-10 group",
-            isCollapsed ? "w-10 justify-center" : "w-full pl-4",
+            "flex items-center h-10 group w-full",
+            isCollapsed ? "w-10 justify-center" : "pl-4",
             "transition-all duration-300 ease-in-out rounded-md",
+            "focus:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0",
             isCollapsed
-              ? "hover:bg-zinc-800/5 text-zinc-600"
+              ? "hover:bg-zinc-200 text-zinc-600"
               : "hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900"
           )}
         >
           {isCollapsed ? (
             <>
-              <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
+              <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:text-zinc-900" />
               <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                 Expand
               </div>
             </>
           ) : (
             <>
-              <ChevronLeft className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
-              <span className="ml-3 text-sm font-medium flex-grow text-left">
+              <ChevronLeft className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:text-zinc-900" />
+              <span className="ml-3 text-sm font-medium flex-grow text-left group-hover:text-zinc-900">
                 Collapse
               </span>
             </>
