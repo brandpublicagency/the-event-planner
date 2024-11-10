@@ -79,8 +79,6 @@ const Index = () => {
           onEdit={handleEditProfile}
         />
 
-        <ChatBox />
-
         <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
             mode="single"
@@ -89,6 +87,8 @@ const Index = () => {
             className="h-full"
           />
         </div>
+
+        <ChatBox />
       </div>
 
       {/* Events Table Section */}
