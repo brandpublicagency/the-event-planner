@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
@@ -133,17 +132,15 @@ const Calendar = () => {
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
       <div className="grid gap-6 md:grid-cols-[380px,1fr]">
-        <Card className="bg-white p-4 shadow-sm">
-          <CalendarComponent
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md"
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
-            showOutsideDays={false}
-          />
-        </Card>
+        <CalendarComponent
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="rounded-md"
+          modifiers={modifiers}
+          modifiersStyles={modifiersStyles}
+          showOutsideDays={false}
+        />
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
