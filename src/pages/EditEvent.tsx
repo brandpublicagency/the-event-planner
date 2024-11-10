@@ -26,8 +26,12 @@ const EditEvent = () => {
         .from('events')
         .select(`
           *,
-          package_id,
-          packages(*)
+          packages (
+            id,
+            name,
+            description,
+            base_price
+          )
         `)
         .eq('event_code', id)
         .single();
