@@ -24,7 +24,7 @@ const Login = () => {
           <img 
             src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
             alt="WarmKaroo Logo" 
-            className="h-8"
+            className="h-[100px]"
           />
         </div>
         <div className="relative z-20 mt-auto">
@@ -38,7 +38,7 @@ const Login = () => {
       </div>
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
+          <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-2xl font-semibold tracking-tight">
               Welcome back
             </h1>
@@ -60,9 +60,10 @@ const Login = () => {
                   },
                 },
                 className: {
-                  container: 'w-full',
+                  container: 'w-full text-left',
                   button: 'w-full rounded-md',
                   input: 'rounded-md',
+                  label: 'text-left',
                 },
               }}
               theme="light"
