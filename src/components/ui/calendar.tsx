@@ -42,15 +42,16 @@ function Calendar({
           buttonVariants({ variant: "ghost" }),
           "h-10 w-10 p-0 font-normal aria-selected:opacity-100",
           "hover:bg-primary-100 hover:text-primary-900 focus:bg-primary-100 focus:text-primary-900",
+          "text-zinc-900", // Added to ensure text is visible
           "disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary-500"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected: 
-          "bg-primary-900 text-primary-50 hover:bg-primary-800 hover:text-primary-50 focus:bg-primary-900 focus:text-primary-50",
+          "bg-primary-900 text-white hover:bg-primary-800 hover:text-white focus:bg-primary-900 focus:text-white",
         day_today: "bg-primary-100 text-primary-900 font-semibold",
-        day_outside: "text-primary-500 opacity-50 aria-selected:bg-primary-100/50 hover:bg-primary-100/50",
-        day_disabled: "text-primary-500 opacity-50 hover:bg-transparent",
+        day_outside: "text-zinc-400 opacity-50 aria-selected:bg-primary-100/50 hover:bg-primary-100/50",
+        day_disabled: "text-zinc-400 opacity-50 hover:bg-transparent",
         day_range_middle:
           "aria-selected:bg-primary-100 aria-selected:text-primary-900",
         day_hidden: "invisible",
