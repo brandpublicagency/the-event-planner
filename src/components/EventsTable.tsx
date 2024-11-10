@@ -40,10 +40,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
     try {
       const { error } = await supabase
         .from('events')
-        .update({ 
-          status: newStatus,
-          package_id: null // Reset package_id to avoid foreign key constraint error
-        })
+        .update({ status: newStatus })
         .eq('id', eventId);
 
       if (error) throw error;
