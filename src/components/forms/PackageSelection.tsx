@@ -77,6 +77,19 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
     return <div className="text-red-500">Error loading packages or venues</div>;
   }
 
+  // Filter and rename packages
+  const displayPackages = packages?.filter(pkg => 
+    ['full_package', 'medium_package', 'venue_only'].includes(pkg.package_type)
+  ).map(pkg => ({
+    ...pkg,
+    displayName: pkg.package_type === 'full_package' ? 'Package One' :
+                pkg.package_type === 'medium_package' ? 'Package Two' :
+                'Package Three'
+  }));
+
+  // Filter out Package Two
+  const filteredPackages = displayPackages?.filter(pkg => pkg.package_type !== 'medium_package');
+
   return (
     <FormField
       control={form.control}
@@ -91,8 +104,8 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
               className="grid grid-cols-1 gap-4"
             >
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {packages?.filter(pkg => ['full_package', 'medium_package', 'venue_only'].includes(pkg.package_type)).map((pkg) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredPackages?.map((pkg) => (
                     <Card 
                       key={pkg.id}
                       className={`relative cursor-pointer transition-all hover:border-primary ${
@@ -102,35 +115,16 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                       <div className="p-6">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-lg font-semibold">{pkg.name}</h3>
+                            <h3 className="text-lg font-semibold">{pkg.displayName}</h3>
                             <div className="text-lg text-muted-foreground">{formatPrice(pkg.base_price)}</div>
                           </div>
                           <RadioGroupItem value={pkg.id} />
                         </div>
-                        <p className="text-muted-foreground text-sm mt-2">{pkg.description}</p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {venues?.map((venue) => (
-                    <Card 
-                      key={venue.id}
-                      className={`relative cursor-pointer transition-all hover:border-primary ${
-                        field.value === venue.id ? 'border-primary' : ''
-                      }`}
-                    >
-                      <div className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-semibold">{venue.name}</h3>
-                            <div className="text-sm text-muted-foreground">
-                              {venue.description}
-                            </div>
-                          </div>
-                          <RadioGroupItem value={venue.id} />
-                        </div>
+                        <p className="text-muted-foreground text-sm mt-2">
+                          {pkg.package_type === 'venue_only' 
+                            ? 'The Gallery (Pre-drinks or Ceremony)'
+                            : pkg.description}
+                        </p>
                       </div>
                     </Card>
                   ))}
