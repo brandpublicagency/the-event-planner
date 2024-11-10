@@ -25,7 +25,7 @@ export const EventDateSelect = ({ form }: EventDateSelectProps) => {
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-full pl-3 text-left font-normal",
+                    "w-full h-10 px-3 py-2 text-left font-normal rounded-md border border-input bg-background",
                     !field.value && "text-muted-foreground"
                   )}
                 >
@@ -50,6 +50,7 @@ export const EventDateSelect = ({ form }: EventDateSelectProps) => {
                   }
                 }}
                 initialFocus
+                className="rounded-md border border-input bg-background"
               />
             </PopoverContent>
           </Popover>
