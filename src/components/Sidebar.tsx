@@ -21,7 +21,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen transition-all duration-300 ease-in-out bg-zinc-900",
+        "relative flex flex-col h-screen bg-zinc-900",
         isCollapsed ? "w-[80px]" : "w-64",
         className
       )}
@@ -53,21 +53,20 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 rounded-md transition-all duration-300 ease-in-out group hover:bg-zinc-800",
-                    isCollapsed ? "justify-center px-2" : "px-3",
-                    isActive ? "bg-zinc-800 text-white" : "text-zinc-400"
+                    "flex items-center h-10 transition-all duration-300 ease-in-out group",
+                    isCollapsed ? "justify-center" : "",
+                    isActive ? "text-white" : "text-zinc-400"
                   )}
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 transition-colors duration-300",
-                    "group-hover:text-white"
-                  )} />
+                  <div className={cn(
+                    "flex items-center justify-center w-10 h-10 rounded-md",
+                    isActive ? "bg-zinc-800" : "hover:bg-zinc-800"
+                  )}>
+                    <Icon className="h-5 w-5" />
+                  </div>
                   
                   {!isCollapsed && (
-                    <span className={cn(
-                      "ml-3 text-sm font-medium transition-colors duration-300",
-                      "group-hover:text-white"
-                    )}>
+                    <span className="ml-3 text-sm font-medium">
                       {item.label}
                     </span>
                   )}
@@ -82,9 +81,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-10 h-10",
-              "rounded-md transition-all duration-300",
-              "hover:bg-zinc-800 text-zinc-400 hover:text-white"
+              "flex items-center justify-center w-10 h-10 rounded-md",
+              "text-zinc-400 hover:bg-zinc-800 hover:text-white"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
