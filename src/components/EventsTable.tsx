@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
-import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,7 @@ import {
 
 interface EventsTableProps {
   groupedEvents: Record<string, any[]>;
-  handleDelete: (id: string) => Promise<void>;
+  handleDelete: (eventCode: string) => Promise<void>;
 }
 
 const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
@@ -42,7 +41,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
             
             <div className="rounded-md border">
               {monthEvents.map((event: any, index: number) => (
-                <div key={event.id}>
+                <div key={event.event_code}>
                   <div className="flex items-center px-4 py-3 hover:bg-muted/50">
                     <div className="flex items-center flex-1 gap-4">
                       <div className="flex flex-col space-y-2.5 flex-1">
@@ -56,7 +55,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
                           <span className="text-xs text-zinc-400">
-                            {event.event_code || `EVENT-${format(parseISO(event.event_date), 'ddMM')}`}
+                            {event.event_code}
                           </span>
                           {event.venues && event.venues.length > 0 && (
                             <span className="text-sm text-muted-foreground">
@@ -69,7 +68,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                     <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
-                        onClick={() => navigate(`/events/${event.id}/edit`)}
+                        onClick={() => navigate(`/events/${event.event_code}/edit`)}
                         className="text-zinc-600 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         <Edit className="h-4 w-4 mr-2" />
@@ -95,7 +94,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDelete(event.id)}
+                              onClick={() => handleDelete(event.event_code)}
                               className="bg-zinc-900 hover:bg-zinc-700"
                             >
                               Delete

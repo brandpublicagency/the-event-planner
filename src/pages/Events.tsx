@@ -19,7 +19,7 @@ const Events = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          id,
+          event_code,
           name,
           pax,
           event_date,
@@ -28,7 +28,10 @@ const Events = () => {
           venue_id,
           bride_name,
           groom_name,
-          client_address
+          client_address,
+          event_venues (
+            venue:venues(*)
+          )
         `)
         .order('event_date', { ascending: true });
       
@@ -37,12 +40,12 @@ const Events = () => {
     },
   });
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (eventCode: string) => {
     try {
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', id);
+        .eq('event_code', eventCode);
 
       if (error) throw error;
 

@@ -43,12 +43,12 @@ const NewEvent = () => {
 
       if (eventError) throw eventError;
 
-      // Create venue relationships
+      // Create venue relationships if any venues are selected
       if (data.venues) {
         const venueRelations = Object.entries(data.venues)
           .filter(([_, selected]) => selected)
           .map(([venueId]) => ({
-            event_id: eventData.id,
+            event_code: eventCode,
             venue_id: venueId
           }));
 
