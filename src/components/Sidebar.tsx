@@ -21,14 +21,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen bg-zinc-900",
-        isCollapsed ? "w-[80px]" : "w-64",
+        "relative flex flex-col h-screen transition-all duration-300",
+        isCollapsed ? "bg-zinc-900 w-[80px]" : "bg-white w-64",
         className
       )}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-zinc-800">
+        <div className={cn(
+          "p-4 border-b transition-colors duration-300",
+          isCollapsed ? "border-zinc-800" : "border-zinc-200"
+        )}>
           <div className="flex items-center justify-center">
             <img 
               src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
@@ -55,12 +58,16 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   className={cn(
                     "flex items-center h-10 transition-all duration-300 ease-in-out group",
                     isCollapsed ? "justify-center" : "",
-                    isActive ? "text-white" : "text-zinc-400"
+                    isCollapsed 
+                      ? (isActive ? "text-white" : "text-zinc-400") 
+                      : (isActive ? "text-zinc-900" : "text-zinc-600")
                   )}
                 >
                   <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-md",
-                    isActive ? "bg-zinc-800" : "hover:bg-zinc-800"
+                    "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
+                    isCollapsed
+                      ? (isActive ? "bg-zinc-800" : "hover:bg-zinc-800")
+                      : (isActive ? "bg-zinc-100" : "hover:bg-zinc-100")
                   )}>
                     <Icon className="h-5 w-5" />
                   </div>
@@ -77,12 +84,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Footer with toggle */}
-        <div className="p-4 border-t border-zinc-800">
+        <div className={cn(
+          "p-4 border-t transition-colors duration-300",
+          isCollapsed ? "border-zinc-800" : "border-zinc-200"
+        )}>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-md",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
+              isCollapsed 
+                ? "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
