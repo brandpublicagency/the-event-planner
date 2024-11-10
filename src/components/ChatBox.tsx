@@ -14,8 +14,6 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-console.log("ChatBox: OpenAI client initialization status:", !!openai);
-
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -26,17 +24,37 @@ const ChatBox = () => {
   const { data: pdfContents } = useQuery({
     queryKey: ['pdf-contents'],
     queryFn: async () => {
-      console.log("Fetching PDF contents from Supabase...");
       const { data, error } = await supabase
         .from('pdf_processed_content')
         .select('content')
         .not('content', 'is', null);
       
-      if (error) {
-        console.error("Error fetching PDF contents:", error);
-        throw error;
-      }
-      console.log("PDF contents fetched successfully:", data?.length, "documents");
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch upcoming events
+  const { data: upcomingEvents } = useQuery({
+    queryKey: ['upcoming-events'],
+    queryFn: async () => {
+      const today = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          wedding_details (*),
+          corporate_details (*),
+          event_venues (
+            venues (
+              name
+            )
+          )
+        `)
+        .gte('event_date', today)
+        .order('event_date', { ascending: true });
+      
+      if (error) throw error;
       return data;
     }
   });
@@ -46,7 +64,6 @@ const ChatBox = () => {
     if (!inputValue.trim()) return;
 
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      console.error("OpenAI API key not configured");
       toast({
         title: "Error",
         description: "OpenAI API key not configured",
@@ -55,7 +72,6 @@ const ChatBox = () => {
       return;
     }
 
-    // Add user message
     const newMessages = [...messages, { text: inputValue, isUser: true }];
     setMessages(newMessages);
     setInputValue("");
@@ -68,32 +84,44 @@ const ChatBox = () => {
         .filter(Boolean)
         .join('\n\n');
 
-      console.log("Sending request to OpenAI with model: gpt-4o-mini");
-      
+      // Prepare context from upcoming events
+      const eventsContext = upcomingEvents?.map(event => {
+        const venue = event.event_venues?.[0]?.venues?.name || 'No venue specified';
+        const date = new Date(event.event_date).toLocaleDateString();
+        
+        let details = '';
+        if (event.wedding_details) {
+          details = `Wedding: ${event.wedding_details.bride_name} & ${event.wedding_details.groom_name}`;
+        } else if (event.corporate_details) {
+          details = `Corporate: ${event.corporate_details.company_name}`;
+        }
+
+        return `Event: ${event.name} (${event.event_type})
+Date: ${date}
+Venue: ${venue}
+Details: ${details}
+Pax: ${event.pax}
+`;
+      }).join('\n\n');
+
       const systemMessage: ChatCompletionMessageParam = {
         role: "system",
-        content: `You are an expert event planning assistant for internal coordinators. Your role is to help with:
+        content: `You are an expert event planning assistant with access to the following information:
 
-1. Event Planning:
-   - Suggest timelines and checklists for different event types
-   - Provide vendor coordination tips
-   - Help with budget allocation and management
-   - Recommend setup and logistics arrangements
+1. Upcoming Events:
+${eventsContext || 'No upcoming events found.'}
 
-2. Event Execution:
-   - Share best practices for day-of coordination
-   - Provide contingency planning advice
-   - Suggest solutions for common event challenges
-   - Help with staff and volunteer management
+2. Event Planning Guidelines:
+${pdfContext || 'No additional guidelines available.'}
 
-3. Optimization:
-   - Recommend ways to improve event flow
-   - Suggest cost-saving measures
-   - Share insights from similar past events
-   - Provide tips for better guest experience
+Your role is to help with:
+1. Event Planning & Management
+2. Schedule Coordination
+3. Venue Information
+4. Client Details
+5. Best Practices & Guidelines
 
-Use this context from our internal documents to provide specific advice:
-${pdfContext || 'No additional context available.'}`
+Please use this information to provide accurate and contextual responses about events, schedules, and planning details.`
       };
 
       const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
@@ -106,7 +134,6 @@ ${pdfContext || 'No additional context available.'}`
         model: "gpt-4o-mini",
       });
 
-      console.log("Received response from OpenAI:", completion.choices[0]?.message);
       const botResponse = completion.choices[0]?.message?.content;
       if (botResponse) {
         setMessages([...newMessages, { text: botResponse, isUser: false }]);
@@ -182,6 +209,7 @@ ${pdfContext || 'No additional context available.'}`
       </div>
     </div>
   );
+
 };
 
 export default ChatBox;
