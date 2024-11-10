@@ -24,8 +24,8 @@ function Calendar({
         caption_label: "text-sm font-medium",
         nav: "space-x-1 flex items-center absolute w-full justify-between left-0 px-3",
         nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-full border-none"
+          buttonVariants({ variant: "ghost" }),
+          "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-full"
         ),
         nav_button_previous: "",
         nav_button_next: "",
@@ -34,20 +34,17 @@ function Calendar({
         head_cell:
           "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] h-10",
         row: "flex w-full mt-2",
-        cell: "h-10 w-10 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        cell: "h-10 w-10 text-center text-sm p-0 relative",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal rounded-md hover:bg-transparent"
+          "h-10 w-10 p-0 font-normal hover:bg-transparent"
         ),
-        day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
-        day_today: "bg-accent text-accent-foreground rounded-md",
+          "text-primary hover:bg-transparent hover:text-primary font-medium",
+        day_today: "text-primary font-medium",
         day_outside:
-          "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+          "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground rounded-md",
         day_hidden: "invisible",
         ...classNames,
       }}
