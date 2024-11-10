@@ -6,12 +6,10 @@ import { Card } from "@/components/ui/card";
 import OpenAI from "openai";
 import { useToast } from "@/components/ui/use-toast";
 
-const openai = import.meta.env.VITE_OPENAI_API_KEY 
-  ? new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true
-    })
-  : null;
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
@@ -23,7 +21,7 @@ const ChatBox = () => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    if (!openai) {
+    if (!import.meta.env.VITE_OPENAI_API_KEY) {
       toast({
         title: "Error",
         description: "OpenAI API key not configured",
