@@ -6,13 +6,13 @@ interface VenueSelectProps {
   form: UseFormReturn<any>;
 }
 
-// Updated venue list as requested
+// Updated venue list with proper UUIDs
 const mockVenues = [
-  { id: "1", name: "The Gallery" },
-  { id: "2", name: "The Kitchen" },
-  { id: "3", name: "The Grand Hall" },
-  { id: "4", name: "The Lawn" },
-  { id: "5", name: "Accommodation" }
+  { id: "123e4567-e89b-12d3-a456-426614174001", name: "The Gallery" },
+  { id: "123e4567-e89b-12d3-a456-426614174002", name: "The Kitchen" },
+  { id: "123e4567-e89b-12d3-a456-426614174003", name: "The Grand Hall" },
+  { id: "123e4567-e89b-12d3-a456-426614174004", name: "The Lawn" },
+  { id: "123e4567-e89b-12d3-a456-426614174005", name: "Accommodation" }
 ];
 
 export const VenueSelect = ({ form }: VenueSelectProps) => {
