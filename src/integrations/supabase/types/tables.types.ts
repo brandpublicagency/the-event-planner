@@ -1,14 +1,19 @@
 import { Database } from "./database.types";
 
+// Base interfaces for common fields
+interface BaseTable {
+  created_at?: string;
+}
+
 export interface EventsTable {
   Row: {
-    id: string;
+    event_code: string;
     name: string;
-    pax: number | null;
-    event_date: string;
     event_type: Database["public"]["Enums"]["event_type"];
+    event_date: string;
+    pax: number | null;
     status: Database["public"]["Enums"]["event_status"] | null;
-    venue_id: string | null;
+    package_id: string | null;
     created_by: string | null;
     created_at: string;
     bride_name: string | null;
@@ -18,15 +23,19 @@ export interface EventsTable {
     groom_email: string | null;
     groom_mobile: string | null;
     client_address: string | null;
+    company_name: string | null;
+    company_address: string | null;
+    company_vat: string | null;
+    contact_person: string | null;
   };
   Insert: {
-    id?: string;
+    event_code: string;
     name: string;
-    pax?: number | null;
-    event_date: string;
     event_type: Database["public"]["Enums"]["event_type"];
+    event_date: string;
+    pax?: number | null;
     status?: Database["public"]["Enums"]["event_status"] | null;
-    venue_id?: string | null;
+    package_id?: string | null;
     created_by?: string | null;
     created_at?: string;
     bride_name?: string | null;
@@ -36,15 +45,19 @@ export interface EventsTable {
     groom_email?: string | null;
     groom_mobile?: string | null;
     client_address?: string | null;
+    company_name?: string | null;
+    company_address?: string | null;
+    company_vat?: string | null;
+    contact_person?: string | null;
   };
   Update: {
-    id?: string;
+    event_code?: string;
     name?: string;
-    pax?: number | null;
-    event_date?: string;
     event_type?: Database["public"]["Enums"]["event_type"];
+    event_date?: string;
+    pax?: number | null;
     status?: Database["public"]["Enums"]["event_status"] | null;
-    venue_id?: string | null;
+    package_id?: string | null;
     created_by?: string | null;
     created_at?: string;
     bride_name?: string | null;
@@ -54,6 +67,10 @@ export interface EventsTable {
     groom_email?: string | null;
     groom_mobile?: string | null;
     client_address?: string | null;
+    company_name?: string | null;
+    company_address?: string | null;
+    company_vat?: string | null;
+    contact_person?: string | null;
   };
 }
 
@@ -141,26 +158,25 @@ export interface VenuesTable {
   };
 }
 
-export interface PackagesTable {
+export interface PackagesTable extends BaseTable {
   Row: {
     id: string;
     name: string;
     description: string | null;
-    package_type: Database["public"]["Enums"]["package_type"];
+    package_type: string;
     base_price: number;
     discount_percentage: number;
     max_guests: number | null;
     accommodation_nights: number | null;
     accommodation_rooms: number | null;
-    created_at: string;
-  };
+  } & BaseTable;
   Insert: {
     id?: string;
     name: string;
     description?: string | null;
-    package_type: Database["public"]["Enums"]["package_type"];
+    package_type: string;
     base_price: number;
-    discount_percentage: number;
+    discount_percentage?: number;
     max_guests?: number | null;
     accommodation_nights?: number | null;
     accommodation_rooms?: number | null;
@@ -170,7 +186,7 @@ export interface PackagesTable {
     id?: string;
     name?: string;
     description?: string | null;
-    package_type?: Database["public"]["Enums"]["package_type"];
+    package_type?: string;
     base_price?: number;
     discount_percentage?: number;
     max_guests?: number | null;
