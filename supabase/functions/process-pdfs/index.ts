@@ -18,21 +18,38 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get all PDF files from the database
+    // Get all PDF files that haven't been processed yet
     const { data: pdfFiles, error: pdfError } = await supabase
       .from('pdf_files')
-      .select('*');
+      .select('id, file_path')
+      .not('id', 'in', (
+        supabase
+          .from('pdf_processed_content')
+          .select('pdf_id')
+      ));
 
     if (pdfError) throw pdfError;
+    
+    console.log(`Found ${pdfFiles?.length ?? 0} PDFs to process`);
 
-    // For each PDF, download it and process with OpenAI
+    if (!pdfFiles || pdfFiles.length === 0) {
+      return new Response(
+        JSON.stringify({ message: 'No new PDFs to process' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     for (const pdf of pdfFiles) {
+      // Download the PDF file
       const { data: fileData, error: downloadError } = await supabase
         .storage
         .from('pdfs')
         .download(pdf.file_path);
 
-      if (downloadError) throw downloadError;
+      if (downloadError) {
+        console.error(`Error downloading PDF ${pdf.id}:`, downloadError);
+        continue;
+      }
 
       // Convert the file to base64
       const reader = new FileReader();
@@ -41,7 +58,7 @@ serve(async (req) => {
         reader.readAsDataURL(fileData);
       });
 
-      // Send to OpenAI for processing
+      // Process with OpenAI
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -49,7 +66,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gpt-4",
           messages: [
             {
               role: "system",
@@ -75,15 +92,19 @@ serve(async (req) => {
       const aiResponse = await response.json();
       
       // Store the processed content
-      const { error: updateError } = await supabase
+      const { error: insertError } = await supabase
         .from('pdf_processed_content')
-        .upsert({
+        .insert({
           pdf_id: pdf.id,
           content: aiResponse.choices[0].message.content,
           updated_at: new Date().toISOString(),
         });
 
-      if (updateError) throw updateError;
+      if (insertError) {
+        console.error(`Error storing processed content for PDF ${pdf.id}:`, insertError);
+      } else {
+        console.log(`Successfully processed PDF ${pdf.id}`);
+      }
     }
 
     return new Response(
