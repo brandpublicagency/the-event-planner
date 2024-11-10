@@ -15,7 +15,7 @@ type Message = {
   isUser: boolean;
 };
 
-export const ChatBox = () => {
+const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -100,3 +100,5 @@ export const ChatBox = () => {
     </div>
   );
 };
+
+export default ChatBox;
