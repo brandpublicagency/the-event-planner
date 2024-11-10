@@ -21,7 +21,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen transition-all duration-300 rounded-r-xl",
+        "relative flex flex-col h-screen",
         isCollapsed ? "bg-zinc-900 w-[80px]" : "bg-zinc-100 w-64",
         className
       )}
@@ -29,7 +29,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className={cn(
-          "p-4 border-b transition-colors duration-300",
+          "p-4",
           isCollapsed ? "border-zinc-800" : "border-zinc-200"
         )}>
           <div className="flex items-center justify-center">
@@ -37,7 +37,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
               alt="WarmKaroo Logo" 
               className={cn(
-                "transition-all duration-300",
                 isCollapsed ? "h-8" : "h-10"
               )}
             />
@@ -56,19 +55,19 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 transition-colors duration-200 py-2",
-                    isCollapsed ? "justify-center w-10" : "px-3",
+                    "flex items-center h-10 py-2 px-4 rounded-md font-medium",
+                    isCollapsed ? "justify-center w-10" : "",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-300") 
                       : (isActive 
-                          ? "text-zinc-900 bg-zinc-50 border border-zinc-200" 
-                          : "text-zinc-700 hover:bg-zinc-50/50 hover:border hover:border-zinc-200")
+                          ? "text-zinc-900 bg-white border-2 border-zinc-300" 
+                          : "text-zinc-700 hover:bg-white hover:border hover:border-zinc-200")
                   )}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-medium truncate">
+                    <span className="ml-3 text-sm truncate">
                       {item.label}
                     </span>
                   )}
@@ -80,13 +79,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Footer with toggle */}
         <div className={cn(
-          "p-4 border-t transition-colors duration-300",
+          "p-4",
           isCollapsed ? "border-zinc-800" : "border-zinc-200"
         )}>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-lg transition-colors outline-none ring-0 focus:ring-0",
+              "flex items-center justify-center w-10 h-10 rounded-lg outline-none ring-0 focus:ring-0",
               isCollapsed 
                 ? "text-zinc-300 hover:bg-zinc-800 hover:text-white"
                 : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
