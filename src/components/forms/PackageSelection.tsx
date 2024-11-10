@@ -1,6 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,8 +39,10 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
-      currency: 'ZAR'
-    }).format(price);
+      currency: 'ZAR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(price).replace('ZAR', 'R');
   };
 
   if (isPackagesError || isVenuesError) {
@@ -62,29 +64,33 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
             >
               <div className="space-y-4">
                 <div className="text-lg font-semibold">Packages</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {packages?.map((pkg) => (
                     <Card 
                       key={pkg.id}
-                      className={`relative cursor-pointer transition-all ${
+                      className={`relative cursor-pointer transition-all hover:border-primary ${
                         field.value === pkg.id ? 'border-primary' : ''
                       }`}
                     >
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
+                      <div className="p-6 flex justify-between items-start">
+                        <div className="space-y-3">
                           <div>
-                            <CardTitle>{pkg.name}</CardTitle>
-                            <CardDescription>{pkg.description}</CardDescription>
+                            <div className="flex items-baseline gap-1">
+                              <h3 className="text-lg font-semibold">{pkg.name}</h3>
+                              {pkg.discount_percentage > 0 && (
+                                <span className="text-sm text-muted-foreground">
+                                  SAVE {pkg.discount_percentage}%
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-muted-foreground text-sm mt-1">{pkg.description}</p>
                           </div>
-                          <RadioGroupItem value={pkg.id} className="mt-1" />
+                          <div className="text-2xl font-bold">
+                            {formatPrice(pkg.base_price)}
+                          </div>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          {formatPrice(pkg.base_price)}
-                          <span className="text-sm font-normal text-muted-foreground ml-1">excl. VAT</span>
-                        </div>
-                      </CardContent>
+                        <RadioGroupItem value={pkg.id} className="mt-1" />
+                      </div>
                     </Card>
                   ))}
                 </div>
@@ -92,30 +98,28 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
 
               <div className="space-y-4 mt-8">
                 <div className="text-lg font-semibold">Individual Venues</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {venues?.map((venue) => (
                     <Card 
                       key={venue.id}
-                      className={`relative cursor-pointer transition-all ${
+                      className={`relative cursor-pointer transition-all hover:border-primary ${
                         field.value === venue.id ? 'border-primary' : ''
                       }`}
                     >
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
+                      <div className="p-6 flex justify-between items-start">
+                        <div className="space-y-3">
                           <div>
-                            <CardTitle>{venue.name}</CardTitle>
-                            <CardDescription>{venue.description}</CardDescription>
+                            <h3 className="text-lg font-semibold">{venue.name}</h3>
+                            <p className="text-muted-foreground text-sm mt-1">{venue.description}</p>
                           </div>
-                          <RadioGroupItem value={venue.id} className="mt-1" />
+                          {venue.capacity && (
+                            <div className="text-sm text-muted-foreground">
+                              Up to {venue.capacity} guests
+                            </div>
+                          )}
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        {venue.capacity && (
-                          <div className="text-sm text-muted-foreground">
-                            Up to {venue.capacity} guests
-                          </div>
-                        )}
-                      </CardContent>
+                        <RadioGroupItem value={venue.id} className="mt-1" />
+                      </div>
                     </Card>
                   ))}
                 </div>
