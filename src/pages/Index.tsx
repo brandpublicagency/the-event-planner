@@ -31,19 +31,14 @@ const Index = () => {
 
   const upcomingEvents = [
     {
-      title: "Sarah & John's Wedding",
-      description: "Traditional ceremony followed by garden reception",
+      title: "Sample Wedding",
+      description: "Wedding Event",
       progress: 75,
       teamSize: 4,
-      dueDate: "2024-03-15",
-    },
-    {
-      title: "Corporate Year-End Gala",
-      description: "Annual celebration with awards ceremony",
-      progress: 30,
-      teamSize: 6,
-      dueDate: "2024-04-01",
-    },
+      dueDate: "2024-01-01",
+      event_code: "EVENT-0101",
+      venues: [{ name: "The Gallery" }]
+    }
   ];
 
   return (
@@ -110,7 +105,7 @@ const Index = () => {
               <div className="space-y-4">
                 {upcomingEvents.map((event) => (
                   <ProjectCard 
-                    key={event.title} 
+                    key={event.event_code} 
                     {...event} 
                     onClick={() => toast({ 
                       title: `Event: ${event.title}`, 
