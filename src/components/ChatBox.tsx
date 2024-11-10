@@ -15,7 +15,7 @@ type Message = {
   isUser: boolean;
 };
 
-export const ChatBox = () => {
+const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -35,11 +35,11 @@ export const ChatBox = () => {
       const completion = await openai.chat.completions.create({
         messages: [
           {
-            role: "system" as const,
+            role: "system",
             content: "You are a helpful event planning assistant. Provide concise and relevant responses to help users plan their events."
           },
           ...newMessages.map(msg => ({
-            role: msg.isUser ? ("user" as const) : ("assistant" as const),
+            role: msg.isUser ? "user" : "assistant",
             content: msg.text
           }))
         ],
@@ -100,3 +100,5 @@ export const ChatBox = () => {
     </div>
   );
 };
+
+export default ChatBox;
