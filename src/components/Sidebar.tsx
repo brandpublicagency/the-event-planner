@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, Calendar, FileText, CalendarDays } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -24,30 +24,22 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       <div className="space-y-6 py-4">
         <div className="px-3 py-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className={cn(
-              "text-lg font-semibold tracking-tight transition-all duration-300",
-              isCollapsed ? "opacity-0 w-0 text-white" : "text-zinc-900"
-            )}>
-              Event Planner
-            </h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8",
-                isCollapsed ? "hover:bg-zinc-800" : "hover:bg-zinc-100"
-              )}
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              {isCollapsed ? 
-                <ChevronRight className={cn("h-4 w-4", isCollapsed ? "text-white" : "text-zinc-500")} /> : 
-                <ChevronLeft className={cn("h-4 w-4", isCollapsed ? "text-white" : "text-zinc-500")} />
-              }
-            </Button>
+            {isCollapsed ? (
+              <img 
+                src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
+                alt="WarmKaroo Logo" 
+                className="h-8 w-8 mx-auto"
+              />
+            ) : (
+              <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+                Event Planner
+              </h2>
+            )}
           </div>
           <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.path;
               return (
                 <Tooltip key={item.path} delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -55,12 +47,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                       <Button
                         variant="ghost"
                         className={cn(
-                          "w-full justify-start gap-x-3",
-                          isCollapsed ? "px-2" : "px-3",
+                          "w-full transition-all duration-300",
+                          isCollapsed ? "justify-center p-2" : "justify-start px-3",
                           isCollapsed ? 
                             "text-white hover:bg-zinc-800" : 
                             "text-zinc-600 hover:bg-zinc-100",
-                          location.pathname === item.path && (
+                          isActive && (
                             isCollapsed ? 
                               "bg-zinc-800 text-white" : 
                               "bg-zinc-100 text-zinc-900"
@@ -68,16 +60,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                         )}
                       >
                         <Icon className={cn(
-                          "h-4 w-4",
+                          "h-5 w-5 transition-all",
                           isCollapsed ? "text-white" : "text-zinc-500",
-                          !isCollapsed && "mr-0.5"
+                          isActive && !isCollapsed && "text-zinc-900"
                         )} />
-                        <span className={cn(
-                          "transition-all duration-300",
-                          isCollapsed && "hidden"
-                        )}>
-                          {item.label}
-                        </span>
+                        {!isCollapsed && (
+                          <span className="ml-3">{item.label}</span>
+                        )}
                       </Button>
                     </Link>
                   </TooltipTrigger>
