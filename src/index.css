@@ -21,7 +21,7 @@
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white;
+    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white ring-1 ring-zinc-200 ring-offset-0;
   }
   
   .nav-link {
@@ -37,27 +37,11 @@
   }
 
   .glow-border {
-    @apply relative rounded-lg overflow-hidden;
-    &::before {
-      content: '';
-      @apply absolute -inset-[2px] rounded-lg;
-      background: linear-gradient(90deg, #ff0000, #e100ff, #ff69b4, #ff0000);
-      background-size: 300% 100%;
-      animation: borderGlow 3s linear infinite;
-      z-index: -1;
-    }
+    @apply relative rounded-lg overflow-hidden ring-1 ring-zinc-200 ring-offset-0;
   }
 
   .card-with-glow {
-    @apply relative rounded-lg overflow-hidden bg-white;
-    &::before {
-      content: '';
-      @apply absolute -inset-[2px] rounded-lg;
-      background: linear-gradient(90deg, #ff0000, #e100ff, #ff69b4, #ff0000);
-      background-size: 300% 100%;
-      animation: borderGlow 3s linear infinite;
-      z-index: -1;
-    }
+    @apply relative rounded-lg overflow-hidden bg-white ring-1 ring-zinc-200 ring-offset-0;
   }
 }
 
