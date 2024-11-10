@@ -19,7 +19,20 @@ const Events = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          *,
+          status,
+          event_type,
+          name,
+          pax,
+          event_date,
+          package_id,
+          event_code,
+          created_by,
+          bride_name,
+          bride_email,
+          bride_mobile,
+          groom_name,
+          groom_email,
+          groom_mobile,
           venues:event_venues(venue:venues(*))
         `)
         .order('event_date', { ascending: true });
