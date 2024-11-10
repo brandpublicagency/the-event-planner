@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import CalendarFilters from "@/components/calendar/CalendarFilters";
@@ -35,7 +35,7 @@ const Calendar = () => {
     },
   });
 
-  const { data: availability, refetch: refetchAvailability } = useQuery({
+  const { data: availability } = useQuery({
     queryKey: ['venue_availability', selectedVenue, selectedStatus, date],
     queryFn: async () => {
       // Mock availability data
@@ -56,32 +56,6 @@ const Calendar = () => {
       ];
     },
   });
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('venue_availability_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'venue_availability',
-          filter: selectedVenue && selectedVenue !== 'all' ? `venue_id=eq.${selectedVenue}` : undefined,
-        },
-        (payload) => {
-          toast({
-            title: "Availability Updated",
-            description: "The venue's availability has been updated.",
-          });
-          refetchAvailability();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedVenue, refetchAvailability, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
