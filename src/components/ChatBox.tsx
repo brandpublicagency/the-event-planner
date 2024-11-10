@@ -17,7 +17,13 @@ const ChatBox = () => {
     setMessages(newMessages);
     setInputValue("");
 
-    // TODO: Add AI response logic here
+    // Simulate bot response
+    setTimeout(() => {
+      setMessages([
+        ...newMessages,
+        { text: "Hello! This is a sample response from the bot.", isUser: false }
+      ]);
+    }, 1000);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +73,7 @@ const ChatBox = () => {
               />
               <Button 
                 type="submit"
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6"
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6 text-white hover:text-white"
               >
                 Send
               </Button>
