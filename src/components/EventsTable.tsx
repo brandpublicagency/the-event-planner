@@ -46,19 +46,17 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                     <div className="flex items-center flex-1 gap-4">
                       <Checkbox />
                       <div className="flex flex-col space-y-2.5 flex-1">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
-                            <Badge variant="outline">
-                              {event.event_type} / {event.pax} Pax
-                            </Badge>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
                           <span className="text-xs text-zinc-500">
                             {event.event_code}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
+                          <Badge variant="outline">
+                            {event.event_type} / {event.pax} Pax
+                          </Badge>
                           {event.venues && event.venues.length > 0 && (
                             <span className="text-sm text-muted-foreground">
                               • {event.venues.map((v: any) => v.name).join(' + ')}
