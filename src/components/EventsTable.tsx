@@ -43,25 +43,29 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
               {monthEvents.map((event: any) => (
                 <div key={event.event_code} className="group">
                   <div className="flex items-center px-4 py-3 hover:bg-gray-50">
-                    <div className="flex items-center flex-1 gap-4">
-                      <Checkbox />
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
-                          <Badge variant="outline" className="text-xs font-normal">
-                            {event.event_type} / {event.pax} Pax
-                          </Badge>
-                          <span className="text-xs text-zinc-500 bg-zinc-100 rounded px-2 py-0.5">
-                            {event.event_code}
-                          </span>
+                    <div className="flex items-center flex-1">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="flex items-center gap-3">
+                          <Checkbox />
+                          <span className="font-medium whitespace-nowrap">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-base font-medium">{event.name}</span>
-                          {event.venues && event.venues.length > 0 && (
-                            <span className="text-sm text-muted-foreground">
-                              • {event.venues.map((v: any) => v.name).join(' + ')}
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
+                              {event.event_type} / {event.pax} Pax
+                            </Badge>
+                            <span className="text-xs text-zinc-500 bg-zinc-100 rounded px-2 py-0.5 whitespace-nowrap">
+                              {event.event_code}
                             </span>
-                          )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-base font-medium truncate">{event.name}</span>
+                            {event.venues && event.venues.length > 0 && (
+                              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                                at {event.venues.map((v: any) => v.name).join(' + ')}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -72,6 +76,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         onClick={() => navigate(`/events/${event.event_code}/edit`)}
                         className="text-zinc-600"
                       >
+                        <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </Button>
                       <AlertDialog>
