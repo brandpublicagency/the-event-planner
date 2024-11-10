@@ -58,10 +58,10 @@ const Login = () => {
         <div className="mx-auto w-full max-w-sm space-y-8">
           <div className="space-y-2 text-left">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Create an account
+              Sign in to your account
             </h1>
             <p className="text-sm text-zinc-500">
-              Enter your email below to create your account
+              Enter your email below to receive a magic link
             </p>
           </div>
 
@@ -106,9 +106,9 @@ const Login = () => {
               },
             }}
             providers={[]}
-            view="magic_link"
+            magicLink={true}
             redirectTo={window.location.origin}
-            showLinks={true}
+            showLinks={false}
           />
 
           <div className="text-left text-sm text-zinc-500">
