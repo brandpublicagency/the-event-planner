@@ -118,9 +118,9 @@ const Calendar = () => {
   );
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight text-primary-900">Calendar</h2>
+        <h2 className="text-2xl font-semibold text-zinc-900">Calendar</h2>
         <CalendarFilters
           venues={venues}
           selectedVenue={selectedVenue}
@@ -132,8 +132,8 @@ const Calendar = () => {
       
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
-      <div className="mt-6 grid gap-8 md:grid-cols-[400px,1fr]">
-        <Card className="bg-white px-4 py-6 rounded-xl shadow-sm border border-primary-200">
+      <div className="grid gap-6 md:grid-cols-[380px,1fr]">
+        <Card className="bg-white p-4 shadow-sm">
           <CalendarComponent
             mode="single"
             selected={date}
@@ -147,11 +147,11 @@ const Calendar = () => {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-primary-900 text-lg">
+            <h4 className="font-medium text-zinc-900">
               Events for {format(date || new Date(), "MMMM d, yyyy")}
             </h4>
             {isEventsLoading && (
-              <Loader2 className="h-5 w-5 animate-spin text-primary-900" />
+              <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
             )}
           </div>
           

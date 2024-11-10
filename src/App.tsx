@@ -32,13 +32,11 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -64,19 +62,19 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-zinc-50">
       <div
-        className={`transition-all duration-300 ease-in-out border-r ${
-          isCollapsed ? "w-[80px] bg-zinc-900" : "w-64 bg-white"
-        }`}
+        className={`transition-all duration-300 ease-in-out ${
+          isCollapsed ? "w-[80px]" : "w-64"
+        } bg-white shadow-sm`}
       >
         <ScrollArea className="h-full">
           <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </ScrollArea>
       </div>
-      <div className="flex-1 overflow-auto bg-background">
+      <main className="flex-1 overflow-auto">
         {children}
-      </div>
+      </main>
     </div>
   );
 };

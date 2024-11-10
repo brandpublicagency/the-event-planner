@@ -34,7 +34,7 @@ const CalendarFilters = ({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-white">
           <Filter className="mr-2 h-4 w-4" />
           Filters
         </Button>
@@ -48,12 +48,12 @@ const CalendarFilters = ({
         </SheetHeader>
         <div className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Venue</label>
+            <label className="text-sm font-medium text-zinc-900">Venue</label>
             <Select 
               value={selectedVenue} 
               onValueChange={setSelectedVenue}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="All venues" />
               </SelectTrigger>
               <SelectContent>
@@ -67,12 +67,12 @@ const CalendarFilters = ({
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Status</label>
+            <label className="text-sm font-medium text-zinc-900">Status</label>
             <Select 
               value={selectedStatus} 
               onValueChange={setSelectedStatus}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>

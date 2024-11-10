@@ -15,18 +15,18 @@ interface MetricCardProps {
 const MetricCard = ({ title, value, icon, trend, onClick }: MetricCardProps) => {
   return (
     <Card 
-      className="cursor-pointer card-with-glow transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
+      className="cursor-pointer transition-all duration-300 hover:bg-zinc-50" 
       onClick={onClick}
     >
-      <CardContent className="p-6 relative z-10">
+      <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="text-sm text-zinc-600">{title}</div>
-          <div className="rounded-md bg-zinc-100 p-1.5 text-zinc-900">{icon}</div>
+          <div className="rounded-md bg-zinc-100 p-2 text-zinc-900">{icon}</div>
         </div>
         <div className="mt-3 flex items-baseline">
           <div className="text-2xl font-semibold text-zinc-900">{value}</div>
           {trend && (
-            <span className={`ml-2 text-sm ${trend.isUpward ? "text-green-600" : "text-red-600"}`}>
+            <span className={`ml-2 text-sm ${trend.isUpward ? "text-emerald-600" : "text-rose-600"}`}>
               {trend.isUpward ? "+" : "-"}{trend.value}%
             </span>
           )}
