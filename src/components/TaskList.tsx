@@ -43,7 +43,7 @@ const TaskList = () => {
   };
 
   return (
-    <Card className="w-full bg-white">
+    <Card className="w-full bg-white border border-zinc-200">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
         <Badge variant="outline" className="text-xs">
