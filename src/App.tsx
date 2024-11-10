@@ -12,6 +12,7 @@ import Events from "./pages/Events";
 import Calendar from "./pages/Calendar";
 import Documents from "./pages/Documents";
 import NewEvent from "./pages/NewEvent";
+import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
 import Login from "./pages/Login";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -73,6 +74,7 @@ const App = () => (
                         <Route path="/events" element={<Events />} />
                         <Route path="/events/new" element={<NewEvent />} />
                         <Route path="/events/:id" element={<EventDetails />} />
+                        <Route path="/events/:id/edit" element={<EditEvent />} />
                         <Route path="/calendar" element={<Calendar />} />
                         <Route path="/documents" element={<Documents />} />
                       </Routes>
