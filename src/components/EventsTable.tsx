@@ -48,15 +48,15 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         <div className="flex items-center gap-3">
                           <Checkbox />
                           <span className="font-medium whitespace-nowrap">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
-                        </div>
-                        <div className="flex items-center gap-2 pl-10">
-                          <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
-                            {event.event_type} / {event.pax} Pax
-                          </Badge>
                           <span className="text-xs text-zinc-500 bg-zinc-100 rounded px-2 py-0.5 whitespace-nowrap">
                             {event.event_code}
                           </span>
+                        </div>
+                        <div className="flex items-center gap-2 pl-10">
                           <span className="text-base font-medium truncate">{event.name}</span>
+                          <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
+                            {event.event_type} / {event.pax} Pax
+                          </Badge>
                           {event.venues && event.venues.length > 0 && (
                             <span className="text-sm text-muted-foreground whitespace-nowrap">
                               • {event.venues.map((v: any) => v.name).join(' + ')}
