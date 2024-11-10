@@ -14,15 +14,16 @@ const Events = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events = [], isLoading, error } = useQuery({
+  const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
           *,
-          event_venues (
-            venues (
+          event_venues!inner (
+            venue_id,
+            venues!inner (
               name
             )
           )
@@ -91,6 +92,8 @@ const Events = () => {
         title: "Success",
         description: "Event deleted successfully",
       });
+      
+      refetch();
     } catch (error: any) {
       toast({
         title: "Error",
