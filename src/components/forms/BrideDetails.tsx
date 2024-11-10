@@ -8,7 +8,7 @@ interface BrideDetailsProps {
 
 const BrideDetails = ({ form }: BrideDetailsProps) => {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="space-y-6">
       <FormField
         control={form.control}
         name="bride_name"
@@ -25,12 +25,12 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
 
       <FormField
         control={form.control}
-        name="bride_email"
+        name="bride_mobile"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Email</FormLabel>
+            <FormLabel>Mobile</FormLabel>
             <FormControl>
-              <Input type="email" {...field} />
+              <Input {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -39,12 +39,12 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
 
       <FormField
         control={form.control}
-        name="bride_mobile"
+        name="bride_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Mobile</FormLabel>
+            <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input type="email" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

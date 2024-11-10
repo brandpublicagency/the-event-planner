@@ -13,6 +13,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         {/* Bride Details */}
         <div className="space-y-6">
           <h3 className="font-medium text-sm text-muted-foreground">Bride Details</h3>
+          <p className="text-sm text-muted-foreground">Update the bride's contact information.</p>
           <FormField
             control={form.control}
             name="bride_name"
@@ -59,6 +60,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         {/* Groom Details */}
         <div className="space-y-6">
           <h3 className="font-medium text-sm text-muted-foreground">Groom Details</h3>
+          <p className="text-sm text-muted-foreground">Update the groom's contact information.</p>
           <FormField
             control={form.control}
             name="groom_name"
