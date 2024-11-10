@@ -7,6 +7,7 @@ import OpenAI from "openai";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -68,11 +69,10 @@ const ChatBox = () => {
         .join('\n\n');
 
       console.log("Sending request to OpenAI with model: gpt-4o-mini");
-      const completion = await openai.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert event planning assistant for internal coordinators. Your role is to help with:
+      
+      const systemMessage: ChatCompletionMessageParam = {
+        role: "system",
+        content: `You are an expert event planning assistant for internal coordinators. Your role is to help with:
 
 1. Event Planning:
    - Suggest timelines and checklists for different event types
@@ -94,12 +94,15 @@ const ChatBox = () => {
 
 Use this context from our internal documents to provide specific advice:
 ${pdfContext || 'No additional context available.'}`
-          },
-          ...newMessages.map(msg => ({
-            role: msg.isUser ? "user" : "assistant",
-            content: msg.text
-          }))
-        ],
+      };
+
+      const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
+        role: msg.isUser ? "user" : "assistant",
+        content: msg.text
+      }));
+
+      const completion = await openai.chat.completions.create({
+        messages: [systemMessage, ...userMessages],
         model: "gpt-4o-mini",
       });
 
