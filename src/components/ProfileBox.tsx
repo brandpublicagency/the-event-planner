@@ -2,11 +2,15 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 import FlipCard from "@/components/FlipCard";
 import ProfileForm from "@/components/profile/ProfileForm";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 const ProfileBox = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   
@@ -75,6 +79,19 @@ const ProfileBox = () => {
     updateProfileMutation.mutate(editForm);
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/login");
+    }
+  };
+
   const frontContent = (
     <div className="h-full">
       <div className="relative h-full">
@@ -93,15 +110,29 @@ const ProfileBox = () => {
   );
 
   const backContent = (
-    <div className="flex h-full flex-col space-y-6">
-      <ProfileForm
-        profile={profile}
-        isEditing={isEditing}
-        editForm={editForm}
-        setEditForm={setEditForm}
-        handleEdit={handleEdit}
-        handleSave={handleSave}
-      />
+    <div className="flex h-full flex-col justify-between p-6">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-zinc-900">Profile Details</h3>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleLogout}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out
+          </Button>
+        </div>
+        <ProfileForm
+          profile={profile}
+          isEditing={isEditing}
+          editForm={editForm}
+          setEditForm={setEditForm}
+          handleEdit={handleEdit}
+          handleSave={handleSave}
+        />
+      </div>
     </div>
   );
 
