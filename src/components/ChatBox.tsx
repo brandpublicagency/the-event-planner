@@ -21,7 +21,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="border-gradient h-[600px]">
+    <div className="border-gradient h-[450px]">
       <Card className="h-full flex flex-col">
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
