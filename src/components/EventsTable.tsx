@@ -45,23 +45,21 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                 <div key={event.id}>
                   <div className="flex items-center px-4 py-3 hover:bg-muted/50">
                     <div className="flex items-center flex-1 gap-4">
-                      <div className="flex items-center gap-4">
-                        <Checkbox />
-                        <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
-                      </div>
-                      <div className="flex flex-col space-y-2.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-medium">{event.name}</span>
-                          <Badge variant="outline" className="ml-2">
+                      <div className="flex flex-col space-y-2.5 flex-1">
+                        <div className="flex items-center gap-4">
+                          <Checkbox />
+                          <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
+                          <Badge variant="outline">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
                           <Badge className={getStatusColor(event.status)}>
                             {event.status}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-medium">{event.name}</span>
                           {event.venue?.name && (
-                            <span>{event.venue.name}</span>
+                            <span className="text-sm text-muted-foreground">• {event.venue.name}</span>
                           )}
                         </div>
                       </div>
