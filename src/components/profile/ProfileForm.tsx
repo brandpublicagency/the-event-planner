@@ -28,7 +28,7 @@ const ProfileForm = ({
   };
 
   return (
-    <div className="space-y-6" onClick={(e) => e.stopPropagation()}>      
+    <div className="space-y-6 mt-6" onClick={(e) => e.stopPropagation()}>      
       {isEditing ? (
         <div className="space-y-6">
           <div>
@@ -72,7 +72,7 @@ const ProfileForm = ({
         <div className="space-y-6">
           <div>
             <label className="text-sm font-medium text-zinc-500 mb-2 block">Name</label>
-            <div className="group flex items-center justify-between p-4 rounded-lg bg-zinc-50">
+            <div className="group flex items-center justify-between rounded-lg bg-zinc-50 px-4 py-3">
               <p className="font-medium text-zinc-900">{profile?.full_name || 'Not set'}</p>
               <Button 
                 variant="ghost" 
@@ -86,7 +86,7 @@ const ProfileForm = ({
           </div>
           <div>
             <label className="text-sm font-medium text-zinc-500 mb-2 block">Surname</label>
-            <div className="group flex items-center justify-between p-4 rounded-lg bg-zinc-50">
+            <div className="group flex items-center justify-between rounded-lg bg-zinc-50 px-4 py-3">
               <p className="font-medium text-zinc-900">{profile?.surname || 'Not set'}</p>
               <Button 
                 variant="ghost" 
@@ -100,7 +100,7 @@ const ProfileForm = ({
           </div>
           <div>
             <label className="text-sm font-medium text-zinc-500 mb-2 block">Mobile</label>
-            <div className="group flex items-center justify-between p-4 rounded-lg bg-zinc-50">
+            <div className="group flex items-center justify-between rounded-lg bg-zinc-50 px-4 py-3">
               <p className="font-medium text-zinc-900">{profile?.mobile || 'Not set'}</p>
               <Button 
                 variant="ghost" 
