@@ -36,7 +36,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
       {events.map((event) => (
         <div
           key={event.event_code}
-          className="rounded-lg border border-zinc-200 p-4 hover:bg-zinc-50 transition-colors duration-200"
+          className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-colors duration-200"
         >
           <div className="flex justify-between items-start">
             <div>
