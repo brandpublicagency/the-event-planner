@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
@@ -83,7 +82,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <Link
+      <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
           "absolute bottom-0 left-0 right-0 h-[50px] flex items-center transition-colors duration-200",
@@ -101,7 +100,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             <span className="ml-3 text-sm font-medium">Collapse</span>
           </>
         )}
-      </Link>
+      </button>
     </div>
   );
 };
