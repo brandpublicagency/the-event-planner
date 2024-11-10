@@ -48,7 +48,7 @@ const NewEvent = () => {
         const venueRelations = Object.entries(data.venues)
           .filter(([_, selected]) => selected)
           .map(([venueId]) => ({
-            event_code: eventCode,
+            event_id: eventCode,  // Use event_id to match the column name
             venue_id: venueId
           }));
 

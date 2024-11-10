@@ -19,19 +19,8 @@ const Events = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          event_code,
-          name,
-          pax,
-          event_date,
-          event_type,
-          status,
-          venue_id,
-          bride_name,
-          groom_name,
-          client_address,
-          event_venues (
-            venue:venues(*)
-          )
+          *,
+          venues:event_venues(venue:venues(*))
         `)
         .order('event_date', { ascending: true });
       
@@ -64,7 +53,6 @@ const Events = () => {
     }
   };
 
-  // Group events by month
   const groupedEvents = events?.reduce((groups: any, event) => {
     const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
