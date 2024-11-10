@@ -14,10 +14,11 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch events from Supabase
+  // Fetch only upcoming events for dashboard
   const { data: events = [], refetch } = useQuery({
-    queryKey: ['events'],
+    queryKey: ['upcoming_events'],
     queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -28,7 +29,10 @@ const Index = () => {
               name
             )
           )
-        `);
+        `)
+        .gte('event_date', today)
+        .order('event_date', { ascending: true })
+        .limit(5); // Only get the next 5 upcoming events
 
       if (error) {
         toast({
@@ -78,7 +82,6 @@ const Index = () => {
         description: "Event deleted successfully",
       });
 
-      // Refresh events list
       refetch();
     } catch (error: any) {
       toast({
@@ -114,7 +117,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Events Table Section */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-semibold">Upcoming Events</h3>

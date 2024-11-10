@@ -5,69 +5,44 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/EventsTable";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Events = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock data for demonstration
-  const mockEvents = [
-    {
-      event_code: "EVENT-0101",
-      name: "Sample Wedding",
-      event_type: "Wedding",
-      event_date: "2024-01-01",
-      status: "Confirmed",
-      pax: 100,
-      venues: [{ name: "Main Hall" }]
-    },
-    {
-      event_code: "EVENT-0115",
-      name: "Corporate Retreat",
-      event_type: "Corporate",
-      event_date: "2024-01-15",
-      status: "Confirmed",
-      pax: 75,
-      venues: [{ name: "Conference Center" }]
-    },
-    {
-      event_code: "EVENT-0125",
-      name: "Birthday Celebration",
-      event_type: "Birthday",
-      event_date: "2024-01-25",
-      status: "Confirmed",
-      pax: 50,
-      venues: [{ name: "Garden Pavilion" }]
-    },
-    {
-      event_code: "EVENT-0205",
-      name: "Tech Conference",
-      event_type: "Corporate",
-      event_date: "2024-02-05",
-      status: "Confirmed",
-      pax: 200,
-      venues: [{ name: "Convention Center" }]
-    },
-    {
-      event_code: "EVENT-0214",
-      name: "Valentine's Day Wedding",
-      event_type: "Wedding",
-      event_date: "2024-02-14",
-      status: "Confirmed",
-      pax: 150,
-      venues: [{ name: "Grand Ballroom" }]
-    }
-  ];
+  const { data: events = [], refetch } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          event_venues (
+            venue_id,
+            venues (
+              name
+            )
+          )
+        `)
+        .order('event_date', { ascending: true });
 
-  const handleDelete = async (eventCode: string) => {
-    toast({
-      title: "Success",
-      description: "Event deleted successfully",
-    });
-  };
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch events",
+          variant: "destructive",
+        });
+        throw error;
+      }
 
-  const groupedEvents = mockEvents.reduce((groups: any, event) => {
+      return data || [];
+    },
+  });
+
+  const groupedEvents = events.reduce((groups: any, event) => {
     const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
@@ -78,7 +53,12 @@ const Events = () => {
       groups[monthYear] = [];
     }
     
-    groups[monthYear].push(event);
+    groups[monthYear].push({
+      ...event,
+      venues: event.event_venues?.map((ev: any) => ({
+        name: ev.venues?.name
+      })) || []
+    });
     return groups;
   }, {});
 
@@ -87,9 +67,7 @@ const Events = () => {
       const filteredMonthEvents = (monthEvents as any[]).filter(
         (event) =>
           event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.bride_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.groom_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.client_address?.toLowerCase().includes(searchQuery.toLowerCase())
+          event.event_code.toLowerCase().includes(searchQuery.toLowerCase())
       );
       if (filteredMonthEvents.length > 0) {
         acc[monthYear] = filteredMonthEvents;
@@ -99,12 +77,36 @@ const Events = () => {
     {}
   );
 
+  const handleDelete = async (eventCode: string) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('event_code', eventCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Upcoming Events</h2>
-          <p className="text-muted-foreground">Manage your upcoming events and bookings</p>
+          <h2 className="text-3xl font-bold tracking-tight">Events</h2>
+          <p className="text-muted-foreground">Manage your events and bookings</p>
         </div>
         <Button onClick={() => navigate('/events/new')}>
           <Plus className="mr-2 h-4 w-4" />
