@@ -29,10 +29,6 @@ const Index = () => {
     },
   });
 
-  const upcomingEvents = mockEvents
-    .filter(event => new Date(event.dueDate) > new Date())
-    .slice(0, 3);
-
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
@@ -40,7 +36,6 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Profile Cards */}
         <FlipCard
           front={
             <div className="space-y-4">
@@ -65,20 +60,17 @@ const Index = () => {
           }
         />
 
-        {/* Calendar Card */}
-        <Card className="p-4">
+        <div className="bg-primary h-full rounded-lg">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-md"
+            className="h-full"
           />
-        </Card>
+        </div>
 
-        {/* Chat Box */}
         <ChatBox />
 
-        {/* Stats Card */}
         <Card className="p-6 space-y-4">
           <h3 className="font-semibold">Statistics</h3>
           <div className="space-y-2">
@@ -97,7 +89,6 @@ const Index = () => {
           </div>
         </Card>
 
-        {/* Upcoming Events Card - Full Width */}
         <div className="col-span-1 md:col-span-2 lg:col-span-3">
           <TaskList />
         </div>
