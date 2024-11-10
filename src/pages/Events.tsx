@@ -79,7 +79,10 @@ const Events = () => {
   // Group events by month
   const groupedEvents = events?.reduce((groups: any, event) => {
     const date = new Date(event.event_date);
-    const monthYear = date.toLocaleString('default', { month: 'MMMM', year: 'numeric' });
+    const monthYear = date.toLocaleString('default', { 
+      month: 'long',
+      year: 'numeric'
+    });
     
     if (!groups[monthYear]) {
       groups[monthYear] = [];
