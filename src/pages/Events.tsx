@@ -61,21 +61,6 @@ const Events = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Confirmed':
-        return 'bg-green-100 text-green-800';
-      case 'Tentative':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Inquiry':
-        return 'bg-blue-100 text-blue-800';
-      case 'Cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   // Group events by month
   const groupedEvents = events?.reduce((groups: any, event) => {
     const date = new Date(event.event_date);
@@ -144,7 +129,6 @@ const Events = () => {
 
       <EventsTable 
         groupedEvents={filteredEvents}
-        getStatusColor={getStatusColor}
         handleDelete={handleDelete}
       />
     </div>
