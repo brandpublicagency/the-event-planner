@@ -50,7 +50,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex h-[55px] items-center rounded-md transition-colors duration-200",
+                    "flex h-[40px] items-center rounded-md transition-colors duration-200",
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isCollapsed ? 
                       "text-white hover:bg-zinc-800" : 
@@ -83,24 +83,31 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       </div>
       
       <div className="absolute bottom-4 left-0 w-full px-3">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+        <Link 
+          to="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setIsCollapsed(!isCollapsed);
+          }}
           className={cn(
-            "flex h-[40px] w-[40px] items-center justify-center rounded-md transition-colors duration-200",
+            "flex h-[40px] items-center rounded-md transition-colors duration-200",
+            isCollapsed ? "justify-center px-2" : "px-3",
             isCollapsed ? 
-              "mx-auto text-white hover:bg-zinc-800" : 
+              "text-white hover:bg-zinc-800" : 
               "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
           )}
         >
           {isCollapsed ? (
-            <ChevronRight className={cn(
-              "h-5 w-5 transition-colors",
-              "text-white hover:text-white"
-            )} />
+            <ChevronRight className="h-5 w-5 text-white" />
           ) : (
-            <ChevronLeft className="h-5 w-5 text-zinc-500" />
+            <>
+              <ChevronLeft className="h-5 w-5 text-zinc-500" />
+              <span className="ml-3 text-sm font-medium">
+                Collapse
+              </span>
+            </>
           )}
-        </button>
+        </Link>
       </div>
     </div>
   );
