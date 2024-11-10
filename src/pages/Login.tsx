@@ -33,7 +33,7 @@ const Login = () => {
     <div className="grid grid-cols-1 min-h-screen md:grid-cols-2">
       {/* Dark section with testimonial */}
       <div className="relative hidden md:flex flex-col bg-zinc-900 text-white p-12">
-        <div className="flex items-center gap-2">
+        <div className="flex items-start">
           <img
             src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WK-Light-Logo.svg"
             alt="Logo"
@@ -53,8 +53,8 @@ const Login = () => {
 
       {/* Light section with auth form */}
       <div className="flex flex-col justify-center p-8">
-        <div className="mx-auto w-full max-w-sm space-y-6">
-          <div className="space-y-2 text-center">
+        <div className="mx-auto w-full max-w-sm space-y-8">
+          <div className="space-y-2 text-left">
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
             </h1>
@@ -94,21 +94,21 @@ const Login = () => {
                 },
               },
               className: {
-                container: 'w-full space-y-4',
-                button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800',
+                container: 'w-full space-y-6',
+                button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
-                label: 'text-sm font-medium text-zinc-900',
-                divider: 'my-4',
-                anchor: 'text-zinc-900 hover:text-zinc-800',
+                label: 'text-sm font-medium text-zinc-900 block text-left',
+                divider: 'my-6',
+                anchor: 'text-zinc-900 hover:text-zinc-800 text-left block',
+                message: 'text-left',
               },
             }}
-            providers={["github"]}
-            view="sign_in"
+            view="magic_link"
             redirectTo={window.location.origin}
-            magicLink={true}
+            showLinks={true}
           />
 
-          <div className="text-center text-sm text-zinc-500">
+          <div className="text-left text-sm text-zinc-500">
             <p>
               By clicking continue, you agree to our{' '}
               <a href="#" className="underline hover:text-zinc-900">
