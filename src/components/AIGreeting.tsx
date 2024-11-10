@@ -44,14 +44,15 @@ const AIGreeting = () => {
         });
 
         console.log("API Response:", completion);
-        const generatedGreeting = completion.choices[0]?.message?.content;
+        const generatedText = completion.choices[0]?.message?.content;
         
-        if (generatedGreeting) {
-          console.log("Generated greeting:", generatedGreeting);
-          setGreeting(generatedGreeting);
+        if (generatedText) {
+          console.log("Generated greeting:", generatedText);
+          setGreeting(generatedText);
           toast({
             title: "AI Greeting Generated",
             description: "Successfully connected to OpenAI API",
+            variant: "default"
           });
         } else {
           console.warn("No greeting generated, using default");
@@ -59,7 +60,7 @@ const AIGreeting = () => {
           toast({
             title: "Warning",
             description: "No AI greeting generated. Using default message.",
-            variant: "warning",
+            variant: "destructive"
           });
         }
       } catch (error: any) {

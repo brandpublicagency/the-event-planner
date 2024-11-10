@@ -1,8 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeMinimal } from "@supabase/auth-ui-shared";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
+  const { toast } = useToast();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
@@ -30,11 +33,15 @@ const Login = () => {
             },
           }}
           providers={[]}
-          additionalData={{
-            full_name: true,
-            surname: true,
-            mobile: true,
+          onError={(error) => {
+            toast({
+              title: "Authentication Error",
+              description: error.message,
+              variant: "destructive",
+            });
           }}
+          redirectTo={window.location.origin}
+          magicLink={true}
         />
       </div>
     </div>
