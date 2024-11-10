@@ -26,7 +26,8 @@ const EditEvent = () => {
         .from('events')
         .select(`
           *,
-          package:packages!events_package_id_fkey(*)
+          package_id,
+          package:packages(*)
         `)
         .eq('event_code', id)
         .single();
@@ -35,7 +36,7 @@ const EditEvent = () => {
 
       return {
         ...eventData,
-        event_date: new Date(eventData.event_date)
+        event_date: eventData.event_date ? new Date(eventData.event_date) : null
       };
     },
   });
