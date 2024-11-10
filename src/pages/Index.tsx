@@ -1,7 +1,6 @@
 import { Calendar, ListTodo, Users, CalendarDays } from "lucide-react";
 import Header from "@/components/Header";
 import MetricCard from "@/components/MetricCard";
-import TaskList from "@/components/TaskList";
 import ProjectCard from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,6 +37,18 @@ const Index = () => {
       dueDate: "2024-01-01",
       event_code: "EVENT-0101",
       venues: [{ name: "The Gallery" }]
+    }
+  ];
+
+  const moreUpcomingEvents = [
+    {
+      title: "Corporate Event",
+      description: "Annual Meeting",
+      progress: 45,
+      teamSize: 3,
+      dueDate: "2024-01-15",
+      event_code: "EVENT-0102",
+      venues: [{ name: "The Grand Hall" }]
     }
   ];
 
@@ -80,16 +91,27 @@ const Index = () => {
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Planning Tasks</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Upcoming Events</h2>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => navigate("/tasks")}
+                  onClick={() => navigate("/events")}
                 >
                   View All
                 </Button>
               </div>
-              <TaskList />
+              <div className="space-y-4">
+                {moreUpcomingEvents.map((event) => (
+                  <ProjectCard 
+                    key={event.event_code} 
+                    {...event} 
+                    onClick={() => toast({ 
+                      title: `Event: ${event.title}`, 
+                      description: "Opening event details." 
+                    })} 
+                  />
+                ))}
+              </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-4">
