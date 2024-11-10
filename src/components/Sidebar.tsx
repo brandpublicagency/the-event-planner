@@ -33,8 +33,11 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               )}>
                 <div className="flex items-center gap-2">
                   <img 
-                    src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg"
-                    alt="Warm Karoo Logo" 
+                    src={isCollapsed 
+                      ? "https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg"
+                      : "https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg"
+                    }
+                    alt="WarmKaroo Logo" 
                     className="h-8"
                   />
                   {!isCollapsed && (
@@ -75,7 +78,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           </div>
         </div>
       </div>
-      
       <div className="mt-auto">
         <div className="px-3 py-2">
           <button 

@@ -80,7 +80,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                               {event.event_code}
                             </span>
                             <span className="font-medium whitespace-nowrap">
-                              {event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'No date'}
+                              {event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}
                             </span>
                           </div>
                         </div>
