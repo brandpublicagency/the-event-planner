@@ -34,12 +34,12 @@ const ProfileBox = () => {
         <DropdownMenuTrigger className="w-full">
           <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 transition-colors duration-200">
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>WK</AvatarFallback>
+              <AvatarImage src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png" />
+              <AvatarFallback>LM</AvatarFallback>
             </Avatar>
             <div className="flex-1 text-left">
-              <p className="text-sm font-medium">Event Planner</p>
-              <p className="text-xs text-zinc-500">Manage your account</p>
+              <p className="text-sm font-medium">Louisa Marin</p>
+              <p className="text-xs text-zinc-500">louisa@example.com</p>
             </div>
           </div>
         </DropdownMenuTrigger>
