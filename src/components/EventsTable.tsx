@@ -48,7 +48,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                       <div className="flex flex-col space-y-2.5 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
-                          <span className="text-xs text-zinc-500">
+                          <span className="text-[0.7rem] text-zinc-500 border border-zinc-200 rounded px-1.5 py-0.5">
                             {event.event_code}
                           </span>
                         </div>
