@@ -1,4 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+// Update to a newer version of Deno std library
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
 const GOOGLE_OAUTH_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET')
