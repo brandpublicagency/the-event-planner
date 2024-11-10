@@ -1,20 +1,51 @@
 import { Calendar } from "@/components/ui/calendar";
 import { useQuery } from "@tanstack/react-query";
-import { mockEvents } from "@/data/mockEvents";
-import FlipCard from "@/components/FlipCard";
-import ChatBox from "@/components/ChatBox";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import EventsTable from "@/components/EventsTable";
 import ProfileBox from "@/components/ProfileBox";
+import ChatBox from "@/components/ChatBox";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Fetch events from Supabase
+  const { data: events = [], refetch } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          event_venues (
+            venue_id,
+            venues (
+              name
+            )
+          )
+        `);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch events",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
 
   // Group events by month for the EventsTable
-  const groupedEvents = mockEvents.reduce((groups: any, event) => {
-    const date = new Date(event.dueDate);
+  const groupedEvents = events.reduce((groups: any, event) => {
+    const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
       year: 'numeric'
@@ -26,18 +57,36 @@ const Index = () => {
     
     groups[monthYear].push({
       ...event,
-      event_date: event.dueDate,
-      name: event.title,
-      event_code: event.event_code || `EVT-${Math.random().toString(36).substr(2, 9)}`,
-      event_type: event.event_type || 'Wedding',
-      pax: event.pax || 100,
-      venues: event.venues || [{ name: 'Default Venue' }]
+      venues: event.event_venues?.map((ev: any) => ({
+        name: ev.venues?.name
+      })) || []
     });
     return groups;
   }, {});
 
   const handleDelete = async (eventCode: string) => {
-    console.log('Delete event:', eventCode);
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('event_code', eventCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+
+      // Refresh events list
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -69,7 +118,7 @@ const Index = () => {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-semibold">Upcoming Events</h3>
-          <Button onClick={() => console.log('New event clicked')}>
+          <Button onClick={() => navigate('/events/new')}>
             New Event
           </Button>
         </div>
