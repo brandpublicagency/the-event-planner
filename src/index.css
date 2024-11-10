@@ -45,7 +45,7 @@
   }
 
   .glassmorphism {
-    @apply rounded-2xl bg-gradient-to-br from-zinc-900/95 to-zinc-900/98 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply rounded-2xl backdrop-blur-xl border border-white/10 shadow-2xl bg-zinc-900/95;
     background: linear-gradient(
       135deg,
       rgba(24, 24, 27, 0.95) 0%,
