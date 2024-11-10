@@ -43,6 +43,18 @@
   .card-with-glow {
     @apply relative rounded-lg border border-zinc-200 shadow-sm overflow-hidden bg-white;
   }
+
+  .glassmorphism {
+    @apply rounded-2xl backdrop-blur-xl border border-white/10 shadow-2xl;
+    background: linear-gradient(
+      135deg,
+      rgba(24, 24, 27, 0.95) 0%,
+      rgba(24, 24, 27, 0.98) 100%
+    );
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 @keyframes borderGlow {
