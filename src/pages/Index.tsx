@@ -49,11 +49,11 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="h-[300px]">
+        <div className="h-[400px]">
           <ProfileBox />
         </div>
 
-        <div className="bg-primary rounded-lg flex items-center justify-center">
+        <div className="h-[400px] bg-white rounded-lg flex items-center justify-center shadow-sm">
           <Calendar
             mode="single"
             selected={date}
