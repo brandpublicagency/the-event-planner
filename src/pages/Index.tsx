@@ -49,7 +49,7 @@ const Index = () => {
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=400&q=80"
+                    src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
                     alt="Profile"
                     className="w-48 h-48 object-cover rounded-xl"
                   />
@@ -57,7 +57,7 @@ const Index = () => {
               </div>
               <div className="flex items-center gap-3 mt-6 pt-4 border-t border-zinc-200">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=400&q=80" />
+                  <AvatarImage src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png" />
                   <AvatarFallback>LM</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
