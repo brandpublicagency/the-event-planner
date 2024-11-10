@@ -41,8 +41,8 @@
     &::before {
       content: '';
       @apply absolute inset-0 rounded-lg;
-      background: linear-gradient(90deg, #ff0000, #ff6b6b, #ff0000);
-      background-size: 200% 100%;
+      background: linear-gradient(90deg, #ff0000, #e100ff, #ff69b4, #ff0000);
+      background-size: 300% 100%;
       animation: borderGlow 3s linear infinite;
       z-index: -1;
       margin: -2px;
@@ -54,7 +54,10 @@
   0% {
     background-position: 0% 50%;
   }
+  50% {
+    background-position: 150% 50%;
+  }
   100% {
-    background-position: 200% 50%;
+    background-position: 0% 50%;
   }
 }
