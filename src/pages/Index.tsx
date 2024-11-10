@@ -51,12 +51,12 @@ const Index = () => {
           <ProfileBox />
         </div>
 
-        <div className="w-full bg-primary rounded-lg flex items-center justify-center shadow-sm">
+        <div className="w-full bg-primary rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="h-full"
+            className="rounded-lg"
           />
         </div>
 
