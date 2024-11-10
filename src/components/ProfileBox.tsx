@@ -96,34 +96,38 @@ const ProfileBox = () => {
     <div className="h-full">
       <div className="relative h-full">
         <img
-          src="https://images.unsplash.com/photo-1721322800607-8c38375eef04"
-          alt="Profile"
+          src="https://www.warmkaroo.com/wp-content/uploads/2023/04/Chappel-7.jpeg"
+          alt="Profile Cover"
           className="h-full w-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-6">
           <h2 className="text-2xl font-semibold text-white">
-            {profile?.full_name || 'Loading...'}
+            {profile?.full_name || 'Welcome'}
           </h2>
+          {profile?.surname && (
+            <p className="mt-1 text-sm text-white/80">{profile.surname}</p>
+          )}
         </div>
       </div>
     </div>
   );
 
   const backContent = (
-    <div className="flex h-full flex-col justify-between p-6">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-zinc-900">Profile Details</h3>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleLogout}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign out
-          </Button>
-        </div>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b border-gray-200 p-6">
+        <h3 className="text-xl font-semibold text-zinc-900">Profile Details</h3>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={handleLogout}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign out
+        </Button>
+      </div>
+      <div className="flex-1 overflow-auto p-6">
         <ProfileForm
           profile={profile}
           isEditing={isEditing}
@@ -137,8 +141,8 @@ const ProfileBox = () => {
   );
 
   return (
-    <div className="h-[450px]">
-      <FlipCard front={frontContent} back={backContent} />
+    <div className="h-[450px] w-full">
+      <FlipCard front={frontContent} back={backContent} onEdit={handleEdit} />
     </div>
   );
 };

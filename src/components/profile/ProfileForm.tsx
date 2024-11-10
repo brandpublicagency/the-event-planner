@@ -28,7 +28,7 @@ const ProfileForm = ({
   };
 
   return (
-    <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
+    <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
       <div className="flex justify-end">
         {!isEditing ? (
           <Button variant="ghost" size="icon" onClick={handleEdit}>
@@ -44,7 +44,7 @@ const ProfileForm = ({
       {isEditing ? (
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium text-gray-700">Name</label>
             <Input
               value={editForm.full_name}
               onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
@@ -54,7 +54,7 @@ const ProfileForm = ({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Surname</label>
+            <label className="text-sm font-medium text-gray-700">Surname</label>
             <Input
               value={editForm.surname}
               onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
@@ -64,7 +64,7 @@ const ProfileForm = ({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Mobile</label>
+            <label className="text-sm font-medium text-gray-700">Mobile</label>
             <Input
               value={editForm.mobile}
               onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
@@ -75,16 +75,19 @@ const ProfileForm = ({
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Name:</span> {profile?.full_name}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Surname:</span> {profile?.surname}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Mobile:</span> {profile?.mobile}
-          </p>
+        <div className="space-y-4">
+          <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+            <p className="text-sm text-gray-500">Name</p>
+            <p className="mt-1 font-medium">{profile?.full_name || 'Not set'}</p>
+          </div>
+          <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+            <p className="text-sm text-gray-500">Surname</p>
+            <p className="mt-1 font-medium">{profile?.surname || 'Not set'}</p>
+          </div>
+          <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+            <p className="text-sm text-gray-500">Mobile</p>
+            <p className="mt-1 font-medium">{profile?.mobile || 'Not set'}</p>
+          </div>
         </div>
       )}
     </div>
