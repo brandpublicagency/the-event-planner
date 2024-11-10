@@ -31,6 +31,11 @@ const Index = () => {
     },
   });
 
+  const handleEditProfile = () => {
+    // You can implement the edit profile logic here
+    console.log('Edit profile clicked');
+  };
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
@@ -61,6 +66,7 @@ const Index = () => {
               <p className="text-sm">Location: San Francisco, CA</p>
             </div>
           }
+          onEdit={handleEditProfile}
         />
 
         <div className="bg-primary rounded-lg flex items-center justify-center">

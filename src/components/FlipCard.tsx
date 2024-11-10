@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 
 interface FlipCardProps {
   front: React.ReactNode;
   back: React.ReactNode;
+  onEdit?: () => void;
 }
 
-const FlipCard = ({ front, back }: FlipCardProps) => {
+const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
@@ -18,11 +21,24 @@ const FlipCard = ({ front, back }: FlipCardProps) => {
         <div className="absolute w-full h-full backface-hidden">
           <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
             {front}
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute top-4 right-4 z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.();
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
           </Card>
         </div>
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
-            {back}
+            <div className="p-6">
+              {back}
+            </div>
           </Card>
         </div>
       </div>
