@@ -44,7 +44,7 @@ const Index = () => {
               <img
                 src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
                 alt="Profile"
-                className="w-full h-full object-cover rounded-lg"
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
                 <div className="text-white">
