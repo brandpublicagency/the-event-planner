@@ -44,10 +44,10 @@ const ChatBox = () => {
                   }`}
                 >
                   <div
-                    className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                    className={`rounded-2xl px-4 py-2 max-w-[80%] shadow-sm ${
                       message.isUser
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                        ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
+                        : "bg-gray-100 text-gray-800"
                     }`}
                   >
                     {message.text}
@@ -56,16 +56,21 @@ const ChatBox = () => {
               ))}
             </div>
           </ScrollArea>
-          <form onSubmit={handleSubmit} className="p-4 border-t">
+          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100">
             <div className="flex gap-2">
               <Input
                 value={inputValue}
                 onChange={handleInputChange}
                 placeholder="Type your message..."
-                className="flex-1"
+                className="flex-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 autoComplete="off"
               />
-              <Button type="submit">Send</Button>
+              <Button 
+                type="submit"
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity"
+              >
+                Send
+              </Button>
             </div>
           </form>
         </Card>
