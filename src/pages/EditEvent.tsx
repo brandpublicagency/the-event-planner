@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,7 @@ const EditEvent = () => {
         .from('events')
         .select(`
           *,
-          package:package_id (
+          packages:packages(
             id,
             name,
             description,
