@@ -44,28 +44,24 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                 <div key={event.event_code} className="group">
                   <div className="flex items-center px-4 py-3 hover:bg-gray-50">
                     <div className="flex items-center flex-1">
-                      <div className="flex items-center gap-4 min-w-0">
+                      <div className="flex flex-col gap-1 min-w-0">
                         <div className="flex items-center gap-3">
                           <Checkbox />
                           <span className="font-medium whitespace-nowrap">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
                         </div>
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
-                              {event.event_type} / {event.pax} Pax
-                            </Badge>
-                            <span className="text-xs text-zinc-500 bg-zinc-100 rounded px-2 py-0.5 whitespace-nowrap">
-                              {event.event_code}
+                        <div className="flex items-center gap-2 pl-10">
+                          <Badge variant="outline" className="text-xs font-normal whitespace-nowrap">
+                            {event.event_type} / {event.pax} Pax
+                          </Badge>
+                          <span className="text-xs text-zinc-500 bg-zinc-100 rounded px-2 py-0.5 whitespace-nowrap">
+                            {event.event_code}
+                          </span>
+                          <span className="text-base font-medium truncate">{event.name}</span>
+                          {event.venues && event.venues.length > 0 && (
+                            <span className="text-sm text-muted-foreground whitespace-nowrap">
+                              • {event.venues.map((v: any) => v.name).join(' + ')}
                             </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-base font-medium truncate">{event.name}</span>
-                            {event.venues && event.venues.length > 0 && (
-                              <span className="text-sm text-muted-foreground whitespace-nowrap">
-                                • {event.venues.map((v: any) => v.name).join(' + ')}
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
