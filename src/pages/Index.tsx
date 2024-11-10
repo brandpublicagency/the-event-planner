@@ -1,10 +1,11 @@
-import { Calendar as CalendarIcon, Users, CalendarDays, CheckSquare, User2 } from "lucide-react";
+import { Calendar as CalendarIcon, Users, CalendarDays } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
 import FlipCard from "@/components/FlipCard";
 import TaskList from "@/components/TaskList";
+import ChatBox from "@/components/ChatBox";
 import { useState } from "react";
 
 const Index = () => {
@@ -45,7 +46,7 @@ const Index = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-                  <User2 className="h-6 w-6 text-white" />
+                  <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold">John Doe</h3>
@@ -74,6 +75,9 @@ const Index = () => {
           />
         </Card>
 
+        {/* Chat Box */}
+        <ChatBox />
+
         {/* Stats Card */}
         <Card className="p-6 space-y-4">
           <h3 className="font-semibold">Statistics</h3>
@@ -93,26 +97,8 @@ const Index = () => {
           </div>
         </Card>
 
-        {/* Upcoming Events Card */}
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4">Upcoming Events</h3>
-          <div className="space-y-4">
-            {upcomingEvents.map((event) => (
-              <div key={event.event_code} className="flex items-center space-x-4">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">{event.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(event.dueDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Tasks Card */}
-        <div className="col-span-1 md:col-span-2 lg:col-span-2">
+        {/* Upcoming Events Card - Full Width */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-3">
           <TaskList />
         </div>
       </div>
