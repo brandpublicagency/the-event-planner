@@ -22,24 +22,30 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First fetch the event
+      const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          event_venues(venue_id)
-        `)
+        .select('*')
         .eq('event_code', id)
         .single();
       
-      if (error) throw error;
+      if (eventError) throw eventError;
+
+      // Then fetch the venues for this event
+      const { data: venueData, error: venueError } = await supabase
+        .from('event_venues')
+        .select('venue_id')
+        .eq('event_id', id);
+
+      if (venueError) throw venueError;
       
       // Transform venues array to object format
-      const venuesObject = data.event_venues?.reduce((acc: any, ev: any) => {
+      const venuesObject = venueData.reduce((acc: Record<string, boolean>, ev) => {
         acc[ev.venue_id] = true;
         return acc;
       }, {});
       
-      return { ...data, venues: venuesObject };
+      return { ...eventData, venues: venuesObject };
     },
   });
 
