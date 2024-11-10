@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
@@ -18,65 +17,43 @@ const Calendar = () => {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (error) throw error;
-      return data;
+      // Mock data
+      return {
+        full_name: "Demo User"
+      };
     },
   });
 
   const { data: venues } = useQuery({
     queryKey: ['venues'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('venues')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
+      // Mock venue data
+      return [
+        { id: '1', name: 'Venue A' },
+        { id: '2', name: 'Venue B' }
+      ];
     },
   });
 
   const { data: availability, refetch: refetchAvailability } = useQuery({
     queryKey: ['venue_availability', selectedVenue, selectedStatus, date],
     queryFn: async () => {
-      let query = supabase
-        .from('venue_availability')
-        .select(`
-          *,
-          venue:venues(name),
-          event:events(
-            name,
-            event_type,
-            status,
-            bride_name,
-            groom_name
-          )
-        `)
-        .gte('start_time', new Date(date!.getFullYear(), date!.getMonth(), 1).toISOString())
-        .lte('end_time', new Date(date!.getFullYear(), date!.getMonth() + 1, 0).toISOString())
-        .order('start_time');
-
-      if (selectedVenue && selectedVenue !== 'all') {
-        query = query.eq('venue_id', selectedVenue);
-      }
-
-      if (selectedStatus && selectedStatus !== 'all') {
-        query = query.eq('status', selectedStatus);
-      }
-
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      return data;
+      // Mock availability data
+      return [
+        {
+          id: '1',
+          start_time: new Date().toISOString(),
+          end_time: new Date().toISOString(),
+          venue: { name: 'Venue A' },
+          event: {
+            name: 'Sample Event',
+            event_type: 'Wedding',
+            status: 'Confirmed',
+            bride_name: 'Jane',
+            groom_name: 'John'
+          }
+        }
+      ];
     },
   });
 

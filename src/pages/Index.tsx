@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { toast } = useToast();
@@ -16,20 +15,13 @@ const Index = () => {
   const { data: eventStats } = useQuery({
     queryKey: ['eventStats'],
     queryFn: async () => {
-      const { data: events, error } = await supabase
-        .from('events')
-        .select('status, event_type');
-      
-      if (error) throw error;
-
-      const stats = {
-        total: events.length,
-        upcoming: events.filter(e => e.status === 'Confirmed').length,
-        inquiries: events.filter(e => e.status === 'Inquiry').length,
-        weddings: events.filter(e => e.event_type === 'Wedding').length,
+      // Mock event stats
+      return {
+        total: 10,
+        upcoming: 5,
+        inquiries: 3,
+        weddings: 4
       };
-
-      return stats;
     },
   });
 
@@ -134,5 +126,3 @@ const Index = () => {
     </div>
   );
 };
-
-export default Index;

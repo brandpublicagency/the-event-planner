@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -10,19 +9,23 @@ const EventDetails = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_venues (
-            venue:venues(*)
-          )
-        `)
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
-      return data;
+      // Mock event data
+      return {
+        name: "Sample Event",
+        status: "Confirmed",
+        event_date: new Date().toISOString(),
+        event_venues: [{ venue: { name: "Sample Venue" } }],
+        event_type: "Wedding",
+        pax: 100,
+        event_code: "EVENT-0001",
+        bride_name: "Jane",
+        bride_mobile: "1234567890",
+        bride_email: "jane@example.com",
+        groom_name: "John",
+        groom_mobile: "0987654321",
+        groom_email: "john@example.com",
+        client_address: "123 Sample St"
+      };
     },
   });
 

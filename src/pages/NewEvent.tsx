@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
@@ -28,38 +27,9 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Generate event code
+      // Mock event creation
       const eventCode = `EVENT-${format(new Date(data.event_date), 'ddMM')}`;
       
-      // Create the event
-      const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .insert([{
-          ...data,
-          event_code: eventCode,
-          created_by: (await supabase.auth.getUser()).data.user?.id
-        }])
-        .select()
-        .single();
-
-      if (eventError) throw eventError;
-
-      // Create venue relationships if any venues are selected
-      const selectedVenues = Object.entries(data.venues || {})
-        .filter(([_, selected]) => selected)
-        .map(([venueId]) => ({
-          event_id: eventCode,
-          venue_id: venueId
-        }));
-
-      if (selectedVenues.length > 0) {
-        const { error: venueError } = await supabase
-          .from('event_venues')
-          .insert(selectedVenues);
-
-        if (venueError) throw venueError;
-      }
-
       toast({
         title: "Success",
         description: "Event created successfully",

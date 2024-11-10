@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
@@ -22,17 +21,12 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .select('*, package:packages(*)')
-        .eq('event_code', id)
-        .single();
-      
-      if (eventError) throw eventError;
-
+      // Mock event data
       return {
-        ...eventData,
-        event_date: eventData.event_date ? new Date(eventData.event_date) : null
+        event_type: "Wedding",
+        event_date: new Date().toISOString(),
+        name: "Sample Event",
+        status: "Confirmed"
       };
     },
   });
@@ -45,13 +39,7 @@ const EditEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const { error: eventError } = await supabase
-        .from('events')
-        .update(data)
-        .eq('event_code', id);
-
-      if (eventError) throw eventError;
-
+      // Mock event update
       toast({
         title: "Success",
         description: "Event updated successfully",
