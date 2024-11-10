@@ -28,19 +28,7 @@ const ProfileForm = ({
   };
 
   return (
-    <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
-      <div className="flex justify-end">
-        {!isEditing ? (
-          <Button variant="ghost" size="icon" onClick={handleEdit}>
-            <Edit2 className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button variant="ghost" size="icon" onClick={handleSave}>
-            <Save className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-      
+    <div className="space-y-3" onClick={(e) => e.stopPropagation()}>      
       {isEditing ? (
         <div className="space-y-3">
           <Input
@@ -64,20 +52,61 @@ const ProfileForm = ({
             onClick={handleInputClick}
             placeholder="Enter your mobile number"
           />
+          <div className="flex justify-end">
+            <Button variant="ghost" size="icon" onClick={handleSave}>
+              <Save className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
-            <p className="text-sm text-zinc-500 mb-1">Name</p>
-            <p className="font-medium text-zinc-900">{profile?.full_name || 'Not set'}</p>
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm text-zinc-500">Name</p>
+                <p className="font-medium text-zinc-900">{profile?.full_name || 'Not set'}</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleEdit}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
-            <p className="text-sm text-zinc-500 mb-1">Surname</p>
-            <p className="font-medium text-zinc-900">{profile?.surname || 'Not set'}</p>
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm text-zinc-500">Surname</p>
+                <p className="font-medium text-zinc-900">{profile?.surname || 'Not set'}</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleEdit}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
-            <p className="text-sm text-zinc-500 mb-1">Mobile</p>
-            <p className="font-medium text-zinc-900">{profile?.mobile || 'Not set'}</p>
+          <div className="group rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 relative">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm text-zinc-500">Mobile</p>
+                <p className="font-medium text-zinc-900">{profile?.mobile || 'Not set'}</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleEdit}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}

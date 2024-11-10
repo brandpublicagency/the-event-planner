@@ -115,8 +115,8 @@ const ProfileBox = () => {
 
   const backContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-gray-200 p-6">
-        <h3 className="text-xl font-semibold text-zinc-900">Profile Details</h3>
+      <div className="flex items-center justify-between border-b border-zinc-200 p-4">
+        <h3 className="text-lg font-semibold text-zinc-900">Profile Details</h3>
         <Button 
           variant="ghost" 
           size="sm"
@@ -127,7 +127,7 @@ const ProfileBox = () => {
           Sign out
         </Button>
       </div>
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-4">
         <ProfileForm
           profile={profile}
           isEditing={isEditing}
