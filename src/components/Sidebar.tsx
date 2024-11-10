@@ -34,8 +34,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 <div className="flex items-center gap-2">
                   <img 
                     src={isCollapsed 
-                      ? "https://pink-book.co.za/wp-content/uploads/2024/02/WKW.svg"
-                      : "https://pink-book.co.za/wp-content/uploads/2024/02/WKB.svg"
+                      ? "/wk-icon-black.png"
+                      : "/wk-logo-black.png"
                     }
                     alt="WarmKaroo Logo" 
                     className="h-8"

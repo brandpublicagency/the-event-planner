@@ -20,7 +20,7 @@ const Login = () => {
       <div className="relative hidden h-full flex-col bg-zinc-900 p-10 text-white lg:flex dark:border-r">
         <div className="relative z-20 flex items-center text-lg font-medium">
           <img 
-            src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
+            src="/wk-logo-white.png"
             alt="WarmKaroo Logo" 
             className="h-[100px]"
           />
