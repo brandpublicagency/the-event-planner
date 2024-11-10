@@ -21,8 +21,8 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="metric-card flex flex-col h-[400px]">
-      <ScrollArea className="flex-1 p-4 border-b border-zinc-200">
+    <Card className="metric-card h-[500px] flex flex-col">
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div
@@ -44,7 +44,7 @@ const ChatBox = () => {
           ))}
         </div>
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="p-4">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
         <div className="flex gap-2">
           <Input
             value={inputValue}
