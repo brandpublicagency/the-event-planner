@@ -10,10 +10,25 @@ interface EventUpdateData {
   package_id: string;
   client_address: string;
   venues?: Record<string, boolean>;
+  // Wedding specific fields
+  bride_name?: string;
+  bride_email?: string;
+  bride_mobile?: string;
+  groom_name?: string;
+  groom_email?: string;
+  groom_mobile?: string;
+  // Corporate specific fields
+  company_name?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_mobile?: string;
+  company_vat?: string;
+  company_address?: string;
 }
 
 export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
   try {
+    // Update main event details
     const { error: eventError } = await supabase
       .from('events')
       .update({
@@ -86,8 +101,8 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
     }
 
     // Invalidate both events and upcoming_events queries
-    queryClient.invalidateQueries({ queryKey: ['events'] });
-    queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+    await queryClient.invalidateQueries({ queryKey: ['events'] });
+    await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 
     return { success: true };
   } catch (error: any) {
