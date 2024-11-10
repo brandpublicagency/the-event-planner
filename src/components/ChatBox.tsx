@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,6 +13,8 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+console.log("ChatBox: OpenAI client initialization status:", !!openai);
+
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -23,12 +25,17 @@ const ChatBox = () => {
   const { data: pdfContents } = useQuery({
     queryKey: ['pdf-contents'],
     queryFn: async () => {
+      console.log("Fetching PDF contents from Supabase...");
       const { data, error } = await supabase
         .from('pdf_processed_content')
         .select('content')
         .not('content', 'is', null);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching PDF contents:", error);
+        throw error;
+      }
+      console.log("PDF contents fetched successfully:", data?.length, "documents");
       return data;
     }
   });
@@ -38,6 +45,7 @@ const ChatBox = () => {
     if (!inputValue.trim()) return;
 
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      console.error("OpenAI API key not configured");
       toast({
         title: "Error",
         description: "OpenAI API key not configured",
@@ -59,10 +67,11 @@ const ChatBox = () => {
         .filter(Boolean)
         .join('\n\n');
 
+      console.log("Sending request to OpenAI with model: gpt-4o-mini");
       const completion = await openai.chat.completions.create({
         messages: [
           {
-            role: "system" as const,
+            role: "system",
             content: `You are an expert event planning assistant for internal coordinators. Your role is to help with:
 
 1. Event Planning:
@@ -87,19 +96,20 @@ Use this context from our internal documents to provide specific advice:
 ${pdfContext || 'No additional context available.'}`
           },
           ...newMessages.map(msg => ({
-            role: msg.isUser ? ("user" as const) : ("assistant" as const),
+            role: msg.isUser ? "user" : "assistant",
             content: msg.text
           }))
         ],
-        model: "gpt-4",
+        model: "gpt-4o-mini",
       });
 
+      console.log("Received response from OpenAI:", completion.choices[0]?.message);
       const botResponse = completion.choices[0]?.message?.content;
       if (botResponse) {
         setMessages([...newMessages, { text: botResponse, isUser: false }]);
       }
     } catch (error: any) {
-      console.error('Error getting response:', error);
+      console.error('Error getting response from OpenAI:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to get response from AI",
