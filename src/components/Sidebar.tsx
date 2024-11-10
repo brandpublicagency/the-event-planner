@@ -42,7 +42,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col items-center gap-2.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -51,8 +51,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center w-[45px] h-[45px]",
-                    isCollapsed ? "justify-center" : "w-full px-3",
+                    "flex items-center justify-center w-[45px] h-[45px]",
+                    isCollapsed ? "" : "w-full",
                     "transition-colors duration-200 rounded-md",
                     isActive 
                       ? "bg-zinc-100 text-zinc-900" 
@@ -61,7 +61,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-medium">
+                    <span className="ml-3 text-sm font-medium flex-grow text-left">
                       {item.label}
                     </span>
                   )}
@@ -77,8 +77,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center w-[45px] h-[45px]",
-              isCollapsed ? "justify-center" : "w-full px-3",
+              "flex items-center justify-center w-[45px] h-[45px]",
+              isCollapsed ? "" : "w-full",
               "transition-colors duration-200 rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             )}
           >
@@ -87,7 +87,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             ) : (
               <>
                 <ChevronLeft className="h-5 w-5 shrink-0" />
-                <span className="ml-3 text-sm font-medium">
+                <span className="ml-3 text-sm font-medium flex-grow text-left">
                   Collapse
                 </span>
               </>
