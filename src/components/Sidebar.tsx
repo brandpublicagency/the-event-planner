@@ -28,19 +28,22 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <div className="mb-4 flex items-center justify-between">
             <h2 className={cn(
               "text-lg font-semibold tracking-tight transition-all duration-300",
-              isCollapsed && "opacity-0 w-0"
+              isCollapsed ? "opacity-0 w-0 text-white" : "text-zinc-900"
             )}>
               Event Planner
             </h2>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className={cn(
+                "h-8 w-8",
+                isCollapsed ? "hover:bg-zinc-800" : "hover:bg-zinc-100"
+              )}
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
               {isCollapsed ? 
-                <ChevronRight className="h-4 w-4 text-zinc-500" /> : 
-                <ChevronLeft className="h-4 w-4 text-zinc-500" />
+                <ChevronRight className={cn("h-4 w-4", isCollapsed ? "text-white" : "text-zinc-500")} /> : 
+                <ChevronLeft className={cn("h-4 w-4", isCollapsed ? "text-white" : "text-zinc-500")} />
               }
             </Button>
           </div>
@@ -52,14 +55,25 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   <TooltipTrigger asChild>
                     <Link to={item.path} className="block">
                       <Button
-                        variant={location.pathname === item.path ? "secondary" : "ghost"}
+                        variant="ghost"
                         className={cn(
                           "w-full justify-start gap-x-3",
                           isCollapsed ? "px-2" : "px-3",
-                          location.pathname === item.path && "bg-zinc-100 dark:bg-zinc-800"
+                          isCollapsed ? 
+                            "text-white hover:bg-zinc-800" : 
+                            "text-zinc-600 hover:bg-zinc-100",
+                          location.pathname === item.path && (
+                            isCollapsed ? 
+                              "bg-zinc-800 text-white" : 
+                              "bg-zinc-100 text-zinc-900"
+                          )
                         )}
                       >
-                        <Icon className={cn("h-4 w-4", !isCollapsed && "mr-0.5")} />
+                        <Icon className={cn(
+                          "h-4 w-4",
+                          isCollapsed ? "text-white" : "text-zinc-500",
+                          !isCollapsed && "mr-0.5"
+                        )} />
                         <span className={cn(
                           "transition-all duration-300",
                           isCollapsed && "hidden"
@@ -80,7 +94,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           </div>
         </div>
         
-        {/* Theme Toggle */}
         <div className="px-3">
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
@@ -90,7 +103,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className={cn(
                   "w-full justify-center gap-x-3",
-                  !isCollapsed && "justify-start"
+                  !isCollapsed && "justify-start",
+                  isCollapsed ? "text-white hover:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100"
                 )}
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
