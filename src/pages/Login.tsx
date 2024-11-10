@@ -28,8 +28,8 @@ const Login = () => {
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
-            <p className="text-lg">
-              "You can always amend a big plan, but you can never expand a little one. I don't believe in little plans. I believe in planes big enough to meet a situation which we can't possibly foresee now."
+            <p className="text-xl">
+              You can always amend a big plan, but you can never expand a little one. I don't believe in little plans. I believe in planes big enough to meet a situation which we can't possibly foresee now.
             </p>
             <footer className="text-sm">Harry S. Truman</footer>
           </blockquote>
