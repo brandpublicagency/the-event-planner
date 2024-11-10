@@ -7,22 +7,41 @@ import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
 }
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
-  const { data: packages } = useQuery({
+  const { toast } = useToast();
+
+  const { data: packages, error: packagesError, isLoading } = useQuery({
     queryKey: ['packages'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('packages')
-        .select('*');
-      
-      if (error) throw error;
-      return data || [];
+      try {
+        const { data, error } = await supabase
+          .from('packages')
+          .select('*');
+        
+        if (error) {
+          toast({
+            title: "Error fetching packages",
+            description: error.message,
+            variant: "destructive",
+          });
+          throw error;
+        }
+        return data || [];
+      } catch (error: any) {
+        console.error('Error fetching packages:', error);
+        throw error;
+      }
     },
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   return (
@@ -61,6 +80,15 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
         <EventDateSelect form={form} />
       </div>
 
+      {packagesError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load packages. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <FormField
         control={form.control}
         name="package_id"
@@ -70,7 +98,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select package" />
+                  <SelectValue placeholder={isLoading ? "Loading packages..." : "Select package"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
