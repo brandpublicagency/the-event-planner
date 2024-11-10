@@ -8,13 +8,16 @@ import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
+import { useState } from "react";
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm({
     defaultValues: {
       status: 'Inquiry',
@@ -26,19 +29,16 @@ const NewEvent = () => {
   const eventType = form.watch("event_type");
 
   const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('You must be logged in to create an event');
       }
 
-      // Ensure user profile exists
       await ensureUserProfile(user.id);
-
-      // Create the event
       const eventCode = await createEvent(data, user.id);
 
-      // Insert venue relationships
       const selectedVenues = Object.entries(data.venues || {})
         .filter(([_, selected]) => selected)
         .map(([venueId]) => ({
@@ -47,7 +47,6 @@ const NewEvent = () => {
         }));
 
       if (selectedVenues.length > 0) {
-        // Use upsert instead of insert to handle potential duplicates
         const { error: venueError } = await supabase
           .from('event_venues')
           .upsert(selectedVenues, {
@@ -58,7 +57,6 @@ const NewEvent = () => {
         if (venueError) throw venueError;
       }
 
-      // Insert event type specific details
       if (data.event_type === 'Wedding') {
         const { error: weddingError } = await supabase
           .from('wedding_details')
@@ -102,29 +100,32 @@ const NewEvent = () => {
         description: error.message || "Failed to create event",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
-      <div className="space-y-6">
-        <Button 
-          variant="ghost" 
-          className="h-8 px-2 lg:px-3"
-          onClick={() => navigate("/events")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Events
-        </Button>
+    <div className="min-h-screen bg-zinc-50/50">
+      <div className="container max-w-5xl py-8">
+        <div className="mb-8 space-y-4">
+          <Button 
+            variant="ghost" 
+            className="h-8 px-2 lg:px-3 -ml-2"
+            onClick={() => navigate("/events")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Events
+          </Button>
 
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">New Event</h2>
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">New Event</h2>
+            <p className="text-sm text-zinc-500 mt-1">Create a new event by filling out the form below.</p>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormSection 
               title="Event Details" 
               description="Enter the basic information about the event."
@@ -134,19 +135,21 @@ const NewEvent = () => {
 
             {eventType === "Wedding" ? (
               <>
-                <FormSection 
-                  title="Bride Details" 
-                  description="Enter the bride's contact information."
-                >
-                  <BrideDetails form={form} />
-                </FormSection>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <FormSection 
+                    title="Bride Details" 
+                    description="Enter the bride's contact information."
+                  >
+                    <BrideDetails form={form} />
+                  </FormSection>
 
-                <FormSection 
-                  title="Groom Details" 
-                  description="Enter the groom's contact information."
-                >
-                  <GroomDetails form={form} />
-                </FormSection>
+                  <FormSection 
+                    title="Groom Details" 
+                    description="Enter the groom's contact information."
+                  >
+                    <GroomDetails form={form} />
+                  </FormSection>
+                </div>
               </>
             ) : (
               <FormSection 
@@ -157,15 +160,21 @@ const NewEvent = () => {
               </FormSection>
             )}
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end space-x-4 sticky bottom-0 bg-white/80 backdrop-blur-sm p-4 -mx-4 mt-8 border-t">
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/events')}
                 type="button"
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Create Event</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Create Event
+              </Button>
             </div>
           </form>
         </Form>
