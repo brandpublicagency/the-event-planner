@@ -9,12 +9,33 @@ import ChatBox from "@/components/ChatBox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import EventsTable from "@/components/EventsTable";
 
 const Index = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   const handleEditProfile = () => {
     console.log('Edit profile clicked');
+  };
+
+  // Group events by month for the EventsTable
+  const groupedEvents = mockEvents.reduce((groups: any, event) => {
+    const date = new Date(event.dueDate);
+    const monthYear = date.toLocaleString('default', { 
+      month: 'long',
+      year: 'numeric'
+    });
+    
+    if (!groups[monthYear]) {
+      groups[monthYear] = [];
+    }
+    
+    groups[monthYear].push(event);
+    return groups;
+  }, {});
+
+  const handleDelete = async (eventCode: string) => {
+    console.log('Delete event:', eventCode);
   };
 
   return (
@@ -64,6 +85,20 @@ const Index = () => {
         <div className="col-span-1 md:col-span-3">
           <ChatBox />
         </div>
+      </div>
+
+      {/* Events Table Section */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-2xl font-semibold">Upcoming Events</h3>
+          <Button onClick={() => console.log('New event clicked')}>
+            New Event
+          </Button>
+        </div>
+        <EventsTable 
+          groupedEvents={groupedEvents}
+          handleDelete={handleDelete}
+        />
       </div>
     </div>
   );
