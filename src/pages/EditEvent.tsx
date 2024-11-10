@@ -36,12 +36,22 @@ const EditEvent = () => {
   // Set form data when event is loaded
   React.useEffect(() => {
     if (event) {
-      form.reset(event);
+      // Convert the event_date string to a Date object for the form
+      const formData = {
+        ...event,
+        event_date: new Date(event.event_date)
+      };
+      form.reset(formData);
     }
   }, [event, form]);
 
   const onSubmit = async (data: any) => {
     try {
+      // Remove package_id if it's not selected
+      if (!data.package_id) {
+        delete data.package_id;
+      }
+
       const { error } = await supabase
         .from('events')
         .update(data)
