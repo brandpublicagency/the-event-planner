@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
 import FlipCard from "@/components/FlipCard";
-import TaskList from "@/components/TaskList";
 import ChatBox from "@/components/ChatBox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -80,7 +79,7 @@ const Index = () => {
           onEdit={handleEditProfile}
         />
 
-        <TaskList />
+        <ChatBox />
 
         <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
@@ -104,10 +103,6 @@ const Index = () => {
           groupedEvents={groupedEvents}
           handleDelete={handleDelete}
         />
-      </div>
-
-      <div className="mt-8">
-        <ChatBox />
       </div>
     </div>
   );
