@@ -7,13 +7,14 @@ import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/EventsTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Events = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events = [], refetch } = useQuery({
+  const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -101,6 +102,16 @@ const Events = () => {
     }
   };
 
+  if (error) {
+    return (
+      <div className="flex-1 p-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-red-800">Error loading events. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
@@ -126,10 +137,18 @@ const Events = () => {
         </div>
       </div>
 
-      <EventsTable 
-        groupedEvents={filteredEvents}
-        handleDelete={handleDelete}
-      />
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-[200px] w-full rounded-lg" />
+          ))}
+        </div>
+      ) : (
+        <EventsTable 
+          groupedEvents={filteredEvents}
+          handleDelete={handleDelete}
+        />
+      )}
     </div>
   );
 };
