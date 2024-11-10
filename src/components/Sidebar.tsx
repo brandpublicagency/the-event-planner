@@ -50,28 +50,28 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex h-[40px] items-center rounded-md transition-colors duration-200",
-                    isCollapsed ? "justify-center px-2" : "px-3",
-                    isCollapsed ? 
-                      "text-white hover:bg-zinc-800" : 
-                      "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-                    isActive && (
-                      isCollapsed ? 
-                        "bg-white w-full" : 
-                        "bg-zinc-100 text-zinc-900"
-                    )
+                    "flex items-center",
+                    isCollapsed ? "justify-center" : "",
+                    "h-10 gap-3"
                   )}
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 transition-colors",
-                    isCollapsed ? (
-                      isActive ? "text-zinc-900" : "text-white"
-                    ) : (
-                      isActive ? "text-zinc-900" : "text-zinc-500"
-                    )
-                  )} />
+                  <div className={cn(
+                    "flex items-center justify-center w-10 h-10 rounded-md transition-colors duration-200",
+                    isCollapsed ? 
+                      isActive ? "bg-white" : "text-white hover:bg-zinc-800" :
+                      isActive ? "bg-zinc-100" : "text-zinc-600 hover:bg-zinc-100"
+                  )}>
+                    <Icon className={cn(
+                      "h-5 w-5",
+                      isCollapsed ? (
+                        isActive ? "text-zinc-900" : "text-white"
+                      ) : (
+                        isActive ? "text-zinc-900" : "text-zinc-500"
+                      )
+                    )} />
+                  </div>
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-medium">
+                    <span className="text-sm font-medium text-zinc-600">
                       {item.label}
                     </span>
                   )}
@@ -89,23 +89,24 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             e.preventDefault();
             setIsCollapsed(!isCollapsed);
           }}
-          className={cn(
-            "flex h-[40px] items-center rounded-md transition-colors duration-200",
-            isCollapsed ? "justify-center px-2" : "px-3",
+          className="flex items-center"
+        >
+          <div className={cn(
+            "flex items-center justify-center w-10 h-10 rounded-md transition-colors duration-200",
             isCollapsed ? 
               "text-white hover:bg-zinc-800" : 
-              "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-          )}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5 text-white" />
-          ) : (
-            <>
+              "text-zinc-600 hover:bg-zinc-100"
+          )}>
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5 text-white" />
+            ) : (
               <ChevronLeft className="h-5 w-5 text-zinc-500" />
-              <span className="ml-3 text-sm font-medium">
-                Collapse
-              </span>
-            </>
+            )}
+          </div>
+          {!isCollapsed && (
+            <span className="text-sm font-medium text-zinc-600 ml-3">
+              Collapse
+            </span>
           )}
         </Link>
       </div>
