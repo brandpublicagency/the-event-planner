@@ -87,10 +87,10 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         className={cn(
           "absolute bottom-0 left-0 flex items-center transition-colors duration-200",
           isCollapsed ? 
-            "justify-center w-full p-2 text-white hover:bg-zinc-800" : 
+            "justify-center w-[80px] p-2 text-white hover:bg-zinc-800" : 
             "px-3 py-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 w-full",
           "h-[55px]",
-          isCollapsed && "hover:bg-white hover:text-zinc-900 hover:w-[80px]"
+          isCollapsed && "hover:bg-white hover:text-zinc-900 hover:w-full"
         )}
       >
         {isCollapsed ? (
