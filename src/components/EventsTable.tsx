@@ -56,8 +56,8 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
-          <div key={monthYear} className="rounded-xl bg-white shadow-sm">
-            <div className="flex items-center gap-2 p-4 border-b border-zinc-100 rounded-t-xl bg-white">
+          <div key={monthYear} className="rounded-xl border border-zinc-200 bg-white">
+            <div className="flex items-center gap-2 p-4 border-b border-zinc-100">
               <Calendar className="h-5 w-5 text-muted-foreground" />
               <h3 className="font-semibold text-lg">{monthYear}</h3>
               <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
@@ -65,7 +65,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
               </Badge>
             </div>
             
-            <div className="divide-y divide-zinc-50">
+            <div className="divide-y divide-zinc-100">
               {monthEvents.map((event: any) => (
                 <div key={event.event_code} className="group">
                   <div className="flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors">
@@ -74,7 +74,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
                             <Checkbox />
-                            <span className="text-xs px-2 py-0.5 bg-zinc-100 rounded-md text-zinc-600">
+                            <span className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
                               {event.event_code}
                             </span>
                             <span className="font-medium whitespace-nowrap">
@@ -85,7 +85,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                         <div className="pl-[30px] space-y-1">
                           <div className="flex items-center gap-2">
                             <h4 className="text-base font-medium leading-none">{event.name}</h4>
-                            <Badge variant="outline" className="text-xs font-normal bg-zinc-50 rounded-md">
+                            <Badge variant="outline" className="text-xs font-normal border border-zinc-200 bg-zinc-50 rounded-md">
                               {event.event_type} / {event.pax} Pax / {event.venues?.map((v: any) => v.name).join(' + ')}
                             </Badge>
                           </div>
@@ -111,7 +111,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                             <Trash className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="border border-zinc-200">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Delete Event</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -119,7 +119,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel className="border border-zinc-200">Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(event.event_code)}
                               className="bg-red-600 hover:bg-red-700"
