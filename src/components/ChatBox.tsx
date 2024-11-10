@@ -26,16 +26,23 @@ const ChatBox = () => {
 
   const generateEventsContext = () => {
     return mockEvents.map(event => `
+      Event Code: ${event.event_code}
       Event: ${event.title}
       Type: ${event.event_type}
       Date: ${new Date(event.dueDate).toLocaleDateString()}
       Status: ${event.status}
+      Progress: ${event.progress}%
+      Team Size: ${event.teamSize} members
       Venue: ${event.venues.map(v => v.name).join(', ')}
-      ${event.event_type === 'Wedding' ? `
-      Bride: ${event.bride_name || 'N/A'}
-      Groom: ${event.groom_name || 'N/A'}
-      ` : ''}
       Guest Count: ${event.pax || 'TBC'}
+      ${event.event_type === 'Wedding' ? `
+      Bride Name: ${event.bride_name || 'N/A'}
+      Bride Email: ${event.bride_email || 'N/A'}
+      Groom Name: ${event.groom_name || 'N/A'}
+      Groom Email: ${event.groom_email || 'N/A'}
+      Client Address: ${event.client_address || 'N/A'}
+      ` : ''}
+      Description: ${event.description}
     `).join('\n\n');
   };
 
@@ -59,12 +66,12 @@ const ChatBox = () => {
             
             ${eventsContext}
             
-            Use this information to answer questions about upcoming events, schedules, and details. Keep your responses concise and professional.`
+            Use this information to answer questions about events, schedules, venues, client details, and team assignments. Keep your responses concise, professional, and focused on the event planning context. If you don't have specific information about something, acknowledge that and suggest what information might be needed.`
           },
           ...messages,
           userMessage
         ],
-        model: "gpt-4",
+        model: "gpt-4o-mini",
       });
 
       const assistantMessage = {
