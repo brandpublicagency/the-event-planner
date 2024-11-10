@@ -55,9 +55,9 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
-                          <Badge variant="secondary">
+                          <span className="text-xs text-zinc-400">
                             {event.event_code || `EVENT-${format(parseISO(event.event_date), 'ddMM')}`}
-                          </Badge>
+                          </span>
                           {event.venues && event.venues.length > 0 && (
                             <span className="text-sm text-muted-foreground">
                               • {event.venues.map((v: any) => v.name).join(' + ')}
