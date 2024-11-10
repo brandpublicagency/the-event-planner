@@ -6,6 +6,8 @@ import { mockEvents } from "@/data/mockEvents";
 import FlipCard from "@/components/FlipCard";
 import TaskList from "@/components/TaskList";
 import ChatBox from "@/components/ChatBox";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const Index = () => {
@@ -38,17 +40,31 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <FlipCard
           front={
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
+            <div className="relative h-full w-full bg-zinc-100 rounded-xl p-6">
+              <div className="space-y-4">
+                <div className="text-3xl font-semibold mb-2">John Doe</div>
+                <div className="text-zinc-500 text-sm">Connecting...</div>
+                <div className="mt-8">
+                  <img
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt="Profile"
+                    className="w-32 h-32 object-cover rounded-lg mx-auto"
+                  />
                 </div>
-                <div>
-                  <h3 className="font-semibold">John Doe</h3>
-                  <p className="text-sm text-muted-foreground">Event Planner</p>
+                <div className="flex items-center gap-2 mt-4">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">john_doe</span>
+                    <span className="text-xs text-zinc-500">23m ago</span>
+                  </div>
+                  <Button className="ml-auto" variant="secondary">
+                    Add Member
+                  </Button>
                 </div>
               </div>
-              <p className="text-sm">Click to view contact details</p>
             </div>
           }
           back={
