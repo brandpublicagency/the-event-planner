@@ -24,8 +24,12 @@ const ProfileForm = ({
   handleEdit, 
   handleSave 
 }: ProfileFormProps) => {
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-semibold">Profile Details</h3>
         {!isEditing ? (
@@ -47,6 +51,7 @@ const ProfileForm = ({
               value={editForm.full_name}
               onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
               className="bg-white"
+              onClick={handleInputClick}
             />
           </div>
           <div className="space-y-2">
@@ -55,6 +60,7 @@ const ProfileForm = ({
               value={editForm.surname}
               onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
               className="bg-white"
+              onClick={handleInputClick}
             />
           </div>
           <div className="space-y-2">
@@ -63,6 +69,7 @@ const ProfileForm = ({
               value={editForm.mobile}
               onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
               className="bg-white"
+              onClick={handleInputClick}
             />
           </div>
         </div>
