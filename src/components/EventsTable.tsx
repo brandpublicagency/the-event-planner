@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,23 +73,25 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                           <Badge variant="outline">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
-                          <Select
-                            defaultValue={event.status}
-                            onValueChange={(value) => handleStatusChange(event.id, value)}
-                          >
-                            <SelectTrigger className="border-0 p-0 h-auto hover:bg-transparent focus:ring-0">
-                              <Badge variant="outline" className={getStatusColor(event.status)}>
-                                <SelectValue>{event.status}</SelectValue>
-                              </Badge>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Inquiry">Inquiry</SelectItem>
-                              <SelectItem value="Tentative">Tentative</SelectItem>
-                              <SelectItem value="Confirmed">Confirmed</SelectItem>
-                              <SelectItem value="Completed">Completed</SelectItem>
-                              <SelectItem value="Cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="w-[90px]">
+                            <Select
+                              defaultValue={event.status}
+                              onValueChange={(value) => handleStatusChange(event.id, value)}
+                            >
+                              <SelectTrigger className="border-0 h-auto hover:bg-zinc-100 focus:ring-0 p-1">
+                                <Badge variant="outline" className={`w-full justify-center ${getStatusColor(event.status)}`}>
+                                  <SelectValue>{event.status}</SelectValue>
+                                </Badge>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Inquiry" className="text-zinc-900">Inquiry</SelectItem>
+                                <SelectItem value="Tentative" className="text-zinc-900">Tentative</SelectItem>
+                                <SelectItem value="Confirmed" className="text-zinc-900">Confirmed</SelectItem>
+                                <SelectItem value="Completed" className="text-zinc-900">Completed</SelectItem>
+                                <SelectItem value="Cancelled" className="text-zinc-900">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-medium">{event.name}</span>
