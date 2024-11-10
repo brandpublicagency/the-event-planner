@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -31,9 +30,16 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 className="h-8 w-8 mx-auto"
               />
             ) : (
-              <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-                Event Planner
-              </h2>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg" 
+                  alt="WarmKaroo Logo" 
+                  className="h-8"
+                />
+                <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+                  Event Planner
+                </h2>
+              </div>
             )}
           </div>
           <div className="space-y-4">
@@ -41,61 +47,54 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
-                <Tooltip key={item.path} delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Link to={item.path} className="block">
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full transition-all duration-300",
-                          isCollapsed ? "justify-center p-2" : "justify-start px-3",
-                          isCollapsed ? 
-                            "text-white hover:bg-zinc-800" : 
-                            "text-zinc-600 hover:bg-zinc-100",
-                          isActive && (
-                            isCollapsed ? 
-                              "bg-zinc-800 text-white" : 
-                              "bg-zinc-100 text-zinc-900"
-                          )
-                        )}
-                      >
-                        <Icon className={cn(
-                          "h-5 w-5 transition-all",
-                          isCollapsed ? "text-white" : "text-zinc-500",
-                          isActive && !isCollapsed && "text-zinc-900"
-                        )} />
-                        {!isCollapsed && (
-                          <span className="ml-3">{item.label}</span>
-                        )}
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  {isCollapsed && (
-                    <TooltipContent side="right">
-                      {item.label}
-                    </TooltipContent>
+                <Link 
+                  key={item.path} 
+                  to={item.path}
+                  className={cn(
+                    "flex items-center w-full rounded-md p-2 transition-colors duration-200",
+                    isCollapsed ? "justify-center" : "px-3",
+                    isCollapsed ? 
+                      "text-white hover:bg-zinc-800" : 
+                      "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
+                    isActive && (
+                      isCollapsed ? 
+                        "bg-zinc-800 text-white" : 
+                        "bg-zinc-100 text-zinc-900"
+                    )
                   )}
-                </Tooltip>
+                >
+                  <Icon className={cn(
+                    "h-5 w-5 transition-colors",
+                    isCollapsed ? "text-white" : "text-zinc-500",
+                    isActive && !isCollapsed && "text-zinc-900"
+                  )} />
+                  {!isCollapsed && (
+                    <span className="ml-3 text-sm font-medium">
+                      {item.label}
+                    </span>
+                  )}
+                </Link>
               );
             })}
           </div>
         </div>
       </div>
       
-      {/* Collapse/Expand button at bottom */}
       <div className="absolute bottom-4 w-full px-3">
         <Button
           variant="ghost"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "w-full justify-center transition-all duration-300",
-            isCollapsed ? "hover:bg-zinc-800" : "hover:bg-zinc-100"
+            "w-full justify-center transition-all duration-200",
+            isCollapsed ? 
+              "text-white hover:bg-zinc-800" : 
+              "text-zinc-600 hover:bg-zinc-100"
           )}
         >
           {isCollapsed ? (
-            <ChevronRight className={cn("h-5 w-5", isCollapsed ? "text-white" : "text-zinc-500")} />
+            <ChevronRight className="h-5 w-5" />
           ) : (
-            <ChevronLeft className={cn("h-5 w-5", isCollapsed ? "text-white" : "text-zinc-500")} />
+            <ChevronLeft className="h-5 w-5" />
           )}
         </Button>
       </div>
