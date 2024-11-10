@@ -25,7 +25,7 @@ const EditEvent = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('id', id)
+        .eq('event_code', id)
         .single();
       
       if (error) throw error;
@@ -58,7 +58,7 @@ const EditEvent = () => {
       const { error } = await supabase
         .from('events')
         .update(updateData)
-        .eq('id', id);
+        .eq('event_code', id);
 
       if (error) throw error;
 
