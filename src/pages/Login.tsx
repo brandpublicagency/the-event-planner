@@ -103,6 +103,7 @@ const Login = () => {
                 message: 'text-left',
               },
             }}
+            providers={[]}
             view="magic_link"
             redirectTo={window.location.origin}
             showLinks={true}
