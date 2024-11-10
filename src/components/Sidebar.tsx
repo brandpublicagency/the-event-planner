@@ -56,11 +56,11 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-12 transition-all duration-300 ease-in-out group outline-none",
+                    "flex items-center h-12 transition-all duration-300 ease-in-out group outline-none rounded-md",
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-400") 
-                      : (isActive ? "text-zinc-900" : "text-zinc-600")
+                      : (isActive ? "text-zinc-900 bg-zinc-50 border border-zinc-200" : "text-zinc-600 hover:bg-zinc-50/50 hover:border hover:border-zinc-200")
                   )}
                 >
                   <div className={cn(
