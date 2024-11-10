@@ -24,15 +24,7 @@ const EditEvent = () => {
     queryFn: async () => {
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          packages (
-            id,
-            name,
-            description,
-            base_price
-          )
-        `)
+        .select('*, package:packages(*)')
         .eq('event_code', id)
         .single();
       
