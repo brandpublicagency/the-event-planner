@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
 import type { Event } from "@/types/event";
+import AIGreeting from "@/components/AIGreeting";
 
 const Index = () => {
   const { toast } = useToast();
@@ -33,9 +34,9 @@ const Index = () => {
       <div className="flex-1 overflow-auto">
         <Header />
         <main className="p-6">
-          <h1 className="mb-6 text-2xl font-semibold text-gray-900">Event Planning Dashboard</h1>
+          <AIGreeting />
           
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mt-6">
             <MetricCard
               title="Total Events"
               value={eventStats?.total || 0}
