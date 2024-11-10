@@ -33,6 +33,10 @@ const Events = () => {
           groom_name,
           groom_email,
           groom_mobile,
+          company_name,
+          contact_person,
+          company_vat,
+          company_address,
           venues:event_venues(venue:venues(*))
         `)
         .order('event_date', { ascending: true });
