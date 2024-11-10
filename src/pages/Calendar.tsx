@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import CalendarFilters from "@/components/calendar/CalendarFilters";
 import AvailabilityList from "@/components/calendar/AvailabilityList";
+import { supabase } from "@/integrations/supabase/client";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -17,45 +18,64 @@ const Calendar = () => {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      // Mock data
-      return {
-        full_name: "Demo User"
-      };
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+      return data;
     },
   });
 
   const { data: venues } = useQuery({
     queryKey: ['venues'],
     queryFn: async () => {
-      // Mock venue data
-      return [
-        { id: '1', name: 'Venue A' },
-        { id: '2', name: 'Venue B' }
-      ];
+      const { data, error } = await supabase
+        .from('venues')
+        .select('*');
+      if (error) throw error;
+      return data;
     },
   });
 
-  const { data: availability } = useQuery({
-    queryKey: ['venue_availability', selectedVenue, selectedStatus, date],
+  const { data: events } = useQuery({
+    queryKey: ['events', date?.getMonth(), date?.getFullYear()],
     queryFn: async () => {
-      // Mock availability data
-      return [
-        {
-          id: '1',
-          start_time: new Date().toISOString(),
-          end_time: new Date().toISOString(),
-          venue: { name: 'Venue A' },
-          event: {
-            name: 'Sample Event',
-            event_type: 'Wedding',
-            status: 'Confirmed',
-            bride_name: 'Jane',
-            groom_name: 'John'
-          }
-        }
-      ];
+      const startOfMonth = new Date(date!.getFullYear(), date!.getMonth(), 1);
+      const endOfMonth = new Date(date!.getFullYear(), date!.getMonth() + 1, 0);
+
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          event_venues (
+            venues (
+              id,
+              name
+            )
+          )
+        `)
+        .gte('event_date', startOfMonth.toISOString())
+        .lte('event_date', endOfMonth.toISOString())
+        .order('event_date', { ascending: true });
+
+      if (error) throw error;
+      return data?.map(event => ({
+        ...event,
+        venues: event.event_venues?.map((ev: any) => ev.venues) || []
+      }));
     },
+    enabled: !!date,
   });
+
+  // Create a modifiers object for the calendar to highlight event dates
+  const eventDates = events?.reduce((acc: { [key: string]: boolean }, event) => {
+    if (event.event_date) {
+      acc[new Date(event.event_date).toISOString()] = true;
+    }
+    return acc;
+  }, {});
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -69,6 +89,11 @@ const Calendar = () => {
         return 'bg-red-100 text-red-800';
     }
   };
+
+  // Filter events for the selected date
+  const selectedDateEvents = events?.filter(event => 
+    event.event_date && new Date(event.event_date).toDateString() === date?.toDateString()
+  );
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -98,22 +123,45 @@ const Calendar = () => {
               selected={date}
               onSelect={setDate}
               className="rounded-md border"
+              modifiers={{ hasEvent: eventDates }}
+              modifiersStyles={{
+                hasEvent: {
+                  backgroundColor: 'rgb(219 234 254)',
+                  fontWeight: 'bold'
+                }
+              }}
             />
           </div>
 
           <div className="space-y-4">
             <h4 className="font-medium">
-              Availability for {format(date || new Date(), "MMMM yyyy")}
+              Events for {format(date || new Date(), "MMMM d, yyyy")}
             </h4>
             
-            <AvailabilityList 
-              availability={availability?.map(item => ({
-                ...item,
-                start_time: format(new Date(item.start_time), "dd MMMM yyyy"),
-                end_time: format(new Date(item.end_time), "dd MMMM yyyy")
-              })) || []} 
-              getStatusColor={getStatusColor}
-            />
+            {selectedDateEvents && selectedDateEvents.length > 0 ? (
+              <div className="space-y-4">
+                {selectedDateEvents.map((event) => (
+                  <div
+                    key={event.event_code}
+                    className="rounded-lg border p-4 hover:bg-gray-50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h5 className="font-medium">{event.name}</h5>
+                        <p className="text-sm text-gray-500">
+                          {event.event_type} - {event.pax} Pax
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Venues: {event.venues.map((v: any) => v.name).join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No events scheduled for this date.</p>
+            )}
           </div>
         </div>
       </Card>
