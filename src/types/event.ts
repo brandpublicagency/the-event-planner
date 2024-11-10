@@ -1,4 +1,5 @@
 export interface Event {
+  // Database fields
   event_code: string;
   name: string;
   description: string | null;
@@ -11,10 +12,19 @@ export interface Event {
   updated_at: string;
   created_by: string | null;
   venues?: { name: string }[];
-  // Adding fields required by ProjectCard
+  
+  // UI specific fields
   title?: string;
   progress?: number;
   teamSize?: number;
   dueDate?: string;
   status?: 'Confirmed' | 'Tentative' | 'Cancelled';
+  
+  // Wedding specific fields (optional)
+  bride_name?: string;
+  bride_email?: string;
+  bride_mobile?: string;
+  groom_name?: string;
+  groom_email?: string;
+  groom_mobile?: string;
 }

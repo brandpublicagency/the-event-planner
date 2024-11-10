@@ -8,6 +8,7 @@ import CalendarFilters from "@/components/calendar/CalendarFilters";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { EventsList } from "@/components/calendar/EventsList";
+import type { Event } from "@/types/event";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -64,12 +65,20 @@ const Calendar = () => {
       const formattedEvents: Event[] = data.map(event => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || [],
-        // Add fields required by ProjectCard with default values
         title: event.name,
         progress: 0,
         teamSize: event.pax || 0,
         dueDate: event.event_date || '',
-        status: 'Confirmed' as const
+        status: 'Confirmed' as const,
+        created_at: event.created_at,
+        updated_at: event.updated_at,
+        created_by: event.created_by,
+        description: event.description,
+        event_code: event.event_code,
+        event_type: event.event_type,
+        client_address: event.client_address,
+        package_id: event.package_id,
+        event_date: event.event_date,
       }));
 
       return formattedEvents;
