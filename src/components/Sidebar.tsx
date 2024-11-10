@@ -22,7 +22,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     <div 
       className={cn(
         "relative flex flex-col h-screen transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-[80px] bg-zinc-900" : "w-64 bg-white",
+        isCollapsed ? "w-[80px] bg-zinc-900" : "w-64 bg-zinc-900",
         className
       )}
     >
@@ -30,13 +30,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         {/* Header */}
         <div className={cn(
           "p-4 border-b",
-          isCollapsed ? "border-zinc-700" : "border-zinc-200"
+          isCollapsed ? "border-zinc-800" : "border-zinc-800"
         )}>
           <div className="flex items-center justify-center">
             <img 
               src={isCollapsed 
                 ? "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
-                : "https://www.brandpublic.agency/wp-content/uploads/2023/11/WK-Black-Icon.png"
+                : "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
               }
               alt="WarmKaroo Logo" 
               className={cn(
@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-4">
-          <nav className="space-y-2.5">
+          <nav className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -63,24 +63,24 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isActive 
                       ? isCollapsed 
-                        ? "bg-white text-zinc-900 shadow-sm" 
-                        : "bg-zinc-900 text-white shadow-sm"
+                        ? "bg-zinc-800 text-white shadow-sm" 
+                        : "bg-zinc-800 text-white shadow-sm"
                       : isCollapsed
-                        ? "text-zinc-400 hover:text-white hover:bg-zinc-800/70"
-                        : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                        ? "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
                   )}
                 >
                   <Icon className={cn(
                     "flex-shrink-0",
                     isCollapsed ? "h-4.5 w-4.5" : "h-4.5 w-4.5 mr-3",
                     isActive 
-                      ? isCollapsed ? "text-zinc-900" : "text-white"
-                      : isCollapsed ? "text-zinc-400" : "text-zinc-500"
+                      ? "text-white" 
+                      : "text-zinc-400 group-hover:text-white"
                   )} />
                   {!isCollapsed && (
                     <span className={cn(
                       "text-sm font-medium truncate",
-                      isActive ? "text-white" : "text-zinc-700"
+                      isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
                     )}>
                       {item.label}
                     </span>
@@ -94,16 +94,14 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         {/* Footer with toggle */}
         <div className={cn(
           "p-4 border-t",
-          isCollapsed ? "border-zinc-700" : "border-zinc-200"
+          isCollapsed ? "border-zinc-800" : "border-zinc-800"
         )}>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
               "flex items-center justify-center w-8 h-8",
               "rounded-md transition-colors duration-200 focus:outline-none",
-              isCollapsed
-                ? "text-zinc-400 hover:text-white hover:bg-zinc-800/70"
-                : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+              "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
