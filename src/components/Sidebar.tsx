@@ -21,7 +21,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen transition-all duration-300 ease-in-out",
+        "relative flex flex-col h-screen transition-all duration-500 ease-in-out",
         isCollapsed ? "w-[80px] bg-zinc-900" : "w-64 bg-zinc-900",
         className
       )}
@@ -34,13 +34,10 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         )}>
           <div className="flex items-center justify-center">
             <img 
-              src={isCollapsed 
-                ? "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
-                : "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
-              }
+              src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
               alt="WarmKaroo Logo" 
               className={cn(
-                "transition-all duration-300",
+                "transition-all duration-500",
                 isCollapsed ? "h-8" : "h-10"
               )}
             />
@@ -48,8 +45,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 px-3 py-4">
-          <nav className="space-y-2">
+        <div className="flex-1 px-3 py-6">
+          <nav className="space-y-4">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -59,32 +56,36 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-9 w-full rounded-md transition-all duration-200",
-                    isCollapsed ? "justify-center px-2" : "px-3",
+                    "flex items-center h-12 w-full rounded-md transition-all duration-500 ease-in-out group",
+                    isCollapsed ? "justify-center" : "px-3",
                     isActive 
-                      ? isCollapsed 
-                        ? "bg-zinc-800 text-white shadow-sm" 
-                        : "bg-zinc-800 text-white shadow-sm"
-                      : isCollapsed
-                        ? "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                      ? "bg-zinc-800 text-white shadow-sm" 
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
                   )}
                 >
-                  <Icon className={cn(
-                    "flex-shrink-0",
-                    isCollapsed ? "h-4.5 w-4.5" : "h-4.5 w-4.5 mr-3",
+                  <div className={cn(
+                    "flex items-center justify-center",
+                    "w-9 h-9 rounded-md transition-all duration-500",
                     isActive 
-                      ? "text-white" 
-                      : "text-zinc-400 group-hover:text-white"
-                  )} />
-                  {!isCollapsed && (
-                    <span className={cn(
-                      "text-sm font-medium truncate",
-                      isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
-                    )}>
-                      {item.label}
-                    </span>
-                  )}
+                      ? "bg-zinc-700" 
+                      : "bg-zinc-800/50 group-hover:bg-zinc-700/50"
+                  )}>
+                    <Icon className={cn(
+                      "h-4.5 w-4.5 transition-all duration-500",
+                      isActive 
+                        ? "text-white" 
+                        : "text-zinc-400 group-hover:text-white"
+                    )} />
+                  </div>
+                  
+                  <span className={cn(
+                    "ml-3 text-sm font-medium transition-all duration-500",
+                    "opacity-100 transform translate-x-0",
+                    isCollapsed && "opacity-0 -translate-x-4 hidden",
+                    isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
+                  )}>
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
@@ -99,16 +100,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-8 h-8",
-              "rounded-md transition-colors duration-200 focus:outline-none",
-              "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+              "flex items-center justify-center w-9 h-9",
+              "rounded-md transition-all duration-500",
+              "bg-zinc-800/50 hover:bg-zinc-700/50",
+              "text-zinc-400 hover:text-white"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 transition-transform duration-300" />
+              <ChevronRight className="h-4 w-4 transition-transform duration-500" />
             ) : (
-              <ChevronLeft className="h-4 w-4 transition-transform duration-300" />
+              <ChevronLeft className="h-4 w-4 transition-transform duration-500" />
             )}
           </button>
         </div>
