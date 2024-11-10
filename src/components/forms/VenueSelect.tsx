@@ -6,11 +6,13 @@ interface VenueSelectProps {
   form: UseFormReturn<any>;
 }
 
-// Mock data for demonstration
+// Updated venue list as requested
 const mockVenues = [
-  { id: "1", name: "Main Hall" },
-  { id: "2", name: "Garden" },
-  { id: "3", name: "Conference Room" }
+  { id: "1", name: "The Gallery" },
+  { id: "2", name: "The Kitchen" },
+  { id: "3", name: "The Grand Hall" },
+  { id: "4", name: "The Lawn" },
+  { id: "5", name: "Accommodation" }
 ];
 
 export const VenueSelect = ({ form }: VenueSelectProps) => {
