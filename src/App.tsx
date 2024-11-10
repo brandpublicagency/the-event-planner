@@ -13,28 +13,37 @@ import NewEvent from "./pages/NewEvent";
 import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
     },
   },
 });
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex h-screen">
-    <div className="w-64 border-r bg-background">
-      <ScrollArea className="h-full">
-        <Sidebar />
-      </ScrollArea>
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  return (
+    <div className="flex h-screen">
+      <div
+        className={`transition-all duration-300 ease-in-out border-r bg-background ${
+          isCollapsed ? "w-[60px]" : "w-64"
+        }`}
+      >
+        <ScrollArea className="h-full">
+          <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        </ScrollArea>
+      </div>
+      <div className="flex-1 overflow-auto bg-background">
+        {children}
+      </div>
     </div>
-    <div className="flex-1 overflow-auto bg-background">
-      {children}
-    </div>
-  </div>
-);
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
