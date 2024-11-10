@@ -21,42 +21,44 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="metric-card h-[500px] flex flex-col">
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.isUser ? "justify-end" : "justify-start"
-              }`}
-            >
+    <div className="border-gradient h-[500px]">
+      <Card className="metric-card h-full flex flex-col">
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {messages.map((message, index) => (
               <div
-                className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                  message.isUser
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                key={index}
+                className={`flex ${
+                  message.isUser ? "justify-end" : "justify-start"
                 }`}
               >
-                {message.text}
+                <div
+                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                    message.isUser
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {message.text}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
-        <div className="flex gap-2">
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1"
-            autoComplete="off"
-          />
-          <Button type="submit">Send</Button>
-        </div>
-      </form>
-    </Card>
+            ))}
+          </div>
+        </ScrollArea>
+        <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
+          <div className="flex gap-2">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-1"
+              autoComplete="off"
+            />
+            <Button type="submit">Send</Button>
+          </div>
+        </form>
+      </Card>
+    </div>
   );
 };
 
