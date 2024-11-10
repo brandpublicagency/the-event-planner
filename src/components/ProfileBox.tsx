@@ -139,7 +139,7 @@ const ProfileBox = () => {
   );
 
   return (
-    <div className="h-[600px]">
+    <div className="h-[450px]">
       <FlipCard front={frontContent} back={backContent} />
     </div>
   );

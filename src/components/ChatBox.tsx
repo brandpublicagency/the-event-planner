@@ -25,7 +25,7 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="flex h-[600px] flex-col border-gradient">
+    <Card className="flex h-[450px] flex-col border-gradient">
       <div className="border-b border-gray-200 p-4">
         <h2 className="text-lg font-semibold">Chat Assistant</h2>
       </div>
