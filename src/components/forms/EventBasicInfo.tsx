@@ -1,26 +1,14 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
+import { EventTypeSelect } from "./EventTypeSelect";
+import { EventDateSelect } from "./EventDateSelect";
+import { VenueSelect } from "./VenueSelect";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
 }
-
-const VENUES = [
-  { id: 'gallery', name: 'The Gallery' },
-  { id: 'kitchen', name: 'The Kitchen' },
-  { id: 'grand_hall', name: 'The Grand Hall' },
-  { id: 'lawn', name: 'The Lawn' },
-  { id: 'accommodation', name: 'Accommodation' },
-];
 
 const PACKAGES = [
   { id: 'package_1', name: 'Package 1' },
@@ -32,30 +20,7 @@ const PACKAGES = [
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
   return (
     <div className="space-y-6">
-      <FormField
-        control={form.control}
-        name="event_type"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Event Type</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select event type" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="Wedding">Wedding</SelectItem>
-                <SelectItem value="Corporate Event">Corporate Event</SelectItem>
-                <SelectItem value="Celebration">Celebration</SelectItem>
-                <SelectItem value="Conference">Conference</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <EventTypeSelect form={form} />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FormField
@@ -65,7 +30,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             <FormItem>
               <FormLabel>Event Name</FormLabel>
               <FormControl>
-                <Input placeholder="Michelle + Bertus Wedding" {...field} />
+                <Input placeholder="Event Name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,50 +51,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="event_date"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Event Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(new Date(field.value), "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => {
-                      if (date) {
-                        const currentDate = field.value ? new Date(field.value) : new Date();
-                        date.setHours(currentDate.getHours(), currentDate.getMinutes());
-                        field.onChange(date.toISOString());
-                      }
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <EventDateSelect form={form} />
 
         <FormField
           control={form.control}
@@ -182,38 +104,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="selected_venues"
-        render={() => (
-          <FormItem>
-            <FormLabel>Selected Venues</FormLabel>
-            <div className="grid grid-cols-2 gap-4">
-              {VENUES.map((venue) => (
-                <FormField
-                  key={venue.id}
-                  control={form.control}
-                  name={`venues.${venue.id}`}
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {venue.name}
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-              ))}
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <VenueSelect form={form} />
     </div>
   );
 };
