@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import OpenAI from "openai";
+import { mockEvents } from "@/data/mockEvents";
 
 const openai = import.meta.env.VITE_OPENAI_API_KEY 
   ? new OpenAI({
@@ -23,6 +24,21 @@ const ChatBox = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const generateEventsContext = () => {
+    return mockEvents.map(event => `
+      Event: ${event.title}
+      Type: ${event.event_type}
+      Date: ${new Date(event.dueDate).toLocaleDateString()}
+      Status: ${event.status}
+      Venue: ${event.venues.map(v => v.name).join(', ')}
+      ${event.event_type === 'Wedding' ? `
+      Bride: ${event.bride_name || 'N/A'}
+      Groom: ${event.groom_name || 'N/A'}
+      ` : ''}
+      Guest Count: ${event.pax || 'TBC'}
+    `).join('\n\n');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !openai) return;
@@ -33,11 +49,17 @@ const ChatBox = () => {
     setIsLoading(true);
 
     try {
+      const eventsContext = generateEventsContext();
+      
       const completion = await openai.chat.completions.create({
         messages: [
           {
             role: "system",
-            content: "You are a helpful event planning assistant. Keep your responses concise and professional."
+            content: `You are a helpful event planning assistant. You have access to the following events information:
+            
+            ${eventsContext}
+            
+            Use this information to answer questions about upcoming events, schedules, and details. Keep your responses concise and professional.`
           },
           ...messages,
           userMessage
@@ -89,7 +111,7 @@ const ChatBox = () => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
+            placeholder="Ask about upcoming events..."
             disabled={isLoading}
           />
           <Button type="submit" size="icon" disabled={isLoading}>
