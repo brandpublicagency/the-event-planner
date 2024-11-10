@@ -3,27 +3,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import OpenAI from "openai";
+import { useToast } from "@/components/ui/use-toast";
+
+const openai = import.meta.env.VITE_OPENAI_API_KEY 
+  ? new OpenAI({
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true
+    })
+  : null;
 
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
+    if (!openai) {
+      toast({
+        title: "Error",
+        description: "OpenAI API key not configured",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Add user message
     const newMessages = [...messages, { text: inputValue, isUser: true }];
     setMessages(newMessages);
     setInputValue("");
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      setMessages([
-        ...newMessages,
-        { text: "Hello! This is a sample response from the bot.", isUser: false }
-      ]);
-    }, 1000);
+    try {
+      const completion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: "You are a friendly event planning assistant. Help users plan and organize their events effectively."
+          },
+          ...newMessages.map(msg => ({
+            role: msg.isUser ? "user" : "assistant",
+            content: msg.text
+          }))
+        ],
+        model: "gpt-4o-mini",
+      });
+
+      const botResponse = completion.choices[0]?.message?.content;
+      if (botResponse) {
+        setMessages([...newMessages, { text: botResponse, isUser: false }]);
+      }
+    } catch (error: any) {
+      console.error('Error getting response:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to get response from AI",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,12 +113,14 @@ const ChatBox = () => {
                 placeholder="Type your message..."
                 className="flex-1 rounded-3xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 autoComplete="off"
+                disabled={isLoading}
               />
               <Button 
                 type="submit"
                 className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6 text-white hover:text-white"
+                disabled={isLoading}
               >
-                Send
+                {isLoading ? "Sending..." : "Send"}
               </Button>
             </div>
           </form>
