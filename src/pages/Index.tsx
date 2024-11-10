@@ -17,6 +17,7 @@ const Index = () => {
     console.log('Edit profile clicked');
   };
 
+  // Group events by month for the EventsTable
   const groupedEvents = mockEvents.reduce((groups: any, event) => {
     const date = new Date(event.dueDate);
     const monthYear = date.toLocaleString('default', { 
@@ -51,10 +52,10 @@ const Index = () => {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <FlipCard
           front={
-            <div className="relative h-full w-full rounded-2xl overflow-hidden">
+            <div className="relative h-full w-full">
               <img
                 src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
                 alt="Profile"
@@ -80,7 +81,7 @@ const Index = () => {
 
         <ChatBox />
 
-        <div className="glassmorphism rounded-3xl flex items-center justify-center p-4">
+        <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
             mode="single"
             selected={date}
