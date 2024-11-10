@@ -22,8 +22,8 @@ const Events = () => {
         .select(`
           *,
           event_venues (
-            venue_id,
             venues (
+              id,
               name
             )
           )
@@ -39,13 +39,16 @@ const Events = () => {
         throw error;
       }
 
-      return data || [];
+      return data?.map(event => ({
+        ...event,
+        venues: event.event_venues?.map((ev: any) => ev.venues) || []
+      })) || [];
     },
-    refetchInterval: 5000, // Refetch every 5 seconds to catch new events
   });
 
+  // Group events by month and year
   const groupedEvents = events.reduce((groups: any, event) => {
-    const date = new Date(event.event_date);
+    const date = event.event_date ? new Date(event.event_date) : new Date();
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
       year: 'numeric'
@@ -55,12 +58,7 @@ const Events = () => {
       groups[monthYear] = [];
     }
     
-    groups[monthYear].push({
-      ...event,
-      venues: event.event_venues?.map((ev: any) => ({
-        name: ev.venues?.name
-      })) || []
-    });
+    groups[monthYear].push(event);
     return groups;
   }, {});
 
