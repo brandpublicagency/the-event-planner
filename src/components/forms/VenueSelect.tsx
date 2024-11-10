@@ -1,27 +1,19 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface VenueSelectProps {
   form: UseFormReturn<any>;
 }
 
-export const VenueSelect = ({ form }: VenueSelectProps) => {
-  const { data: venues } = useQuery({
-    queryKey: ['venues'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('venues')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
+// Mock data for demonstration
+const mockVenues = [
+  { id: "1", name: "Main Hall" },
+  { id: "2", name: "Garden" },
+  { id: "3", name: "Conference Room" }
+];
 
+export const VenueSelect = ({ form }: VenueSelectProps) => {
   const selectedVenues = form.watch('venues') || {};
 
   const onVenueChange = (venueId: string, checked: boolean) => {
@@ -41,7 +33,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
           <FormLabel>Select Venues</FormLabel>
           <FormControl>
             <div className="flex flex-wrap gap-4">
-              {venues?.map((venue) => (
+              {mockVenues?.map((venue) => (
                 <label
                   key={venue.id}
                   className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm shadow-sm cursor-pointer hover:bg-zinc-50"

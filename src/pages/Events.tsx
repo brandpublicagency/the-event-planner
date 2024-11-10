@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,64 +11,27 @@ const Events = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events, isLoading, refetch } = useQuery({
-    queryKey: ['events'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          status,
-          event_type,
-          name,
-          pax,
-          event_date,
-          package_id,
-          event_code,
-          created_by,
-          bride_name,
-          bride_email,
-          bride_mobile,
-          groom_name,
-          groom_email,
-          groom_mobile,
-          company_name,
-          contact_person,
-          company_vat,
-          company_address,
-          venues:event_venues(venue:venues(*))
-        `)
-        .order('event_date', { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    },
-  });
+  // Mock data for demonstration
+  const mockEvents = [
+    {
+      event_code: "EVENT-0101",
+      name: "Sample Wedding",
+      event_type: "Wedding",
+      event_date: "2024-01-01",
+      status: "Confirmed",
+      pax: 100,
+      venues: [{ name: "Main Hall" }]
+    }
+  ];
 
   const handleDelete = async (eventCode: string) => {
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('event_code', eventCode);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
-      
-      refetch();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Success",
+      description: "Event deleted successfully",
+    });
   };
 
-  const groupedEvents = events?.reduce((groups: any, event) => {
+  const groupedEvents = mockEvents.reduce((groups: any, event) => {
     const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
@@ -101,14 +62,6 @@ const Events = () => {
     },
     {}
   );
-
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

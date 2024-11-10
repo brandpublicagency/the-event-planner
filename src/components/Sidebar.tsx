@@ -3,19 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LogOut, Home, Calendar, FileText, CalendarDays } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const Sidebar = ({ className }: SidebarProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
 
   return (
     <div className={cn("pb-12", className)}>
@@ -63,16 +55,6 @@ const Sidebar = ({ className }: SidebarProps) => {
             </Link>
           </div>
         </div>
-      </div>
-      <div className="mt-auto border-t pt-4">
-        <Button
-          variant="ghost"
-          className="w-full justify-start px-4 text-red-500 hover:bg-red-50 hover:text-red-600"
-          onClick={handleLogout}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </Button>
       </div>
     </div>
   );

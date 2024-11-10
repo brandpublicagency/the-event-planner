@@ -2,32 +2,35 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface PackageSelectionProps {
   form: UseFormReturn<any>;
 }
 
-const PackageSelection = ({ form }: PackageSelectionProps) => {
-  const { data: packages, isError: isPackagesError } = useQuery({
-    queryKey: ['packages'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('packages')
-        .select(`
-          *,
-          package_venues(
-            venue:venues(*)
-          )
-        `)
-        .order('base_price', { ascending: true });
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
+// Mock data for demonstration
+const mockPackages = [
+  {
+    id: "1",
+    name: "Basic Package",
+    description: "Perfect for small events",
+    base_price: 1000,
+    package_venues: [
+      { venue: { name: "Main Hall" } }
+    ]
+  },
+  {
+    id: "2",
+    name: "Premium Package",
+    description: "Ideal for medium-sized events",
+    base_price: 2000,
+    package_venues: [
+      { venue: { name: "Main Hall" } },
+      { venue: { name: "Garden" } }
+    ]
+  }
+];
 
+const PackageSelection = ({ form }: PackageSelectionProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
@@ -45,7 +48,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
   };
 
   const handlePackageSelection = async (packageId: string) => {
-    const selectedPackage = packages?.find(pkg => pkg.id === packageId);
+    const selectedPackage = mockPackages?.find(pkg => pkg.id === packageId);
     if (!selectedPackage) {
       console.error('Selected package not found');
       return;
@@ -59,10 +62,6 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
       form.setValue('venue_id', venueIds[0]);
     }
   };
-
-  if (isPackagesError) {
-    return <div className="text-red-500">Error loading packages</div>;
-  }
 
   return (
     <FormField
@@ -79,7 +78,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {packages?.map((pkg) => (
+                  {mockPackages?.map((pkg) => (
                     <Card 
                       key={pkg.id}
                       className={`relative cursor-pointer transition-all hover:border-primary ${
