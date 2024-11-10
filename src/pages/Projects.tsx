@@ -3,29 +3,45 @@ import { Button } from "@/components/ui/button";
 import { FolderPlus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProjectCard from "@/components/ProjectCard";
+import type { Event } from "@/types/event";
 
 const Projects = () => {
-  const projects = [
+  const projects: Event[] = [
     {
+      event_code: "WR-2024-001",
       title: "Website Redesign",
       description: "Complete overhaul of the company website with modern design principles",
       progress: 75,
       teamSize: 4,
       dueDate: "2024-03-15",
+      status: "Confirmed",
+      event_type: "Project",
+      venues: [{ name: "Main Office" }],
+      pax: 4
     },
     {
+      event_code: "MA-2024-001",
       title: "Mobile App Development",
       description: "Native mobile application for iOS and Android platforms",
       progress: 30,
       teamSize: 6,
       dueDate: "2024-04-20",
+      status: "Tentative",
+      event_type: "Project",
+      venues: [{ name: "Tech Hub" }],
+      pax: 6
     },
     {
+      event_code: "BR-2024-001",
       title: "Brand Identity Update",
       description: "Refreshing the brand guidelines and visual identity",
       progress: 90,
       teamSize: 3,
       dueDate: "2024-02-28",
+      status: "Confirmed",
+      event_type: "Project",
+      venues: [{ name: "Design Studio" }],
+      pax: 3
     },
   ];
 
@@ -48,8 +64,8 @@ const Projects = () => {
 
       <ScrollArea className="h-[calc(100vh-12rem)]">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, index) => (
-            <ProjectCard key={index} {...project} />
+          {projects.map((project) => (
+            <ProjectCard key={project.event_code} {...project} />
           ))}
         </div>
       </ScrollArea>
