@@ -146,7 +146,7 @@ const Events = () => {
         </div>
       ) : (
         <EventsTable 
-          groupedEvents={groupedEvents}
+          groupedEvents={searchQuery ? filteredEvents : groupedEvents}
           handleDelete={handleDelete}
         />
       )}

@@ -26,8 +26,7 @@ const ChatBox = () => {
     if (!newMessage.trim()) return;
 
     const userMessage: Message = { text: newMessage, isUser: true };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    setMessages([...messages, userMessage]);
     setNewMessage("");
     setIsLoading(true);
 
@@ -35,11 +34,11 @@ const ChatBox = () => {
       const completion = await openai.chat.completions.create({
         messages: [
           {
-            role: "system" as const,
+            role: "system",
             content: "You are a helpful event planning assistant. Provide concise and relevant responses to help users plan their events."
           },
-          ...newMessages.map(msg => ({
-            role: msg.isUser ? ("user" as const) : ("assistant" as const),
+          ...messages.map(msg => ({
+            role: msg.isUser ? "user" : "assistant",
             content: msg.text
           }))
         ],
@@ -51,7 +50,7 @@ const ChatBox = () => {
         isUser: false,
       };
 
-      setMessages([...newMessages, assistantMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       toast({
         title: "Error",
@@ -65,7 +64,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border-gradient rounded-lg overflow-hidden bg-white">
+    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border rounded-lg overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -84,14 +83,14 @@ const ChatBox = () => {
           </div>
         ))}
       </div>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200 bg-white">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
         <div className="flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="bg-white"
+            className="bg-white border-zinc-200"
           />
           <Button type="submit" disabled={isLoading}>
             Send
