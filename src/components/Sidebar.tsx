@@ -23,25 +23,28 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <div className={cn("pb-12 relative", className)}>
-      <div className="space-y-4 py-4">
+      <div className="space-y-6 py-4">
         <div className="px-3 py-2">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className={cn(
               "text-lg font-semibold tracking-tight transition-all duration-300",
-              isCollapsed && "opacity-0"
+              isCollapsed && "opacity-0 w-0"
             )}>
               Event Planner
             </h2>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {isCollapsed ? 
+                <ChevronRight className="h-4 w-4 text-zinc-500" /> : 
+                <ChevronLeft className="h-4 w-4 text-zinc-500" />
+              }
             </Button>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -51,11 +54,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                       <Button
                         variant={location.pathname === item.path ? "secondary" : "ghost"}
                         className={cn(
-                          "w-full justify-start",
-                          isCollapsed && "px-2"
+                          "w-full justify-start gap-x-3",
+                          isCollapsed ? "px-2" : "px-3",
+                          location.pathname === item.path && "bg-zinc-100 dark:bg-zinc-800"
                         )}
                       >
-                        <Icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
+                        <Icon className={cn("h-4 w-4", !isCollapsed && "mr-0.5")} />
                         <span className={cn(
                           "transition-all duration-300",
                           isCollapsed && "hidden"
@@ -85,7 +89,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 size="icon"
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                 className={cn(
-                  "w-full justify-center",
+                  "w-full justify-center gap-x-3",
                   !isCollapsed && "justify-start"
                 )}
               >
