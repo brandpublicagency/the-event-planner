@@ -4,11 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import FlipCard from "@/components/FlipCard";
 import ProfileForm from "@/components/profile/ProfileForm";
-import DocumentUpload from "@/components/profile/DocumentUpload";
 
 const ProfileBox = () => {
   const { toast } = useToast();
-  const [uploading, setUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   
@@ -77,64 +75,6 @@ const ProfileBox = () => {
     updateProfileMutation.mutate(editForm);
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    if (files.length > 3) {
-      toast({
-        title: "Error",
-        description: "You can only upload up to 3 PDF files",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUploading(true);
-    try {
-      for (const file of files) {
-        if (file.type !== 'application/pdf') {
-          toast({
-            title: "Error",
-            description: "Only PDF files are allowed",
-            variant: "destructive",
-          });
-          continue;
-        }
-
-        const filename = `${crypto.randomUUID()}-${file.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from('pdfs')
-          .upload(filename, file);
-
-        if (uploadError) throw uploadError;
-
-        const { error: dbError } = await supabase
-          .from('pdf_files')
-          .insert({
-            user_id: profile?.id,
-            filename: file.name,
-            file_path: filename,
-          });
-
-        if (dbError) throw dbError;
-
-        toast({
-          title: "Success",
-          description: `${file.name} uploaded successfully`,
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload file",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-      event.target.value = '';
-    }
-  };
-
   const frontContent = (
     <div className="h-full">
       <div className="relative h-full">
@@ -161,10 +101,6 @@ const ProfileBox = () => {
         setEditForm={setEditForm}
         handleEdit={handleEdit}
         handleSave={handleSave}
-      />
-      <DocumentUpload
-        handleFileUpload={handleFileUpload}
-        uploading={uploading}
       />
     </div>
   );
