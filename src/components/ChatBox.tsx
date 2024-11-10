@@ -1,44 +1,37 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import OpenAI from "openai";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useToast } from "@/hooks/use-toast";
 
-const openai = import.meta.env.VITE_OPENAI_API_KEY 
-  ? new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true
-    })
-  : null;
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
-const ChatBox = () => {
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
-  const [inputValue, setInputValue] = useState("");
+type Message = {
+  text: string;
+  isUser: boolean;
+};
+
+export const ChatBox = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    if (!newMessage.trim()) return;
 
-    // Add user message
-    const newMessages = [...messages, { text: inputValue, isUser: true }];
+    const userMessage: Message = { text: newMessage, isUser: true };
+    const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    setInputValue("");
+    setNewMessage("");
     setIsLoading(true);
 
     try {
-      if (!openai) {
-        toast({
-          title: "Error",
-          description: "OpenAI API key not configured",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const completion = await openai.chat.completions.create({
         messages: [
           {
@@ -50,84 +43,60 @@ const ChatBox = () => {
             content: msg.text
           }))
         ],
-        model: "gpt-4o-mini",
+        model: "gpt-3.5-turbo",
       });
 
-      const botResponse = completion.choices[0]?.message?.content;
-      if (botResponse) {
-        setMessages([...newMessages, { text: botResponse, isUser: false }]);
-      }
-    } catch (error: any) {
+      const assistantMessage: Message = {
+        text: completion.choices[0]?.message?.content || "Sorry, I couldn't process that.",
+        isUser: false,
+      };
+
+      setMessages([...newMessages, assistantMessage]);
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get response from AI",
+        description: "Failed to get response from AI",
         variant: "destructive",
       });
-      console.error('Error getting AI response:', error);
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
   return (
-    <div className="relative h-[450px]">
-      <div 
-        className="absolute inset-0 rounded-3xl"
-        style={{
-          background: "linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6)",
-          padding: "1px",
-        }}
-      >
-        <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.isUser ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`rounded-3xl px-4 py-2 max-w-[80%] border ${
-                      message.isUser
-                        ? "border-purple-500 text-purple-800 bg-white"
-                        : "border-gray-300 text-gray-800 bg-white"
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
-              ))}
+    <div className="flex flex-col h-[500px] w-full max-w-2xl mx-auto border rounded-lg overflow-hidden bg-white">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`max-w-[80%] rounded-lg p-3 ${
+                message.isUser
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-zinc-100 text-zinc-900"
+              }`}
+            >
+              {message.text}
             </div>
-          </ScrollArea>
-          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={handleInputChange}
-                placeholder="Type your message..."
-                className="flex-1 rounded-3xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                autoComplete="off"
-                disabled={isLoading}
-              />
-              <Button 
-                type="submit"
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6 text-white hover:text-white"
-                disabled={isLoading}
-              >
-                {isLoading ? "Sending..." : "Send"}
-              </Button>
-            </div>
-          </form>
-        </Card>
+          </div>
+        ))}
       </div>
+      <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
+        <div className="flex gap-2">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+            disabled={isLoading}
+          />
+          <Button type="submit" disabled={isLoading}>
+            Send
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };
-
-export default ChatBox;
