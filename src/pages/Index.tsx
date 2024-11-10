@@ -60,7 +60,7 @@ const Index = () => {
           }
         />
 
-        <div className="bg-primary h-full rounded-lg">
+        <div className="bg-primary rounded-lg flex items-center justify-center">
           <Calendar
             mode="single"
             selected={date}
