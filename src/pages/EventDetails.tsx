@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type Venue = Database['public']['Tables']['venues']['Row'];
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -14,7 +17,7 @@ const EventDetails = () => {
         .from('events')
         .select(`
           *,
-          venue:venues(name)
+          venue:venues!inner(*)
         `)
         .eq('id', id)
         .single();
