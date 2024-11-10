@@ -44,7 +44,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                 <div key={event.event_code} className="group">
                   <div className="flex items-center px-4 py-3 hover:bg-zinc-50 transition-colors">
                     <div className="flex items-center flex-1">
-                      <div className="flex flex-col gap-1.5 min-w-0">
+                      <div className="flex flex-col gap-2.5 min-w-0">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
                             <Checkbox />
@@ -56,9 +56,9 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                             </span>
                           </div>
                         </div>
-                        <div className="pl-8 space-y-1">
-                          <h4 className="text-base font-medium leading-none">{event.name}</h4>
+                        <div className="pl-[30px] space-y-1">
                           <div className="flex items-center gap-2">
+                            <h4 className="text-base font-medium leading-none">{event.name}</h4>
                             <Badge variant="outline" className="text-xs font-normal bg-zinc-50">
                               {event.event_type} / {event.pax} Pax / {event.venues?.map((v: any) => v.name).join(' + ')}
                             </Badge>
