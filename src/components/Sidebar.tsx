@@ -35,7 +35,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   <img 
                     src={isCollapsed 
                       ? "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
-                      : "https://www.brandpublic.agency/wp-content/uploads/2024/11/BLACK-LOGO.png"
+                      : "https://www.brandpublic.agency/wp-content/uploads/2023/11/WK-Black-Icon.png"
                     }
                     alt="WarmKaroo Logo" 
                     className="h-8"
