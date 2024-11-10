@@ -83,24 +83,25 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <div className="mt-auto px-3">
-        <Button
-          variant="ghost"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={cn(
-            "w-full justify-center transition-all duration-200 mb-4",
-            isCollapsed ? 
-              "text-white hover:bg-zinc-800" : 
-              "text-zinc-600 hover:bg-zinc-100"
-          )}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5" />
-          ) : (
+      <Link
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className={cn(
+          "absolute bottom-0 left-0 right-0 h-[50px] flex items-center transition-colors duration-200",
+          isCollapsed ? 
+            "justify-center text-white hover:bg-zinc-800" : 
+            "px-5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
+          "bg-white"
+        )}
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-5 w-5" />
+        ) : (
+          <>
             <ChevronLeft className="h-5 w-5" />
-          )}
-        </Button>
-      </div>
+            <span className="ml-3 text-sm font-medium">Collapse</span>
+          </>
+        )}
+      </Link>
     </div>
   );
 };
