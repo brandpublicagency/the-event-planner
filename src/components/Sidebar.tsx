@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -30,16 +30,15 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
-    { icon: CalendarDays, label: "Upcoming Events", path: "/events" },
     { icon: Calendar, label: "Calendar", path: "/calendar" },
     { icon: FileText, label: "Planning Documents", path: "/documents" },
   ];
 
   return (
     <div className={cn("pb-12 relative flex flex-col h-full", className)}>
-      <div className="space-y-6 py-4">
+      <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <div className="mb-12 flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between">
             {isCollapsed ? (
               <img 
                 src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
@@ -59,7 +58,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="space-y-5">
+          <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -68,28 +67,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center",
-                    isCollapsed ? "justify-center" : "",
-                    "h-[50px] gap-5"
+                    "flex items-center w-full",
+                    isCollapsed ? "justify-center px-2" : "px-3",
+                    "py-2 rounded-md transition-colors duration-200",
+                    isActive 
+                      ? "bg-zinc-100 text-zinc-900" 
+                      : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                   )}
                 >
-                  <div className={cn(
-                    "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
-                    isCollapsed ? 
-                      isActive ? "bg-white" : "text-white hover:bg-zinc-800" :
-                      isActive ? "bg-zinc-100" : "text-zinc-600 hover:bg-zinc-100"
-                  )}>
-                    <Icon className={cn(
-                      "h-6 w-6",
-                      isCollapsed ? (
-                        isActive ? "text-zinc-900" : "text-white"
-                      ) : (
-                        isActive ? "text-zinc-900" : "text-zinc-500"
-                      )
-                    )} />
-                  </div>
+                  <Icon className="h-5 w-5 shrink-0" />
                   {!isCollapsed && (
-                    <span className="text-sm font-medium text-zinc-600">
+                    <span className="ml-3 text-sm font-medium">
                       {item.label}
                     </span>
                   )}
@@ -100,59 +88,42 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <div className="absolute bottom-4 left-0 w-full px-3 space-y-2">
+      <div className="mt-auto px-3 py-2">
         <button
           onClick={handleLogout}
           className={cn(
             "flex items-center w-full",
-            isCollapsed ? "justify-center" : "",
-            "h-[50px] gap-5"
+            isCollapsed ? "justify-center px-2" : "px-3",
+            "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
           )}
         >
-          <div className={cn(
-            "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
-            isCollapsed ? 
-              "text-white hover:bg-zinc-800" : 
-              "text-zinc-600 hover:bg-zinc-100"
-          )}>
-            <LogOut className={cn(
-              "h-6 w-6",
-              isCollapsed ? "text-white" : "text-zinc-500"
-            )} />
-          </div>
+          <LogOut className="h-5 w-5 shrink-0" />
           {!isCollapsed && (
-            <span className="text-sm font-medium text-zinc-600">
+            <span className="ml-3 text-sm font-medium">
               Logout
             </span>
           )}
         </button>
 
-        <Link 
-          to="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setIsCollapsed(!isCollapsed);
-          }}
-          className="flex items-center"
-        >
-          <div className={cn(
-            "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
-            isCollapsed ? 
-              "text-white hover:bg-zinc-800" : 
-              "text-zinc-600 hover:bg-zinc-100"
-          )}>
-            {isCollapsed ? (
-              <ChevronRight className="h-6 w-6 text-white" />
-            ) : (
-              <ChevronLeft className="h-6 w-6 text-zinc-500" />
-            )}
-          </div>
-          {!isCollapsed && (
-            <span className="text-sm font-medium text-zinc-600 ml-5">
-              Collapse
-            </span>
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "flex items-center w-full mt-1",
+            isCollapsed ? "justify-center px-2" : "px-3",
+            "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
           )}
-        </Link>
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-5 w-5 shrink-0" />
+          ) : (
+            <>
+              <ChevronLeft className="h-5 w-5 shrink-0" />
+              <span className="ml-3 text-sm font-medium">
+                Collapse
+              </span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
