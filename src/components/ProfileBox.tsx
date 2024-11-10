@@ -1,4 +1,4 @@
-import { LogOut, Mail, Phone, MapPin, Building2, Pencil } from "lucide-react";
+import { LogOut, Mail, Phone, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -36,7 +36,7 @@ const ProfileBox = () => {
       front={
         <div className="relative h-full w-full">
           <img
-            src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
+            src="https://www.brandpublic.agency/wp-content/uploads/2024/11/wk.jpg"
             alt="Profile"
             className="absolute inset-0 w-full h-full object-cover rounded-lg"
           />
@@ -80,48 +80,14 @@ const ProfileBox = () => {
                   <Phone className="h-4 w-4 text-green-500" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-medium text-zinc-500">Phone</p>
+                  <p className="text-xs font-medium text-zinc-500">Mobile</p>
                   <p className="text-sm text-zinc-900">(555) 123-4567</p>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleEditField('phone')}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
-                <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
-                  <Building2 className="h-4 w-4 text-purple-500" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-zinc-500">Company</p>
-                  <p className="text-sm text-zinc-900">Pink Book Events</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleEditField('company')}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
-                <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-orange-500" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-zinc-500">Location</p>
-                  <p className="text-sm text-zinc-900">San Francisco, CA</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleEditField('location')}
+                  onClick={() => handleEditField('mobile')}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>

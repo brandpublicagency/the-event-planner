@@ -88,11 +88,11 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="p-4 flex flex-col h-[400px] relative border-gradient">
+    <Card className="p-4 flex flex-col h-[600px] relative border-gradient">
       <div className="absolute inset-0 rounded-lg border-gradient-mask"></div>
       <div className="z-10 flex-1 flex flex-col">
         <h3 className="font-semibold mb-4">Chat Assistant</h3>
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 pr-4 h-[calc(100%-8rem)]">
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div
@@ -118,7 +118,7 @@ const ChatBox = () => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about upcoming events..."
+            placeholder="Ask about upcoming events or upload a PDF for context..."
             disabled={isLoading}
           />
           <Button type="submit" size="icon" disabled={isLoading}>
