@@ -54,7 +54,7 @@ const ProfileBox = () => {
           <div className="space-y-6 flex-1 flex flex-col justify-center">
             <div className="space-y-2">
               <h3 className="font-semibold text-lg text-zinc-900">Profile Information</h3>
-              <p className="text-sm text-zinc-500 mb-3.5">Your personal details and contact information</p>
+              <p className="text-sm text-zinc-500 mb-3">Your personal details and contact information</p>
             </div>
             <Separator className="w-full" />
             <div className="grid gap-2.5 w-full">
