@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeMinimal } from "@supabase/auth-ui-shared";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const { toast } = useToast();
@@ -33,13 +33,8 @@ const Login = () => {
             },
           }}
           providers={[]}
-          onError={(error) => {
-            toast({
-              title: "Authentication Error",
-              description: error.message,
-              variant: "destructive",
-            });
-          }}
+          view="sign_in"
+          showLinks={true}
           redirectTo={window.location.origin}
           magicLink={true}
         />
