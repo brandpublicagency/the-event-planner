@@ -94,7 +94,7 @@ const ProfileBox = () => {
           alt="Profile"
           className="h-full w-full object-cover"
         />
-        <h2 className="text-2xl font-semibold text-white absolute bottom-4 left-1/2 -translate-x-1/2">
+        <h2 className="text-2xl font-semibold text-white absolute bottom-4 left-4">
           {profile?.full_name || 'Loading...'}
         </h2>
       </div>
