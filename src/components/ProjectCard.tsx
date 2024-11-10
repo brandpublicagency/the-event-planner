@@ -3,8 +3,12 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import OpenAI from "openai";
+import type { Event } from "@/types/event";
 
-// Only initialize OpenAI if API key is available
+type ProjectCardProps = Event & {
+  onClick?: () => void;
+};
+
 const openai = import.meta.env.VITE_OPENAI_API_KEY 
   ? new OpenAI({
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -12,21 +16,18 @@ const openai = import.meta.env.VITE_OPENAI_API_KEY
     })
   : null;
 
-interface ProjectCardProps {
-  title: string;
-  description: string;
-  progress: number;
-  teamSize: number;
-  dueDate: string;
-  onClick?: () => void;
-}
-
-const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick }: ProjectCardProps) => {
+const ProjectCard = ({ 
+  title, 
+  description, 
+  progress, 
+  teamSize, 
+  dueDate, 
+  onClick 
+}: ProjectCardProps) => {
   const [aiDescription, setAiDescription] = useState<string>(description);
 
   useEffect(() => {
     const generateDescription = async () => {
-      // Only attempt to generate if OpenAI client is available
       if (!openai) {
         console.log('OpenAI API key not configured, using default description');
         return;
@@ -44,7 +45,7 @@ const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick 
               content: `Generate a brief, engaging description for this event: ${title}. Keep it under 100 characters.`
             }
           ],
-          model: "gpt-4o-mini",
+          model: "gpt-4",
         });
 
         const generatedDescription = completion.choices[0]?.message?.content;
@@ -53,7 +54,7 @@ const ProjectCard = ({ title, description, progress, teamSize, dueDate, onClick 
         }
       } catch (error) {
         console.error('Error generating description:', error);
-        setAiDescription(description); // Fallback to original description
+        setAiDescription(description);
       }
     };
 

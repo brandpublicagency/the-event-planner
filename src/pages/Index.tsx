@@ -1,4 +1,4 @@
-import { Calendar, ListTodo, Users, CalendarDays } from "lucide-react";
+import { Calendar, Users, CalendarDays } from "lucide-react";
 import Header from "@/components/Header";
 import MetricCard from "@/components/MetricCard";
 import ProjectCard from "@/components/ProjectCard";
@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { mockEvents } from "@/data/mockEvents";
+import type { Event } from "@/types/event";
 
 const Index = () => {
   const { toast } = useToast();
@@ -14,43 +16,17 @@ const Index = () => {
   const { data: eventStats } = useQuery({
     queryKey: ['eventStats'],
     queryFn: async () => {
-      // Mock event stats
       return {
-        total: 10,
-        upcoming: 5,
-        inquiries: 3,
-        weddings: 4
+        total: mockEvents.length,
+        upcoming: mockEvents.filter(e => new Date(e.dueDate) > new Date()).length,
+        inquiries: mockEvents.filter(e => e.status === 'Tentative').length,
+        weddings: mockEvents.filter(e => e.event_type === 'Wedding').length
       };
     },
   });
 
-  const handleMetricClick = (metric: string) => {
-    navigate('/events');
-  };
-
-  const upcomingEvents = [
-    {
-      title: "Sample Wedding",
-      description: "Wedding Event",
-      progress: 75,
-      teamSize: 4,
-      dueDate: "2024-01-01",
-      event_code: "EVENT-0101",
-      venues: [{ name: "The Gallery" }]
-    }
-  ];
-
-  const moreUpcomingEvents = [
-    {
-      title: "Corporate Event",
-      description: "Annual Meeting",
-      progress: 45,
-      teamSize: 3,
-      dueDate: "2024-01-15",
-      event_code: "EVENT-0102",
-      venues: [{ name: "The Grand Hall" }]
-    }
-  ];
+  const upcomingEvents = mockEvents.slice(0, Math.ceil(mockEvents.length / 2));
+  const moreUpcomingEvents = mockEvents.slice(Math.ceil(mockEvents.length / 2));
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -64,27 +40,27 @@ const Index = () => {
               title="Total Events"
               value={eventStats?.total || 0}
               icon={<Calendar className="h-5 w-5" />}
-              onClick={() => handleMetricClick("Total Events")}
+              onClick={() => navigate("/events")}
             />
             <MetricCard
               title="Upcoming Events"
               value={eventStats?.upcoming || 0}
               icon={<CalendarDays className="h-5 w-5" />}
               trend={{ value: 12, isUpward: true }}
-              onClick={() => handleMetricClick("Upcoming Events")}
+              onClick={() => navigate("/events")}
             />
             <MetricCard
               title="New Inquiries"
               value={eventStats?.inquiries || 0}
-              icon={<ListTodo className="h-5 w-5" />}
-              onClick={() => handleMetricClick("New Inquiries")}
+              icon={<Calendar className="h-5 w-5" />}
+              onClick={() => navigate("/events")}
             />
             <MetricCard
               title="Wedding Events"
               value={eventStats?.weddings || 0}
               icon={<Users className="h-5 w-5" />}
               trend={{ value: 4, isUpward: true }}
-              onClick={() => handleMetricClick("Wedding Events")}
+              onClick={() => navigate("/events")}
             />
           </div>
 
@@ -105,10 +81,13 @@ const Index = () => {
                   <ProjectCard 
                     key={event.event_code} 
                     {...event} 
-                    onClick={() => toast({ 
-                      title: `Event: ${event.title}`, 
-                      description: "Opening event details." 
-                    })} 
+                    onClick={() => {
+                      toast({ 
+                        title: `Event: ${event.title}`, 
+                        description: "Opening event details." 
+                      });
+                      navigate(`/events/${event.event_code}`);
+                    }} 
                   />
                 ))}
               </div>
@@ -129,10 +108,13 @@ const Index = () => {
                   <ProjectCard 
                     key={event.event_code} 
                     {...event} 
-                    onClick={() => toast({ 
-                      title: `Event: ${event.title}`, 
-                      description: "Opening event details." 
-                    })} 
+                    onClick={() => {
+                      toast({ 
+                        title: `Event: ${event.title}`, 
+                        description: "Opening event details." 
+                      });
+                      navigate(`/events/${event.event_code}`);
+                    }} 
                   />
                 ))}
               </div>

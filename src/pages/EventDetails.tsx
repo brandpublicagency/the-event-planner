@@ -2,42 +2,28 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { mockEvents } from "@/data/mockEvents";
+import type { Event } from "@/types/event";
 
 const EventDetails = () => {
   const { id } = useParams();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
-    queryFn: async () => {
-      // Mock event data
-      return {
-        name: "Sample Event",
-        status: "Confirmed",
-        event_date: new Date().toISOString(),
-        event_venues: [{ venue: { name: "Sample Venue" } }],
-        event_type: "Wedding",
-        pax: 100,
-        event_code: "EVENT-0001",
-        bride_name: "Jane",
-        bride_mobile: "1234567890",
-        bride_email: "jane@example.com",
-        groom_name: "John",
-        groom_mobile: "0987654321",
-        groom_email: "john@example.com",
-        client_address: "123 Sample St"
-      };
+    queryFn: async (): Promise<Event | undefined> => {
+      return mockEvents.find(e => e.event_code === id);
     },
   });
 
   if (isLoading) return <div>Loading...</div>;
   if (!event) return <div>Event not found</div>;
 
-  const venueNames = event.event_venues?.map(ev => ev.venue.name).join(', ') || 'No venues selected';
+  const venueNames = event.venues?.map(v => v.name).join(', ') || 'No venues selected';
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">{event.name}</h2>
+        <h2 className="text-3xl font-bold tracking-tight">{event.title}</h2>
         <span className={`px-2 py-1 rounded-full text-sm ${
           event.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
           event.status === 'Tentative' ? 'bg-yellow-100 text-yellow-800' :
@@ -55,7 +41,7 @@ const EventDetails = () => {
           <CardContent className="space-y-2">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Date</p>
-              <p>{format(new Date(event.event_date), 'PPP')}</p>
+              <p>{format(new Date(event.dueDate), 'PPP')}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Venues</p>
@@ -71,7 +57,7 @@ const EventDetails = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Event Code</p>
-              <p>{event.event_code || `EVENT-${format(new Date(event.event_date), 'ddMM')}`}</p>
+              <p>{event.event_code}</p>
             </div>
           </CardContent>
         </Card>
