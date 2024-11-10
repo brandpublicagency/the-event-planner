@@ -23,14 +23,14 @@ export const EventDateSelect = ({ form }: EventDateSelectProps) => {
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   className={cn(
-                    "w-full h-10 px-3 py-2 text-left font-normal rounded-md border border-input bg-background",
+                    "w-full pl-3 text-left font-normal",
                     !field.value && "text-muted-foreground"
                   )}
                 >
                   {field.value ? (
-                    format(new Date(field.value), "dd MMMM yyyy")
+                    format(field.value, "PPP")
                   ) : (
                     <span>Pick a date</span>
                   )}
@@ -41,16 +41,12 @@ export const EventDateSelect = ({ form }: EventDateSelectProps) => {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value ? new Date(field.value) : undefined}
-                onSelect={(date) => {
-                  if (date) {
-                    const currentDate = field.value ? new Date(field.value) : new Date();
-                    date.setHours(currentDate.getHours(), currentDate.getMinutes());
-                    field.onChange(date.toISOString());
-                  }
-                }}
+                selected={field.value}
+                onSelect={field.onChange}
+                disabled={(date) =>
+                  date < new Date(new Date().setHours(0, 0, 0, 0))
+                }
                 initialFocus
-                className="rounded-md border border-input bg-background"
               />
             </PopoverContent>
           </Popover>
