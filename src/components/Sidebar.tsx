@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { LogOut, Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { LogOut, Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTheme } from "next-themes";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -11,6 +12,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -45,7 +47,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               return (
                 <Tooltip key={item.path} delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Link to={item.path}>
+                    <Link to={item.path} className="block">
                       <Button
                         variant={location.pathname === item.path ? "secondary" : "ghost"}
                         className={cn(
@@ -72,6 +74,32 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               );
             })}
           </div>
+        </div>
+        
+        {/* Theme Toggle */}
+        <div className="px-3">
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className={cn(
+                  "w-full justify-center",
+                  !isCollapsed && "justify-start"
+                )}
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                {!isCollapsed && <span className="ml-2">Toggle theme</span>}
+              </Button>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent side="right">
+                Toggle theme
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </div>
     </div>
