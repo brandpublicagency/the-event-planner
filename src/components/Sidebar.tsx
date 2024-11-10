@@ -22,7 +22,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     <div className={cn("pb-12 relative flex flex-col h-full", className)}>
       <div className="space-y-6 py-4">
         <div className="px-3 py-2">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between">
             {isCollapsed ? (
               <img 
                 src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
@@ -42,7 +42,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -58,15 +58,18 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                       "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
                     isActive && (
                       isCollapsed ? 
-                        "bg-zinc-800 text-white" : 
+                        "bg-white" : 
                         "bg-zinc-100 text-zinc-900"
                     )
                   )}
                 >
                   <Icon className={cn(
                     "h-5 w-5 transition-colors",
-                    isCollapsed ? "text-white" : "text-zinc-500",
-                    isActive && !isCollapsed && "text-zinc-900"
+                    isCollapsed ? (
+                      isActive ? "text-zinc-900" : "text-white"
+                    ) : (
+                      isActive ? "text-zinc-900" : "text-zinc-500"
+                    )
                   )} />
                   {!isCollapsed && (
                     <span className="ml-3 text-sm font-medium">

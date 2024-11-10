@@ -31,7 +31,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex h-screen">
       <div
         className={`transition-all duration-300 ease-in-out border-r ${
-          isCollapsed ? "w-[60px] bg-zinc-900" : "w-64 bg-white"
+          isCollapsed ? "w-[80px] bg-zinc-900" : "w-64 bg-white"
         }`}
       >
         <ScrollArea className="h-full">
