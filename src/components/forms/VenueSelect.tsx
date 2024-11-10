@@ -26,16 +26,19 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
             <RadioGroup
               onValueChange={field.onChange}
               defaultValue={field.value}
-              className="grid grid-cols-2 gap-4"
+              className="flex flex-wrap gap-3"
             >
               {VENUES.map((venue) => (
-                <FormItem key={venue.id} className="flex items-center space-x-3 space-y-0">
+                <FormItem key={venue.id} className="flex items-center space-x-0 space-y-0">
                   <FormControl>
-                    <RadioGroupItem value={venue.id} />
+                    <label className="relative flex cursor-pointer rounded-full border bg-white px-4 py-2 shadow-sm focus:outline-none">
+                      <RadioGroupItem 
+                        value={venue.id} 
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                      />
+                      <span className="mr-6">{venue.name}</span>
+                    </label>
                   </FormControl>
-                  <FormLabel className="font-normal">
-                    {venue.name}
-                  </FormLabel>
                 </FormItem>
               ))}
             </RadioGroup>
