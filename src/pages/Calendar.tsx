@@ -60,10 +60,19 @@ const Calendar = () => {
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      return data?.map(event => ({
+
+      const formattedEvents: Event[] = data.map(event => ({
         ...event,
-        venues: event.event_venues?.map((ev: any) => ev.venues) || []
+        venues: event.event_venues?.map((ev: any) => ev.venues) || [],
+        // Add fields required by ProjectCard with default values
+        title: event.name,
+        progress: 0,
+        teamSize: event.pax || 0,
+        dueDate: event.event_date || '',
+        status: 'Confirmed' as const
       }));
+
+      return formattedEvents;
     },
     enabled: !!date,
   });

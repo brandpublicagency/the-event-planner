@@ -1,5 +1,4 @@
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Event } from "@/types/event";
 
@@ -46,7 +45,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 {event.event_type} - {event.pax} Pax
               </p>
               <p className="text-sm text-zinc-500 mt-1">
-                Venues: {event.venues?.map((v: any) => v.name).join(', ')}
+                Venues: {event.venues?.map((v) => v.name).join(', ')}
               </p>
               {event.description && (
                 <p className="text-sm text-zinc-600 mt-2">{event.description}</p>
