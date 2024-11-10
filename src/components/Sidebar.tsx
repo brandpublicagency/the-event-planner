@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -43,29 +43,31 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
-                <Tooltip
-                  key={item.path}
-                  delayDuration={0}
-                  side="right"
-                  content={isCollapsed ? item.label : null}
-                >
-                  <Link to={item.path}>
-                    <Button
-                      variant={location.pathname === item.path ? "secondary" : "ghost"}
-                      className={cn(
-                        "w-full justify-start",
-                        isCollapsed && "px-2"
-                      )}
-                    >
-                      <Icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
-                      <span className={cn(
-                        "transition-all duration-300",
-                        isCollapsed && "hidden"
-                      )}>
-                        {item.label}
-                      </span>
-                    </Button>
-                  </Link>
+                <Tooltip key={item.path} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Link to={item.path}>
+                      <Button
+                        variant={location.pathname === item.path ? "secondary" : "ghost"}
+                        className={cn(
+                          "w-full justify-start",
+                          isCollapsed && "px-2"
+                        )}
+                      >
+                        <Icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
+                        <span className={cn(
+                          "transition-all duration-300",
+                          isCollapsed && "hidden"
+                        )}>
+                          {item.label}
+                        </span>
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent side="right">
+                      {item.label}
+                    </TooltipContent>
+                  )}
                 </Tooltip>
               );
             })}
