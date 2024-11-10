@@ -90,10 +90,6 @@ const Index = () => {
             className="h-full"
           />
         </div>
-
-        <div className="col-span-1 md:col-span-3">
-          <ChatBox />
-        </div>
       </div>
 
       {/* Events Table Section */}
@@ -108,6 +104,10 @@ const Index = () => {
           groupedEvents={groupedEvents}
           handleDelete={handleDelete}
         />
+      </div>
+
+      <div className="mt-8">
+        <ChatBox />
       </div>
     </div>
   );
