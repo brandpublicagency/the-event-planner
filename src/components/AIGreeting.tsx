@@ -10,6 +10,8 @@ const openai = import.meta.env.VITE_OPENAI_API_KEY
     })
   : null;
 
+console.log("OpenAI client initialized:", !!openai);
+
 const AIGreeting = () => {
   const [greeting, setGreeting] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -18,12 +20,19 @@ const AIGreeting = () => {
   useEffect(() => {
     const generateGreeting = async () => {
       if (!openai) {
+        console.log("No OpenAI API key found, using default greeting");
         setGreeting("Welcome to the Event Management System!");
         setLoading(false);
+        toast({
+          title: "Notice",
+          description: "Using default greeting (no API key configured)",
+          variant: "default",
+        });
         return;
       }
 
       try {
+        console.log("Attempting to generate AI greeting...");
         const completion = await openai.chat.completions.create({
           messages: [
             {
@@ -34,22 +43,31 @@ const AIGreeting = () => {
           model: "gpt-4-1106-preview",
         });
 
+        console.log("API Response:", completion);
         const generatedGreeting = completion.choices[0]?.message?.content;
+        
         if (generatedGreeting) {
+          console.log("Generated greeting:", generatedGreeting);
           setGreeting(generatedGreeting);
           toast({
             title: "AI Greeting Generated",
             description: "Successfully connected to OpenAI API",
           });
         } else {
+          console.warn("No greeting generated, using default");
           setGreeting("Welcome to the Event Management System!");
+          toast({
+            title: "Warning",
+            description: "No AI greeting generated. Using default message.",
+            variant: "warning",
+          });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error generating greeting:', error);
         setGreeting("Welcome to the Event Management System!");
         toast({
           title: "Error",
-          description: "Could not generate AI greeting. Using default message.",
+          description: error.message || "Could not generate AI greeting. Using default message.",
           variant: "destructive",
         });
       } finally {
