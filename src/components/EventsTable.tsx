@@ -31,7 +31,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
       <div className="space-y-6">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]: [string, any]) => (
           <div key={monthYear} className="rounded-lg border bg-white shadow-sm">
-            <div className="flex items-center gap-2 p-4 border-b bg-zinc-50">
+            <div className="flex items-center gap-2 p-4 border-b bg-white">
               <Calendar className="h-5 w-5 text-muted-foreground" />
               <h3 className="font-semibold text-lg">{monthYear}</h3>
               <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
@@ -42,7 +42,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
             <div className="divide-y">
               {monthEvents.map((event: any) => (
                 <div key={event.event_code} className="group">
-                  <div className="flex items-center px-4 py-3 hover:bg-zinc-50 transition-colors">
+                  <div className="flex items-center px-4 py-3 hover:bg-white transition-colors">
                     <div className="flex items-center flex-1">
                       <div className="flex flex-col gap-2.5 min-w-0">
                         <div className="flex items-center gap-3">
