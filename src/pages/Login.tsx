@@ -22,7 +22,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <img 
-            src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg" 
+            src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
             alt="WarmKaroo Logo" 
             className="h-8"
           />
@@ -30,10 +30,9 @@ const Login = () => {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "This event planner has saved me countless hours of work and helped me deliver
-              stunning events to my clients faster than ever before."
+              "You can always amend a big plan, but you can never expand a little one. I don't believe in little plans. I believe in planes big enough to meet a situation which we can't possibly foresee now."
             </p>
-            <footer className="text-sm">Sofia Davis</footer>
+            <footer className="text-sm">Harry S. Truman</footer>
           </blockquote>
         </div>
       </div>
@@ -67,7 +66,7 @@ const Login = () => {
                 },
               }}
               theme="light"
-              providers={['github']}
+              providers={[]}
             />
           </div>
           <p className="px-8 text-center text-sm text-muted-foreground">
