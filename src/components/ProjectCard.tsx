@@ -63,10 +63,10 @@ const ProjectCard = ({
 
   return (
     <Card 
-      className="cursor-pointer bg-white transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
+      className="cursor-pointer card-with-glow transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
       onClick={onClick}
     >
-      <CardContent className="p-6">
+      <CardContent className="p-6 relative z-10">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         <p className="mt-2 text-sm text-gray-500">{aiDescription}</p>
         <div className="mt-4">

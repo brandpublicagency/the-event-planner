@@ -19,7 +19,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
     >
       <div className={`relative w-full h-full duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
         <div className="absolute w-full h-full backface-hidden">
-          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
+          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden card-with-glow">
             {front}
             <Button
               variant="outline"
@@ -35,8 +35,8 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
           </Card>
         </div>
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
-          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden">
-            <div className="p-6">
+          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden card-with-glow">
+            <div className="p-6 relative z-10">
               {back}
             </div>
           </Card>

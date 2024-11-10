@@ -47,6 +47,18 @@
       z-index: -1;
     }
   }
+
+  .card-with-glow {
+    @apply relative rounded-lg overflow-hidden bg-white;
+    &::before {
+      content: '';
+      @apply absolute -inset-[2px] rounded-lg;
+      background: linear-gradient(90deg, #ff0000, #e100ff, #ff69b4, #ff0000);
+      background-size: 300% 100%;
+      animation: borderGlow 3s linear infinite;
+      z-index: -1;
+    }
+  }
 }
 
 @keyframes borderGlow {
