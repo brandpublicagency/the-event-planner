@@ -31,22 +31,22 @@ const Login = () => {
 
   return (
     <div className="grid grid-cols-1 min-h-screen md:grid-cols-2">
-      {/* Dark section with testimonial */}
+      {/* Dark section with quote */}
       <div className="relative hidden md:flex flex-col bg-zinc-900 text-white p-12">
         <div className="flex items-start">
           <img
             src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WK-Light-Logo.svg"
             alt="Logo"
-            className="h-8"
+            className="h-[90px]"
           />
         </div>
         
-        <div className="flex flex-col justify-end flex-1">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              "This library has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before."
+        <div className="flex flex-col justify-center flex-1">
+          <blockquote className="space-y-4">
+            <p className="text-2xl font-light leading-relaxed">
+              "You can always amend a big plan, but you can never expand a little one. I don't believe in little plans. I believe in planes big enough to meet a situation which we can't possibly foresee now."
             </p>
-            <footer className="text-sm">Sofia Davis</footer>
+            <footer className="text-lg text-zinc-400">Harry S. Truman</footer>
           </blockquote>
         </div>
       </div>
