@@ -160,7 +160,7 @@ const NewEvent = () => {
               </FormSection>
             )}
 
-            <div className="flex justify-end space-x-4 sticky bottom-0 bg-white/80 backdrop-blur-sm p-4 -mx-4 mt-8 border-t">
+            <div className="flex justify-end space-x-4 sticky bottom-0 bg-zinc-50/80 backdrop-blur-sm p-4 -mx-4">
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/events')}

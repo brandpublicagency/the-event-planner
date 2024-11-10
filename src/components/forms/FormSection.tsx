@@ -9,7 +9,7 @@ interface FormSectionProps {
 
 const FormSection = ({ title, description, children }: FormSectionProps) => {
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white">
       <div className="space-y-6">
         <div className="space-y-1 border-b pb-4">
           <h3 className="text-lg font-semibold text-zinc-900">{title}</h3>
