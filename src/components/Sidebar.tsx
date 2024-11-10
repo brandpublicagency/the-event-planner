@@ -20,7 +20,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <div className={cn("pb-12 relative flex flex-col h-full", className)}>
-      <div className="space-y-4 py-4">
+      <div className="space-y-4 py-4 flex flex-col flex-grow">
         <div className="px-3 py-2">
           <div className="mb-8 flex items-center justify-between">
             <div className={cn(
@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-2.5">
+          <nav className="flex flex-col space-y-4">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -58,8 +58,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center justify-center w-[45px] h-[45px]",
-                    isCollapsed ? "" : "w-full",
+                    "flex items-center justify-center h-10",
+                    isCollapsed ? "w-10" : "w-full",
                     "transition-all duration-500 ease-in-out rounded-md",
                     isActive 
                       ? "bg-zinc-100 text-zinc-900" 
@@ -75,31 +75,29 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                 </Link>
               );
             })}
-          </div>
+          </nav>
         </div>
       </div>
-      <div className="mt-auto">
-        <div className="px-3 py-2">
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              "flex items-center justify-center w-[45px] h-[45px]",
-              isCollapsed ? "" : "w-full",
-              "transition-all duration-500 ease-in-out rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-            )}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-5 w-5 shrink-0" />
-            ) : (
-              <>
-                <ChevronLeft className="h-5 w-5 shrink-0" />
-                <span className="ml-3 text-sm font-medium flex-grow text-left">
-                  Collapse
-                </span>
-              </>
-            )}
-          </button>
-        </div>
+      <div className="mt-auto px-3 py-2">
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "flex items-center justify-center h-10",
+            isCollapsed ? "w-10" : "w-full",
+            "transition-all duration-500 ease-in-out rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+          )}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-5 w-5 shrink-0" />
+          ) : (
+            <>
+              <ChevronLeft className="h-5 w-5 shrink-0" />
+              <span className="ml-3 text-sm font-medium flex-grow text-left">
+                Collapse
+              </span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
