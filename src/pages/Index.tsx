@@ -40,33 +40,17 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <FlipCard
           front={
-            <div className="relative h-full w-full bg-zinc-100 rounded-3xl p-8 flex flex-col">
-              <div className="flex-1 space-y-4">
-                <div className="text-4xl font-semibold">Louisa Marin</div>
-                <div className="text-zinc-500 text-base flex items-center gap-2">
-                  <span className="inline-block w-4 h-4 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
-                  Connecting
+            <div className="relative h-full w-full">
+              <img
+                src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
+                alt="Profile"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                <div className="text-white">
+                  <div className="text-2xl font-semibold">Louisa Marin</div>
+                  <div className="text-sm opacity-80">louisa@example.com</div>
                 </div>
-                <div className="flex-1 flex items-center justify-center">
-                  <img
-                    src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png"
-                    alt="Profile"
-                    className="w-48 h-48 object-cover rounded-xl"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3 mt-6 pt-4 border-t border-zinc-200">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://pink-book.co.za/wp-content/uploads/2024/02/Warm-Karoo-Wedding-Event-Venue-39.png" />
-                  <AvatarFallback>LM</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">louisa_marin01</span>
-                  <span className="text-xs text-zinc-500">23m ago</span>
-                </div>
-                <Button className="ml-auto rounded-full px-6" variant="secondary">
-                  Add Member
-                </Button>
               </div>
             </div>
           }
