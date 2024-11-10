@@ -1,9 +1,9 @@
-import { supabase } from "@/integrations/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeMinimal } from "@supabase/auth-ui-shared";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const { toast } = useToast();
@@ -15,7 +15,7 @@ const Login = () => {
           <img
             src="https://www.brandpublic.agency/wp-content/uploads/2024/11/WK-Light-Logo.svg"
             alt="Logo"
-            className="h-12 mx-auto"
+            className="h-[90px] mx-auto"
           />
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome back
