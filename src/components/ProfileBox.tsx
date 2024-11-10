@@ -1,9 +1,10 @@
-import { LogOut, Mail, Phone, MapPin, Building2 } from "lucide-react";
+import { LogOut, Mail, Phone, MapPin, Building2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import FlipCard from "@/components/FlipCard";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const ProfileBox = () => {
   const navigate = useNavigate();
@@ -23,8 +24,11 @@ const ProfileBox = () => {
     }
   };
 
-  const handleEditProfile = () => {
-    console.log('Edit profile clicked');
+  const handleEditField = (field: string) => {
+    toast({
+      title: `Editing ${field}`,
+      description: "This feature will be implemented soon",
+    });
   };
 
   return (
@@ -46,49 +50,81 @@ const ProfileBox = () => {
         </div>
       }
       back={
-        <div className="h-full flex flex-col p-6 bg-gradient-to-br from-white via-zinc-50/50 to-white">
+        <div className="h-full flex flex-col p-5 bg-gradient-to-br from-white via-zinc-50/50 to-white">
           <div className="space-y-6 flex-1">
             <div className="space-y-2">
               <h3 className="font-semibold text-lg text-zinc-900">Profile Information</h3>
               <p className="text-sm text-zinc-500">Your personal details and contact information</p>
             </div>
             <Separator />
-            <div className="grid gap-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm">
+            <div className="grid gap-2.5">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
                 <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
                   <Mail className="h-4 w-4 text-blue-500" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-medium text-zinc-500">Email</p>
                   <p className="text-sm text-zinc-900">louisa@example.com</p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleEditField('email')}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
                 <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
                   <Phone className="h-4 w-4 text-green-500" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-medium text-zinc-500">Phone</p>
                   <p className="text-sm text-zinc-900">(555) 123-4567</p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleEditField('phone')}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
                 <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
                   <Building2 className="h-4 w-4 text-purple-500" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-medium text-zinc-500">Company</p>
                   <p className="text-sm text-zinc-900">Pink Book Events</p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleEditField('company')}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
                 <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center">
                   <MapPin className="h-4 w-4 text-orange-500" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-medium text-zinc-500">Location</p>
                   <p className="text-sm text-zinc-900">San Francisco, CA</p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleEditField('location')}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -102,7 +138,6 @@ const ProfileBox = () => {
           </button>
         </div>
       }
-      onEdit={handleEditProfile}
     />
   );
 };
