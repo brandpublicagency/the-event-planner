@@ -53,7 +53,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   className={cn(
                     "flex items-center w-full",
                     isCollapsed ? "justify-center px-2" : "px-3",
-                    "py-2 rounded-md transition-colors duration-200",
+                    "py-2 transition-colors duration-200",
                     isActive 
                       ? "bg-zinc-100 text-zinc-900" 
                       : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
@@ -79,7 +79,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             className={cn(
               "flex items-center w-full",
               isCollapsed ? "justify-center px-2" : "px-3",
-              "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+              "py-2 transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             )}
           >
             {isCollapsed ? (
