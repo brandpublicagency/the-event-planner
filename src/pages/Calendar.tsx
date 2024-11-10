@@ -132,8 +132,8 @@ const Calendar = () => {
       
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
-      <div className="mt-6 grid gap-8 md:grid-cols-[400px,1fr]">
-        <Card className="bg-white p-4 rounded-xl shadow-sm">
+      <div className="mt-6 grid gap-8 md:grid-cols-[450px,1fr]">
+        <Card className="bg-white p-6 rounded-xl shadow-sm border border-primary-200">
           <CalendarComponent
             mode="single"
             selected={date}
