@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight, LogOut, CalendarPlus } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -30,6 +30,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
+    { icon: Calendar, label: "Events", path: "/events" },
+    { icon: CalendarPlus, label: "New Event", path: "/events/new" },
     { icon: Calendar, label: "Calendar", path: "/calendar" },
     { icon: FileText, label: "Planning Documents", path: "/documents" },
   ];
