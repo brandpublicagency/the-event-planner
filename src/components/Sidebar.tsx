@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-4">
-          <nav className="space-y-2">
+          <nav className="space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -59,7 +59,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 w-full rounded-lg transition-all duration-200",
+                    "flex items-center h-8 w-full rounded-md transition-all duration-200",
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isActive 
                       ? isCollapsed 
@@ -71,8 +71,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   )}
                 >
                   <Icon className={cn(
-                    "flex-shrink-0 min-w-6",
-                    isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3",
+                    "flex-shrink-0 min-w-5",
+                    isCollapsed ? "h-4 w-4" : "h-4 w-4 mr-3",
                     isActive 
                       ? isCollapsed ? "text-zinc-900" : "text-white"
                       : isCollapsed ? "text-zinc-400" : "text-zinc-600"
@@ -96,8 +96,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-full h-10",
-              "rounded-lg transition-colors duration-200",
+              "flex items-center justify-center w-8 h-8",
+              "rounded-md transition-colors duration-200 focus:outline-none",
               isCollapsed
                 ? "text-zinc-400 hover:text-white hover:bg-zinc-800"
                 : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
@@ -105,9 +105,9 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-5 w-5 transition-transform duration-300" />
+              <ChevronRight className="h-4 w-4 transition-transform duration-300" />
             ) : (
-              <ChevronLeft className="h-5 w-5 transition-transform duration-300" />
+              <ChevronLeft className="h-4 w-4 transition-transform duration-300" />
             )}
           </button>
         </div>
