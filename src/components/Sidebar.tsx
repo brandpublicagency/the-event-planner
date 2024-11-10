@@ -1,8 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, ChevronLeft, ChevronRight, LogOut, CalendarPlus } from "lucide-react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
+import ProfileBox from "./ProfileBox";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -11,22 +10,6 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate("/login");
-      toast({
-        title: "Logged out successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error logging out",
-        variant: "destructive",
-      });
-    }
-  };
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -90,24 +73,9 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <div className="mt-auto px-3 py-2">
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={handleLogout}
-            className={cn(
-              "flex items-center w-full",
-              isCollapsed ? "justify-center px-2" : "px-3",
-              "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-            )}
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {!isCollapsed && (
-              <span className="ml-3 text-sm font-medium">
-                Logout
-              </span>
-            )}
-          </button>
-
+      <div className="mt-auto">
+        {!isCollapsed && <ProfileBox />}
+        <div className="px-3 py-2">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
