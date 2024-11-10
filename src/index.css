@@ -45,13 +45,12 @@
   }
 
   .glassmorphism {
-    @apply rounded-2xl backdrop-blur-xl border border-white/10 shadow-2xl bg-zinc-900/95;
+    @apply rounded-md backdrop-blur-xl border border-white/5 bg-zinc-900/90;
     background: linear-gradient(
       135deg,
-      rgba(24, 24, 27, 0.95) 0%,
-      rgba(24, 24, 27, 0.98) 100%
+      rgba(24, 24, 27, 0.9) 0%,
+      rgba(24, 24, 27, 0.95) 100%
     );
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
