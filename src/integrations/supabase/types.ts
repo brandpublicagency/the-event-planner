@@ -24,13 +24,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "event_venues_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "event_venues_venue_id_fkey"
             columns: ["venue_id"]
             isOneToOne: false
@@ -51,13 +44,12 @@ export type Database = {
           contact_person: string | null
           created_at: string
           created_by: string | null
-          event_code: string | null
+          event_code: string
           event_date: string
           event_type: Database["public"]["Enums"]["event_type"]
           groom_email: string | null
           groom_mobile: string | null
           groom_name: string | null
-          id: string
           name: string
           package_id: string | null
           pax: number | null
@@ -75,13 +67,12 @@ export type Database = {
           contact_person?: string | null
           created_at?: string
           created_by?: string | null
-          event_code?: string | null
+          event_code: string
           event_date: string
           event_type: Database["public"]["Enums"]["event_type"]
           groom_email?: string | null
           groom_mobile?: string | null
           groom_name?: string | null
-          id?: string
           name: string
           package_id?: string | null
           pax?: number | null
@@ -99,13 +90,12 @@ export type Database = {
           contact_person?: string | null
           created_at?: string
           created_by?: string | null
-          event_code?: string | null
+          event_code?: string
           event_date?: string
           event_type?: Database["public"]["Enums"]["event_type"]
           groom_email?: string | null
           groom_mobile?: string | null
           groom_name?: string | null
-          id?: string
           name?: string
           package_id?: string | null
           pax?: number | null
@@ -240,15 +230,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["availability_type"] | null
           venue_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "venue_availability_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       venues: {
         Row: {
