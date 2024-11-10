@@ -42,8 +42,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 p-4">
-          <nav className="space-y-4">
+        <div className="flex-1 p-6">
+          <nav className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -53,26 +53,20 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 rounded-md transition-all duration-300 ease-in-out group hover:bg-zinc-800/80",
+                    "flex items-center h-10 rounded-md transition-all duration-300 ease-in-out group hover:bg-zinc-800",
                     isCollapsed ? "justify-center px-2" : "px-3",
-                    isActive ? "bg-zinc-800" : ""
+                    isActive ? "bg-zinc-800 text-white" : "text-zinc-400"
                   )}
                 >
-                  <div className={cn(
-                    "flex items-center justify-center rounded-md",
-                    "w-8 h-8 transition-all duration-300",
-                    isActive ? "bg-zinc-700" : "bg-zinc-800/50 group-hover:bg-zinc-700/50"
-                  )}>
-                    <Icon className={cn(
-                      "h-4 w-4 transition-colors duration-300",
-                      isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
-                    )} />
-                  </div>
+                  <Icon className={cn(
+                    "h-5 w-5 transition-colors duration-300",
+                    "group-hover:text-white"
+                  )} />
                   
                   {!isCollapsed && (
                     <span className={cn(
                       "ml-3 text-sm font-medium transition-colors duration-300",
-                      isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
+                      "group-hover:text-white"
                     )}>
                       {item.label}
                     </span>
@@ -88,17 +82,16 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-8 h-8",
+              "flex items-center justify-center w-10 h-10",
               "rounded-md transition-all duration-300",
-              "bg-zinc-800/50 hover:bg-zinc-700/50",
-              "text-zinc-400 hover:text-white focus:outline-none"
+              "hover:bg-zinc-800 text-zinc-400 hover:text-white"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             ) : (
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             )}
           </button>
         </div>

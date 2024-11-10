@@ -13,6 +13,14 @@
   body {
     @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
   }
+
+  *:focus {
+    @apply outline-none ring-0;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-0;
+  }
 }
 
 @layer components {
@@ -41,7 +49,7 @@
     &::before {
       content: '';
       @apply absolute inset-0 rounded-lg;
-      padding: 1px; /* Adjusted from 2px to 1px for thinner border */
+      padding: 1px;
       background: linear-gradient(
         45deg,
         #00c6ff,
