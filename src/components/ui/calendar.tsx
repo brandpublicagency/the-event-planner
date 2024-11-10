@@ -38,13 +38,13 @@ function Calendar({
         cell: "h-10 w-10 text-center text-sm p-0 relative",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal text-zinc-900 hover:bg-transparent hover:ring-1 hover:ring-zinc-200 hover:ring-inset rounded-full"
+          "h-10 w-10 p-0 font-normal text-zinc-900 hover:text-zinc-900 hover:bg-transparent hover:ring-1 hover:ring-zinc-200 hover:ring-inset rounded-full"
         ),
         day_selected:
-          "text-zinc-900 hover:text-zinc-900 font-medium ring-1 ring-zinc-900 ring-inset",
+          "bg-transparent text-zinc-900 hover:text-zinc-900 hover:bg-transparent font-medium ring-1 ring-zinc-900 ring-inset hover:ring-zinc-900",
         day_today: "text-zinc-900 font-medium underline underline-offset-4",
         day_outside:
-          "text-muted-foreground opacity-50",
+          "text-muted-foreground opacity-50 hover:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",
         day_hidden: "invisible",
         ...classNames,
