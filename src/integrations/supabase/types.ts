@@ -24,13 +24,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "event_venues_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          },
-          {
             foreignKeyName: "event_venues_venue_id_fkey"
             columns: ["venue_id"]
             isOneToOne: false
@@ -38,125 +31,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      events: {
-        Row: {
-          bride_email: string | null
-          bride_mobile: string | null
-          bride_name: string | null
-          client_address: string | null
-          company_address: string | null
-          company_name: string | null
-          company_vat: string | null
-          contact_person: string | null
-          created_at: string
-          created_by: string | null
-          event_code: string
-          event_date: string
-          event_type: Database["public"]["Enums"]["event_type"]
-          groom_email: string | null
-          groom_mobile: string | null
-          groom_name: string | null
-          name: string
-          package_id: string | null
-          pax: number | null
-          status: Database["public"]["Enums"]["event_status"] | null
-          venue_id: string | null
-        }
-        Insert: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          client_address?: string | null
-          company_address?: string | null
-          company_name?: string | null
-          company_vat?: string | null
-          contact_person?: string | null
-          created_at?: string
-          created_by?: string | null
-          event_code: string
-          event_date: string
-          event_type: Database["public"]["Enums"]["event_type"]
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          name: string
-          package_id?: string | null
-          pax?: number | null
-          status?: Database["public"]["Enums"]["event_status"] | null
-          venue_id?: string | null
-        }
-        Update: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          client_address?: string | null
-          company_address?: string | null
-          company_name?: string | null
-          company_vat?: string | null
-          contact_person?: string | null
-          created_at?: string
-          created_by?: string | null
-          event_code?: string
-          event_date?: string
-          event_type?: Database["public"]["Enums"]["event_type"]
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          name?: string
-          package_id?: string | null
-          pax?: number | null
-          status?: Database["public"]["Enums"]["event_status"] | null
-          venue_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "events_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      package_venues: {
-        Row: {
-          package_id: string
-          venue_id: string
-        }
-        Insert: {
-          package_id: string
-          venue_id: string
-        }
-        Update: {
-          package_id?: string
-          venue_id?: string
-        }
-        Relationships: []
-      }
-      packages: {
-        Row: {
-          base_price: number
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          base_price: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          base_price?: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
       }
       profiles: {
         Row: {
@@ -181,35 +55,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      selected_packages: {
-        Row: {
-          id: string
-          package_id: string
-          selected_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          package_id: string
-          selected_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          package_id?: string
-          selected_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "selected_packages_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       venue_availability: {
         Row: {
