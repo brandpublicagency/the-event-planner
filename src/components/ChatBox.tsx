@@ -42,7 +42,7 @@ const ChatBox = () => {
           ...messages,
           userMessage
         ],
-        model: "gpt-4o",
+        model: "gpt-4",
       });
 
       const assistantMessage = {
@@ -59,41 +59,43 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="p-4 flex flex-col h-[400px] glow-border bg-white">
-      <h3 className="font-semibold mb-4">Chat Assistant</h3>
-      <ScrollArea className="flex-1 pr-4">
-        <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
+    <Card className="p-4 flex flex-col h-[400px] glow-border bg-white relative">
+      <div className="z-10 flex-1 flex flex-col">
+        <h3 className="font-semibold mb-4">Chat Assistant</h3>
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-4">
+            {messages.map((message, index) => (
               <div
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground ml-auto"
-                    : "bg-muted"
+                key={index}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                {message.content}
+                <div
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground ml-auto"
+                      : "bg-muted"
+                  }`}
+                >
+                  {message.content}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          disabled={isLoading}
-        />
-        <Button type="submit" size="icon" disabled={isLoading}>
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+            ))}
+          </div>
+        </ScrollArea>
+        <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            disabled={isLoading}
+          />
+          <Button type="submit" size="icon" disabled={isLoading}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
     </Card>
   );
 };
