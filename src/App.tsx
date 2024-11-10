@@ -4,6 +4,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 import Sidebar from "./components/Sidebar";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
@@ -12,8 +15,8 @@ import Documents from "./pages/Documents";
 import NewEvent from "./pages/NewEvent";
 import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
+import Login from "./pages/Login";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +26,36 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -52,18 +85,80 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <RootLayout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/events/new" element={<NewEvent />} />
-              <Route path="/events/:id" element={<EventDetails />} />
-              <Route path="/events/:id/edit" element={<EditEvent />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/documents" element={<Documents />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </RootLayout>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <Index />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/events"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <Events />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/events/new"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <NewEvent />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/events/:id"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <EventDetails />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/events/:id/edit"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <EditEvent />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <Calendar />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/documents"
+              element={
+                <PrivateRoute>
+                  <RootLayout>
+                    <Documents />
+                  </RootLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

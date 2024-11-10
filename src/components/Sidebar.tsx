@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
+import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -9,6 +11,22 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/login");
+      toast({
+        title: "Logged out successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error logging out",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -82,7 +100,33 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <div className="absolute bottom-4 left-0 w-full px-3">
+      <div className="absolute bottom-4 left-0 w-full px-3 space-y-2">
+        <button
+          onClick={handleLogout}
+          className={cn(
+            "flex items-center w-full",
+            isCollapsed ? "justify-center" : "",
+            "h-[50px] gap-5"
+          )}
+        >
+          <div className={cn(
+            "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
+            isCollapsed ? 
+              "text-white hover:bg-zinc-800" : 
+              "text-zinc-600 hover:bg-zinc-100"
+          )}>
+            <LogOut className={cn(
+              "h-6 w-6",
+              isCollapsed ? "text-white" : "text-zinc-500"
+            )} />
+          </div>
+          {!isCollapsed && (
+            <span className="text-sm font-medium text-zinc-600">
+              Logout
+            </span>
+          )}
+        </button>
+
         <Link 
           to="#"
           onClick={(e) => {
