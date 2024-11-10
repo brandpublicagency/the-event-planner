@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Calendar, FileText, CalendarDays } from "lucide-react";
+import { Home, Calendar, FileText, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -20,10 +20,10 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   ];
 
   return (
-    <div className={cn("pb-12 relative", className)}>
-      <div className="space-y-6 py-4">
+    <div className={cn("pb-12 relative flex flex-col h-full", className)}>
+      <div className="space-y-6 py-4 flex-1">
         <div className="px-3 py-2">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between">
             {isCollapsed ? (
               <img 
                 src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
@@ -36,7 +36,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </h2>
             )}
           </div>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -80,6 +80,24 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             })}
           </div>
         </div>
+      </div>
+      
+      {/* Collapse/Expand button at bottom */}
+      <div className="absolute bottom-4 w-full px-3">
+        <Button
+          variant="ghost"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "w-full justify-center transition-all duration-300",
+            isCollapsed ? "hover:bg-zinc-800" : "hover:bg-zinc-100"
+          )}
+        >
+          {isCollapsed ? (
+            <ChevronRight className={cn("h-5 w-5", isCollapsed ? "text-white" : "text-zinc-500")} />
+          ) : (
+            <ChevronLeft className={cn("h-5 w-5", isCollapsed ? "text-white" : "text-zinc-500")} />
+          )}
+        </Button>
       </div>
     </div>
   );
