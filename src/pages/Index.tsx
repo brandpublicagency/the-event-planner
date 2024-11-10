@@ -48,12 +48,12 @@ const Index = () => {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="h-[400px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-fr">
+        <div className="w-full">
           <ProfileBox />
         </div>
 
-        <div className="h-[400px] bg-white rounded-lg flex items-center justify-center shadow-sm">
+        <div className="w-full bg-white rounded-lg flex items-center justify-center shadow-sm">
           <Calendar
             mode="single"
             selected={date}
@@ -62,7 +62,9 @@ const Index = () => {
           />
         </div>
 
-        <ChatBox />
+        <div className="w-full">
+          <ChatBox />
+        </div>
       </div>
 
       {/* Events Table Section */}
