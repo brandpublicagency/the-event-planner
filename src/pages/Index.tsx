@@ -30,7 +30,16 @@ const Index = () => {
       groups[monthYear] = [];
     }
     
-    groups[monthYear].push(event);
+    // Transform the event to match expected structure
+    groups[monthYear].push({
+      ...event,
+      event_date: event.dueDate,
+      name: event.title,
+      event_code: event.event_code || `EVT-${Math.random().toString(36).substr(2, 9)}`,
+      event_type: event.event_type || 'Wedding',
+      pax: event.pax || 100,
+      venues: event.venues || [{ name: 'Default Venue' }]
+    });
     return groups;
   }, {});
 

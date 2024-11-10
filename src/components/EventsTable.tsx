@@ -29,7 +29,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6">
-        {Object.entries(groupedEvents).map(([monthYear, monthEvents]: [string, any]) => (
+        {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
           <div key={monthYear} className="rounded-lg border bg-white shadow-sm">
             <div className="flex items-center gap-2 p-4 border-b bg-white">
               <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -52,7 +52,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                               {event.event_code}
                             </span>
                             <span className="font-medium whitespace-nowrap">
-                              {format(parseISO(event.event_date), 'dd MMM yyyy')}
+                              {event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'No date'}
                             </span>
                           </div>
                         </div>
@@ -73,7 +73,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         onClick={() => navigate(`/events/${event.event_code}/edit`)}
                         className="text-zinc-600"
                       >
-                        Edit
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
