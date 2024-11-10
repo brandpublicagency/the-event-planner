@@ -45,10 +45,7 @@
   }
 
   .border-gradient {
-    @apply relative bg-white rounded-lg border border-zinc-200 transition-shadow duration-300;
-    &:hover {
-      @apply shadow-md;
-    }
+    @apply relative bg-white rounded-lg border border-zinc-200;
   }
 
   .glassmorphism {
