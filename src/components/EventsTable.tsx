@@ -45,10 +45,13 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                 <div key={event.id}>
                   <div className="flex items-center px-4 py-3 hover:bg-muted/50">
                     <div className="flex items-center flex-1 gap-4">
-                      <Checkbox />
-                      <div className="flex flex-col">
+                      <div className="flex items-center gap-4">
+                        <Checkbox />
+                        <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
+                      </div>
+                      <div className="flex flex-col space-y-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">{format(parseISO(event.event_date), 'dd MMM yyyy')}</span>
+                          <span className="text-lg font-medium">{event.name}</span>
                           <Badge variant="outline" className="ml-2">
                             {event.event_type} / {event.pax} Pax
                           </Badge>
@@ -57,12 +60,8 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{event.name}</span>
                           {event.venue?.name && (
-                            <>
-                              <span>•</span>
-                              <span>{event.venue.name}</span>
-                            </>
+                            <span>{event.venue.name}</span>
                           )}
                         </div>
                       </div>
@@ -70,19 +69,19 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                     <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
-                        size="icon"
                         onClick={() => navigate(`/events/${event.id}/edit`)}
+                        className="text-zinc-600 hover:text-zinc-900"
                       >
-                        <Edit className="h-4 w-4" />
+                        Edit
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost"
-                            size="icon"
-                            className="text-red-500 hover:text-red-600"
+                            className="text-zinc-600 hover:text-zinc-900"
                           >
-                            <Trash className="h-4 w-4" />
+                            <Trash className="h-4 w-4 mr-2" />
+                            Delete
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -96,7 +95,7 @@ const EventsTable = ({ groupedEvents, getStatusColor, handleDelete }: EventsTabl
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(event.id)}
-                              className="bg-red-500 hover:bg-red-600"
+                              className="bg-zinc-900 hover:bg-zinc-700"
                             >
                               Delete
                             </AlertDialogAction>
