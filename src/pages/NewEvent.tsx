@@ -11,6 +11,7 @@ import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
 import { ArrowLeft } from "lucide-react";
+import { format } from "date-fns";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -24,43 +25,41 @@ const NewEvent = () => {
 
   const eventType = form.watch("event_type");
 
-  const { data: venues } = useQuery({
-    queryKey: ['venues'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('venues')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const onSubmit = async (data: any) => {
     try {
-      // If package_id is provided, try to get package details
-      if (data.package_id) {
-        const { data: packageData, error: packageError } = await supabase
-          .from('packages')
-          .select('*')
-          .eq('id', data.package_id)
-          .single();
-
-        if (!packageError && packageData) {
-          data.base_price = packageData.base_price;
-          data.discount_percentage = packageData.discount_percentage;
-        }
-      }
-
-      const { error } = await supabase
+      // Generate event code
+      const eventCode = `EVENT-${format(new Date(data.event_date), 'ddMM')}`;
+      
+      // Create the event
+      const { data: eventData, error: eventError } = await supabase
         .from('events')
         .insert([{
           ...data,
+          event_code: eventCode,
           created_by: (await supabase.auth.getUser()).data.user?.id
-        }]);
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (eventError) throw eventError;
+
+      // Create venue relationships
+      if (data.venues) {
+        const venueRelations = Object.entries(data.venues)
+          .filter(([_, selected]) => selected)
+          .map(([venueId]) => ({
+            event_id: eventData.id,
+            venue_id: venueId
+          }));
+
+        if (venueRelations.length > 0) {
+          const { error: venueError } = await supabase
+            .from('event_venues')
+            .insert(venueRelations);
+
+          if (venueError) throw venueError;
+        }
+      }
 
       toast({
         title: "Success",
@@ -102,7 +101,7 @@ const NewEvent = () => {
               title="Event Details" 
               description="Enter the basic information about the event."
             >
-              <EventBasicInfo form={form} venues={venues} />
+              <EventBasicInfo form={form} />
             </FormSection>
 
             {eventType === "Wedding" ? (

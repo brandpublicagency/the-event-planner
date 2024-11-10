@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      event_venues: {
+        Row: {
+          event_id: string
+          venue_id: string
+        }
+        Insert: {
+          event_id: string
+          venue_id: string
+        }
+        Update: {
+          event_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_venues_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_venues_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           bride_email: string | null
@@ -21,6 +51,7 @@ export type Database = {
           contact_person: string | null
           created_at: string
           created_by: string | null
+          event_code: string | null
           event_date: string
           event_type: Database["public"]["Enums"]["event_type"]
           groom_email: string | null
@@ -44,6 +75,7 @@ export type Database = {
           contact_person?: string | null
           created_at?: string
           created_by?: string | null
+          event_code?: string | null
           event_date: string
           event_type: Database["public"]["Enums"]["event_type"]
           groom_email?: string | null
@@ -67,6 +99,7 @@ export type Database = {
           contact_person?: string | null
           created_at?: string
           created_by?: string | null
+          event_code?: string | null
           event_date?: string
           event_type?: Database["public"]["Enums"]["event_type"]
           groom_email?: string | null
@@ -94,51 +127,27 @@ export type Database = {
           package_id?: string
           venue_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "package_venues_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "package_venues_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       packages: {
         Row: {
-          accommodation_nights: number | null
-          accommodation_rooms: number | null
           base_price: number
           created_at: string | null
           description: string | null
-          discount_percentage: number | null
           id: string
           name: string
         }
         Insert: {
-          accommodation_nights?: number | null
-          accommodation_rooms?: number | null
           base_price: number
           created_at?: string | null
           description?: string | null
-          discount_percentage?: number | null
           id?: string
           name: string
         }
         Update: {
-          accommodation_nights?: number | null
-          accommodation_rooms?: number | null
           base_price?: number
           created_at?: string | null
           description?: string | null
-          discount_percentage?: number | null
           id?: string
           name?: string
         }
@@ -243,28 +252,28 @@ export type Database = {
       }
       venues: {
         Row: {
+          code: string
           created_at: string | null
           description: string | null
           id: string
           is_available: boolean | null
           name: string
-          price_per_day: number
         }
         Insert: {
+          code: string
           created_at?: string | null
           description?: string | null
           id?: string
           is_available?: boolean | null
           name: string
-          price_per_day: number
         }
         Update: {
+          code?: string
           created_at?: string | null
           description?: string | null
           id?: string
           is_available?: boolean | null
           name?: string
-          price_per_day?: number
         }
         Relationships: []
       }

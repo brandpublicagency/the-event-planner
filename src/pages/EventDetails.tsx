@@ -3,9 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
-
-type Venue = Database['public']['Tables']['venues']['Row'];
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -17,7 +14,9 @@ const EventDetails = () => {
         .from('events')
         .select(`
           *,
-          venue:venues!inner(*)
+          event_venues (
+            venue:venues(*)
+          )
         `)
         .eq('id', id)
         .single();
@@ -29,6 +28,8 @@ const EventDetails = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (!event) return <div>Event not found</div>;
+
+  const venueNames = event.event_venues?.map(ev => ev.venue.name).join(', ') || 'No venues selected';
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -54,8 +55,8 @@ const EventDetails = () => {
               <p>{format(new Date(event.event_date), 'PPP')}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Venue</p>
-              <p>{event.venue?.name}</p>
+              <p className="text-sm font-medium text-muted-foreground">Venues</p>
+              <p>{venueNames}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Type</p>
@@ -64,6 +65,10 @@ const EventDetails = () => {
             <div>
               <p className="text-sm font-medium text-muted-foreground">Guest Count</p>
               <p>{event.pax || 'TBC'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Event Code</p>
+              <p>{event.event_code || `EVENT-${format(new Date(event.event_date), 'ddMM')}`}</p>
             </div>
           </CardContent>
         </Card>
