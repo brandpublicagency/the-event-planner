@@ -13,32 +13,39 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div 
-      className="relative h-full perspective-1000"
-      onClick={() => setIsFlipped(!isFlipped)}
-    >
-      <div className={`relative w-full h-full duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-        <div className="absolute w-full h-full backface-hidden">
-          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden card-with-glow">
+    <div className="relative h-full w-full [perspective:1000px]">
+      <div
+        className={`relative h-full w-full transition-all duration-500 [transform-style:preserve-3d] ${
+          isFlipped ? '[transform:rotateY(180deg)]' : ''
+        }`}
+      >
+        <div className="absolute h-full w-full [backface-visibility:hidden]">
+          <Card 
+            className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
+            onClick={() => setIsFlipped(!isFlipped)}
+          >
             {front}
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute top-4 right-4 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit?.();
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            {onEdit && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-4 top-4 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
           </Card>
         </div>
-        <div className="absolute w-full h-full backface-hidden rotate-y-180">
-          <Card className="w-full h-full cursor-pointer rounded-xl overflow-hidden card-with-glow">
-            <div className="p-6 relative z-10">
-              {back}
-            </div>
+        <div className="absolute h-full w-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <Card 
+            className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
+            onClick={() => setIsFlipped(!isFlipped)}
+          >
+            <div className="p-6">{back}</div>
           </Card>
         </div>
       </div>
