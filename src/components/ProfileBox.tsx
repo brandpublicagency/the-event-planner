@@ -115,19 +115,19 @@ const ProfileBox = () => {
 
   const backContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4">
-        <h3 className="text-lg font-semibold text-zinc-900">Profile Details</h3>
+      <div className="flex items-center justify-between p-6 border-b">
+        <h3 className="text-2xl font-semibold">Profile Details</h3>
         <Button 
           variant="ghost" 
           size="sm"
           onClick={handleLogout}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="text-red-500 hover:text-red-600 hover:bg-transparent"
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sign out
         </Button>
       </div>
-      <div className="flex-1 overflow-auto px-6 py-4">
+      <div className="flex-1 p-6 bg-white">
         <ProfileForm
           profile={profile}
           isEditing={isEditing}
