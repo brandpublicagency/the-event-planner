@@ -33,7 +33,6 @@ const ChatBox = () => {
     }
   });
 
-  // Fetch upcoming events
   const { data: upcomingEvents } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
@@ -119,12 +118,7 @@ const ChatBox = () => {
           details = `Corporate: ${event.corporate_details.company_name}`;
         }
 
-        return `Event: ${event.name} (${event.event_type})
-Date: ${date}
-Venue: ${venue}
-Details: ${details}
-Pax: ${event.pax}
-`;
+        return `Event: ${event.name} (${event.event_type})\nDate: ${date}\nVenue: ${venue}\nDetails: ${details}\nPax: ${event.pax}\n`;
       }).join('\n\n');
 
       const systemMessage: ChatCompletionMessageParam = {
@@ -143,7 +137,7 @@ Your role is to help with:
 4. Client Details
 5. Best Practices & Guidelines
 
-Please use this information to provide accurate and contextual responses about events, schedules, and planning details.`
+Please use this information to provide accurate and contextual responses about events, schedules, and planning details.
 
 You can also send emails to clients when needed. To send an email, respond with a JSON object in this format:
 {
@@ -151,8 +145,7 @@ You can also send emails to clients when needed. To send an email, respond with 
   "to": ["recipient@email.com"],
   "subject": "Email subject",
   "content": "Email content in HTML format"
-}
-`
+}`
       };
 
       const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
