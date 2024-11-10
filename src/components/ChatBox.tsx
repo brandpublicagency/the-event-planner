@@ -59,7 +59,7 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="p-4 flex flex-col h-[400px]">
+    <Card className="p-4 flex flex-col h-[400px] glow-border">
       <h3 className="font-semibold mb-4">Chat Assistant</h3>
       <ScrollArea className="flex-1 pr-4">
         <div className="space-y-4">
