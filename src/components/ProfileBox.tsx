@@ -88,15 +88,15 @@ const ProfileBox = () => {
 
   const frontContent = (
     <div className="h-full flex flex-col">
-      <div className="aspect-video w-full h-full">
+      <div className="aspect-video w-full h-full relative">
         <img
           src="https://www.brandpublic.agency/wp-content/uploads/2024/11/wk.jpg"
           alt="Profile"
           className="h-full w-full object-cover"
         />
-      </div>
-      <div className="p-4 flex-1 flex items-center justify-center bg-white/90 backdrop-blur-sm absolute bottom-0 left-0 right-0">
-        <h2 className="text-2xl font-semibold">{profile?.full_name || 'Loading...'}</h2>
+        <h2 className="text-2xl font-semibold text-white absolute bottom-4 left-1/2 -translate-x-1/2">
+          {profile?.full_name || 'Loading...'}
+        </h2>
       </div>
     </div>
   );
