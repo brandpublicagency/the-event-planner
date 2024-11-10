@@ -21,8 +21,8 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="border-gradient h-[500px]">
-      <Card className="metric-card h-full flex flex-col">
+    <div className="border-gradient h-[600px]">
+      <Card className="h-full flex flex-col">
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             {messages.map((message, index) => (
