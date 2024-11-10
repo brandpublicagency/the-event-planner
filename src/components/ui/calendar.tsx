@@ -15,26 +15,24 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-4", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
+        month: "space-y-4 w-full",
+        caption: "flex justify-between pt-1 relative items-center px-2 mb-4",
+        caption_label: "text-base font-medium",
+        nav: "flex items-center space-x-1",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border-zinc-200"
+          "h-8 w-8 bg-transparent p-0 hover:bg-zinc-100 border-zinc-200"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
-        head_cell: "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem]",
+        head_cell: "text-zinc-500 rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
         row: "flex w-full mt-2",
-        cell: "text-center text-sm relative p-0 rounded-md focus-within:relative focus-within:z-20",
+        cell: "relative p-0 text-center text-sm rounded-md h-10 w-10 flex items-center justify-center focus-within:relative focus-within:z-20",
         day: cn(
-          "h-9 w-9 p-0 font-normal rounded-md transition-colors hover:bg-zinc-100",
+          "h-10 w-10 p-0 font-normal rounded-md transition-colors hover:bg-zinc-100 flex items-center justify-center",
           "aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
