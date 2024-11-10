@@ -15,7 +15,12 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('packages')
-        .select('*')
+        .select(`
+          *,
+          package_venues(
+            venue:venues(*)
+          )
+        `)
         .order('base_price', { ascending: true });
       
       if (error) throw error;
@@ -45,6 +50,22 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
     }).format(price).replace('ZAR', 'R');
   };
 
+  const handlePackageSelection = async (packageId: string) => {
+    form.setValue('package_id', packageId);
+    
+    // Find the selected package
+    const selectedPackage = packages?.find(pkg => pkg.id === packageId);
+    if (!selectedPackage) return;
+
+    // Get all venue IDs associated with this package
+    const venueIds = selectedPackage.package_venues.map((pv: any) => pv.venue.id);
+    
+    // Update the venue_id in the form
+    if (venueIds.length > 0) {
+      form.setValue('venue_id', venueIds[0]); // Set the first venue as selected
+    }
+  };
+
   if (isPackagesError || isVenuesError) {
     return <div className="text-red-500">Error loading packages or venues</div>;
   }
@@ -58,47 +79,34 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
           <FormLabel>Select Package or Venue</FormLabel>
           <FormControl>
             <RadioGroup
-              onValueChange={field.onChange}
+              onValueChange={handlePackageSelection}
               defaultValue={field.value}
               className="grid grid-cols-1 gap-4"
             >
               <div className="space-y-4">
-                <div className="text-lg font-semibold">Packages</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {packages?.map((pkg) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {packages?.filter(pkg => pkg.package_type === 'package').map((pkg) => (
                     <Card 
                       key={pkg.id}
                       className={`relative cursor-pointer transition-all hover:border-primary ${
                         field.value === pkg.id ? 'border-primary' : ''
                       }`}
                     >
-                      <div className="p-6 flex justify-between items-start">
-                        <div className="space-y-3">
+                      <div className="p-6">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <div className="flex items-baseline gap-1">
-                              <h3 className="text-lg font-semibold">{pkg.name}</h3>
-                              {pkg.discount_percentage > 0 && (
-                                <span className="text-sm text-muted-foreground">
-                                  SAVE {pkg.discount_percentage}%
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-muted-foreground text-sm mt-1">{pkg.description}</p>
+                            <h3 className="text-lg font-semibold">{pkg.name}</h3>
+                            <div className="text-lg text-muted-foreground">{formatPrice(pkg.base_price)}</div>
                           </div>
-                          <div className="text-2xl font-bold">
-                            {formatPrice(pkg.base_price)}
-                          </div>
+                          <RadioGroupItem value={pkg.id} />
                         </div>
-                        <RadioGroupItem value={pkg.id} className="mt-1" />
+                        <p className="text-muted-foreground text-sm mt-2">{pkg.description}</p>
                       </div>
                     </Card>
                   ))}
                 </div>
-              </div>
 
-              <div className="space-y-4 mt-8">
-                <div className="text-lg font-semibold">Individual Venues</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {venues?.map((venue) => (
                     <Card 
                       key={venue.id}
@@ -106,19 +114,16 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
                         field.value === venue.id ? 'border-primary' : ''
                       }`}
                     >
-                      <div className="p-6 flex justify-between items-start">
-                        <div className="space-y-3">
+                      <div className="p-6">
+                        <div className="flex justify-between items-start">
                           <div>
                             <h3 className="text-lg font-semibold">{venue.name}</h3>
-                            <p className="text-muted-foreground text-sm mt-1">{venue.description}</p>
-                          </div>
-                          {venue.capacity && (
                             <div className="text-sm text-muted-foreground">
-                              Up to {venue.capacity} guests
+                              {venue.description}
                             </div>
-                          )}
+                          </div>
+                          <RadioGroupItem value={venue.id} />
                         </div>
-                        <RadioGroupItem value={venue.id} className="mt-1" />
                       </div>
                     </Card>
                   ))}
