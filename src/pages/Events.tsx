@@ -14,7 +14,7 @@ const Events = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events = [], isLoading, error, refetch } = useQuery({
+  const { data: events = [], isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -22,7 +22,6 @@ const Events = () => {
         .select(`
           *,
           event_venues (
-            venue_id,
             venues (
               name
             )
@@ -43,7 +42,7 @@ const Events = () => {
     },
   });
 
-  // Group events by month, handling events without dates
+  // Group events by month
   const groupedEvents = events.reduce((groups: any, event) => {
     const date = event.event_date ? new Date(event.event_date) : new Date(event.created_at);
     const monthYear = date.toLocaleString('default', { 
@@ -92,8 +91,6 @@ const Events = () => {
         title: "Success",
         description: "Event deleted successfully",
       });
-
-      refetch();
     } catch (error: any) {
       toast({
         title: "Error",

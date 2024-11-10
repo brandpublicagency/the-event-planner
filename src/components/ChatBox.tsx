@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
 
-// Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true
@@ -34,11 +33,11 @@ const ChatBox = () => {
       const completion = await openai.chat.completions.create({
         messages: [
           {
-            role: "system",
+            role: "system" as const,
             content: "You are a helpful event planning assistant. Provide concise and relevant responses to help users plan their events."
           },
           ...messages.map(msg => ({
-            role: msg.isUser ? "user" : "assistant",
+            role: msg.isUser ? ("user" as const) : ("assistant" as const),
             content: msg.text
           }))
         ],
@@ -51,20 +50,19 @@ const ChatBox = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to get response from AI",
+        description: error.message || "Failed to get response from AI",
         variant: "destructive",
       });
-      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border rounded-lg overflow-hidden bg-white">
+    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border border-zinc-200 rounded-lg overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
