@@ -21,8 +21,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen transition-all duration-300",
-        isCollapsed ? "bg-zinc-900 w-[80px]" : "bg-white w-64",
+        "relative flex flex-col h-screen transition-all duration-300 rounded-r-xl",
+        isCollapsed ? "bg-zinc-900 w-[80px]" : "bg-zinc-100 w-64",
         className
       )}
     >
@@ -56,7 +56,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 transition-colors duration-200",
+                    "flex items-center h-10 transition-colors duration-200 py-2",
                     isCollapsed ? "justify-center w-10" : "px-3",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-300") 
