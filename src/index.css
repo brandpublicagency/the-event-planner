@@ -41,7 +41,7 @@
     &::before {
       content: '';
       @apply absolute inset-0 rounded-lg;
-      padding: 2px;
+      padding: 1px; /* Adjusted from 2px to 1px for thinner border */
       background: linear-gradient(
         45deg,
         #00c6ff,
