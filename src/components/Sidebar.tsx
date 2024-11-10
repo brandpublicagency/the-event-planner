@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-4">
-          <nav className="space-y-3">
+          <nav className="space-y-2.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -59,26 +59,29 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-8 w-full rounded-md transition-all duration-200",
+                    "flex items-center h-9 w-full rounded-md transition-all duration-200",
                     isCollapsed ? "justify-center px-2" : "px-3",
                     isActive 
                       ? isCollapsed 
-                        ? "bg-white text-zinc-900" 
-                        : "bg-zinc-900 text-white"
+                        ? "bg-white text-zinc-900 shadow-sm" 
+                        : "bg-zinc-900 text-white shadow-sm"
                       : isCollapsed
-                        ? "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                        : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                        ? "text-zinc-400 hover:text-white hover:bg-zinc-800/70"
+                        : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
                   )}
                 >
                   <Icon className={cn(
-                    "flex-shrink-0 min-w-5",
-                    isCollapsed ? "h-4 w-4" : "h-4 w-4 mr-3",
+                    "flex-shrink-0",
+                    isCollapsed ? "h-4.5 w-4.5" : "h-4.5 w-4.5 mr-3",
                     isActive 
                       ? isCollapsed ? "text-zinc-900" : "text-white"
-                      : isCollapsed ? "text-zinc-400" : "text-zinc-600"
+                      : isCollapsed ? "text-zinc-400" : "text-zinc-500"
                   )} />
                   {!isCollapsed && (
-                    <span className="text-sm font-medium truncate">
+                    <span className={cn(
+                      "text-sm font-medium truncate",
+                      isActive ? "text-white" : "text-zinc-700"
+                    )}>
                       {item.label}
                     </span>
                   )}
@@ -99,8 +102,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               "flex items-center justify-center w-8 h-8",
               "rounded-md transition-colors duration-200 focus:outline-none",
               isCollapsed
-                ? "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                ? "text-zinc-400 hover:text-white hover:bg-zinc-800/70"
+                : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
