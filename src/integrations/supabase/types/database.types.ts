@@ -1,4 +1,4 @@
-import type { EventsTable, ProfilesTable, VenueAvailabilityTable, VenuesTable, PackagesTable, PackageVenuesTable } from './tables.types';
+import type { EventsTable, ProfilesTable, VenueAvailabilityTable, VenuesTable, PackagesTable, PackageVenuesTable, EventVenuesTable } from './tables.types';
 import type { DatabaseEnums } from './enums.types';
 import type { DatabaseFunctions } from './functions.types';
 
@@ -19,20 +19,7 @@ export interface Database {
       venues: VenuesTable;
       packages: PackagesTable;
       package_venues: PackageVenuesTable;
-      event_venues: {
-        Row: {
-          event_id: string;
-          venue_id: string;
-        };
-        Insert: {
-          event_id: string;
-          venue_id: string;
-        };
-        Update: {
-          event_id?: string;
-          venue_id?: string;
-        };
-      };
+      event_venues: EventVenuesTable;
     };
     Views: {
       [_ in never]: never;

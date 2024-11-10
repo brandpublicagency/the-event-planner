@@ -74,6 +74,75 @@ export interface EventsTable {
   };
 }
 
+export interface PackagesTable extends BaseTable {
+  Row: {
+    id: string;
+    name: string;
+    description: string | null;
+    package_type: string;
+    base_price: number;
+    discount_percentage: number;
+    max_guests: number | null;
+    accommodation_nights: number | null;
+    accommodation_rooms: number | null;
+    created_at: string;
+  };
+  Insert: {
+    id?: string;
+    name: string;
+    description?: string | null;
+    package_type: string;
+    base_price: number;
+    discount_percentage?: number;
+    max_guests?: number | null;
+    accommodation_nights?: number | null;
+    accommodation_rooms?: number | null;
+    created_at?: string;
+  };
+  Update: {
+    id?: string;
+    name?: string;
+    description?: string | null;
+    package_type?: string;
+    base_price?: number;
+    discount_percentage?: number;
+    max_guests?: number | null;
+    accommodation_nights?: number | null;
+    accommodation_rooms?: number | null;
+    created_at?: string;
+  };
+}
+
+export interface PackageVenuesTable {
+  Row: {
+    package_id: string;
+    venue_id: string;
+  };
+  Insert: {
+    package_id: string;
+    venue_id: string;
+  };
+  Update: {
+    package_id?: string;
+    venue_id?: string;
+  };
+}
+
+export interface EventVenuesTable {
+  Row: {
+    event_id: string;
+    venue_id: string;
+  };
+  Insert: {
+    event_id: string;
+    venue_id: string;
+  };
+  Update: {
+    event_id?: string;
+    venue_id?: string;
+  };
+}
+
 export interface ProfilesTable {
   Row: {
     id: string;
@@ -118,8 +187,8 @@ export interface VenueAvailabilityTable {
     status?: Database["public"]["Enums"]["availability_type"] | null;
     event_id?: string | null;
     notes?: string | null;
-    created_at?: string | null;
-    created_by?: string | null;
+    created_at?: string;
+    created_by?: string;
   };
   Update: {
     id?: string;
@@ -129,8 +198,8 @@ export interface VenueAvailabilityTable {
     status?: Database["public"]["Enums"]["availability_type"] | null;
     event_id?: string | null;
     notes?: string | null;
-    created_at?: string | null;
-    created_by?: string | null;
+    created_at?: string;
+    created_by?: string;
   };
 }
 
@@ -154,86 +223,6 @@ export interface VenuesTable {
     name?: string;
     description?: string | null;
     capacity?: number | null;
-    created_at?: string;
-  };
-}
-
-export interface PackagesTable extends BaseTable {
-  Row: {
-    id: string;
-    name: string;
-    description: string | null;
-    package_type: string;
-    base_price: number;
-    discount_percentage: number;
-    max_guests: number | null;
-    accommodation_nights: number | null;
-    accommodation_rooms: number | null;
-  } & BaseTable;
-  Insert: {
-    id?: string;
-    name: string;
-    description?: string | null;
-    package_type: string;
-    base_price: number;
-    discount_percentage?: number;
-    max_guests?: number | null;
-    accommodation_nights?: number | null;
-    accommodation_rooms?: number | null;
-    created_at?: string;
-  };
-  Update: {
-    id?: string;
-    name?: string;
-    description?: string | null;
-    package_type?: string;
-    base_price?: number;
-    discount_percentage?: number;
-    max_guests?: number | null;
-    accommodation_nights?: number | null;
-    accommodation_rooms?: number | null;
-    created_at?: string;
-  };
-}
-
-export interface PackageVenuesTable {
-  Row: {
-    package_id: string;
-    venue_id: string;
-  };
-  Insert: {
-    package_id: string;
-    venue_id: string;
-  };
-  Update: {
-    package_id?: string;
-    venue_id?: string;
-  };
-}
-
-export interface PackageInclusionsTable {
-  Row: {
-    id: string;
-    package_id: string;
-    category: string;
-    item: string;
-    quantity: number | null;
-    created_at: string;
-  };
-  Insert: {
-    id?: string;
-    package_id: string;
-    category: string;
-    item: string;
-    quantity?: number | null;
-    created_at?: string;
-  };
-  Update: {
-    id?: string;
-    package_id?: string;
-    category?: string;
-    item?: string;
-    quantity?: number | null;
     created_at?: string;
   };
 }

@@ -32,6 +32,152 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          bride_email: string | null
+          bride_mobile: string | null
+          bride_name: string | null
+          client_address: string | null
+          company_address: string | null
+          company_name: string | null
+          company_vat: string | null
+          contact_person: string | null
+          created_at: string | null
+          created_by: string | null
+          event_code: string
+          event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          groom_email: string | null
+          groom_mobile: string | null
+          groom_name: string | null
+          name: string
+          package_id: string | null
+          pax: number | null
+          status: Database["public"]["Enums"]["event_status"] | null
+        }
+        Insert: {
+          bride_email?: string | null
+          bride_mobile?: string | null
+          bride_name?: string | null
+          client_address?: string | null
+          company_address?: string | null
+          company_name?: string | null
+          company_vat?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          event_code: string
+          event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          groom_email?: string | null
+          groom_mobile?: string | null
+          groom_name?: string | null
+          name: string
+          package_id?: string | null
+          pax?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+        }
+        Update: {
+          bride_email?: string | null
+          bride_mobile?: string | null
+          bride_name?: string | null
+          client_address?: string | null
+          company_address?: string | null
+          company_name?: string | null
+          company_vat?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          event_code?: string
+          event_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          groom_email?: string | null
+          groom_mobile?: string | null
+          groom_name?: string | null
+          name?: string
+          package_id?: string | null
+          pax?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      package_venues: {
+        Row: {
+          package_id: string
+          venue_id: string
+        }
+        Insert: {
+          package_id: string
+          venue_id: string
+        }
+        Update: {
+          package_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_venues_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_venues_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packages: {
+        Row: {
+          accommodation_nights: number | null
+          accommodation_rooms: number | null
+          base_price: number
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          max_guests: number | null
+          name: string
+          package_type: string
+        }
+        Insert: {
+          accommodation_nights?: number | null
+          accommodation_rooms?: number | null
+          base_price: number
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          max_guests?: number | null
+          name: string
+          package_type: string
+        }
+        Update: {
+          accommodation_nights?: number | null
+          accommodation_rooms?: number | null
+          base_price?: number
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          max_guests?: number | null
+          name?: string
+          package_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
