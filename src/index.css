@@ -44,10 +44,10 @@
       padding: 2px;
       background: linear-gradient(
         45deg,
-        theme('colors.pink.500'),
-        theme('colors.purple.500'),
-        theme('colors.red.500'),
-        theme('colors.pink.500')
+        #00c6ff,
+        #7b2ff7,
+        #ff0099,
+        #ff4d00
       );
       -webkit-mask: 
         linear-gradient(#fff 0 0) content-box,
@@ -56,7 +56,7 @@
       mask-composite: exclude;
       background-size: 300% 300%;
       animation: borderMove 8s ease infinite;
-      filter: drop-shadow(0 0 4px theme('colors.pink.400'));
+      filter: drop-shadow(0 0 6px rgba(123, 47, 247, 0.5));
     }
   }
 
