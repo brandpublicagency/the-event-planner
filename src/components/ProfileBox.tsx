@@ -1,15 +1,24 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import FlipCard from "@/components/FlipCard";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, Edit2, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const ProfileBox = () => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const [editForm, setEditForm] = useState({
+    full_name: "",
+    surname: "",
+    mobile: "",
+  });
 
   const { data: profile, refetch } = useQuery({
     queryKey: ['profile'],
@@ -27,6 +36,48 @@ const ProfileBox = () => {
       return profileData;
     },
   });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updateData: typeof editForm) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      setIsEditing(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEdit = () => {
+    setEditForm({
+      full_name: profile?.full_name || "",
+      surname: profile?.surname || "",
+      mobile: profile?.mobile || "",
+    });
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    updateProfileMutation.mutate(editForm);
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -103,19 +154,60 @@ const ProfileBox = () => {
 
   const backContent = (
     <div className="p-6 flex flex-col h-full bg-gradient-to-br from-zinc-50 to-white">
-      <h3 className="text-xl font-semibold mb-6">Profile Details</h3>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold">Profile Details</h3>
+        {!isEditing ? (
+          <Button variant="ghost" size="icon" onClick={handleEdit}>
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button variant="ghost" size="icon" onClick={handleSave}>
+            <Save className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      
       <div className="space-y-4 flex-1">
-        <div className="space-y-2">
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Full Name:</span> {profile?.full_name}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Surname:</span> {profile?.surname}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium text-gray-900">Mobile:</span> {profile?.mobile}
-          </p>
-        </div>
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Full Name</label>
+              <Input
+                value={editForm.full_name}
+                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                className="bg-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Surname</label>
+              <Input
+                value={editForm.surname}
+                onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
+                className="bg-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Mobile</label>
+              <Input
+                value={editForm.mobile}
+                onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
+                className="bg-white"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-gray-600">
+              <span className="font-medium text-gray-900">Full Name:</span> {profile?.full_name}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium text-gray-900">Surname:</span> {profile?.surname}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium text-gray-900">Mobile:</span> {profile?.mobile}
+            </p>
+          </div>
+        )}
         
         <div className="mt-8">
           <h4 className="text-lg font-medium mb-4">Documents</h4>
