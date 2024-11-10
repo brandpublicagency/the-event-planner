@@ -47,9 +47,13 @@ const NewEvent = () => {
         }));
 
       if (selectedVenues.length > 0) {
+        // Use upsert instead of insert to handle potential duplicates
         const { error: venueError } = await supabase
           .from('event_venues')
-          .insert(selectedVenues);
+          .upsert(selectedVenues, {
+            onConflict: 'event_code,venue_id',
+            ignoreDuplicates: true
+          });
 
         if (venueError) throw venueError;
       }
