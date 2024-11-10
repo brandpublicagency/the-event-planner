@@ -4,10 +4,13 @@ import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 interface PackageSelectionProps {
   form: UseFormReturn<any>;
 }
+
+type PackageType = Database['public']['Enums']['package_type'];
 
 const PackageSelection = ({ form }: PackageSelectionProps) => {
   const { data: packages, isError: isPackagesError } = useQuery({
@@ -51,18 +54,22 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
   };
 
   const handlePackageSelection = async (packageId: string) => {
+    // First check if the package exists
+    const selectedPackage = packages?.find(pkg => pkg.id === packageId);
+    if (!selectedPackage) {
+      console.error('Selected package not found');
+      return;
+    }
+
+    // Update the form with the package ID
     form.setValue('package_id', packageId);
     
-    // Find the selected package
-    const selectedPackage = packages?.find(pkg => pkg.id === packageId);
-    if (!selectedPackage) return;
-
     // Get all venue IDs associated with this package
     const venueIds = selectedPackage.package_venues.map((pv: any) => pv.venue.id);
     
-    // Update the venue_id in the form
+    // Update the venue_id in the form if venues are available
     if (venueIds.length > 0) {
-      form.setValue('venue_id', venueIds[0]); // Set the first venue as selected
+      form.setValue('venue_id', venueIds[0]);
     }
   };
 
@@ -85,7 +92,7 @@ const PackageSelection = ({ form }: PackageSelectionProps) => {
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {packages?.filter(pkg => pkg.package_type === 'package').map((pkg) => (
+                  {packages?.filter(pkg => ['full_package', 'medium_package', 'venue_only'].includes(pkg.package_type)).map((pkg) => (
                     <Card 
                       key={pkg.id}
                       className={`relative cursor-pointer transition-all hover:border-primary ${
