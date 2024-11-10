@@ -27,13 +27,13 @@ const ChatBox = () => {
   return (
     <div className="relative h-[450px]">
       <div 
-        className="absolute inset-0 rounded-lg"
+        className="absolute inset-0 rounded-3xl"
         style={{
           background: "linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6)",
           padding: "1px",
         }}
       >
-        <Card className="h-full w-full flex flex-col bg-background">
+        <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
@@ -44,10 +44,10 @@ const ChatBox = () => {
                   }`}
                 >
                   <div
-                    className={`rounded-2xl px-4 py-2 max-w-[80%] shadow-sm ${
+                    className={`rounded-3xl px-4 py-2 max-w-[80%] border ${
                       message.isUser
-                        ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-                        : "bg-gray-100 text-gray-800"
+                        ? "border-purple-500 text-purple-800 bg-white"
+                        : "border-gray-300 text-gray-800 bg-white"
                     }`}
                   >
                     {message.text}
@@ -62,12 +62,12 @@ const ChatBox = () => {
                 value={inputValue}
                 onChange={handleInputChange}
                 placeholder="Type your message..."
-                className="flex-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 rounded-3xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 autoComplete="off"
               />
               <Button 
                 type="submit"
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity"
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition-opacity rounded-3xl px-6"
               >
                 Send
               </Button>
