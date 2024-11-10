@@ -27,7 +27,7 @@ const EditEvent = () => {
         .select(`
           *,
           package_id,
-          package:packages(*)
+          packages(*)
         `)
         .eq('event_code', id)
         .single();
