@@ -56,15 +56,15 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10 transition-all duration-300 ease-in-out group",
-                    isCollapsed ? "justify-center" : "",
+                    "flex items-center transition-all duration-300 ease-in-out group",
+                    isCollapsed ? "justify-center" : "h-10",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-400") 
                       : (isActive ? "text-zinc-900" : "text-zinc-600")
                   )}
                 >
                   <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
+                    "flex items-center justify-center w-10 h-10 rounded-lg shrink-0 transition-colors",
                     isCollapsed
                       ? (isActive ? "bg-zinc-800" : "hover:bg-zinc-800")
                       : (isActive ? "bg-zinc-100" : "hover:bg-zinc-100")
@@ -91,7 +91,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
+              "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
               isCollapsed 
                 ? "text-zinc-400 hover:bg-zinc-800 hover:text-white"
                 : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
