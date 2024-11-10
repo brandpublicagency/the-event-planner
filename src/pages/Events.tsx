@@ -21,14 +21,14 @@ const Events = () => {
         .from('events')
         .select(`
           *,
-          event_venues!inner (
+          event_venues (
             venue_id,
-            venues!inner (
+            venues (
               name
             )
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('event_date', { ascending: true });
 
       if (error) {
         toast({
@@ -41,11 +41,11 @@ const Events = () => {
 
       return data || [];
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to catch new events
   });
 
-  // Group events by month
   const groupedEvents = events.reduce((groups: any, event) => {
-    const date = event.event_date ? new Date(event.event_date) : new Date(event.created_at);
+    const date = new Date(event.event_date);
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
       year: 'numeric'
@@ -92,7 +92,7 @@ const Events = () => {
         title: "Success",
         description: "Event deleted successfully",
       });
-      
+
       refetch();
     } catch (error: any) {
       toast({
@@ -146,7 +146,7 @@ const Events = () => {
         </div>
       ) : (
         <EventsTable 
-          groupedEvents={searchQuery ? filteredEvents : groupedEvents}
+          groupedEvents={filteredEvents}
           handleDelete={handleDelete}
         />
       )}

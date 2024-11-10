@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
 
+// Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true
@@ -25,7 +26,8 @@ const ChatBox = () => {
     if (!newMessage.trim()) return;
 
     const userMessage: Message = { text: newMessage, isUser: true };
-    setMessages([...messages, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setNewMessage("");
     setIsLoading(true);
 
@@ -36,7 +38,7 @@ const ChatBox = () => {
             role: "system" as const,
             content: "You are a helpful event planning assistant. Provide concise and relevant responses to help users plan their events."
           },
-          ...messages.map(msg => ({
+          ...newMessages.map(msg => ({
             role: msg.isUser ? ("user" as const) : ("assistant" as const),
             content: msg.text
           }))
@@ -49,20 +51,21 @@ const ChatBox = () => {
         isUser: false,
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error: any) {
+      setMessages([...newMessages, assistantMessage]);
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get response from AI",
+        description: "Failed to get response from AI",
         variant: "destructive",
       });
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border-gradient rounded-lg overflow-hidden bg-white">
+    <div className="flex flex-col h-[450px] w-full max-w-2xl mx-auto border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-md">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -81,14 +84,13 @@ const ChatBox = () => {
           </div>
         ))}
       </div>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200 bg-white">
         <div className="flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="bg-white border-zinc-200"
           />
           <Button type="submit" disabled={isLoading}>
             Send
