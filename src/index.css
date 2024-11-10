@@ -36,12 +36,9 @@
     @apply px-2 py-1 rounded-full text-xs font-medium;
   }
 
-  .glow-border {
-    @apply relative rounded-lg border border-zinc-200 shadow-sm overflow-hidden;
-  }
-
-  .card-with-glow {
-    @apply relative rounded-lg border border-zinc-200 shadow-sm overflow-hidden bg-white;
+  .animate-border {
+    background-size: 400% 400%;
+    animation: gradient 3s ease infinite;
   }
 
   .glassmorphism {
@@ -57,12 +54,12 @@
   }
 }
 
-@keyframes borderGlow {
+@keyframes gradient {
   0% {
     background-position: 0% 50%;
   }
   50% {
-    background-position: 150% 50%;
+    background-position: 100% 50%;
   }
   100% {
     background-position: 0% 50%;
