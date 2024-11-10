@@ -50,15 +50,15 @@ const ProfileBox = () => {
         </div>
       }
       back={
-        <div className="h-full flex flex-col p-5 bg-gradient-to-br from-white via-zinc-50/50 to-white">
-          <div className="space-y-6 flex-1">
+        <div className="h-full flex flex-col justify-center px-5 py-6 bg-gradient-to-br from-white via-zinc-50/50 to-white">
+          <div className="space-y-6 flex-1 flex flex-col justify-center">
             <div className="space-y-2">
               <h3 className="font-semibold text-lg text-zinc-900">Profile Information</h3>
-              <p className="text-sm text-zinc-500">Your personal details and contact information</p>
+              <p className="text-sm text-zinc-500 mb-3.5">Your personal details and contact information</p>
             </div>
-            <Separator />
-            <div className="grid gap-2.5">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
+            <Separator className="w-full" />
+            <div className="grid gap-2.5 w-full">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
                 <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
                   <Mail className="h-4 w-4 text-blue-500" />
                 </div>
@@ -75,7 +75,7 @@ const ProfileBox = () => {
                   <Pencil className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
                 <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
                   <Phone className="h-4 w-4 text-green-500" />
                 </div>
@@ -92,7 +92,7 @@ const ProfileBox = () => {
                   <Pencil className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
                 <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
                   <Building2 className="h-4 w-4 text-purple-500" />
                 </div>
@@ -109,7 +109,7 @@ const ProfileBox = () => {
                   <Pencil className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-zinc-100 shadow-sm group w-full">
                 <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center">
                   <MapPin className="h-4 w-4 text-orange-500" />
                 </div>
@@ -128,10 +128,10 @@ const ProfileBox = () => {
               </div>
             </div>
           </div>
-          <Separator className="my-4" />
+          <Separator className="my-4 w-full" />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 transition-colors"
+            className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 transition-colors w-full justify-center"
           >
             <LogOut className="h-4 w-4" />
             Logout
