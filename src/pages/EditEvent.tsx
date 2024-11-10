@@ -1,11 +1,12 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import BrideDetails from "@/components/forms/BrideDetails";
@@ -25,32 +26,38 @@ const EditEvent = () => {
       // First fetch the event
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          event_venues!event_venues_event_id_fkey(venue_id)
-        `)
+        .select('*')
         .eq('event_code', id)
         .single();
       
       if (eventError) throw eventError;
+
+      // Then fetch the venues for this event
+      const { data: venueData, error: venueError } = await supabase
+        .from('event_venues')
+        .select('venue_id')
+        .eq('event_id', id);
+
+      if (venueError) throw venueError;
       
       // Transform venues array to object format
-      const venuesObject = eventData.event_venues?.reduce((acc: Record<string, boolean>, ev: any) => {
+      const venuesObject = venueData?.reduce((acc: Record<string, boolean>, ev) => {
         acc[ev.venue_id] = true;
         return acc;
       }, {});
-      
-      return { ...eventData, venues: venuesObject };
+
+      // Combine event data with venues
+      return {
+        ...eventData,
+        venues: venuesObject,
+        event_date: new Date(eventData.event_date)
+      };
     },
   });
 
   React.useEffect(() => {
     if (event) {
-      const formData = {
-        ...event,
-        event_date: new Date(event.event_date)
-      };
-      form.reset(formData);
+      form.reset(event);
     }
   }, [event, form]);
 
