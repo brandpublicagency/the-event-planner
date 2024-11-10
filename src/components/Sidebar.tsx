@@ -87,7 +87,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className={cn(
                   "w-full justify-center gap-x-3",
                   !isCollapsed && "justify-start"
