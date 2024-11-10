@@ -59,7 +59,8 @@ const ChatBox = () => {
   };
 
   return (
-    <Card className="p-4 flex flex-col h-[400px] relative overflow-hidden animate-border rounded-lg bg-white bg-gradient-to-r from-primary via-zinc-400/20 to-primary bg-[length:400%_400%]">
+    <Card className="p-4 flex flex-col h-[400px] relative border-gradient">
+      <div className="absolute inset-0 rounded-lg border-gradient-mask"></div>
       <div className="z-10 flex-1 flex flex-col">
         <h3 className="font-semibold mb-4">Chat Assistant</h3>
         <ScrollArea className="flex-1 pr-4">

@@ -36,9 +36,27 @@
     @apply px-2 py-1 rounded-full text-xs font-medium;
   }
 
-  .animate-border {
-    background-size: 400% 400%;
-    animation: gradient 3s ease infinite;
+  .border-gradient {
+    @apply relative bg-white;
+    &::before {
+      content: '';
+      @apply absolute inset-0 rounded-lg;
+      padding: 2px;
+      background: linear-gradient(
+        45deg,
+        theme('colors.pink.500'),
+        theme('colors.purple.500'),
+        theme('colors.red.500'),
+        theme('colors.pink.500')
+      );
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      background-size: 300% 300%;
+      animation: borderMove 4s ease infinite;
+    }
   }
 
   .glassmorphism {
@@ -54,7 +72,7 @@
   }
 }
 
-@keyframes gradient {
+@keyframes borderMove {
   0% {
     background-position: 0% 50%;
   }
