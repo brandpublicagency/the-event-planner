@@ -41,7 +41,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="space-y-1">
+          <div className="space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -89,12 +89,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           isCollapsed ? 
             "justify-center w-full p-2 text-white hover:bg-zinc-800" : 
             "px-3 py-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 w-full",
-          "h-[50px]",
-          isCollapsed ? "bg-transparent" : "bg-white"
+          "h-[55px]",
+          isCollapsed && "hover:bg-white hover:text-zinc-900 hover:w-[80px]"
         )}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-5 w-5 text-white hover:text-white" />
+          <ChevronRight className="h-5 w-5 text-white hover:text-zinc-900" />
         ) : (
           <div className="flex items-center">
             <ChevronLeft className="h-5 w-5 text-zinc-500" />
