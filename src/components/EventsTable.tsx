@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, Edit, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +24,35 @@ interface EventsTableProps {
   handleDelete: (eventCode: string) => Promise<void>;
 }
 
-const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
+const EventsTable = ({ groupedEvents }: EventsTableProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleDelete = async (eventCode: string) => {
+    try {
+      // Delete from events table (cascade will handle related tables)
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('event_code', eventCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+
+      // Refresh the page to show updated list
+      window.location.reload();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
@@ -96,7 +124,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(event.event_code)}
-                              className="bg-zinc-900 hover:bg-zinc-700"
+                              className="bg-red-600 hover:bg-red-700"
                             >
                               Delete
                             </AlertDialogAction>
