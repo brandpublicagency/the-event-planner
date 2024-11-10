@@ -10,7 +10,7 @@ const openai = import.meta.env.VITE_OPENAI_API_KEY
     })
   : null;
 
-console.log("OpenAI client initialized:", !!openai);
+console.log("OpenAI client initialization status:", !!openai);
 
 const AIGreeting = () => {
   const [greeting, setGreeting] = useState<string>("");
@@ -20,7 +20,7 @@ const AIGreeting = () => {
   useEffect(() => {
     const generateGreeting = async () => {
       if (!openai) {
-        console.log("No OpenAI API key found, using default greeting");
+        console.warn("No OpenAI API key found, using default greeting");
         setGreeting("Welcome to the Event Management System!");
         setLoading(false);
         toast({
@@ -32,7 +32,7 @@ const AIGreeting = () => {
       }
 
       try {
-        console.log("Attempting to generate AI greeting...");
+        console.log("Attempting to generate AI greeting with model: gpt-4o-mini");
         const completion = await openai.chat.completions.create({
           messages: [
             {
@@ -40,7 +40,7 @@ const AIGreeting = () => {
               content: "You are a friendly event planning assistant. Generate a warm, personalized greeting for users of an event planning system. Keep it under 100 characters."
             }
           ],
-          model: "gpt-4-1106-preview",
+          model: "gpt-4o-mini",
         });
 
         console.log("API Response:", completion);
