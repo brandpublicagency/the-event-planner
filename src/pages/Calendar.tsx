@@ -131,7 +131,7 @@ const Calendar = () => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-medium">
+            <h4 className="font-medium text-[#FF5733]">
               Events for {format(date || new Date(), "MMMM d, yyyy")}
             </h4>
             
