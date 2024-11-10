@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -25,7 +24,7 @@ function Calendar({
         nav: "space-x-1 flex items-center absolute w-full justify-between left-0 px-3",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-zinc-100"
+          "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-zinc-100 transition-colors"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -41,23 +40,23 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100 transition-colors"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
           "bg-zinc-900 text-zinc-50 hover:bg-zinc-900 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50",
         day_today: "bg-zinc-100 text-zinc-900",
-        day_outside: "text-zinc-500 opacity-50",
-        day_disabled: "text-zinc-500 opacity-50",
+        day_outside: "text-zinc-500 opacity-50 hover:bg-zinc-100/50",
+        day_disabled: "text-zinc-500 opacity-50 hover:bg-transparent cursor-not-allowed",
         day_range_middle:
           "aria-selected:bg-zinc-100 aria-selected:text-zinc-900",
         day_hidden: "invisible",
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
+        IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}
       {...props}
     />

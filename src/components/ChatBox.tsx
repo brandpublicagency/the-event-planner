@@ -20,8 +20,12 @@ const ChatBox = () => {
     // TODO: Add AI response logic here
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
   return (
-    <div className="border-gradient h-[450px]">
+    <div className="h-[450px] border rounded-lg">
       <Card className="h-full flex flex-col">
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
@@ -45,11 +49,11 @@ const ChatBox = () => {
             ))}
           </div>
         </ScrollArea>
-        <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-200">
+        <form onSubmit={handleSubmit} className="p-4 border-t">
           <div className="flex gap-2">
             <Input
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Type your message..."
               className="flex-1"
               autoComplete="off"
