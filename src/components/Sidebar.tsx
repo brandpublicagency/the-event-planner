@@ -41,7 +41,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               </div>
             )}
           </div>
-          <div className="space-y-1">
+          <div className="space-y-5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -52,17 +52,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   className={cn(
                     "flex items-center",
                     isCollapsed ? "justify-center" : "",
-                    "h-10 gap-3"
+                    "h-[50px] gap-5"
                   )}
                 >
                   <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-md transition-colors duration-200",
+                    "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
                     isCollapsed ? 
                       isActive ? "bg-white" : "text-white hover:bg-zinc-800" :
                       isActive ? "bg-zinc-100" : "text-zinc-600 hover:bg-zinc-100"
                   )}>
                     <Icon className={cn(
-                      "h-5 w-5",
+                      "h-6 w-6",
                       isCollapsed ? (
                         isActive ? "text-zinc-900" : "text-white"
                       ) : (
@@ -92,19 +92,19 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           className="flex items-center"
         >
           <div className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-md transition-colors duration-200",
+            "flex items-center justify-center w-[50px] h-[50px] rounded-md transition-colors duration-200",
             isCollapsed ? 
               "text-white hover:bg-zinc-800" : 
               "text-zinc-600 hover:bg-zinc-100"
           )}>
             {isCollapsed ? (
-              <ChevronRight className="h-5 w-5 text-white" />
+              <ChevronRight className="h-6 w-6 text-white" />
             ) : (
-              <ChevronLeft className="h-5 w-5 text-zinc-500" />
+              <ChevronLeft className="h-6 w-6 text-zinc-500" />
             )}
           </div>
           {!isCollapsed && (
-            <span className="text-sm font-medium text-zinc-600 ml-3">
+            <span className="text-sm font-medium text-zinc-600 ml-5">
               Collapse
             </span>
           )}
