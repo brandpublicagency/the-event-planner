@@ -23,24 +23,28 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="mb-8 flex items-center justify-between">
-            {isCollapsed ? (
-              <img 
-                src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
-                alt="WarmKaroo Logo" 
-                className="h-8 w-8 mx-auto"
-              />
-            ) : (
-              <div className="flex items-center gap-2">
+            <div className={cn("transition-all duration-300 ease-in-out overflow-hidden", 
+              isCollapsed ? "w-8" : "w-full"
+            )}>
+              {isCollapsed ? (
                 <img 
-                  src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg" 
+                  src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKW.svg" 
                   alt="WarmKaroo Logo" 
-                  className="h-8"
+                  className="h-8 w-8"
                 />
-                <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-                  Event Planner
-                </h2>
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="https://www.warmkaroo.com/wp-content/uploads/2023/10/WKB.svg" 
+                    alt="WarmKaroo Logo" 
+                    className="h-8"
+                  />
+                  <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+                    Event Planner
+                  </h2>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-center gap-2.5">
             {navItems.map((item) => {

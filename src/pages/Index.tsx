@@ -1,6 +1,4 @@
-import { Calendar as CalendarIcon, Users, CalendarDays } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
 import FlipCard from "@/components/FlipCard";
@@ -53,7 +51,7 @@ const Index = () => {
           <ProfileBox />
         </div>
 
-        <div className="w-full bg-white rounded-lg flex items-center justify-center shadow-sm">
+        <div className="w-full bg-primary rounded-lg flex items-center justify-center shadow-sm">
           <Calendar
             mode="single"
             selected={date}
