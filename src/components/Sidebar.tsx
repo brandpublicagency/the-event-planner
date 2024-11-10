@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus, Menu } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -19,55 +19,82 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   ];
 
   return (
-    <div className={cn("pb-12 relative flex flex-col h-full bg-zinc-900", className)}>
+    <div 
+      className={cn(
+        "relative flex flex-col h-full transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-[80px]" : "w-64",
+        "bg-zinc-900",
+        className
+      )}
+    >
       <div className="flex flex-col h-full">
-        <div className="px-3 py-4">
-          <div className="mb-8 flex items-center justify-center">
+        {/* Header */}
+        <div className="p-4 border-b border-zinc-800">
+          <div className="flex items-center justify-center">
             <img 
               src={isCollapsed 
                 ? "https://www.brandpublic.agency/wp-content/uploads/2024/11/WHITE-LOGO.png"
                 : "https://www.brandpublic.agency/wp-content/uploads/2023/11/WK-Black-Icon.png"
               }
               alt="WarmKaroo Logo" 
-              className="h-8"
+              className={cn(
+                "transition-all duration-300",
+                isCollapsed ? "h-8" : "h-10"
+              )}
             />
           </div>
-          <div className="flex flex-col space-y-8">
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 px-3 py-4">
+          <nav className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              
               return (
                 <Link 
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-10",
-                    isCollapsed ? "justify-center" : "px-3",
-                    "transition-colors duration-200",
+                    "flex items-center h-10 w-full rounded-lg transition-all duration-200",
+                    isCollapsed ? "justify-center px-2" : "px-3",
                     isActive 
-                      ? "bg-white text-zinc-900 rounded-md"
-                      : "text-white hover:bg-white/10 rounded-md"
+                      ? "bg-white text-zinc-900 font-medium"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                   )}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <Icon className={cn(
+                    "flex-shrink-0",
+                    isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
+                  )} />
                   {!isCollapsed && (
-                    <span className="ml-3 text-white text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium truncate">
+                      {item.label}
+                    </span>
                   )}
                 </Link>
               );
             })}
-          </div>
+          </nav>
         </div>
-        <div className="mt-auto px-3 py-4">
+
+        {/* Footer with toggle */}
+        <div className="p-4 border-t border-zinc-800">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
-              "flex items-center justify-center h-10 w-10 rounded-md",
-              "transition-colors duration-200",
-              "text-white hover:bg-white/10"
+              "flex items-center justify-center w-full h-10",
+              "rounded-lg transition-colors duration-200",
+              "text-zinc-400 hover:text-white hover:bg-zinc-800"
             )}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
