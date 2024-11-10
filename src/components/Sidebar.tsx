@@ -89,41 +89,43 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       </div>
       
       <div className="mt-auto px-3 py-2">
-        <button
-          onClick={handleLogout}
-          className={cn(
-            "flex items-center w-full",
-            isCollapsed ? "justify-center px-2" : "px-3",
-            "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-          )}
-        >
-          <LogOut className="h-5 w-5 shrink-0" />
-          {!isCollapsed && (
-            <span className="ml-3 text-sm font-medium">
-              Logout
-            </span>
-          )}
-        </button>
-
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={cn(
-            "flex items-center w-full mt-1",
-            isCollapsed ? "justify-center px-2" : "px-3",
-            "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-          )}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5 shrink-0" />
-          ) : (
-            <>
-              <ChevronLeft className="h-5 w-5 shrink-0" />
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "flex items-center w-full",
+              isCollapsed ? "justify-center px-2" : "px-3",
+              "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+            )}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            {!isCollapsed && (
               <span className="ml-3 text-sm font-medium">
-                Collapse
+                Logout
               </span>
-            </>
-          )}
-        </button>
+            )}
+          </button>
+
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={cn(
+              "flex items-center w-full",
+              isCollapsed ? "justify-center px-2" : "px-3",
+              "py-2 rounded-md transition-colors duration-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+            )}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5 shrink-0" />
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5 shrink-0" />
+                <span className="ml-3 text-sm font-medium">
+                  Collapse
+                </span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
