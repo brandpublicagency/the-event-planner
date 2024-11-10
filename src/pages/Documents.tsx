@@ -1,19 +1,12 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileUp, Search, Download, Filter, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { Search, Loader2 } from "lucide-react";
+import { DocumentCard } from "@/components/documents/DocumentCard";
+import { DocumentHeader } from "@/components/documents/DocumentHeader";
 
 const Documents = () => {
   const { toast } = useToast();
@@ -45,7 +38,6 @@ const Documents = () => {
 
       if (error) throw error;
 
-      // Create a download link
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
@@ -73,7 +65,6 @@ const Documents = () => {
     if (!file) return;
 
     try {
-      // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -83,7 +74,6 @@ const Documents = () => {
 
       if (uploadError) throw uploadError;
 
-      // Save file metadata to database
       const { error: dbError } = await supabase
         .from('pdf_files')
         .insert({
@@ -112,38 +102,7 @@ const Documents = () => {
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Documents</h2>
-          <p className="text-muted-foreground">Manage your files and documents</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="file"
-            accept=".pdf"
-            onChange={handleUpload}
-            className="hidden"
-            id="file-upload"
-          />
-          <label htmlFor="file-upload">
-            <Button as="span" className="cursor-pointer">
-              <FileUp className="mr-2 h-4 w-4" />
-              Upload
-            </Button>
-          </label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Sort by Name</DropdownMenuItem>
-              <DropdownMenuItem>Sort by Date</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+      <DocumentHeader onUpload={handleUpload} />
       
       <div className="flex items-center space-x-2">
         <div className="relative flex-1">
@@ -169,40 +128,13 @@ const Documents = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDocuments?.map((doc) => (
-              <Card key={doc.id} className="group overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-lg">{doc.filename}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Added: {new Date(doc.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDownload(doc.file_path, doc.filename)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {doc.pdf_processed_content?.[0]?.content && (
-                      <div className="text-sm text-muted-foreground line-clamp-3">
-                        {doc.pdf_processed_content[0].content}
-                      </div>
-                    )}
-                    <div className="flex gap-2">
-                      <Badge variant="secondary">PDF</Badge>
-                      {doc.pdf_processed_content?.[0]?.content ? (
-                        <Badge variant="secondary">Processed</Badge>
-                      ) : (
-                        <Badge variant="outline">Processing</Badge>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <DocumentCard
+                key={doc.id}
+                filename={doc.filename}
+                created_at={doc.created_at}
+                content={doc.pdf_processed_content?.[0]?.content}
+                onDownload={() => handleDownload(doc.file_path, doc.filename)}
+              />
             ))}
           </div>
         )}
