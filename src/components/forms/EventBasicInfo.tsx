@@ -5,19 +5,26 @@ import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
 }
 
-const PACKAGES = [
-  { id: 'package_1', name: 'Package 1' },
-  { id: 'package_2', name: 'Package 2' },
-  { id: 'package_3', name: 'Package 3' },
-  { id: 'none', name: 'None' },
-];
-
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
+  const { data: packages } = useQuery({
+    queryKey: ['packages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('packages')
+        .select('*');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   return (
     <div className="space-y-6">
       <EventTypeSelect form={form} />
@@ -56,7 +63,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
 
       <FormField
         control={form.control}
-        name="package"
+        name="package_id"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Package</FormLabel>
@@ -67,7 +74,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {PACKAGES.map((pkg) => (
+                {packages?.map((pkg) => (
                   <SelectItem key={pkg.id} value={pkg.id}>
                     {pkg.name}
                   </SelectItem>

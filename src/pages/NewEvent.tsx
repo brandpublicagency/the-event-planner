@@ -9,8 +9,8 @@ import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
 import { ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -27,46 +27,16 @@ const NewEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Get the current user's ID
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('You must be logged in to create an event');
       }
 
-      // Check if profile exists, if not create it
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .single();
+      // Ensure user profile exists
+      await ensureUserProfile(user.id);
 
-      if (!existingProfile) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            updated_at: new Date().toISOString(),
-          });
-
-        if (profileError) throw profileError;
-      }
-
-      // Create the event in Supabase
-      const eventCode = `EVENT-${format(new Date(data.event_date), 'ddMMyy')}`;
-      
-      const { error: eventError } = await supabase
-        .from('events')
-        .insert({
-          event_code: eventCode,
-          name: data.name,
-          event_type: data.event_type,
-          event_date: data.event_date,
-          pax: data.pax,
-          package_id: data.package,
-          created_by: user.id,
-        });
-
-      if (eventError) throw eventError;
+      // Create the event
+      const eventCode = await createEvent(data, user.id);
 
       // Insert venue relationships
       const selectedVenues = Object.entries(data.venues || {})
