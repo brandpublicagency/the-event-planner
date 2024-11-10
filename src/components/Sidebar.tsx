@@ -82,26 +82,34 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
       
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+      <Link
+        onClick={(e) => {
+          e.preventDefault();
+          setIsCollapsed(!isCollapsed);
+        }}
+        to="#"
         className={cn(
-          "absolute bottom-0 left-0 flex items-center transition-colors duration-200",
+          "absolute bottom-0 left-0 flex h-[55px] items-center rounded-md transition-colors duration-200",
           isCollapsed ? 
-            "justify-center w-[80px] p-2 text-white hover:bg-zinc-800" : 
-            "px-3 py-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 w-full",
-          "h-[55px]",
-          isCollapsed && "hover:bg-white hover:text-zinc-900 hover:w-full"
+            "justify-center px-2 w-full text-white hover:bg-zinc-800" : 
+            "px-3 w-full text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
+          isCollapsed && "hover:bg-white hover:text-zinc-900"
         )}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-5 w-5 text-white hover:text-zinc-900" />
+          <ChevronRight className={cn(
+            "h-5 w-5 transition-colors",
+            "text-white hover:text-zinc-900"
+          )} />
         ) : (
           <div className="flex items-center">
             <ChevronLeft className="h-5 w-5 text-zinc-500" />
-            <span className="ml-3 text-sm font-medium">Collapse</span>
+            <span className="ml-3 text-sm font-medium">
+              Collapse
+            </span>
           </div>
         )}
-      </button>
+      </Link>
     </div>
   );
 };
