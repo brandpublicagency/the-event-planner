@@ -15,51 +15,42 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("pl-6 pr-4 mx-auto", className)}
+      className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-6",
-        caption: "flex justify-between pt-2 relative items-center px-1",
-        caption_label: "text-lg font-semibold text-primary-900 ml-1",
-        nav: "space-x-2 flex items-center",
+        month: "space-y-4",
+        caption: "flex justify-center pt-1 relative items-center",
+        caption_label: "text-sm font-medium",
+        nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 text-primary-900 border border-zinc-200 hover:bg-zinc-50"
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border-zinc-200"
         ),
-        table: "w-full border-collapse space-y-2",
+        nav_button_previous: "absolute left-1",
+        nav_button_next: "absolute right-1",
+        table: "w-full border-collapse space-y-1",
         head_row: "flex",
-        head_cell: "text-primary-500 w-10 font-medium text-[0.875rem]",
-        row: "flex w-full mt-3",
-        cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-          "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
-          "[&:has([aria-selected])]:bg-primary-50 border-zinc-200",
-          props.mode === "range"
-            ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md"
-            : "[&:has([aria-selected])]:rounded-md"
-        ),
+        head_cell: "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem]",
+        row: "flex w-full mt-2",
+        cell: "text-center text-sm relative p-0 rounded-md focus-within:relative focus-within:z-20",
         day: cn(
-          buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100",
-          "hover:bg-zinc-50 hover:text-primary-900 focus:bg-zinc-50 focus:text-primary-900",
-          "text-zinc-900",
-          "disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary-500"
+          "h-9 w-9 p-0 font-normal rounded-md transition-colors hover:bg-zinc-100",
+          "aria-selected:opacity-100"
         ),
-        day_range_start: "day-range-start",
         day_range_end: "day-range-end",
-        day_selected: 
-          "bg-primary-900 text-white hover:bg-primary-800 hover:text-white focus:bg-primary-900 focus:text-white",
-        day_today: "bg-zinc-50 text-primary-900 font-semibold border border-zinc-200",
-        day_outside: "text-zinc-400 opacity-50 aria-selected:bg-zinc-50/50 hover:bg-zinc-50/50",
-        day_disabled: "text-zinc-400 opacity-50 hover:bg-transparent",
+        day_selected:
+          "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50",
+        day_today: "border border-zinc-200 bg-zinc-50",
+        day_outside: "text-zinc-500 opacity-50",
+        day_disabled: "text-zinc-500 opacity-50",
         day_range_middle:
-          "aria-selected:bg-zinc-50 aria-selected:text-primary-900",
+          "aria-selected:bg-zinc-100 aria-selected:text-zinc-900",
         day_hidden: "invisible",
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeft className="h-5 w-5" />,
-        IconRight: () => <ChevronRight className="h-5 w-5" />,
+        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
+        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
       }}
       {...props}
     />

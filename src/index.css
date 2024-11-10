@@ -29,7 +29,7 @@
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-zinc-200 shadow-sm transition-all duration-300 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white;
+    @apply rounded-lg bg-white p-5 border border-zinc-200 transition-all duration-300 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white;
   }
   
   .nav-link {
@@ -62,5 +62,28 @@
 
   .text-muted-foreground {
     @apply text-zinc-500 dark:text-zinc-400;
+  }
+
+  /* Calendar Specific Styles */
+  .rdp {
+    @apply p-0;
+  }
+  
+  .rdp-months {
+    @apply bg-white border border-zinc-200 rounded-lg;
+  }
+  
+  .rdp-day_selected, 
+  .rdp-day_selected:focus-visible, 
+  .rdp-day_selected:hover {
+    @apply bg-zinc-900 text-white;
+  }
+  
+  .rdp-day_today {
+    @apply font-normal border border-zinc-200;
+  }
+  
+  .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+    @apply bg-zinc-50;
   }
 }
