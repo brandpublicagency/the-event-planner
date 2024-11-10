@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -34,6 +33,24 @@ const NewEvent = () => {
         throw new Error('You must be logged in to create an event');
       }
 
+      // Check if profile exists, if not create it
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (!existingProfile) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            updated_at: new Date().toISOString(),
+          });
+
+        if (profileError) throw profileError;
+      }
+
       // Create the event in Supabase
       const eventCode = `EVENT-${format(new Date(data.event_date), 'ddMMyy')}`;
       
@@ -45,8 +62,8 @@ const NewEvent = () => {
           event_type: data.event_type,
           event_date: data.event_date,
           pax: data.pax,
-          package_id: data.package_id,
-          created_by: user.id, // Set the created_by field to the current user's ID
+          package_id: data.package,
+          created_by: user.id,
         });
 
       if (eventError) throw eventError;
