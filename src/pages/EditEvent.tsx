@@ -47,14 +47,17 @@ const EditEvent = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Remove package_id if it's not selected
-      if (!data.package_id) {
-        delete data.package_id;
+      // Create update object without package_id initially
+      const updateData = { ...data };
+      
+      // Only include package_id if it's actually selected
+      if (!updateData.package_id || updateData.package_id === '') {
+        delete updateData.package_id;
       }
 
       const { error } = await supabase
         .from('events')
-        .update(data)
+        .update(updateData)
         .eq('id', id);
 
       if (error) throw error;
