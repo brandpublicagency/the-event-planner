@@ -46,7 +46,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
         {/* Navigation */}
         <div className="flex-1 py-6">
-          <nav className="px-3 space-y-1">
+          <nav className="px-3 space-y-[2px]">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -56,17 +56,17 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                   key={item.path} 
                   to={item.path}
                   className={cn(
-                    "flex items-center h-12 transition-colors duration-300 rounded-md",
-                    isCollapsed ? "justify-center px-2" : "px-3",
+                    "flex items-center h-10 transition-colors duration-200",
+                    isCollapsed ? "justify-center w-10" : "px-3",
                     isCollapsed 
                       ? (isActive ? "text-white" : "text-zinc-400") 
                       : (isActive ? "text-zinc-900 bg-zinc-50 border border-zinc-200" : "text-zinc-600 hover:bg-zinc-50/50 hover:border hover:border-zinc-200")
                   )}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-medium">
+                    <span className="ml-3 text-sm font-medium truncate">
                       {item.label}
                     </span>
                   )}
