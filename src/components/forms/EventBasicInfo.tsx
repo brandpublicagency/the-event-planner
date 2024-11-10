@@ -52,31 +52,6 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
         />
 
         <EventDateSelect form={form} />
-
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Inquiry">Inquiry</SelectItem>
-                  <SelectItem value="Tentative">Tentative</SelectItem>
-                  <SelectItem value="Confirmed">Confirmed</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
 
       <FormField

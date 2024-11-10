@@ -1,5 +1,5 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { UseFormReturn } from "react-hook-form";
 
 interface VenueSelectProps {
@@ -18,32 +18,28 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
   return (
     <FormField
       control={form.control}
-      name="selected_venues"
-      render={() => (
+      name="venue_id"
+      render={({ field }) => (
         <FormItem>
-          <FormLabel>Selected Venues</FormLabel>
-          <div className="grid grid-cols-2 gap-4">
-            {VENUES.map((venue) => (
-              <FormField
-                key={venue.id}
-                control={form.control}
-                name={`venues.${venue.id}`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      {venue.name}
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
+          <FormLabel>Select Venue</FormLabel>
+          <FormControl>
+            <RadioGroup
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              className="grid grid-cols-2 gap-4"
+            >
+              {VENUES.map((venue) => (
+                <FormItem key={venue.id} className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value={venue.id} />
+                  </FormControl>
+                  <FormLabel className="font-normal">
+                    {venue.name}
+                  </FormLabel>
+                </FormItem>
+              ))}
+            </RadioGroup>
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}
