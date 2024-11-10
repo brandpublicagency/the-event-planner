@@ -1,127 +1,120 @@
-import { Calendar, Users, CalendarDays } from "lucide-react";
-import Header from "@/components/Header";
-import MetricCard from "@/components/MetricCard";
-import ProjectCard from "@/components/ProjectCard";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Calendar as CalendarIcon, Users, CalendarDays, CheckSquare, User2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { mockEvents } from "@/data/mockEvents";
-import type { Event } from "@/types/event";
-import AIGreeting from "@/components/AIGreeting";
+import FlipCard from "@/components/FlipCard";
+import TaskList from "@/components/TaskList";
+import { useState } from "react";
 
 const Index = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const { data: eventStats } = useQuery({
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  
+  const { data: stats } = useQuery({
     queryKey: ['eventStats'],
     queryFn: async () => {
+      const currentMonth = new Date().getMonth();
+      const totalGuests = mockEvents.reduce((sum, event) => sum + (event.pax || 0), 0);
+      const weddingsCount = mockEvents.filter(e => e.event_type === 'Wedding').length;
+      const upcomingGuests = mockEvents
+        .filter(e => new Date(e.dueDate).getMonth() === currentMonth)
+        .reduce((sum, event) => sum + (event.pax || 0), 0);
+      
       return {
-        total: mockEvents.length,
-        upcoming: mockEvents.filter(e => new Date(e.dueDate) > new Date()).length,
-        inquiries: mockEvents.filter(e => e.status === 'Tentative').length,
-        weddings: mockEvents.filter(e => e.event_type === 'Wedding').length
+        totalGuests,
+        weddingsCount,
+        upcomingGuests
       };
     },
   });
 
-  const upcomingEvents = mockEvents.slice(0, Math.ceil(mockEvents.length / 2));
-  const moreUpcomingEvents = mockEvents.slice(Math.ceil(mockEvents.length / 2));
+  const upcomingEvents = mockEvents
+    .filter(event => new Date(event.dueDate) > new Date())
+    .slice(0, 3);
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="flex-1 overflow-auto">
-        <Header />
-        <main className="p-6">
-          <AIGreeting />
-          
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mt-6">
-            <MetricCard
-              title="Total Events"
-              value={eventStats?.total || 0}
-              icon={<Calendar className="h-5 w-5" />}
-              onClick={() => navigate("/events")}
-            />
-            <MetricCard
-              title="Upcoming Events"
-              value={eventStats?.upcoming || 0}
-              icon={<CalendarDays className="h-5 w-5" />}
-              trend={{ value: 12, isUpward: true }}
-              onClick={() => navigate("/events")}
-            />
-            <MetricCard
-              title="New Inquiries"
-              value={eventStats?.inquiries || 0}
-              icon={<Calendar className="h-5 w-5" />}
-              onClick={() => navigate("/events")}
-            />
-            <MetricCard
-              title="Wedding Events"
-              value={eventStats?.weddings || 0}
-              icon={<Users className="h-5 w-5" />}
-              trend={{ value: 4, isUpward: true }}
-              onClick={() => navigate("/events")}
-            />
-          </div>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Upcoming Events</h2>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate("/events")}
-                >
-                  View All
-                </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Profile Cards */}
+        <FlipCard
+          front={
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
+                  <User2 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">John Doe</h3>
+                  <p className="text-sm text-muted-foreground">Event Planner</p>
+                </div>
               </div>
-              <div className="space-y-4">
-                {moreUpcomingEvents.map((event) => (
-                  <ProjectCard 
-                    key={event.event_code} 
-                    {...event} 
-                    onClick={() => {
-                      toast({ 
-                        title: `Event: ${event.title}`, 
-                        description: "Opening event details." 
-                      });
-                      navigate(`/events/${event.event_code}`);
-                    }} 
-                  />
-                ))}
-              </div>
+              <p className="text-sm">Click to view contact details</p>
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Upcoming Events</h2>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate("/events")}
-                >
-                  View All
-                </Button>
-              </div>
-              <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <ProjectCard 
-                    key={event.event_code} 
-                    {...event} 
-                    onClick={() => {
-                      toast({ 
-                        title: `Event: ${event.title}`, 
-                        description: "Opening event details." 
-                      });
-                      navigate(`/events/${event.event_code}`);
-                    }} 
-                  />
-                ))}
-              </div>
+          }
+          back={
+            <div className="space-y-2">
+              <p className="text-sm">Email: john@example.com</p>
+              <p className="text-sm">Phone: (555) 123-4567</p>
+              <p className="text-sm">Location: San Francisco, CA</p>
+            </div>
+          }
+        />
+
+        {/* Calendar Card */}
+        <Card className="p-4">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md"
+          />
+        </Card>
+
+        {/* Stats Card */}
+        <Card className="p-6 space-y-4">
+          <h3 className="font-semibold">Statistics</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Total Guests This Month</span>
+              <span className="font-semibold">{stats?.upcomingGuests || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Total Weddings</span>
+              <span className="font-semibold">{stats?.weddingsCount || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Total Guests Served</span>
+              <span className="font-semibold">{stats?.totalGuests || 0}</span>
             </div>
           </div>
-        </main>
+        </Card>
+
+        {/* Upcoming Events Card */}
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Upcoming Events</h3>
+          <div className="space-y-4">
+            {upcomingEvents.map((event) => (
+              <div key={event.event_code} className="flex items-center space-x-4">
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">{event.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(event.dueDate).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Tasks Card */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-2">
+          <TaskList />
+        </div>
       </div>
     </div>
   );
