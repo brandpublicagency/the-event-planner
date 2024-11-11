@@ -59,16 +59,16 @@ const EventDetails = () => {
 
   return (
     <>
-      <div className="flex-1 p-4 md:p-8 pt-6">
-        <div className="flex justify-between items-center mb-8 print:hidden">
-          <h1 className="text-2xl font-semibold">Event Details</h1>
-          <Button onClick={handlePrint} variant="outline">
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
-        </div>
-
+      <div className="flex-1 p-4 md:p-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0">
+          <div className="flex justify-between items-center mb-8 print:hidden">
+            <div /> {/* Empty div for spacing */}
+            <Button onClick={handlePrint} variant="outline">
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+          </div>
+
           <div className="flex items-center gap-3 mb-4">
             <h2 className="text-3xl font-bold tracking-tight">{event.name}</h2>
             <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
@@ -77,7 +77,7 @@ const EventDetails = () => {
           </div>
 
           <div className="text-lg text-zinc-600">
-            {event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'} / {event.event_type} / {event.pax} Pax / {event.venues?.map((v: any) => v.name).join(' + ')}
+            <span className="font-semibold">{event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {event.venues?.map((v: any) => v.name).join(' + ')}
           </div>
         </div>
       </div>
