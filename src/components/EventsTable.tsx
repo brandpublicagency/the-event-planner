@@ -74,9 +74,12 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
                             <Checkbox />
-                            <span className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
+                            <button
+                              onClick={() => navigate(`/events/${event.event_code}`)}
+                              className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 hover:bg-zinc-100 transition-colors"
+                            >
                               {event.event_code}
-                            </span>
+                            </button>
                             <span className="font-medium whitespace-nowrap">
                               {event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}
                             </span>
