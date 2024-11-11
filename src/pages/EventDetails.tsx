@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const EventDetails = () => {
   const { id } = useParams();
 
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,9 +25,11 @@ const EventDetails = () => {
           )
         `)
         .eq('event_code', id)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single()
 
       if (error) throw error;
+      if (!data) throw new Error('Event not found');
+      
       return {
         ...data,
         venues: data.event_venues?.map((ev: any) => ev.venues) || []
@@ -44,7 +46,7 @@ const EventDetails = () => {
     );
   }
 
-  if (!event) return (
+  if (error || !event) return (
     <div className="flex-1 p-8">
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
         <p className="text-red-800">Event not found</p>
