@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Edit, Trash } from "lucide-react";
+import { Calendar, Edit, Trash, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -52,6 +52,14 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
     }
   };
 
+  const copyEventCode = (eventCode: string) => {
+    navigator.clipboard.writeText(eventCode);
+    toast({
+      title: "Copied",
+      description: "Event code copied to clipboard",
+    });
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6">
@@ -79,6 +87,15 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                               className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 hover:bg-zinc-100 transition-colors"
                             >
                               {event.event_code}
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyEventCode(event.event_code);
+                                }}
+                                className="ml-1 inline-flex items-center hover:text-zinc-900"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
                             </button>
                             <span className="font-medium whitespace-nowrap">
                               {event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}
