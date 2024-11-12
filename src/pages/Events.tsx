@@ -8,6 +8,8 @@ import EventsTable from "@/components/EventsTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Event } from "@/types/event";
+import { groupEventsByMonth } from "@/utils/eventUtils";
 
 const Events = () => {
   const navigate = useNavigate();
@@ -41,30 +43,19 @@ const Events = () => {
 
       return data?.map(event => ({
         ...event,
-        venues: event.event_venues?.map((ev: any) => ev.venues) || []
-      })) || [];
+        venues: event.event_venues?.map(ev => ({
+          id: ev.venues?.id,
+          name: ev.venues?.name
+        })) || []
+      })) as Event[];
     },
   });
 
-  // Group events by month and year
-  const groupedEvents = events.reduce((groups: any, event) => {
-    const date = event.event_date ? new Date(event.event_date) : new Date();
-    const monthYear = date.toLocaleString('default', { 
-      month: 'long',
-      year: 'numeric'
-    });
-    
-    if (!groups[monthYear]) {
-      groups[monthYear] = [];
-    }
-    
-    groups[monthYear].push(event);
-    return groups;
-  }, {});
+  const groupedEvents = groupEventsByMonth(events);
 
-  const filteredEvents = Object.entries(groupedEvents || {}).reduce(
-    (acc: any, [monthYear, monthEvents]: [string, any]) => {
-      const filteredMonthEvents = (monthEvents as any[]).filter(
+  const filteredEvents = Object.entries(groupedEvents).reduce(
+    (acc: Record<string, Event[]>, [monthYear, monthEvents]) => {
+      const filteredMonthEvents = monthEvents.filter(
         (event) =>
           event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           event.event_code.toLowerCase().includes(searchQuery.toLowerCase())
@@ -76,30 +67,6 @@ const Events = () => {
     },
     {}
   );
-
-  const handleDelete = async (eventCode: string) => {
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('event_code', eventCode);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
-
-      refetch();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (error) {
     return (
@@ -145,7 +112,29 @@ const Events = () => {
       ) : (
         <EventsTable 
           groupedEvents={filteredEvents}
-          handleDelete={handleDelete}
+          handleDelete={async (eventCode: string) => {
+            try {
+              const { error } = await supabase
+                .from('events')
+                .delete()
+                .eq('event_code', eventCode);
+
+              if (error) throw error;
+
+              toast({
+                title: "Success",
+                description: "Event deleted successfully",
+              });
+
+              refetch();
+            } catch (error: any) {
+              toast({
+                title: "Error",
+                description: error.message || "Failed to delete event",
+                variant: "destructive",
+              });
+            }
+          }}
         />
       )}
     </div>

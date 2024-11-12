@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import type { Event } from "@/types/event";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,37 +20,13 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface EventsTableProps {
-  groupedEvents: Record<string, any[]>;
+  groupedEvents: Record<string, Event[]>;
   handleDelete: (eventCode: string) => Promise<void>;
 }
 
-const EventsTable = ({ groupedEvents }: EventsTableProps) => {
+const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handleDelete = async (eventCode: string) => {
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('event_code', eventCode);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
-
-      window.location.reload();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
-    }
-  };
 
   const copyEventCode = (eventCode: string) => {
     navigator.clipboard.writeText(eventCode);
@@ -74,7 +50,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
             </div>
             
             <div className="divide-y divide-zinc-100">
-              {monthEvents.map((event: any) => (
+              {monthEvents.map((event) => (
                 <div key={event.event_code} className="group">
                   <div className="flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors">
                     <div className="flex items-center flex-1">
@@ -107,7 +83,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                           <div className="flex items-center gap-2">
                             <h4 className="text-base font-medium leading-none">{event.name}</h4>
                             <Badge variant="outline" className="text-xs font-normal border border-zinc-200 bg-zinc-50 rounded-md">
-                              {event.event_type} / {event.pax} Pax / {event.venues?.map((v: any) => v.name).join(' + ')}
+                              {event.event_type} / {event.pax} Pax / {event.venues?.map(v => v.name).join(' + ')}
                             </Badge>
                           </div>
                         </div>
