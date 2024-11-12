@@ -1,18 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/EventsTable";
 import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { groupEventsByMonth } from "@/utils/eventUtils";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch only upcoming events for dashboard
   const { data: events = [], refetch } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
@@ -30,7 +29,7 @@ const Index = () => {
         `)
         .gte('event_date', today)
         .order('event_date', { ascending: true })
-        .limit(4); // Only get the next 4 upcoming events
+        .limit(4);
 
       if (error) {
         toast({
@@ -41,30 +40,14 @@ const Index = () => {
         throw error;
       }
 
-      return data || [];
+      return data?.map(event => ({
+        ...event,
+        venues: event.event_venues?.map((ev: any) => ({
+          name: ev.venues?.name
+        })) || []
+      })) || [];
     },
   });
-
-  // Group events by month for the EventsTable
-  const groupedEvents = events.reduce((groups: any, event) => {
-    const date = new Date(event.event_date);
-    const monthYear = date.toLocaleString('default', { 
-      month: 'long',
-      year: 'numeric'
-    });
-    
-    if (!groups[monthYear]) {
-      groups[monthYear] = [];
-    }
-    
-    groups[monthYear].push({
-      ...event,
-      venues: event.event_venues?.map((ev: any) => ({
-        name: ev.venues?.name
-      })) || []
-    });
-    return groups;
-  }, {});
 
   const handleDelete = async (eventCode: string) => {
     try {
@@ -89,6 +72,8 @@ const Index = () => {
       });
     }
   };
+
+  const groupedEvents = groupEventsByMonth(events);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
