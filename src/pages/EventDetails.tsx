@@ -81,7 +81,7 @@ const EventDetails = () => {
             <span className="font-semibold">{event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {event.venues?.map((v: any) => v.name).join(' + ')}
           </div>
 
-          {event.event_type === 'Wedding' && <WeddingMenuPlanner />}
+          <WeddingMenuPlanner eventCode={event.event_code} />
         </div>
       </div>
       <style>{`
