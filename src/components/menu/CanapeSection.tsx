@@ -17,9 +17,9 @@ const CanapeSection = ({
 }: CanapeSectionProps) => {
   return (
     <div className="space-y-4">
-      <div className="print:break-inside-avoid">
+      <div>
         <Select value={selectedCanapePackage} onValueChange={onCanapePackageChange}>
-          <SelectTrigger className="w-full transition-all duration-200 hover:bg-zinc-50">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select number of canapés" />
           </SelectTrigger>
           <SelectContent>
@@ -27,7 +27,6 @@ const CanapeSection = ({
               <SelectItem 
                 key={pkg.value} 
                 value={pkg.value}
-                className="transition-colors duration-200 hover:bg-zinc-50"
               >
                 <span className="font-medium">{pkg.label}</span>
               </SelectItem>
@@ -37,14 +36,14 @@ const CanapeSection = ({
       </div>
 
       {selectedCanapePackage && (
-        <div className="space-y-3 print:break-inside-avoid animate-in fade-in slide-in-from-top-4">
+        <div className="space-y-3">
           {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
-            <div key={index} className="print:break-inside-avoid">
+            <div key={index}>
               <Select 
                 value={selectedCanapes[index] || ''} 
                 onValueChange={(value) => onCanapeSelection(index + 1, value)}
               >
-                <SelectTrigger className="w-full transition-all duration-200 hover:bg-zinc-50">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={`Select canapé ${index + 1}`} />
                 </SelectTrigger>
                 <SelectContent>
@@ -53,7 +52,6 @@ const CanapeSection = ({
                       key={canape.value} 
                       value={canape.value}
                       disabled={selectedCanapes.includes(canape.value)}
-                      className="transition-colors duration-200 hover:bg-zinc-50"
                     >
                       {canape.label}
                     </SelectItem>
