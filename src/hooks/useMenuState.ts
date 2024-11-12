@@ -27,7 +27,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
           .from('menu_selections')
           .select('*')
           .eq('event_code', eventCode)
-          .single();
+          .maybeSingle(); // Changed from .single() to .maybeSingle()
 
         if (error) {
           console.error('Error fetching menu selections:', error);
@@ -50,8 +50,8 @@ export const useMenuState = (eventCode: string, toast: any) => {
             selectedPlatedStarter: !data.is_custom ? data.plated_starter || '' : '',
             notes: data.notes || '',
           });
-          setError(null);
         }
+        setError(null);
       } catch (err) {
         console.error('Unexpected error:', err);
         toast({
