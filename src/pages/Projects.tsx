@@ -10,59 +10,44 @@ const Projects = () => {
     {
       event_code: "WR-2024-001",
       name: "Website Redesign",
-      title: "Website Redesign",
       description: "Complete overhaul of the company website with modern design principles",
-      progress: 75,
-      teamSize: 4,
-      dueDate: "2024-03-15",
-      event_date: "2024-03-15",
-      status: "Confirmed",
       event_type: "Project",
+      event_date: "2024-03-15",
       pax: 4,
       package_id: null,
       client_address: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       created_by: null,
-      venues: [{ name: "Main Office" }]
+      event_venues: [{ venues: { name: "Main Office" } }]
     },
     {
       event_code: "MA-2024-001",
       name: "Mobile App Development",
-      title: "Mobile App Development",
       description: "Native mobile application for iOS and Android platforms",
-      progress: 30,
-      teamSize: 6,
-      dueDate: "2024-04-20",
-      event_date: "2024-04-20",
-      status: "Tentative",
       event_type: "Project",
+      event_date: "2024-04-20",
       pax: 6,
       package_id: null,
       client_address: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       created_by: null,
-      venues: [{ name: "Tech Hub" }]
+      event_venues: [{ venues: { name: "Tech Hub" } }]
     },
     {
       event_code: "BR-2024-001",
       name: "Brand Identity Update",
-      title: "Brand Identity Update",
       description: "Refreshing the brand guidelines and visual identity",
-      progress: 90,
-      teamSize: 3,
-      dueDate: "2024-02-28",
-      event_date: "2024-02-28",
-      status: "Confirmed",
       event_type: "Project",
+      event_date: "2024-02-28",
       pax: 3,
       package_id: null,
       client_address: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       created_by: null,
-      venues: [{ name: "Design Studio" }]
+      event_venues: [{ venues: { name: "Design Studio" } }]
     },
   ];
 
@@ -86,7 +71,12 @@ const Projects = () => {
       <ScrollArea className="h-[calc(100vh-12rem)]">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project.event_code} {...project} />
+            <ProjectCard 
+              key={project.event_code} 
+              {...project} 
+              progress={75} 
+              teamSize={project.pax || 0}
+            />
           ))}
         </div>
       </ScrollArea>

@@ -45,7 +45,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 {event.event_type} - {event.pax} Pax
               </p>
               <p className="text-sm text-zinc-500 mt-1">
-                Venues: {event.venues?.map((v) => v.name).join(', ')}
+                Venues: {event.event_venues?.map((v) => v.venues.name).join(', ')}
               </p>
               {event.description && (
                 <p className="text-sm text-zinc-600 mt-2">{event.description}</p>

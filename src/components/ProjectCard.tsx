@@ -7,6 +7,9 @@ import type { Event } from "@/types/event";
 
 type ProjectCardProps = Event & {
   onClick?: () => void;
+  // Add UI specific props
+  progress?: number;
+  teamSize?: number;
 };
 
 const openai = import.meta.env.VITE_OPENAI_API_KEY 
@@ -17,14 +20,14 @@ const openai = import.meta.env.VITE_OPENAI_API_KEY
   : null;
 
 const ProjectCard = ({ 
-  title, 
+  name, 
   description, 
-  progress, 
-  teamSize, 
-  dueDate, 
+  progress = 0, 
+  teamSize = 0, 
+  event_date, 
   onClick 
 }: ProjectCardProps) => {
-  const [aiDescription, setAiDescription] = useState<string>(description);
+  const [aiDescription, setAiDescription] = useState<string>(description || '');
 
   useEffect(() => {
     const generateDescription = async () => {
@@ -42,7 +45,7 @@ const ProjectCard = ({
             },
             {
               role: "user",
-              content: `Generate a brief, engaging description for this event: ${title}. Keep it under 100 characters.`
+              content: `Generate a brief, engaging description for this event: ${name}. Keep it under 100 characters.`
             }
           ],
           model: "gpt-4",
@@ -54,12 +57,12 @@ const ProjectCard = ({
         }
       } catch (error) {
         console.error('Error generating description:', error);
-        setAiDescription(description);
+        setAiDescription(description || '');
       }
     };
 
     generateDescription();
-  }, [title, description]);
+  }, [name, description]);
 
   return (
     <Card 
@@ -67,7 +70,7 @@ const ProjectCard = ({
       onClick={onClick}
     >
       <CardContent className="p-6 relative z-10">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
         <p className="mt-2 text-sm text-gray-500">{aiDescription}</p>
         <div className="mt-4">
           <div className="flex justify-between text-sm text-gray-600">
@@ -83,7 +86,7 @@ const ProjectCard = ({
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            <span>Due {new Date(dueDate).toLocaleDateString()}</span>
+            <span>Due {event_date ? new Date(event_date).toLocaleDateString() : 'Not set'}</span>
           </div>
         </div>
       </CardContent>
