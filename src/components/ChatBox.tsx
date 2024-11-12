@@ -20,19 +20,6 @@ const ChatBox = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const { data: pdfContents } = useQuery({
-    queryKey: ['pdf-contents'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pdf_processed_content')
-        .select('content')
-        .not('content', 'is', null);
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const { data: upcomingEvents } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
@@ -101,11 +88,6 @@ const ChatBox = () => {
     setIsLoading(true);
 
     try {
-      const pdfContext = pdfContents
-        ?.map(doc => doc.content)
-        .filter(Boolean)
-        .join('\n\n');
-
       // Prepare context from upcoming events
       const eventsContext = upcomingEvents?.map(event => {
         const venue = event.event_venues?.[0]?.venues?.name || 'No venue specified';
@@ -126,9 +108,6 @@ const ChatBox = () => {
         content: `You are an expert event planning assistant with access to the following information:
 1. Upcoming Events:
 ${eventsContext || 'No upcoming events found.'}
-
-2. Event Planning Guidelines:
-${pdfContext || 'No additional guidelines available.'}
 
 Your role is to help with:
 1. Event Planning & Management
