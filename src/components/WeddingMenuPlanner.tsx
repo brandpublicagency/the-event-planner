@@ -22,38 +22,56 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
   const [notes, setNotes] = useState<string>('');
   const [isCustomMenu, setIsCustomMenu] = useState<boolean>(false);
   const [customMenuDetails, setCustomMenuDetails] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchMenuSelections = async () => {
       if (!eventCode) return;
       
-      const { data, error } = await supabase
-        .from('menu_selections')
-        .select('*')
-        .eq('event_code', eventCode)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('menu_selections')
+          .select('*')
+          .eq('event_code', eventCode)
+          .single();
 
-      if (error) {
-        console.error('Error fetching menu selections:', error);
-        return;
-      }
-
-      if (data) {
-        setIsCustomMenu(data.is_custom || false);
-        setCustomMenuDetails(data.custom_menu_details || '');
-        if (!data.is_custom) {
-          setSelectedStarterType(data.starter_type || '');
-          setSelectedCanapePackage(data.canape_package || '');
-          setSelectedCanapes(data.canape_selections || []);
-          setSelectedPlatedStarter(data.plated_starter || '');
+        if (error) {
+          console.error('Error fetching menu selections:', error);
+          toast({
+            title: "Error loading menu selections",
+            description: "Please try refreshing the page",
+            variant: "destructive",
+          });
+          setError(error.message);
+          return;
         }
-        setNotes(data.notes || '');
+
+        if (data) {
+          setIsCustomMenu(data.is_custom || false);
+          setCustomMenuDetails(data.custom_menu_details || '');
+          if (!data.is_custom) {
+            setSelectedStarterType(data.starter_type || '');
+            setSelectedCanapePackage(data.canape_package || '');
+            setSelectedCanapes(data.canape_selections || []);
+            setSelectedPlatedStarter(data.plated_starter || '');
+          }
+          setNotes(data.notes || '');
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Unexpected error:', err);
+        toast({
+          title: "Error loading menu selections",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
+        setError('An unexpected error occurred while loading menu selections');
       }
     };
 
     fetchMenuSelections();
-  }, [eventCode]);
+  }, [eventCode, toast]);
 
   const saveMenuSelections = async () => {
     if (!eventCode) return;
@@ -69,23 +87,33 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
       notes,
     };
 
-    const { error } = await supabase
-      .from('menu_selections')
-      .upsert(menuData);
+    try {
+      const { error } = await supabase
+        .from('menu_selections')
+        .upsert(menuData);
 
-    if (error) {
+      if (error) {
+        console.error('Error saving menu selections:', error);
+        toast({
+          title: "Error saving menu selections",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Menu selections saved successfully",
+      });
+    } catch (err) {
+      console.error('Unexpected error saving menu selections:', err);
       toast({
         title: "Error saving menu selections",
-        description: error.message,
+        description: "An unexpected error occurred while saving",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: "Menu selections saved successfully",
-    });
   };
 
   const handleCanapeSelection = (position: number, value: string) => {
@@ -94,6 +122,21 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
     setSelectedCanapes(newCanapes);
     saveMenuSelections();
   };
+
+  if (error) {
+    return (
+      <Card className="mt-8 print:mt-12">
+        <CardHeader className="bg-zinc-50 border-b">
+          <CardTitle className="text-2xl font-bold text-center">Menu Selection</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="text-red-600 text-center">
+            {error}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mt-8 print:mt-12">
