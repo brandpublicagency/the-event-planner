@@ -77,18 +77,20 @@ const EventDetails = () => {
 
           <div className="print:mb-8">
             <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-3xl font-bold tracking-tight">{event.name}</h1>
-              <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
+              <h1 className="text-3xl font-bold tracking-tight print:text-[13px]">{event.name}</h1>
+              <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 print:text-[11px]">
                 {event.event_code}
               </span>
             </div>
 
-            <div className="text-lg text-zinc-600">
+            <div className="text-lg text-zinc-600 print:text-[12px]">
               <span className="font-semibold">{formattedDate}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {venueNames}
             </div>
           </div>
 
-          <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
+          <div className="print:hidden">
+            <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
+          </div>
         </div>
       </div>
       <style>{`
