@@ -58,7 +58,7 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
   const saveMenuSelections = async () => {
     if (!eventCode) return;
 
-    const menuData: Partial<MenuSelections> = {
+    const menuData = {
       event_code: eventCode,
       is_custom: isCustomMenu,
       custom_menu_details: isCustomMenu ? customMenuDetails : null,
