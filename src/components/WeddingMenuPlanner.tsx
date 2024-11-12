@@ -6,7 +6,6 @@ import MenuHeader from './menu/MenuHeader';
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
-import { generatePDF } from '../utils/pdfUtils';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -25,27 +24,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
     saveMenuSelections
   } = useMenuState(eventCode, toast);
 
-  const handleDownloadPDF = async () => {
-    try {
-      const pdfBlob = await generatePDF(menuState, eventName);
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `menu-${eventCode}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      toast({
-        title: "Error generating PDF",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (isLoading) {
     return (
       <Card className="mt-8 print:mt-0">
@@ -63,7 +41,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
           isCustomMenu={menuState.isCustomMenu} 
           onCustomMenuToggle={handleCustomMenuToggle}
           eventName={eventName}
-          onDownloadPDF={handleDownloadPDF}
         />
         <CardContent className="p-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
@@ -81,7 +58,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
           isCustomMenu={menuState.isCustomMenu} 
           onCustomMenuToggle={handleCustomMenuToggle}
           eventName={eventName}
-          onDownloadPDF={handleDownloadPDF}
         />
       </div>
       <CardContent className="p-6 space-y-4">
