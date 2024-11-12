@@ -11,20 +11,39 @@ export interface Event {
   created_at: string;
   updated_at: string;
   created_by: string | null;
-  venues?: { name: string }[];
   
-  // UI specific fields
-  title?: string;
-  progress?: number;
-  teamSize?: number;
-  dueDate?: string;
-  status?: 'Confirmed' | 'Tentative' | 'Cancelled';
+  // Related tables
+  event_venues?: {
+    venues: {
+      name: string;
+    };
+  }[];
   
-  // Wedding specific fields (optional)
-  bride_name?: string;
-  bride_email?: string;
-  bride_mobile?: string;
-  groom_name?: string;
-  groom_email?: string;
-  groom_mobile?: string;
+  wedding_details?: {
+    bride_name: string | null;
+    bride_email: string | null;
+    bride_mobile: string | null;
+    groom_name: string | null;
+    groom_email: string | null;
+    groom_mobile: string | null;
+  };
+  
+  corporate_details?: {
+    company_name: string | null;
+    contact_person: string | null;
+    contact_email: string | null;
+    contact_mobile: string | null;
+    company_vat: string | null;
+    company_address: string | null;
+  };
+  
+  menu_selections?: {
+    is_custom: boolean | null;
+    custom_menu_details: string | null;
+    starter_type: string | null;
+    canape_package: string | null;
+    canape_selections: string[] | null;
+    plated_starter: string | null;
+    notes: string | null;
+  };
 }
