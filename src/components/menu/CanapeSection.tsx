@@ -16,18 +16,22 @@ const CanapeSection = ({
   onCanapeSelection,
 }: CanapeSectionProps) => {
   return (
-    <>
+    <div className="space-y-6">
       <div className="print:break-inside-avoid">
         <Select value={selectedCanapePackage} onValueChange={onCanapePackageChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full transition-all duration-200 hover:bg-zinc-50">
             <SelectValue placeholder="Select number of canapés" />
           </SelectTrigger>
           <SelectContent>
             {canapePackages.map((pkg) => (
-              <SelectItem key={pkg.value} value={pkg.value}>
+              <SelectItem 
+                key={pkg.value} 
+                value={pkg.value}
+                className="transition-colors duration-200 hover:bg-zinc-50"
+              >
                 <div className="flex justify-between items-center w-full">
                   <span>{pkg.label}</span>
-                  <span className="text-sm text-zinc-500">R {pkg.price}</span>
+                  <span className="text-sm font-medium text-zinc-500">R {pkg.price}</span>
                 </div>
               </SelectItem>
             ))}
@@ -36,14 +40,14 @@ const CanapeSection = ({
       </div>
 
       {selectedCanapePackage && (
-        <div className="space-y-4 print:break-inside-avoid">
+        <div className="space-y-4 print:break-inside-avoid animate-in fade-in slide-in-from-top-4">
           {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
             <div key={index} className="print:break-inside-avoid">
               <Select 
                 value={selectedCanapes[index] || ''} 
                 onValueChange={(value) => onCanapeSelection(index + 1, value)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full transition-all duration-200 hover:bg-zinc-50">
                   <SelectValue placeholder={`Select canapé ${index + 1}`} />
                 </SelectTrigger>
                 <SelectContent>
@@ -52,6 +56,7 @@ const CanapeSection = ({
                       key={canape.value} 
                       value={canape.value}
                       disabled={selectedCanapes.includes(canape.value)}
+                      className="transition-colors duration-200 hover:bg-zinc-50"
                     >
                       {canape.label}
                     </SelectItem>
@@ -62,7 +67,7 @@ const CanapeSection = ({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
