@@ -73,8 +73,8 @@ const EventDetails = () => {
   const venueNames = event.venues?.map((v: any) => v.name).join(' + ');
 
   return (
-    <div className="flex-1 p-4 md:p-8 print:p-0">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0 print:block">
+    <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:hidden">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0 print:block print:!visible">
         <div className="flex justify-between items-center mb-8 print:hidden">
           <div /> {/* Empty div for spacing */}
           <div className="flex gap-2">
@@ -131,6 +131,11 @@ const EventDetails = () => {
           }
 
           .print\\:block {
+            display: block !important;
+          }
+
+          .print\\:!visible {
+            visibility: visible !important;
             display: block !important;
           }
 
