@@ -48,7 +48,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
 
   if (error) {
     return (
-      <Card className="mt-8 print:mt-12">
+      <Card className="mt-8 print:mt-0">
         <MenuHeader 
           isCustomMenu={menuState.isCustomMenu} 
           onCustomMenuToggle={handleCustomMenuToggle}
@@ -65,14 +65,20 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   }
 
   return (
-    <Card className="mt-8 print:mt-12">
-      <MenuHeader 
-        isCustomMenu={menuState.isCustomMenu} 
-        onCustomMenuToggle={handleCustomMenuToggle}
-        eventName={eventName}
-        onDownloadPDF={handleDownloadPDF}
-      />
+    <Card className="mt-8 print:mt-0 print:shadow-none print:border-none">
+      <div className="print:hidden">
+        <MenuHeader 
+          isCustomMenu={menuState.isCustomMenu} 
+          onCustomMenuToggle={handleCustomMenuToggle}
+          eventName={eventName}
+          onDownloadPDF={handleDownloadPDF}
+        />
+      </div>
       <CardContent className="p-6 space-y-4">
+        <div className="print:mb-8">
+          <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>
+          {eventName && <h2 className="hidden print:block text-xl text-center text-muted-foreground mb-6">{eventName}</h2>}
+        </div>
         <MenuContent 
           menuState={menuState}
           onMenuStateChange={handleMenuStateChange}
