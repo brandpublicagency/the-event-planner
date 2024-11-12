@@ -7,3 +7,4 @@ export * from './pdfProcessedContent';
 export * from './profiles';
 export * from './venues';
 export * from './weddingDetails';
+export * from './menuSelections';

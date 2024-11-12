@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CustomMenuSection from './menu/CustomMenuSection';
 import StarterTypeSelect from './menu/StarterTypeSelect';
-import { canapePackages, canapeOptions, platedStarterOptions } from './menu/MenuTypes';
+import CanapeSection from './menu/CanapeSection';
+import PlatedStarterSection from './menu/PlatedStarterSection';
+import type { MenuSelections } from '@/integrations/supabase/types';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -57,7 +58,7 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
   const saveMenuSelections = async () => {
     if (!eventCode) return;
 
-    const menuData = {
+    const menuData: Partial<MenuSelections> = {
       event_code: eventCode,
       is_custom: isCustomMenu,
       custom_menu_details: isCustomMenu ? customMenuDetails : null,
@@ -70,7 +71,7 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
 
     const { error } = await supabase
       .from('menu_selections')
-      .upsert(menuData, { onConflict: 'event_code' });
+      .upsert(menuData);
 
     if (error) {
       toast({
@@ -137,78 +138,29 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
             {selectedStarterType === 'canapes' && (
               <>
                 <Separator className="my-6 print:hidden" />
-                <div className="print:break-inside-avoid">
-                  <Select value={selectedCanapePackage} onValueChange={(value) => {
+                <CanapeSection
+                  selectedCanapePackage={selectedCanapePackage}
+                  selectedCanapes={selectedCanapes}
+                  onCanapePackageChange={(value) => {
                     setSelectedCanapePackage(value);
                     setSelectedCanapes([]);
                     saveMenuSelections();
-                  }}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select number of canapés" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {canapePackages.map((pkg) => (
-                        <SelectItem key={pkg.value} value={pkg.value}>
-                          <div className="flex justify-between items-center w-full">
-                            <span>{pkg.label}</span>
-                            <span className="text-sm text-zinc-500">R {pkg.price}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedCanapePackage && (
-                  <div className="space-y-4 print:break-inside-avoid">
-                    {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
-                      <div key={index} className="print:break-inside-avoid">
-                        <Select 
-                          value={selectedCanapes[index] || ''} 
-                          onValueChange={(value) => handleCanapeSelection(index + 1, value)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={`Select canapé ${index + 1}`} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {canapeOptions.map((canape) => (
-                              <SelectItem 
-                                key={canape.value} 
-                                value={canape.value}
-                                disabled={selectedCanapes.includes(canape.value)}
-                              >
-                                {canape.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  }}
+                  onCanapeSelection={handleCanapeSelection}
+                />
               </>
             )}
 
             {selectedStarterType === 'plated' && (
               <>
                 <Separator className="my-6 print:hidden" />
-                <div className="print:break-inside-avoid">
-                  <Select value={selectedPlatedStarter} onValueChange={(value) => {
+                <PlatedStarterSection
+                  selectedPlatedStarter={selectedPlatedStarter}
+                  onPlatedStarterChange={(value) => {
                     setSelectedPlatedStarter(value);
                     saveMenuSelections();
-                  }}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select your plated starter" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {platedStarterOptions.map((starter) => (
-                        <SelectItem key={starter.value} value={starter.value}>
-                          {starter.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  }}
+                />
               </>
             )}
           </>

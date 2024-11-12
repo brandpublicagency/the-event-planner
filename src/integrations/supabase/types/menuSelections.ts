@@ -7,4 +7,6 @@ export interface MenuSelections {
   canape_selections: string[] | null;
   plated_starter: string | null;
   notes: string | null;
+  created_at: string;
+  updated_at: string;
 }

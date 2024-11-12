@@ -140,6 +140,53 @@ export type Database = {
           },
         ]
       }
+      menu_selections: {
+        Row: {
+          canape_package: string | null
+          canape_selections: string[] | null
+          created_at: string
+          custom_menu_details: string | null
+          event_code: string
+          is_custom: boolean | null
+          notes: string | null
+          plated_starter: string | null
+          starter_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          canape_package?: string | null
+          canape_selections?: string[] | null
+          created_at?: string
+          custom_menu_details?: string | null
+          event_code: string
+          is_custom?: boolean | null
+          notes?: string | null
+          plated_starter?: string | null
+          starter_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canape_package?: string | null
+          canape_selections?: string[] | null
+          created_at?: string
+          custom_menu_details?: string | null
+          event_code?: string
+          is_custom?: boolean | null
+          notes?: string | null
+          plated_starter?: string | null
+          starter_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_selections_event_code_fkey"
+            columns: ["event_code"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["event_code"]
+          },
+        ]
+      }
       packages: {
         Row: {
           created_at: string
