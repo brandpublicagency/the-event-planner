@@ -1,8 +1,7 @@
-export * from './corporateDetails';
-export * from './eventVenues';
-export * from './events';
-export * from './packages';
-export * from './profiles';
-export * from './venues';
-export * from './weddingDetails';
-export * from './menuSelections';
+import type { Database as DatabaseGenerated } from './generated';
+import type { Tables, TablesInsert, TablesUpdate } from './tables';
+import type { Enums } from './enums';
+import type { CompositeTypes } from './compositeTypes';
+
+export type Database = DatabaseGenerated;
+export type { Tables, TablesInsert, TablesUpdate, Enums, CompositeTypes };

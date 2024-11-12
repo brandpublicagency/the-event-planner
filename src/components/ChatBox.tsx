@@ -94,7 +94,8 @@ You can also send emails to clients when needed. To send an email, respond with 
 
       const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
-        content: msg.text
+        content: msg.text,
+        name: undefined // This satisfies the type checker while maintaining compatibility
       }));
 
       const botResponse = await getChatCompletion([systemMessage, ...userMessages]);
