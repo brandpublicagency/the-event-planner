@@ -57,22 +57,11 @@ const ChatBox = () => {
           
           if (jsonResponse.action === "update_menu") {
             await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
-            const changes = Object.entries(jsonResponse.menu_updates)
-              .filter(([_, value]) => value !== null)
-              .map(([key, value]) => {
-                const formattedKey = key.split('_').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ');
-                return `${formattedKey}: ${Array.isArray(value) ? value.join(', ') : value}`;
-              })
-              .join('\n• ');
-            
-            const successMessage = `Menu updated successfully for Event ${jsonResponse.event_code}\n\nChanges made:\n• ${changes}`;
-            setMessages([...newMessages, { text: successMessage, isUser: false }]);
+            setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
             
             toast({
-              title: "Menu Updated",
-              description: "The menu has been successfully updated with your changes",
+              title: "Success",
+              description: "Menu has been updated",
             });
           } else if (jsonResponse.action === "send_email") {
             await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
