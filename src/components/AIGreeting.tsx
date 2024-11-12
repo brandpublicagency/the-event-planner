@@ -6,7 +6,8 @@ import { useToast } from "@/components/ui/use-toast";
 const openai = import.meta.env.VITE_OPENAI_API_KEY 
   ? new OpenAI({
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true
+      dangerouslyAllowBrowser: true,
+      timeout: 10000, // 10 second timeout
     })
   : null;
 
@@ -31,8 +32,11 @@ const AIGreeting = () => {
         return;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // Abort after 8 seconds
+
       try {
-        console.log("Attempting to generate AI greeting with model: gpt-4o-mini");
+        console.log("Attempting to generate AI greeting");
         const completion = await openai.chat.completions.create({
           messages: [
             {
@@ -40,10 +44,12 @@ const AIGreeting = () => {
               content: "You are a friendly event planning assistant. Generate a warm, personalized greeting for users of an event planning system. Keep it under 100 characters."
             }
           ],
-          model: "gpt-4o-mini",
-        });
+          model: "gpt-3.5-turbo", // Using a more reliable model
+          max_tokens: 50, // Limiting response size
+        }, { signal: controller.signal });
 
-        console.log("API Response:", completion);
+        clearTimeout(timeoutId);
+        
         const generatedText = completion.choices[0]?.message?.content;
         
         if (generatedText) {
@@ -55,21 +61,21 @@ const AIGreeting = () => {
             variant: "default"
           });
         } else {
-          console.warn("No greeting generated, using default");
-          setGreeting("Welcome to the Event Management System!");
-          toast({
-            title: "Warning",
-            description: "No AI greeting generated. Using default message.",
-            variant: "destructive"
-          });
+          throw new Error("No greeting generated");
         }
       } catch (error: any) {
+        clearTimeout(timeoutId);
         console.error('Error generating greeting:', error);
         setGreeting("Welcome to the Event Management System!");
+        
+        const errorMessage = error.name === 'AbortError' 
+          ? "AI greeting request timed out. Using default message."
+          : error.message || "Could not generate AI greeting. Using default message.";
+        
         toast({
-          title: "Error",
-          description: error.message || "Could not generate AI greeting. Using default message.",
-          variant: "destructive",
+          title: "Notice",
+          description: errorMessage,
+          variant: "default",
         });
       } finally {
         setLoading(false);
