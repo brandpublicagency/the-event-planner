@@ -56,7 +56,15 @@ const ChatBox = () => {
           const jsonResponse = JSON.parse(botResponse);
           
           if (jsonResponse.action === "update_menu") {
-            await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
+            // Ensure canape_selections is always an array or null
+            const menuUpdates = {
+              ...jsonResponse.menu_updates,
+              canape_selections: Array.isArray(jsonResponse.menu_updates.canape_selections) 
+                ? jsonResponse.menu_updates.canape_selections 
+                : null
+            };
+            
+            await updateMenuSelection(jsonResponse.event_code, menuUpdates);
             setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
             
             toast({
