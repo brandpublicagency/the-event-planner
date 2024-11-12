@@ -7,6 +7,7 @@ import ChatInput from "./chat/ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { getChatCompletion } from "@/services/openai";
 import { sendEmail } from "@/services/email";
+import { supabase } from "@/integrations/supabase/client";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 const ChatBox = () => {
@@ -15,6 +16,25 @@ const ChatBox = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: contextData, isLoading: isContextLoading } = useChatContext();
+
+  const updateMenuSelection = async (eventCode: string, updates: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('menu_selections')
+        .upsert({
+          event_code: eventCode,
+          ...updates
+        })
+        .select()
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error updating menu selection:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +76,8 @@ Date: ${date}
 Venue: ${venue}
 Details: ${details}
 ${menuInfo}
-Pax: ${event.pax}`;
+Pax: ${event.pax}
+Event Code: ${event.event_code}`;
       }).join('\n\n');
 
       const pdfContext = contextData?.pdfContent?.map(pdf => 
@@ -81,7 +102,20 @@ Your role is to help with:
 5. Menu Planning and Selection
 6. Best Practices & Guidelines
 
-Please use this information to provide accurate and contextual responses about events, schedules, and planning details.
+You can update menu selections for events. To update a menu, respond with a JSON object in this format:
+{
+  "action": "update_menu",
+  "event_code": "EVENT-CODE",
+  "menu_updates": {
+    "starter_type": "harvest",
+    "plated_starter": "soup",
+    "is_custom": false,
+    "custom_menu_details": null,
+    "canape_package": null,
+    "canape_selections": null,
+    "notes": "Additional notes here"
+  }
+}
 
 You can also send emails to clients when needed. To send an email, respond with a JSON object in this format:
 {
@@ -95,16 +129,26 @@ You can also send emails to clients when needed. To send an email, respond with 
       const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text,
-        name: undefined // This satisfies the type checker while maintaining compatibility
+        name: undefined
       }));
 
       const botResponse = await getChatCompletion([systemMessage, ...userMessages]);
 
       if (botResponse) {
         try {
-          // Check if the response is a JSON object with an email action
+          // Check if the response is a JSON object
           const jsonResponse = JSON.parse(botResponse);
-          if (jsonResponse.action === "send_email") {
+          
+          if (jsonResponse.action === "update_menu") {
+            await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
+            setMessages([
+              ...newMessages,
+              { 
+                text: `I've updated the menu selections for event ${jsonResponse.event_code}. The changes will be reflected in the menu planner.`, 
+                isUser: false 
+              }
+            ]);
+          } else if (jsonResponse.action === "send_email") {
             await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
             setMessages([
               ...newMessages,
