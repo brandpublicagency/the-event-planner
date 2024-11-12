@@ -88,7 +88,7 @@ const EventDetails = () => {
             </div>
           </div>
 
-          <div className="print:hidden">
+          <div>
             <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
           </div>
         </div>
@@ -106,6 +106,17 @@ const EventDetails = () => {
           
           .print\\:hidden {
             display: none !important;
+          }
+
+          /* Hide everything except the selected content */
+          body > *:not(.print-section) {
+            display: none !important;
+          }
+
+          /* Preserve the exact styling during print */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}</style>
