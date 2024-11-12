@@ -16,7 +16,7 @@ const CanapeSection = ({
   onCanapeSelection,
 }: CanapeSectionProps) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="print:break-inside-avoid">
         <Select value={selectedCanapePackage} onValueChange={onCanapePackageChange}>
           <SelectTrigger className="w-full transition-all duration-200 hover:bg-zinc-50">
@@ -29,10 +29,7 @@ const CanapeSection = ({
                 value={pkg.value}
                 className="transition-colors duration-200 hover:bg-zinc-50"
               >
-                <div className="flex justify-between items-center w-full">
-                  <span>{pkg.label}</span>
-                  <span className="text-sm font-medium text-zinc-500">R {pkg.price}</span>
-                </div>
+                <span className="font-medium">{pkg.label}</span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -40,7 +37,7 @@ const CanapeSection = ({
       </div>
 
       {selectedCanapePackage && (
-        <div className="space-y-4 print:break-inside-avoid animate-in fade-in slide-in-from-top-4">
+        <div className="space-y-3 print:break-inside-avoid animate-in fade-in slide-in-from-top-4">
           {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
             <div key={index} className="print:break-inside-avoid">
               <Select 

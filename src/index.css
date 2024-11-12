@@ -8,6 +8,7 @@
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --radius: 0.5rem;
+    --toast-duration: 300ms;
   }
 
   body {
@@ -86,4 +87,38 @@
   .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
     @apply bg-zinc-50;
   }
+}
+
+/* Toast animation overrides */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+[data-sonner-toast] {
+  --y: 0;
+  --lift: 0;
+  --scale: 1;
+  animation: enter 0.3s ease forwards;
+}
+
+[data-sonner-toast][data-removing="true"] {
+  animation: exit 0.3s ease forwards;
 }

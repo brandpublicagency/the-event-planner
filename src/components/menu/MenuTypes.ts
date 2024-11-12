@@ -1,13 +1,13 @@
 export interface StarterType {
   value: string;
   label: string;
-  price: string;
+  price: string;  // Keeping price in type but not displaying it
 }
 
 export interface CanapePackage {
   value: string;
   label: string;
-  price: string;
+  price: string;  // Keeping price in type but not displaying it
 }
 
 export interface CanapeOption {

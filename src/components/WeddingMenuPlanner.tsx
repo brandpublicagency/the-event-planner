@@ -1,145 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import StarterTypeSelect from './menu/StarterTypeSelect';
-import CanapeSection from './menu/CanapeSection';
-import PlatedStarterSection from './menu/PlatedStarterSection';
 import MenuHeader from './menu/MenuHeader';
+import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
-import CustomMenuSection from './menu/CustomMenuSection';
+import { useMenuState } from '../hooks/useMenuState';
+import { generatePDF } from '../utils/pdfUtils';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
+  eventName?: string;
 }
 
-const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
-  const [selectedStarterType, setSelectedStarterType] = useState<string>('');
-  const [selectedCanapePackage, setSelectedCanapePackage] = useState<string>('');
-  const [selectedCanapes, setSelectedCanapes] = useState<string[]>([]);
-  const [selectedPlatedStarter, setSelectedPlatedStarter] = useState<string>('');
-  const [notes, setNotes] = useState<string>('');
-  const [isCustomMenu, setIsCustomMenu] = useState<boolean>(false);
-  const [customMenuDetails, setCustomMenuDetails] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) => {
   const { toast } = useToast();
+  const { 
+    menuState, 
+    error,
+    handleCustomMenuToggle,
+    handleCanapeSelection,
+    handleMenuStateChange,
+    saveMenuSelections
+  } = useMenuState(eventCode, toast);
 
-  useEffect(() => {
-    const fetchMenuSelections = async () => {
-      if (!eventCode) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('menu_selections')
-          .select('*')
-          .eq('event_code', eventCode)
-          .single();
-
-        if (error) {
-          console.error('Error fetching menu selections:', error);
-          toast({
-            title: "Error loading menu selections",
-            description: "Please try refreshing the page",
-            variant: "destructive",
-          });
-          setError(error.message);
-          return;
-        }
-
-        if (data) {
-          setIsCustomMenu(data.is_custom || false);
-          setCustomMenuDetails(data.custom_menu_details || '');
-          if (!data.is_custom) {
-            setSelectedStarterType(data.starter_type || '');
-            setSelectedCanapePackage(data.canape_package || '');
-            setSelectedCanapes(data.canape_selections || []);
-            setSelectedPlatedStarter(data.plated_starter || '');
-          }
-          setNotes(data.notes || '');
-          setError(null);
-        }
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        toast({
-          title: "Error loading menu selections",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-        setError('An unexpected error occurred while loading menu selections');
-      }
-    };
-
-    fetchMenuSelections();
-  }, [eventCode, toast]);
-
-  const saveMenuSelections = async () => {
-    if (!eventCode) return;
-
-    const menuData = {
-      event_code: eventCode,
-      is_custom: isCustomMenu,
-      custom_menu_details: isCustomMenu ? customMenuDetails : null,
-      starter_type: !isCustomMenu ? selectedStarterType : null,
-      canape_package: !isCustomMenu ? selectedCanapePackage : null,
-      canape_selections: !isCustomMenu ? selectedCanapes : null,
-      plated_starter: !isCustomMenu ? selectedPlatedStarter : null,
-      notes,
-    };
-
+  const handleDownloadPDF = async () => {
     try {
-      const { error } = await supabase
-        .from('menu_selections')
-        .upsert(menuData);
-
-      if (error) {
-        console.error('Error saving menu selections:', error);
-        toast({
-          title: "Error saving menu selections",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Menu selections saved successfully",
-      });
+      const pdfBlob = await generatePDF(menuState, eventName);
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `menu-${eventCode}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Unexpected error saving menu selections:', err);
+      console.error('Error generating PDF:', err);
       toast({
-        title: "Error saving menu selections",
-        description: "An unexpected error occurred while saving",
+        title: "Error generating PDF",
+        description: "Please try again later",
         variant: "destructive",
       });
     }
-  };
-
-  const handleCanapeSelection = (position: number, value: string) => {
-    const newCanapes = [...selectedCanapes];
-    newCanapes[position - 1] = value;
-    setSelectedCanapes(newCanapes);
-    saveMenuSelections();
   };
 
   if (error) {
     return (
       <Card className="mt-8 print:mt-12">
         <MenuHeader 
-          isCustomMenu={isCustomMenu} 
-          onCustomMenuToggle={(checked) => {
-            setIsCustomMenu(checked);
-            if (checked) {
-              setSelectedStarterType('');
-              setSelectedCanapePackage('');
-              setSelectedCanapes([]);
-              setSelectedPlatedStarter('');
-            } else {
-              setCustomMenuDetails('');
-            }
-            saveMenuSelections();
-          }}
+          isCustomMenu={menuState.isCustomMenu} 
+          onCustomMenuToggle={handleCustomMenuToggle}
+          eventName={eventName}
+          onDownloadPDF={handleDownloadPDF}
         />
         <CardContent className="p-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
@@ -153,77 +67,23 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
   return (
     <Card className="mt-8 print:mt-12">
       <MenuHeader 
-        isCustomMenu={isCustomMenu} 
-        onCustomMenuToggle={(checked) => {
-          setIsCustomMenu(checked);
-          if (checked) {
-            setSelectedStarterType('');
-            setSelectedCanapePackage('');
-            setSelectedCanapes([]);
-            setSelectedPlatedStarter('');
-          } else {
-            setCustomMenuDetails('');
-          }
-          saveMenuSelections();
-        }}
+        isCustomMenu={menuState.isCustomMenu} 
+        onCustomMenuToggle={handleCustomMenuToggle}
+        eventName={eventName}
+        onDownloadPDF={handleDownloadPDF}
       />
       <CardContent className="p-6 space-y-4">
-        {isCustomMenu ? (
-          <CustomMenuSection
-            customMenuDetails={customMenuDetails}
-            onCustomMenuDetailsChange={(value) => {
-              setCustomMenuDetails(value);
-              saveMenuSelections();
-            }}
-          />
-        ) : (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
-            <StarterTypeSelect
-              selectedStarterType={selectedStarterType}
-              onStarterTypeChange={(value) => {
-                setSelectedStarterType(value);
-                setSelectedCanapePackage('');
-                setSelectedCanapes([]);
-                setSelectedPlatedStarter('');
-                saveMenuSelections();
-              }}
-            />
-
-            {selectedStarterType === 'canapes' && (
-              <div className="animate-in fade-in slide-in-from-top-4">
-                <CanapeSection
-                  selectedCanapePackage={selectedCanapePackage}
-                  selectedCanapes={selectedCanapes}
-                  onCanapePackageChange={(value) => {
-                    setSelectedCanapePackage(value);
-                    setSelectedCanapes([]);
-                    saveMenuSelections();
-                  }}
-                  onCanapeSelection={handleCanapeSelection}
-                />
-              </div>
-            )}
-
-            {selectedStarterType === 'plated' && (
-              <div className="animate-in fade-in slide-in-from-top-4">
-                <PlatedStarterSection
-                  selectedPlatedStarter={selectedPlatedStarter}
-                  onPlatedStarterChange={(value) => {
-                    setSelectedPlatedStarter(value);
-                    saveMenuSelections();
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
+        <MenuContent 
+          menuState={menuState}
+          onMenuStateChange={handleMenuStateChange}
+          onCanapeSelection={handleCanapeSelection}
+          saveMenuSelections={saveMenuSelections}
+        />
         <Separator className="my-4" />
-        
         <NotesSection 
-          notes={notes}
+          notes={menuState.notes}
           onChange={(value) => {
-            setNotes(value);
+            handleMenuStateChange('notes', value);
             saveMenuSelections();
           }}
         />
