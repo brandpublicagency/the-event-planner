@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
 import StarterTypeSelect from './StarterTypeSelect';
 import CanapeSection from './CanapeSection';
 import PlatedStarterSection from './PlatedStarterSection';
@@ -19,13 +20,19 @@ const MenuContent = ({
 }: MenuContentProps) => {
   if (menuState.isCustomMenu) {
     return (
-      <CustomMenuSection
-        customMenuDetails={menuState.customMenuDetails}
-        onCustomMenuDetailsChange={async (value) => {
-          onMenuStateChange('customMenuDetails', value);
-          await saveMenuSelections();
-        }}
-      />
+      <div className="space-y-4">
+        <CustomMenuSection
+          customMenuDetails={menuState.customMenuDetails}
+          onCustomMenuDetailsChange={(value) => {
+            onMenuStateChange('customMenuDetails', value);
+          }}
+        />
+        <div className="flex justify-end print:hidden">
+          <Button onClick={saveMenuSelections}>
+            Save Menu
+          </Button>
+        </div>
+      </div>
     );
   }
 
@@ -33,12 +40,11 @@ const MenuContent = ({
     <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
       <StarterTypeSelect
         selectedStarterType={menuState.selectedStarterType}
-        onStarterTypeChange={async (value) => {
+        onStarterTypeChange={(value) => {
           onMenuStateChange('selectedStarterType', value);
           onMenuStateChange('selectedCanapePackage', '');
           onMenuStateChange('selectedCanapes', []);
           onMenuStateChange('selectedPlatedStarter', '');
-          await saveMenuSelections();
         }}
       />
 
@@ -47,10 +53,9 @@ const MenuContent = ({
           <CanapeSection
             selectedCanapePackage={menuState.selectedCanapePackage}
             selectedCanapes={menuState.selectedCanapes}
-            onCanapePackageChange={async (value) => {
+            onCanapePackageChange={(value) => {
               onMenuStateChange('selectedCanapePackage', value);
               onMenuStateChange('selectedCanapes', []);
-              await saveMenuSelections();
             }}
             onCanapeSelection={onCanapeSelection}
           />
@@ -61,13 +66,18 @@ const MenuContent = ({
         <div className="animate-in fade-in slide-in-from-top-4">
           <PlatedStarterSection
             selectedPlatedStarter={menuState.selectedPlatedStarter}
-            onPlatedStarterChange={async (value) => {
+            onPlatedStarterChange={(value) => {
               onMenuStateChange('selectedPlatedStarter', value);
-              await saveMenuSelections();
             }}
           />
         </div>
       )}
+
+      <div className="flex justify-end print:hidden">
+        <Button onClick={saveMenuSelections}>
+          Save Menu
+        </Button>
+      </div>
     </div>
   );
 };
