@@ -8,39 +8,15 @@ import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import BrideDetails from "@/components/forms/BrideDetails";
 import GroomDetails from "@/components/forms/GroomDetails";
 import CompanyDetails from "@/components/forms/CompanyDetails";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
 import { EventFormData } from "@/types/eventForm";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { eventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
-
-const eventFormSchema = z.object({
-  name: z.string().min(1, "Event name is required"),
-  description: z.string().optional(),
-  event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Other"]),
-  event_date: z.string().optional(),
-  pax: z.number().min(1, "Number of guests must be at least 1").optional(),
-  package_id: z.string().optional(),
-  client_address: z.string().optional(),
-  venues: z.record(z.string(), z.boolean()),
-  // Wedding specific fields
-  bride_name: z.string().optional(),
-  bride_email: z.string().email().optional(),
-  bride_mobile: z.string().optional(),
-  groom_name: z.string().optional(),
-  groom_email: z.string().email().optional(),
-  groom_mobile: z.string().optional(),
-  // Corporate specific fields
-  company_name: z.string().optional(),
-  contact_person: z.string().optional(),
-  contact_email: z.string().email().optional(),
-  contact_mobile: z.string().optional(),
-  company_vat: z.string().optional(),
-  company_address: z.string().optional(),
-});
+import EventFormActions from "@/components/forms/EventFormActions";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -72,7 +48,6 @@ const NewEvent = () => {
 
       await ensureUserProfile(user.id);
       
-      // Create the event with the required EventCreate type
       const eventCode = generateEventCode();
       const eventData = {
         event_code: eventCode,
@@ -209,22 +184,10 @@ const NewEvent = () => {
               </FormSection>
             )}
 
-            <div className="flex justify-end space-x-4 sticky bottom-0 bg-zinc-50/80 backdrop-blur-sm p-4 -mx-4">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/events')}
-                type="button"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Create Event
-              </Button>
-            </div>
+            <EventFormActions 
+              isSubmitting={isSubmitting}
+              onCancel={() => navigate('/events')}
+            />
           </form>
         </Form>
       </div>
