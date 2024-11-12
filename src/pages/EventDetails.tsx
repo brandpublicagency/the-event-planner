@@ -41,7 +41,10 @@ const EventDetails = () => {
         
         return {
           ...data,
-          venues: data.event_venues?.map((ev: any) => ev.venues) || []
+          venues: data.event_venues?.map(ev => ({
+            id: ev.venues?.id,
+            name: ev.venues?.name
+          })) || []
         } as Event;
       } catch (err: any) {
         clearTimeout(timeoutId);
@@ -85,8 +88,10 @@ const EventDetails = () => {
     </div>
   );
 
+  if (!event) return null;
+
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
-  const venueNames = event.venues?.map((v: any) => v.name).join(' + ');
+  const venueNames = event.venues?.map(v => v.name).join(' + ');
 
   return (
     <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:hidden">

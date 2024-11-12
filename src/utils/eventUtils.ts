@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Event } from "@/types/event";
+import type { Event, EventCreate } from "@/types/event";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
@@ -15,8 +15,9 @@ export const groupEventsByMonth = (events: Event[]) => {
     
     groups[monthYear].push({
       ...event,
-      venues: event.event_venues?.map((ev: any) => ({
-        name: ev.venues?.name
+      venues: event.event_venues?.map(ev => ({
+        name: ev.venues?.name,
+        id: ev.venues?.id
       })) || []
     });
     return groups;
@@ -34,10 +35,20 @@ export const deleteEvent = async (eventCode: string) => {
   }
 };
 
-export const createEvent = async (data: Partial<Event>, userId: string) => {
+export const createEvent = async (data: EventCreate, userId: string) => {
   const { data: eventData, error } = await supabase
     .from('events')
-    .insert({ ...data, created_by: userId })
+    .insert({
+      event_code: data.event_code,
+      name: data.name,
+      description: data.description,
+      event_type: data.event_type,
+      event_date: data.event_date,
+      pax: data.pax,
+      package_id: data.package_id,
+      client_address: data.client_address,
+      created_by: userId
+    })
     .select()
     .single();
 

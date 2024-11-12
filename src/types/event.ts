@@ -13,8 +13,14 @@ export interface Event {
   created_by: string | null;
   
   // Related tables
+  venues?: {
+    id?: string;
+    name: string;
+  }[];
+  
   event_venues?: {
     venues: {
+      id?: string;
       name: string;
     };
   }[];
@@ -47,3 +53,9 @@ export interface Event {
     notes: string | null;
   };
 }
+
+export type EventCreate = Omit<Event, 'created_at' | 'updated_at' | 'venues' | 'event_venues' | 'wedding_details' | 'corporate_details' | 'menu_selections'> & {
+  event_code: string;
+  name: string;
+  event_type: string;
+};
