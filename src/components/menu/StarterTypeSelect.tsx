@@ -12,7 +12,7 @@ const StarterTypeSelect = ({
   onStarterTypeChange,
 }: StarterTypeSelectProps) => {
   return (
-    <div className="print:break-inside-avoid">
+    <div className="print:break-inside-avoid mt-2">
       <Select value={selectedStarterType} onValueChange={onStarterTypeChange}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select your starter type" />
@@ -20,10 +20,7 @@ const StarterTypeSelect = ({
         <SelectContent>
           {starterTypes.map((type) => (
             <SelectItem key={type.value} value={type.value}>
-              <div className="flex justify-between items-center w-full">
-                <span>{type.label}</span>
-                <span className="text-sm text-zinc-500">R {type.price}</span>
-              </div>
+              {type.label}
             </SelectItem>
           ))}
         </SelectContent>

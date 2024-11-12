@@ -3,12 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import CustomMenuSection from './menu/CustomMenuSection';
 import StarterTypeSelect from './menu/StarterTypeSelect';
 import CanapeSection from './menu/CanapeSection';
 import PlatedStarterSection from './menu/PlatedStarterSection';
 import MenuHeader from './menu/MenuHeader';
 import NotesSection from './menu/NotesSection';
+import CustomMenuSection from './menu/CustomMenuSection';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -125,8 +125,22 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
 
   if (error) {
     return (
-      <Card className="mt-8 print:mt-12 shadow-lg transition-all duration-300">
-        <MenuHeader />
+      <Card className="mt-8 print:mt-12">
+        <MenuHeader 
+          isCustomMenu={isCustomMenu} 
+          onCustomMenuToggle={(checked) => {
+            setIsCustomMenu(checked);
+            if (checked) {
+              setSelectedStarterType('');
+              setSelectedCanapePackage('');
+              setSelectedCanapes([]);
+              setSelectedPlatedStarter('');
+            } else {
+              setCustomMenuDetails('');
+            }
+            saveMenuSelections();
+          }}
+        />
         <CardContent className="p-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
             {error}
@@ -137,34 +151,33 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
   }
 
   return (
-    <Card className="mt-8 print:mt-12 shadow-lg transition-all duration-300">
-      <MenuHeader />
-      <CardContent className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+    <Card className="mt-8 print:mt-12">
+      <MenuHeader 
+        isCustomMenu={isCustomMenu} 
+        onCustomMenuToggle={(checked) => {
+          setIsCustomMenu(checked);
+          if (checked) {
+            setSelectedStarterType('');
+            setSelectedCanapePackage('');
+            setSelectedCanapes([]);
+            setSelectedPlatedStarter('');
+          } else {
+            setCustomMenuDetails('');
+          }
+          saveMenuSelections();
+        }}
+      />
+      <CardContent className="p-6 space-y-4">
+        {isCustomMenu ? (
           <CustomMenuSection
-            isCustomMenu={isCustomMenu}
             customMenuDetails={customMenuDetails}
-            onCustomMenuToggle={(checked) => {
-              setIsCustomMenu(checked);
-              if (checked) {
-                setSelectedStarterType('');
-                setSelectedCanapePackage('');
-                setSelectedCanapes([]);
-                setSelectedPlatedStarter('');
-              } else {
-                setCustomMenuDetails('');
-              }
-              saveMenuSelections();
-            }}
             onCustomMenuDetailsChange={(value) => {
               setCustomMenuDetails(value);
               saveMenuSelections();
             }}
           />
-        </div>
-
-        {!isCustomMenu && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-top-4">
+        ) : (
+          <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
             <StarterTypeSelect
               selectedStarterType={selectedStarterType}
               onStarterTypeChange={(value) => {
@@ -177,41 +190,35 @@ const WeddingMenuPlanner = ({ eventCode }: WeddingMenuPlannerProps) => {
             />
 
             {selectedStarterType === 'canapes' && (
-              <>
-                <Separator className="my-6 print:hidden" />
-                <div className="animate-in fade-in slide-in-from-top-4">
-                  <CanapeSection
-                    selectedCanapePackage={selectedCanapePackage}
-                    selectedCanapes={selectedCanapes}
-                    onCanapePackageChange={(value) => {
-                      setSelectedCanapePackage(value);
-                      setSelectedCanapes([]);
-                      saveMenuSelections();
-                    }}
-                    onCanapeSelection={handleCanapeSelection}
-                  />
-                </div>
-              </>
+              <div className="animate-in fade-in slide-in-from-top-4">
+                <CanapeSection
+                  selectedCanapePackage={selectedCanapePackage}
+                  selectedCanapes={selectedCanapes}
+                  onCanapePackageChange={(value) => {
+                    setSelectedCanapePackage(value);
+                    setSelectedCanapes([]);
+                    saveMenuSelections();
+                  }}
+                  onCanapeSelection={handleCanapeSelection}
+                />
+              </div>
             )}
 
             {selectedStarterType === 'plated' && (
-              <>
-                <Separator className="my-6 print:hidden" />
-                <div className="animate-in fade-in slide-in-from-top-4">
-                  <PlatedStarterSection
-                    selectedPlatedStarter={selectedPlatedStarter}
-                    onPlatedStarterChange={(value) => {
-                      setSelectedPlatedStarter(value);
-                      saveMenuSelections();
-                    }}
-                  />
-                </div>
-              </>
+              <div className="animate-in fade-in slide-in-from-top-4">
+                <PlatedStarterSection
+                  selectedPlatedStarter={selectedPlatedStarter}
+                  onPlatedStarterChange={(value) => {
+                    setSelectedPlatedStarter(value);
+                    saveMenuSelections();
+                  }}
+                />
+              </div>
             )}
           </div>
         )}
 
-        <Separator className="my-6" />
+        <Separator className="my-4" />
         
         <NotesSection 
           notes={notes}
