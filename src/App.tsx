@@ -11,7 +11,6 @@ import Sidebar from "./components/Sidebar";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import Calendar from "./pages/Calendar";
-import Documents from "./pages/Documents";
 import NewEvent from "./pages/NewEvent";
 import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
@@ -144,16 +143,6 @@ const App = () => (
                 <PrivateRoute>
                   <RootLayout>
                     <Calendar />
-                  </RootLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/documents"
-              element={
-                <PrivateRoute>
-                  <RootLayout>
-                    <Documents />
                   </RootLayout>
                 </PrivateRoute>
               }

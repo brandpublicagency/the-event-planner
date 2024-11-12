@@ -2,8 +2,6 @@ export * from './corporateDetails';
 export * from './eventVenues';
 export * from './events';
 export * from './packages';
-export * from './pdfFiles';
-export * from './pdfProcessedContent';
 export * from './profiles';
 export * from './venues';
 export * from './weddingDetails';
