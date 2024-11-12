@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import MenuHeader from './menu/MenuHeader';
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
@@ -19,6 +18,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   const { 
     menuState, 
     error,
+    isLoading,
     handleCustomMenuToggle,
     handleCanapeSelection,
     handleMenuStateChange,
@@ -45,6 +45,16 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card className="mt-8 print:mt-0">
+        <CardContent className="p-6">
+          <div className="text-center animate-pulse">Loading menu...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (error) {
     return (

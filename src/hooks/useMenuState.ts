@@ -12,12 +12,17 @@ export const useMenuState = (eventCode: string, toast: any) => {
     notes: '',
   });
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMenuSelections = async () => {
-      if (!eventCode) return;
+      if (!eventCode) {
+        setIsLoading(false);
+        return;
+      }
       
       try {
+        setIsLoading(true);
         const { data, error } = await supabase
           .from('menu_selections')
           .select('*')
@@ -55,6 +60,8 @@ export const useMenuState = (eventCode: string, toast: any) => {
           variant: "destructive",
         });
         setError('An unexpected error occurred while loading menu selections');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -64,18 +71,18 @@ export const useMenuState = (eventCode: string, toast: any) => {
   const saveMenuSelections = async () => {
     if (!eventCode) return;
 
-    const menuData = {
-      event_code: eventCode,
-      is_custom: menuState.isCustomMenu,
-      custom_menu_details: menuState.isCustomMenu ? menuState.customMenuDetails : null,
-      starter_type: !menuState.isCustomMenu ? menuState.selectedStarterType : null,
-      canape_package: !menuState.isCustomMenu ? menuState.selectedCanapePackage : null,
-      canape_selections: !menuState.isCustomMenu ? menuState.selectedCanapes : null,
-      plated_starter: !menuState.isCustomMenu ? menuState.selectedPlatedStarter : null,
-      notes: menuState.notes,
-    };
-
     try {
+      const menuData = {
+        event_code: eventCode,
+        is_custom: menuState.isCustomMenu,
+        custom_menu_details: menuState.isCustomMenu ? menuState.customMenuDetails : null,
+        starter_type: !menuState.isCustomMenu ? menuState.selectedStarterType : null,
+        canape_package: !menuState.isCustomMenu ? menuState.selectedCanapePackage : null,
+        canape_selections: !menuState.isCustomMenu ? menuState.selectedCanapes : null,
+        plated_starter: !menuState.isCustomMenu ? menuState.selectedPlatedStarter : null,
+        notes: menuState.notes,
+      };
+
       const { error } = await supabase
         .from('menu_selections')
         .upsert(menuData);
@@ -133,6 +140,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
   return {
     menuState,
     error,
+    isLoading,
     handleCustomMenuToggle,
     handleCanapeSelection,
     handleMenuStateChange,
