@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export const generatePDF = async (menuState: any, eventName?: string) => {
   const doc = new jsPDF();
