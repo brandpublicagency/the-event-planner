@@ -93,6 +93,7 @@ const EventsTable = ({ groupedEvents }: EventsTableProps) => {
                                   copyEventCode(event.event_code);
                                 }}
                                 className="ml-1 inline-flex items-center hover:text-zinc-900"
+                                style={{ marginTop: "2px" }}
                               >
                                 <Copy className="h-3 w-3" />
                               </button>
