@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -79,26 +80,26 @@ const EventDetails = () => {
           <div className="text-lg text-zinc-600">
             <span className="font-semibold">{event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {event.venues?.map((v: any) => v.name).join(' + ')}
           </div>
+
+          {event.event_type === 'Wedding' && <WeddingMenuPlanner />}
         </div>
       </div>
-      <style>
-        {`
-          @media print {
-            @page {
-              size: A4;
-              margin: 1cm;
-            }
-            
-            body {
-              background: white !important;
-            }
-            
-            .print\\:hidden {
-              display: none !important;
-            }
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 1cm;
           }
-        `}
-      </style>
+          
+          body {
+            background: white !important;
+          }
+          
+          .print\\:hidden {
+            display: none !important;
+          }
+        }
+      `}</style>
     </>
   );
 };
