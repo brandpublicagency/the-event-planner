@@ -27,7 +27,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
           .from('menu_selections')
           .select('*')
           .eq('event_code', eventCode)
-          .maybeSingle(); // Changed from .single() to .maybeSingle()
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching menu selections:', error);
@@ -44,10 +44,10 @@ export const useMenuState = (eventCode: string, toast: any) => {
           setMenuState({
             isCustomMenu: data.is_custom || false,
             customMenuDetails: data.custom_menu_details || '',
-            selectedStarterType: !data.is_custom ? data.starter_type || '' : '',
-            selectedCanapePackage: !data.is_custom ? data.canape_package || '' : '',
-            selectedCanapes: !data.is_custom ? data.canape_selections || [] : [],
-            selectedPlatedStarter: !data.is_custom ? data.plated_starter || '' : '',
+            selectedStarterType: data.starter_type || '',
+            selectedCanapePackage: data.canape_package || '',
+            selectedCanapes: data.canape_selections || [],
+            selectedPlatedStarter: data.plated_starter || '',
             notes: data.notes || '',
           });
         }
@@ -75,11 +75,11 @@ export const useMenuState = (eventCode: string, toast: any) => {
       const menuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
-        custom_menu_details: menuState.isCustomMenu ? menuState.customMenuDetails : null,
-        starter_type: !menuState.isCustomMenu ? menuState.selectedStarterType : null,
-        canape_package: !menuState.isCustomMenu ? menuState.selectedCanapePackage : null,
-        canape_selections: !menuState.isCustomMenu ? menuState.selectedCanapes : null,
-        plated_starter: !menuState.isCustomMenu ? menuState.selectedPlatedStarter : null,
+        custom_menu_details: menuState.customMenuDetails,
+        starter_type: menuState.selectedStarterType,
+        canape_package: menuState.selectedCanapePackage,
+        canape_selections: menuState.selectedCanapes,
+        plated_starter: menuState.selectedPlatedStarter,
         notes: menuState.notes,
       };
 
@@ -96,11 +96,6 @@ export const useMenuState = (eventCode: string, toast: any) => {
         });
         return;
       }
-
-      toast({
-        title: "Success",
-        description: "Menu selections saved successfully",
-      });
     } catch (err) {
       console.error('Unexpected error saving menu selections:', err);
       toast({
@@ -111,7 +106,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     }
   };
 
-  const handleCustomMenuToggle = (checked: boolean) => {
+  const handleCustomMenuToggle = async (checked: boolean) => {
     setMenuState(prev => ({
       ...prev,
       isCustomMenu: checked,
@@ -121,16 +116,18 @@ export const useMenuState = (eventCode: string, toast: any) => {
       selectedPlatedStarter: checked ? '' : prev.selectedPlatedStarter,
       customMenuDetails: checked ? prev.customMenuDetails : '',
     }));
-    saveMenuSelections();
+    
+    // Save immediately after toggling
+    await saveMenuSelections();
   };
 
-  const handleCanapeSelection = (position: number, value: string) => {
+  const handleCanapeSelection = async (position: number, value: string) => {
     setMenuState(prev => {
       const newCanapes = [...prev.selectedCanapes];
       newCanapes[position - 1] = value;
       return { ...prev, selectedCanapes: newCanapes };
     });
-    saveMenuSelections();
+    await saveMenuSelections();
   };
 
   const handleMenuStateChange = (field: string, value: any) => {
