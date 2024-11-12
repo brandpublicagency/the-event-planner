@@ -113,8 +113,13 @@ export const useMenuState = (eventCode: string, toast: any) => {
   };
 
   const handleMenuStateChange = async (field: string, value: any) => {
-    setMenuState(prev => ({ ...prev, [field]: value }));
-    await saveMenuSelections();
+    await new Promise<void>(resolve => {
+      setMenuState(prev => {
+        const newState = { ...prev, [field]: value };
+        resolve();
+        return newState;
+      });
+    });
   };
 
   return {

@@ -8,7 +8,7 @@ interface MenuContentProps {
   menuState: any;
   onMenuStateChange: (field: string, value: any) => void;
   onCanapeSelection: (position: number, value: string) => void;
-  saveMenuSelections: () => void;
+  saveMenuSelections: () => Promise<void>;
 }
 
 const MenuContent = ({ 
@@ -21,9 +21,9 @@ const MenuContent = ({
     return (
       <CustomMenuSection
         customMenuDetails={menuState.customMenuDetails}
-        onCustomMenuDetailsChange={(value) => {
+        onCustomMenuDetailsChange={async (value) => {
           onMenuStateChange('customMenuDetails', value);
-          saveMenuSelections();
+          await saveMenuSelections();
         }}
       />
     );
@@ -33,12 +33,12 @@ const MenuContent = ({
     <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
       <StarterTypeSelect
         selectedStarterType={menuState.selectedStarterType}
-        onStarterTypeChange={(value) => {
+        onStarterTypeChange={async (value) => {
           onMenuStateChange('selectedStarterType', value);
           onMenuStateChange('selectedCanapePackage', '');
           onMenuStateChange('selectedCanapes', []);
           onMenuStateChange('selectedPlatedStarter', '');
-          saveMenuSelections();
+          await saveMenuSelections();
         }}
       />
 
@@ -47,10 +47,10 @@ const MenuContent = ({
           <CanapeSection
             selectedCanapePackage={menuState.selectedCanapePackage}
             selectedCanapes={menuState.selectedCanapes}
-            onCanapePackageChange={(value) => {
+            onCanapePackageChange={async (value) => {
               onMenuStateChange('selectedCanapePackage', value);
               onMenuStateChange('selectedCanapes', []);
-              saveMenuSelections();
+              await saveMenuSelections();
             }}
             onCanapeSelection={onCanapeSelection}
           />
@@ -61,9 +61,9 @@ const MenuContent = ({
         <div className="animate-in fade-in slide-in-from-top-4">
           <PlatedStarterSection
             selectedPlatedStarter={menuState.selectedPlatedStarter}
-            onPlatedStarterChange={(value) => {
+            onPlatedStarterChange={async (value) => {
               onMenuStateChange('selectedPlatedStarter', value);
-              saveMenuSelections();
+              await saveMenuSelections();
             }}
           />
         </div>
