@@ -20,16 +20,12 @@ interface CalendarFiltersProps {
   venues?: any[];
   selectedVenue: string | undefined;
   setSelectedVenue: (value: string | undefined) => void;
-  selectedStatus: string | undefined;
-  setSelectedStatus: (value: string | undefined) => void;
 }
 
 const CalendarFilters = ({
   venues,
   selectedVenue,
   setSelectedVenue,
-  selectedStatus,
-  setSelectedStatus,
 }: CalendarFiltersProps) => {
   return (
     <Sheet>
@@ -43,7 +39,7 @@ const CalendarFilters = ({
         <SheetHeader>
           <SheetTitle>Filter Options</SheetTitle>
           <SheetDescription>
-            Filter events by venue and status
+            Filter events by venue
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4">
@@ -63,24 +59,6 @@ const CalendarFilters = ({
                     {venue.name}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-900">Status</label>
-            <Select 
-              value={selectedStatus} 
-              onValueChange={setSelectedStatus}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
-                <SelectItem value="tentative">Tentative</SelectItem>
-                <SelectItem value="booked">Booked</SelectItem>
-                <SelectItem value="blocked">Blocked</SelectItem>
               </SelectContent>
             </Select>
           </div>

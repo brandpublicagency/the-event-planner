@@ -14,7 +14,6 @@ import { Card } from "@/components/ui/card";
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedVenue, setSelectedVenue] = useState<string | undefined>();
-  const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
   const { toast } = useToast();
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
@@ -47,7 +46,7 @@ const Calendar = () => {
   });
 
   const { data: events, isLoading: isEventsLoading, error: eventsError } = useQuery({
-    queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue, selectedStatus],
+    queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue],
     queryFn: async () => {
       if (!date) return [];
 
@@ -73,10 +72,6 @@ const Calendar = () => {
         query = query.eq('event_venues.venue_id', selectedVenue);
       }
 
-      if (selectedStatus && selectedStatus !== 'all') {
-        query = query.eq('status', selectedStatus);
-      }
-
       const { data, error } = await query;
 
       if (error) {
@@ -95,7 +90,6 @@ const Calendar = () => {
         progress: 0,
         teamSize: event.pax || 0,
         dueDate: event.event_date || '',
-        status: 'Confirmed' as const,
         created_at: event.created_at,
         updated_at: event.updated_at,
         created_by: event.created_by,
@@ -159,8 +153,6 @@ const Calendar = () => {
           venues={venues}
           selectedVenue={selectedVenue}
           setSelectedVenue={setSelectedVenue}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
         />
       </div>
       

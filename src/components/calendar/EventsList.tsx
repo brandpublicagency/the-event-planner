@@ -59,14 +59,6 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 <p className="text-sm text-zinc-600 mt-2">{event.description}</p>
               )}
             </div>
-            {event.status && (
-              <Badge 
-                variant={event.status.toLowerCase() === 'confirmed' ? 'default' : 'secondary'}
-                className="whitespace-nowrap"
-              >
-                {event.status}
-              </Badge>
-            )}
           </div>
         </div>
       ))}
