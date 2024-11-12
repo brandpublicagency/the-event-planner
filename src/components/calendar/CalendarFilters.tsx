@@ -43,7 +43,7 @@ const CalendarFilters = ({
         <SheetHeader>
           <SheetTitle>Filter Options</SheetTitle>
           <SheetDescription>
-            Filter venue availability by venue and status
+            Filter events by venue and status
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4">

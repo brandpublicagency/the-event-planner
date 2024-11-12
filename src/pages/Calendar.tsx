@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -7,22 +7,29 @@ import CalendarFilters from "@/components/calendar/CalendarFilters";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { EventsList } from "@/components/calendar/EventsList";
+import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
+import { Card } from "@/components/ui/card";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedVenue, setSelectedVenue] = useState<string | undefined>();
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
+  const { toast } = useToast();
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data } = await supabase
+      if (!user) throw new Error('Not authenticated');
+      
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
+        
+      if (error) throw error;
       return data;
     },
   });
@@ -32,19 +39,22 @@ const Calendar = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('venues')
-        .select('*');
+        .select('*')
+        .order('name');
       if (error) throw error;
       return data;
     },
   });
 
-  const { data: events, isLoading: isEventsLoading } = useQuery({
-    queryKey: ['events', date?.getMonth(), date?.getFullYear()],
+  const { data: events, isLoading: isEventsLoading, error: eventsError } = useQuery({
+    queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue, selectedStatus],
     queryFn: async () => {
-      const startOfMonth = new Date(date!.getFullYear(), date!.getMonth(), 1);
-      const endOfMonth = new Date(date!.getFullYear(), date!.getMonth() + 1, 0);
+      if (!date) return [];
 
-      const { data, error } = await supabase
+      const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      let query = supabase
         .from('events')
         .select(`
           *,
@@ -59,7 +69,24 @@ const Calendar = () => {
         .lte('event_date', endOfMonth.toISOString())
         .order('event_date', { ascending: true });
 
-      if (error) throw error;
+      if (selectedVenue && selectedVenue !== 'all') {
+        query = query.eq('event_venues.venue_id', selectedVenue);
+      }
+
+      if (selectedStatus && selectedStatus !== 'all') {
+        query = query.eq('status', selectedStatus);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        toast({
+          title: "Error loading events",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
 
       const formattedEvents: Event[] = data.map(event => ({
         ...event,
@@ -85,6 +112,14 @@ const Calendar = () => {
     enabled: !!date,
   });
 
+  if (eventsError) {
+    toast({
+      title: "Error loading events",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+  }
+
   const modifiers = {
     hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
     selected: date,
@@ -105,7 +140,7 @@ const Calendar = () => {
 
   if (isProfileLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary-900" />
       </div>
     );
@@ -117,8 +152,8 @@ const Calendar = () => {
   );
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold text-zinc-900">Calendar</h2>
         <CalendarFilters
           venues={venues}
@@ -131,33 +166,37 @@ const Calendar = () => {
       
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
-      <div className="grid gap-6 md:grid-cols-[380px,1fr]">
-        <CalendarComponent
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          className="rounded-md"
-          modifiers={modifiers}
-          modifiersStyles={modifiersStyles}
-          showOutsideDays={false}
-        />
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-zinc-900">
-              Events for {format(date || new Date(), "MMMM d, yyyy")}
-            </h4>
-            {isEventsLoading && (
-              <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
-            )}
-          </div>
-          
-          <EventsList 
-            date={date} 
-            events={selectedDateEvents} 
-            isLoading={isEventsLoading} 
+      <div className="grid gap-6 lg:grid-cols-[380px,1fr]">
+        <Card className="p-4">
+          <CalendarComponent
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md"
+            modifiers={modifiers}
+            modifiersStyles={modifiersStyles}
+            showOutsideDays={false}
           />
-        </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-zinc-900">
+                Events for {format(date || new Date(), "MMMM d, yyyy")}
+              </h4>
+              {isEventsLoading && (
+                <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+              )}
+            </div>
+            
+            <EventsList 
+              date={date} 
+              events={selectedDateEvents} 
+              isLoading={isEventsLoading} 
+            />
+          </div>
+        </Card>
       </div>
     </div>
   );
