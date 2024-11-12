@@ -15,6 +15,7 @@ import { useState } from "react";
 import { EventFormData } from "@/types/eventForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { format } from "date-fns";
 
 const eventFormSchema = z.object({
   name: z.string().min(1, "Event name is required"),
@@ -56,6 +57,11 @@ const NewEvent = () => {
 
   const eventType = form.watch("event_type");
 
+  const generateEventCode = () => {
+    const date = new Date();
+    return `EVENT-${format(date, 'ddMM')}`;
+  };
+
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
     try {
@@ -65,7 +71,22 @@ const NewEvent = () => {
       }
 
       await ensureUserProfile(user.id);
-      const eventCode = await createEvent(data, user.id);
+      
+      // Create the event with the required EventCreate type
+      const eventCode = generateEventCode();
+      const eventData = {
+        event_code: eventCode,
+        name: data.name,
+        description: data.description || null,
+        event_type: data.event_type,
+        event_date: data.event_date || null,
+        pax: data.pax || null,
+        package_id: data.package_id || null,
+        client_address: data.client_address || null,
+        created_by: user.id
+      };
+
+      await createEvent(eventData, user.id);
 
       const selectedVenues = Object.entries(data.venues || {})
         .filter(([_, selected]) => selected)

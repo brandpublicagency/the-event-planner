@@ -38,17 +38,7 @@ export const deleteEvent = async (eventCode: string) => {
 export const createEvent = async (data: EventCreate, userId: string) => {
   const { data: eventData, error } = await supabase
     .from('events')
-    .insert({
-      event_code: data.event_code,
-      name: data.name,
-      description: data.description,
-      event_type: data.event_type,
-      event_date: data.event_date,
-      pax: data.pax,
-      package_id: data.package_id,
-      client_address: data.client_address,
-      created_by: userId
-    })
+    .insert(data)
     .select()
     .single();
 
