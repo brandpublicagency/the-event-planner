@@ -16,13 +16,10 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
   useEffect(() => {
     const fetchMenuSelections = async () => {
-      if (!eventCode) {
-        setIsLoading(false);
-        return;
-      }
-      
       try {
         setIsLoading(true);
+        setError(null);
+
         const { data, error } = await supabase
           .from('menu_selections')
           .select('*')
@@ -31,12 +28,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
         if (error) {
           console.error('Error fetching menu selections:', error);
-          toast({
-            title: "Error loading menu selections",
-            description: "Please try refreshing the page",
-            variant: "destructive",
-          });
-          setError(error.message);
+          setError('Failed to load menu selections');
           return;
         }
 
@@ -51,26 +43,18 @@ export const useMenuState = (eventCode: string, toast: any) => {
             notes: data.notes || '',
           });
         }
-        setError(null);
       } catch (err) {
         console.error('Unexpected error:', err);
-        toast({
-          title: "Error loading menu selections",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-        setError('An unexpected error occurred while loading menu selections');
+        setError('An unexpected error occurred');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMenuSelections();
-  }, [eventCode, toast]);
+  }, [eventCode]);
 
   const saveMenuSelections = async () => {
-    if (!eventCode) return;
-
     try {
       const menuData = {
         event_code: eventCode,
@@ -90,16 +74,21 @@ export const useMenuState = (eventCode: string, toast: any) => {
       if (error) {
         console.error('Error saving menu selections:', error);
         toast({
-          title: "Error saving menu selections",
-          description: error.message,
+          title: "Error",
+          description: "Failed to save menu selections",
           variant: "destructive",
         });
         return;
       }
+
+      toast({
+        title: "Success",
+        description: "Menu selections saved successfully",
+      });
     } catch (err) {
       console.error('Unexpected error saving menu selections:', err);
       toast({
-        title: "Error saving menu selections",
+        title: "Error",
         description: "An unexpected error occurred while saving",
         variant: "destructive",
       });
@@ -110,14 +99,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     setMenuState(prev => ({
       ...prev,
       isCustomMenu: checked,
-      selectedStarterType: checked ? '' : prev.selectedStarterType,
-      selectedCanapePackage: checked ? '' : prev.selectedCanapePackage,
-      selectedCanapes: checked ? [] : prev.selectedCanapes,
-      selectedPlatedStarter: checked ? '' : prev.selectedPlatedStarter,
-      customMenuDetails: checked ? prev.customMenuDetails : '',
     }));
-    
-    // Save immediately after toggling
     await saveMenuSelections();
   };
 
@@ -130,8 +112,9 @@ export const useMenuState = (eventCode: string, toast: any) => {
     await saveMenuSelections();
   };
 
-  const handleMenuStateChange = (field: string, value: any) => {
+  const handleMenuStateChange = async (field: string, value: any) => {
     setMenuState(prev => ({ ...prev, [field]: value }));
+    await saveMenuSelections();
   };
 
   return {
