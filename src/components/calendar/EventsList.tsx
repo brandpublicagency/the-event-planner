@@ -39,12 +39,14 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
       {events.map((event) => (
         <div
           key={event.event_code}
-          className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-colors duration-200"
+          className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-all duration-200 group"
         >
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h5 className="font-medium text-lg text-zinc-900">{event.name}</h5>
+                <h5 className="font-medium text-lg text-zinc-900 group-hover:text-zinc-700 transition-colors">
+                  {event.name}
+                </h5>
                 <Badge variant="secondary" className="bg-zinc-100">
                   {event.event_type}
                 </Badge>

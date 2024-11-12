@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, CalendarIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -10,6 +10,7 @@ import { EventsList } from "@/components/calendar/EventsList";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -83,7 +84,7 @@ const Calendar = () => {
         throw error;
       }
 
-      const formattedEvents: Event[] = data.map(event => ({
+      return data.map((event: any) => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || [],
         title: event.name,
@@ -100,8 +101,6 @@ const Calendar = () => {
         package_id: event.package_id,
         event_date: event.event_date,
       }));
-
-      return formattedEvents;
     },
     enabled: !!date,
   });
@@ -135,7 +134,7 @@ const Calendar = () => {
   if (isProfileLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-900" />
+        <Loader2 className="h-8 w-8 animate-spin text-zinc-900" />
       </div>
     );
   }
@@ -158,20 +157,20 @@ const Calendar = () => {
       
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
-      <div className="grid gap-6 lg:grid-cols-[380px,1fr]">
-        <Card className="p-4">
+      <div className="grid gap-6 lg:grid-cols-[380px,1fr] transition-all">
+        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
           <CalendarComponent
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-md"
+            className={cn("rounded-md", isEventsLoading && "opacity-50 pointer-events-none")}
             modifiers={modifiers}
             modifiersStyles={modifiersStyles}
             showOutsideDays={false}
           />
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-zinc-900">
