@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { PdfProcessedContent } from "@/integrations/supabase/types/pdfContent";
 
 export const useChatContext = () => {
   return useQuery({
@@ -28,7 +29,7 @@ export const useChatContext = () => {
       const { data: pdfContent, error: pdfError } = await supabase
         .from('pdf_processed_content')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: PdfProcessedContent[] | null, error: any };
 
       if (pdfError) throw pdfError;
 

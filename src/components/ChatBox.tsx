@@ -7,6 +7,7 @@ import ChatInput from "./chat/ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { getChatCompletion } from "@/services/openai";
 import { sendEmail } from "@/services/email";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
@@ -62,7 +63,7 @@ Pax: ${event.pax}`;
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const systemMessage = {
+      const systemMessage: ChatCompletionMessageParam = {
         role: "system",
         content: `You are an expert event planning assistant with access to the following information:
 
@@ -91,7 +92,7 @@ You can also send emails to clients when needed. To send an email, respond with 
 }`
       };
 
-      const userMessages = newMessages.map(msg => ({
+      const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text
       }));
