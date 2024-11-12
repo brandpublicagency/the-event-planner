@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, Copy } from "lucide-react";
 import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
 import { useToast } from "@/components/ui/use-toast";
+import type { Event } from "@/types/event";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -16,7 +17,7 @@ const EventDetails = () => {
     queryKey: ['events', id],
     queryFn: async () => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       try {
         const { data, error } = await supabase
@@ -31,8 +32,7 @@ const EventDetails = () => {
             )
           `)
           .eq('event_code', id)
-          .maybeSingle()
-          .abortSignal(controller.signal);
+          .maybeSingle();
 
         clearTimeout(timeoutId);
 
@@ -42,8 +42,8 @@ const EventDetails = () => {
         return {
           ...data,
           venues: data.event_venues?.map((ev: any) => ev.venues) || []
-        };
-      } catch (err) {
+        } as Event;
+      } catch (err: any) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
           throw new Error('Request timed out. Please try again.');
@@ -80,7 +80,7 @@ const EventDetails = () => {
   if (error) return (
     <div className="flex-1 p-8">
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-red-800">{error.message || 'Failed to load event details'}</p>
+        <p className="text-red-800">{error instanceof Error ? error.message : 'Failed to load event details'}</p>
       </div>
     </div>
   );
@@ -154,7 +154,6 @@ const EventDetails = () => {
               display: block !important;
             }
 
-            /* Preserve colors and backgrounds during printing */
             * {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;

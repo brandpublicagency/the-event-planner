@@ -1,9 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import type { Event } from "@/types/event";
 
-export const groupEventsByMonth = (events: any[]) => {
-  return events.reduce((groups: any, event) => {
-    const date = new Date(event.event_date);
+export const groupEventsByMonth = (events: Event[]) => {
+  return events.reduce((groups: Record<string, Event[]>, event) => {
+    const date = new Date(event.event_date || new Date());
     const monthYear = date.toLocaleString('default', { 
       month: 'long',
       year: 'numeric'
@@ -34,13 +34,14 @@ export const deleteEvent = async (eventCode: string) => {
   }
 };
 
-export const createEvent = async (data: any, userId: string) => {
+export const createEvent = async (data: Partial<Event>, userId: string) => {
   const { data: eventData, error } = await supabase
     .from('events')
     .insert({ ...data, created_by: userId })
+    .select()
     .single();
 
-  if (error) {
+  if (error || !eventData) {
     throw new Error("Failed to create event");
   }
 
