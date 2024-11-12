@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -59,10 +58,9 @@ const WeddingMenuPlanner = () => {
       <CardHeader className="bg-zinc-50 border-b">
         <CardTitle className="text-2xl font-bold text-center">Starter & Canapé Selection</CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 space-y-6">
         {/* Starter Type Selection */}
-        <div className="mb-8 print:break-inside-avoid">
-          <Label className="text-lg font-semibold mb-4 block">Select Your Starter Type</Label>
+        <div className="print:break-inside-avoid">
           <Select value={selectedStarterType} onValueChange={(value) => {
             setSelectedStarterType(value);
             setSelectedCanapePackage('');
@@ -70,7 +68,7 @@ const WeddingMenuPlanner = () => {
             setSelectedPlatedStarter('');
           }}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a starter type" />
+              <SelectValue placeholder="Select your starter type" />
             </SelectTrigger>
             <SelectContent>
               {starterTypes.map((type) => (
@@ -87,10 +85,9 @@ const WeddingMenuPlanner = () => {
 
         {selectedStarterType === 'canapes' && (
           <>
-            <Separator className="my-8 print:hidden" />
+            <Separator className="my-6 print:hidden" />
             {/* Canapé Package Selection */}
-            <div className="mb-8 print:break-inside-avoid">
-              <Label className="text-lg font-semibold mb-4 block">Select Your Canapé Package</Label>
+            <div className="print:break-inside-avoid">
               <Select value={selectedCanapePackage} onValueChange={(value) => {
                 setSelectedCanapePackage(value);
                 setSelectedCanapes([]);
@@ -115,7 +112,6 @@ const WeddingMenuPlanner = () => {
               <div className="space-y-4 print:break-inside-avoid">
                 {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
                   <div key={index} className="print:break-inside-avoid">
-                    <Label className="font-medium mb-2 block">Canapé {index + 1}</Label>
                     <Select 
                       value={selectedCanapes[index] || ''} 
                       onValueChange={(value) => handleCanapeSelection(index + 1, value)}
@@ -144,12 +140,11 @@ const WeddingMenuPlanner = () => {
 
         {selectedStarterType === 'plated' && (
           <>
-            <Separator className="my-8 print:hidden" />
-            <div className="mb-8 print:break-inside-avoid">
-              <Label className="text-lg font-semibold mb-4 block">Select Your Plated Starter</Label>
+            <Separator className="my-6 print:hidden" />
+            <div className="print:break-inside-avoid">
               <Select value={selectedPlatedStarter} onValueChange={setSelectedPlatedStarter}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a plated starter" />
+                  <SelectValue placeholder="Select your plated starter" />
                 </SelectTrigger>
                 <SelectContent>
                   {platedStarterOptions.map((starter) => (
@@ -164,11 +159,10 @@ const WeddingMenuPlanner = () => {
         )}
 
         {/* Notes Section */}
-        <div className="mt-8 print:break-inside-avoid">
-          <Label className="font-semibold">Additional Notes & Special Requirements</Label>
+        <div className="print:break-inside-avoid">
           <Textarea 
             className="w-full mt-2" 
-            placeholder="Enter any dietary requirements, allergies, or special instructions..."
+            placeholder="Additional notes, dietary requirements, allergies, or special instructions..."
           />
         </div>
       </CardContent>
