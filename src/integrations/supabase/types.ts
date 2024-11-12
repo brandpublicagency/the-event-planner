@@ -53,6 +53,44 @@ export type Database = {
           },
         ]
       }
+      event_documents: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          event_code: string | null
+          file_name: string
+          file_path: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          event_code?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          event_code?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_documents_event_code_fkey"
+            columns: ["event_code"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_code"]
+          },
+        ]
+      }
       event_venues: {
         Row: {
           event_code: string

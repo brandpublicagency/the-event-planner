@@ -1,74 +1,19 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import OpenAI from "openai";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import ChatMessage from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
-
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-  timeout: 30000 // 30 second timeout
-});
+import { useChatContext } from "@/hooks/useChatContext";
+import { getChatCompletion } from "@/services/openai";
+import { sendEmail } from "@/services/email";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  const { data: upcomingEvents } = useQuery({
-    queryKey: ['upcoming-events'],
-    queryFn: async () => {
-      const today = new Date().toISOString();
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          *,
-          wedding_details (*),
-          corporate_details (*),
-          event_venues (
-            venues (
-              name
-            )
-          )
-        `)
-        .gte('event_date', today)
-        .order('event_date', { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  const sendEmail = async (to: string[], subject: string, content: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-email', {
-        body: { to, subject, html: content }
-      });
-
-      if (error) throw error;
-      
-      toast({
-        title: "Email sent successfully",
-        description: "The email has been sent to the specified recipients.",
-      });
-      
-      return data;
-    } catch (error: any) {
-      console.error('Error sending email:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send email",
-        variant: "destructive",
-      });
-      throw error;
-    }
-  };
+  const { data: contextData, isLoading: isContextLoading } = useChatContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,12 +33,9 @@ const ChatBox = () => {
     setInputValue("");
     setIsLoading(true);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // Abort after 25 seconds
-
     try {
-      // Prepare context from upcoming events
-      const eventsContext = upcomingEvents?.map(event => {
+      // Prepare context from data
+      const eventsContext = contextData?.events?.map(event => {
         const venue = event.event_venues?.[0]?.venues?.name || 'No venue specified';
         const date = new Date(event.event_date).toLocaleDateString();
         
@@ -104,21 +46,39 @@ const ChatBox = () => {
           details = `Corporate: ${event.corporate_details.company_name}`;
         }
 
-        return `Event: ${event.name} (${event.event_type})\nDate: ${date}\nVenue: ${venue}\nDetails: ${details}\nPax: ${event.pax}\n`;
+        const menuInfo = event.menu_selections 
+          ? `Menu: ${event.menu_selections.is_custom ? 'Custom Menu' : `${event.menu_selections.starter_type || ''} ${event.menu_selections.plated_starter || ''}`}`
+          : 'No menu selected';
+
+        return `Event: ${event.name} (${event.event_type})
+Date: ${date}
+Venue: ${venue}
+Details: ${details}
+${menuInfo}
+Pax: ${event.pax}`;
       }).join('\n\n');
 
-      const systemMessage: ChatCompletionMessageParam = {
+      const pdfContext = contextData?.pdfContent?.map(pdf => 
+        `Document Content: ${pdf.content}`
+      ).join('\n\n');
+
+      const systemMessage = {
         role: "system",
         content: `You are an expert event planning assistant with access to the following information:
+
 1. Upcoming Events:
 ${eventsContext || 'No upcoming events found.'}
+
+2. Document Knowledge Base:
+${pdfContext || 'No documents available.'}
 
 Your role is to help with:
 1. Event Planning & Management
 2. Schedule Coordination
 3. Venue Information
 4. Client Details
-5. Best Practices & Guidelines
+5. Menu Planning and Selection
+6. Best Practices & Guidelines
 
 Please use this information to provide accurate and contextual responses about events, schedules, and planning details.
 
@@ -131,20 +91,13 @@ You can also send emails to clients when needed. To send an email, respond with 
 }`
       };
 
-      const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
+      const userMessages = newMessages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text
       }));
 
-      const completion = await openai.chat.completions.create({
-        messages: [systemMessage, ...userMessages],
-        model: "gpt-4o-mini",
-        max_tokens: 500
-      }, { signal: controller.signal });
+      const botResponse = await getChatCompletion([systemMessage, ...userMessages]);
 
-      clearTimeout(timeoutId);
-
-      const botResponse = completion.choices[0]?.message?.content;
       if (botResponse) {
         try {
           // Check if the response is a JSON object with an email action
@@ -164,16 +117,11 @@ You can also send emails to clients when needed. To send an email, respond with 
         }
       }
     } catch (error: any) {
-      clearTimeout(timeoutId);
       console.error('Error getting response from OpenAI:', error);
-      
-      const errorMessage = error.name === 'AbortError' 
-        ? "Request timed out. Please try again."
-        : error.message || "Failed to get response from AI";
       
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error.message || "Failed to get response from AI",
         variant: "destructive",
       });
     } finally {
@@ -202,7 +150,7 @@ You can also send emails to clients when needed. To send an email, respond with 
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onSubmit={handleSubmit}
-            isLoading={isLoading}
+            isLoading={isLoading || isContextLoading}
           />
         </Card>
       </div>
