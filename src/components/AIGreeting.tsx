@@ -7,7 +7,7 @@ const openai = import.meta.env.VITE_OPENAI_API_KEY
   ? new OpenAI({
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
-      timeout: 10000, // 10 second timeout
+      timeout: 30000, // 30 second timeout
     })
   : null;
 
@@ -33,7 +33,7 @@ const AIGreeting = () => {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Abort after 8 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // Abort after 25 seconds
 
       try {
         console.log("Attempting to generate AI greeting");
@@ -44,8 +44,8 @@ const AIGreeting = () => {
               content: "You are a friendly event planning assistant. Generate a warm, personalized greeting for users of an event planning system. Keep it under 100 characters."
             }
           ],
-          model: "gpt-3.5-turbo", // Using a more reliable model
-          max_tokens: 50, // Limiting response size
+          model: "gpt-4o-mini",
+          max_tokens: 50,
         }, { signal: controller.signal });
 
         clearTimeout(timeoutId);

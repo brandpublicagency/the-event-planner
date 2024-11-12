@@ -11,7 +11,8 @@ import ChatInput from "./chat/ChatInput";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
+  dangerouslyAllowBrowser: true,
+  timeout: 30000 // 30 second timeout
 });
 
 const ChatBox = () => {
@@ -87,6 +88,9 @@ const ChatBox = () => {
     setInputValue("");
     setIsLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // Abort after 25 seconds
+
     try {
       // Prepare context from upcoming events
       const eventsContext = upcomingEvents?.map(event => {
@@ -134,8 +138,11 @@ You can also send emails to clients when needed. To send an email, respond with 
 
       const completion = await openai.chat.completions.create({
         messages: [systemMessage, ...userMessages],
-        model: "gpt-4",
-      });
+        model: "gpt-4o-mini",
+        max_tokens: 500
+      }, { signal: controller.signal });
+
+      clearTimeout(timeoutId);
 
       const botResponse = completion.choices[0]?.message?.content;
       if (botResponse) {
@@ -157,10 +164,16 @@ You can also send emails to clients when needed. To send an email, respond with 
         }
       }
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error('Error getting response from OpenAI:', error);
+      
+      const errorMessage = error.name === 'AbortError' 
+        ? "Request timed out. Please try again."
+        : error.message || "Failed to get response from AI";
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to get response from AI",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
