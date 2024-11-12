@@ -10,9 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { EventFormData } from "@/types/eventForm";
 
 interface EventBasicInfoProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<EventFormData>;
 }
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
@@ -21,27 +22,20 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
   const { data: packages, error: packagesError, isLoading } = useQuery({
     queryKey: ['packages'],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('packages')
-          .select('*');
-        
-        if (error) {
-          toast({
-            title: "Error fetching packages",
-            description: error.message,
-            variant: "destructive",
-          });
-          throw error;
-        }
-        return data || [];
-      } catch (error: any) {
-        console.error('Error fetching packages:', error);
+      const { data, error } = await supabase
+        .from('packages')
+        .select('*');
+      
+      if (error) {
+        toast({
+          title: "Error fetching packages",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
+      return data || [];
     },
-    retry: 3, // Retry failed requests 3 times
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   return (
@@ -70,7 +64,11 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             <FormItem>
               <FormLabel>Guest Count</FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input 
+                  type="number" 
+                  {...field} 
+                  onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

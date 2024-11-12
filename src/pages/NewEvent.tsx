@@ -12,15 +12,43 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
+import { EventFormData } from "@/types/eventForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const eventFormSchema = z.object({
+  name: z.string().min(1, "Event name is required"),
+  description: z.string().optional(),
+  event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Other"]),
+  event_date: z.string().optional(),
+  pax: z.number().min(1, "Number of guests must be at least 1").optional(),
+  package_id: z.string().optional(),
+  client_address: z.string().optional(),
+  venues: z.record(z.string(), z.boolean()),
+  // Wedding specific fields
+  bride_name: z.string().optional(),
+  bride_email: z.string().email().optional(),
+  bride_mobile: z.string().optional(),
+  groom_name: z.string().optional(),
+  groom_email: z.string().email().optional(),
+  groom_mobile: z.string().optional(),
+  // Corporate specific fields
+  company_name: z.string().optional(),
+  contact_person: z.string().optional(),
+  contact_email: z.string().email().optional(),
+  contact_mobile: z.string().optional(),
+  company_vat: z.string().optional(),
+  company_address: z.string().optional(),
+});
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const form = useForm({
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(eventFormSchema),
     defaultValues: {
-      status: 'Inquiry',
       event_type: 'Wedding',
       venues: {}
     }
@@ -28,7 +56,7 @@ const NewEvent = () => {
 
   const eventType = form.watch("event_type");
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
