@@ -56,18 +56,21 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
               >
                 {event.name}
               </Link>
-              <p className="text-sm text-zinc-500">
-                {event.pax} Guests • {format(new Date(event.event_date || ''), 'h:mm a')}
-              </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+                <span>{event.pax} Guests</span>
+                <span>•</span>
+                <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
                 {event.venues?.map((venue, index) => (
-                  <Badge 
-                    key={venue.id || index} 
-                    variant="outline" 
-                    className="bg-zinc-50"
-                  >
-                    {venue.name}
-                  </Badge>
+                  <>
+                    <span>•</span>
+                    <Badge 
+                      key={venue.id || index} 
+                      variant="outline" 
+                      className="bg-zinc-50"
+                    >
+                      {venue.name}
+                    </Badge>
+                  </>
                 ))}
               </div>
               {event.description && (
