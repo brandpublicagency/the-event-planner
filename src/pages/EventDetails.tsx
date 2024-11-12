@@ -58,30 +58,37 @@ const EventDetails = () => {
     </div>
   );
 
+  const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
+  const venueNames = event.venues?.map((v: any) => v.name).join(' + ');
+
   return (
     <>
       <div className="flex-1 p-4 md:p-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0">
           <div className="flex justify-between items-center mb-8 print:hidden">
             <div /> {/* Empty div for spacing */}
-            <Button onClick={handlePrint} variant="outline">
-              <Printer className="h-4 w-4 mr-2" />
-              Print
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handlePrint} variant="outline" size="sm">
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-3xl font-bold tracking-tight">{event.name}</h2>
-            <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
-              {event.event_code}
-            </span>
+          <div className="print:mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <h1 className="text-3xl font-bold tracking-tight">{event.name}</h1>
+              <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600">
+                {event.event_code}
+              </span>
+            </div>
+
+            <div className="text-lg text-zinc-600">
+              <span className="font-semibold">{formattedDate}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {venueNames}
+            </div>
           </div>
 
-          <div className="text-lg text-zinc-600">
-            <span className="font-semibold">{event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {event.venues?.map((v: any) => v.name).join(' + ')}
-          </div>
-
-          <WeddingMenuPlanner eventCode={event.event_code} />
+          <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
         </div>
       </div>
       <style>{`
