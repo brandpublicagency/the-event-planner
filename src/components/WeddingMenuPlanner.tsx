@@ -8,7 +8,7 @@ import CustomMenuSection from './menu/CustomMenuSection';
 import StarterTypeSelect from './menu/StarterTypeSelect';
 import CanapeSection from './menu/CanapeSection';
 import PlatedStarterSection from './menu/PlatedStarterSection';
-import type { MenuSelections } from '@/integrations/supabase/types';
+import type { MenuSelections } from '@/integrations/supabase/types/menuSelections';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
