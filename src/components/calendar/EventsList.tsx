@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/event";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 interface EventsListProps {
   date?: Date;
@@ -49,15 +50,26 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
           </Badge>
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pr-24">
             <div className="space-y-2 flex-1">
-              <h5 className="font-medium text-lg text-zinc-900 group-hover:text-zinc-700 transition-colors">
+              <Link 
+                to={`/events/${event.event_code}`}
+                className="inline-block font-medium text-lg text-zinc-900 group-hover:text-zinc-700 transition-colors hover:underline"
+              >
                 {event.name}
-              </h5>
+              </Link>
               <p className="text-sm text-zinc-500">
                 {event.pax} Guests • {format(new Date(event.event_date || ''), 'h:mm a')}
               </p>
-              <p className="text-sm text-zinc-500">
-                Venues: {event.venues?.map((v) => v.name).join(', ')}
-              </p>
+              <div className="flex flex-wrap gap-2">
+                {event.venues?.map((venue, index) => (
+                  <Badge 
+                    key={venue.id || index} 
+                    variant="outline" 
+                    className="bg-zinc-50"
+                  >
+                    {venue.name}
+                  </Badge>
+                ))}
+              </div>
               {event.description && (
                 <p className="text-sm text-zinc-600 mt-2">{event.description}</p>
               )}
