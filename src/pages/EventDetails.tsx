@@ -15,28 +15,44 @@ const EventDetails = () => {
   const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          )
-        `)
-        .eq('event_code', id)
-        .maybeSingle();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      if (error) throw error;
-      if (!data) throw new Error('Event not found');
-      
-      return {
-        ...data,
-        venues: data.event_venues?.map((ev: any) => ev.venues) || []
-      };
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select(`
+            *,
+            event_venues (
+              venues (
+                id,
+                name
+              )
+            )
+          `)
+          .eq('event_code', id)
+          .maybeSingle()
+          .abortSignal(controller.signal);
+
+        clearTimeout(timeoutId);
+
+        if (error) throw error;
+        if (!data) throw new Error('Event not found');
+        
+        return {
+          ...data,
+          venues: data.event_venues?.map((ev: any) => ev.venues) || []
+        };
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          throw new Error('Request timed out. Please try again.');
+        }
+        throw err;
+      }
     },
+    retry: 1,
+    retryDelay: 1000,
   });
 
   const handlePrint = () => {
@@ -61,10 +77,10 @@ const EventDetails = () => {
     );
   }
 
-  if (error || !event) return (
+  if (error) return (
     <div className="flex-1 p-8">
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-red-800">Event not found</p>
+        <p className="text-red-800">{error.message || 'Failed to load event details'}</p>
       </div>
     </div>
   );
@@ -111,42 +127,42 @@ const EventDetails = () => {
         <div className="print:block">
           <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
         </div>
+
+        <style>{`
+          @media print {
+            @page {
+              size: A4;
+              margin: 1cm;
+            }
+            
+            body {
+              background: white !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            .print\\:hidden {
+              display: none !important;
+            }
+
+            .print\\:block {
+              display: block !important;
+            }
+
+            .print\\:!visible {
+              visibility: visible !important;
+              display: block !important;
+            }
+
+            /* Preserve colors and backgrounds during printing */
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+          }
+        `}</style>
       </div>
-
-      <style>{`
-        @media print {
-          @page {
-            size: A4;
-            margin: 1cm;
-          }
-          
-          body {
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          .print\\:hidden {
-            display: none !important;
-          }
-
-          .print\\:block {
-            display: block !important;
-          }
-
-          .print\\:!visible {
-            visibility: visible !important;
-            display: block !important;
-          }
-
-          /* Preserve colors and backgrounds during printing */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
