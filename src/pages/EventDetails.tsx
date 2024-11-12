@@ -4,11 +4,13 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Copy } from "lucide-react";
 import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
+import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
   const { id } = useParams();
+  const { toast } = useToast();
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
@@ -41,6 +43,15 @@ const EventDetails = () => {
     window.print();
   };
 
+  const handleCopyEventCode = async () => {
+    if (event?.event_code) {
+      await navigator.clipboard.writeText(event.event_code);
+      toast({
+        description: "Event code copied to clipboard",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -62,37 +73,46 @@ const EventDetails = () => {
   const venueNames = event.venues?.map((v: any) => v.name).join(' + ');
 
   return (
-    <>
-      <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0">
-          <div className="flex justify-between items-center mb-8 print:hidden">
-            <div /> {/* Empty div for spacing */}
-            <div className="flex gap-2">
-              <Button onClick={handlePrint} variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
+    <div className="flex-1 p-4 md:p-8 print:p-0">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0 print:block">
+        <div className="flex justify-between items-center mb-8 print:hidden">
+          <div /> {/* Empty div for spacing */}
+          <div className="flex gap-2">
+            <Button onClick={handlePrint} variant="outline" size="sm">
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+          </div>
+        </div>
+
+        <div className="print:mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <h1 className="text-3xl font-bold tracking-tight print:text-2xl">{event.name}</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 print:text-sm">
+                {event.event_code}
+              </span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="print:hidden p-0 h-8 w-8"
+                onClick={handleCopyEventCode}
+              >
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <div className="print:mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-3xl font-bold tracking-tight print:text-[13px]">{event.name}</h1>
-              <span className="text-sm px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 print:text-[11px]">
-                {event.event_code}
-              </span>
-            </div>
-
-            <div className="text-lg text-zinc-600 print:text-[12px]">
-              <span className="font-semibold">{formattedDate}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {venueNames}
-            </div>
-          </div>
-
-          <div>
-            <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
+          <div className="text-lg text-zinc-600 print:text-base">
+            <span className="font-semibold">{formattedDate}</span> / {event.event_type} / <span className="font-semibold">{event.pax} Pax</span> / {venueNames}
           </div>
         </div>
+
+        <div className="print:block">
+          <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
+        </div>
       </div>
+
       <style>{`
         @media print {
           @page {
@@ -102,25 +122,27 @@ const EventDetails = () => {
           
           body {
             background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           
           .print\\:hidden {
             display: none !important;
           }
 
-          /* Hide everything except the selected content */
-          body > *:not(.print-section) {
-            display: none !important;
+          .print\\:block {
+            display: block !important;
           }
 
-          /* Preserve the exact styling during print */
+          /* Preserve colors and backgrounds during printing */
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
         }
       `}</style>
-    </>
+    </div>
   );
 };
 
