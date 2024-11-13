@@ -19,13 +19,15 @@ const EditEvent = () => {
   const { data: event, isLoading } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
+      if (!id) throw new Error('Event ID is required');
+      
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select(`
           *,
-          event_venues (
+          event_venues!inner (
             venue_id,
-            venues (
+            venues!inner (
               id,
               name
             )
@@ -37,8 +39,10 @@ const EditEvent = () => {
         .single();
 
       if (eventError) throw eventError;
+      if (!eventData) throw new Error('Event not found');
       return eventData;
     },
+    enabled: !!id,
   });
 
   React.useEffect(() => {
