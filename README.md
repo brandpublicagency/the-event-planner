@@ -68,4 +68,20 @@ Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/145
 
 ## I want to use a custom domain - is that possible?
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+Yes! You can deploy this project to any static hosting service that supports custom domains. Some popular options include:
+
+- Netlify
+- Vercel
+- GitHub Pages
+- Firebase Hosting
+- AWS Amplify
+- DigitalOcean App Platform
+- Cloudflare Pages
+- Heroku
+
+The process generally involves:
+1. Building your project with `npm run build`
+2. Configuring your domain settings in your chosen platform
+3. Deploying the contents of the `dist` folder
+
+Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
