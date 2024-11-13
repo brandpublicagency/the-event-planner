@@ -7,13 +7,10 @@ import EventsTable from "@/components/EventsTable";
 import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const { data: events = [], refetch } = useQuery({
     queryKey: ['upcoming_events'],
@@ -79,28 +76,7 @@ const Index = () => {
   const groupedEvents = groupEventsByMonth(events);
 
   return (
-    <div 
-      className={cn(
-        "transition-all duration-500 ease-in-out cursor-pointer",
-        isExpanded 
-          ? "fixed inset-0 bg-white z-50 overflow-auto p-8" 
-          : "flex-1 space-y-4 p-4 md:p-8 pt-6"
-      )}
-      onClick={() => !isExpanded && setIsExpanded(true)}
-    >
-      {isExpanded && (
-        <Button 
-          variant="ghost" 
-          className="absolute top-4 right-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsExpanded(false);
-          }}
-        >
-          Close
-        </Button>
-      )}
-
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
