@@ -87,7 +87,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <FormControl>
                   <Input 
                     type="time"
-                    placeholder="21:00"
+                    placeholder="16:00"
                     {...field}
                   />
                 </FormControl>
