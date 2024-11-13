@@ -36,6 +36,10 @@ const ChatBox = () => {
     setInputValue("");
     setIsLoading(true);
 
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Request timed out")), 30000); // 30 second timeout
+    });
+
     try {
       const eventsContext = prepareEventsContext(contextData?.events);
       const pdfContext = contextData?.pdfContent?.map(pdf => 
@@ -49,14 +53,16 @@ const ChatBox = () => {
         name: undefined
       }));
 
-      const botResponse = await getChatCompletion([systemMessage, ...userMessages]);
+      const botResponse = await Promise.race([
+        getChatCompletion([systemMessage, ...userMessages]),
+        timeoutPromise
+      ]);
 
       if (botResponse) {
         try {
           const jsonResponse = JSON.parse(botResponse);
           
           if (jsonResponse.action === "update_menu") {
-            // Ensure canape_selections is always an array or null
             const menuUpdates = {
               ...jsonResponse.menu_updates,
               canape_selections: Array.isArray(jsonResponse.menu_updates.canape_selections) 
@@ -87,11 +93,20 @@ const ChatBox = () => {
     } catch (error: any) {
       console.error('Error getting response from OpenAI:', error);
       
+      const errorMessage = error.message === "Request timed out" 
+        ? "The request took too long to complete. Please try again."
+        : error.message || "Failed to get response from AI";
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to get response from AI",
+        description: errorMessage,
         variant: "destructive",
       });
+
+      setMessages([...newMessages, { 
+        text: "I apologize, but I encountered an error. Please try again.", 
+        isUser: false 
+      }]);
     } finally {
       setIsLoading(false);
     }
