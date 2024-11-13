@@ -94,7 +94,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate(`/events/${event.event_code}/edit`)}
-                        className="text-zinc-600 hover:text-zinc-900"
+                        className="text-zinc-600 hover:text-white hover:bg-zinc-900"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -103,7 +103,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-zinc-600 hover:text-zinc-900"
+                            className="text-zinc-600 hover:text-white hover:bg-zinc-900"
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
