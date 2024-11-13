@@ -83,14 +83,15 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             name="start_time"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Start Time</FormLabel>
+                <FormLabel>Start Time (24h)</FormLabel>
                 <FormControl>
                   <Input 
                     type="time"
-                    placeholder="21:30"
+                    placeholder="21:00"
                     {...field}
                   />
                 </FormControl>
+                <p className="text-xs text-zinc-500 mt-1">Format: 21:00</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -101,14 +102,15 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             name="end_time"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Time</FormLabel>
+                <FormLabel>End Time (24h)</FormLabel>
                 <FormControl>
                   <Input 
                     type="time"
-                    placeholder="21:30"
+                    placeholder="22:00"
                     {...field}
                   />
                 </FormControl>
+                <p className="text-xs text-zinc-500 mt-1">Format: 22:00</p>
                 <FormMessage />
               </FormItem>
             )}
