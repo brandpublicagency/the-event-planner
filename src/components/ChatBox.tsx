@@ -56,7 +56,7 @@ const ChatBox = () => {
       const botResponse = await Promise.race([
         getChatCompletion([systemMessage, ...userMessages]),
         timeoutPromise
-      ]);
+      ]) as string | null;
 
       if (botResponse) {
         try {
@@ -84,10 +84,10 @@ const ChatBox = () => {
               { text: "Email sent successfully!", isUser: false }
             ]);
           } else {
-            setMessages([...newMessages, { text: botResponse, isUser: false }]);
+            setMessages([...newMessages, { text: String(botResponse), isUser: false }]);
           }
         } catch {
-          setMessages([...newMessages, { text: botResponse, isUser: false }]);
+          setMessages([...newMessages, { text: String(botResponse), isUser: false }]);
         }
       }
     } catch (error: any) {
