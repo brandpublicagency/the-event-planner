@@ -127,12 +127,14 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          end_time: string | null
           event_code: string
           event_date: string | null
           event_type: string
           name: string
           package_id: string | null
           pax: number | null
+          start_time: string | null
           updated_at: string
         }
         Insert: {
@@ -140,12 +142,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          end_time?: string | null
           event_code: string
           event_date?: string | null
           event_type: string
           name: string
           package_id?: string | null
           pax?: number | null
+          start_time?: string | null
           updated_at?: string
         }
         Update: {
@@ -153,12 +157,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          end_time?: string | null
           event_code?: string
           event_date?: string | null
           event_type?: string
           name?: string
           package_id?: string | null
           pax?: number | null
+          start_time?: string | null
           updated_at?: string
         }
         Relationships: [

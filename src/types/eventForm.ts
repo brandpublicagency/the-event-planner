@@ -3,6 +3,8 @@ export interface EventFormData {
   description?: string;
   event_type: 'Wedding' | 'Corporate Event' | 'Celebration' | 'Conference' | 'Other';
   event_date?: string;
+  start_time?: string;
+  end_time?: string;
   pax?: number;
   package_id?: string;
   client_address?: string;
