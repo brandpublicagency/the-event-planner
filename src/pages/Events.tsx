@@ -85,8 +85,12 @@ const Events = () => {
           <h2 className="text-3xl font-bold tracking-tight">Events</h2>
           <p className="text-muted-foreground">Manage your events and bookings</p>
         </div>
-        <Button onClick={() => navigate('/events/new')}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={() => navigate('/events/new')}
+          size="lg"
+          className="bg-zinc-900 hover:bg-zinc-800 text-white px-6 py-6 h-auto font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          <Plus className="mr-2 h-5 w-5" />
           New Event
         </Button>
       </div>

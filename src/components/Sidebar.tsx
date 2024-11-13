@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, Calendar, FileText, ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
+import { Home, Calendar, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -13,7 +13,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const navItems = [
     { icon: Home, path: "/", label: "Home" },
     { icon: Calendar, path: "/events", label: "Events" },
-    { icon: CalendarPlus, path: "/events/new", label: "New Event" },
     { icon: Calendar, path: "/calendar", label: "Calendar" },
     { icon: FileText, path: "/documents", label: "Documents" },
   ];
