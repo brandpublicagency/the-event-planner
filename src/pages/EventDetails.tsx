@@ -133,16 +133,16 @@ const EventDetails = () => {
           <div className="flex items-center gap-3 mb-4">
             <h1 className="text-2xl font-bold tracking-tight print:text-xl">{event.name}</h1>
             <div className="flex items-center gap-2">
-              <span className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 print:text-xs">
+              <span className="text-[11px] px-2 py-0.5 border border-zinc-200 rounded-md text-zinc-600 print:text-xs">
                 {event.event_code}
               </span>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="print:hidden p-0 h-7 w-7"
+                className="print:hidden p-0 h-6 w-6"
                 onClick={handleCopyEventCode}
               >
-                <Copy className="h-3.5 w-3.5" />
+                <Copy className="h-3 w-3" />
               </Button>
             </div>
           </div>
