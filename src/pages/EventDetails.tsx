@@ -148,7 +148,7 @@ const EventDetails = () => {
             </div>
           </div>
 
-          <div className="text-lg text-zinc-600 print:text-base">
+          <div className="text-base font-medium text-zinc-800 -mt-1.5 print:text-sm">
             {eventInfo}
           </div>
         </div>
