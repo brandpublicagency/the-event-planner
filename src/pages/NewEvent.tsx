@@ -55,6 +55,8 @@ const NewEvent = () => {
         description: data.description || null,
         event_type: data.event_type,
         event_date: data.event_date || null,
+        start_time: data.start_time || null,
+        end_time: data.end_time || null,
         pax: data.pax || null,
         package_id: data.package_id || null,
         client_address: data.client_address || null,
