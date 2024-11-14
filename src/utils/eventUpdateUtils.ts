@@ -6,6 +6,8 @@ interface EventUpdateData {
   description: string;
   event_type: string;
   event_date: string;
+  start_time?: string | null;
+  end_time?: string | null;
   pax: number;
   package_id: string;
   client_address: string;
@@ -36,6 +38,8 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         description: data.description,
         event_type: data.event_type,
         event_date: data.event_date,
+        start_time: data.start_time || null,
+        end_time: data.end_time || null,
         pax: data.pax,
         package_id: data.package_id || null,
         client_address: data.client_address,
