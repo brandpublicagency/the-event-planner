@@ -87,10 +87,9 @@ const Events = () => {
         </div>
         <Button 
           onClick={() => navigate('/events/new')}
-          size="lg"
-          className="bg-zinc-900 hover:bg-zinc-800 text-white px-6 py-6 h-auto font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200"
+          className="bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
         >
-          <Plus className="mr-2 h-5 w-5" />
+          <Plus className="mr-2 h-4 w-4" />
           New Event
         </Button>
       </div>
