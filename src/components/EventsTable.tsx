@@ -36,6 +36,11 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
     });
   };
 
+  const getVenueNames = (event: Event) => {
+    if (!event.event_venues || event.event_venues.length === 0) return 'No venues';
+    return event.event_venues.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6">
@@ -83,7 +88,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                           <div className="flex items-center gap-2">
                             <h4 className="text-base font-medium leading-none">{event.name}</h4>
                             <Badge variant="outline" className="text-xs font-normal border border-zinc-200 bg-zinc-50 rounded-md">
-                              {event.event_type} / {event.pax} Pax / {event.venues?.map(v => v.name).join(' + ')}
+                              {event.event_type} / {event.pax} Pax / {getVenueNames(event)}
                             </Badge>
                           </div>
                         </div>
