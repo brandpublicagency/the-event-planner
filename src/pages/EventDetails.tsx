@@ -1,10 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Printer, Copy } from "lucide-react";
+import { Printer, Copy, Edit } from "lucide-react";
 import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
@@ -12,6 +12,7 @@ import type { Event } from "@/types/event";
 const EventDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
@@ -71,6 +72,12 @@ const EventDetails = () => {
     }
   };
 
+  const handleEditBasicDetails = () => {
+    if (event?.event_code) {
+      navigate(`/events/${event.event_code}/edit`);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -97,7 +104,15 @@ const EventDetails = () => {
     <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:hidden">
       <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0 print:block print:!visible">
         <div className="flex justify-between items-center mb-8 print:hidden">
-          <div /> {/* Empty div for spacing */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleEditBasicDetails}
+            className="flex items-center gap-2"
+          >
+            <Edit className="h-4 w-4" />
+            Edit Basic Details
+          </Button>
           <div className="flex gap-2">
             <Button onClick={handlePrint} variant="outline" size="sm">
               <Printer className="h-4 w-4 mr-2" />
