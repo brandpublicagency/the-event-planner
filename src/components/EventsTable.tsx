@@ -65,7 +65,7 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                             <Checkbox />
                             <button
                               onClick={() => navigate(`/events/${event.event_code}`)}
-                              className="text-xs px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-600 hover:bg-zinc-100 transition-colors"
+                              className="text-[11px] px-2 py-0.5 border border-zinc-200 rounded text-zinc-600 hover:bg-zinc-50 transition-colors"
                             >
                               {event.event_code}
                               <button 
