@@ -37,26 +37,24 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         event_type: data.event_type,
         event_date: data.event_date,
         pax: data.pax,
-        package_id: data.package_id,
+        package_id: data.package_id || null,
         client_address: data.client_address,
       })
       .eq('event_code', eventCode);
 
     if (eventError) throw eventError;
 
-    // Update venue relationships
-    if (data.venues) {
+    // Update venue relationships if venues data is provided
+    if (data.venues && Object.keys(data.venues).length > 0) {
       // Delete existing venue relationships
-      const { error: deleteError } = await supabase
+      await supabase
         .from('event_venues')
         .delete()
         .eq('event_code', eventCode);
 
-      if (deleteError) throw deleteError;
-
       // Insert new venue relationships
       const selectedVenues = Object.entries(data.venues)
-        .filter(([_, selected]) => selected)
+        .filter(([venueId, selected]) => selected && venueId)
         .map(([venueId]) => ({
           event_code: eventCode,
           venue_id: venueId,
@@ -77,12 +75,12 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         .from('wedding_details')
         .upsert({
           event_code: eventCode,
-          bride_name: data.bride_name,
-          bride_email: data.bride_email,
-          bride_mobile: data.bride_mobile,
-          groom_name: data.groom_name,
-          groom_email: data.groom_email,
-          groom_mobile: data.groom_mobile,
+          bride_name: data.bride_name || null,
+          bride_email: data.bride_email || null,
+          bride_mobile: data.bride_mobile || null,
+          groom_name: data.groom_name || null,
+          groom_email: data.groom_email || null,
+          groom_mobile: data.groom_mobile || null,
         });
 
       if (weddingError) throw weddingError;
@@ -91,18 +89,18 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         .from('corporate_details')
         .upsert({
           event_code: eventCode,
-          company_name: data.company_name,
-          contact_person: data.contact_person,
-          contact_email: data.contact_email,
-          contact_mobile: data.contact_mobile,
-          company_vat: data.company_vat,
-          company_address: data.company_address,
+          company_name: data.company_name || null,
+          contact_person: data.contact_person || null,
+          contact_email: data.contact_email || null,
+          contact_mobile: data.contact_mobile || null,
+          company_vat: data.company_vat || null,
+          company_address: data.company_address || null,
         });
 
       if (corporateError) throw corporateError;
     }
 
-    // Invalidate both events and upcoming_events queries
+    // Invalidate queries
     await queryClient.invalidateQueries({ queryKey: ['events'] });
     await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 

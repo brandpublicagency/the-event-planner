@@ -16,7 +16,7 @@ const EditEvent = () => {
   const queryClient = useQueryClient();
   const form = useForm();
 
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
       if (!id) throw new Error('Event ID is required');
@@ -25,9 +25,9 @@ const EditEvent = () => {
         .from('events')
         .select(`
           *,
-          event_venues!inner (
+          event_venues (
             venue_id,
-            venues!inner (
+            venues (
               id,
               name
             )
@@ -48,8 +48,10 @@ const EditEvent = () => {
   React.useEffect(() => {
     if (event) {
       // Transform venues data for the form
-      const venuesData = event.event_venues?.reduce((acc: any, ev: any) => {
-        acc[ev.venue_id] = true;
+      const venuesData = event.event_venues?.reduce((acc: Record<string, boolean>, ev: any) => {
+        if (ev.venue_id) {
+          acc[ev.venue_id] = true;
+        }
         return acc;
       }, {});
 
@@ -58,7 +60,7 @@ const EditEvent = () => {
         ...event,
         ...event.wedding_details,
         ...event.corporate_details,
-        venues: venuesData,
+        venues: venuesData || {},
       });
     }
   }, [event, form]);
@@ -87,6 +89,16 @@ const EditEvent = () => {
       });
     }
   };
+
+  if (error) {
+    toast({
+      title: "Error",
+      description: "Failed to load event details",
+      variant: "destructive",
+    });
+    navigate('/events');
+    return null;
+  }
 
   if (isLoading) {
     return (
