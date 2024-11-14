@@ -1,3 +1,4 @@
+import React from 'react';
 import { Textarea } from "@/components/ui/textarea";
 
 interface NotesSectionProps {
@@ -7,13 +8,13 @@ interface NotesSectionProps {
 
 const NotesSection = ({ notes, onChange }: NotesSectionProps) => {
   return (
-    <div className="space-y-2 print:break-inside-avoid">
+    <div className="space-y-2">
       <label className="text-sm font-medium text-zinc-700">Additional Notes</label>
-      <Textarea 
-        className="w-full min-h-[120px] transition-all duration-200 focus:ring-2 focus:ring-zinc-200" 
-        placeholder="Additional notes, dietary requirements, allergies, or special instructions..."
+      <Textarea
+        placeholder="Add any special requirements or notes here..."
         value={notes}
         onChange={(e) => onChange(e.target.value)}
+        className="min-h-[100px]"
       />
     </div>
   );

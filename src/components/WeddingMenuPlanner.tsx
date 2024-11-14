@@ -74,10 +74,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
         <Separator className="my-4" />
         <NotesSection 
           notes={menuState.notes}
-          onChange={(value) => {
-            handleMenuStateChange('notes', value);
-            saveMenuSelections();
-          }}
+          onChange={(value) => handleMenuStateChange('notes', value)}
         />
       </CardContent>
     </Card>

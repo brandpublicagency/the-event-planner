@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import { Check } from 'lucide-react';
 
 export const useMenuState = (eventCode: string, toast: any) => {
   const [menuState, setMenuState] = useState({
@@ -74,52 +75,46 @@ export const useMenuState = (eventCode: string, toast: any) => {
       if (error) {
         console.error('Error saving menu selections:', error);
         toast({
-          title: "Error",
-          description: "Failed to save menu selections",
           variant: "destructive",
+          title: "Error saving menu",
+          description: "Failed to save menu selections. Please try again.",
         });
         return;
       }
 
       toast({
-        title: "Success",
-        description: "Menu selections saved successfully",
+        title: "Menu saved successfully",
+        description: "Your menu selections have been updated",
+        className: "bg-white border-green-500",
+        icon: <Check className="h-4 w-4 text-green-500" />,
       });
     } catch (err) {
       console.error('Unexpected error saving menu selections:', err);
       toast({
+        variant: "destructive",
         title: "Error",
         description: "An unexpected error occurred while saving",
-        variant: "destructive",
       });
     }
   };
 
-  const handleCustomMenuToggle = async (checked: boolean) => {
+  const handleCustomMenuToggle = (checked: boolean) => {
     setMenuState(prev => ({
       ...prev,
       isCustomMenu: checked,
     }));
-    await saveMenuSelections();
   };
 
-  const handleCanapeSelection = async (position: number, value: string) => {
+  const handleCanapeSelection = (position: number, value: string) => {
     setMenuState(prev => {
       const newCanapes = [...prev.selectedCanapes];
       newCanapes[position - 1] = value;
       return { ...prev, selectedCanapes: newCanapes };
     });
-    await saveMenuSelections();
   };
 
-  const handleMenuStateChange = async (field: string, value: any) => {
-    await new Promise<void>(resolve => {
-      setMenuState(prev => {
-        const newState = { ...prev, [field]: value };
-        resolve();
-        return newState;
-      });
-    });
+  const handleMenuStateChange = (field: string, value: any) => {
+    setMenuState(prev => ({ ...prev, [field]: value }));
   };
 
   return {
