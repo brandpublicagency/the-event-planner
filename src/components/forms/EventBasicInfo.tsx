@@ -12,6 +12,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { EventFormData } from "@/types/eventForm";
 
+// Helper function to generate time options
+const generateTimeOptions = (start: number, end: number) => {
+  const options = [];
+  for (let hour = start; hour <= end; hour++) {
+    const time = `${hour.toString().padStart(2, '0')}:00`;
+    options.push(time);
+  }
+  return options;
+};
+
+const startTimeOptions = generateTimeOptions(6, 20);
+const endTimeOptions = generateTimeOptions(9, 23);
+
 interface EventBasicInfoProps {
   form: UseFormReturn<EventFormData>;
 }
@@ -84,13 +97,20 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Start Time</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="time"
-                    placeholder="00:00"
-                    {...field}
-                  />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select start time" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {startTimeOptions.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -102,13 +122,20 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>End Time</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="time"
-                    placeholder="00:00"
-                    {...field}
-                  />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select end time" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {endTimeOptions.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
