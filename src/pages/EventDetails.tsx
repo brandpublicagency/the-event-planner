@@ -98,8 +98,16 @@ const EventDetails = () => {
   if (!event) return null;
 
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
-  const formattedTime = event.start_time && event.end_time ? `${event.start_time} - ${event.end_time}` : 'No time set';
+  const formattedTime = event.start_time && event.end_time ? `${event.start_time.slice(0, 5)} - ${event.end_time.slice(0, 5)}` : '';
   const venueNames = event.event_venues?.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
+  
+  // Format the event info line
+  const eventInfo = [
+    formattedDate + (formattedTime ? `, ${formattedTime}` : ''),
+    event.event_type,
+    `${event.pax} Pax`,
+    venueNames
+  ].join(' / ');
 
   return (
     <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:hidden">
@@ -140,16 +148,8 @@ const EventDetails = () => {
             </div>
           </div>
 
-          <div className="text-lg text-zinc-600 print:text-base space-y-2">
-            <div>
-              <span className="font-semibold">{formattedDate}</span> • {formattedTime}
-            </div>
-            <div>
-              {event.event_type} • <span className="font-semibold">{event.pax} Pax</span>
-            </div>
-            <div className="font-medium">
-              Venues: {venueNames}
-            </div>
+          <div className="text-lg text-zinc-600 print:text-base">
+            {eventInfo}
           </div>
         </div>
 
