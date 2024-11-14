@@ -102,10 +102,10 @@ const EventDetails = () => {
   const venueNames = event.event_venues?.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
   
   const eventInfo = [
-    formattedDate + (formattedTime ? `, ${formattedTime}` : ''),
-    event.event_type,
-    `${event.pax} Pax`,
-    venueNames
+    `**${formattedDate}${formattedTime ? `, ${formattedTime}` : ''}**`,
+    `*${event.event_type}*`,
+    `**${event.pax} Pax**`,
+    `*${venueNames}*`
   ].join(' / ');
 
   return (
@@ -148,7 +148,15 @@ const EventDetails = () => {
           </div>
 
           <div className="text-base font-medium text-zinc-800 -mt-1.5 print:text-sm">
-            {eventInfo}
+            {eventInfo.split('**').map((part, i) => 
+              i % 2 === 1 ? (
+                <span key={i} className="font-bold">{part}</span>
+              ) : part.split('*').map((subPart, j) => 
+                j % 2 === 1 ? (
+                  <span key={`${i}-${j}`} className="font-medium">{subPart}</span>
+                ) : subPart
+              )
+            )}
           </div>
         </div>
 
