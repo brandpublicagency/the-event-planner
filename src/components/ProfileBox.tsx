@@ -96,7 +96,7 @@ const ProfileBox = () => {
     <div className="h-full">
       <div className="relative h-full">
         <img
-          src="https://www.warmkaroo.com/wp-content/uploads/2023/04/Chappel-7.jpeg"
+          src="/abstract-waves.jpg"
           alt="Profile Cover"
           className="h-full w-full object-cover"
         />
