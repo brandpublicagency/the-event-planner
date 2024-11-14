@@ -5,6 +5,8 @@ export interface Event {
   description: string | null;
   event_type: string;
   event_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
   pax: number | null;
   package_id: string | null;
   client_address: string | null;
