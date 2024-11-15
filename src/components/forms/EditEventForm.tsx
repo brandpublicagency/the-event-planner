@@ -58,7 +58,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
         .update({
           name: data.name,
           event_type: data.event_type,
-          event_date: data.event_date,
+          event_date: data.event_date?.toISOString().split('T')[0],
           pax: data.pax,
           package_id: data.package_id,
           start_time: data.start_time,
@@ -84,7 +84,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
           });
 
         if (weddingError) throw weddingError;
-      } else if (data.event_type === 'Corporate') {
+      } else if (data.event_type === 'Corporate Event') {
         const { error: corporateError } = await supabase
           .from('corporate_details')
           .upsert({
@@ -135,7 +135,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
             </>
           )}
 
-          {form.watch("event_type") === "Corporate" && (
+          {form.watch("event_type") === "Corporate Event" && (
             <FormSection title="Company Details" description="Update the company information.">
               <CompanyDetails form={form} />
             </FormSection>
@@ -146,7 +146,10 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
           </FormSection>
         </div>
 
-        <EventFormActions />
+        <EventFormActions 
+          isSubmitting={form.formState.isSubmitting}
+          onCancel={() => navigate(-1)}
+        />
       </form>
     </Form>
   );

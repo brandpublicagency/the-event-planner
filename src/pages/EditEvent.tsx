@@ -4,9 +4,8 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { EditEventForm } from "@/components/forms/EditEventForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -20,7 +19,6 @@ const EditEvent = () => {
         .select(`
           *,
           event_venues (
-            venue_id,
             venues (
               id,
               name
@@ -33,9 +31,15 @@ const EditEvent = () => {
         .eq('event_code', id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(error.message);
+      }
+      if (!data) throw new Error('Event not found');
       return data;
     },
+    retry: 1,
+    retryDelay: 1000,
   });
 
   if (isLoading) {
@@ -52,7 +56,7 @@ const EditEvent = () => {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load event details. Please try again later.
+            {error instanceof Error ? error.message : 'Failed to load event details. Please try again later.'}
           </AlertDescription>
         </Alert>
         <Button 
