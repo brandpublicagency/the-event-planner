@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const { toast } = useToast();
@@ -108,8 +109,32 @@ const Login = () => {
             providers={[]}
             magicLink={true}
             redirectTo={window.location.origin}
-            showLinks={true}
+            showLinks={false}
           />
+
+          <div className="flex gap-2 w-full">
+            <Button 
+              variant="outline" 
+              className="flex-1 text-sm"
+              onClick={() => supabase.auth.signInWithOtp({ email: (document.querySelector('input[name="email"]') as HTMLInputElement)?.value || '' })}
+            >
+              Magic link
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex-1 text-sm"
+              onClick={() => window.location.href = '#auth-forgot-password'}
+            >
+              Forgot?
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex-1 text-sm"
+              onClick={() => window.location.href = '#auth-sign-up'}
+            >
+              Sign up
+            </Button>
+          </div>
 
           <div className="text-left text-sm text-zinc-500">
             <p>
