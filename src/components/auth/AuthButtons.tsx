@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 interface AuthButtonsProps {
   onMagicLink: () => void;
   onForgotPassword: () => void;
-  onSignUp: () => void;
+  onSignUp?: () => void;  // Made optional with ?
 }
 
 export const AuthButtons = ({ onMagicLink, onForgotPassword, onSignUp }: AuthButtonsProps) => (
@@ -22,12 +22,14 @@ export const AuthButtons = ({ onMagicLink, onForgotPassword, onSignUp }: AuthBut
     >
       Forgot?
     </Button>
-    <Button 
-      variant="outline" 
-      className="flex-1 text-sm bg-transparent rounded-[4px]"
-      onClick={onSignUp}
-    >
-      Sign up
-    </Button>
+    {onSignUp && (
+      <Button 
+        variant="outline" 
+        className="flex-1 text-sm bg-transparent rounded-[4px]"
+        onClick={onSignUp}
+      >
+        Sign up
+      </Button>
+    )}
   </div>
 );
