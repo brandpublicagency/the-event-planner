@@ -8,10 +8,10 @@ import { eventFormSchema } from "@/schemas/eventFormSchema";
 import type { EventFormData } from "@/types/eventForm";
 import FormSection from "./FormSection";
 import EventBasicInfo from "./EventBasicInfo";
-import ClientDetails from "./ClientDetails";
 import BrideDetails from "./BrideDetails";
 import GroomDetails from "./GroomDetails";
 import CompanyDetails from "./CompanyDetails";
+import ClientDetails from "./ClientDetails";
 import EventFormActions from "./EventFormActions";
 
 interface EditEventFormProps {
@@ -117,14 +117,14 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-8">
           <FormSection title="Basic Information" description="Update the basic details of your event.">
             <EventBasicInfo form={form} />
           </FormSection>
 
           {form.watch("event_type") === "Wedding" && (
-            <>
+            <div className="grid gap-8 md:grid-cols-2">
               <FormSection title="Bride Details" description="Update the bride's information.">
                 <BrideDetails form={form} />
               </FormSection>
@@ -132,7 +132,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
               <FormSection title="Groom Details" description="Update the groom's information.">
                 <GroomDetails form={form} />
               </FormSection>
-            </>
+            </div>
           )}
 
           {form.watch("event_type") === "Corporate Event" && (
@@ -141,7 +141,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
             </FormSection>
           )}
 
-          <FormSection title="Client Details" description="Update the client's address information.">
+          <FormSection title="Address Information" description="Update the address details.">
             <ClientDetails form={form} />
           </FormSection>
         </div>
