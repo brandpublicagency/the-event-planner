@@ -17,34 +17,22 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormSection 
-          title="Event Details" 
-          description="Update the basic information about the event."
-        >
+        <FormSection title="Event Details">
           <EventBasicInfo form={form} />
         </FormSection>
 
         {form.watch('event_type') === "Wedding" ? (
-          <>
-            <FormSection 
-              title="Bride Details" 
-              description="Update the bride's contact information."
-            >
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormSection title="Bride Details">
               <BrideDetails form={form} />
             </FormSection>
 
-            <FormSection 
-              title="Groom Details" 
-              description="Update the groom's contact information."
-            >
+            <FormSection title="Groom Details">
               <GroomDetails form={form} />
             </FormSection>
-          </>
+          </div>
         ) : (
-          <FormSection 
-            title="Company Details" 
-            description="Update the company's information."
-          >
+          <FormSection title="Company Details">
             <CompanyDetails form={form} />
           </FormSection>
         )}
