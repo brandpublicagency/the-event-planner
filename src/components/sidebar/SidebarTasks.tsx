@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Task, TaskInsert } from "@/integrations/supabase/types/tasks";
@@ -79,23 +77,14 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
   };
 
   if (isCollapsed) {
-    return (
-      <div className="p-4">
-        <button 
-          onClick={() => toast({ title: "Expand sidebar", description: "Expand the sidebar to manage tasks" })}
-          className="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center hover:bg-gray-100"
-        >
-          <Plus className="h-5 w-5" />
-        </button>
-      </div>
-    );
+    return null;
   }
 
   const activeTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
 
   return (
-    <div className="px-2">
+    <div className="px-3 pb-3">
       <h3 className="font-medium mb-1">To-do List</h3>
       <p className="text-sm text-gray-500 mb-4">Keep track of your daily tasks</p>
       
