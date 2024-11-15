@@ -6,19 +6,18 @@ import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { Task } from "@/integrations/supabase/types/tasks";
 
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
+interface SidebarTasksProps {
+  isCollapsed: boolean;
 }
 
-const SidebarTasks = ({ isCollapsed }: { isCollapsed: boolean }) => {
+const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
   const [newTask, setNewTask] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: tasks = [] } = useQuery({
+  const { data: tasks = [] } = useQuery<Task[]>({
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -27,7 +26,7 @@ const SidebarTasks = ({ isCollapsed }: { isCollapsed: boolean }) => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Task[];
+      return data;
     },
   });
 
