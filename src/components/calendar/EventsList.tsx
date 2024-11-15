@@ -61,16 +61,15 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 <span>•</span>
                 <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
                 {event.venues?.map((venue, index) => (
-                  <>
+                  <React.Fragment key={venue.id || index}>
                     <span>•</span>
                     <Badge 
-                      key={venue.id || index} 
                       variant="outline" 
                       className="bg-zinc-50"
                     >
                       {venue.name}
                     </Badge>
-                  </>
+                  </React.Fragment>
                 ))}
               </div>
               {event.description && (

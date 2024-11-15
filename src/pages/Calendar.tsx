@@ -46,7 +46,7 @@ const Calendar = () => {
     },
   });
 
-  const { data: events, isLoading: isEventsLoading, error: eventsError } = useQuery({
+  const { data: events = [], isLoading: isEventsLoading } = useQuery({
     queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue],
     queryFn: async () => {
       if (!date) return [];
@@ -58,8 +58,8 @@ const Calendar = () => {
         .from('events')
         .select(`
           *,
-          event_venues (
-            venues (
+          event_venues!inner (
+            venues!inner (
               id,
               name
             )
@@ -84,34 +84,12 @@ const Calendar = () => {
         throw error;
       }
 
-      return data.map((event: any) => ({
+      return data?.map((event: any) => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || [],
-        title: event.name,
-        progress: 0,
-        teamSize: event.pax || 0,
-        dueDate: event.event_date || '',
-        created_at: event.created_at,
-        updated_at: event.updated_at,
-        created_by: event.created_by,
-        description: event.description,
-        event_code: event.event_code,
-        event_type: event.event_type,
-        client_address: event.client_address,
-        package_id: event.package_id,
-        event_date: event.event_date,
-      }));
+      })) as Event[];
     },
-    enabled: !!date,
   });
-
-  if (eventsError) {
-    toast({
-      title: "Error loading events",
-      description: "Please try again later",
-      variant: "destructive",
-    });
-  }
 
   const modifiers = {
     hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
