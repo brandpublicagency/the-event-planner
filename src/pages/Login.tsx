@@ -30,6 +30,42 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleMagicLink = async () => {
+    const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+    const email = emailInput?.value?.trim();
+    
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ 
+        email,
+        options: {
+          emailRedirectTo: window.location.origin,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Magic link sent",
+        description: "Check your email for the login link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send magic link",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 min-h-screen md:grid-cols-2">
       {/* Dark section with quote */}
@@ -116,7 +152,7 @@ const Login = () => {
             <Button 
               variant="outline" 
               className="flex-1 text-sm"
-              onClick={() => supabase.auth.signInWithOtp({ email: (document.querySelector('input[name="email"]') as HTMLInputElement)?.value || '' })}
+              onClick={handleMagicLink}
             >
               Magic link
             </Button>
