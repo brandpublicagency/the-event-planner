@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Bell, ChevronLeft, ChevronRight, Wallet, ListTodo } from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
+import { LayoutGrid, FileText, Bell, ChevronLeft, ChevronRight, Wallet, ListTodo, LogOut } from "lucide-react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -9,6 +11,21 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/login");
+    }
+  };
 
   const mainNavItems = [
     { icon: LayoutGrid, path: "/", label: "Dashboard" },
@@ -144,6 +161,26 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
                     </Link>
                   );
                 })}
+                
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className={cn(
+                    "flex items-center h-10 rounded-lg transition-colors w-full",
+                    isCollapsed 
+                      ? "justify-center w-10 mx-auto" 
+                      : "px-3",
+                    "hover:bg-gray-50",
+                    isCollapsed 
+                      ? "text-gray-400 hover:text-white" 
+                      : "text-gray-600"
+                  )}
+                >
+                  <LogOut className="h-5 w-5" />
+                  {!isCollapsed && (
+                    <span className="ml-3 text-sm">Sign out</span>
+                  )}
+                </button>
               </nav>
             </div>
           </div>
