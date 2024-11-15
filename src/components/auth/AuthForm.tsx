@@ -1,9 +1,10 @@
 import React from 'react';
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeMinimal } from "@supabase/auth-ui-shared";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthButtons } from "./AuthButtons";
+import { authAppearance, authLocalization } from "./AuthConfig";
 
 export const AuthForm = () => {
   const { toast } = useToast();
@@ -77,6 +78,14 @@ export const AuthForm = () => {
     }
   };
 
+  const handleSignUp = () => {
+    const container = document.querySelector('.supabase-auth-ui_ui-container');
+    const signUpButton = container?.querySelector('button[type="submit"]');
+    if (signUpButton instanceof HTMLElement) {
+      signUpButton.click();
+    }
+  };
+
   return (
     <div className="flex flex-col justify-center p-8">
       <div className="mx-auto w-full max-w-sm space-y-8">
@@ -91,102 +100,19 @@ export const AuthForm = () => {
 
         <Auth
           supabaseClient={supabase}
-          appearance={{
-            theme: ThemeMinimal,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#18181B',
-                  brandAccent: '#27272A',
-                  inputBackground: 'white',
-                  inputBorder: '#E4E4E7',
-                  inputBorderFocus: '#18181B',
-                  inputBorderHover: '#71717A',
-                  inputPlaceholder: '#A1A1AA',
-                },
-                space: {
-                  inputPadding: '0.75rem',
-                  buttonPadding: '0.75rem',
-                },
-                borderWidths: {
-                  buttonBorderWidth: '1px',
-                  inputBorderWidth: '1px',
-                },
-                radii: {
-                  borderRadiusButton: '0.5rem',
-                  buttonBorderRadius: '0.5rem',
-                  inputBorderRadius: '0.5rem',
-                },
-              },
-            },
-            className: {
-              container: 'w-full space-y-6',
-              button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
-              input: 'w-full',
-              label: 'hidden', // Hide the labels
-              divider: 'my-6',
-              anchor: 'hidden', // Hide the default auth links
-              message: 'text-left',
-            },
-          }}
-          localization={{
-            variables: {
-              sign_in: {
-                email_label: '',
-                password_label: '',
-                email_input_placeholder: 'Email address',
-                password_input_placeholder: 'Password',
-                button_label: 'Sign in',
-                link_text: '',
-              },
-              sign_up: {
-                email_label: '',
-                password_label: '',
-                email_input_placeholder: 'Email address',
-                password_input_placeholder: 'Password',
-                button_label: 'Sign up',
-                link_text: '',
-              },
-              forgotten_password: {
-                link_text: '',
-              },
-            },
-          }}
+          appearance={authAppearance}
+          localization={authLocalization}
           providers={[]}
           view="sign_in"
-          magicLink={false}
+          showLinks={false}
           redirectTo={window.location.origin}
         />
 
-        <div className="flex gap-2 w-full">
-          <Button 
-            variant="outline" 
-            className="flex-1 text-sm bg-transparent rounded-[4px]"
-            onClick={handleMagicLink}
-          >
-            Magic link
-          </Button>
-          <Button 
-            variant="outline" 
-            className="flex-1 text-sm bg-transparent rounded-[4px]"
-            onClick={handleForgotPassword}
-          >
-            Forgot?
-          </Button>
-          <Button 
-            variant="outline" 
-            className="flex-1 text-sm bg-transparent rounded-[4px]"
-            onClick={() => {
-              const container = document.querySelector('.supabase-auth-ui_ui-container');
-              const signUpButton = container?.querySelector('button[type="submit"]');
-              if (signUpButton instanceof HTMLElement) {
-                signUpButton.click();
-              }
-            }}
-          >
-            Sign up
-          </Button>
-        </div>
+        <AuthButtons
+          onMagicLink={handleMagicLink}
+          onForgotPassword={handleForgotPassword}
+          onSignUp={handleSignUp}
+        />
 
         <div className="text-left text-sm text-zinc-500">
           <p>
