@@ -308,6 +308,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           created_at: string
