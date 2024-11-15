@@ -120,7 +120,7 @@ const Calendar = () => {
 
   const modifiersStyles = {
     hasEvent: {
-      backgroundColor: 'rgb(250 250 250)',
+      backgroundColor: 'white',
       color: '#18181B',
       fontWeight: '500'
     },
@@ -158,7 +158,7 @@ const Calendar = () => {
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
       <div className="grid gap-6 lg:grid-cols-[380px,1fr] transition-all">
-        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
+        <Card className="p-4">
           <CalendarComponent
             mode="single"
             selected={date}
@@ -170,7 +170,7 @@ const Calendar = () => {
           />
         </Card>
 
-        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
+        <Card className="p-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-zinc-900">

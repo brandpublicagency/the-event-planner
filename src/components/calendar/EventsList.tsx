@@ -16,7 +16,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
     return (
       <div className="space-y-4">
         {[1, 2].map((i) => (
-          <div key={i} className="rounded-lg border p-4">
+          <div key={i} className="rounded-lg border border-zinc-200 p-4">
             <Skeleton className="h-6 w-3/4 mb-2" />
             <Skeleton className="h-4 w-1/2 mb-2" />
             <Skeleton className="h-4 w-1/3" />
@@ -40,7 +40,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
       {events.map((event) => (
         <div
           key={event.event_code}
-          className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-all duration-200 group relative"
+          className="rounded-lg border border-zinc-200 bg-white p-4 hover:border-zinc-300 transition-colors group relative"
         >
           <Badge 
             variant="secondary" 
