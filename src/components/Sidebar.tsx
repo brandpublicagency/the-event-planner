@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import NavigationSection from "./sidebar/NavigationSection";
+import SidebarTasks from "./sidebar/SidebarTasks";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -68,7 +69,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               currentPath={location.pathname}
             />
             
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className={cn(
@@ -90,23 +90,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           </div>
         </div>
 
-        {!isCollapsed && (
-          <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium mb-1">To-do List</h3>
-            <p className="text-sm text-gray-500 mb-4">Creating or adding new tasks couldn't be easier</p>
-            <button className="w-full bg-[#1A1F2C] text-white rounded-lg py-2 px-4 text-sm font-medium flex items-center justify-center gap-2">
-              <span className="text-lg">+</span> Add New Task
-            </button>
-          </div>
-        )}
-
-        {isCollapsed && (
-          <div className="p-4">
-            <button className="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center hover:bg-gray-100">
-              <span className="text-xl">+</span>
-            </button>
-          </div>
-        )}
+        <SidebarTasks isCollapsed={isCollapsed} />
       </div>
     </div>
   );
