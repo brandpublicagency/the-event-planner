@@ -1,6 +1,5 @@
 import React from 'react';
 import { Auth } from "@supabase/auth-ui-react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
@@ -78,14 +77,6 @@ export const AuthForm = () => {
     }
   };
 
-  const handleSignUp = () => {
-    const container = document.querySelector('.supabase-auth-ui_ui-container');
-    const signUpButton = container?.querySelector('button[type="submit"]');
-    if (signUpButton instanceof HTMLElement) {
-      signUpButton.click();
-    }
-  };
-
   return (
     <div className="flex flex-col justify-center p-8">
       <div className="mx-auto w-full max-w-sm space-y-8">
@@ -94,7 +85,7 @@ export const AuthForm = () => {
             Welcome back
           </h1>
           <p className="text-sm text-zinc-500">
-            Sign in to your account or create a new one
+            Sign in to your account
           </p>
         </div>
 
@@ -111,7 +102,6 @@ export const AuthForm = () => {
         <AuthButtons
           onMagicLink={handleMagicLink}
           onForgotPassword={handleForgotPassword}
-          onSignUp={handleSignUp}
         />
 
         <div className="text-left text-sm text-zinc-500">

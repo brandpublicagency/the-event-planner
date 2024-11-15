@@ -32,7 +32,7 @@ export const authAppearance = {
     container: 'w-full space-y-6',
     button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
     input: 'w-full',
-    label: 'hidden',
+    label: 'text-sm font-medium text-zinc-900',
     divider: 'my-6',
     anchor: 'hidden',
     message: 'text-left',
@@ -42,16 +42,16 @@ export const authAppearance = {
 export const authLocalization = {
   variables: {
     sign_in: {
-      email_label: '',
-      password_label: '',
+      email_label: 'Email',
+      password_label: 'Password',
       email_input_placeholder: 'Email address',
       password_input_placeholder: 'Password',
       button_label: 'Sign in with email',
       link_text: '',
     },
     sign_up: {
-      email_label: '',
-      password_label: '',
+      email_label: 'Email',
+      password_label: 'Password',
       email_input_placeholder: 'Email address',
       password_input_placeholder: 'Password',
       button_label: 'Sign up with email',
