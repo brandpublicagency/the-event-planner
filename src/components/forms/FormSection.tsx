@@ -1,18 +1,27 @@
 import { ReactNode } from "react";
+import { Card } from "@/components/ui/card";
 
 interface FormSectionProps {
   title: string;
+  description?: string;
   children: ReactNode;
 }
 
-const FormSection = ({ title, children }: FormSectionProps) => {
+const FormSection = ({ title, description, children }: FormSectionProps) => {
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-zinc-900 mb-6">{title}</h3>
-      <div className="space-y-4">
-        {children}
+    <Card className="p-6 bg-white">
+      <div className="space-y-6">
+        <div className="space-y-1 border-b pb-4">
+          <h3 className="text-lg font-semibold text-zinc-900">{title}</h3>
+          {description && (
+            <p className="text-sm text-zinc-500">{description}</p>
+          )}
+        </div>
+        <div className="space-y-4">
+          {children}
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
