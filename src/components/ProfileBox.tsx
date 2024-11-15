@@ -4,21 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import FlipCard from "@/components/FlipCard";
-import ProfileForm from "@/components/profile/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 const ProfileBox = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-  
-  const [editForm, setEditForm] = useState({
-    full_name: "",
-    surname: "",
-    mobile: "",
-  });
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -36,48 +28,6 @@ const ProfileBox = () => {
       return profileData;
     },
   });
-
-  const updateProfileMutation = useMutation({
-    mutationFn: async (updateData: typeof editForm) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-      setIsEditing(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleEdit = () => {
-    setEditForm({
-      full_name: profile?.full_name || "",
-      surname: profile?.surname || "",
-      mobile: profile?.mobile || "",
-    });
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
-    updateProfileMutation.mutate(editForm);
-  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -100,7 +50,7 @@ const ProfileBox = () => {
           alt="Profile Cover"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <h2 className="text-2xl font-semibold text-white">
             {profile?.full_name || 'Welcome'}
@@ -114,35 +64,27 @@ const ProfileBox = () => {
   );
 
   const backContent = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-6 pt-6">
-        <h3 className="text-2xl font-semibold">Profile Details</h3>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleLogout}
-          className="text-red-500 hover:text-red-600 hover:bg-transparent"
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign out
-        </Button>
-      </div>
-      <div className="flex-1 px-6 pb-6">
-        <ProfileForm
-          profile={profile}
-          isEditing={isEditing}
-          editForm={editForm}
-          setEditForm={setEditForm}
-          handleEdit={handleEdit}
-          handleSave={handleSave}
-        />
-      </div>
+    <div className="h-full">
+      <img
+        src="https://www.brandpublic.agency/wp-content/uploads/2024/11/cee34d9e-f5bc-42ee-8530-9e4e55a1a702.jpeg"
+        alt="Profile Cover"
+        className="h-full w-full object-cover rounded-lg"
+      />
+      <Button 
+        variant="ghost" 
+        size="sm"
+        onClick={handleLogout}
+        className="absolute top-4 right-4 text-red-500 hover:text-red-600 hover:bg-white/10 bg-white/20"
+      >
+        <LogOut className="h-4 w-4 mr-2" />
+        Sign out
+      </Button>
     </div>
   );
 
   return (
     <div className="h-[450px] w-full">
-      <FlipCard front={frontContent} back={backContent} onEdit={handleEdit} />
+      <FlipCard front={frontContent} back={backContent} />
     </div>
   );
 };
