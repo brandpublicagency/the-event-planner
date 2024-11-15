@@ -66,6 +66,39 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+    const email = emailInput?.value?.trim();
+    
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Reset link sent",
+        description: "Check your email for the password reset link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send reset link",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 min-h-screen md:grid-cols-2">
       {/* Dark section with quote */}
@@ -151,22 +184,28 @@ const Login = () => {
           <div className="flex gap-2 w-full">
             <Button 
               variant="outline" 
-              className="flex-1 text-sm"
+              className="flex-1 text-sm bg-transparent rounded-[4px]"
               onClick={handleMagicLink}
             >
               Magic link
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 text-sm"
-              onClick={() => window.location.href = '#auth-forgot-password'}
+              className="flex-1 text-sm bg-transparent rounded-[4px]"
+              onClick={handleForgotPassword}
             >
               Forgot?
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 text-sm"
-              onClick={() => window.location.href = '#auth-sign-up'}
+              className="flex-1 text-sm bg-transparent rounded-[4px]"
+              onClick={() => {
+                const container = document.querySelector('.supabase-auth-ui_ui-container');
+                const signUpButton = container?.querySelector('button[type="submit"]');
+                if (signUpButton instanceof HTMLElement) {
+                  signUpButton.click();
+                }
+              }}
             >
               Sign up
             </Button>
