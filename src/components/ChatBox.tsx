@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import ChatMessage from "./chat/ChatMessage";
@@ -121,7 +120,7 @@ const ChatBox = () => {
           padding: "1px",
         }}
       >
-        <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
+        <div className="h-full w-full flex flex-col rounded-3xl">
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
@@ -135,7 +134,7 @@ const ChatBox = () => {
             onSubmit={handleSubmit}
             isLoading={isLoading || isContextLoading}
           />
-        </Card>
+        </div>
       </div>
     </div>
   );

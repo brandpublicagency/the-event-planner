@@ -31,10 +31,10 @@ const ProfileBox = () => {
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
   return (
-    <div className="relative h-[450px] w-full">
+    <div className="relative h-[200px] w-full">
       <div className="absolute inset-0 rounded-2xl overflow-hidden">
         <img
-          src="https://www.brandpublic.agency/wp-content/uploads/2024/11/cee34d9e-f5bc-42ee-8530-9e4e55a1a702.jpeg"
+          src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
           alt="Profile Cover"
           className="h-full w-full object-cover"
         />

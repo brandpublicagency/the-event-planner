@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import NavigationSection from "./sidebar/NavigationSection";
-import SidebarTasks from "./sidebar/SidebarTasks";
+import ProfileBox from "./ProfileBox";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -90,7 +90,11 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           </div>
         </div>
 
-        <SidebarTasks isCollapsed={isCollapsed} />
+        {!isCollapsed && (
+          <div className="p-4">
+            <ProfileBox />
+          </div>
+        )}
       </div>
     </div>
   );
