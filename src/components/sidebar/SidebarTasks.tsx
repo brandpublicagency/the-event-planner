@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Task } from "@/integrations/supabase/types/tasks";
+import type { Task, TaskInsert } from "@/integrations/supabase/types/tasks";
 
 interface SidebarTasksProps {
   isCollapsed: boolean;
@@ -34,7 +34,10 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
     mutationFn: async (title: string) => {
       const { error } = await supabase
         .from("tasks")
-        .insert([{ title, user_id: (await supabase.auth.getUser()).data.user?.id }]);
+        .insert([{ 
+          title, 
+          user_id: (await supabase.auth.getUser()).data.user?.id 
+        } as TaskInsert]);
       if (error) throw error;
     },
     onSuccess: () => {
