@@ -46,7 +46,7 @@ const Calendar = () => {
     },
   });
 
-  const { data: events = [], isLoading: isEventsLoading } = useQuery({
+  const { data: events, isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue],
     queryFn: async () => {
       if (!date) return [];
@@ -58,8 +58,8 @@ const Calendar = () => {
         .from('events')
         .select(`
           *,
-          event_venues!inner (
-            venues!inner (
+          event_venues (
+            venues (
               id,
               name
             )
@@ -84,12 +84,34 @@ const Calendar = () => {
         throw error;
       }
 
-      return data?.map((event: any) => ({
+      return data.map((event: any) => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || [],
-      })) as Event[];
+        title: event.name,
+        progress: 0,
+        teamSize: event.pax || 0,
+        dueDate: event.event_date || '',
+        created_at: event.created_at,
+        updated_at: event.updated_at,
+        created_by: event.created_by,
+        description: event.description,
+        event_code: event.event_code,
+        event_type: event.event_type,
+        client_address: event.client_address,
+        package_id: event.package_id,
+        event_date: event.event_date,
+      }));
     },
+    enabled: !!date,
   });
+
+  if (eventsError) {
+    toast({
+      title: "Error loading events",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+  }
 
   const modifiers = {
     hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
@@ -98,7 +120,7 @@ const Calendar = () => {
 
   const modifiersStyles = {
     hasEvent: {
-      backgroundColor: 'white',
+      backgroundColor: 'rgb(250 250 250)',
       color: '#18181B',
       fontWeight: '500'
     },
@@ -136,7 +158,7 @@ const Calendar = () => {
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
       <div className="grid gap-6 lg:grid-cols-[380px,1fr] transition-all">
-        <Card className="p-4">
+        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
           <CalendarComponent
             mode="single"
             selected={date}
@@ -148,7 +170,7 @@ const Calendar = () => {
           />
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-zinc-900">

@@ -1,173 +1,90 @@
-import { Check, Clock, MoreHorizontal, Plus } from "lucide-react";
+import { Check, Clock, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Task {
   id: string;
   title: string;
-  completed: boolean;
+  status: "todo" | "in_progress" | "done" | "backlog" | "canceled";
+  priority: "low" | "medium" | "high";
+  type: "bug" | "feature" | "documentation";
+  dueDate: string;
 }
 
+const tasks: Task[] = [
+  {
+    id: "TASK-8782",
+    title: "Documentation: You can't compress the program without quantifying the open-source SSD",
+    status: "in_progress",
+    priority: "medium",
+    type: "documentation",
+    dueDate: "2024-02-01",
+  },
+  {
+    id: "TASK-7878",
+    title: "Try to calculate the EXE feed, maybe it will index the multi-byte pixel!",
+    status: "backlog",
+    priority: "medium",
+    type: "documentation",
+    dueDate: "2024-02-03",
+  },
+];
+
 const TaskList = () => {
-  const [newTask, setNewTask] = useState("");
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data: tasks = [] } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const addTaskMutation = useMutation({
-    mutationFn: async (title: string) => {
-      const { error } = await supabase
-        .from("tasks")
-        .insert([{ 
-          title, 
-          user_id: (await supabase.auth.getUser()).data.user?.id 
-        }]);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      setNewTask("");
-      toast({
-        title: "Task added",
-        description: "Your task has been added successfully.",
-      });
-    },
-  });
-
-  const toggleTaskMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ completed })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-
-  const handleAddTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newTask.trim()) {
-      addTaskMutation.mutate(newTask.trim());
-    }
+  const handleTaskClick = (taskId: string) => {
+    toast({
+      title: `Task ${taskId} clicked`,
+      description: "Opening task details.",
+    });
   };
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader className="px-0 pt-0">
-        <CardTitle className="text-xl font-semibold flex items-center justify-between">
-          Tasks
-          <Badge variant="outline" className="text-xs">
-            {tasks.length} total
-          </Badge>
-        </CardTitle>
+    <Card className="w-full bg-white border border-zinc-200">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+        <Badge variant="outline" className="text-xs">
+          {tasks.length} total
+        </Badge>
       </CardHeader>
-      <CardContent className="px-0 pb-0">
-        <form onSubmit={handleAddTask} className="mb-6">
-          <div className="flex gap-2">
-            <Input
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              placeholder="Add a new task..."
-              className="flex-1"
-            />
-            <Button type="submit" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </form>
-
-        <div className="space-y-2">
+      <CardContent className="p-0">
+        <div className="divide-y divide-zinc-200">
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="group flex items-center gap-x-3 rounded-lg border border-zinc-200 px-4 py-3 hover:bg-zinc-50 transition-all duration-200"
+              className="flex items-center px-4 py-3 transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white cursor-pointer"
+              onClick={() => handleTaskClick(task.id)}
             >
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-5 w-5 ${
-                  task.completed ? "text-green-500" : "text-zinc-400"
-                }`}
-                onClick={() =>
-                  toggleTaskMutation.mutate({
-                    id: task.id,
-                    completed: !task.completed,
-                  })
-                }
-              >
-                {task.completed ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Clock className="h-4 w-4" />
-                )}
-              </Button>
-              <span
-                className={`flex-1 text-sm ${
-                  task.completed ? "line-through text-zinc-400" : ""
-                }`}
-              >
-                {task.title}
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[160px]">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      toggleTaskMutation.mutate({
-                        id: task.id,
-                        completed: !task.completed,
-                      })
-                    }
-                  >
-                    Mark as {task.completed ? "incomplete" : "complete"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">
-                    Delete Task
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-500">{task.id}</span>
+                  <Badge variant="outline" className="text-xs capitalize">{task.type}</Badge>
+                </div>
+                <div className="mt-1 text-sm">{task.title}</div>
+                <div className="mt-1 text-xs text-zinc-500">Due: {new Date(task.dueDate).toLocaleDateString()}</div>
+              </div>
+              <div className="ml-4 flex items-center gap-3">
+                <Badge 
+                  variant={task.status === "done" ? "secondary" : "outline"}
+                  className="text-xs capitalize"
+                >
+                  {task.status.replace('_', ' ')}
+                </Badge>
+                <Badge 
+                  variant={task.priority === "high" ? "destructive" : "outline"}
+                  className="text-xs capitalize"
+                >
+                  {task.priority}
+                </Badge>
+                <button className="text-zinc-400 hover:text-zinc-900">
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ))}
-          {tasks.length === 0 && (
-            <p className="text-center text-zinc-500 text-sm py-4">
-              No tasks yet. Add one above!
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>

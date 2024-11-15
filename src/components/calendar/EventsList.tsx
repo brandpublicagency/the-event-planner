@@ -1,4 +1,3 @@
-import React from 'react';
 import { CalendarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
     return (
       <div className="space-y-4">
         {[1, 2].map((i) => (
-          <div key={i} className="rounded-lg border border-zinc-200 p-4">
+          <div key={i} className="rounded-lg border p-4">
             <Skeleton className="h-6 w-3/4 mb-2" />
             <Skeleton className="h-4 w-1/2 mb-2" />
             <Skeleton className="h-4 w-1/3" />
@@ -41,7 +40,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
       {events.map((event) => (
         <div
           key={event.event_code}
-          className="rounded-lg border border-zinc-200 bg-white p-4 hover:border-zinc-300 transition-colors group relative"
+          className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-all duration-200 group relative"
         >
           <Badge 
             variant="secondary" 
@@ -62,15 +61,16 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 <span>•</span>
                 <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
                 {event.venues?.map((venue, index) => (
-                  <React.Fragment key={venue.id || index}>
+                  <>
                     <span>•</span>
                     <Badge 
+                      key={venue.id || index} 
                       variant="outline" 
                       className="bg-zinc-50"
                     >
                       {venue.name}
                     </Badge>
-                  </React.Fragment>
+                  </>
                 ))}
               </div>
               {event.description && (
