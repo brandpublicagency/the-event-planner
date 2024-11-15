@@ -125,7 +125,7 @@ export const AuthForm = () => {
               input: 'w-full',
               label: 'hidden', // Hide the labels
               divider: 'my-6',
-              anchor: 'text-zinc-900 hover:text-zinc-800 text-left block',
+              anchor: 'hidden', // Hide the default auth links
               message: 'text-left',
             },
           }}
@@ -136,12 +136,19 @@ export const AuthForm = () => {
                 password_label: '',
                 email_input_placeholder: 'Email address',
                 password_input_placeholder: 'Password',
+                button_label: 'Sign in',
+                link_text: '',
               },
               sign_up: {
                 email_label: '',
                 password_label: '',
                 email_input_placeholder: 'Email address',
                 password_input_placeholder: 'Password',
+                button_label: 'Sign up',
+                link_text: '',
+              },
+              forgotten_password: {
+                link_text: '',
               },
             },
           }}
