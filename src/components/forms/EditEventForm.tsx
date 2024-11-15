@@ -27,7 +27,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
     defaultValues: {
       name: event.name,
       event_type: event.event_type,
-      event_date: event.event_date ? new Date(event.event_date) : undefined,
+      event_date: event.event_date || '',
       pax: event.pax,
       package_id: event.package_id,
       start_time: event.start_time,
@@ -58,7 +58,7 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
         .update({
           name: data.name,
           event_type: data.event_type,
-          event_date: data.event_date?.toISOString().split('T')[0],
+          event_date: data.event_date,
           pax: data.pax,
           package_id: data.package_id,
           start_time: data.start_time,

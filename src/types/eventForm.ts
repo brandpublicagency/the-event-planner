@@ -8,7 +8,7 @@ export interface EventFormData {
   pax?: number;
   package_id?: string;
   client_address?: string;
-  venues: Record<string, boolean>;
+  venues?: Record<string, boolean>;
   // Wedding specific fields
   bride_name?: string;
   bride_email?: string;
