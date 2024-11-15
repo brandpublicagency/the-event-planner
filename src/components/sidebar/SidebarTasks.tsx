@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Task, TaskInsert } from "@/integrations/supabase/types/tasks";
 
 interface SidebarTasksProps {
@@ -90,38 +91,73 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
     );
   }
 
+  const activeTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
+
   return (
     <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-lg">
       <h3 className="font-medium mb-1">To-do List</h3>
       <p className="text-sm text-gray-500 mb-4">Keep track of your daily tasks</p>
       
-      <form onSubmit={handleAddTask} className="flex gap-2 mb-4">
-        <Input
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          placeholder="Add a new task..."
-          className="flex-1"
-        />
-        <Button type="submit" size="sm" className="shrink-0">
-          <Plus className="h-4 w-4" />
-        </Button>
-      </form>
+      <Tabs defaultValue="active" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-2">
-        {tasks.map((task) => (
-          <div key={task.id} className="flex items-center gap-2">
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={(checked) => {
-                toggleTaskMutation.mutate({ id: task.id, completed: checked as boolean });
-              }}
+        <TabsContent value="active" className="space-y-4">
+          <form onSubmit={handleAddTask} className="flex gap-2 mb-4">
+            <Input
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              placeholder="Add a new task..."
+              className="flex-1"
             />
-            <span className={`text-sm ${task.completed ? "line-through text-gray-400" : ""}`}>
-              {task.title}
-            </span>
+            <Button type="submit" size="sm" className="shrink-0">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </form>
+
+          <div className="space-y-2">
+            {activeTasks.map((task) => (
+              <div key={task.id} className="flex items-center gap-2">
+                <Checkbox
+                  checked={task.completed}
+                  onCheckedChange={(checked) => {
+                    toggleTaskMutation.mutate({ id: task.id, completed: checked as boolean });
+                  }}
+                />
+                <span className="text-sm">
+                  {task.title}
+                </span>
+              </div>
+            ))}
+            {activeTasks.length === 0 && (
+              <p className="text-sm text-gray-500 text-center py-2">No active tasks</p>
+            )}
           </div>
-        ))}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="completed" className="space-y-2">
+          {completedTasks.map((task) => (
+            <div key={task.id} className="flex items-center gap-2">
+              <Checkbox
+                checked={task.completed}
+                onCheckedChange={(checked) => {
+                  toggleTaskMutation.mutate({ id: task.id, completed: checked as boolean });
+                }}
+              />
+              <span className="text-sm text-gray-500 line-through">
+                {task.title}
+              </span>
+            </div>
+          ))}
+          {completedTasks.length === 0 && (
+            <p className="text-sm text-gray-500 text-center py-2">No completed tasks</p>
+          )}
+          <p className="text-xs text-gray-400 mt-4">Completed tasks are automatically deleted after 7 days</p>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
