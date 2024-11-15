@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Task, TaskInsert } from "@/integrations/supabase/types/tasks";
 
 interface SidebarTasksProps {
@@ -13,6 +15,7 @@ interface SidebarTasksProps {
 
 const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
   const [newTask, setNewTask] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -42,6 +45,7 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setNewTask("");
+      setIsExpanded(true);
       toast({
         title: "Task added",
         description: "Your task has been added successfully.",
@@ -80,70 +84,90 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
     return null;
   }
 
-  const activeTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
-
   return (
-    <div className="px-3 pb-3">
-      <h3 className="font-medium mb-1">To-do List</h3>
-      <p className="text-sm text-gray-500 mb-4">Keep track of your daily tasks</p>
-      
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-        </TabsList>
+    <div 
+      className={cn(
+        "transition-all duration-300 ease-in-out",
+        isExpanded ? "bg-zinc-900 text-white" : ""
+      )}
+    >
+      <div className="px-3 pb-3">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={cn(
+            "font-medium transition-colors",
+            isExpanded ? "text-white" : "text-zinc-900"
+          )}>
+            To-do List
+          </h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={cn(
+              "text-xs",
+              isExpanded ? "text-white hover:text-white/80" : "text-zinc-600"
+            )}
+          >
+            {isExpanded ? "Close" : "View all tasks"}
+            <ChevronRight className={cn(
+              "ml-1 h-4 w-4 transition-transform",
+              isExpanded ? "rotate-90" : ""
+            )} />
+          </Button>
+        </div>
 
-        <TabsContent value="active" className="space-y-4">
-          <form onSubmit={handleAddTask} className="mb-4">
+        <form onSubmit={handleAddTask} className="mb-4">
+          <div className="flex gap-2">
             <Input
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
-              placeholder="Add a new task and press Enter..."
-              className="w-full"
+              placeholder="Add a new task..."
+              className={cn(
+                "w-full transition-colors",
+                isExpanded ? "bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400" : ""
+              )}
             />
-          </form>
+            <Button 
+              type="submit" 
+              size="icon"
+              className={cn(
+                "shrink-0",
+                isExpanded ? "bg-white text-zinc-900 hover:bg-white/90" : ""
+              )}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        </form>
 
-          <div className="space-y-2">
-            {activeTasks.map((task) => (
-              <div key={task.id} className="flex items-center gap-2">
+        {isExpanded && (
+          <div className="space-y-2 animate-in slide-in-from-top duration-300">
+            {tasks.map((task) => (
+              <div 
+                key={task.id} 
+                className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
                 <Checkbox
                   checked={task.completed}
                   onCheckedChange={(checked) => {
                     toggleTaskMutation.mutate({ id: task.id, completed: checked as boolean });
                   }}
+                  className="border-zinc-600 data-[state=checked]:bg-white data-[state=checked]:text-zinc-900"
                 />
-                <span className="text-sm">
+                <span className={cn(
+                  "text-sm transition-opacity",
+                  task.completed ? "line-through opacity-50" : ""
+                )}>
                   {task.title}
                 </span>
               </div>
             ))}
-            {activeTasks.length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-2">No active tasks</p>
+            {tasks.length === 0 && (
+              <p className="text-sm text-zinc-400 text-center py-2">No tasks yet</p>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-2">
-          {completedTasks.map((task) => (
-            <div key={task.id} className="flex items-center gap-2">
-              <Checkbox
-                checked={task.completed}
-                onCheckedChange={(checked) => {
-                  toggleTaskMutation.mutate({ id: task.id, completed: checked as boolean });
-                }}
-              />
-              <span className="text-sm text-gray-500 line-through">
-                {task.title}
-              </span>
-            </div>
-          ))}
-          {completedTasks.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-2">No completed tasks</p>
-          )}
-          <p className="text-xs text-gray-400 mt-4">Completed tasks are automatically deleted after 7 days</p>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 };
