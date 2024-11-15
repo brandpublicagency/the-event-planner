@@ -95,7 +95,7 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
   const completedTasks = tasks.filter(task => task.completed);
 
   return (
-    <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-lg">
+    <div className="px-2">
       <h3 className="font-medium mb-1">To-do List</h3>
       <p className="text-sm text-gray-500 mb-4">Keep track of your daily tasks</p>
       
@@ -106,16 +106,13 @@ const SidebarTasks = ({ isCollapsed }: SidebarTasksProps) => {
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          <form onSubmit={handleAddTask} className="flex gap-2 mb-4">
+          <form onSubmit={handleAddTask} className="mb-4">
             <Input
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
-              placeholder="Add a new task..."
-              className="flex-1"
+              placeholder="Add a new task and press Enter..."
+              className="w-full"
             />
-            <Button type="submit" size="sm" className="shrink-0">
-              <Plus className="h-4 w-4" />
-            </Button>
           </form>
 
           <div className="space-y-2">
