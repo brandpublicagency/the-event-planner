@@ -27,9 +27,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.user.id) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
+        .eq("user_id", session.session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -39,7 +43,15 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { error } = await supabase.from("tasks").insert([{ title }]);
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.user.id) throw new Error("User not authenticated");
+
+      const { error } = await supabase.from("tasks").insert([
+        { 
+          title,
+          user_id: session.session.user.id,
+        }
+      ]);
       if (error) throw error;
     },
     onSuccess: () => {
