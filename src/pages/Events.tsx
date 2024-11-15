@@ -51,6 +51,37 @@ const Events = () => {
     },
   });
 
+  const handleDelete = async (eventCode: string) => {
+    try {
+      // Delete related records first
+      await supabase.from('menu_selections').delete().eq('event_code', eventCode);
+      await supabase.from('wedding_details').delete().eq('event_code', eventCode);
+      await supabase.from('corporate_details').delete().eq('event_code', eventCode);
+      await supabase.from('event_venues').delete().eq('event_code', eventCode);
+      
+      // Finally delete the event
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('event_code', eventCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
+  };
+
   const groupedEvents = groupEventsByMonth(events);
 
   const filteredEvents = Object.entries(groupedEvents).reduce(
@@ -115,29 +146,7 @@ const Events = () => {
       ) : (
         <EventsTable 
           groupedEvents={filteredEvents}
-          handleDelete={async (eventCode: string) => {
-            try {
-              const { error } = await supabase
-                .from('events')
-                .delete()
-                .eq('event_code', eventCode);
-
-              if (error) throw error;
-
-              toast({
-                title: "Success",
-                description: "Event deleted successfully",
-              });
-
-              refetch();
-            } catch (error: any) {
-              toast({
-                title: "Error",
-                description: error.message || "Failed to delete event",
-                variant: "destructive",
-              });
-            }
-          }}
+          handleDelete={handleDelete}
         />
       )}
     </div>
