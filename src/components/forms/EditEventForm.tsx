@@ -117,34 +117,32 @@ export const EditEventForm = ({ event }: EditEventFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto">
-        <div className="space-y-8">
-          <FormSection title="Basic Information" description="Update the basic details of your event.">
-            <EventBasicInfo form={form} />
-          </FormSection>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl mx-auto space-y-6">
+        <FormSection title="Basic Information">
+          <EventBasicInfo form={form} />
+        </FormSection>
 
-          {form.watch("event_type") === "Wedding" && (
-            <div className="grid gap-8 md:grid-cols-2">
-              <FormSection title="Bride Details" description="Update the bride's information.">
-                <BrideDetails form={form} />
-              </FormSection>
-
-              <FormSection title="Groom Details" description="Update the groom's information.">
-                <GroomDetails form={form} />
-              </FormSection>
-            </div>
-          )}
-
-          {form.watch("event_type") === "Corporate Event" && (
-            <FormSection title="Company Details" description="Update the company information.">
-              <CompanyDetails form={form} />
+        {form.watch("event_type") === "Wedding" && (
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormSection title="Bride Details">
+              <BrideDetails form={form} />
             </FormSection>
-          )}
 
-          <FormSection title="Address Information" description="Update the address details.">
-            <ClientDetails form={form} />
+            <FormSection title="Groom Details">
+              <GroomDetails form={form} />
+            </FormSection>
+          </div>
+        )}
+
+        {form.watch("event_type") === "Corporate Event" && (
+          <FormSection title="Company Details">
+            <CompanyDetails form={form} />
           </FormSection>
-        </div>
+        )}
+
+        <FormSection title="Address Information">
+          <ClientDetails form={form} />
+        </FormSection>
 
         <EventFormActions 
           isSubmitting={form.formState.isSubmitting}
