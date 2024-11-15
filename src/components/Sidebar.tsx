@@ -33,7 +33,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     >
       <div className="flex flex-col h-full">
         {/* Header with Profile */}
-        <div className="p-4 flex items-center gap-3">
+        <div className="px-4 py-4 flex items-center gap-3">
           <div className={cn(
             "w-10 h-10 rounded-full bg-[#0A0F1D] flex-shrink-0",
             isCollapsed ? "mx-auto" : ""
@@ -62,13 +62,13 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
 
         {/* Main Navigation */}
-        <div className="flex-1 px-3 py-8">
+        <div className="flex-1 px-4 py-8">
           <div className="space-y-8">
             {/* MAIN section */}
             <div>
               <div className={cn(
                 "text-xs font-medium mb-4",
-                isCollapsed ? "text-gray-600 text-center" : "text-gray-400 px-3"
+                isCollapsed ? "text-gray-600 text-center" : "text-gray-400"
               )}>
                 MAIN
               </div>
@@ -111,7 +111,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             <div>
               <div className={cn(
                 "text-xs font-medium mb-4",
-                isCollapsed ? "text-gray-600 text-center" : "text-gray-400 px-3"
+                isCollapsed ? "text-gray-600 text-center" : "text-gray-400"
               )}>
                 OTHER
               </div>
