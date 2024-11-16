@@ -1,11 +1,10 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { karooMeatOptions, karooStarchGroups, karooVegetableOptions, saladOptions } from './MenuTypes';
+import { karooMeatOptions, karooStarchGroups, saladOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import KarooStarchGroup from './karoo/KarooStarchGroup';
+import KarooVegetableSelect from './karoo/KarooVegetableSelect';
 
 interface KarooSectionProps {
   karooMeatSelection: string;
@@ -77,62 +76,25 @@ const KarooSection = ({
       </div>
 
       <div className="space-y-6">
-        <div className="space-y-4">
-          <Label>POTATO OPTION</Label>
-          <RadioGroup value={potatoSelection} onValueChange={handlePotatoSelectionChange}>
-            <div className="grid gap-3">
-              {karooStarchGroups.potatoes.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3">
-                  <RadioGroupItem value={option.value} id={`potato-${option.value}`} />
-                  <Label htmlFor={`potato-${option.value}`}>{option.label}</Label>
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
-        </div>
+        <KarooStarchGroup
+          title="POTATO OPTION"
+          options={karooStarchGroups.potatoes}
+          value={potatoSelection}
+          onChange={handlePotatoSelectionChange}
+        />
 
-        <div className="space-y-4">
-          <Label>RICE OPTION</Label>
-          <RadioGroup value={riceSelection} onValueChange={handleRiceSelectionChange}>
-            <div className="grid gap-3">
-              {karooStarchGroups.rice.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3">
-                  <RadioGroupItem value={option.value} id={`rice-${option.value}`} />
-                  <Label htmlFor={`rice-${option.value}`}>{option.label}</Label>
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
-        </div>
+        <KarooStarchGroup
+          title="RICE OPTION"
+          options={karooStarchGroups.rice}
+          value={riceSelection}
+          onChange={handleRiceSelectionChange}
+        />
       </div>
 
-      <div className="space-y-4">
-        <SelectionHeader title="VEGETABLES" />
-        <div className="grid gap-3">
-          {karooVegetableOptions.map((option) => (
-            <label
-              key={option.value}
-              className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-            >
-              <Checkbox
-                checked={karooVegetableSelections.includes(option.value)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    if (karooVegetableSelections.length < 2) {
-                      onKarooVegetableSelectionsChange([...karooVegetableSelections, option.value]);
-                    }
-                  } else {
-                    onKarooVegetableSelectionsChange(
-                      karooVegetableSelections.filter(item => item !== option.value)
-                    );
-                  }
-                }}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+      <KarooVegetableSelect
+        selections={karooVegetableSelections}
+        onSelectionsChange={onKarooVegetableSelectionsChange}
+      />
 
       <div className="space-y-4">
         <SelectionHeader title="TABLE SALAD" />
