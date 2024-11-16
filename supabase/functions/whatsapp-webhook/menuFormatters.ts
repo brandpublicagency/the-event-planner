@@ -18,6 +18,8 @@ export const formatMainCourseSection = (menu: any) => {
     case 'plated':
       mainSection = formatPlatedMenu(menu);
       break;
+    default:
+      mainSection = '*Main Course*\nNot selected';
   }
 
   return mainSection;

@@ -1,4 +1,4 @@
-import { formatMenuSelection } from './menuFormatters.ts';
+import { formatMenuSelection, formatMainCourseSection } from './menuFormatters.ts';
 
 export const formatEventDetails = (event: any) => {
   const venues = event.event_venues
