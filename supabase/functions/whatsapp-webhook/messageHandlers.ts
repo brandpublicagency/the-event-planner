@@ -13,6 +13,7 @@ export const getWelcomeMessage = async () => {
     .from('events')
     .select('*')
     .gte('event_date', today)
+    .is('deleted_at', null)  // Only show non-deleted events
     .order('event_date', { ascending: true })
     .limit(10);
 
@@ -65,6 +66,7 @@ export const getEventDetails = async (eventCode: string) => {
       )
     `)
     .eq('event_code', eventCode)
+    .is('deleted_at', null)  // Only show non-deleted events
     .single();
 
   if (!event) {
