@@ -1,3 +1,4 @@
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -33,7 +34,7 @@ const EventDetails = () => {
             )
           `)
           .eq('event_code', id)
-          .maybeSingle();
+          .maybeSingle(); // Changed from .single() to .maybeSingle()
 
         clearTimeout(timeoutId);
 
@@ -87,27 +88,45 @@ const EventDetails = () => {
     );
   }
 
-  if (error) return (
-    <div className="flex-1 p-8">
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-red-800">{error instanceof Error ? error.message : 'Failed to load event details'}</p>
+  if (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to load event details';
+    return (
+      <div className="flex-1 p-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-red-800">{errorMessage}</p>
+          <Button 
+            onClick={() => navigate('/events')} 
+            variant="outline" 
+            className="mt-4"
+          >
+            Back to Events
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (!event) return null;
+  if (!event) {
+    return (
+      <div className="flex-1 p-8">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+          <p className="text-yellow-800">Event not found</p>
+          <Button 
+            onClick={() => navigate('/events')} 
+            variant="outline" 
+            className="mt-4"
+          >
+            Back to Events
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   const formattedTime = event.start_time && event.end_time ? `${event.start_time.slice(0, 5)} - ${event.end_time.slice(0, 5)}` : '';
-  const venueNames = event.event_venues?.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
+  const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
   
-  const eventInfo = [
-    `**${formattedDate}${formattedTime ? `, ${formattedTime}` : ''}**`,
-    `*${event.event_type}*`,
-    `**${event.pax} Pax**`,
-    `*${venueNames}*`
-  ].join(' / ');
-
   return (
     <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:hidden">
       <div className="max-w-4xl mx-auto bg-white rounded-lg border border-zinc-200 p-6 print:border-none print:shadow-none print:p-0 print:block print:!visible">
@@ -148,55 +167,13 @@ const EventDetails = () => {
           </div>
 
           <div className="text-base font-medium text-zinc-800 -mt-1.5 print:text-sm">
-            {eventInfo.split('**').map((part, i) => 
-              i % 2 === 1 ? (
-                <span key={i} className="font-bold">{part}</span>
-              ) : part.split('*').map((subPart, j) => 
-                j % 2 === 1 ? (
-                  <span key={`${i}-${j}`} className="font-medium">{subPart}</span>
-                ) : subPart
-              )
-            )}
+            {`${formattedDate}${formattedTime ? ` • ${formattedTime}` : ''} • ${event.event_type} • ${event.pax || 'No'} Pax • ${venueNames}`}
           </div>
         </div>
 
         <div className="print:block">
           <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
         </div>
-
-        <style>{`
-          @media print {
-            @page {
-              size: A4;
-              margin: 1cm;
-            }
-            
-            body {
-              background: white !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            
-            .print\\:hidden {
-              display: none !important;
-            }
-
-            .print\\:block {
-              display: block !important;
-            }
-
-            .print\\:!visible {
-              visibility: visible !important;
-              display: block !important;
-            }
-
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              color-adjust: exact !important;
-            }
-          }
-        `}</style>
       </div>
     </div>
   );
