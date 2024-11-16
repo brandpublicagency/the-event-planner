@@ -20,6 +20,7 @@ async function handleMessage(from: string, message: string) {
     // Check if this is the first message or a help request
     if (lowerMessage === 'hi' || lowerMessage === 'hello' || lowerMessage === 'hey') {
       response = await getWelcomeMessage();
+      console.log('Generated welcome message:', response);
     } else if (lowerMessage === 'help') {
       response = { message: getHelpMessage() };
     } else if (lowerMessage === 'next event') {
@@ -62,29 +63,31 @@ async function handleMessage(from: string, message: string) {
 }
 
 serve(async (req) => {
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  // Handle webhook verification
-  if (req.method === 'GET') {
-    const url = new URL(req.url);
-    const mode = url.searchParams.get('hub.mode');
-    const token = url.searchParams.get('hub.verify_token');
-    const challenge = url.searchParams.get('hub.challenge');
-
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      return new Response(challenge, { headers: corsHeaders });
+  try {
+    // Handle CORS
+    if (req.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
     }
-    return new Response('Forbidden', { status: 403, headers: corsHeaders });
-  }
 
-  // Handle incoming messages
-  if (req.method === 'POST') {
-    try {
+    // Handle webhook verification
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const mode = url.searchParams.get('hub.mode');
+      const token = url.searchParams.get('hub.verify_token');
+      const challenge = url.searchParams.get('hub.challenge');
+
+      console.log('Verification request:', { mode, token, challenge });
+
+      if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+        return new Response(challenge, { headers: corsHeaders });
+      }
+      return new Response('Forbidden', { status: 403, headers: corsHeaders });
+    }
+
+    // Handle incoming messages
+    if (req.method === 'POST') {
       const body = await req.json();
-      console.log('Received webhook:', JSON.stringify(body, null, 2));
+      console.log('Received webhook payload:', JSON.stringify(body, null, 2));
       
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
@@ -100,7 +103,7 @@ serve(async (req) => {
 
       const message = messages[0];
       if (!message.from || !message.text?.body) {
-        console.log('Invalid message format:', message);
+        console.error('Invalid message format:', message);
         return new Response(JSON.stringify({ status: 'invalid message format' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -111,17 +114,20 @@ serve(async (req) => {
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-    } catch (error) {
-      console.error('Error processing webhook:', error);
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
-  }
 
-  return new Response('Method not allowed', { 
-    status: 405, 
-    headers: corsHeaders 
-  });
+    return new Response('Method not allowed', { 
+      status: 405, 
+      headers: corsHeaders 
+    });
+  } catch (error) {
+    console.error('Fatal error in webhook handler:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      stack: error.stack 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 });

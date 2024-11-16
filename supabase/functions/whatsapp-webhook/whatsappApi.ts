@@ -5,26 +5,42 @@ export async function sendWhatsAppMessage(to: string, messageData: { message: st
   const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
-    console.log('Sending WhatsApp message:', { to, messageData });
+    console.log('Preparing WhatsApp message:', { to, messageData });
     
-    const messageBody: any = {
-      messaging_product: "whatsapp",
-      to: to,
-      type: "interactive",
-      interactive: {
-        type: "button",
-        body: {
-          text: messageData.message
-        },
-        action: {
-          buttons: messageData.components?.map(component => ({
-            type: component.sub_type,
-            text: component.parameters[0].text,
-            url: component.url
-          })) || []
+    let messageBody: any;
+    
+    if (messageData.components?.length > 0) {
+      messageBody = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: messageData.message
+          },
+          action: {
+            buttons: messageData.components.map(component => ({
+              type: component.sub_type,
+              text: component.parameters[0].text,
+              url: component.url
+            }))
+          }
         }
-      }
-    };
+      };
+    } else {
+      // Send a simple text message if no components
+      messageBody = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "text",
+        text: {
+          body: messageData.message
+        }
+      };
+    }
+
+    console.log('Sending request to WhatsApp API:', JSON.stringify(messageBody, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -36,7 +52,7 @@ export async function sendWhatsAppMessage(to: string, messageData: { message: st
     });
 
     const responseData = await response.json();
-    console.log('WhatsApp API response:', responseData);
+    console.log('WhatsApp API response:', JSON.stringify(responseData, null, 2));
 
     if (!response.ok) {
       throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(responseData)}`);
