@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -85,7 +85,12 @@ ${menu.plated_starter ? `Plated Starter: ${menu.plated_starter}` : ''}`;
 
     // Format Main Course section
     const mainSection = `*Main Course:*
-${menu.main_course_type ? `Type: ${menu.main_course_type}` : 'Not selected'}`;
+${menu.main_course_type ? `Type: ${menu.main_course_type}` : 'Not selected'}
+${menu.plated_main_selection ? `Selection: ${menu.plated_main_selection}` : ''}
+${menu.buffet_meat_selections?.length ? `Meat Selections: ${menu.buffet_meat_selections.join(', ')}` : ''}
+${menu.buffet_vegetable_selections?.length ? `Vegetable Selections: ${menu.buffet_vegetable_selections.join(', ')}` : ''}
+${menu.buffet_starch_selections?.length ? `Starch Selections: ${menu.buffet_starch_selections.join(', ')}` : ''}
+${menu.buffet_salad_selection ? `Salad Selection: ${menu.buffet_salad_selection}` : ''}`;
 
     // Format Dessert section
     const dessertSection = `*Dessert:*
