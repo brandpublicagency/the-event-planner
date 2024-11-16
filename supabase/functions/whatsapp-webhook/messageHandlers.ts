@@ -11,9 +11,17 @@ export const getWelcomeMessage = async () => {
   
   const { data: events } = await supabase
     .from('events')
-    .select('*')
+    .select(`
+      *,
+      event_venues (
+        venues (
+          id,
+          name
+        )
+      )
+    `)
     .gte('event_date', today)
-    .is('deleted_at', null)  // Only show non-deleted events
+    .is('deleted_at', null)
     .order('event_date', { ascending: true })
     .limit(10);
 
