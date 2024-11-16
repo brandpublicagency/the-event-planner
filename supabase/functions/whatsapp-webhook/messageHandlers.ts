@@ -10,6 +10,12 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Helper function to truncate text
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+}
+
 export async function getWelcomeMessage() {
   try {
     const { data: events, error } = await supabase
@@ -35,7 +41,7 @@ export async function getWelcomeMessage() {
       title: "Upcoming Events",
       rows: events.map(event => ({
         id: event.event_code,
-        title: event.name,
+        title: truncateText(event.name, 24),
         description: event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set'
       }))
     }];
