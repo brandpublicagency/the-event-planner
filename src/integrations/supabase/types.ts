@@ -184,16 +184,56 @@ export type Database = {
           },
         ]
       }
+      menu_options: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          price: number
+          price_type: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          price: number
+          price_type: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number
+          price_type?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_selections: {
         Row: {
           canape_package: string | null
           canape_selections: string[] | null
           created_at: string
           custom_menu_details: string | null
+          dessert_price: number | null
+          dessert_type: string | null
           event_code: string
           is_custom: boolean | null
+          main_course_price: number | null
+          main_course_type: string | null
           notes: string | null
+          other_selections: string[] | null
+          other_total_price: number | null
           plated_starter: string | null
+          starter_price: number | null
           starter_type: string | null
           updated_at: string
         }
@@ -202,10 +242,17 @@ export type Database = {
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
+          dessert_price?: number | null
+          dessert_type?: string | null
           event_code: string
           is_custom?: boolean | null
+          main_course_price?: number | null
+          main_course_type?: string | null
           notes?: string | null
+          other_selections?: string[] | null
+          other_total_price?: number | null
           plated_starter?: string | null
+          starter_price?: number | null
           starter_type?: string | null
           updated_at?: string
         }
@@ -214,10 +261,17 @@ export type Database = {
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
+          dessert_price?: number | null
+          dessert_type?: string | null
           event_code?: string
           is_custom?: boolean | null
+          main_course_price?: number | null
+          main_course_type?: string | null
           notes?: string | null
+          other_selections?: string[] | null
+          other_total_price?: number | null
           plated_starter?: string | null
+          starter_price?: number | null
           starter_type?: string | null
           updated_at?: string
         }
