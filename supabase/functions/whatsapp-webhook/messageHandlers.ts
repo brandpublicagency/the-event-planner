@@ -25,7 +25,7 @@ export const getWelcomeMessage = async () => {
 
   const sections = events.map(event => ({
     id: event.event_code,
-    title: event.name,
+    title: truncateTitle(event.name),
     description: formatEventDate(event.event_date)
   }));
 
@@ -100,4 +100,9 @@ const formatEventDate = (dateStr: string | null) => {
     day: 'numeric',
     month: 'long'
   });
+};
+
+const truncateTitle = (title: string) => {
+  const maxLength = 24;
+  return title.length <= maxLength ? title : title.substring(0, maxLength - 3) + '...';
 };
