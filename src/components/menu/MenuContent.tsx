@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import StarterTypeSelect from './StarterTypeSelect';
 import CanapeSection from './CanapeSection';
 import PlatedStarterSection from './PlatedStarterSection';
@@ -33,9 +32,7 @@ const MenuContent = ({
           }}
         />
         <div className="flex justify-end print:hidden">
-          <Button onClick={saveMenuSelections}>
-            Save Menu
-          </Button>
+          <Button onClick={saveMenuSelections}>Save Menu</Button>
         </div>
       </div>
     );
@@ -44,24 +41,26 @@ const MenuContent = ({
   const selectedStarterType = starterTypes.find(type => type.value === menuState.selectedStarterType);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-top-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-top-4">
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-lg mb-2">Arrival & Starter</h3>
-          <Label className="text-sm text-muted-foreground mb-4 block">
-            {selectedStarterType ? `${selectedStarterType.label} - R ${selectedStarterType.price.toFixed(2)} per person` : 'Select your starter type'}
-          </Label>
+          <h3 className="font-semibold text-lg">Arrival & Starter</h3>
+          {!menuState.selectedStarterType ? (
+            <StarterTypeSelect
+              selectedStarterType={menuState.selectedStarterType}
+              onStarterTypeChange={(value) => {
+                onMenuStateChange('selectedStarterType', value);
+                onMenuStateChange('selectedCanapePackage', '');
+                onMenuStateChange('selectedCanapes', []);
+                onMenuStateChange('selectedPlatedStarter', '');
+              }}
+            />
+          ) : (
+            <div className="text-zinc-600 mt-2">
+              {selectedStarterType?.label}
+            </div>
+          )}
         </div>
-        
-        <StarterTypeSelect
-          selectedStarterType={menuState.selectedStarterType}
-          onStarterTypeChange={(value) => {
-            onMenuStateChange('selectedStarterType', value);
-            onMenuStateChange('selectedCanapePackage', '');
-            onMenuStateChange('selectedCanapes', []);
-            onMenuStateChange('selectedPlatedStarter', '');
-          }}
-        />
 
         {menuState.selectedStarterType?.startsWith('canapes') && (
           <div className="animate-in fade-in slide-in-from-top-4">
@@ -91,7 +90,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-lg mb-2">Main Course</h3>
+          <h3 className="font-semibold text-lg">Main Course</h3>
           <MainCourseSection
             selectedMainCourse={menuState.mainCourseType}
             buffetMeatSelections={menuState.buffetMeatSelections}
@@ -106,7 +105,6 @@ const MenuContent = ({
             platedSaladSelection={menuState.platedSaladSelection}
             onMainCourseChange={(value) => {
               onMenuStateChange('mainCourseType', value);
-              // Reset all main course related selections when changing type
               onMenuStateChange('buffetMeatSelections', []);
               onMenuStateChange('buffetVegetableSelections', []);
               onMenuStateChange('buffetStarchSelections', []);
@@ -134,7 +132,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-lg mb-2">Dessert</h3>
+          <h3 className="font-semibold text-lg">Dessert</h3>
           <DessertSection
             selectedDessert={menuState.dessertType}
             onDessertChange={(value) => {
@@ -146,7 +144,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-lg mb-2">Additional Options</h3>
+          <h3 className="font-semibold text-lg">Additional Options</h3>
           <OtherOptionsSection
             selectedOptions={menuState.otherSelections || []}
             onOptionsChange={(value) => {

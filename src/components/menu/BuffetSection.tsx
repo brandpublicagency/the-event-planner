@@ -1,7 +1,5 @@
 import React from 'react';
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { buffetMeatOptions, buffetVegetableOptions, buffetStarchOptions, saladOptions } from './MenuTypes';
 
 interface BuffetSectionProps {
@@ -25,95 +23,211 @@ const BuffetSection = ({
   onBuffetStarchSelectionsChange,
   onBuffetSaladSelectionChange,
 }: BuffetSectionProps) => {
-  const handleOptionToggle = (
-    currentSelections: string[],
-    value: string,
-    onChange: (value: string[]) => void,
-    maxSelections: number
-  ) => {
-    if (currentSelections.includes(value)) {
-      onChange(currentSelections.filter(item => item !== value));
-    } else if (currentSelections.length < maxSelections) {
-      onChange([...currentSelections, value]);
+  const handleMeatSelection = (value: string) => {
+    if (buffetMeatSelections.includes(value)) {
+      onBuffetMeatSelectionsChange(buffetMeatSelections.filter(item => item !== value));
+    } else if (buffetMeatSelections.length < 2) {
+      onBuffetMeatSelectionsChange([...buffetMeatSelections, value]);
+    }
+  };
+
+  const handleVegetableSelection = (value: string) => {
+    if (buffetVegetableSelections.includes(value)) {
+      onBuffetVegetableSelectionsChange(buffetVegetableSelections.filter(item => item !== value));
+    } else if (buffetVegetableSelections.length < 2) {
+      onBuffetVegetableSelectionsChange([...buffetVegetableSelections, value]);
+    }
+  };
+
+  const handleStarchSelection = (value: string) => {
+    if (buffetStarchSelections.includes(value)) {
+      onBuffetStarchSelectionsChange(buffetStarchSelections.filter(item => item !== value));
+    } else if (buffetStarchSelections.length < 2) {
+      onBuffetStarchSelectionsChange([...buffetStarchSelections, value]);
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <Label>MEAT SELECTION - CHOOSE TWO OPTIONS</Label>
-        <div className="grid gap-3">
-          {buffetMeatOptions.map((option) => (
-            <label
-              key={option.value}
-              className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-            >
-              <Checkbox
-                checked={buffetMeatSelections.includes(option.value)}
-                onCheckedChange={() => 
-                  handleOptionToggle(buffetMeatSelections, option.value, onBuffetMeatSelectionsChange, 2)
-                }
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
+        <h4 className="text-sm font-medium text-zinc-500">MEAT SELECTION</h4>
+        {buffetMeatSelections.length === 0 ? (
+          <Select onValueChange={handleMeatSelection}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose meat option (select 2)" />
+            </SelectTrigger>
+            <SelectContent>
+              {buffetMeatOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="space-y-2">
+            {buffetMeatSelections.map((selection) => {
+              const option = buffetMeatOptions.find(opt => opt.value === selection);
+              return (
+                <div key={selection} className="flex justify-between items-center">
+                  <span>{option?.label}</span>
+                  <button
+                    onClick={() => handleMeatSelection(selection)}
+                    className="text-sm text-red-500 hover:text-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
+            {buffetMeatSelections.length < 2 && (
+              <Select onValueChange={handleMeatSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add another meat option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {buffetMeatOptions
+                    .filter(option => !buffetMeatSelections.includes(option.value))
+                    .map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
-        <Label>VEGETABLES - CHOOSE TWO OPTIONS</Label>
-        <div className="grid gap-3">
-          {buffetVegetableOptions.map((option) => (
-            <label
-              key={option.value}
-              className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-            >
-              <Checkbox
-                checked={buffetVegetableSelections.includes(option.value)}
-                onCheckedChange={() => 
-                  handleOptionToggle(buffetVegetableSelections, option.value, onBuffetVegetableSelectionsChange, 2)
-                }
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
+        <h4 className="text-sm font-medium text-zinc-500">VEGETABLES</h4>
+        {buffetVegetableSelections.length === 0 ? (
+          <Select onValueChange={handleVegetableSelection}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose vegetable option (select 2)" />
+            </SelectTrigger>
+            <SelectContent>
+              {buffetVegetableOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="space-y-2">
+            {buffetVegetableSelections.map((selection) => {
+              const option = buffetVegetableOptions.find(opt => opt.value === selection);
+              return (
+                <div key={selection} className="flex justify-between items-center">
+                  <span>{option?.label}</span>
+                  <button
+                    onClick={() => handleVegetableSelection(selection)}
+                    className="text-sm text-red-500 hover:text-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
+            {buffetVegetableSelections.length < 2 && (
+              <Select onValueChange={handleVegetableSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add another vegetable option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {buffetVegetableOptions
+                    .filter(option => !buffetVegetableSelections.includes(option.value))
+                    .map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
-        <Label>STARCH SELECTION - CHOOSE TWO OPTIONS</Label>
-        <div className="grid gap-3">
-          {buffetStarchOptions.map((option) => (
-            <label
-              key={option.value}
-              className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-            >
-              <Checkbox
-                checked={buffetStarchSelections.includes(option.value)}
-                onCheckedChange={() => 
-                  handleOptionToggle(buffetStarchSelections, option.value, onBuffetStarchSelectionsChange, 2)
-                }
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
+        <h4 className="text-sm font-medium text-zinc-500">STARCH</h4>
+        {buffetStarchSelections.length === 0 ? (
+          <Select onValueChange={handleStarchSelection}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose starch option (select 2)" />
+            </SelectTrigger>
+            <SelectContent>
+              {buffetStarchOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="space-y-2">
+            {buffetStarchSelections.map((selection) => {
+              const option = buffetStarchOptions.find(opt => opt.value === selection);
+              return (
+                <div key={selection} className="flex justify-between items-center">
+                  <span>{option?.label}</span>
+                  <button
+                    onClick={() => handleStarchSelection(selection)}
+                    className="text-sm text-red-500 hover:text-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
+            {buffetStarchSelections.length < 2 && (
+              <Select onValueChange={handleStarchSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add another starch option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {buffetStarchOptions
+                    .filter(option => !buffetStarchSelections.includes(option.value))
+                    .map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
-        <Label>CHOOSE ONE SALAD SERVED TO THE TABLE</Label>
-        <Select value={buffetSaladSelection} onValueChange={onBuffetSaladSelectionChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a salad" />
-          </SelectTrigger>
-          <SelectContent>
-            {saladOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <h4 className="text-sm font-medium text-zinc-500">TABLE SALAD</h4>
+        {!buffetSaladSelection ? (
+          <Select value={buffetSaladSelection} onValueChange={onBuffetSaladSelectionChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose one salad" />
+            </SelectTrigger>
+            <SelectContent>
+              {saladOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="flex justify-between items-center">
+            <span>{saladOptions.find(opt => opt.value === buffetSaladSelection)?.label}</span>
+            <button
+              onClick={() => onBuffetSaladSelectionChange('')}
+              className="text-sm text-red-500 hover:text-red-600"
+            >
+              Remove
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
