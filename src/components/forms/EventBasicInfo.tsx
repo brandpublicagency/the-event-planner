@@ -97,7 +97,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Start Time</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select start time" />
@@ -122,7 +122,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>End Time</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select end time" />
@@ -158,7 +158,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Package</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} value={field.value || ""}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isLoading ? "Loading packages..." : "Select package"} />
