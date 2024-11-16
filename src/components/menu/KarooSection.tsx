@@ -1,18 +1,17 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { karooMeatOptions, karooStarchGroups, saladOptions } from './MenuTypes';
+import { karooMeatOptions, karooStarchOptions, karooVegetableOptions, saladOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
-import KarooStarchGroup from './karoo/KarooStarchGroup';
-import KarooVegetableSelect from './karoo/KarooVegetableSelect';
+import MultiSelect from './MultiSelect';
 
 interface KarooSectionProps {
   karooMeatSelection: string;
-  karooStarchSelection: string;
+  karooStarchSelection: string[];
   karooVegetableSelections: string[];
   karooSaladSelection: string;
   onKarooMeatSelectionChange: (value: string) => void;
-  onKarooStarchSelectionChange: (value: string) => void;
+  onKarooStarchSelectionChange: (value: string[]) => void;
   onKarooVegetableSelectionsChange: (value: string[]) => void;
   onKarooSaladSelectionChange: (value: string) => void;
 }
@@ -27,29 +26,6 @@ const KarooSection = ({
   onKarooVegetableSelectionsChange,
   onKarooSaladSelectionChange,
 }: KarooSectionProps) => {
-  const [potatoSelection, setPotatoSelection] = React.useState('');
-  const [riceSelection, setRiceSelection] = React.useState('');
-
-  React.useEffect(() => {
-    if (karooStarchSelection) {
-      const [potato, rice] = karooStarchSelection.split(',');
-      setPotatoSelection(potato || '');
-      setRiceSelection(rice || '');
-    }
-  }, [karooStarchSelection]);
-
-  const handlePotatoSelectionChange = (value: string) => {
-    const newSelection = [value, riceSelection].filter(Boolean).join(',');
-    onKarooStarchSelectionChange(newSelection);
-    setPotatoSelection(value);
-  };
-
-  const handleRiceSelectionChange = (value: string) => {
-    const newSelection = [potatoSelection, value].filter(Boolean).join(',');
-    onKarooStarchSelectionChange(newSelection);
-    setRiceSelection(value);
-  };
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -71,30 +47,32 @@ const KarooSection = ({
           <SelectionDisplay
             label={karooMeatOptions.find(opt => opt.value === karooMeatSelection)?.label || ''}
             onRemove={() => onKarooMeatSelectionChange('')}
+            actionLabel="Change"
           />
         )}
       </div>
 
-      <div className="space-y-6">
-        <KarooStarchGroup
-          title="POTATO OPTION"
-          options={karooStarchGroups.potatoes}
-          value={potatoSelection}
-          onChange={handlePotatoSelectionChange}
-        />
-
-        <KarooStarchGroup
-          title="RICE OPTION"
-          options={karooStarchGroups.rice}
-          value={riceSelection}
-          onChange={handleRiceSelectionChange}
+      <div className="space-y-4">
+        <SelectionHeader title="STARCH SELECTIONS (Select 2)" />
+        <MultiSelect
+          options={karooStarchOptions}
+          selectedValues={karooStarchSelection}
+          onChange={onKarooStarchSelectionChange}
+          maxSelections={2}
+          actionLabel="Change"
         />
       </div>
 
-      <KarooVegetableSelect
-        selections={karooVegetableSelections}
-        onSelectionsChange={onKarooVegetableSelectionsChange}
-      />
+      <div className="space-y-4">
+        <SelectionHeader title="VEGETABLE SELECTIONS (Select 2)" />
+        <MultiSelect
+          options={karooVegetableOptions}
+          selectedValues={karooVegetableSelections}
+          onChange={onKarooVegetableSelectionsChange}
+          maxSelections={2}
+          actionLabel="Change"
+        />
+      </div>
 
       <div className="space-y-4">
         <SelectionHeader title="TABLE SALAD" />
@@ -115,6 +93,7 @@ const KarooSection = ({
           <SelectionDisplay
             label={saladOptions.find(opt => opt.value === karooSaladSelection)?.label || ''}
             onRemove={() => onKarooSaladSelectionChange('')}
+            actionLabel="Change"
           />
         )}
       </div>

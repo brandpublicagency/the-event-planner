@@ -3,9 +3,10 @@ import React from 'react';
 interface SelectionDisplayProps {
   label: string;
   onRemove: () => void;
+  actionLabel?: string;
 }
 
-const SelectionDisplay = ({ label, onRemove }: SelectionDisplayProps) => {
+const SelectionDisplay = ({ label, onRemove, actionLabel = "Remove" }: SelectionDisplayProps) => {
   return (
     <div className="flex justify-between items-center">
       <span>{label}</span>
@@ -13,7 +14,7 @@ const SelectionDisplay = ({ label, onRemove }: SelectionDisplayProps) => {
         onClick={onRemove}
         className="text-sm text-red-500 hover:text-red-600"
       >
-        Remove
+        {actionLabel}
       </button>
     </div>
   );

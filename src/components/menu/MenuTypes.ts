@@ -122,16 +122,12 @@ export const karooMeatOptions = [
   { value: 'oxtail_chicken', label: 'Homemade oxtail pie and golden-brown chickens' },
 ];
 
-export const karooStarchGroups = {
-  potatoes: [
-    { value: 'roast_potatoes', label: 'Traditional roast potatoes' },
-    { value: 'wedges', label: 'Parmesan roasted potato wedges' },
-  ],
-  rice: [
-    { value: 'basmati', label: 'Basmati rice' },
-    { value: 'pepper_rice', label: 'Mixed pepper-flavoured basmati rice' },
-  ],
-};
+export const karooStarchOptions = [
+  { value: 'roast_potatoes', label: 'Traditional roast potatoes' },
+  { value: 'wedges', label: 'Parmesan roasted potato wedges' },
+  { value: 'basmati', label: 'Basmati rice' },
+  { value: 'pepper_rice', label: 'Mixed pepper-flavoured basmati rice' },
+];
 
 export const karooVegetableOptions = [
   { value: 'green_beans', label: 'Green beans with butter & cream' },
