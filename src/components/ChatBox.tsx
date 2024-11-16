@@ -11,6 +11,8 @@ import { updateMenuSelection } from "@/services/menuService";
 import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
+const TIMEOUT_DURATION = 45000; // 45 seconds timeout
+
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -36,8 +38,11 @@ const ChatBox = () => {
     setInputValue("");
     setIsLoading(true);
 
+    let timeoutId: NodeJS.Timeout;
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timed out")), 30000); // 30 second timeout
+      timeoutId = setTimeout(() => {
+        reject(new Error("Request timed out. Please try a shorter message or try again later."));
+      }, TIMEOUT_DURATION);
     });
 
     try {
@@ -53,49 +58,53 @@ const ChatBox = () => {
         name: undefined
       }));
 
-      const botResponse = await Promise.race([
+      const response = await Promise.race([
         getChatCompletion([systemMessage, ...userMessages]),
         timeoutPromise
-      ]) as string | null;
+      ]);
 
-      if (botResponse) {
-        try {
-          const jsonResponse = JSON.parse(botResponse);
+      clearTimeout(timeoutId);
+
+      if (!response) {
+        throw new Error("No response received from AI");
+      }
+
+      try {
+        const jsonResponse = JSON.parse(response);
+        
+        if (jsonResponse.action === "update_menu") {
+          const menuUpdates = {
+            ...jsonResponse.menu_updates,
+            canape_selections: Array.isArray(jsonResponse.menu_updates.canape_selections) 
+              ? jsonResponse.menu_updates.canape_selections 
+              : null
+          };
           
-          if (jsonResponse.action === "update_menu") {
-            const menuUpdates = {
-              ...jsonResponse.menu_updates,
-              canape_selections: Array.isArray(jsonResponse.menu_updates.canape_selections) 
-                ? jsonResponse.menu_updates.canape_selections 
-                : null
-            };
-            
-            await updateMenuSelection(jsonResponse.event_code, menuUpdates);
-            setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
-            
-            toast({
-              title: "Success",
-              description: "Menu has been updated",
-            });
-          } else if (jsonResponse.action === "send_email") {
-            await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
-            setMessages([
-              ...newMessages,
-              { text: "Email sent successfully!", isUser: false }
-            ]);
-          } else {
-            setMessages([...newMessages, { text: String(botResponse), isUser: false }]);
-          }
-        } catch {
-          setMessages([...newMessages, { text: String(botResponse), isUser: false }]);
+          await updateMenuSelection(jsonResponse.event_code, menuUpdates);
+          setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
+          
+          toast({
+            title: "Success",
+            description: "Menu has been updated",
+          });
+        } else if (jsonResponse.action === "send_email") {
+          await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
+          setMessages([
+            ...newMessages,
+            { text: "Email sent successfully!", isUser: false }
+          ]);
+        } else {
+          setMessages([...newMessages, { text: String(response), isUser: false }]);
         }
+      } catch {
+        setMessages([...newMessages, { text: String(response), isUser: false }]);
       }
     } catch (error: any) {
-      console.error('Error getting response from OpenAI:', error);
+      console.error('Error in chat completion:', error);
       
-      const errorMessage = error.message === "Request timed out" 
-        ? "The request took too long to complete. Please try again."
-        : error.message || "Failed to get response from AI";
+      const errorMessage = error.message === "Request timed out. Please try a shorter message or try again later."
+        ? error.message
+        : "I apologize, but I encountered an error. Please try again with a shorter message.";
       
       toast({
         title: "Error",
@@ -104,7 +113,7 @@ const ChatBox = () => {
       });
 
       setMessages([...newMessages, { 
-        text: "I apologize, but I encountered an error. Please try again.", 
+        text: errorMessage, 
         isUser: false 
       }]);
     } finally {
