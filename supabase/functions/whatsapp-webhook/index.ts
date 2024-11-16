@@ -19,6 +19,7 @@ async function handleMessage(from: string, message: string) {
 
     // Check if this is the first message or a help request
     if (lowerMessage === 'hi' || lowerMessage === 'hello' || lowerMessage === 'hey') {
+      console.log('Generating welcome message');
       response = await getWelcomeMessage();
       console.log('Generated welcome message:', response);
     } else if (lowerMessage === 'help') {
@@ -64,6 +65,12 @@ async function handleMessage(from: string, message: string) {
 
 serve(async (req) => {
   try {
+    console.log('Received webhook request:', {
+      method: req.method,
+      url: req.url,
+      headers: Object.fromEntries(req.headers.entries())
+    });
+
     // Handle CORS
     if (req.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
