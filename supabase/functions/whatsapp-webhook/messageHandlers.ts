@@ -30,9 +30,12 @@ const formatMenuSelection = (selection: string) => {
 };
 
 export const getWelcomeMessage = async () => {
+  const today = new Date().toISOString().split('T')[0];
+  
   const { data: events } = await supabase
     .from('events')
     .select('*')
+    .gte('event_date', today)
     .order('event_date', { ascending: true })
     .limit(10);
 
