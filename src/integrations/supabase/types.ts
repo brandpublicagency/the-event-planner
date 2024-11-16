@@ -126,6 +126,7 @@ export type Database = {
           client_address: string | null
           created_at: string
           created_by: string | null
+          deleted_at: string | null
           description: string | null
           end_time: string | null
           event_code: string
@@ -141,6 +142,7 @@ export type Database = {
           client_address?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           description?: string | null
           end_time?: string | null
           event_code: string
@@ -156,6 +158,7 @@ export type Database = {
           client_address?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
           description?: string | null
           end_time?: string | null
           event_code?: string
