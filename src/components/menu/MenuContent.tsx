@@ -45,21 +45,15 @@ const MenuContent = ({
       <div className="space-y-4">
         <div>
           <h3 className="font-semibold text-lg">Arrival & Starter</h3>
-          {!menuState.selectedStarterType ? (
-            <StarterTypeSelect
-              selectedStarterType={menuState.selectedStarterType}
-              onStarterTypeChange={(value) => {
-                onMenuStateChange('selectedStarterType', value);
-                onMenuStateChange('selectedCanapePackage', '');
-                onMenuStateChange('selectedCanapes', []);
-                onMenuStateChange('selectedPlatedStarter', '');
-              }}
-            />
-          ) : (
-            <div className="text-zinc-600 mt-2">
-              {selectedStarterType?.label} - R {selectedStarterType?.price.toFixed(2)} per person
-            </div>
-          )}
+          <StarterTypeSelect
+            selectedStarterType={menuState.selectedStarterType}
+            onStarterTypeChange={(value) => {
+              onMenuStateChange('selectedStarterType', value);
+              onMenuStateChange('selectedCanapePackage', '');
+              onMenuStateChange('selectedCanapes', []);
+              onMenuStateChange('selectedPlatedStarter', '');
+            }}
+          />
         </div>
 
         {menuState.selectedStarterType === 'canapes' && (
