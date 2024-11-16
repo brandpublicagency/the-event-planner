@@ -56,11 +56,14 @@ const EditEvent = () => {
         return acc;
       }, {});
 
+      // Ensure event_type is one of the allowed values
+      const eventType = event.event_type as EventFormData['event_type'];
+
       // Reset form with event data
       form.reset({
         name: event.name,
-        description: event.description,
-        event_type: event.event_type,
+        description: event.description || '',  // Ensure description is never undefined
+        event_type: eventType,
         event_date: event.event_date,
         start_time: event.start_time,
         end_time: event.end_time,
@@ -89,7 +92,14 @@ const EditEvent = () => {
   const onSubmit = async (data: EventFormData) => {
     try {
       if (!id) throw new Error('Event ID is required');
-      await updateEvent(id, data);
+      
+      // Ensure description is included in the update data
+      const updateData = {
+        ...data,
+        description: data.description || '', // Provide empty string as fallback
+      };
+      
+      await updateEvent(id, updateData);
 
       // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ['events'] });
