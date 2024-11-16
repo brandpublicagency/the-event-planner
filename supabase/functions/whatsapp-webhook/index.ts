@@ -11,27 +11,27 @@ const corsHeaders = {
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 
 async function handleMessage(from: string, message: any) {
+  console.log('Handling message:', JSON.stringify(message, null, 2));
+  
   try {
     let response;
     
-    // Handle interactive messages
-    if (message.type === 'interactive') {
-      if (message.interactive.type === 'list_reply') {
-        const eventCode = message.interactive.list_reply.id;
-        response = { message: await getEventDetails(eventCode) };
-      }
-    } else if (message.text) {
-      // Handle text messages
+    if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
+      console.log('Processing list reply:', message.interactive.list_reply);
+      response = await getEventDetails(message.interactive.list_reply.id);
+    } else if (message.type === 'text') {
       const messageText = message.text.body.toLowerCase().trim();
+      console.log('Processing text message:', messageText);
       
-      if (messageText === 'hi' || messageText === 'hello' || messageText === 'hey') {
+      if (['hi', 'hello', 'hey'].includes(messageText)) {
         response = await getWelcomeMessage();
       } else if (messageText === 'help') {
-        response = { message: getHelpMessage() };
+        response = getHelpMessage();
       } else {
         response = await getWelcomeMessage();
       }
     } else {
+      console.log('Unknown message type, sending welcome message');
       response = await getWelcomeMessage();
     }
 
@@ -39,24 +39,25 @@ async function handleMessage(from: string, message: any) {
       throw new Error('No response generated');
     }
 
+    console.log('Sending response:', JSON.stringify(response, null, 2));
     await sendWhatsAppMessage(from, response);
     
   } catch (error) {
     console.error('Error handling message:', error);
     const errorMessage = { 
-      message: "Sorry, I encountered an error processing your request. Please try sending 'hi' or 'help'."
+      type: 'text',
+      message: "Sorry, I encountered an error processing your request. Please try again later."
     };
     await sendWhatsAppMessage(from, errorMessage);
   }
 }
 
 serve(async (req) => {
-  try {
-    if (req.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
-    }
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
 
-    // Handle webhook verification
+  try {
     if (req.method === 'GET') {
       const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
@@ -69,9 +70,10 @@ serve(async (req) => {
       return new Response('Forbidden', { status: 403, headers: corsHeaders });
     }
 
-    // Handle incoming messages
     if (req.method === 'POST') {
       const body = await req.json();
+      console.log('Received webhook:', JSON.stringify(body, null, 2));
+      
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
       const value = changes?.value;

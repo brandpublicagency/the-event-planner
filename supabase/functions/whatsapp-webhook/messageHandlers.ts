@@ -11,76 +11,90 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getWelcomeMessage() {
-  const { data: events, error } = await supabase
-    .from('events')
-    .select('*')
-    .gte('event_date', new Date().toISOString())
-    .order('event_date', { ascending: true })
-    .limit(10);
+  try {
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', new Date().toISOString())
+      .order('event_date', { ascending: true })
+      .limit(10);
 
-  if (error) {
-    console.error('Error fetching events:', error);
-    throw new Error('Failed to fetch upcoming events');
-  }
-
-  if (!events || events.length === 0) {
-    return { message: "No upcoming events found." };
-  }
-
-  const sections = [{
-    title: "Upcoming Events",
-    rows: events.map(event => ({
-      id: event.event_code,
-      title: event.name,
-      description: event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set'
-    }))
-  }];
-
-  return {
-    type: 'interactive',
-    interactive: {
-      type: "list",
-      header: {
-        type: "text",
-        text: "Event Management"
-      },
-      body: {
-        text: "Here are your upcoming events. Select one to view or manage:"
-      },
-      footer: {
-        text: "Choose an event from the list"
-      },
-      action: {
-        button: "View Events",
-        sections: sections
-      }
+    if (error) {
+      console.error('Error fetching events:', error);
+      throw new Error('Failed to fetch upcoming events');
     }
-  };
+
+    if (!events || events.length === 0) {
+      return { 
+        type: 'text',
+        message: "No upcoming events found." 
+      };
+    }
+
+    const sections = [{
+      title: "Upcoming Events",
+      rows: events.map(event => ({
+        id: event.event_code,
+        title: event.name,
+        description: event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set'
+      }))
+    }];
+
+    return {
+      type: 'interactive',
+      interactive: {
+        type: "list",
+        header: {
+          type: "text",
+          text: "Event Management"
+        },
+        body: {
+          text: "Here are your upcoming events. Select one to view or manage:"
+        },
+        footer: {
+          text: "Choose an event from the list"
+        },
+        action: {
+          button: "View Events",
+          sections: sections
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error in getWelcomeMessage:', error);
+    return {
+      type: 'text',
+      message: "Sorry, I encountered an error. Please try again later."
+    };
+  }
 }
 
 export async function getEventDetails(eventCode: string) {
-  const { data: event, error } = await supabase
-    .from('events')
-    .select(`
-      *,
-      menu_selections (*)
-    `)
-    .eq('event_code', eventCode)
-    .single();
+  try {
+    const { data: event, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        menu_selections (*)
+      `)
+      .eq('event_code', eventCode)
+      .single();
 
-  if (error) {
-    console.error('Error fetching event:', error);
-    throw new Error(`Could not find event ${eventCode}`);
-  }
+    if (error) {
+      console.error('Error fetching event:', error);
+      throw new Error(`Could not find event ${eventCode}`);
+    }
 
-  const menuInfo = event.menu_selections 
-    ? `Menu Type: ${event.menu_selections.is_custom ? 'Custom Menu' : event.menu_selections.starter_type || 'Not set'}\n` +
-      (event.menu_selections.is_custom ? `Custom Details: ${event.menu_selections.custom_menu_details || 'None'}\n` : '') +
-      (event.menu_selections.starter_type === 'canapes' ? `Canapé Package: ${event.menu_selections.canape_package || 'Not set'}\n` : '') +
-      (event.menu_selections.plated_starter ? `Plated Starter: ${event.menu_selections.plated_starter}\n` : '')
-    : "No menu selected\n";
+    const menuInfo = event.menu_selections 
+      ? `Menu Type: ${event.menu_selections.is_custom ? 'Custom Menu' : event.menu_selections.starter_type || 'Not set'}\n` +
+        (event.menu_selections.is_custom ? `Custom Details: ${event.menu_selections.custom_menu_details || 'None'}\n` : '') +
+        (event.menu_selections.starter_type === 'canapes' ? `Canapé Package: ${event.menu_selections.canape_package || 'Not set'}\n` : '') +
+        (event.menu_selections.plated_starter ? `Plated Starter: ${event.menu_selections.plated_starter}\n` : '')
+      : "No menu selected\n";
 
-  return `📅 Event Details:
+    return {
+      type: 'text',
+      message: `📅 Event Details:
 Name: ${event.name}
 Date: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}
 Type: ${event.event_type}
@@ -91,11 +105,21 @@ ${menuInfo}
 
 To update the menu, send:
 "menu ${event.event_code} harvest" or
-"menu ${event.event_code} custom"`;
+"menu ${event.event_code} custom"`
+    };
+  } catch (error) {
+    console.error('Error in getEventDetails:', error);
+    return {
+      type: 'text',
+      message: "Sorry, I couldn't retrieve the event details. Please try again."
+    };
+  }
 }
 
-export function getHelpMessage(): string {
-  return `👋 Hello! I'm your event assistant. Here's what I can help you with:
+export function getHelpMessage() {
+  return {
+    type: 'text',
+    message: `👋 Hello! I'm your event assistant. Here's what I can help you with:
 
 1️⃣ View Events List
    Send: "hi" or "hello"
@@ -106,5 +130,6 @@ export function getHelpMessage(): string {
 3️⃣ Update Menu Type
    After selecting an event, you can update its menu
 
-Need help? Just send "help" anytime!`;
+Need help? Just send "help" anytime!`
+  };
 }
