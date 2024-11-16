@@ -35,7 +35,8 @@ const NewEvent = () => {
 
   const generateEventCode = () => {
     const date = new Date();
-    return `EVENT-${format(date, 'ddMM')}`;
+    const timestamp = date.getTime().toString().slice(-4); // Get last 4 digits of timestamp
+    return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -160,23 +161,21 @@ const NewEvent = () => {
             </FormSection>
 
             {eventType === "Wedding" ? (
-              <>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <FormSection 
-                    title="Bride Details" 
-                    description="Enter the bride's contact information."
-                  >
-                    <BrideDetails form={form} />
-                  </FormSection>
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormSection 
+                  title="Bride Details" 
+                  description="Enter the bride's contact information."
+                >
+                  <BrideDetails form={form} />
+                </FormSection>
 
-                  <FormSection 
-                    title="Groom Details" 
-                    description="Enter the groom's contact information."
-                  >
-                    <GroomDetails form={form} />
-                  </FormSection>
-                </div>
-              </>
+                <FormSection 
+                  title="Groom Details" 
+                  description="Enter the groom's contact information."
+                >
+                  <GroomDetails form={form} />
+                </FormSection>
+              </div>
             ) : (
               <FormSection 
                 title="Company Details" 
