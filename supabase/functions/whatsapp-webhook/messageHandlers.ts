@@ -7,7 +7,7 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getWelcomeMessage = async () => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString();
   
   const { data: events } = await supabase
     .from('events')
@@ -66,7 +66,7 @@ export const getEventDetails = async (eventCode: string) => {
       )
     `)
     .eq('event_code', eventCode)
-    .is('deleted_at', null)  // Only show non-deleted events
+    .is('deleted_at', null)
     .single();
 
   if (!event) {
