@@ -4,6 +4,9 @@ import StarterTypeSelect from './StarterTypeSelect';
 import CanapeSection from './CanapeSection';
 import PlatedStarterSection from './PlatedStarterSection';
 import CustomMenuSection from './CustomMenuSection';
+import MainCourseSection from './MainCourseSection';
+import DessertSection from './DessertSection';
+import OtherOptionsSection from './OtherOptionsSection';
 
 interface MenuContentProps {
   menuState: any;
@@ -37,41 +40,74 @@ const MenuContent = ({
   }
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
-      <StarterTypeSelect
-        selectedStarterType={menuState.selectedStarterType}
-        onStarterTypeChange={(value) => {
-          onMenuStateChange('selectedStarterType', value);
-          onMenuStateChange('selectedCanapePackage', '');
-          onMenuStateChange('selectedCanapes', []);
-          onMenuStateChange('selectedPlatedStarter', '');
-        }}
-      />
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-4">
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Arrival & Starter</h3>
+        <StarterTypeSelect
+          selectedStarterType={menuState.selectedStarterType}
+          onStarterTypeChange={(value) => {
+            onMenuStateChange('selectedStarterType', value);
+            onMenuStateChange('selectedCanapePackage', '');
+            onMenuStateChange('selectedCanapes', []);
+            onMenuStateChange('selectedPlatedStarter', '');
+          }}
+        />
 
-      {menuState.selectedStarterType === 'canapes' && (
-        <div className="animate-in fade-in slide-in-from-top-4">
-          <CanapeSection
-            selectedCanapePackage={menuState.selectedCanapePackage}
-            selectedCanapes={menuState.selectedCanapes}
-            onCanapePackageChange={(value) => {
-              onMenuStateChange('selectedCanapePackage', value);
-              onMenuStateChange('selectedCanapes', []);
-            }}
-            onCanapeSelection={onCanapeSelection}
-          />
-        </div>
-      )}
+        {menuState.selectedStarterType?.startsWith('canapes') && (
+          <div className="animate-in fade-in slide-in-from-top-4">
+            <CanapeSection
+              selectedCanapePackage={menuState.selectedCanapePackage}
+              selectedCanapes={menuState.selectedCanapes}
+              onCanapePackageChange={(value) => {
+                onMenuStateChange('selectedCanapePackage', value);
+                onMenuStateChange('selectedCanapes', []);
+              }}
+              onCanapeSelection={onCanapeSelection}
+            />
+          </div>
+        )}
 
-      {menuState.selectedStarterType === 'plated' && (
-        <div className="animate-in fade-in slide-in-from-top-4">
-          <PlatedStarterSection
-            selectedPlatedStarter={menuState.selectedPlatedStarter}
-            onPlatedStarterChange={(value) => {
-              onMenuStateChange('selectedPlatedStarter', value);
-            }}
-          />
-        </div>
-      )}
+        {menuState.selectedStarterType === 'plated' && (
+          <div className="animate-in fade-in slide-in-from-top-4">
+            <PlatedStarterSection
+              selectedPlatedStarter={menuState.selectedPlatedStarter}
+              onPlatedStarterChange={(value) => {
+                onMenuStateChange('selectedPlatedStarter', value);
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Main Course</h3>
+        <MainCourseSection
+          selectedMainCourse={menuState.mainCourseType}
+          onMainCourseChange={(value) => {
+            onMenuStateChange('mainCourseType', value);
+          }}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Dessert</h3>
+        <DessertSection
+          selectedDessert={menuState.dessertType}
+          onDessertChange={(value) => {
+            onMenuStateChange('dessertType', value);
+          }}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Additional Options</h3>
+        <OtherOptionsSection
+          selectedOptions={menuState.otherSelections || []}
+          onOptionsChange={(value) => {
+            onMenuStateChange('otherSelections', value);
+          }}
+        />
+      </div>
 
       <div className="flex justify-end print:hidden">
         <Button onClick={saveMenuSelections}>

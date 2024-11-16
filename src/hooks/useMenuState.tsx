@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Check } from 'lucide-react';
+import { starterTypes, mainCourseTypes, dessertTypes, otherOptions } from '@/components/menu/MenuTypes';
 
 export const useMenuState = (eventCode: string, toast: any) => {
   const [menuState, setMenuState] = useState({
@@ -10,6 +11,9 @@ export const useMenuState = (eventCode: string, toast: any) => {
     selectedCanapePackage: '',
     selectedCanapes: [] as string[],
     selectedPlatedStarter: '',
+    mainCourseType: '',
+    dessertType: '',
+    otherSelections: [] as string[],
     notes: '',
   });
   const [error, setError] = useState<string | null>(null);
@@ -27,11 +31,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
           .eq('event_code', eventCode)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching menu selections:', error);
-          setError('Failed to load menu selections');
-          return;
-        }
+        if (error) throw error;
 
         if (data) {
           setMenuState({
@@ -41,12 +41,15 @@ export const useMenuState = (eventCode: string, toast: any) => {
             selectedCanapePackage: data.canape_package || '',
             selectedCanapes: data.canape_selections || [],
             selectedPlatedStarter: data.plated_starter || '',
+            mainCourseType: data.main_course_type || '',
+            dessertType: data.dessert_type || '',
+            otherSelections: data.other_selections || [],
             notes: data.notes || '',
           });
         }
       } catch (err) {
-        console.error('Unexpected error:', err);
-        setError('An unexpected error occurred');
+        console.error('Error fetching menu selections:', err);
+        setError('Failed to load menu selections');
       } finally {
         setIsLoading(false);
       }
@@ -55,8 +58,56 @@ export const useMenuState = (eventCode: string, toast: any) => {
     fetchMenuSelections();
   }, [eventCode]);
 
+  const calculatePrices = () => {
+    let starterPrice = 0;
+    let mainCoursePrice = 0;
+    let dessertPrice = 0;
+    let otherTotalPrice = 0;
+
+    // Calculate starter price
+    if (menuState.selectedStarterType) {
+      const starter = starterTypes.find(s => s.value === menuState.selectedStarterType);
+      if (starter) {
+        starterPrice = starter.price;
+      }
+    }
+
+    // Calculate main course price
+    if (menuState.mainCourseType) {
+      const mainCourse = mainCourseTypes.find(m => m.value === menuState.mainCourseType);
+      if (mainCourse) {
+        mainCoursePrice = mainCourse.price;
+      }
+    }
+
+    // Calculate dessert price
+    if (menuState.dessertType) {
+      const dessert = dessertTypes.find(d => d.value === menuState.dessertType);
+      if (dessert) {
+        dessertPrice = dessert.price;
+      }
+    }
+
+    // Calculate other options total
+    menuState.otherSelections.forEach(selection => {
+      const option = otherOptions.find(o => o.value === selection);
+      if (option) {
+        otherTotalPrice += option.price;
+      }
+    });
+
+    return {
+      starterPrice,
+      mainCoursePrice,
+      dessertPrice,
+      otherTotalPrice
+    };
+  };
+
   const saveMenuSelections = async () => {
     try {
+      const prices = calculatePrices();
+      
       const menuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
@@ -65,22 +116,21 @@ export const useMenuState = (eventCode: string, toast: any) => {
         canape_package: menuState.selectedCanapePackage,
         canape_selections: menuState.selectedCanapes,
         plated_starter: menuState.selectedPlatedStarter,
+        main_course_type: menuState.mainCourseType,
+        dessert_type: menuState.dessertType,
+        other_selections: menuState.otherSelections,
         notes: menuState.notes,
+        starter_price: prices.starterPrice,
+        main_course_price: prices.mainCoursePrice,
+        dessert_price: prices.dessertPrice,
+        other_total_price: prices.otherTotalPrice
       };
 
       const { error } = await supabase
         .from('menu_selections')
         .upsert(menuData);
 
-      if (error) {
-        console.error('Error saving menu selections:', error);
-        toast({
-          variant: "destructive",
-          title: "Error saving menu",
-          description: "Failed to save menu selections. Please try again.",
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast({
         title: "Menu saved successfully",
@@ -89,11 +139,11 @@ export const useMenuState = (eventCode: string, toast: any) => {
         icon: <Check className="h-4 w-4 text-green-500" />,
       });
     } catch (err) {
-      console.error('Unexpected error saving menu selections:', err);
+      console.error('Error saving menu selections:', err);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An unexpected error occurred while saving",
+        description: "Failed to save menu selections",
       });
     }
   };

@@ -1,13 +1,20 @@
+export interface MenuOption {
+  value: string;
+  label: string;
+  price: number;
+  priceType: 'per_person' | 'per_item';
+}
+
 export interface StarterType {
   value: string;
   label: string;
-  price: string;  // Keeping price in type but not displaying it
+  price: number;
 }
 
 export interface CanapePackage {
   value: string;
   label: string;
-  price: string;  // Keeping price in type but not displaying it
+  price: number;
 }
 
 export interface CanapeOption {
@@ -21,16 +28,33 @@ export interface PlatedStarterOption {
 }
 
 export const starterTypes: StarterType[] = [
-  { value: 'harvest', label: 'Harvest Table', price: '120.00' },
-  { value: 'canapes', label: 'Canapés', price: 'from 110.00' },
-  { value: 'plated', label: 'Plated Starter', price: '105.00' },
+  { value: 'harvest', label: 'Harvest Table', price: 130.00 },
+  { value: 'canapes_3', label: 'Choice of 3 Canapés', price: 120.00 },
+  { value: 'canapes_4', label: 'Choice of 4 Canapés', price: 150.00 },
+  { value: 'canapes_5', label: 'Choice of 5 Canapés', price: 185.00 },
+  { value: 'canapes_6', label: 'Choice of 6 Canapés', price: 220.00 },
+  { value: 'plated', label: 'Plated Starter', price: 120.00 },
 ];
 
-export const canapePackages: CanapePackage[] = [
-  { value: '3', label: 'Choice of 3 Canapés', price: '110.00' },
-  { value: '4', label: 'Choice of 4 Canapés', price: '140.00' },
-  { value: '5', label: 'Choice of 5 Canapés', price: '175.00' },
-  { value: '6', label: 'Choice of 6 Canapés', price: '205.00' },
+export const mainCourseTypes: MenuOption[] = [
+  { value: 'buffet', label: 'Buffet Menu', price: 380.00, priceType: 'per_person' },
+  { value: 'karoo', label: 'Warm Karoo Feast', price: 400.00, priceType: 'per_person' },
+  { value: 'plated', label: 'Plated Menu', price: 390.00, priceType: 'per_person' },
+];
+
+export const dessertTypes: MenuOption[] = [
+  { value: 'traditional', label: 'Traditional Baked Desserts', price: 95.00, priceType: 'per_person' },
+  { value: 'canapes', label: 'Dessert Canapés', price: 100.00, priceType: 'per_person' },
+  { value: 'cakes', label: 'Individual Cakes', price: 750.00, priceType: 'per_item' },
+  { value: 'bar', label: 'Dessert Bar', price: 120.00, priceType: 'per_person' },
+];
+
+export const otherOptions: MenuOption[] = [
+  { value: 'infused_water', label: 'Infused Water', price: 275.00, priceType: 'per_item' },
+  { value: 'pink_lemonade', label: 'Pink Lemonade', price: 440.00, priceType: 'per_item' },
+  { value: 'fruit_juice', label: 'Fruit Juice', price: 440.00, priceType: 'per_item' },
+  { value: 'minty_mojito', label: 'Minty Mojito', price: 770.00, priceType: 'per_item' },
+  { value: 'midnight_snack', label: 'Midnight Snack', price: 65.00, priceType: 'per_person' },
 ];
 
 export const canapeOptions: CanapeOption[] = [
