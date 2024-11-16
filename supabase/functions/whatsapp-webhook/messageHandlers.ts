@@ -113,10 +113,10 @@ export async function getEventDetails(eventCode: string) {
         type: "list",
         header: {
           type: "text",
-          text: "Event Menu Options"
+          text: "Event Details"
         },
         body: {
-          text: `*Event Details:*\nName: ${event.name}\nDate: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}\nType: ${event.event_type}\nVenues: ${venues}\nGuests: ${event.pax || 'Not set'}\n\n*Menu Information:*\n${menuInfo}`
+          text: `${event.name}\nDate: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}\nType: ${event.event_type}\nVenues: ${venues}\nGuests: ${event.pax || 'Not set'}\n\n*Menu Information:*\n${menuInfo}`
         },
         footer: {
           text: "Select an option below"
