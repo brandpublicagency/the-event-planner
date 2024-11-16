@@ -1,20 +1,9 @@
-```tsx
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
-  mainCourseTypes,
-  buffetMeatOptions,
-  buffetVegetableOptions,
-  buffetStarchOptions,
-  karooMeatOptions,
-  karooStarchGroups,
-  karooVegetableOptions,
-  platedMainOptions,
-  saladOptions
-} from './MenuTypes';
+import { mainCourseTypes } from './MenuTypes';
+import BuffetSection from './BuffetSection';
+import KarooSection from './KarooSection';
+import PlatedSection from './PlatedSection';
 
 interface MainCourseSectionProps {
   selectedMainCourse: string;
@@ -41,50 +30,6 @@ interface MainCourseSectionProps {
   onPlatedSaladSelectionChange: (value: string) => void;
 }
 
-const KarooStarchSelection = ({
-  potatoSelection,
-  riceSelection,
-  onPotatoSelectionChange,
-  onRiceSelectionChange
-}: {
-  potatoSelection: string;
-  riceSelection: string;
-  onPotatoSelectionChange: (value: string) => void;
-  onRiceSelectionChange: (value: string) => void;
-}) => {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <Label>POTATO OPTION - SELECT ONE</Label>
-        <RadioGroup value={potatoSelection} onValueChange={onPotatoSelectionChange}>
-          <div className="grid gap-3">
-            {karooStarchGroups.potatoes.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
-                <RadioGroupItem value={option.value} id={`potato-${option.value}`} />
-                <Label htmlFor={`potato-${option.value}`}>{option.label}</Label>
-              </div>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-4">
-        <Label>RICE OPTION - SELECT ONE</Label>
-        <RadioGroup value={riceSelection} onValueChange={onRiceSelectionChange}>
-          <div className="grid gap-3">
-            {karooStarchGroups.rice.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
-                <RadioGroupItem value={option.value} id={`rice-${option.value}`} />
-                <Label htmlFor={`rice-${option.value}`}>{option.label}</Label>
-              </div>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-    </div>
-  );
-};
-
 const MainCourseSection = ({
   selectedMainCourse,
   buffetMeatSelections = [],
@@ -109,42 +54,6 @@ const MainCourseSection = ({
   onPlatedMainSelectionChange,
   onPlatedSaladSelectionChange,
 }: MainCourseSectionProps) => {
-  const [potatoSelection, setPotatoSelection] = React.useState('');
-  const [riceSelection, setRiceSelection] = React.useState('');
-
-  React.useEffect(() => {
-    if (karooStarchSelection) {
-      const [potato, rice] = karooStarchSelection.split(',');
-      setPotatoSelection(potato || '');
-      setRiceSelection(rice || '');
-    }
-  }, [karooStarchSelection]);
-
-  const handlePotatoSelectionChange = (value: string) => {
-    const newSelection = [value, riceSelection].filter(Boolean).join(',');
-    onKarooStarchSelectionChange(newSelection);
-    setPotatoSelection(value);
-  };
-
-  const handleRiceSelectionChange = (value: string) => {
-    const newSelection = [potatoSelection, value].filter(Boolean).join(',');
-    onKarooStarchSelectionChange(newSelection);
-    setRiceSelection(value);
-  };
-
-  const handleOptionToggle = (
-    currentSelections: string[],
-    value: string,
-    onChange: (value: string[]) => void,
-    maxSelections: number
-  ) => {
-    if (currentSelections.includes(value)) {
-      onChange(currentSelections.filter(item => item !== value));
-    } else if (currentSelections.length < maxSelections) {
-      onChange([...currentSelections, value]);
-    }
-  };
-
   return (
     <div className="space-y-6 print:break-inside-avoid">
       <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
@@ -161,186 +70,41 @@ const MainCourseSection = ({
       </Select>
 
       {selectedMainCourse === 'buffet' && (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <Label>MEAT SELECTION - CHOOSE TWO OPTIONS</Label>
-            <div className="grid gap-3">
-              {buffetMeatOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-                >
-                  <Checkbox
-                    checked={buffetMeatSelections.includes(option.value)}
-                    onCheckedChange={() => 
-                      handleOptionToggle(buffetMeatSelections, option.value, onBuffetMeatSelectionsChange, 2)
-                    }
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label>VEGETABLES - CHOOSE TWO OPTIONS</Label>
-            <div className="grid gap-3">
-              {buffetVegetableOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-                >
-                  <Checkbox
-                    checked={buffetVegetableSelections.includes(option.value)}
-                    onCheckedChange={() => 
-                      handleOptionToggle(buffetVegetableSelections, option.value, onBuffetVegetableSelectionsChange, 2)
-                    }
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label>STARCH SELECTION - CHOOSE TWO OPTIONS</Label>
-            <div className="grid gap-3">
-              {buffetStarchOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-                >
-                  <Checkbox
-                    checked={buffetStarchSelections.includes(option.value)}
-                    onCheckedChange={() => 
-                      handleOptionToggle(buffetStarchSelections, option.value, onBuffetStarchSelectionsChange, 2)
-                    }
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label>CHOOSE ONE SALAD SERVED TO THE TABLE</Label>
-            <Select value={buffetSaladSelection} onValueChange={onBuffetSaladSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a salad" />
-              </SelectTrigger>
-              <SelectContent>
-                {saladOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <BuffetSection
+          buffetMeatSelections={buffetMeatSelections}
+          buffetVegetableSelections={buffetVegetableSelections}
+          buffetStarchSelections={buffetStarchSelections}
+          buffetSaladSelection={buffetSaladSelection}
+          onBuffetMeatSelectionsChange={onBuffetMeatSelectionsChange}
+          onBuffetVegetableSelectionsChange={onBuffetVegetableSelectionsChange}
+          onBuffetStarchSelectionsChange={onBuffetStarchSelectionsChange}
+          onBuffetSaladSelectionChange={onBuffetSaladSelectionChange}
+        />
       )}
 
       {selectedMainCourse === 'karoo' && (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <Label>MEAT SELECTION - CHOOSE ONE OPTION</Label>
-            <Select value={karooMeatSelection} onValueChange={onKarooMeatSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select meat option" />
-              </SelectTrigger>
-              <SelectContent>
-                {karooMeatOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <KarooStarchSelection
-            potatoSelection={potatoSelection}
-            riceSelection={riceSelection}
-            onPotatoSelectionChange={handlePotatoSelectionChange}
-            onRiceSelectionChange={handleRiceSelectionChange}
-          />
-
-          <div className="space-y-4">
-            <Label>VEGETABLES - CHOOSE TWO OPTIONS</Label>
-            <div className="grid gap-3">
-              {karooVegetableOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center space-x-3 cursor-pointer hover:bg-zinc-50 p-2 rounded-md transition-colors"
-                >
-                  <Checkbox
-                    checked={karooVegetableSelections.includes(option.value)}
-                    onCheckedChange={() => 
-                      handleOptionToggle(karooVegetableSelections, option.value, onKarooVegetableSelectionsChange, 2)
-                    }
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label>CHOOSE ONE SALAD SERVED TO THE TABLE</Label>
-            <Select value={karooSaladSelection} onValueChange={onKarooSaladSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a salad" />
-              </SelectTrigger>
-              <SelectContent>
-                {saladOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <KarooSection
+          karooMeatSelection={karooMeatSelection}
+          karooStarchSelection={karooStarchSelection}
+          karooVegetableSelections={karooVegetableSelections}
+          karooSaladSelection={karooSaladSelection}
+          onKarooMeatSelectionChange={onKarooMeatSelectionChange}
+          onKarooStarchSelectionChange={onKarooStarchSelectionChange}
+          onKarooVegetableSelectionsChange={onKarooVegetableSelectionsChange}
+          onKarooSaladSelectionChange={onKarooSaladSelectionChange}
+        />
       )}
 
       {selectedMainCourse === 'plated' && (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <Label>MAIN COURSE - CHOOSE ONE OPTION</Label>
-            <Select value={platedMainSelection} onValueChange={onPlatedMainSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select main course" />
-              </SelectTrigger>
-              <SelectContent>
-                {platedMainOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-4">
-            <Label>CHOOSE ONE SALAD SERVED TO THE TABLE</Label>
-            <Select value={platedSaladSelection} onValueChange={onPlatedSaladSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a salad" />
-              </SelectTrigger>
-              <SelectContent>
-                {saladOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <PlatedSection
+          platedMainSelection={platedMainSelection}
+          platedSaladSelection={platedSaladSelection}
+          onPlatedMainSelectionChange={onPlatedMainSelectionChange}
+          onPlatedSaladSelectionChange={onPlatedSaladSelectionChange}
+        />
       )}
     </div>
   );
 };
 
 export default MainCourseSection;
-```
