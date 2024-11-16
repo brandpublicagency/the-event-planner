@@ -117,18 +117,16 @@ export const getEventDetails = async (eventCode: string) => {
 ${menu.starter_type ? formatMenuSelection(menu.starter_type) : 'Not selected'}`;
 
     // Format Main Course section
-    const mainSection = `*Menu*
-${menu.plated_main_selection ? formatMenuSelection(menu.plated_main_selection) : ''}
-${menu.buffet_meat_selections?.length ? `\n*Meat Selections:*\n${menu.buffet_meat_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
+    const mainSection = `${menu.buffet_meat_selections?.length ? `*Meat Selections:*\n${menu.buffet_meat_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
 ${menu.buffet_vegetable_selections?.length ? `\n*Vegetable Selections:*\n${menu.buffet_vegetable_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
 ${menu.buffet_starch_selections?.length ? `\n*Starch Selections:*\n${menu.buffet_starch_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
 ${menu.buffet_salad_selection ? `\n*Salad Selection:*\n${formatMenuSelection(menu.buffet_salad_selection)}` : ''}`;
 
     // Format Dessert section
-    const dessertSection = `*Dessert*
+    const dessertSection = `\n*Dessert*
 ${menu.dessert_type ? formatMenuSelection(menu.dessert_type) : 'Not selected'}`;
 
-    menuDetails = `\n\nMenu Information:\n\n${starterSection}\n\n${mainSection}\n\n${dessertSection}`;
+    menuDetails = `\n\n${starterSection}\n\n${mainSection}${dessertSection}`;
   }
 
   const message = `*Event Details*
@@ -136,9 +134,7 @@ ${menu.dessert_type ? formatMenuSelection(menu.dessert_type) : 'Not selected'}`;
 ${event.name}
 ${event.event_date ? formatDate(event.event_date) : 'Date not specified'}${event.start_time ? ` • ${event.start_time}` : ''}
 *Pax: ${event.pax || 'Not specified'}* / ${event.event_type}
-${venues}
-
-${clientDetails}${menuDetails}`;
+${venues}${menuDetails}`;
 
   return {
     type: 'text',
