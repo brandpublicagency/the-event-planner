@@ -112,6 +112,7 @@ export const getHelpMessage = () => {
     type: 'text',
     message: `*Available Commands*
 • Send 'hi' or 'hello' to view upcoming events
+• Send 'menu' to view event menus
 • Select an event to view its details
 • Ask any question about an event (e.g., "What's the menu for Wedding XYZ?")
 • Send 'help' to see this message again`
