@@ -81,7 +81,12 @@ export async function getEventDetails(eventCode: string) {
       .from('events')
       .select(`
         *,
-        menu_selections (*)
+        menu_selections (*),
+        event_venues (
+          venues (
+            name
+          )
+        )
       `)
       .eq('event_code', eventCode)
       .single();
@@ -91,27 +96,50 @@ export async function getEventDetails(eventCode: string) {
       throw new Error(`Could not find event ${eventCode}`);
     }
 
+    const venues = event.event_venues
+      ?.map(ev => ev.venues?.name)
+      .filter(Boolean)
+      .join(', ') || 'No venues assigned';
+
     const menuInfo = event.menu_selections 
-      ? `Menu Type: ${event.menu_selections.is_custom ? 'Custom Menu' : event.menu_selections.starter_type || 'Not set'}\n` +
-        (event.menu_selections.is_custom ? `Custom Details: ${event.menu_selections.custom_menu_details || 'None'}\n` : '') +
-        (event.menu_selections.starter_type === 'canapes' ? `Canapé Package: ${event.menu_selections.canape_package || 'Not set'}\n` : '') +
-        (event.menu_selections.plated_starter ? `Plated Starter: ${event.menu_selections.plated_starter}\n` : '')
-      : "No menu selected\n";
+      ? `*Starter/Arrival:*\n${event.menu_selections.starter_type || '-'}\n\n` +
+        `*Main Course:*\n-\n\n` +
+        `*Dessert:*\n-`
+      : "No menu selected";
 
     return {
-      type: 'text',
-      message: `📅 Event Details:
-Name: ${event.name}
-Date: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}
-Type: ${event.event_type}
-Guests: ${event.pax || 'Not set'}
-
-🍽️ Menu Information:
-${menuInfo}
-
-To update the menu, send:
-"menu ${event.event_code} harvest" or
-"menu ${event.event_code} custom"`
+      type: 'interactive',
+      interactive: {
+        type: "list",
+        header: {
+          type: "text",
+          text: "Event Menu Options"
+        },
+        body: {
+          text: `*Event Details:*\nName: ${event.name}\nDate: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}\nType: ${event.event_type}\nVenues: ${venues}\nGuests: ${event.pax || 'Not set'}\n\n*Menu Information:*\n${menuInfo}`
+        },
+        footer: {
+          text: "Select an option below"
+        },
+        action: {
+          button: "Menu Options",
+          sections: [{
+            title: "Menu Actions",
+            rows: [
+              {
+                id: `add_menu_${eventCode}`,
+                title: "Add to menu",
+                description: "Add new items to the menu"
+              },
+              {
+                id: `change_menu_${eventCode}`,
+                title: "Change menu",
+                description: "Modify existing menu items"
+              }
+            ]
+          }]
+        }
+      }
     };
   } catch (error) {
     console.error('Error in getEventDetails:', error);
