@@ -24,20 +24,6 @@ const ChatBox = () => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const newMessages = [...messages, { text: inputValue, isUser: true }];
-    setMessages(newMessages);
-    setInputValue("");
-
-    // Check if the message is "menu" to show event list
-    if (inputValue.toLowerCase().trim() === "menu") {
-      const eventsContext = prepareEventsContext(contextData?.events || []);
-      setMessages([...newMessages, { 
-        text: `Here are all the events and their menus:\n\n${eventsContext}`, 
-        isUser: false 
-      }]);
-      return;
-    }
-
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
       toast({
         title: "Error",
@@ -47,6 +33,9 @@ const ChatBox = () => {
       return;
     }
 
+    const newMessages = [...messages, { text: inputValue, isUser: true }];
+    setMessages(newMessages);
+    setInputValue("");
     setIsLoading(true);
 
     let timeoutId: NodeJS.Timeout;
