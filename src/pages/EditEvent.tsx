@@ -8,13 +8,14 @@ import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import EditEventForm from "@/components/forms/EditEventForm";
 import { updateEvent } from "@/utils/eventUpdateUtils";
+import { EventFormData } from "@/types/eventForm";
 
 const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const form = useForm();
+  const form = useForm<EventFormData>();
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
@@ -49,23 +50,43 @@ const EditEvent = () => {
     if (event) {
       // Transform venues data for the form
       const venuesData = event.event_venues?.reduce((acc: Record<string, boolean>, ev: any) => {
-        if (ev.venue_id) {
-          acc[ev.venue_id] = true;
+        if (ev.venues?.id) {
+          acc[ev.venues.id] = true;
         }
         return acc;
       }, {});
 
       // Reset form with event data
       form.reset({
-        ...event,
-        ...event.wedding_details,
-        ...event.corporate_details,
+        name: event.name,
+        description: event.description,
+        event_type: event.event_type,
+        event_date: event.event_date,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        pax: event.pax,
+        package_id: event.package_id,
+        client_address: event.client_address,
         venues: venuesData || {},
+        // Wedding details
+        bride_name: event.wedding_details?.bride_name,
+        bride_email: event.wedding_details?.bride_email,
+        bride_mobile: event.wedding_details?.bride_mobile,
+        groom_name: event.wedding_details?.groom_name,
+        groom_email: event.wedding_details?.groom_email,
+        groom_mobile: event.wedding_details?.groom_mobile,
+        // Corporate details
+        company_name: event.corporate_details?.company_name,
+        contact_person: event.corporate_details?.contact_person,
+        contact_email: event.corporate_details?.contact_email,
+        contact_mobile: event.corporate_details?.contact_mobile,
+        company_vat: event.corporate_details?.company_vat,
+        company_address: event.corporate_details?.company_address,
       });
     }
   }, [event, form]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: EventFormData) => {
     try {
       if (!id) throw new Error('Event ID is required');
       await updateEvent(id, data);
