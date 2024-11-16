@@ -16,10 +16,13 @@ async function handleMessage(from: string, message: any) {
   try {
     let response;
     
+    // Check if it's an interactive message (list response)
     if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
       console.log('Processing list reply:', message.interactive.list_reply);
       response = await getEventDetails(message.interactive.list_reply.id);
-    } else if (message.type === 'text') {
+    } 
+    // Check if it's a text message
+    else if (message.type === 'text' && message.text?.body) {
       const messageText = message.text.body.toLowerCase().trim();
       console.log('Processing text message:', messageText);
       
@@ -28,11 +31,15 @@ async function handleMessage(from: string, message: any) {
       } else if (messageText === 'help') {
         response = getHelpMessage();
       } else {
+        // Default to welcome message for unrecognized commands
         response = await getWelcomeMessage();
       }
     } else {
-      console.log('Unknown message type, sending welcome message');
-      response = await getWelcomeMessage();
+      console.log('Unknown message type:', message.type);
+      response = {
+        type: 'text',
+        message: "I don't understand this type of message. Try sending 'hi' or 'help'."
+      };
     }
 
     if (!response) {
@@ -53,6 +60,13 @@ async function handleMessage(from: string, message: any) {
 }
 
 serve(async (req) => {
+  // Add detailed request logging
+  console.log('Received webhook request:', {
+    method: req.method,
+    url: req.url,
+    headers: Object.fromEntries(req.headers.entries())
+  });
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -64,6 +78,8 @@ serve(async (req) => {
       const token = url.searchParams.get('hub.verify_token');
       const challenge = url.searchParams.get('hub.challenge');
 
+      console.log('Webhook verification request:', { mode, token, challenge });
+
       if (mode === 'subscribe' && token === VERIFY_TOKEN) {
         return new Response(challenge, { headers: corsHeaders });
       }
@@ -72,7 +88,7 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       const body = await req.json();
-      console.log('Received webhook:', JSON.stringify(body, null, 2));
+      console.log('Received webhook body:', JSON.stringify(body, null, 2));
       
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
@@ -80,6 +96,7 @@ serve(async (req) => {
       const messages = value?.messages;
 
       if (!messages || messages.length === 0) {
+        console.log('No messages found in webhook');
         return new Response(JSON.stringify({ status: 'no messages' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -87,6 +104,7 @@ serve(async (req) => {
 
       const message = messages[0];
       if (!message.from) {
+        console.error('Invalid message format - no from field:', message);
         throw new Error('Invalid message format');
       }
 

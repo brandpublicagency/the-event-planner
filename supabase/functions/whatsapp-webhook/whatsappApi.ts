@@ -7,24 +7,16 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
   try {
     console.log('Preparing WhatsApp message:', { to, messageData });
     
-    let messageBody: any;
-    
+    let messageBody: any = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: messageData.type
+    };
+
     if (messageData.type === 'interactive' && messageData.interactive) {
-      messageBody = {
-        messaging_product: "whatsapp",
-        to: to,
-        type: "interactive",
-        interactive: messageData.interactive
-      };
+      messageBody.interactive = messageData.interactive;
     } else {
-      messageBody = {
-        messaging_product: "whatsapp",
-        to: to,
-        type: "text",
-        text: {
-          body: messageData.message
-        }
-      };
+      messageBody.text = { body: messageData.message };
     }
 
     console.log('Sending request to WhatsApp API:', JSON.stringify(messageBody, null, 2));
