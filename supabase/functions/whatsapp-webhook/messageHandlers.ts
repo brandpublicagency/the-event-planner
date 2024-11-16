@@ -11,8 +11,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getWelcomeMessage() {
-  console.log('Fetching welcome message with upcoming events');
-  
   const { data: events, error } = await supabase
     .from('events')
     .select('*')
@@ -23,6 +21,10 @@ export async function getWelcomeMessage() {
   if (error) {
     console.error('Error fetching events:', error);
     throw new Error('Failed to fetch upcoming events');
+  }
+
+  if (!events || events.length === 0) {
+    return { message: "No upcoming events found." };
   }
 
   const sections = [{
@@ -36,7 +38,6 @@ export async function getWelcomeMessage() {
 
   return {
     type: 'interactive',
-    message: "Select an event to view details",
     interactive: {
       type: "list",
       header: {
@@ -58,8 +59,6 @@ export async function getWelcomeMessage() {
 }
 
 export async function getEventDetails(eventCode: string) {
-  console.log('Fetching event details for:', eventCode);
-  
   const { data: event, error } = await supabase
     .from('events')
     .select(`
@@ -72,10 +71,6 @@ export async function getEventDetails(eventCode: string) {
   if (error) {
     console.error('Error fetching event:', error);
     throw new Error(`Could not find event ${eventCode}`);
-  }
-  
-  if (!event) {
-    return `Event ${eventCode} not found.`;
   }
 
   const menuInfo = event.menu_selections 
@@ -92,78 +87,11 @@ Type: ${event.event_type}
 Guests: ${event.pax || 'Not set'}
 
 🍽️ Menu Information:
-${menuInfo}`;
-}
+${menuInfo}
 
-export async function updateEventMenu(eventCode: string, menuType: string) {
-  console.log('Updating menu for event:', eventCode, 'to type:', menuType);
-  
-  let updates = {};
-  
-  switch (menuType.toLowerCase()) {
-    case 'harvest':
-      updates = {
-        is_custom: false,
-        starter_type: 'harvest',
-        custom_menu_details: null,
-        canape_package: null,
-        canape_selections: null,
-        plated_starter: null
-      };
-      break;
-    case 'custom':
-      updates = {
-        is_custom: true,
-        starter_type: null,
-        custom_menu_details: '',
-        canape_package: null,
-        canape_selections: null,
-        plated_starter: null
-      };
-      break;
-    default:
-      return "❌ Invalid menu type. Available options: harvest, custom";
-  }
-
-  const { error } = await supabase
-    .from('menu_selections')
-    .upsert({
-      event_code: eventCode,
-      ...updates
-    });
-
-  if (error) {
-    console.error('Error updating menu:', error);
-    throw new Error(`Failed to update menu for ${eventCode}`);
-  }
-  
-  return `✅ Menu updated successfully for ${eventCode}!\nNew menu type: ${menuType}`;
-}
-
-export async function getNextEvent() {
-  console.log('Fetching next event');
-  
-  const { data: events, error } = await supabase
-    .from('events')
-    .select('*')
-    .gte('event_date', new Date().toISOString())
-    .order('event_date', { ascending: true })
-    .limit(1);
-
-  if (error) {
-    console.error('Error fetching next event:', error);
-    throw new Error('Failed to fetch next event');
-  }
-
-  if (!events || events.length === 0) {
-    return "📅 No upcoming events found.";
-  }
-
-  const event = events[0];
-  return `📅 Next Event:
-${event.name}
-Date: ${format(new Date(event.event_date), 'dd MMM yyyy')}
-Type: ${event.event_type}`;
+To update the menu, send:
+"menu ${event.event_code} harvest" or
+"menu ${event.event_code} custom"`;
 }
 
 export function getHelpMessage(): string {
