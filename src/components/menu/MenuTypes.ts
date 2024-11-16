@@ -41,9 +41,38 @@ export interface PlatedStarterOption {
 }
 
 export const platedStarterOptions: PlatedStarterOption[] = [
-  { value: 'soup', label: 'Butternut Soup with Fresh Cream' },
-  { value: 'carpaccio', label: 'Beef Carpaccio with Rocket and Parmesan' },
-  { value: 'salad', label: 'Fresh Garden Salad' },
+  { 
+    value: 'mushroom_soup', 
+    label: 'Exotic wild mushroom soup, fresh tomato soup, or butternut soup served with Sourdough bread (v)' 
+  },
+  { 
+    value: 'crostinis', 
+    label: 'Fresh tomato, basil & mozzarella crostinis with olive oil and balsamic vinaigrette (v)' 
+  },
+  { 
+    value: 'seafood_cocktail', 
+    label: 'Classic seafood cocktail served on fresh cos lettuce' 
+  },
+  { 
+    value: 'risotto', 
+    label: 'Wild mushroom and black truffle risotto (v)' 
+  },
+  { 
+    value: 'pastry_parcel', 
+    label: 'Fresh asparagus, hickory ham & brie pastry parcel (s)' 
+  },
+  { 
+    value: 'philo_basket', 
+    label: 'Phyllo basket with spinach and feta' 
+  },
+  { 
+    value: 'halloumi', 
+    label: 'Grilled halloumi fingers with lime yogurt & pomegranate (v)' 
+  },
+  { 
+    value: 'butternut_salad', 
+    label: 'Spiced butternut & beetroot salad with feta, seeds and a citrus dressing (v)' 
+  }
 ];
 
 export const starterTypes = [
