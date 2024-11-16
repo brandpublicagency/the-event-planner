@@ -25,7 +25,8 @@ export const getWelcomeMessage = async () => {
 
   const sections = events.map(event => ({
     id: event.event_code,
-    title: formatEventTitle(event)
+    title: event.name,
+    description: formatEventDate(event.event_date)
   }));
 
   return {
@@ -91,14 +92,12 @@ export const getHelpMessage = () => {
   };
 };
 
-const formatEventTitle = (event: any) => {
-  const date = event.event_date ? new Date(event.event_date) : new Date();
-  const formattedDate = date.toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+const formatEventDate = (dateStr: string | null) => {
+  if (!dateStr) return 'Date not set';
   
-  const title = `${event.name} (${formattedDate})`;
-  return title.length <= 24 ? title : title.substring(0, 21) + '...';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'long'
+  });
 };
