@@ -9,6 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const getWelcomeMessage = async () => {
   const today = new Date().toISOString();
   
+  // Query all events that are not deleted and are upcoming
   const { data: events } = await supabase
     .from('events')
     .select(`
@@ -32,7 +33,22 @@ export const getWelcomeMessage = async () => {
     };
   }
 
-  const sections = events.map(event => ({
+  // Filter out any null or undefined events and ensure they have valid dates
+  const validEvents = events.filter(event => 
+    event && 
+    event.event_date && 
+    event.name &&
+    new Date(event.event_date) >= new Date(today)
+  );
+
+  if (!validEvents.length) {
+    return {
+      type: 'text',
+      message: "Welcome! There are no upcoming events at the moment."
+    };
+  }
+
+  const sections = validEvents.map(event => ({
     id: event.event_code,
     title: truncateTitle(event.name),
     description: formatEventDate(event.event_date)
