@@ -26,6 +26,22 @@ const KarooSection = ({
   onKarooVegetableSelectionsChange,
   onKarooSaladSelectionChange,
 }: KarooSectionProps) => {
+  const handleStarchSelection = (value: string) => {
+    if (karooStarchSelection.includes(value)) {
+      onKarooStarchSelectionChange(karooStarchSelection.filter(item => item !== value));
+    } else if (karooStarchSelection.length < 2) {
+      onKarooStarchSelectionChange([...karooStarchSelection, value]);
+    }
+  };
+
+  const handleVegetableSelection = (value: string) => {
+    if (karooVegetableSelections.includes(value)) {
+      onKarooVegetableSelectionsChange(karooVegetableSelections.filter(item => item !== value));
+    } else if (karooVegetableSelections.length < 2) {
+      onKarooVegetableSelectionsChange([...karooVegetableSelections, value]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -54,24 +70,104 @@ const KarooSection = ({
 
       <div className="space-y-4">
         <SelectionHeader title="STARCH SELECTIONS (Select 2)" />
-        <MultiSelect
-          options={karooStarchOptions}
-          selectedValues={karooStarchSelection}
-          onChange={onKarooStarchSelectionChange}
-          maxSelections={2}
-          actionLabel="Change"
-        />
+        {karooStarchSelection.length === 0 ? (
+          <Select onValueChange={handleStarchSelection}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose starch option (select 2)" />
+            </SelectTrigger>
+            <SelectContent>
+              {karooStarchOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="space-y-2">
+            {karooStarchSelection.map((selection) => {
+              const option = karooStarchOptions.find(opt => opt.value === selection);
+              return (
+                <div key={selection} className="flex justify-between items-center">
+                  <span>{option?.label}</span>
+                  <button
+                    onClick={() => handleStarchSelection(selection)}
+                    className="text-sm text-red-500 hover:text-red-600"
+                  >
+                    Change
+                  </button>
+                </div>
+              );
+            })}
+            {karooStarchSelection.length < 2 && (
+              <Select onValueChange={handleStarchSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add another starch option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {karooStarchOptions
+                    .filter(option => !karooStarchSelection.includes(option.value))
+                    .map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
         <SelectionHeader title="VEGETABLE SELECTIONS (Select 2)" />
-        <MultiSelect
-          options={karooVegetableOptions}
-          selectedValues={karooVegetableSelections}
-          onChange={onKarooVegetableSelectionsChange}
-          maxSelections={2}
-          actionLabel="Change"
-        />
+        {karooVegetableSelections.length === 0 ? (
+          <Select onValueChange={handleVegetableSelection}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose vegetable option (select 2)" />
+            </SelectTrigger>
+            <SelectContent>
+              {karooVegetableOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="space-y-2">
+            {karooVegetableSelections.map((selection) => {
+              const option = karooVegetableOptions.find(opt => opt.value === selection);
+              return (
+                <div key={selection} className="flex justify-between items-center">
+                  <span>{option?.label}</span>
+                  <button
+                    onClick={() => handleVegetableSelection(selection)}
+                    className="text-sm text-red-500 hover:text-red-600"
+                  >
+                    Change
+                  </button>
+                </div>
+              );
+            })}
+            {karooVegetableSelections.length < 2 && (
+              <Select onValueChange={handleVegetableSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add another vegetable option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {karooVegetableOptions
+                    .filter(option => !karooVegetableSelections.includes(option.value))
+                    .map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
