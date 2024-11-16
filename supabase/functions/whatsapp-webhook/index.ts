@@ -40,7 +40,7 @@ async function handleMessage(from: string, message: string) {
   }
 
   // Send response back to WhatsApp
-  const url = `https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages`;
+  const url = `https://graph.facebook.com/v17.0/449752294895710/messages`;
   await fetch(url, {
     method: 'POST',
     headers: {
@@ -79,6 +79,7 @@ serve(async (req) => {
   if (req.method === 'POST') {
     try {
       const body = await req.json();
+      console.log('Received webhook:', JSON.stringify(body, null, 2));
       
       // Process each message in the webhook
       const entry = body.entry?.[0];
