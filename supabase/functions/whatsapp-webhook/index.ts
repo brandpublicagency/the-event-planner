@@ -15,29 +15,34 @@ async function handleMessage(from: string, message: string) {
   
   try {
     let response = "";
-    const lowerMessage = message.toLowerCase();
+    const lowerMessage = message.toLowerCase().trim();
 
     // Check for help command first
     if (lowerMessage === 'help') {
       response = getHelpMessage();
+    } else if (lowerMessage === 'next event') {
+      response = await getNextEvent();
     } else {
       // Check for event code pattern (e.g., EVENT-131124)
-      const eventCodeMatch = message.match(/EVENT-\d{6}/);
+      const eventCodeMatch = message.match(/EVENT-\d{6}/i);
       
       if (eventCodeMatch) {
-        const eventCode = eventCodeMatch[0];
+        const eventCode = eventCodeMatch[0].toUpperCase();
         console.log('Found event code:', eventCode);
         
         // Check if it's a menu update command
-        if (lowerMessage.includes('menu') && (lowerMessage.includes('harvest') || lowerMessage.includes('custom'))) {
-          const menuType = lowerMessage.includes('harvest') ? 'harvest' : 'custom';
-          response = await updateEventMenu(eventCode, menuType);
+        if (lowerMessage.includes('menu')) {
+          if (lowerMessage.includes('harvest')) {
+            response = await updateEventMenu(eventCode, 'harvest');
+          } else if (lowerMessage.includes('custom')) {
+            response = await updateEventMenu(eventCode, 'custom');
+          } else {
+            response = "Invalid menu type. Please use 'harvest' or 'custom'.";
+          }
         } else {
           // If no specific command, show event details
           response = await getEventDetails(eventCode);
         }
-      } else if (lowerMessage.includes('next event')) {
-        response = await getNextEvent();
       } else {
         // Default to help message for unrecognized commands
         response = getHelpMessage();
@@ -79,16 +84,27 @@ serve(async (req) => {
       const body = await req.json();
       console.log('Received webhook:', JSON.stringify(body, null, 2));
       
-      // Process each message in the webhook
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
       const value = changes?.value;
       const messages = value?.messages;
 
-      if (messages && messages.length > 0) {
-        const message = messages[0];
-        await handleMessage(message.from, message.text.body);
+      if (!messages || messages.length === 0) {
+        console.log('No messages in webhook payload');
+        return new Response(JSON.stringify({ status: 'no messages' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
+
+      const message = messages[0];
+      if (!message.from || !message.text?.body) {
+        console.log('Invalid message format:', message);
+        return new Response(JSON.stringify({ status: 'invalid message format' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      await handleMessage(message.from, message.text.body);
 
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

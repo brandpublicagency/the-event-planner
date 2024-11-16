@@ -1,9 +1,12 @@
 const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
+const PHONE_NUMBER_ID = '494335320427022';
 
 export async function sendWhatsAppMessage(to: string, message: string) {
-  const url = `https://graph.facebook.com/v17.0/494335320427022/messages`;
+  const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
+    console.log('Sending WhatsApp message:', { to, message });
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -18,11 +21,14 @@ export async function sendWhatsAppMessage(to: string, message: string) {
       }),
     });
 
+    const responseData = await response.json();
+    console.log('WhatsApp API response:', responseData);
+
     if (!response.ok) {
-      throw new Error(`WhatsApp API error: ${response.status}`);
+      throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(responseData)}`);
     }
 
-    return await response.json();
+    return responseData;
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
     throw error;

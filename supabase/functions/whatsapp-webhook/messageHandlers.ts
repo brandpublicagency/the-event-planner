@@ -3,45 +3,55 @@ import { format } from "https://deno.land/x/date_fns@v2.22.1/format/index.js";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getEventDetails(eventCode: string) {
+  console.log('Fetching event details for:', eventCode);
+  
   const { data: event, error } = await supabase
     .from('events')
     .select(`
       *,
-      menu_selections (
-        is_custom,
-        custom_menu_details,
-        starter_type,
-        canape_package,
-        canape_selections,
-        plated_starter,
-        notes
-      )
+      menu_selections (*)
     `)
     .eq('event_code', eventCode)
     .single();
 
-  if (error) throw error;
-  if (!event) return "Event not found.";
+  if (error) {
+    console.error('Error fetching event:', error);
+    throw new Error(`Could not find event ${eventCode}`);
+  }
+  
+  if (!event) {
+    return `Event ${eventCode} not found.`;
+  }
 
-  const menuInfo = event.menu_selections?.[0] 
-    ? `Menu Type: ${event.menu_selections[0].is_custom ? 'Custom Menu' : event.menu_selections[0].starter_type || 'Not set'}\n` +
-      (event.menu_selections[0].is_custom ? `Custom Details: ${event.menu_selections[0].custom_menu_details || 'None'}\n` : '') +
-      (event.menu_selections[0].starter_type === 'canapes' ? `Canapé Package: ${event.menu_selections[0].canape_package || 'Not set'}\n` : '') +
-      (event.menu_selections[0].plated_starter ? `Plated Starter: ${event.menu_selections[0].plated_starter}\n` : '')
+  const menuInfo = event.menu_selections 
+    ? `Menu Type: ${event.menu_selections.is_custom ? 'Custom Menu' : event.menu_selections.starter_type || 'Not set'}\n` +
+      (event.menu_selections.is_custom ? `Custom Details: ${event.menu_selections.custom_menu_details || 'None'}\n` : '') +
+      (event.menu_selections.starter_type === 'canapes' ? `Canapé Package: ${event.menu_selections.canape_package || 'Not set'}\n` : '') +
+      (event.menu_selections.plated_starter ? `Plated Starter: ${event.menu_selections.plated_starter}\n` : '')
     : "No menu selected\n";
 
-  return `Event: ${event.name}
+  return `📅 Event Details:
+Name: ${event.name}
 Date: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}
 Time: ${event.start_time || 'Not set'} - ${event.end_time || 'Not set'}
 Type: ${event.event_type}
 Guests: ${event.pax || 'Not set'}
+
+🍽️ Menu Information:
 ${menuInfo}`;
 }
 
 export async function updateEventMenu(eventCode: string, menuType: string) {
+  console.log('Updating menu for event:', eventCode, 'to type:', menuType);
+  
   let updates = {};
   
   switch (menuType.toLowerCase()) {
@@ -66,7 +76,7 @@ export async function updateEventMenu(eventCode: string, menuType: string) {
       };
       break;
     default:
-      return "Invalid menu type. Available options: harvest, custom";
+      return "❌ Invalid menu type. Available options: harvest, custom";
   }
 
   const { error } = await supabase
@@ -76,11 +86,17 @@ export async function updateEventMenu(eventCode: string, menuType: string) {
       ...updates
     });
 
-  if (error) throw error;
-  return `Menu updated successfully for ${eventCode}! New menu type: ${menuType}`;
+  if (error) {
+    console.error('Error updating menu:', error);
+    throw new Error(`Failed to update menu for ${eventCode}`);
+  }
+  
+  return `✅ Menu updated successfully for ${eventCode}!\nNew menu type: ${menuType}`;
 }
 
 export async function getNextEvent() {
+  console.log('Fetching next event');
+  
   const { data: events, error } = await supabase
     .from('events')
     .select('*')
@@ -88,11 +104,20 @@ export async function getNextEvent() {
     .order('event_date', { ascending: true })
     .limit(1);
 
-  if (error) throw error;
-  if (!events || events.length === 0) return "No upcoming events found.";
+  if (error) {
+    console.error('Error fetching next event:', error);
+    throw new Error('Failed to fetch next event');
+  }
+
+  if (!events || events.length === 0) {
+    return "📅 No upcoming events found.";
+  }
 
   const event = events[0];
-  return `Next event: ${event.name} on ${format(new Date(event.event_date), 'dd MMM yyyy')} (${event.event_type})`;
+  return `📅 Next Event:
+${event.name}
+Date: ${format(new Date(event.event_date), 'dd MMM yyyy')}
+Type: ${event.event_type}`;
 }
 
 export function getHelpMessage(): string {
