@@ -62,7 +62,7 @@ const MenuContent = ({
           )}
         </div>
 
-        {menuState.selectedStarterType?.startsWith('canapes') && (
+        {menuState.selectedStarterType === 'canapes' && (
           <div className="animate-in fade-in slide-in-from-top-4">
             <CanapeSection
               selectedCanapePackage={menuState.selectedCanapePackage}

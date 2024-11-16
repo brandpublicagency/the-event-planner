@@ -26,14 +26,14 @@ const StarterTypeSelect = ({
           <SelectContent>
             {starterTypes.map((type) => (
               <SelectItem key={type.value} value={type.value}>
-                {type.label} - R {type.price.toFixed(2)} per person
+                {type.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       ) : (
         <SelectionDisplay
-          label={`${selectedType?.label} - R ${selectedType?.price.toFixed(2)} per person`}
+          label={`${selectedType?.label}`}
           onRemove={() => onStarterTypeChange('')}
           actionLabel="Change"
         />

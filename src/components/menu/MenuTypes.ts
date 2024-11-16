@@ -78,10 +78,7 @@ export const platedStarterOptions: PlatedStarterOption[] = [
 
 export const starterTypes = [
   { value: 'harvest', label: 'Harvest Table', price: 130.00 },
-  { value: 'canapes_3', label: 'Choice of 3 Canapés', price: 120.00 },
-  { value: 'canapes_4', label: 'Choice of 4 Canapés', price: 150.00 },
-  { value: 'canapes_5', label: 'Choice of 5 Canapés', price: 185.00 },
-  { value: 'canapes_6', label: 'Choice of 6 Canapés', price: 220.00 },
+  { value: 'canapes', label: 'Canapés', price: 0.00 },
   { value: 'plated', label: 'Plated Starter', price: 120.00 },
 ];
 
