@@ -8,6 +8,7 @@ export interface MenuOption {
 export interface CanapePackage {
   value: string;
   label: string;
+  price: number;
 }
 
 export interface CanapeOption {
@@ -16,10 +17,10 @@ export interface CanapeOption {
 }
 
 export const canapePackages: CanapePackage[] = [
-  { value: '3', label: 'Choice of 3 Canapés' },
-  { value: '4', label: 'Choice of 4 Canapés' },
-  { value: '5', label: 'Choice of 5 Canapés' },
-  { value: '6', label: 'Choice of 6 Canapés' },
+  { value: '3', label: 'Choice of 3 Canapés', price: 120.00 },
+  { value: '4', label: 'Choice of 4 Canapés', price: 150.00 },
+  { value: '5', label: 'Choice of 5 Canapés', price: 185.00 },
+  { value: '6', label: 'Choice of 6 Canapés', price: 220.00 },
 ];
 
 export const canapeOptions: CanapeOption[] = [
