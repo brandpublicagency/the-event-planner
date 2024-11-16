@@ -5,12 +5,12 @@ interface EventUpdateData {
   name: string;
   description: string;
   event_type: string;
-  event_date: string;
+  event_date: string | null;  // Changed to allow null
   start_time?: string | null;
   end_time?: string | null;
-  pax: number;
-  package_id: string;
-  client_address: string;
+  pax: number | null;  // Changed to allow null
+  package_id: string | null;  // Changed to allow null
+  client_address: string | null;  // Changed to allow null
   venues?: Record<string, boolean>;
   // Wedding specific fields
   bride_name?: string;
@@ -40,15 +40,14 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         event_date: data.event_date,
         start_time: data.start_time || null,
         end_time: data.end_time || null,
-        pax: data.pax,
+        pax: data.pax || null,
         package_id: data.package_id || null,
-        client_address: data.client_address,
+        client_address: data.client_address || null,
       })
       .eq('event_code', eventCode);
 
     if (eventError) throw eventError;
 
-    // Update venue relationships if venues data is provided
     if (data.venues && Object.keys(data.venues).length > 0) {
       // Delete existing venue relationships
       await supabase

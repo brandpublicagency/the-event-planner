@@ -62,29 +62,29 @@ const EditEvent = () => {
       // Reset form with event data
       form.reset({
         name: event.name,
-        description: event.description || '',  // Ensure description is never undefined
+        description: event.description || '',
         event_type: eventType,
-        event_date: event.event_date,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        pax: event.pax,
-        package_id: event.package_id,
-        client_address: event.client_address,
+        event_date: event.event_date || null,
+        start_time: event.start_time || null,
+        end_time: event.end_time || null,
+        pax: event.pax || null,
+        package_id: event.package_id || null,
+        client_address: event.client_address || null,
         venues: venuesData || {},
         // Wedding details
-        bride_name: event.wedding_details?.bride_name,
-        bride_email: event.wedding_details?.bride_email,
-        bride_mobile: event.wedding_details?.bride_mobile,
-        groom_name: event.wedding_details?.groom_name,
-        groom_email: event.wedding_details?.groom_email,
-        groom_mobile: event.wedding_details?.groom_mobile,
+        bride_name: event.wedding_details?.bride_name || null,
+        bride_email: event.wedding_details?.bride_email || null,
+        bride_mobile: event.wedding_details?.bride_mobile || null,
+        groom_name: event.wedding_details?.groom_name || null,
+        groom_email: event.wedding_details?.groom_email || null,
+        groom_mobile: event.wedding_details?.groom_mobile || null,
         // Corporate details
-        company_name: event.corporate_details?.company_name,
-        contact_person: event.corporate_details?.contact_person,
-        contact_email: event.corporate_details?.contact_email,
-        contact_mobile: event.corporate_details?.contact_mobile,
-        company_vat: event.corporate_details?.company_vat,
-        company_address: event.corporate_details?.company_address,
+        company_name: event.corporate_details?.company_name || null,
+        contact_person: event.corporate_details?.contact_person || null,
+        contact_email: event.corporate_details?.contact_email || null,
+        contact_mobile: event.corporate_details?.contact_mobile || null,
+        company_vat: event.corporate_details?.company_vat || null,
+        company_address: event.corporate_details?.company_address || null,
       });
     }
   }, [event, form]);
@@ -93,10 +93,14 @@ const EditEvent = () => {
     try {
       if (!id) throw new Error('Event ID is required');
       
-      // Ensure description is included in the update data
+      // Transform the form data to match EventUpdateData requirements
       const updateData = {
         ...data,
-        description: data.description || '', // Provide empty string as fallback
+        description: data.description || '',
+        event_date: data.event_date || null,
+        pax: data.pax || null,
+        package_id: data.package_id || null,
+        client_address: data.client_address || null,
       };
       
       await updateEvent(id, updateData);
