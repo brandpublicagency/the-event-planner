@@ -40,7 +40,7 @@ async function handleMessage(from: string, message: string) {
   }
 
   // Send response back to WhatsApp
-  const url = `https://graph.facebook.com/v17.0/449752294895710/messages`;
+  const url = `https://graph.facebook.com/v17.0/494335320427022/messages`;
   await fetch(url, {
     method: 'POST',
     headers: {
