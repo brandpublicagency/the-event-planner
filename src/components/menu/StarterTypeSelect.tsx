@@ -20,7 +20,7 @@ const StarterTypeSelect = ({
         <SelectContent>
           {starterTypes.map((type) => (
             <SelectItem key={type.value} value={type.value}>
-              {type.label}
+              {type.label} - R {type.price.toFixed(2)} per person
             </SelectItem>
           ))}
         </SelectContent>

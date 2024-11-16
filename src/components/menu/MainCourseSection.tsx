@@ -1,4 +1,5 @@
 import React from 'react';
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
@@ -54,20 +55,27 @@ const MainCourseSection = ({
   onPlatedMainSelectionChange,
   onPlatedSaladSelectionChange,
 }: MainCourseSectionProps) => {
+  const selectedType = mainCourseTypes.find(type => type.value === selectedMainCourse);
+
   return (
     <div className="space-y-6 print:break-inside-avoid">
-      <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select main course option" />
-        </SelectTrigger>
-        <SelectContent>
-          {mainCourseTypes.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label} - R {option.price.toFixed(2)} per person
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div>
+        <Label className="text-sm text-muted-foreground mb-4 block">
+          {selectedType ? `${selectedType.label} - R ${selectedType.price.toFixed(2)} per person` : 'Select your main course type'}
+        </Label>
+        <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select main course option" />
+          </SelectTrigger>
+          <SelectContent>
+            {mainCourseTypes.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label} - R {option.price.toFixed(2)} per person
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {selectedMainCourse === 'buffet' && (
         <BuffetSection
