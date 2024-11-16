@@ -1,6 +1,8 @@
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
 import KarooSection from './KarooSection';
@@ -59,23 +61,37 @@ const MainCourseSection = ({
 
   return (
     <div className="space-y-6 print:break-inside-avoid">
-      <div>
-        <Label className="text-sm text-muted-foreground mb-4 block">
-          {selectedType ? `${selectedType.label} - R ${selectedType.price.toFixed(2)} per person` : 'Select your main course type'}
-        </Label>
-        <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select main course option" />
-          </SelectTrigger>
-          <SelectContent>
-            {mainCourseTypes.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label} - R {option.price.toFixed(2)} per person
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {selectedType ? (
+        <div className="flex items-center justify-between bg-white border rounded-md p-3">
+          <span>{selectedType.label} - R {selectedType.price.toFixed(2)} per person</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onMainCourseChange('')}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <Label className="text-sm text-muted-foreground mb-4 block">
+            Select your main course type
+          </Label>
+          <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select main course option" />
+            </SelectTrigger>
+            <SelectContent>
+              {mainCourseTypes.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label} - R {option.price.toFixed(2)} per person
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {selectedMainCourse === 'buffet' && (
         <BuffetSection
