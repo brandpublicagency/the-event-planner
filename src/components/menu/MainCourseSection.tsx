@@ -13,7 +13,7 @@ interface MainCourseSectionProps {
   buffetStarchSelections?: string[];
   buffetSaladSelection?: string;
   karooMeatSelection?: string;
-  karooStarchSelection?: string;
+  karooStarchSelection?: string[];  // Changed from string to string[]
   karooVegetableSelections?: string[];
   karooSaladSelection?: string;
   platedMainSelection?: string;
@@ -24,7 +24,7 @@ interface MainCourseSectionProps {
   onBuffetStarchSelectionsChange: (value: string[]) => void;
   onBuffetSaladSelectionChange: (value: string) => void;
   onKarooMeatSelectionChange: (value: string) => void;
-  onKarooStarchSelectionChange: (value: string) => void;
+  onKarooStarchSelectionChange: (value: string[]) => void;  // Changed from (value: string) to (value: string[])
   onKarooVegetableSelectionsChange: (value: string[]) => void;
   onKarooSaladSelectionChange: (value: string) => void;
   onPlatedMainSelectionChange: (value: string) => void;
@@ -38,7 +38,7 @@ const MainCourseSection = ({
   buffetStarchSelections = [],
   buffetSaladSelection = '',
   karooMeatSelection = '',
-  karooStarchSelection = '',
+  karooStarchSelection = [],  // Changed default from '' to []
   karooVegetableSelections = [],
   karooSaladSelection = '',
   platedMainSelection = '',
