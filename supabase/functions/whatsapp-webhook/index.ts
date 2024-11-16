@@ -10,45 +10,44 @@ const corsHeaders = {
 
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 
-async function handleMessage(from: string, message: string) {
+async function handleMessage(from: string, message: any) {
   console.log('Received message:', message, 'from:', from);
   
   try {
     let response;
-    const lowerMessage = message.toLowerCase().trim();
-
-    // Check if this is the first message or a help request
-    if (lowerMessage === 'hi' || lowerMessage === 'hello' || lowerMessage === 'hey') {
-      console.log('Generating welcome message');
-      response = await getWelcomeMessage();
-      console.log('Generated welcome message:', response);
-    } else if (lowerMessage === 'help') {
-      response = { message: getHelpMessage() };
-    } else if (lowerMessage === 'next event') {
-      response = { message: await getNextEvent() };
-    } else {
-      // Check for event code pattern (e.g., EVENT-131124)
-      const eventCodeMatch = message.match(/EVENT-\d{6}/i);
+    
+    // Handle interactive messages
+    if (message.type === 'interactive') {
+      console.log('Handling interactive message:', message.interactive);
       
-      if (eventCodeMatch) {
-        const eventCode = eventCodeMatch[0].toUpperCase();
-        console.log('Found event code:', eventCode);
-        
-        // Check if it's a menu update command
-        if (lowerMessage.includes('menu')) {
-          if (lowerMessage.includes('harvest')) {
+      if (message.interactive.type === 'list_reply') {
+        const eventCode = message.interactive.list_reply.id;
+        response = { message: await getEventDetails(eventCode) };
+      }
+    } else {
+      // Handle text messages
+      const messageText = message.text?.body?.toLowerCase().trim() || '';
+      
+      if (messageText === 'hi' || messageText === 'hello' || messageText === 'hey') {
+        console.log('Generating welcome message with interactive list');
+        response = await getWelcomeMessage();
+      } else if (messageText === 'help') {
+        response = { message: getHelpMessage() };
+      } else if (messageText === 'next event') {
+        response = { message: await getNextEvent() };
+      } else if (messageText.includes('menu')) {
+        const eventCodeMatch = messageText.match(/EVENT-\d{6}/i);
+        if (eventCodeMatch) {
+          const eventCode = eventCodeMatch[0].toUpperCase();
+          if (messageText.includes('harvest')) {
             response = { message: await updateEventMenu(eventCode, 'harvest') };
-          } else if (lowerMessage.includes('custom')) {
+          } else if (messageText.includes('custom')) {
             response = { message: await updateEventMenu(eventCode, 'custom') };
           } else {
             response = { message: "Invalid menu type. Please use 'harvest' or 'custom'." };
           }
-        } else {
-          // If no specific command, show event details
-          response = { message: await getEventDetails(eventCode) };
         }
       } else {
-        // Default to help message for unrecognized commands
         response = { message: getHelpMessage() };
       }
     }
@@ -109,14 +108,14 @@ serve(async (req) => {
       }
 
       const message = messages[0];
-      if (!message.from || !message.text?.body) {
+      if (!message.from) {
         console.error('Invalid message format:', message);
         return new Response(JSON.stringify({ status: 'invalid message format' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      await handleMessage(message.from, message.text.body);
+      await handleMessage(message.from, message);
 
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

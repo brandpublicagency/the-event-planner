@@ -1,7 +1,7 @@
 const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
 const PHONE_NUMBER_ID = '494335320427022';
 
-export async function sendWhatsAppMessage(to: string, messageData: { message: string, components?: any[] }) {
+export async function sendWhatsAppMessage(to: string, messageData: { message: string, type?: 'text' | 'interactive', interactive?: any }) {
   const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
@@ -9,27 +9,15 @@ export async function sendWhatsAppMessage(to: string, messageData: { message: st
     
     let messageBody: any;
     
-    if (messageData.components?.length > 0) {
+    if (messageData.type === 'interactive') {
       messageBody = {
         messaging_product: "whatsapp",
         to: to,
         type: "interactive",
-        interactive: {
-          type: "button",
-          body: {
-            text: messageData.message
-          },
-          action: {
-            buttons: messageData.components.map(component => ({
-              type: component.sub_type,
-              text: component.parameters[0].text,
-              url: component.url
-            }))
-          }
-        }
+        interactive: messageData.interactive
       };
     } else {
-      // Send a simple text message if no components
+      // Send a simple text message if no interactive content
       messageBody = {
         messaging_product: "whatsapp",
         to: to,

@@ -18,43 +18,42 @@ export async function getWelcomeMessage() {
     .select('*')
     .gte('event_date', new Date().toISOString())
     .order('event_date', { ascending: true })
-    .limit(5);
+    .limit(10);
 
   if (error) {
     console.error('Error fetching events:', error);
     throw new Error('Failed to fetch upcoming events');
   }
 
-  let message = "👋 Hello! I'm your event assistant. ";
-  
-  if (!events || events.length === 0) {
-    message += "You have no upcoming events.";
-  } else {
-    message += "Here are your upcoming events:\n\n";
-    events.forEach((event, index) => {
-      const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set';
-      message += `${index + 1}. ${event.event_code}\n${event.name} / ${date}\n\n`;
-    });
-  }
-
-  message += "Which event can I assist you with?";
+  const sections = [{
+    title: "Upcoming Events",
+    rows: events.map(event => ({
+      id: event.event_code,
+      title: event.name,
+      description: event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set'
+    }))
+  }];
 
   return {
-    message,
-    components: [
-      {
-        type: "button",
-        sub_type: "url",
-        index: "0",
-        parameters: [
-          {
-            type: "text",
-            text: "Add New Event"
-          }
-        ],
-        url: `${Deno.env.get('APP_URL')}/events/new`
+    type: 'interactive',
+    message: "Select an event to view details",
+    interactive: {
+      type: "list",
+      header: {
+        type: "text",
+        text: "Event Management"
+      },
+      body: {
+        text: "Here are your upcoming events. Select one to view or manage:"
+      },
+      footer: {
+        text: "Choose an event from the list"
+      },
+      action: {
+        button: "View Events",
+        sections: sections
       }
-    ]
+    }
   };
 }
 
@@ -171,15 +170,14 @@ Type: ${event.event_type}`;
 export function getHelpMessage(): string {
   return `👋 Hello! I'm your event assistant. Here's what I can help you with:
 
-1️⃣ View Next Event
-   Send: "next event"
+1️⃣ View Events List
+   Send: "hi" or "hello"
 
 2️⃣ View Event Details
-   Send: "EVENT-123456" (replace with your event code)
+   Select an event from the list
 
 3️⃣ Update Menu Type
-   Send: "EVENT-123456 menu harvest"
-   or: "EVENT-123456 menu custom"
+   After selecting an event, you can update its menu
 
 Need help? Just send "help" anytime!`;
 }
