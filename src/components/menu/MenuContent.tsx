@@ -38,8 +38,6 @@ const MenuContent = ({
     );
   }
 
-  const selectedStarterType = starterTypes.find(type => type.value === menuState.selectedStarterType);
-
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4">
       <div className="space-y-4">
