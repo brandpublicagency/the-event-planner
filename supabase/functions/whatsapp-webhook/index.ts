@@ -11,31 +11,37 @@ const corsHeaders = {
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 
 async function handleMessage(from: string, message: any) {
-  console.log('Handling message:', JSON.stringify(message, null, 2));
+  console.log('Handling message:', {
+    from,
+    type: message.type,
+    interactive: message.interactive,
+    text: message.text,
+  });
   
   try {
     let response;
     
-    // Check if it's an interactive message (list response)
     if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
-      console.log('Processing list reply:', message.interactive.list_reply);
+      console.log('Processing list reply:', {
+        id: message.interactive.list_reply.id,
+        title: message.interactive.list_reply.title
+      });
       response = await getEventDetails(message.interactive.list_reply.id);
     } 
-    // Check if it's a text message
     else if (message.type === 'text' && message.text?.body) {
       const messageText = message.text.body.toLowerCase().trim();
-      console.log('Processing text message:', messageText);
+      console.log('Processing text message:', { messageText });
       
       if (['hi', 'hello', 'hey'].includes(messageText)) {
         response = await getWelcomeMessage();
       } else if (messageText === 'help') {
         response = getHelpMessage();
       } else {
-        // Default to welcome message for unrecognized commands
+        console.log('Unrecognized command, defaulting to welcome message');
         response = await getWelcomeMessage();
       }
     } else {
-      console.log('Unknown message type:', message.type);
+      console.log('Unsupported message type:', message.type);
       response = {
         type: 'text',
         message: "I don't understand this type of message. Try sending 'hi' or 'help'."
@@ -46,11 +52,11 @@ async function handleMessage(from: string, message: any) {
       throw new Error('No response generated');
     }
 
-    console.log('Sending response:', JSON.stringify(response, null, 2));
+    console.log('Sending response:', response);
     await sendWhatsAppMessage(from, response);
     
   } catch (error) {
-    console.error('Error handling message:', error);
+    console.error('Error in handleMessage:', error);
     const errorMessage = { 
       type: 'text',
       message: "Sorry, I encountered an error processing your request. Please try again later."
@@ -60,8 +66,7 @@ async function handleMessage(from: string, message: any) {
 }
 
 serve(async (req) => {
-  // Add detailed request logging
-  console.log('Received webhook request:', {
+  console.log('Webhook request received:', {
     method: req.method,
     url: req.url,
     headers: Object.fromEntries(req.headers.entries())
@@ -78,7 +83,7 @@ serve(async (req) => {
       const token = url.searchParams.get('hub.verify_token');
       const challenge = url.searchParams.get('hub.challenge');
 
-      console.log('Webhook verification request:', { mode, token, challenge });
+      console.log('Webhook verification:', { mode, token, challenge });
 
       if (mode === 'subscribe' && token === VERIFY_TOKEN) {
         return new Response(challenge, { headers: corsHeaders });
@@ -88,24 +93,24 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       const body = await req.json();
-      console.log('Received webhook body:', JSON.stringify(body, null, 2));
+      console.log('Webhook body:', JSON.stringify(body, null, 2));
       
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
       const value = changes?.value;
       const messages = value?.messages;
 
-      if (!messages || messages.length === 0) {
-        console.log('No messages found in webhook');
+      if (!messages?.length) {
+        console.log('No messages in webhook payload');
         return new Response(JSON.stringify({ status: 'no messages' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
       const message = messages[0];
-      if (!message.from) {
-        console.error('Invalid message format - no from field:', message);
-        throw new Error('Invalid message format');
+      if (!message?.from) {
+        console.error('Invalid message format:', message);
+        throw new Error('Invalid message format - missing from field');
       }
 
       await handleMessage(message.from, message);
@@ -120,8 +125,11 @@ serve(async (req) => {
       headers: corsHeaders 
     });
   } catch (error) {
-    console.error('Error in webhook handler:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Webhook handler error:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      stack: error.stack 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -5,21 +5,24 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
   const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
-    console.log('Preparing WhatsApp message:', { to, messageData });
+    console.log('Preparing WhatsApp message:', {
+      to,
+      type: messageData.type,
+      hasInteractive: !!messageData.interactive,
+      hasMessage: !!messageData.message
+    });
     
-    let messageBody: any = {
+    const messageBody = {
       messaging_product: "whatsapp",
-      to: to,
-      type: messageData.type
+      to,
+      type: messageData.type,
+      ...(messageData.type === 'interactive' 
+        ? { interactive: messageData.interactive }
+        : { text: { body: messageData.message } }
+      )
     };
 
-    if (messageData.type === 'interactive' && messageData.interactive) {
-      messageBody.interactive = messageData.interactive;
-    } else {
-      messageBody.text = { body: messageData.message };
-    }
-
-    console.log('Sending request to WhatsApp API:', JSON.stringify(messageBody, null, 2));
+    console.log('WhatsApp API request:', JSON.stringify(messageBody, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -31,7 +34,11 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
     });
 
     const responseData = await response.json();
-    console.log('WhatsApp API response:', JSON.stringify(responseData, null, 2));
+    console.log('WhatsApp API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      data: responseData
+    });
 
     if (!response.ok) {
       throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(responseData)}`);
@@ -39,7 +46,12 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
 
     return responseData;
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
+    console.error('WhatsApp message error:', {
+      error: error.message,
+      stack: error.stack,
+      to,
+      messageType: messageData.type
+    });
     throw error;
   }
 }
