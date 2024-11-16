@@ -1,9 +1,11 @@
 import React from 'react';
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { karooMeatOptions, karooStarchGroups, karooVegetableOptions, saladOptions } from './MenuTypes';
+import SelectionHeader from './SelectionHeader';
+import SelectionDisplay from './SelectionDisplay';
 
 interface KarooSectionProps {
   karooMeatSelection: string;
@@ -15,50 +17,6 @@ interface KarooSectionProps {
   onKarooVegetableSelectionsChange: (value: string[]) => void;
   onKarooSaladSelectionChange: (value: string) => void;
 }
-
-const KarooStarchSelection = ({
-  potatoSelection,
-  riceSelection,
-  onPotatoSelectionChange,
-  onRiceSelectionChange
-}: {
-  potatoSelection: string;
-  riceSelection: string;
-  onPotatoSelectionChange: (value: string) => void;
-  onRiceSelectionChange: (value: string) => void;
-}) => {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <Label>POTATO OPTION - SELECT ONE</Label>
-        <RadioGroup value={potatoSelection} onValueChange={onPotatoSelectionChange}>
-          <div className="grid gap-3">
-            {karooStarchGroups.potatoes.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
-                <RadioGroupItem value={option.value} id={"potato-" + option.value} />
-                <Label htmlFor={"potato-" + option.value}>{option.label}</Label>
-              </div>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-4">
-        <Label>RICE OPTION - SELECT ONE</Label>
-        <RadioGroup value={riceSelection} onValueChange={onRiceSelectionChange}>
-          <div className="grid gap-3">
-            {karooStarchGroups.rice.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
-                <RadioGroupItem value={option.value} id={"rice-" + option.value} />
-                <Label htmlFor={"rice-" + option.value}>{option.label}</Label>
-              </div>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-    </div>
-  );
-};
 
 const KarooSection = ({
   karooMeatSelection,
@@ -93,46 +51,63 @@ const KarooSection = ({
     setRiceSelection(value);
   };
 
-  const handleOptionToggle = (
-    currentSelections: string[],
-    value: string,
-    onChange: (value: string[]) => void,
-    maxSelections: number
-  ) => {
-    if (currentSelections.includes(value)) {
-      onChange(currentSelections.filter(item => item !== value));
-    } else if (currentSelections.length < maxSelections) {
-      onChange([...currentSelections, value]);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <Label>MEAT SELECTION - CHOOSE ONE OPTION</Label>
-        <Select value={karooMeatSelection} onValueChange={onKarooMeatSelectionChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select meat option" />
-          </SelectTrigger>
-          <SelectContent>
-            {karooMeatOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SelectionHeader title="MEAT SELECTION" />
+        {!karooMeatSelection ? (
+          <Select value={karooMeatSelection} onValueChange={onKarooMeatSelectionChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select meat option" />
+            </SelectTrigger>
+            <SelectContent>
+              {karooMeatOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <SelectionDisplay
+            label={karooMeatOptions.find(opt => opt.value === karooMeatSelection)?.label || ''}
+            onRemove={() => onKarooMeatSelectionChange('')}
+          />
+        )}
       </div>
 
-      <KarooStarchSelection
-        potatoSelection={potatoSelection}
-        riceSelection={riceSelection}
-        onPotatoSelectionChange={handlePotatoSelectionChange}
-        onRiceSelectionChange={handleRiceSelectionChange}
-      />
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <Label>POTATO OPTION</Label>
+          <RadioGroup value={potatoSelection} onValueChange={handlePotatoSelectionChange}>
+            <div className="grid gap-3">
+              {karooStarchGroups.potatoes.map((option) => (
+                <div key={option.value} className="flex items-center space-x-3">
+                  <RadioGroupItem value={option.value} id={`potato-${option.value}`} />
+                  <Label htmlFor={`potato-${option.value}`}>{option.label}</Label>
+                </div>
+              ))}
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-4">
+          <Label>RICE OPTION</Label>
+          <RadioGroup value={riceSelection} onValueChange={handleRiceSelectionChange}>
+            <div className="grid gap-3">
+              {karooStarchGroups.rice.map((option) => (
+                <div key={option.value} className="flex items-center space-x-3">
+                  <RadioGroupItem value={option.value} id={`rice-${option.value}`} />
+                  <Label htmlFor={`rice-${option.value}`}>{option.label}</Label>
+                </div>
+              ))}
+            </div>
+          </RadioGroup>
+        </div>
+      </div>
 
       <div className="space-y-4">
-        <Label>VEGETABLES - CHOOSE TWO OPTIONS</Label>
+        <SelectionHeader title="VEGETABLES" />
         <div className="grid gap-3">
           {karooVegetableOptions.map((option) => (
             <label
@@ -141,9 +116,17 @@ const KarooSection = ({
             >
               <Checkbox
                 checked={karooVegetableSelections.includes(option.value)}
-                onCheckedChange={() => 
-                  handleOptionToggle(karooVegetableSelections, option.value, onKarooVegetableSelectionsChange, 2)
-                }
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    if (karooVegetableSelections.length < 2) {
+                      onKarooVegetableSelectionsChange([...karooVegetableSelections, option.value]);
+                    }
+                  } else {
+                    onKarooVegetableSelectionsChange(
+                      karooVegetableSelections.filter(item => item !== option.value)
+                    );
+                  }
+                }}
               />
               <span>{option.label}</span>
             </label>
@@ -152,19 +135,26 @@ const KarooSection = ({
       </div>
 
       <div className="space-y-4">
-        <Label>CHOOSE ONE SALAD SERVED TO THE TABLE</Label>
-        <Select value={karooSaladSelection} onValueChange={onKarooSaladSelectionChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a salad" />
-          </SelectTrigger>
-          <SelectContent>
-            {saladOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SelectionHeader title="TABLE SALAD" />
+        {!karooSaladSelection ? (
+          <Select value={karooSaladSelection} onValueChange={onKarooSaladSelectionChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a salad" />
+            </SelectTrigger>
+            <SelectContent>
+              {saladOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <SelectionDisplay
+            label={saladOptions.find(opt => opt.value === karooSaladSelection)?.label || ''}
+            onRemove={() => onKarooSaladSelectionChange('')}
+          />
+        )}
       </div>
     </div>
   );
