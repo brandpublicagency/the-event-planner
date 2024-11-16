@@ -39,7 +39,7 @@ const ChatBox = () => {
     setIsLoading(true);
 
     let timeoutId: NodeJS.Timeout;
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<string>((_, reject) => {
       timeoutId = setTimeout(() => {
         reject(new Error("Request timed out. Please try a shorter message or try again later."));
       }, TIMEOUT_DURATION);
@@ -58,7 +58,7 @@ const ChatBox = () => {
         name: undefined
       }));
 
-      const response = await Promise.race([
+      const response = await Promise.race<string>([
         getChatCompletion([systemMessage, ...userMessages]),
         timeoutPromise
       ]);
