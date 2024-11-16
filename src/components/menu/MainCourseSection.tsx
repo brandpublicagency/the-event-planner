@@ -1,14 +1,16 @@
+```tsx
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
-  mainCourseTypes, 
+  mainCourseTypes,
   buffetMeatOptions,
   buffetVegetableOptions,
   buffetStarchOptions,
   karooMeatOptions,
-  karooStarchOptions,
+  karooStarchGroups,
   karooVegetableOptions,
   platedMainOptions,
   saladOptions
@@ -39,6 +41,50 @@ interface MainCourseSectionProps {
   onPlatedSaladSelectionChange: (value: string) => void;
 }
 
+const KarooStarchSelection = ({
+  potatoSelection,
+  riceSelection,
+  onPotatoSelectionChange,
+  onRiceSelectionChange
+}: {
+  potatoSelection: string;
+  riceSelection: string;
+  onPotatoSelectionChange: (value: string) => void;
+  onRiceSelectionChange: (value: string) => void;
+}) => {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <Label>POTATO OPTION - SELECT ONE</Label>
+        <RadioGroup value={potatoSelection} onValueChange={onPotatoSelectionChange}>
+          <div className="grid gap-3">
+            {karooStarchGroups.potatoes.map((option) => (
+              <div key={option.value} className="flex items-center space-x-3">
+                <RadioGroupItem value={option.value} id={`potato-${option.value}`} />
+                <Label htmlFor={`potato-${option.value}`}>{option.label}</Label>
+              </div>
+            ))}
+          </div>
+        </RadioGroup>
+      </div>
+
+      <div className="space-y-4">
+        <Label>RICE OPTION - SELECT ONE</Label>
+        <RadioGroup value={riceSelection} onValueChange={onRiceSelectionChange}>
+          <div className="grid gap-3">
+            {karooStarchGroups.rice.map((option) => (
+              <div key={option.value} className="flex items-center space-x-3">
+                <RadioGroupItem value={option.value} id={`rice-${option.value}`} />
+                <Label htmlFor={`rice-${option.value}`}>{option.label}</Label>
+              </div>
+            ))}
+          </div>
+        </RadioGroup>
+      </div>
+    </div>
+  );
+};
+
 const MainCourseSection = ({
   selectedMainCourse,
   buffetMeatSelections = [],
@@ -63,6 +109,28 @@ const MainCourseSection = ({
   onPlatedMainSelectionChange,
   onPlatedSaladSelectionChange,
 }: MainCourseSectionProps) => {
+  const [potatoSelection, setPotatoSelection] = React.useState('');
+  const [riceSelection, setRiceSelection] = React.useState('');
+
+  React.useEffect(() => {
+    if (karooStarchSelection) {
+      const [potato, rice] = karooStarchSelection.split(',');
+      setPotatoSelection(potato || '');
+      setRiceSelection(rice || '');
+    }
+  }, [karooStarchSelection]);
+
+  const handlePotatoSelectionChange = (value: string) => {
+    const newSelection = [value, riceSelection].filter(Boolean).join(',');
+    onKarooStarchSelectionChange(newSelection);
+    setPotatoSelection(value);
+  };
+
+  const handleRiceSelectionChange = (value: string) => {
+    const newSelection = [potatoSelection, value].filter(Boolean).join(',');
+    onKarooStarchSelectionChange(newSelection);
+    setRiceSelection(value);
+  };
 
   const handleOptionToggle = (
     currentSelections: string[],
@@ -104,7 +172,7 @@ const MainCourseSection = ({
                 >
                   <Checkbox
                     checked={buffetMeatSelections.includes(option.value)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={() => 
                       handleOptionToggle(buffetMeatSelections, option.value, onBuffetMeatSelectionsChange, 2)
                     }
                   />
@@ -124,7 +192,7 @@ const MainCourseSection = ({
                 >
                   <Checkbox
                     checked={buffetVegetableSelections.includes(option.value)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={() => 
                       handleOptionToggle(buffetVegetableSelections, option.value, onBuffetVegetableSelectionsChange, 2)
                     }
                   />
@@ -144,7 +212,7 @@ const MainCourseSection = ({
                 >
                   <Checkbox
                     checked={buffetStarchSelections.includes(option.value)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={() => 
                       handleOptionToggle(buffetStarchSelections, option.value, onBuffetStarchSelectionsChange, 2)
                     }
                   />
@@ -190,21 +258,12 @@ const MainCourseSection = ({
             </Select>
           </div>
 
-          <div className="space-y-4">
-            <Label>STARCH SELECTION</Label>
-            <Select value={karooStarchSelection} onValueChange={onKarooStarchSelectionChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select starch option" />
-              </SelectTrigger>
-              <SelectContent>
-                {karooStarchOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <KarooStarchSelection
+            potatoSelection={potatoSelection}
+            riceSelection={riceSelection}
+            onPotatoSelectionChange={handlePotatoSelectionChange}
+            onRiceSelectionChange={handleRiceSelectionChange}
+          />
 
           <div className="space-y-4">
             <Label>VEGETABLES - CHOOSE TWO OPTIONS</Label>
@@ -216,7 +275,7 @@ const MainCourseSection = ({
                 >
                   <Checkbox
                     checked={karooVegetableSelections.includes(option.value)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={() => 
                       handleOptionToggle(karooVegetableSelections, option.value, onKarooVegetableSelectionsChange, 2)
                     }
                   />
@@ -284,3 +343,4 @@ const MainCourseSection = ({
 };
 
 export default MainCourseSection;
+```
