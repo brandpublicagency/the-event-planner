@@ -17,11 +17,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -35,7 +37,7 @@ const NewEvent = () => {
 
   const generateEventCode = () => {
     const date = new Date();
-    const timestamp = date.getTime().toString().slice(-4); // Get last 4 digits of timestamp
+    const timestamp = date.getTime().toString().slice(-4);
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
@@ -113,6 +115,10 @@ const NewEvent = () => {
 
         if (corporateError) throw corporateError;
       }
+
+      // Invalidate and refetch events queries
+      await queryClient.invalidateQueries({ queryKey: ['events'] });
+      await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 
       toast({
         title: "Success",
