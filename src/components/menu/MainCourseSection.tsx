@@ -1,8 +1,6 @@
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
 import KarooSection from './KarooSection';
@@ -61,23 +59,9 @@ const MainCourseSection = ({
 
   return (
     <div className="space-y-6 print:break-inside-avoid">
-      {selectedType ? (
-        <div className="flex items-center justify-between bg-white border rounded-md p-3">
-          <span>{selectedType.label} - R {selectedType.price.toFixed(2)} per person</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onMainCourseChange('')}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      ) : (
-        <div>
-          <Label className="text-sm text-muted-foreground mb-4 block">
-            Select your main course type
-          </Label>
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium text-zinc-500">MENU TYPE</h4>
+        {!selectedMainCourse ? (
           <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select main course option" />
@@ -90,8 +74,18 @@ const MainCourseSection = ({
               ))}
             </SelectContent>
           </Select>
-        </div>
-      )}
+        ) : (
+          <div className="flex justify-between items-center">
+            <span>{selectedType?.label} - R {selectedType?.price.toFixed(2)} per person</span>
+            <button
+              onClick={() => onMainCourseChange('')}
+              className="text-sm text-red-500 hover:text-red-600"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
 
       {selectedMainCourse === 'buffet' && (
         <BuffetSection
