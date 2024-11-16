@@ -76,7 +76,12 @@ export const getEventDetails = async (eventCode: string) => {
       *,
       wedding_details (*),
       corporate_details (*),
-      menu_selections (*)
+      menu_selections (*),
+      event_venues (
+        venues (
+          name
+        )
+      )
     `)
     .eq('event_code', eventCode)
     .single();
@@ -89,13 +94,18 @@ export const getEventDetails = async (eventCode: string) => {
   }
 
   let clientDetails = '';
-  if (event.wedding_details) {
+  if (event.wedding_details?.bride_name || event.wedding_details?.groom_name) {
     clientDetails = `*Bride:* ${event.wedding_details.bride_name || 'Not specified'}
-*Groom:* ${event.wedding_details.groom_name || 'Not specified'}`;
-  } else if (event.corporate_details) {
+*Groom:* ${event.wedding_details.groom_name || 'Not specified'}\n`;
+  } else if (event.corporate_details?.company_name || event.corporate_details?.contact_person) {
     clientDetails = `*Company:* ${event.corporate_details.company_name || 'Not specified'}
-*Contact:* ${event.corporate_details.contact_person || 'Not specified'}`;
+*Contact:* ${event.corporate_details.contact_person || 'Not specified'}\n`;
   }
+
+  const venues = event.event_venues
+    ?.map(ev => ev.venues?.name)
+    .filter(Boolean)
+    .join(' + ') || 'No venues';
 
   let menuDetails = '';
   if (event.menu_selections) {
@@ -107,7 +117,7 @@ export const getEventDetails = async (eventCode: string) => {
 ${menu.starter_type ? formatMenuSelection(menu.starter_type) : 'Not selected'}`;
 
     // Format Main Course section
-    const mainSection = `*${formatMenuSelection(menu.main_course_type || '')}*
+    const mainSection = `*Menu*
 ${menu.plated_main_selection ? formatMenuSelection(menu.plated_main_selection) : ''}
 ${menu.buffet_meat_selections?.length ? `\n*Meat Selections:*\n${menu.buffet_meat_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
 ${menu.buffet_vegetable_selections?.length ? `\n*Vegetable Selections:*\n${menu.buffet_vegetable_selections.map(item => formatMenuSelection(item)).join('\n')}` : ''}
@@ -121,11 +131,12 @@ ${menu.dessert_type ? formatMenuSelection(menu.dessert_type) : 'Not selected'}`;
     menuDetails = `\n\nMenu Information:\n\n${starterSection}\n\n${mainSection}\n\n${dessertSection}`;
   }
 
-  const message = `[heading]Event Details:
+  const message = `*Event Details*
 
-*${event.name}*
+${event.name}
 ${event.event_date ? formatDate(event.event_date) : 'Date not specified'}${event.start_time ? ` • ${event.start_time}` : ''}
 *Pax: ${event.pax || 'Not specified'}* / ${event.event_type}
+${venues}
 
 ${clientDetails}${menuDetails}`;
 
