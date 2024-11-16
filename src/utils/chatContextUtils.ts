@@ -1,29 +1,39 @@
 import type { Event } from "@/types/event";
+import { format } from "date-fns";
 
 export const prepareEventsContext = (events: Event[] = []) => {
   return events.map(event => {
-    const venue = event.event_venues?.[0]?.venues?.name || 'No venue specified';
-    const date = new Date(event.event_date).toLocaleDateString();
+    const venues = event.event_venues
+      ?.map(ev => ev.venues?.name)
+      .filter(Boolean)
+      .join(' + ') || 'No venue';
     
-    let details = '';
-    if (event.wedding_details) {
-      details = `Wedding: ${event.wedding_details.bride_name} & ${event.wedding_details.groom_name}`;
-    } else if (event.corporate_details) {
-      details = `Corporate: ${event.corporate_details.company_name}`;
-    }
+    const formattedDate = event.event_date 
+      ? format(new Date(event.event_date), 'dd MMMM')
+      : 'Date not set';
 
-    const menuInfo = event.menu_selections 
-      ? `Menu: ${event.menu_selections.is_custom ? 'Custom Menu' : `${event.menu_selections.starter_type || ''} ${event.menu_selections.plated_starter || ''}`}`
-      : 'No menu selected';
+    return `${event.name}
+${formattedDate}
+${event.pax || 0} Pax in the ${venues}
 
-    return `Event: ${event.name} (${event.event_type})
-Date: ${date}
-Venue: ${venue}
-Details: ${details}
-${menuInfo}
-Pax: ${event.pax}
-Event Code: ${event.event_code}`;
+Event Code: ${event.event_code}
+Type: ${event.event_type}
+${event.menu_selections ? formatMenuDetails(event.menu_selections) : 'No menu selected'}`;
   }).join('\n\n');
+};
+
+const formatMenuDetails = (menu: any) => {
+  const sections = [];
+  
+  if (menu.is_custom) {
+    sections.push('Custom Menu:', menu.custom_menu_details);
+  } else {
+    if (menu.starter_type) sections.push(`Starter: ${menu.starter_type}`);
+    if (menu.main_course_type) sections.push(`Main Course: ${menu.main_course_type}`);
+    if (menu.dessert_type) sections.push(`Dessert: ${menu.dessert_type}`);
+  }
+  
+  return sections.length > 0 ? '\n' + sections.join('\n') : '';
 };
 
 export const getSystemMessage = (eventsContext: string, pdfContext: string) => {
