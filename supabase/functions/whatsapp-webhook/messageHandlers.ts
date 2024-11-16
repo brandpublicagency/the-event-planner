@@ -88,7 +88,6 @@ export async function getEventDetails(eventCode: string) {
   return `📅 Event Details:
 Name: ${event.name}
 Date: ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Not set'}
-Time: ${event.start_time || 'Not set'} - ${event.end_time || 'Not set'}
 Type: ${event.event_type}
 Guests: ${event.pax || 'Not set'}
 

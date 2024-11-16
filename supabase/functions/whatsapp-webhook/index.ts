@@ -48,7 +48,7 @@ async function handleMessage(from: string, message: any) {
           }
         }
       } else {
-        response = { message: getHelpMessage() };
+        response = await getWelcomeMessage();
       }
     }
 
