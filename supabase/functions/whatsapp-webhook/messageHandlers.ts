@@ -9,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const getWelcomeMessage = async () => {
   const today = new Date().toISOString();
   
-  // Query all events that are not deleted and are upcoming
+  // Query upcoming events that are not deleted
   const { data: events } = await supabase
     .from('events')
     .select(`
