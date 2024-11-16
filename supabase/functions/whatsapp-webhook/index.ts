@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getEventDetails, updateEventMenu, getNextEvent, getHelpMessage } from './messageHandlers.ts';
+import { getEventDetails, updateEventMenu, getNextEvent, getHelpMessage, getWelcomeMessage } from './messageHandlers.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
 
 const corsHeaders = {
@@ -14,14 +14,16 @@ async function handleMessage(from: string, message: string) {
   console.log('Received message:', message, 'from:', from);
   
   try {
-    let response = "";
+    let response;
     const lowerMessage = message.toLowerCase().trim();
 
-    // Check for help command first
-    if (lowerMessage === 'help') {
-      response = getHelpMessage();
+    // Check if this is the first message or a help request
+    if (lowerMessage === 'hi' || lowerMessage === 'hello' || lowerMessage === 'hey') {
+      response = await getWelcomeMessage();
+    } else if (lowerMessage === 'help') {
+      response = { message: getHelpMessage() };
     } else if (lowerMessage === 'next event') {
-      response = await getNextEvent();
+      response = { message: await getNextEvent() };
     } else {
       // Check for event code pattern (e.g., EVENT-131124)
       const eventCodeMatch = message.match(/EVENT-\d{6}/i);
@@ -33,19 +35,19 @@ async function handleMessage(from: string, message: string) {
         // Check if it's a menu update command
         if (lowerMessage.includes('menu')) {
           if (lowerMessage.includes('harvest')) {
-            response = await updateEventMenu(eventCode, 'harvest');
+            response = { message: await updateEventMenu(eventCode, 'harvest') };
           } else if (lowerMessage.includes('custom')) {
-            response = await updateEventMenu(eventCode, 'custom');
+            response = { message: await updateEventMenu(eventCode, 'custom') };
           } else {
-            response = "Invalid menu type. Please use 'harvest' or 'custom'.";
+            response = { message: "Invalid menu type. Please use 'harvest' or 'custom'." };
           }
         } else {
           // If no specific command, show event details
-          response = await getEventDetails(eventCode);
+          response = { message: await getEventDetails(eventCode) };
         }
       } else {
         // Default to help message for unrecognized commands
-        response = getHelpMessage();
+        response = { message: getHelpMessage() };
       }
     }
 
@@ -55,7 +57,7 @@ async function handleMessage(from: string, message: string) {
   } catch (error) {
     console.error('Error handling message:', error);
     const errorMessage = "Sorry, I encountered an error processing your request. Please try again.";
-    await sendWhatsAppMessage(from, errorMessage);
+    await sendWhatsAppMessage(from, { message: errorMessage });
   }
 }
 

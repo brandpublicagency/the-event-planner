@@ -10,6 +10,54 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+export async function getWelcomeMessage() {
+  console.log('Fetching welcome message with upcoming events');
+  
+  const { data: events, error } = await supabase
+    .from('events')
+    .select('*')
+    .gte('event_date', new Date().toISOString())
+    .order('event_date', { ascending: true })
+    .limit(5);
+
+  if (error) {
+    console.error('Error fetching events:', error);
+    throw new Error('Failed to fetch upcoming events');
+  }
+
+  let message = "👋 Hello! I'm your event assistant. ";
+  
+  if (!events || events.length === 0) {
+    message += "You have no upcoming events.";
+  } else {
+    message += "Here are your upcoming events:\n\n";
+    events.forEach((event, index) => {
+      const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set';
+      message += `${index + 1}. ${event.event_code}\n${event.name} / ${date}\n\n`;
+    });
+  }
+
+  message += "Which event can I assist you with?";
+
+  return {
+    message,
+    components: [
+      {
+        type: "button",
+        sub_type: "url",
+        index: "0",
+        parameters: [
+          {
+            type: "text",
+            text: "Add New Event"
+          }
+        ],
+        url: `${Deno.env.get('APP_URL')}/events/new`
+      }
+    ]
+  };
+}
+
 export async function getEventDetails(eventCode: string) {
   console.log('Fetching event details for:', eventCode);
   

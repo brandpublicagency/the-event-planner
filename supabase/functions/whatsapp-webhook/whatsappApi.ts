@@ -1,24 +1,38 @@
 const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
 const PHONE_NUMBER_ID = '494335320427022';
 
-export async function sendWhatsAppMessage(to: string, message: string) {
+export async function sendWhatsAppMessage(to: string, messageData: { message: string, components?: any[] }) {
   const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
-    console.log('Sending WhatsApp message:', { to, message });
+    console.log('Sending WhatsApp message:', { to, messageData });
     
+    const messageBody: any = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text: messageData.message
+        },
+        action: {
+          buttons: messageData.components?.map(component => ({
+            type: component.sub_type,
+            text: component.parameters[0].text,
+            url: component.url
+          })) || []
+        }
+      }
+    };
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: to,
-        type: "text",
-        text: { body: message }
-      }),
+      body: JSON.stringify(messageBody),
     });
 
     const responseData = await response.json();
