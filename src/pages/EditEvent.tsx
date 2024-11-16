@@ -59,14 +59,20 @@ const EditEvent = () => {
       // Ensure event_type is one of the allowed values
       const eventType = event.event_type as EventFormData['event_type'];
 
+      // Format times to HH:mm format if they exist
+      const formatTime = (time: string | null) => {
+        if (!time) return null;
+        return time.slice(0, 5); // Take only HH:mm part
+      };
+
       // Reset form with event data
       form.reset({
         name: event.name,
         description: event.description || '',
         event_type: eventType,
         event_date: event.event_date || null,
-        start_time: event.start_time || null,
-        end_time: event.end_time || null,
+        start_time: formatTime(event.start_time),
+        end_time: formatTime(event.end_time),
         pax: event.pax || null,
         package_id: event.package_id || null,
         client_address: event.client_address || null,
