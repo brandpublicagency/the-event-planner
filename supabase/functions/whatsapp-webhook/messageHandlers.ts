@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { formatEventMenu } from './menuFormatters.ts';
 import { formatEventDetails } from './eventFormatters.ts';
+import { handleEventQuestion } from './questionHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -9,7 +10,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const getWelcomeMessage = async () => {
   const today = new Date().toISOString();
   
-  // Query upcoming events that are not deleted
   const { data: events } = await supabase
     .from('events')
     .select(`
@@ -33,7 +33,6 @@ export const getWelcomeMessage = async () => {
     };
   }
 
-  // Filter out any null or undefined events and ensure they have valid dates
   const validEvents = events.filter(event => 
     event && 
     event.event_date && 
@@ -63,7 +62,7 @@ export const getWelcomeMessage = async () => {
         text: 'Welcome! Here are the upcoming events:'
       },
       body: {
-        text: 'Select an event to view details'
+        text: 'Select an event to view details or ask me a question about any event!'
       },
       action: {
         button: 'View Events',
@@ -114,8 +113,24 @@ export const getHelpMessage = () => {
     message: `*Available Commands*
 • Send 'hi' or 'hello' to view upcoming events
 • Select an event to view its details
+• Ask any question about an event (e.g., "What's the menu for Wedding XYZ?")
 • Send 'help' to see this message again`
   };
+};
+
+export const handleMessage = async (messageText: string) => {
+  const lowercaseMessage = messageText.toLowerCase().trim();
+  
+  if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
+    return await getWelcomeMessage();
+  } 
+  
+  if (lowercaseMessage === 'help') {
+    return getHelpMessage();
+  }
+  
+  // Try to handle it as a question about an event
+  return await handleEventQuestion(messageText);
 };
 
 const formatEventDate = (dateStr: string | null) => {

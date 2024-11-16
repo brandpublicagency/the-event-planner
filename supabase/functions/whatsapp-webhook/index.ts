@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getEventDetails, getHelpMessage, getWelcomeMessage } from './messageHandlers.ts';
+import { getEventDetails, getHelpMessage, getWelcomeMessage, handleMessage } from './messageHandlers.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
 
 const corsHeaders = {
@@ -9,56 +9,6 @@ const corsHeaders = {
 };
 
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
-
-async function handleMessage(from: string, message: any) {
-  console.log('Handling message:', JSON.stringify(message, null, 2));
-  
-  try {
-    let response;
-    
-    if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
-      console.log('Processing list reply:', {
-        id: message.interactive.list_reply.id,
-        title: message.interactive.list_reply.title
-      });
-      response = await getEventDetails(message.interactive.list_reply.id);
-    } 
-    else if (message.type === 'text' && message.text?.body) {
-      const messageText = message.text.body.toLowerCase().trim();
-      console.log('Processing text message:', { messageText });
-      
-      if (['hi', 'hello', 'hey'].includes(messageText)) {
-        response = await getWelcomeMessage();
-      } else if (messageText === 'help') {
-        response = getHelpMessage();
-      } else {
-        console.log('Unrecognized command, defaulting to welcome message');
-        response = await getWelcomeMessage();
-      }
-    } else {
-      console.log('Unsupported message type:', message.type);
-      response = {
-        type: 'text',
-        message: "I don't understand this type of message. Try sending 'hi' or 'help'."
-      };
-    }
-
-    if (!response) {
-      throw new Error('No response generated');
-    }
-
-    console.log('Sending response:', JSON.stringify(response, null, 2));
-    await sendWhatsAppMessage(from, response);
-    
-  } catch (error) {
-    console.error('Error in handleMessage:', error);
-    const errorMessage = { 
-      type: 'text',
-      message: "Sorry, I encountered an error processing your request. Please try again later."
-    };
-    await sendWhatsAppMessage(from, errorMessage);
-  }
-}
 
 serve(async (req) => {
   console.log('Webhook request received:', {
@@ -108,7 +58,25 @@ serve(async (req) => {
         throw new Error('Invalid message format - missing from field');
       }
 
-      await handleMessage(message.from, message);
+      let response;
+      if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
+        console.log('Processing list reply:', {
+          id: message.interactive.list_reply.id,
+          title: message.interactive.list_reply.title
+        });
+        response = await getEventDetails(message.interactive.list_reply.id);
+      } 
+      else if (message.type === 'text' && message.text?.body) {
+        response = await handleMessage(message.text.body);
+      } else {
+        console.log('Unsupported message type:', message.type);
+        response = {
+          type: 'text',
+          message: "I don't understand this type of message. Try sending 'hi' or 'help'."
+        };
+      }
+
+      await sendWhatsAppMessage(message.from, response);
 
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
