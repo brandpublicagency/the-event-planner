@@ -11,12 +11,7 @@ const corsHeaders = {
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 
 async function handleMessage(from: string, message: any) {
-  console.log('Handling message:', {
-    from,
-    type: message.type,
-    interactive: message.interactive,
-    text: message.text,
-  });
+  console.log('Handling message:', JSON.stringify(message, null, 2));
   
   try {
     let response;
@@ -52,7 +47,7 @@ async function handleMessage(from: string, message: any) {
       throw new Error('No response generated');
     }
 
-    console.log('Sending response:', response);
+    console.log('Sending response:', JSON.stringify(response, null, 2));
     await sendWhatsAppMessage(from, response);
     
   } catch (error) {

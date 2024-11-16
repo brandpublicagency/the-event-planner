@@ -9,16 +9,18 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
       to,
       type: messageData.type,
       hasInteractive: !!messageData.interactive,
-      hasMessage: !!messageData.message
+      hasMessage: !!messageData.message,
+      messageData: JSON.stringify(messageData, null, 2)
     });
     
     const messageBody = {
       messaging_product: "whatsapp",
+      recipient_type: "individual",
       to,
       type: messageData.type,
       ...(messageData.type === 'interactive' 
         ? { interactive: messageData.interactive }
-        : { text: { body: messageData.message } }
+        : { text: { preview_url: false, body: messageData.message } }
       )
     };
 
@@ -37,7 +39,7 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
     console.log('WhatsApp API response:', {
       status: response.status,
       statusText: response.statusText,
-      data: responseData
+      data: JSON.stringify(responseData, null, 2)
     });
 
     if (!response.ok) {
