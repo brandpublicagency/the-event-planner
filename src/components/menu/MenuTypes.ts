@@ -35,7 +35,12 @@ export const canapeOptions: CanapeOption[] = [
   { value: 'pork', label: 'Pulled pork mini pitas with sour cream & pickled onion' },
 ];
 
-export const platedStarterOptions = [
+export interface PlatedStarterOption {
+  value: string;
+  label: string;
+}
+
+export const platedStarterOptions: PlatedStarterOption[] = [
   { value: 'soup', label: 'Butternut Soup with Fresh Cream' },
   { value: 'carpaccio', label: 'Beef Carpaccio with Rocket and Parmesan' },
   { value: 'salad', label: 'Fresh Garden Salad' },
