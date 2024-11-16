@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { format } from "https://deno.land/x/date_fns@v2.22.1/format/index.js";
+import { format } from "https://esm.sh/date-fns@2.30.0";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
