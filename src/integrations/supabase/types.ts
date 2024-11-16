@@ -219,6 +219,10 @@ export type Database = {
       }
       menu_selections: {
         Row: {
+          buffet_meat_selections: string[] | null
+          buffet_salad_selection: string | null
+          buffet_starch_selections: string[] | null
+          buffet_vegetable_selections: string[] | null
           canape_package: string | null
           canape_selections: string[] | null
           created_at: string
@@ -227,17 +231,27 @@ export type Database = {
           dessert_type: string | null
           event_code: string
           is_custom: boolean | null
+          karoo_meat_selection: string | null
+          karoo_salad_selection: string | null
+          karoo_starch_selection: string | null
+          karoo_vegetable_selections: string[] | null
           main_course_price: number | null
           main_course_type: string | null
           notes: string | null
           other_selections: string[] | null
           other_total_price: number | null
+          plated_main_selection: string | null
+          plated_salad_selection: string | null
           plated_starter: string | null
           starter_price: number | null
           starter_type: string | null
           updated_at: string
         }
         Insert: {
+          buffet_meat_selections?: string[] | null
+          buffet_salad_selection?: string | null
+          buffet_starch_selections?: string[] | null
+          buffet_vegetable_selections?: string[] | null
           canape_package?: string | null
           canape_selections?: string[] | null
           created_at?: string
@@ -246,17 +260,27 @@ export type Database = {
           dessert_type?: string | null
           event_code: string
           is_custom?: boolean | null
+          karoo_meat_selection?: string | null
+          karoo_salad_selection?: string | null
+          karoo_starch_selection?: string | null
+          karoo_vegetable_selections?: string[] | null
           main_course_price?: number | null
           main_course_type?: string | null
           notes?: string | null
           other_selections?: string[] | null
           other_total_price?: number | null
+          plated_main_selection?: string | null
+          plated_salad_selection?: string | null
           plated_starter?: string | null
           starter_price?: number | null
           starter_type?: string | null
           updated_at?: string
         }
         Update: {
+          buffet_meat_selections?: string[] | null
+          buffet_salad_selection?: string | null
+          buffet_starch_selections?: string[] | null
+          buffet_vegetable_selections?: string[] | null
           canape_package?: string | null
           canape_selections?: string[] | null
           created_at?: string
@@ -265,11 +289,17 @@ export type Database = {
           dessert_type?: string | null
           event_code?: string
           is_custom?: boolean | null
+          karoo_meat_selection?: string | null
+          karoo_salad_selection?: string | null
+          karoo_starch_selection?: string | null
+          karoo_vegetable_selections?: string[] | null
           main_course_price?: number | null
           main_course_type?: string | null
           notes?: string | null
           other_selections?: string[] | null
           other_total_price?: number | null
+          plated_main_selection?: string | null
+          plated_salad_selection?: string | null
           plated_starter?: string | null
           starter_price?: number | null
           starter_type?: string | null
