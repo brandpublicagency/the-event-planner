@@ -57,7 +57,7 @@ const MenuContent = ({
             />
           ) : (
             <div className="text-zinc-600 mt-2">
-              {selectedStarterType?.label}
+              {selectedStarterType?.label} - R {selectedStarterType?.price.toFixed(2)} per person
             </div>
           )}
         </div>
