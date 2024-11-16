@@ -4,6 +4,20 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const truncateTitle = (title: string, maxLength = 24) => {
+  if (title.length <= maxLength) return title;
+  return title.substring(0, maxLength - 3) + '...';
+};
+
+const formatDate = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-ZA');
+  } catch {
+    return dateStr;
+  }
+};
+
 export const getWelcomeMessage = async () => {
   const { data: events } = await supabase
     .from('events')
@@ -20,7 +34,7 @@ export const getWelcomeMessage = async () => {
 
   const sections = events.map(event => ({
     id: event.event_code,
-    title: `${event.name} (${event.event_date})`
+    title: truncateTitle(`${event.name} (${formatDate(event.event_date)})`)
   }));
 
   return {
@@ -101,7 +115,7 @@ ${menu.dessert_type ? `Type: ${menu.dessert_type}` : 'Not selected'}`;
 
   const message = `*Event Details*
 Event: ${event.name}
-Date: ${event.event_date || 'Not specified'}
+Date: ${event.event_date ? formatDate(event.event_date) : 'Not specified'}
 Type: ${event.event_type}
 Pax: ${event.pax || 'Not specified'}
 
