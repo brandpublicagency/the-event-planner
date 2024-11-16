@@ -35,6 +35,12 @@ export const canapeOptions: CanapeOption[] = [
   { value: 'pork', label: 'Pulled pork mini pitas with sour cream & pickled onion' },
 ];
 
+export const platedStarterOptions = [
+  { value: 'soup', label: 'Butternut Soup with Fresh Cream' },
+  { value: 'carpaccio', label: 'Beef Carpaccio with Rocket and Parmesan' },
+  { value: 'salad', label: 'Fresh Garden Salad' },
+];
+
 export const starterTypes = [
   { value: 'harvest', label: 'Harvest Table', price: 130.00 },
   { value: 'canapes_3', label: 'Choice of 3 Canapés', price: 120.00 },
