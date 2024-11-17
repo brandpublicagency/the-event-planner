@@ -33,14 +33,14 @@ function Calendar({
         head_cell:
           "text-zinc-600 rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
         row: "flex w-full mt-2",
-        cell: "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zinc-50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+        cell: "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20",
         day: cn(
           "h-9 w-9 p-0 font-normal text-zinc-900 rounded-md border-transparent",
-          "hover:bg-zinc-100 hover:text-zinc-900 hover:border-zinc-200",
-          "focus:bg-zinc-100 focus:text-zinc-900 focus:border-zinc-200"
+          "hover:bg-zinc-100 hover:text-zinc-900",
+          "focus:bg-zinc-100 focus:text-zinc-900"
         ),
-        day_selected: "bg-zinc-50 text-zinc-900 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-900",
-        day_today: "bg-zinc-50 text-zinc-900 border border-zinc-200",
+        day_selected: "bg-zinc-50 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-900",
+        day_today: "border border-zinc-200",
         day_outside: "text-zinc-400 opacity-50",
         day_disabled: "text-zinc-400 opacity-50",
         day_range_middle: "rounded-none",
