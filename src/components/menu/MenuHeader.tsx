@@ -9,16 +9,19 @@ interface MenuHeaderProps {
 
 const MenuHeader = ({ isCustomMenu, onCustomMenuToggle, eventName }: MenuHeaderProps) => {
   return (
-    <CardHeader className="border-b py-2">
+    <CardHeader className="border-b py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-medium">Menu Selection</h2>
-            {eventName && <span className="text-sm text-zinc-500">- {eventName}</span>}
-          </div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-medium">Menu Selection</h2>
+          {eventName && (
+            <>
+              <span className="text-zinc-400">-</span>
+              <span className="text-zinc-500">{eventName}</span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-zinc-600 font-semibold">Custom Menu</span>
+          <span className="text-sm text-zinc-600">Custom Menu</span>
           <Switch
             checked={isCustomMenu}
             onCheckedChange={onCustomMenuToggle}

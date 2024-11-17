@@ -11,19 +11,13 @@ interface EventHeaderProps {
 export const EventHeader = ({ eventCode, onPrint }: EventHeaderProps) => {
   const navigate = useNavigate();
 
-  const handleEditBasicDetails = () => {
-    if (eventCode) {
-      navigate(`/events/${eventCode}/edit`);
-    }
-  };
-
   return (
     <div className="flex items-center justify-between mb-6 print:hidden">
       <Button 
         variant="outline" 
         size="sm"
         onClick={() => navigate('/events')}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 rounded-full bg-white"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Events
@@ -32,15 +26,19 @@ export const EventHeader = ({ eventCode, onPrint }: EventHeaderProps) => {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={handleEditBasicDetails}
-          className="flex items-center gap-2"
+          onClick={() => navigate(`/events/${eventCode}/edit`)}
+          className="flex items-center gap-2 rounded-full bg-white"
         >
           <Edit className="h-4 w-4" />
           Edit Details
         </Button>
-        <Button onClick={onPrint} variant="outline" size="sm">
-          <Printer className="h-4 w-4 mr-2" />
-          Print
+        <Button 
+          onClick={onPrint} 
+          variant="outline" 
+          size="sm"
+          className="rounded-full bg-white"
+        >
+          <Printer className="h-4 w-4" />
         </Button>
       </div>
     </div>

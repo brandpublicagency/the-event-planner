@@ -27,7 +27,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
 
   if (isLoading) {
     return (
-      <Card className="mt-8 print:mt-0">
+      <Card className="mt-4 print:mt-0">
         <CardContent className="p-6">
           <div className="text-center animate-pulse">Loading menu...</div>
         </CardContent>
@@ -37,7 +37,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
 
   if (error) {
     return (
-      <Card className="mt-8 print:mt-0">
+      <Card className="mt-4 print:mt-0">
         <MenuHeader 
           isCustomMenu={menuState.isCustomMenu} 
           onCustomMenuToggle={handleCustomMenuToggle}
@@ -53,7 +53,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   }
 
   return (
-    <Card className="mt-8 print:mt-0 print:shadow-none print:border-none bg-white">
+    <Card className="mt-4 print:mt-0 print:shadow-none print:border-none bg-white">
       <div className="print:hidden">
         <MenuHeader 
           isCustomMenu={menuState.isCustomMenu} 
