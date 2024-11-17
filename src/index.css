@@ -32,12 +32,12 @@
 
     /* Hide everything except the menu content */
     body > *:not(.print-container) {
-      display: none;
+      display: none !important;
     }
 
     /* Show the menu content */
     .print-container {
-      visibility: visible !important;
+      display: block !important;
       position: absolute;
       left: 0;
       top: 0;

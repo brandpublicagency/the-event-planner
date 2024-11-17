@@ -135,7 +135,7 @@ const EventDetails = () => {
             onCustomMenuToggle={setIsCustomMenu}
           />
         </div>
-        <div className="bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:rounded-none print-container">
+        <div className="print-container bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none">
           <div className="pl-0 pr-6 mb-6 print:hidden">
             <EventInfo 
               event={event}
