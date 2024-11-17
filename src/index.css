@@ -15,9 +15,11 @@
     @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
   }
 
-  /* Remove focus and focus-visible outlines globally */
+  /* Remove all outline, ring, and border animations globally */
   * {
-    @apply focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0;
+    @apply focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:border-0;
+    outline: none !important;
+    border-width: inherit !important;
   }
 }
 
