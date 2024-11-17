@@ -148,14 +148,15 @@ const MenuContent = ({
           <OtherOptionsSection
             quantities={menuState.otherSelectionsQuantities || {}}
             onQuantityChange={(optionId, quantity) => {
-              onMenuStateChange('otherSelectionsQuantities', {
+              const newQuantities = {
                 ...menuState.otherSelectionsQuantities,
                 [optionId]: quantity
-              });
+              };
+              onMenuStateChange('otherSelectionsQuantities', newQuantities);
               
               // Update otherSelections based on quantities
-              const newOtherSelections = Object.entries(menuState.otherSelectionsQuantities || {})
-                .filter(([_, qty]) => qty > 0)
+              const newOtherSelections = Object.entries(newQuantities)
+                .filter(([_, qty]) => (qty as number) > 0)
                 .map(([id]) => id);
               
               onMenuStateChange('otherSelections', newOtherSelections);
