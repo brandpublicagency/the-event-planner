@@ -38,15 +38,7 @@
   }
 
   * {
-    @apply focus:outline-none focus-visible:outline-none;
-  }
-
-  button:focus-visible,
-  a:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible {
-    @apply ring-0 ring-offset-0;
+    @apply focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none;
   }
 }
 

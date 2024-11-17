@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { EventFormData } from "@/types/eventForm";
 
-// Helper function to generate time options
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];
   for (let hour = start; hour <= end; hour++) {
@@ -63,7 +62,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             <FormItem>
               <FormLabel>Event Name</FormLabel>
               <FormControl>
-                <Input placeholder="Event Name" {...field} />
+                <Input placeholder="Event Name" {...field} className="bg-white" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,6 +78,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
               <FormControl>
                 <Input 
                   type="number" 
+                  className="bg-white"
                   {...field} 
                   onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                 />
@@ -99,7 +99,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <FormLabel>Start Time</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select start time" />
                     </SelectTrigger>
                   </FormControl>
@@ -124,7 +124,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <FormLabel>End Time</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select end time" />
                     </SelectTrigger>
                   </FormControl>
@@ -160,7 +160,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
             <FormLabel>Package</FormLabel>
             <Select onValueChange={field.onChange} value={field.value || ""}>
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder={isLoading ? "Loading packages..." : "Select package"} />
                 </SelectTrigger>
               </FormControl>
