@@ -6,13 +6,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 210 40% 98%;
+    --foreground: 217 33% 17%;
     --radius: 0.4375rem;
   }
 
   body {
-    @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
+    @apply bg-primary-50 text-primary-900 antialiased text-[0.875rem];
   }
 
   * {
@@ -30,19 +30,19 @@
 
 @layer components {
   .sidebar-icon {
-    @apply h-4 w-4 text-zinc-500;
+    @apply h-4 w-4 text-primary-500;
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-zinc-200;
+    @apply rounded-lg bg-white p-5 border border-primary-200;
   }
   
   .nav-link {
-    @apply flex items-center gap-2.5 rounded-md px-3 py-2 text-zinc-600 hover:bg-zinc-100 text-sm;
+    @apply flex items-center gap-2.5 rounded-md px-3 py-2 text-primary-600 hover:bg-primary-100 text-sm;
   }
   
   .nav-link.active {
-    @apply bg-zinc-100 text-zinc-900;
+    @apply bg-primary-100 text-primary-900;
   }
 
   .badge-status {
@@ -50,11 +50,11 @@
   }
 
   .border-gradient {
-    @apply relative bg-white rounded-lg border border-zinc-200;
+    @apply relative bg-white rounded-lg border border-primary-200;
   }
 
   .text-muted-foreground {
-    @apply text-zinc-500;
+    @apply text-primary-500;
   }
 }
 
@@ -63,21 +63,21 @@
 }
 
 .rdp-months {
-  @apply bg-white border border-zinc-200 rounded-lg p-4;
+  @apply bg-white border border-primary-200 rounded-lg p-4;
 }
 
 .rdp-day_selected, 
 .rdp-day_selected:focus-visible, 
 .rdp-day_selected:hover {
-  @apply bg-zinc-50 text-zinc-900 border border-zinc-200;
+  @apply bg-primary-50 text-primary-900 border border-primary-200;
 }
 
 .rdp-day_today {
-  @apply font-normal border border-zinc-200;
+  @apply font-normal border border-primary-200;
 }
 
 .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  @apply bg-zinc-50;
+  @apply bg-primary-50;
 }
 
 [data-radix-popper-content-wrapper] {
@@ -85,7 +85,7 @@
 }
 
 .dropdown-content {
-  @apply bg-white border border-zinc-200 rounded-[7px] shadow-md;
+  @apply bg-white border border-primary-200 rounded-[7px] shadow-md;
 }
 
 [data-state="open"] [data-radix-select-trigger],
@@ -98,7 +98,7 @@
 }
 
 [data-radix-select-content] {
-  @apply bg-white border border-zinc-200 rounded-[7px] shadow-md overflow-hidden;
+  @apply bg-white border border-primary-200 rounded-[7px] shadow-md overflow-hidden;
 }
 
 [data-radix-select-item] {
