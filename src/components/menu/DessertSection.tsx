@@ -1,5 +1,6 @@
 import React from 'react';
 import { dessertTypes, traditionalDessertOptions, dessertCanapeOptions, individualCakeOptions } from './MenuTypes';
+import { Input } from "@/components/ui/input";
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -32,11 +33,14 @@ const DessertSection = ({
     }
   };
 
-  const handleIndividualCakeToggle = (value: string) => {
-    if (selectedIndividualCakes.includes(value)) {
-      onIndividualCakesChange(selectedIndividualCakes.filter(cake => cake !== value));
+  const handleQuantityChange = (optionId: string, value: string) => {
+    const quantity = parseInt(value) || 0;
+    if (quantity > 0) {
+      if (!selectedIndividualCakes.includes(optionId)) {
+        onIndividualCakesChange([...selectedIndividualCakes, optionId]);
+      }
     } else {
-      onIndividualCakesChange([...selectedIndividualCakes, value]);
+      onIndividualCakesChange(selectedIndividualCakes.filter(id => id !== optionId));
     }
   };
 
@@ -100,21 +104,21 @@ const DessertSection = ({
       )}
 
       {selectedDessert === 'cakes' && (
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-zinc-500">INDIVIDUAL CAKES</div>
-          {selectedIndividualCakes.map((selection) => (
-            <SelectionDisplay
-              key={selection}
-              label={individualCakeOptions.find(opt => opt.value === selection)?.label || ''}
-              onRemove={() => handleIndividualCakeToggle(selection)}
-            />
+        <div className="space-y-2.5">
+          {individualCakeOptions.map((option) => (
+            <div key={option.value} className="flex items-center justify-between gap-4">
+              <div className="flex-grow">
+                <span className="text-sm text-zinc-700">{option.label}</span>
+              </div>
+              <Input
+                type="number"
+                min="0"
+                value={selectedIndividualCakes.includes(option.value) ? "1" : "0"}
+                onChange={(e) => handleQuantityChange(option.value, e.target.value)}
+                className="w-10 h-7 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
+              />
+            </div>
           ))}
-          <MenuDropdown
-            value=""
-            onValueChange={handleIndividualCakeToggle}
-            options={individualCakeOptions.filter(option => !selectedIndividualCakes.includes(option.value))}
-            placeholder="Add individual cake"
-          />
         </div>
       )}
     </div>
