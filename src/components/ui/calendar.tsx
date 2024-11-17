@@ -33,9 +33,9 @@ function Calendar({
         head_cell:
           "text-zinc-600 rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
         row: "flex w-full mt-2",
-        cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zinc-50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+        cell: "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zinc-50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
         day: cn(
-          "h-10 w-10 p-0 font-normal text-zinc-900 rounded-md border border-transparent",
+          "h-9 w-9 p-0 font-normal text-zinc-900 rounded-md border border-transparent",
           "hover:bg-zinc-100 hover:text-zinc-900 hover:border-zinc-200",
           "focus:bg-zinc-100 focus:text-zinc-900 focus:border-zinc-200"
         ),
