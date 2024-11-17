@@ -8,14 +8,6 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getWelcomeMessage = async () => {
-  return await getUpcomingEventsList("Welcome! Here are the upcoming events:");
-};
-
-export const getMenuList = async () => {
-  return await getUpcomingEventsList("Here are the upcoming events. Select one to view its menu:");
-};
-
-const getUpcomingEventsList = async (headerText: string) => {
   const today = new Date().toISOString();
   
   const { data: events } = await supabase
@@ -37,7 +29,7 @@ const getUpcomingEventsList = async (headerText: string) => {
   if (!events?.length) {
     return {
       type: 'text',
-      message: "There are no upcoming events at the moment."
+      message: "Welcome! There are no upcoming events at the moment."
     };
   }
 
@@ -51,7 +43,7 @@ const getUpcomingEventsList = async (headerText: string) => {
   if (!validEvents.length) {
     return {
       type: 'text',
-      message: "There are no upcoming events at the moment."
+      message: "Welcome! There are no upcoming events at the moment."
     };
   }
 
@@ -67,10 +59,10 @@ const getUpcomingEventsList = async (headerText: string) => {
       type: 'list',
       header: {
         type: 'text',
-        text: headerText
+        text: 'Welcome! Here are the upcoming events:'
       },
       body: {
-        text: 'Select an event to view details'
+        text: 'Select an event to view details or ask me a question about any event!'
       },
       action: {
         button: 'View Events',
@@ -120,7 +112,6 @@ export const getHelpMessage = () => {
     type: 'text',
     message: `*Available Commands*
 • Send 'hi' or 'hello' to view upcoming events
-• Send 'menu' to view events and their menus
 • Select an event to view its details
 • Ask any question about an event (e.g., "What's the menu for Wedding XYZ?")
 • Send 'help' to see this message again`
@@ -133,10 +124,6 @@ export const handleMessage = async (messageText: string) => {
   if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
     return await getWelcomeMessage();
   } 
-  
-  if (lowercaseMessage === 'menu') {
-    return await getMenuList();
-  }
   
   if (lowercaseMessage === 'help') {
     return getHelpMessage();
