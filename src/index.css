@@ -38,6 +38,15 @@
   }
 
   * {
+    @apply focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0 focus-within:outline-none focus-within:ring-0;
+  }
+
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  button, input, select, textarea {
     @apply focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0;
   }
 }
@@ -104,7 +113,7 @@
 }
 
 [data-radix-select-trigger] {
-  @apply rounded-[7px] bg-popover hover:bg-popover focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0;
+  @apply rounded-[7px] bg-popover hover:bg-popover;
 }
 
 [data-radix-select-content] {
@@ -112,5 +121,5 @@
 }
 
 [data-radix-select-item] {
-  @apply hover:bg-transparent focus:bg-transparent cursor-pointer focus:outline-none focus-visible:outline-none;
+  @apply hover:bg-transparent focus:bg-transparent cursor-pointer;
 }
