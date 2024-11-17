@@ -13,7 +13,6 @@ interface MenuDropdownProps {
   onValueChange: (value: string) => void;
   options: { value: string; label: string; price?: number; priceType?: string }[];
   placeholder: string;
-  align?: "start" | "center" | "end";
 }
 
 const MenuDropdown = ({
@@ -21,7 +20,6 @@ const MenuDropdown = ({
   onValueChange,
   options,
   placeholder,
-  align = "start"
 }: MenuDropdownProps) => {
   const selectedOption = options.find(opt => opt.value === value);
 
@@ -48,7 +46,8 @@ const MenuDropdown = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        align={align}
+        align="start"
+        side="bottom"
         className="dropdown-content w-[--radix-dropdown-trigger-width]"
       >
         {options.map((option) => (
