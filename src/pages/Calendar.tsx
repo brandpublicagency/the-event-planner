@@ -134,7 +134,7 @@ const Calendar = () => {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
-          <Card className="p-6 bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6 bg-white border border-zinc-200 transition-colors">
             <CalendarComponent
               mode="single"
               selected={date}
@@ -155,7 +155,7 @@ const Calendar = () => {
             />
           </Card>
 
-          <Card className="p-6 bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6 bg-white border border-zinc-200 transition-colors">
             <div className="space-y-4">
               {isEventsLoading && (
                 <div className="flex items-center gap-2 text-sm text-zinc-500">
