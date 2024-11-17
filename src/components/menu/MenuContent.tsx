@@ -36,7 +36,7 @@ const MenuContent = ({
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 -mt-5">
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-base mb-2.5 text-zinc-900">Arrival & Starter</h3>
+          <h3 className="font-semibold text-base mb-1.5 text-zinc-900">Arrival & Starter</h3>
           <StarterTypeSelect
             selectedStarterType={menuState.selectedStarterType}
             onStarterTypeChange={(value) => {
@@ -76,7 +76,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-base mb-2.5 text-zinc-900">Main Course</h3>
+          <h3 className="font-semibold text-base mb-1.5 text-zinc-900">Main Course</h3>
           <MainCourseSection
             selectedMainCourse={menuState.mainCourseType}
             buffetMeatSelections={menuState.buffetMeatSelections}
@@ -119,7 +119,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-base mb-2.5 text-zinc-900">Dessert</h3>
+          <h3 className="font-semibold text-base mb-1.5 text-zinc-900">Dessert</h3>
           <DessertSection
             selectedDessert={menuState.dessertType}
             selectedTraditionalDessert={menuState.traditionalDessert}
@@ -140,7 +140,7 @@ const MenuContent = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-base mb-2.5 text-zinc-900">Additional Options</h3>
+          <h3 className="font-semibold text-base mb-1.5 text-zinc-900">Additional Options</h3>
           <OtherOptionsSection
             quantities={menuState.otherSelectionsQuantities || {}}
             onQuantityChange={(optionId, quantity) => {
