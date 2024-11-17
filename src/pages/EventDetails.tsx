@@ -126,15 +126,17 @@ const EventDetails = () => {
 
   return (
     <div className="flex-1 p-6 print:p-0 print:m-0">
-      <div className="max-w-4xl mx-auto px-4 md:px-8">
-        <EventHeader 
-          eventCode={event.event_code} 
-          onPrint={handlePrint} 
-          isCustomMenu={isCustomMenu}
-          onCustomMenuToggle={setIsCustomMenu}
-        />
-        <div className="bg-white rounded-lg border border-zinc-100">
-          <div className="pl-0 pr-6 mb-6">
+      <div className="max-w-4xl mx-auto px-4 md:px-8 print:p-0">
+        <div className="print:hidden">
+          <EventHeader 
+            eventCode={event.event_code} 
+            onPrint={handlePrint} 
+            isCustomMenu={isCustomMenu}
+            onCustomMenuToggle={setIsCustomMenu}
+          />
+        </div>
+        <div className="bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none">
+          <div className="pl-0 pr-6 mb-6 print:hidden">
             <EventInfo 
               event={event}
               formattedDate={formattedDate}
