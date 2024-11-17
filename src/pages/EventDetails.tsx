@@ -62,7 +62,7 @@ const EventDetails = () => {
   });
 
   const handlePrint = () => {
-    const printContent = document.querySelector('.print-container');
+    const printContent = document.querySelector('.print-container') as HTMLElement;
     const originalDisplay = document.body.style.display;
     const originalVisibility = document.body.style.visibility;
     
