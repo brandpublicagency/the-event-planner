@@ -1,7 +1,7 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { otherOptions } from './MenuTypes';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface OtherOptionsSectionProps {
   selectedOptions: string[];
@@ -35,23 +35,12 @@ const OtherOptionsSection = ({
         />
       ))}
       
-      <Select
-        onValueChange={handleOptionToggle}
+      <MenuDropdown
         value=""
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Add additional option" />
-        </SelectTrigger>
-        <SelectContent>
-          {otherOptions
-            .filter(option => !selectedOptions.includes(option.value))
-            .map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label} - R {option.price.toFixed(2)} {option.priceType === 'per_person' ? 'per person' : 'per item'}
-              </SelectItem>
-            ))}
-        </SelectContent>
-      </Select>
+        onValueChange={handleOptionToggle}
+        options={otherOptions.filter(option => !selectedOptions.includes(option.value))}
+        placeholder="Add additional option"
+      />
     </div>
   );
 };
