@@ -1,5 +1,13 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { dessertTypes, traditionalDessertOptions, dessertCanapeOptions, individualCakeOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
@@ -46,18 +54,25 @@ const DessertSection = ({
       <div className="space-y-4">
         <SelectionHeader title="DESSERT TYPE" />
         {!selectedDessert ? (
-          <Select value={selectedDessert} onValueChange={onDessertChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select dessert type" />
-            </SelectTrigger>
-            <SelectContent>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                Select dessert type
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full min-w-[240px]">
+              <DropdownMenuLabel>Dessert Options</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {dessertTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
+                <DropdownMenuItem
+                  key={type.value}
+                  onClick={() => onDessertChange(type.value)}
+                >
                   {type.label} - R {type.price.toFixed(2)} {type.priceType === 'per_person' ? 'per person' : 'per item'}
-                </SelectItem>
+                </DropdownMenuItem>
               ))}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <SelectionDisplay
             label={`${dessertTypes.find(type => type.value === selectedDessert)?.label} - R ${dessertTypes.find(type => type.value === selectedDessert)?.price.toFixed(2)} ${dessertTypes.find(type => type.value === selectedDessert)?.priceType === 'per_person' ? 'per person' : 'per item'}`}
@@ -76,18 +91,25 @@ const DessertSection = ({
         <div className="space-y-4">
           <SelectionHeader title="TRADITIONAL BAKED DESSERT" />
           {!selectedTraditionalDessert ? (
-            <Select value={selectedTraditionalDessert} onValueChange={onTraditionalDessertChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select traditional dessert" />
-              </SelectTrigger>
-              <SelectContent>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-start text-left font-normal">
+                  Select traditional dessert
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[240px]">
+                <DropdownMenuLabel>Traditional Desserts</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {traditionalDessertOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => onTraditionalDessertChange(option.value)}
+                  >
                     {option.label}
-                  </SelectItem>
+                  </DropdownMenuItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <SelectionDisplay
               label={traditionalDessertOptions.find(opt => opt.value === selectedTraditionalDessert)?.label || ''}
@@ -109,23 +131,27 @@ const DessertSection = ({
             />
           ))}
           {selectedDessertCanapes.length < 3 && (
-            <Select
-              value=""
-              onValueChange={handleDessertCanapeToggle}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={`Select dessert canapé ${selectedDessertCanapes.length + 1}`} />
-              </SelectTrigger>
-              <SelectContent>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-start text-left font-normal">
+                  Select dessert canapé {selectedDessertCanapes.length + 1}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[240px]">
+                <DropdownMenuLabel>Dessert Canapés</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {dessertCanapeOptions
                   .filter(option => !selectedDessertCanapes.includes(option.value))
                   .map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={() => handleDessertCanapeToggle(option.value)}
+                    >
                       {option.label}
-                    </SelectItem>
+                    </DropdownMenuItem>
                   ))}
-              </SelectContent>
-            </Select>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       )}
@@ -140,23 +166,27 @@ const DessertSection = ({
               onRemove={() => handleIndividualCakeToggle(selection)}
             />
           ))}
-          <Select
-            value=""
-            onValueChange={handleIndividualCakeToggle}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Add individual cake" />
-            </SelectTrigger>
-            <SelectContent>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                Add individual cake
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full min-w-[240px]">
+              <DropdownMenuLabel>Individual Cakes</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {individualCakeOptions
                 .filter(option => !selectedIndividualCakes.includes(option.value))
                 .map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => handleIndividualCakeToggle(option.value)}
+                  >
                     {option.label}
-                  </SelectItem>
+                  </DropdownMenuItem>
                 ))}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
     </div>
