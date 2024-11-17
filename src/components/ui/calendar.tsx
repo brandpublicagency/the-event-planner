@@ -27,7 +27,7 @@ function Calendar({
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border border-zinc-200"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -44,17 +44,17 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 rounded-md transition-colors"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 rounded-md transition-colors border border-transparent hover:border-zinc-200"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
-          "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50 rounded-md",
-        day_today: "bg-zinc-100 text-zinc-900 rounded-md",
+          "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50 rounded-md border-zinc-800",
+        day_today: "bg-zinc-900 text-zinc-50 rounded-md border border-zinc-700",
         day_outside: "text-zinc-500 opacity-50 aria-selected:bg-zinc-100/50 aria-selected:text-zinc-500 aria-selected:opacity-30 hover:bg-transparent hover:text-zinc-500",
         day_disabled: "text-zinc-500 opacity-50 hover:bg-transparent",
         day_range_middle:
-          "aria-selected:bg-zinc-100 aria-selected:text-zinc-900",
+          "aria-selected:bg-zinc-100 aria-selected:text-zinc-900 border border-zinc-200",
         day_hidden: "invisible",
         ...classNames,
       }}
@@ -62,6 +62,7 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
+      weekStartsOn={1}
       {...props}
     />
   )
