@@ -30,6 +30,7 @@ const Events = () => {
             )
           )
         `)
+        .eq('completed', false)  // Only fetch non-completed events
         .order('event_date', { ascending: true });
 
       if (error) {
