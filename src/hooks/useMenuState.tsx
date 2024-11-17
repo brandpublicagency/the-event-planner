@@ -17,7 +17,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     buffetStarchSelections: [] as string[],
     buffetSaladSelection: '',
     karooMeatSelection: '',
-    karooStarchSelection: '',
+    karooStarchSelection: [] as string[], // Initialize as empty array
     karooVegetableSelections: [] as string[],
     karooSaladSelection: '',
     platedMainSelection: '',
@@ -26,6 +26,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     otherSelections: [] as string[],
     notes: '',
   });
+
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,7 +58,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
             buffetStarchSelections: data.buffet_starch_selections || [],
             buffetSaladSelection: data.buffet_salad_selection || '',
             karooMeatSelection: data.karoo_meat_selection || '',
-            karooStarchSelection: data.karoo_starch_selection || '',
+            karooStarchSelection: data.karoo_starch_selection || [], // Ensure it's an array
             karooVegetableSelections: data.karoo_vegetable_selections || [],
             karooSaladSelection: data.karoo_salad_selection || '',
             platedMainSelection: data.plated_main_selection || '',
