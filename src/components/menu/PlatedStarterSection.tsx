@@ -24,14 +24,11 @@ const PlatedStarterSection = ({
           placeholder="Select your plated starter"
         />
       ) : (
-        <div className="space-y-2">
-          <div className="text-zinc-600">{selectedOption?.label}</div>
-          <SelectionDisplay
-            label={selectedOption?.label || ''}
-            onRemove={() => onPlatedStarterChange('')}
-            actionLabel="Change"
-          />
-        </div>
+        <SelectionDisplay
+          label={selectedOption?.label || ''}
+          onRemove={() => onPlatedStarterChange('')}
+          actionLabel="Change"
+        />
       )}
     </div>
   );
