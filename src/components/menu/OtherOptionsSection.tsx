@@ -24,18 +24,18 @@ const OtherOptionsSection = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {otherOptions.map((option) => (
         <div key={option.value} className="flex items-center justify-between gap-4">
           <div className="flex-grow">
-            <span className="text-sm">{getOptionLabel(option.value)}</span>
+            <span className="text-sm text-zinc-700">{getOptionLabel(option.value)}</span>
           </div>
           <Input
             type="number"
             min="0"
             value={quantities[option.value] || 0}
             onChange={(e) => handleQuantityChange(option.value, e.target.value)}
-            className="w-12 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-10 h-7 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
           />
         </div>
       ))}
