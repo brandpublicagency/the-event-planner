@@ -114,7 +114,9 @@ const Calendar = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-zinc-900" />
-            <h2 className="text-2xl font-semibold text-zinc-900">Calendar</h2>
+            <h2 className="text-2xl font-semibold text-zinc-900">
+              {date ? format(date, "MMMM d, yyyy") : "Calendar"}
+            </h2>
           </div>
           <CalendarFilters
             venues={venues}
@@ -155,17 +157,12 @@ const Calendar = () => {
 
           <Card className="p-6 bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-zinc-900">
-                  {date ? format(date, "MMMM d, yyyy") : "Select a date"}
-                </h3>
-                {isEventsLoading && (
-                  <div className="flex items-center gap-2 text-sm text-zinc-500">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading events...
-                  </div>
-                )}
-              </div>
+              {isEventsLoading && (
+                <div className="flex items-center gap-2 text-sm text-zinc-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading events...
+                </div>
+              )}
               
               <EventsList 
                 date={date} 
