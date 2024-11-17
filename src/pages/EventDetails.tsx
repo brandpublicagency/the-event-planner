@@ -1,4 +1,3 @@
-```typescript
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -28,13 +27,12 @@ const EventDetails = () => {
           .from('events')
           .select(`
             *,
-            event_venues (
-              venues (
+            event_venues!inner(
+              venues(
                 id,
                 name
               )
-            )
-          `)
+            )`)
           .eq('event_code', id)
           .maybeSingle();
 
@@ -148,4 +146,3 @@ const EventDetails = () => {
 };
 
 export default EventDetails;
-```
