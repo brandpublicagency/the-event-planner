@@ -146,16 +146,19 @@ const MenuContent = ({
         <div>
           <h3 className="font-semibold text-base mb-1">Additional Options</h3>
           <OtherOptionsSection
-            selectedOptions={menuState.otherSelections || []}
             quantities={menuState.otherSelectionsQuantities || {}}
-            onOptionsChange={(value) => {
-              onMenuStateChange('otherSelections', value);
-            }}
             onQuantityChange={(optionId, quantity) => {
               onMenuStateChange('otherSelectionsQuantities', {
                 ...menuState.otherSelectionsQuantities,
                 [optionId]: quantity
               });
+              
+              // Update otherSelections based on quantities
+              const newOtherSelections = Object.entries(menuState.otherSelectionsQuantities || {})
+                .filter(([_, qty]) => qty > 0)
+                .map(([id]) => id);
+              
+              onMenuStateChange('otherSelections', newOtherSelections);
             }}
           />
         </div>
