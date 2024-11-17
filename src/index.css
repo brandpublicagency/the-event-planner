@@ -38,7 +38,7 @@
   }
 
   * {
-    @apply focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none;
+    @apply focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0;
   }
 }
 
@@ -104,7 +104,7 @@
 }
 
 [data-radix-select-trigger] {
-  @apply !ring-0 !ring-offset-0 rounded-[7px] bg-popover hover:bg-popover;
+  @apply rounded-[7px] bg-popover hover:bg-popover focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0;
 }
 
 [data-radix-select-content] {
@@ -112,5 +112,5 @@
 }
 
 [data-radix-select-item] {
-  @apply hover:bg-transparent focus:bg-transparent cursor-pointer;
+  @apply hover:bg-transparent focus:bg-transparent cursor-pointer focus:outline-none focus-visible:outline-none;
 }
