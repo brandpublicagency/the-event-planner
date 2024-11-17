@@ -96,7 +96,7 @@ const Login = () => {
                 },
               },
               className: {
-                container: 'w-full space-y-6',
+                container: 'w-full [&>form>div]:space-y-[15px]', // Set spacing between form fields to 15px
                 button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
                 label: 'hidden', // Hide labels
