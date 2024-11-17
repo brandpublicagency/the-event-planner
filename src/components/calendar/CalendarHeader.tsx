@@ -10,7 +10,7 @@ interface CalendarHeaderProps {
 export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) => {
   if (isLoading) {
     return (
-      <Card className="p-6 bg-white">
+      <Card className="p-6 bg-white border border-zinc-200">
         <div className="flex items-center space-x-4">
           <div className="p-2 bg-zinc-100 rounded-lg">
             <CalendarIcon className="h-6 w-6 text-zinc-400" />
@@ -22,7 +22,7 @@ export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) 
   }
 
   return (
-    <Card className="p-6 bg-white">
+    <Card className="p-6 bg-white border border-zinc-200">
       <div className="flex items-center space-x-4">
         <div className="p-2 bg-zinc-100 rounded-lg">
           <CalendarIcon className="h-6 w-6 text-zinc-900" />
