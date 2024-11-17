@@ -250,6 +250,7 @@ export type Database = {
           plated_starter: string | null
           starter_price: number | null
           starter_type: string | null
+          traditional_dessert: string | null
           updated_at: string
         }
         Insert: {
@@ -281,6 +282,7 @@ export type Database = {
           plated_starter?: string | null
           starter_price?: number | null
           starter_type?: string | null
+          traditional_dessert?: string | null
           updated_at?: string
         }
         Update: {
@@ -312,6 +314,7 @@ export type Database = {
           plated_starter?: string | null
           starter_price?: number | null
           starter_type?: string | null
+          traditional_dessert?: string | null
           updated_at?: string
         }
         Relationships: [
