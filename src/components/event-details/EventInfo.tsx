@@ -10,7 +10,7 @@ interface EventInfoProps {
 
 export const EventInfo = ({ event, formattedDate, formattedTime, venueNames }: EventInfoProps) => {
   return (
-    <div className="space-y-1 mb-8">
+    <div className="space-y-1 mb-8 p-6">
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-bold tracking-tight text-zinc-900">{event.name}</h1>
         <span className="text-sm text-zinc-500">{event.event_code}</span>
