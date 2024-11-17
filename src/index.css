@@ -15,12 +15,9 @@
     @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
   }
 
-  *:focus {
-    @apply outline-none ring-0;
-  }
-
-  *:focus-visible {
-    @apply outline-none ring-0;
+  /* Remove focus and focus-visible outlines globally */
+  * {
+    @apply focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0;
   }
 }
 
