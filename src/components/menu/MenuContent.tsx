@@ -38,10 +38,10 @@ const MenuContent = ({
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-top-4">
-      <div className="space-y-3">
+    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-base mb-2">Arrival & Starter</h3>
+          <h3 className="font-semibold text-base mb-1">Arrival & Starter</h3>
           <StarterTypeSelect
             selectedStarterType={menuState.selectedStarterType}
             onStarterTypeChange={(value) => {
@@ -79,9 +79,9 @@ const MenuContent = ({
         )}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-base mb-2">Main Course</h3>
+          <h3 className="font-semibold text-base mb-1">Main Course</h3>
           <MainCourseSection
             selectedMainCourse={menuState.mainCourseType}
             buffetMeatSelections={menuState.buffetMeatSelections}
@@ -101,7 +101,7 @@ const MenuContent = ({
               onMenuStateChange('buffetStarchSelections', []);
               onMenuStateChange('buffetSaladSelection', '');
               onMenuStateChange('karooMeatSelection', '');
-              onMenuStateChange('karooStarchSelection', []);  // Initialize as empty array
+              onMenuStateChange('karooStarchSelection', []);
               onMenuStateChange('karooVegetableSelections', []);
               onMenuStateChange('karooSaladSelection', '');
               onMenuStateChange('platedMainSelection', '');
@@ -121,9 +121,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-base mb-2">Dessert</h3>
+          <h3 className="font-semibold text-base mb-1">Dessert</h3>
           <DessertSection
             selectedDessert={menuState.dessertType}
             selectedTraditionalDessert={menuState.traditionalDessert}
@@ -142,9 +142,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-base mb-2">Additional Options</h3>
+          <h3 className="font-semibold text-base mb-1">Additional Options</h3>
           <OtherOptionsSection
             selectedOptions={menuState.otherSelections || []}
             onOptionsChange={(value) => {
