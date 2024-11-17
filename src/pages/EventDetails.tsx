@@ -125,7 +125,7 @@ const EventDetails = () => {
   const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
   
   return (
-    <div className="flex-1 print:p-0 print:m-0">
+    <div className="flex-1 p-6 print:p-0 print:m-0">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <EventHeader 
           eventCode={event.event_code} 
