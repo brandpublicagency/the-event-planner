@@ -15,8 +15,8 @@ export const EventInfo = ({ event, formattedDate, formattedTime, venueNames }: E
         <h1 className="text-xl font-bold tracking-tight text-zinc-900">{event.name}</h1>
         <span className="text-sm text-zinc-500">{event.event_code}</span>
       </div>
-      <div className="text-sm text-zinc-900">
-        {formattedDate}, {formattedTime} / {event.pax} Guests / Celebration / <span className="font-semibold">{venueNames}</span>
+      <div className="text-sm text-zinc-600">
+        {formattedDate}, {formattedTime} / {event.pax} Guests / Celebration / <span className="font-medium">{venueNames}</span>
       </div>
     </div>
   );

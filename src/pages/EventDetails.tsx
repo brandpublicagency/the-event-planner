@@ -125,17 +125,19 @@ const EventDetails = () => {
   const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
   
   return (
-    <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex-1 print:p-0 print:m-0">
+      <div className="max-w-4xl mx-auto px-4 md:px-8">
         <EventHeader eventCode={event.event_code} onPrint={handlePrint} />
-        <div className="bg-white rounded-lg p-6 print:p-0">
-          <EventInfo 
-            event={event}
-            formattedDate={formattedDate}
-            formattedTime={formattedTime}
-            venueNames={venueNames}
-          />
-          <div className="mt-8 print:block">
+        <div className="bg-white">
+          <div className="pl-0 pr-6">
+            <EventInfo 
+              event={event}
+              formattedDate={formattedDate}
+              formattedTime={formattedTime}
+              venueNames={venueNames}
+            />
+          </div>
+          <div className="print:block">
             <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
           </div>
         </div>
