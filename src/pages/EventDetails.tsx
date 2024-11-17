@@ -1,3 +1,4 @@
+```typescript
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -129,7 +130,7 @@ const EventDetails = () => {
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <EventHeader eventCode={event.event_code} onPrint={handlePrint} />
         <div className="bg-white">
-          <div className="pl-0 pr-6">
+          <div className="pl-0 pr-6 mb-6">
             <EventInfo 
               event={event}
               formattedDate={formattedDate}
@@ -137,7 +138,7 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="print:block">
+          <div className="print:block px-6">
             <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
           </div>
         </div>
@@ -147,3 +148,4 @@ const EventDetails = () => {
 };
 
 export default EventDetails;
+```

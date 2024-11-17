@@ -1,5 +1,4 @@
 import React from 'react';
-import { CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   if (isLoading) {
     return (
       <div className="mt-4 print:mt-0">
-        <div className="p-6">
+        <div className="py-6">
           <div className="text-center animate-pulse">Loading menu...</div>
         </div>
       </div>
@@ -43,7 +42,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
           onCustomMenuToggle={handleCustomMenuToggle}
           eventName={eventName}
         />
-        <div className="p-6">
+        <div className="py-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
             {error}
           </div>
@@ -61,7 +60,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
           eventName={eventName}
         />
       </div>
-      <div className="p-6 space-y-4">
+      <div className="space-y-4">
         <div className="print:mb-8">
           <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>
           {eventName && <h2 className="hidden print:block text-xl text-center text-muted-foreground mb-6">{eventName}</h2>}
