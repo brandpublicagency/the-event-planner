@@ -42,9 +42,18 @@
       min-height: 297mm;
       padding: 20mm;
       margin: 0 auto;
-      background: white;
-      box-shadow: none;
-      border-radius: 0;
+      background: white !important;
+      box-shadow: none !important;
+      border: none !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .print-container * {
+      visibility: visible !important;
+      display: block !important;
     }
   }
 
