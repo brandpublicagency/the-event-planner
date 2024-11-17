@@ -54,7 +54,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
     <div className="space-y-6">
       <EventTypeSelect form={form} />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <FormField
           control={form.control}
           name="name"
@@ -88,58 +88,64 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           )}
         />
 
-        <EventDateSelect form={form} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="col-span-1">
+            <EventDateSelect form={form} />
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="start_time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Time</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
-                  <FormControl>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select start time" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {startTimeOptions.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {startTimeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={form.control}
-            name="end_time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Time</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
-                  <FormControl>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select end time" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {endTimeOptions.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {endTimeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
       </div>
 
