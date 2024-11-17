@@ -57,7 +57,7 @@ export interface SaveMenuData {
 
 export interface MenuSelectionResponse {
   event_code: string;
-  is_custom: boolean;
+  is_custom: boolean | null;
   custom_menu_details: string | null;
   starter_type: string | null;
   canape_package: string | null;
