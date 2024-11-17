@@ -2,7 +2,6 @@ import React from 'react';
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import MenuHeader from './menu/MenuHeader';
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
@@ -10,9 +9,11 @@ import { useMenuState } from '../hooks/useMenuState';
 interface WeddingMenuPlannerProps {
   eventCode: string;
   eventName?: string;
+  isCustomMenu?: boolean;
+  onCustomMenuToggle?: (checked: boolean) => void;
 }
 
-const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) => {
+const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuToggle }: WeddingMenuPlannerProps) => {
   const { toast } = useToast();
   const { 
     menuState, 
@@ -37,11 +38,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   if (error) {
     return (
       <div className="mt-4 print:mt-0">
-        <MenuHeader 
-          isCustomMenu={menuState.isCustomMenu} 
-          onCustomMenuToggle={handleCustomMenuToggle}
-          eventName={eventName}
-        />
         <div className="py-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
             {error}
@@ -53,13 +49,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
 
   return (
     <div className="mt-4 print:mt-0">
-      <div className="print:hidden">
-        <MenuHeader 
-          isCustomMenu={menuState.isCustomMenu} 
-          onCustomMenuToggle={handleCustomMenuToggle}
-          eventName={eventName}
-        />
-      </div>
       <div className="space-y-4">
         <div className="print:mb-8">
           <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>

@@ -15,6 +15,7 @@ import { EventInfo } from "@/components/event-details/EventInfo";
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isCustomMenu, setIsCustomMenu] = React.useState(false);
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
@@ -126,7 +127,12 @@ const EventDetails = () => {
   return (
     <div className="flex-1 print:p-0 print:m-0">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
-        <EventHeader eventCode={event.event_code} onPrint={handlePrint} />
+        <EventHeader 
+          eventCode={event.event_code} 
+          onPrint={handlePrint} 
+          isCustomMenu={isCustomMenu}
+          onCustomMenuToggle={setIsCustomMenu}
+        />
         <div className="bg-white">
           <div className="pl-0 pr-6 mb-6">
             <EventInfo 
@@ -137,7 +143,12 @@ const EventDetails = () => {
             />
           </div>
           <div className="print:block px-6">
-            <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} />
+            <WeddingMenuPlanner 
+              eventCode={event.event_code} 
+              eventName={event.name}
+              isCustomMenu={isCustomMenu}
+              onCustomMenuToggle={setIsCustomMenu}
+            />
           </div>
         </div>
       </div>
