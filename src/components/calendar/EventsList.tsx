@@ -62,48 +62,35 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
           <p className="text-xs mt-1 text-zinc-400">Select another date to view events</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {events.map((event) => (
-            <div
+            <Link
               key={event.event_code}
-              className="rounded-lg border border-zinc-200 bg-white p-4 hover:bg-zinc-50/50 transition-all duration-200 group relative"
+              to={`/events/${event.event_code}`}
+              className="block p-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
             >
-              <Badge 
-                variant="secondary" 
-                className="absolute top-3 right-3 bg-zinc-900 text-white hover:bg-zinc-800"
-              >
-                {event.event_type}
-              </Badge>
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pr-24">
-                <div className="space-y-2 flex-1">
-                  <Link 
-                    to={`/events/${event.event_code}`}
-                    className="inline-block font-medium text-lg text-zinc-900 group-hover:text-zinc-700 transition-colors hover:underline"
-                  >
-                    {event.name}
-                  </Link>
-                  <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500">
-                    <span>{event.pax} Guests</span>
-                    <span>•</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-medium text-zinc-900 truncate">{event.name}</h4>
+                    <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                      {event.event_type}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-zinc-500">
                     <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
-                    {event.venues?.map((venue, index) => (
-                      <React.Fragment key={venue.id || index}>
+                    <span>•</span>
+                    <span>{event.pax} Guests</span>
+                    {event.venues?.map((venue) => (
+                      <React.Fragment key={venue.id}>
                         <span>•</span>
-                        <Badge 
-                          variant="outline" 
-                          className="bg-zinc-50 hover:bg-zinc-100 hover:text-zinc-900"
-                        >
-                          {venue.name}
-                        </Badge>
+                        <span className="text-zinc-600">{venue.name}</span>
                       </React.Fragment>
                     ))}
                   </div>
-                  {event.description && (
-                    <p className="text-sm text-zinc-600 mt-2 line-clamp-2">{event.description}</p>
-                  )}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
