@@ -140,7 +140,7 @@ const Calendar = () => {
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
       <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200 bg-white">
+        <Card className="p-6 bg-white border border-zinc-200">
           <CalendarComponent
             mode="single"
             selected={date}
@@ -170,7 +170,7 @@ const Calendar = () => {
           />
         </Card>
 
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200 bg-white">
+        <Card className="p-6 bg-white border border-zinc-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-zinc-900">
