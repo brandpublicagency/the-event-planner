@@ -135,7 +135,7 @@ const EventDetails = () => {
             onCustomMenuToggle={setIsCustomMenu}
           />
         </div>
-        <div className="print-container bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none print:block">
+        <div className="print-container bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none">
           <div className="print:mb-8">
             <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>
             {event.name && <h2 className="hidden print:block text-xl text-center text-muted-foreground mb-6">{event.name}</h2>}
