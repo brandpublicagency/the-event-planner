@@ -37,14 +37,11 @@ const StarterTypeSelect = ({
           placeholder="Choose starter option"
         />
       ) : (
-        <div>
-          <div className="text-zinc-600 mb-2">{selectedType?.label.toUpperCase()} - {formatPrice(selectedType!)}</div>
-          <SelectionDisplay
-            label={`${selectedType?.label}`}
-            onRemove={() => onStarterTypeChange('')}
-            actionLabel="Change"
-          />
-        </div>
+        <SelectionDisplay
+          label={`${selectedType?.label}`}
+          onRemove={() => onStarterTypeChange('')}
+          actionLabel="Change"
+        />
       )}
     </div>
   );
