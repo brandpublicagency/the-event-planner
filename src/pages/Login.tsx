@@ -96,7 +96,7 @@ const Login = () => {
                 },
               },
               className: {
-                container: 'w-full [&>form>div]:space-y-[15px] [&>form>button]:mt-5',
+                container: 'w-full [&>form>div]:space-y-[15px] [&>form>button]:mt-10',
                 button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
                 label: 'hidden',
@@ -112,13 +112,22 @@ const Login = () => {
                   password_label: '',
                   email_input_placeholder: 'Email address',
                   password_input_placeholder: 'Password',
+                },
+                sign_up: {
+                  email_label: '',
+                  password_label: '',
+                  email_input_placeholder: 'Email address',
+                  password_input_placeholder: 'Password',
                 }
               }
             }}
             providers={[]}
             magicLink={false}
             redirectTo={window.location.origin}
-            showLinks={false}
+            showLinks={true}
+            appearance={{ 
+              extend: true 
+            }}
           />
 
           <div className="text-left text-sm text-zinc-500">
