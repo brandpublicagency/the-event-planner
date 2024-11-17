@@ -93,3 +93,11 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
     throw new Error(`Failed to mark event as completed: ${error.message}`);
   }
 };
+
+// Let's add a function to mark the specific event as completed
+export const markSpecificEventAsCompleted = async () => {
+  await markEventAsCompleted('EVENT-121124');
+};
+
+// Execute the function immediately
+markSpecificEventAsCompleted().catch(console.error);
