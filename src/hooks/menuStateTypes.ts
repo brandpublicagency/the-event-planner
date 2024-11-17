@@ -55,31 +55,32 @@ export interface SaveMenuData {
   other_total_price: number;
 }
 
-// Add a type for the database response
+// Database response type matching the actual Supabase schema
 export interface MenuSelectionResponse {
-  buffet_meat_selections: string[];
-  buffet_salad_selection: string;
-  buffet_starch_selections: string[];
-  buffet_vegetable_selections: string[];
-  canape_package: string;
-  canape_selections: string[];
-  custom_menu_details: string;
-  dessert_type: string;
   event_code: string;
-  is_custom: boolean;
-  main_course_type: string;
-  notes: string;
-  other_selections: string[];
-  plated_starter: string;
-  starter_type: string;
+  is_custom: boolean | null;
+  custom_menu_details: string | null;
+  starter_type: string | null;
+  canape_package: string | null;
+  canape_selections: string[] | null;
+  plated_starter: string | null;
+  main_course_type: string | null;
+  buffet_meat_selections: string[] | null;
+  buffet_vegetable_selections: string[] | null;
+  buffet_starch_selections: string[] | null;
+  buffet_salad_selection: string | null;
+  karoo_meat_selection: string | null;
+  karoo_starch_selection: string[] | null;
+  karoo_vegetable_selections: string[] | null;
+  karoo_salad_selection: string | null;
+  plated_main_selection: string | null;
+  plated_salad_selection: string | null;
+  dessert_type: string | null;
+  traditional_dessert: string | null;
+  dessert_canapes: string[] | null;
+  individual_cakes: string[] | null;
+  other_selections: string[] | null;
+  notes: string | null;
+  created_at: string;
   updated_at: string;
-  traditional_dessert: string;
-  dessert_canapes: string[];
-  individual_cakes: string[];
-  karoo_meat_selection: string;
-  karoo_starch_selection: string[];
-  karoo_vegetable_selections: string[];
-  karoo_salad_selection: string;
-  plated_main_selection: string;
-  plated_salad_selection: string;
 }

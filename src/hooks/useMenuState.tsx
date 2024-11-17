@@ -49,7 +49,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
         if (error) throw error;
 
         if (data) {
-          const menuData = data as MenuSelectionResponse;
+          const menuData = data as unknown as MenuSelectionResponse;
           setMenuState({
             isCustomMenu: menuData.is_custom || false,
             customMenuDetails: menuData.custom_menu_details || '',
