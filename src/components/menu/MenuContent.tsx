@@ -127,9 +127,18 @@ const MenuContent = ({
           <h3 className="font-semibold text-lg">Dessert</h3>
           <DessertSection
             selectedDessert={menuState.dessertType}
+            selectedTraditionalDessert={menuState.traditionalDessert}
+            selectedDessertCanapes={menuState.dessertCanapes}
+            selectedIndividualCakes={menuState.individualCakes}
             onDessertChange={(value) => {
               onMenuStateChange('dessertType', value);
+              onMenuStateChange('traditionalDessert', '');
+              onMenuStateChange('dessertCanapes', []);
+              onMenuStateChange('individualCakes', []);
             }}
+            onTraditionalDessertChange={(value) => onMenuStateChange('traditionalDessert', value)}
+            onDessertCanapesChange={(value) => onMenuStateChange('dessertCanapes', value)}
+            onIndividualCakesChange={(value) => onMenuStateChange('individualCakes', value)}
           />
         </div>
       </div>

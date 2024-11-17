@@ -17,6 +17,9 @@ export interface MenuState {
   platedMainSelection: string;
   platedSaladSelection: string;
   dessertType: string;
+  traditionalDessert: string;
+  dessertCanapes: string[];
+  individualCakes: string[];
   otherSelections: string[];
   notes: string;
 }
@@ -41,6 +44,9 @@ export interface SaveMenuData {
   plated_main_selection: string;
   plated_salad_selection: string;
   dessert_type: string;
+  traditional_dessert: string;
+  dessert_canapes: string[];
+  individual_cakes: string[];
   other_selections: string[];
   notes: string;
   starter_price: number;
