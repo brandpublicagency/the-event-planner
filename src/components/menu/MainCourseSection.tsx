@@ -3,7 +3,6 @@ import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
 import KarooSection from './KarooSection';
 import PlatedSection from './PlatedSection';
-import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -59,7 +58,6 @@ const MainCourseSection = ({
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SelectionHeader title="MENU TYPE" />
         {!selectedMainCourse ? (
           <MenuDropdown
             value={selectedMainCourse}
@@ -68,11 +66,14 @@ const MainCourseSection = ({
             placeholder="Select main course option"
           />
         ) : (
-          <SelectionDisplay
-            label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
-            onRemove={() => onMainCourseChange('')}
-            actionLabel="Change"
-          />
+          <div>
+            <div className="text-zinc-600 mb-2">MENU TYPE</div>
+            <SelectionDisplay
+              label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
+              onRemove={() => onMainCourseChange('')}
+              actionLabel="Change"
+            />
+          </div>
         )}
       </div>
 

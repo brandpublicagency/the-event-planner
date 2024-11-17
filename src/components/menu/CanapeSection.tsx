@@ -1,6 +1,5 @@
 import React from 'react';
 import { canapePackages, canapeOptions } from './MenuTypes';
-import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -20,7 +19,6 @@ const CanapeSection = ({
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SelectionHeader title="NUMBER OF CANAPÉS" />
         {!selectedCanapePackage ? (
           <MenuDropdown
             value={selectedCanapePackage}
@@ -34,17 +32,20 @@ const CanapeSection = ({
             placeholder="Select number of canapés"
           />
         ) : (
-          <SelectionDisplay
-            label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label} - R ${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.price.toFixed(2)} per person`}
-            onRemove={() => onCanapePackageChange('')}
-            actionLabel="Change"
-          />
+          <div>
+            <div className="text-zinc-600 mb-2">NUMBER OF CANAPÉS</div>
+            <SelectionDisplay
+              label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label} - R ${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.price.toFixed(2)} per person`}
+              onRemove={() => onCanapePackageChange('')}
+              actionLabel="Change"
+            />
+          </div>
         )}
       </div>
 
       {selectedCanapePackage && (
         <div className="space-y-4">
-          <SelectionHeader title="CANAPÉ SELECTIONS" />
+          <div className="text-zinc-600 mb-2">CANAPÉ SELECTIONS</div>
           <div className="space-y-3">
             {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
               <div key={index}>

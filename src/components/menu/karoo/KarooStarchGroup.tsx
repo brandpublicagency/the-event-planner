@@ -1,7 +1,6 @@
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import SelectionHeader from '../SelectionHeader';
 
 interface KarooStarchGroupProps {
   title: string;
@@ -13,7 +12,7 @@ interface KarooStarchGroupProps {
 const KarooStarchGroup = ({ title, options, value, onChange }: KarooStarchGroupProps) => {
   return (
     <div className="space-y-4">
-      <SelectionHeader title={title} />
+      <div className="text-zinc-600 mb-2">{title}</div>
       <RadioGroup value={value} onValueChange={onChange}>
         <div className="grid gap-3">
           {options.map((option) => (

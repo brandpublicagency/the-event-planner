@@ -1,6 +1,5 @@
 import React from 'react';
 import { karooMeatOptions, karooStarchOptions, karooVegetableOptions, saladOptions } from './MenuTypes';
-import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -49,7 +48,7 @@ const KarooSection = ({
     maxSelections: number = 2
   ) => (
     <div className="space-y-4">
-      <SelectionHeader title={title} />
+      <div className="text-zinc-600 mb-2">{title}</div>
       {selections.map((selection) => {
         const option = options.find(opt => opt.value === selection);
         return (
@@ -74,7 +73,7 @@ const KarooSection = ({
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SelectionHeader title="MEAT SELECTION" />
+        <div className="text-zinc-600 mb-2">MEAT SELECTION</div>
         {!karooMeatSelection ? (
           <MenuDropdown
             value={karooMeatSelection}
@@ -106,7 +105,7 @@ const KarooSection = ({
       )}
 
       <div className="space-y-4">
-        <SelectionHeader title="TABLE SALAD" />
+        <div className="text-zinc-600 mb-2">TABLE SALAD</div>
         {!karooSaladSelection ? (
           <MenuDropdown
             value={karooSaladSelection}

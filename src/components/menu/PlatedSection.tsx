@@ -1,6 +1,5 @@
 import React from 'react';
 import { platedMainOptions, saladOptions } from './MenuTypes';
-import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -20,7 +19,7 @@ const PlatedSection = ({
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SelectionHeader title="MAIN COURSE" />
+        <div className="text-zinc-600 mb-2">MAIN COURSE</div>
         {!platedMainSelection ? (
           <MenuDropdown
             value={platedMainSelection}
@@ -32,12 +31,13 @@ const PlatedSection = ({
           <SelectionDisplay
             label={platedMainOptions.find(opt => opt.value === platedMainSelection)?.label || ''}
             onRemove={() => onPlatedMainSelectionChange('')}
+            actionLabel="Change"
           />
         )}
       </div>
 
       <div className="space-y-4">
-        <SelectionHeader title="TABLE SALAD" />
+        <div className="text-zinc-600 mb-2">TABLE SALAD</div>
         {!platedSaladSelection ? (
           <MenuDropdown
             value={platedSaladSelection}
@@ -49,6 +49,7 @@ const PlatedSection = ({
           <SelectionDisplay
             label={saladOptions.find(opt => opt.value === platedSaladSelection)?.label || ''}
             onRemove={() => onPlatedSaladSelectionChange('')}
+            actionLabel="Change"
           />
         )}
       </div>

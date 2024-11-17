@@ -1,6 +1,5 @@
 import React from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
-import SelectionHeader from '../SelectionHeader';
 import { karooVegetableOptions } from '../MenuTypes';
 
 interface KarooVegetableSelectProps {
@@ -21,7 +20,7 @@ const KarooVegetableSelect = ({ selections, onSelectionsChange }: KarooVegetable
 
   return (
     <div className="space-y-4">
-      <SelectionHeader title="VEGETABLES" />
+      <div className="text-zinc-600 mb-2">VEGETABLES</div>
       <div className="grid gap-3">
         {karooVegetableOptions.map((option) => (
           <label
