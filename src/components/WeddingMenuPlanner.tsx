@@ -25,6 +25,20 @@ const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuTo
     saveMenuSelections
   } = useMenuState(eventCode, toast);
 
+  // Sync external isCustomMenu state with menu state
+  React.useEffect(() => {
+    if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu) {
+      handleMenuStateChange('isCustomMenu', isCustomMenu);
+    }
+  }, [isCustomMenu]);
+
+  // Sync menu state changes back to parent
+  React.useEffect(() => {
+    if (onCustomMenuToggle && menuState.isCustomMenu !== isCustomMenu) {
+      onCustomMenuToggle(menuState.isCustomMenu);
+    }
+  }, [menuState.isCustomMenu]);
+
   if (isLoading) {
     return (
       <div className="mt-4 print:mt-0">
