@@ -99,11 +99,21 @@ const Login = () => {
                 container: 'w-full space-y-6',
                 button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
-                label: 'text-sm font-medium text-zinc-900 block text-left',
+                label: 'hidden', // Hide labels
                 divider: 'my-6',
                 anchor: 'text-zinc-900 hover:text-zinc-800 text-left block',
                 message: 'text-left',
               },
+            }}
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: '',
+                  password_label: '',
+                  email_input_placeholder: 'Email address',
+                  password_input_placeholder: 'Password',
+                }
+              }
             }}
             providers={[]}
             magicLink={true}
