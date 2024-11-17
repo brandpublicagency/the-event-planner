@@ -133,7 +133,7 @@ const EventDetails = () => {
           isCustomMenu={isCustomMenu}
           onCustomMenuToggle={setIsCustomMenu}
         />
-        <div className="bg-white">
+        <div className="bg-white rounded-lg border border-zinc-100">
           <div className="pl-0 pr-6 mb-6">
             <EventInfo 
               event={event}
