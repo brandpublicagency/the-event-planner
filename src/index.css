@@ -30,12 +30,19 @@
       print-color-adjust: exact;
     }
 
-    body * {
-      visibility: hidden;
+    /* Hide everything except the menu content */
+    body > *:not(.print-container) {
+      display: none;
     }
 
-    .print\\:block, .print\\:block * {
-      visibility: visible;
+    /* Show the menu content */
+    .print-container {
+      visibility: visible !important;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 210mm;
+      min-height: 297mm;
     }
   }
 
