@@ -17,8 +17,8 @@ const CanapeSection = ({
   onCanapeSelection,
 }: CanapeSectionProps) => {
   return (
-    <div className="space-y-3">
-      <div className="space-y-2">
+    <div className="space-y-2">
+      <div className="space-y-1">
         {!selectedCanapePackage ? (
           <MenuDropdown
             value={selectedCanapePackage}
@@ -44,7 +44,7 @@ const CanapeSection = ({
       </div>
 
       {selectedCanapePackage && (
-        <div className="space-y-2">
+        <div className="space-y-1 mt-1">
           {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
             <div key={index}>
               {!selectedCanapes[index] ? (

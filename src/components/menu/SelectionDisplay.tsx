@@ -33,7 +33,7 @@ const SelectionDisplay = ({
       </div>
       <button
         onClick={onRemove}
-        className="text-xs text-zinc-400 hover:text-zinc-600 ml-4"
+        className="text-xs text-zinc-300 hover:text-zinc-500 ml-4"
       >
         {actionLabel}
       </button>
