@@ -128,7 +128,7 @@ const EventDetails = () => {
     <div className="flex-1 p-4 md:p-8 print:p-0 print:m-0">
       <div className="max-w-4xl mx-auto">
         <EventHeader eventCode={event.event_code} onPrint={handlePrint} />
-        <div className="bg-white rounded-lg p-6 print:p-0"> {/* Updated to bg-white */}
+        <div className="bg-white rounded-lg p-6 print:p-0">
           <EventInfo 
             event={event}
             formattedDate={formattedDate}
