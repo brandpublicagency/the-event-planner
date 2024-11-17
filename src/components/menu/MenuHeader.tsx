@@ -6,9 +6,9 @@ interface MenuHeaderProps {
   eventName?: string;
 }
 
-const MenuHeader = ({ isCustomMenu, onCustomMenuToggle, eventName }: MenuHeaderProps) => {
+const MenuHeader = ({ isCustomMenu, onCustomMenuToggle }: MenuHeaderProps) => {
   return (
-    <div className="flex items-center justify-end mb-6">
+    <div className="flex items-center justify-end">
       <div className="flex items-center gap-2">
         <span className="text-sm text-zinc-600">Custom Menu</span>
         <Switch
