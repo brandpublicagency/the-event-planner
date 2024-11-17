@@ -1,7 +1,7 @@
 import React from 'react';
 import { buffetMeatOptions, buffetVegetableOptions, buffetStarchOptions, saladOptions } from './MenuTypes';
-import MenuDropdown from './common/MenuDropdown';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface BuffetSectionProps {
   buffetMeatSelections: string[];
@@ -55,7 +55,7 @@ const BuffetSection = ({
     onSelect: (value: string) => void,
     maxSelections: number = 2
   ) => (
-    <div className="space-y-4">
+    <div className="space-y-1">
       <h4 className="text-sm font-medium text-zinc-500">{title}</h4>
       {selections.map((selection) => {
         const option = options.find(opt => opt.value === selection);
@@ -79,7 +79,7 @@ const BuffetSection = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {renderSelectionSection(
         "MEAT SELECTION",
         buffetMeatSelections,
@@ -101,7 +101,7 @@ const BuffetSection = ({
         handleStarchSelection
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-1">
         <h4 className="text-sm font-medium text-zinc-500">TABLE SALAD</h4>
         {!buffetSaladSelection ? (
           <MenuDropdown

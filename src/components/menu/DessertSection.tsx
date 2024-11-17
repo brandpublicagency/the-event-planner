@@ -41,8 +41,8 @@ const DessertSection = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-4">
+      <div className="space-y-1">
         {!selectedDessert ? (
           <MenuDropdown
             value={selectedDessert}
@@ -52,7 +52,7 @@ const DessertSection = ({
           />
         ) : (
           <div>
-            <div className="text-zinc-600 mb-2">DESSERT TYPE</div>
+            <div className="text-sm font-medium text-zinc-500 mb-1">DESSERT TYPE</div>
             <SelectionDisplay
               label={`${dessertTypes.find(type => type.value === selectedDessert)?.label} - R ${dessertTypes.find(type => type.value === selectedDessert)?.price.toFixed(2)} ${dessertTypes.find(type => type.value === selectedDessert)?.priceType === 'per_person' ? 'per person' : 'per item'}`}
               onRemove={() => onDessertChange('')}
@@ -63,8 +63,8 @@ const DessertSection = ({
       </div>
 
       {selectedDessert === 'traditional' && (
-        <div className="space-y-4">
-          <div className="text-zinc-600 mb-2">TRADITIONAL BAKED DESSERT</div>
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-zinc-500">TRADITIONAL BAKED DESSERT</div>
           {!selectedTraditionalDessert ? (
             <MenuDropdown
               value={selectedTraditionalDessert}
@@ -82,8 +82,8 @@ const DessertSection = ({
       )}
 
       {selectedDessert === 'canapes' && (
-        <div className="space-y-4">
-          <div className="text-zinc-600 mb-2">DESSERT CANAPÉS (Choose 3)</div>
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-zinc-500">DESSERT CANAPÉS (Choose 3)</div>
           {selectedDessertCanapes.map((selection) => (
             <SelectionDisplay
               key={selection}
@@ -103,8 +103,8 @@ const DessertSection = ({
       )}
 
       {selectedDessert === 'cakes' && (
-        <div className="space-y-4">
-          <div className="text-zinc-600 mb-2">INDIVIDUAL CAKES</div>
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-zinc-500">INDIVIDUAL CAKES</div>
           {selectedIndividualCakes.map((selection) => (
             <SelectionDisplay
               key={selection}

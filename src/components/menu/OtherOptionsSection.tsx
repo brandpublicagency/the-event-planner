@@ -26,7 +26,7 @@ const OtherOptionsSection = ({
   };
 
   return (
-    <div className="print:break-inside-avoid space-y-4">
+    <div className="print:break-inside-avoid space-y-1">
       {selectedOptions.map((selection) => (
         <SelectionDisplay
           key={selection}
