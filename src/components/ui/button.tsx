@@ -12,10 +12,10 @@ const buttonVariants = cva(
         destructive:
           "bg-red-100 text-red-900 hover:bg-red-900 hover:text-white before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
         outline:
-          "border border-zinc-200 bg-white hover:bg-zinc-900 hover:text-white before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
+          "border border-zinc-200 bg-white hover:bg-zinc-100 hover:text-zinc-900 before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
         secondary:
           "bg-zinc-100 text-zinc-900 hover:bg-zinc-900 hover:text-white before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
-        ghost: "hover:bg-zinc-900 hover:text-white before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
+        ghost: "hover:bg-zinc-100 hover:text-zinc-900 before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
         link: "text-zinc-900 underline-offset-4 hover:underline",
         success: "bg-green-100 text-green-900 hover:bg-green-900 hover:text-white before:absolute before:inset-0 before:w-[200%] before:h-[200%] before:bg-gradient-to-br before:from-white/20 before:via-white/20 before:to-transparent before:translate-x-[-100%] before:translate-y-[-100%] hover:before:animate-shine",
       },

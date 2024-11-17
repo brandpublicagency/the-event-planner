@@ -40,12 +40,15 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium text-zinc-600">
+          {date ? format(date, "MMMM d, yyyy") : "Events"}
+        </h4>
         <Button
           size="sm"
           variant="outline"
           onClick={handleAddEvent}
-          className="h-8 px-3 flex items-center gap-1 hover:bg-zinc-50"
+          className="h-8 px-3 flex items-center gap-1 hover:bg-zinc-100 hover:text-zinc-900 border-zinc-200"
         >
           <PlusCircle className="h-4 w-4" />
           Add event
@@ -88,7 +91,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                         <span>•</span>
                         <Badge 
                           variant="outline" 
-                          className="bg-zinc-50 hover:bg-zinc-100"
+                          className="bg-zinc-50 hover:bg-zinc-100 hover:text-zinc-900"
                         >
                           {venue.name}
                         </Badge>
