@@ -142,7 +142,7 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="print:block px-6">
+          <div className="print:block px-6 py-8">
             <WeddingMenuPlanner 
               eventCode={event.event_code} 
               eventName={event.name}
