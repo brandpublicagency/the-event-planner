@@ -21,6 +21,7 @@ export interface MenuState {
   dessertCanapes: string[];
   individualCakes: string[];
   otherSelections: string[];
+  otherSelectionsQuantities: Record<string, number>;
   notes: string;
 }
 
@@ -48,6 +49,7 @@ export interface SaveMenuData {
   dessert_canapes: string[];
   individual_cakes: string[];
   other_selections: string[];
+  other_selections_quantities: Record<string, number>;
   notes: string;
   starter_price: number;
   main_course_price: number;
@@ -79,6 +81,7 @@ export interface MenuSelectionResponse {
   dessert_canapes: string[] | null;
   individual_cakes: string[] | null;
   other_selections: string[] | null;
+  other_selections_quantities: Record<string, number> | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

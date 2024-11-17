@@ -28,6 +28,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     dessertCanapes: [],
     individualCakes: [],
     otherSelections: [],
+    otherSelectionsQuantities: {},
     notes: '',
   });
 
@@ -73,6 +74,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
             dessertCanapes: Array.isArray(menuData.dessert_canapes) ? menuData.dessert_canapes : [],
             individualCakes: Array.isArray(menuData.individual_cakes) ? menuData.individual_cakes : [],
             otherSelections: menuData.other_selections || [],
+            otherSelectionsQuantities: menuData.other_selections_quantities || {},
             notes: menuData.notes || '',
           });
         }
@@ -129,6 +131,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
         dessert_canapes: menuState.dessertCanapes,
         individual_cakes: menuState.individualCakes,
         other_selections: menuState.otherSelections,
+        other_selections_quantities: menuState.otherSelectionsQuantities,
         notes: menuState.notes,
         starter_price: prices.starterPrice,
         main_course_price: prices.mainCoursePrice,
