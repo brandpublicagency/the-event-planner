@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { karooMeatOptions, karooStarchOptions, karooVegetableOptions, saladOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import MultiSelect from './MultiSelect';
 
 interface KarooSectionProps {
   karooMeatSelection: string;
