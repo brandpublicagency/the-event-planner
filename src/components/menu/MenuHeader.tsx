@@ -9,12 +9,12 @@ interface MenuHeaderProps {
 
 const MenuHeader = ({ isCustomMenu, onCustomMenuToggle, eventName }: MenuHeaderProps) => {
   return (
-    <CardHeader className="bg-gradient-to-r from-zinc-50 to-zinc-100 border-b py-4">
+    <CardHeader className="bg-gradient-to-r from-zinc-50 to-zinc-100 border-b py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-medium">Menu Selection</h2>
-            {eventName && <span className="text-zinc-500">- {eventName}</span>}
+            <h2 className="text-base font-medium">Menu Selection</h2>
+            {eventName && <span className="text-sm text-zinc-500">- {eventName}</span>}
           </div>
         </div>
         <div className="flex items-center gap-2">

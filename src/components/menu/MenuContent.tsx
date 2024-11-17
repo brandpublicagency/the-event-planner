@@ -38,7 +38,7 @@ const MenuContent = ({
   }
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+    <div className="space-y-3 animate-in fade-in slide-in-from-top-4 pt-2">
       <div className="space-y-2">
         <div>
           <h3 className="font-semibold text-base mb-1">Arrival & Starter</h3>
