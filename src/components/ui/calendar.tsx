@@ -22,38 +22,38 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-between pt-1 relative items-center px-6",
-        caption_label: "text-sm font-medium",
+        caption_label: "text-sm font-medium text-zinc-900",
         nav: "flex items-center space-x-1",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 hover:bg-zinc-100 border border-zinc-200"
+          "h-7 w-7 bg-white p-0 border border-zinc-200 hover:bg-zinc-50"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
-          "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem] h-9 flex items-center justify-center",
+          "text-zinc-600 rounded-md w-9 font-normal text-[0.8rem] h-9 flex items-center justify-center",
         row: "flex w-full mt-2",
         cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zinc-100",
+          "relative p-0 text-center text-sm [&:has([aria-selected])]:bg-zinc-50",
           props.mode === "range"
             ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md"
             : "[&:has([aria-selected])]:rounded-md"
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 rounded-md transition-colors border border-transparent hover:border-zinc-200 mx-0.5"
+          "h-9 w-9 p-0 font-normal text-zinc-900 hover:bg-zinc-50 rounded-md border border-transparent hover:border-zinc-200 mx-0.5"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
-          "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50 rounded-md border-zinc-800",
-        day_today: "bg-zinc-100 text-zinc-900 rounded-md border border-zinc-200",
-        day_outside: "text-zinc-500 opacity-50 aria-selected:bg-zinc-100/50 aria-selected:text-zinc-500 aria-selected:opacity-30 hover:bg-transparent hover:text-zinc-500",
-        day_disabled: "text-zinc-500 opacity-50 hover:bg-transparent",
+          "bg-zinc-50 text-zinc-900 hover:bg-zinc-100 border-zinc-200 rounded-md",
+        day_today: "bg-zinc-50 text-zinc-900 rounded-md border border-zinc-200",
+        day_outside: "text-zinc-400 opacity-50 hover:bg-transparent",
+        day_disabled: "text-zinc-400 opacity-50 hover:bg-transparent",
         day_range_middle:
-          "aria-selected:bg-zinc-100 aria-selected:text-zinc-900",
+          "aria-selected:bg-zinc-50 aria-selected:text-zinc-900",
         day_hidden: "invisible",
         ...classNames,
       }}
