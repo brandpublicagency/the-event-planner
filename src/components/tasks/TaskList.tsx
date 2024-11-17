@@ -1,48 +1,42 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { TaskItem } from "./TaskItem";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
 
 export function TaskList() {
-  const { tasks, isLoading, addTask } = useTaskContext();
-  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const { tasks, isLoading } = useTaskContext();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTaskTitle.trim()) return;
-    
-    await addTask(newTaskTitle.trim());
-    setNewTaskTitle("");
-  };
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (isLoading) {
     return (
-      <div className="flex justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="flex justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="flex space-x-2">
+    <Card className="p-4">
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="Add a new task..."
-          className="flex-1"
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
         />
-        <Button type="submit" disabled={!newTaskTitle.trim()}>
-          <Plus className="h-4 w-4" />
-        </Button>
-      </form>
+      </div>
       
-      <ScrollArea className="h-[400px] pr-4">
-        <div className="space-y-1">
-          {tasks.map((task) => (
+      <ScrollArea className="h-[500px] pr-4">
+        <div className="space-y-2">
+          {filteredTasks.map((task) => (
             <TaskItem
               key={task.id}
               id={task.id}
@@ -50,11 +44,13 @@ export function TaskList() {
               completed={task.completed}
             />
           ))}
-          {tasks.length === 0 && (
-            <p className="text-center text-gray-500 py-4">No tasks yet</p>
+          {filteredTasks.length === 0 && (
+            <p className="text-center text-muted-foreground py-8">
+              {searchQuery ? "No tasks found matching your search" : "No tasks yet"}
+            </p>
           )}
         </div>
       </ScrollArea>
-    </div>
+    </Card>
   );
 }
