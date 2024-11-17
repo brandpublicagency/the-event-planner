@@ -57,4 +57,4 @@ export interface Event {
   };
 }
 
-export type EventCreate = Omit<Event, 'created_at' | 'updated_at' | 'venues' | 'event_venues' | 'wedding_details' | 'corporate_details' | 'menu_selections'>;
+export type EventCreate = Pick<Event, 'event_code' | 'name' | 'description' | 'event_type' | 'event_date' | 'pax' | 'package_id' | 'client_address' | 'created_by' | 'completed' | 'start_time' | 'end_time'>;

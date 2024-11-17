@@ -15,6 +15,7 @@ export const mockEvents: Event[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by: null,
+    completed: false,
     event_venues: [{ venues: { name: "The Gallery" } }],
     wedding_details: {
       bride_name: "Jane",
@@ -39,6 +40,7 @@ export const mockEvents: Event[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by: null,
+    completed: false,
     event_venues: [{ venues: { name: "The Grand Hall" } }]
   }
 ];

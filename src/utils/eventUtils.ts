@@ -36,17 +36,22 @@ export const deleteEvent = async (eventCode: string) => {
 };
 
 export const createEvent = async (data: EventCreate, userId: string) => {
-  const { data: eventData, error } = await supabase
+  const eventData = {
+    ...data,
+    completed: false // Set default completed status to false
+  };
+
+  const { data: eventResponse, error } = await supabase
     .from('events')
-    .insert(data)
+    .insert(eventData)
     .select()
     .single();
 
-  if (error || !eventData) {
+  if (error || !eventResponse) {
     throw new Error("Failed to create event");
   }
 
-  return eventData.event_code;
+  return eventResponse.event_code;
 };
 
 export const ensureUserProfile = async (userId: string) => {
