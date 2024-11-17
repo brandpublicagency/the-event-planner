@@ -63,7 +63,8 @@ const NewEvent = () => {
         pax: data.pax || null,
         package_id: data.package_id || null,
         client_address: data.client_address || null,
-        created_by: user.id
+        created_by: user.id,
+        completed: false
       };
 
       await createEvent(eventData, user.id);
