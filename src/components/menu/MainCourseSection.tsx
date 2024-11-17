@@ -1,10 +1,11 @@
 import React from 'react';
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
 import KarooSection from './KarooSection';
 import PlatedSection from './PlatedSection';
+import SelectionHeader from './SelectionHeader';
+import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface MainCourseSectionProps {
   selectedMainCourse: string;
@@ -13,7 +14,7 @@ interface MainCourseSectionProps {
   buffetStarchSelections?: string[];
   buffetSaladSelection?: string;
   karooMeatSelection?: string;
-  karooStarchSelection: string[];  // Changed from string to string[]
+  karooStarchSelection: string[];
   karooVegetableSelections?: string[];
   karooSaladSelection?: string;
   platedMainSelection?: string;
@@ -24,7 +25,7 @@ interface MainCourseSectionProps {
   onBuffetStarchSelectionsChange: (value: string[]) => void;
   onBuffetSaladSelectionChange: (value: string) => void;
   onKarooMeatSelectionChange: (value: string) => void;
-  onKarooStarchSelectionChange: (value: string[]) => void;  // Changed from (value: string) to (value: string[])
+  onKarooStarchSelectionChange: (value: string[]) => void;
   onKarooVegetableSelectionsChange: (value: string[]) => void;
   onKarooSaladSelectionChange: (value: string) => void;
   onPlatedMainSelectionChange: (value: string) => void;
@@ -38,7 +39,7 @@ const MainCourseSection = ({
   buffetStarchSelections = [],
   buffetSaladSelection = '',
   karooMeatSelection = '',
-  karooStarchSelection = [],  // Changed default from '' to []
+  karooStarchSelection = [],
   karooVegetableSelections = [],
   karooSaladSelection = '',
   platedMainSelection = '',
@@ -55,35 +56,23 @@ const MainCourseSection = ({
   onPlatedMainSelectionChange,
   onPlatedSaladSelectionChange,
 }: MainCourseSectionProps) => {
-  const selectedType = mainCourseTypes.find(type => type.value === selectedMainCourse);
-
   return (
-    <div className="space-y-6 print:break-inside-avoid">
+    <div className="space-y-6">
       <div className="space-y-4">
-        <h4 className="text-sm font-medium text-zinc-500">MENU TYPE</h4>
+        <SelectionHeader title="MENU TYPE" />
         {!selectedMainCourse ? (
-          <Select value={selectedMainCourse} onValueChange={onMainCourseChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select main course option" />
-            </SelectTrigger>
-            <SelectContent>
-              {mainCourseTypes.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label} - R {option.price.toFixed(2)} per person
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={selectedMainCourse}
+            onValueChange={onMainCourseChange}
+            options={mainCourseTypes}
+            placeholder="Select main course option"
+          />
         ) : (
-          <div className="flex justify-between items-center">
-            <span>{selectedType?.label} - R {selectedType?.price.toFixed(2)} per person</span>
-            <button
-              onClick={() => onMainCourseChange('')}
-              className="text-sm text-red-500 hover:text-red-600"
-            >
-              Remove
-            </button>
-          </div>
+          <SelectionDisplay
+            label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
+            onRemove={() => onMainCourseChange('')}
+            actionLabel="Change"
+          />
         )}
       </div>
 
