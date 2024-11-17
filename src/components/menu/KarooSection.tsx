@@ -1,8 +1,8 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { karooMeatOptions, karooStarchOptions, karooVegetableOptions, saladOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface KarooSectionProps {
   karooMeatSelection: string;
@@ -41,23 +41,47 @@ const KarooSection = ({
     }
   };
 
+  const renderSelectionSection = (
+    title: string,
+    selections: string[],
+    options: typeof karooStarchOptions,
+    onSelect: (value: string) => void,
+    maxSelections: number = 2
+  ) => (
+    <div className="space-y-4">
+      <SelectionHeader title={title} />
+      {selections.map((selection) => {
+        const option = options.find(opt => opt.value === selection);
+        return (
+          <SelectionDisplay
+            key={selection}
+            label={option?.label || ''}
+            onRemove={() => onSelect(selection)}
+          />
+        );
+      })}
+      {selections.length < maxSelections && (
+        <MenuDropdown
+          value=""
+          onValueChange={onSelect}
+          options={options.filter(option => !selections.includes(option.value))}
+          placeholder={`Add ${title.toLowerCase()} option`}
+        />
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <SelectionHeader title="MEAT SELECTION" />
         {!karooMeatSelection ? (
-          <Select value={karooMeatSelection} onValueChange={onKarooMeatSelectionChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select meat option" />
-            </SelectTrigger>
-            <SelectContent>
-              {karooMeatOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={karooMeatSelection}
+            onValueChange={onKarooMeatSelectionChange}
+            options={karooMeatOptions}
+            placeholder="Select meat option"
+          />
         ) : (
           <SelectionDisplay
             label={karooMeatOptions.find(opt => opt.value === karooMeatSelection)?.label || ''}
@@ -67,123 +91,29 @@ const KarooSection = ({
         )}
       </div>
 
-      <div className="space-y-4">
-        <SelectionHeader title="STARCH SELECTIONS (Select 2)" />
-        {karooStarchSelection.length === 0 ? (
-          <Select onValueChange={handleStarchSelection}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose starch option (select 2)" />
-            </SelectTrigger>
-            <SelectContent>
-              {karooStarchOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="space-y-2">
-            {karooStarchSelection.map((selection) => {
-              const option = karooStarchOptions.find(opt => opt.value === selection);
-              return (
-                <div key={selection} className="flex justify-between items-center">
-                  <span>{option?.label}</span>
-                  <button
-                    onClick={() => handleStarchSelection(selection)}
-                    className="text-sm text-red-500 hover:text-red-600"
-                  >
-                    Change
-                  </button>
-                </div>
-              );
-            })}
-            {karooStarchSelection.length < 2 && (
-              <Select onValueChange={handleStarchSelection}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Add another starch option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {karooStarchOptions
-                    .filter(option => !karooStarchSelection.includes(option.value))
-                    .map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <SelectionHeader title="VEGETABLE SELECTIONS (Select 2)" />
-        {karooVegetableSelections.length === 0 ? (
-          <Select onValueChange={handleVegetableSelection}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose vegetable option (select 2)" />
-            </SelectTrigger>
-            <SelectContent>
-              {karooVegetableOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="space-y-2">
-            {karooVegetableSelections.map((selection) => {
-              const option = karooVegetableOptions.find(opt => opt.value === selection);
-              return (
-                <div key={selection} className="flex justify-between items-center">
-                  <span>{option?.label}</span>
-                  <button
-                    onClick={() => handleVegetableSelection(selection)}
-                    className="text-sm text-red-500 hover:text-red-600"
-                  >
-                    Change
-                  </button>
-                </div>
-              );
-            })}
-            {karooVegetableSelections.length < 2 && (
-              <Select onValueChange={handleVegetableSelection}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Add another vegetable option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {karooVegetableOptions
-                    .filter(option => !karooVegetableSelections.includes(option.value))
-                    .map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        )}
-      </div>
+      {renderSelectionSection(
+        "STARCH SELECTIONS",
+        karooStarchSelection,
+        karooStarchOptions,
+        handleStarchSelection
+      )}
+      
+      {renderSelectionSection(
+        "VEGETABLE SELECTIONS",
+        karooVegetableSelections,
+        karooVegetableOptions,
+        handleVegetableSelection
+      )}
 
       <div className="space-y-4">
         <SelectionHeader title="TABLE SALAD" />
         {!karooSaladSelection ? (
-          <Select value={karooSaladSelection} onValueChange={onKarooSaladSelectionChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a salad" />
-            </SelectTrigger>
-            <SelectContent>
-              {saladOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={karooSaladSelection}
+            onValueChange={onKarooSaladSelectionChange}
+            options={saladOptions}
+            placeholder="Select a salad"
+          />
         ) : (
           <SelectionDisplay
             label={saladOptions.find(opt => opt.value === karooSaladSelection)?.label || ''}

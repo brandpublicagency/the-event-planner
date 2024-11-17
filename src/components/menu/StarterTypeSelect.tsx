@@ -1,8 +1,8 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { starterTypes } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface StarterTypeSelectProps {
   selectedStarterType: string;
@@ -19,18 +19,17 @@ const StarterTypeSelect = ({
     <div className="space-y-4">
       <SelectionHeader title="STARTER TYPE" />
       {!selectedStarterType ? (
-        <Select value={selectedStarterType} onValueChange={onStarterTypeChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose starter option" />
-          </SelectTrigger>
-          <SelectContent>
-            {starterTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label} - R {type.price.toFixed(2)} per person
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MenuDropdown
+          value={selectedStarterType}
+          onValueChange={onStarterTypeChange}
+          options={starterTypes.map(type => ({
+            value: type.value,
+            label: type.label,
+            price: type.price,
+            priceType: 'per_person'
+          }))}
+          placeholder="Choose starter option"
+        />
       ) : (
         <SelectionDisplay
           label={`${selectedType?.label} - R ${selectedType?.price.toFixed(2)} per person`}

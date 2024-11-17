@@ -1,8 +1,8 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { platedMainOptions, saladOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface PlatedSectionProps {
   platedMainSelection: string;
@@ -22,18 +22,12 @@ const PlatedSection = ({
       <div className="space-y-4">
         <SelectionHeader title="MAIN COURSE" />
         {!platedMainSelection ? (
-          <Select value={platedMainSelection} onValueChange={onPlatedMainSelectionChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select main course" />
-            </SelectTrigger>
-            <SelectContent>
-              {platedMainOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={platedMainSelection}
+            onValueChange={onPlatedMainSelectionChange}
+            options={platedMainOptions}
+            placeholder="Select main course"
+          />
         ) : (
           <SelectionDisplay
             label={platedMainOptions.find(opt => opt.value === platedMainSelection)?.label || ''}
@@ -45,18 +39,12 @@ const PlatedSection = ({
       <div className="space-y-4">
         <SelectionHeader title="TABLE SALAD" />
         {!platedSaladSelection ? (
-          <Select value={platedSaladSelection} onValueChange={onPlatedSaladSelectionChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a salad" />
-            </SelectTrigger>
-            <SelectContent>
-              {saladOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={platedSaladSelection}
+            onValueChange={onPlatedSaladSelectionChange}
+            options={saladOptions}
+            placeholder="Select a salad"
+          />
         ) : (
           <SelectionDisplay
             label={saladOptions.find(opt => opt.value === platedSaladSelection)?.label || ''}
