@@ -26,18 +26,62 @@
 
   /* Header styles */
   .print-header {
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: left;
+    margin-bottom: 2.5rem;
   }
 
   .print-header h1 {
     font-size: 24px !important;
-    margin-bottom: 0.5rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.25rem !important;
+    color: #000 !important;
   }
 
   .print-header h2 {
-    font-size: 18px !important;
+    font-size: 16px !important;
     color: #71717A !important;
+    font-weight: normal !important;
+  }
+
+  /* Section styles */
+  .menu-section {
+    margin-bottom: 2rem !important;
+  }
+
+  .menu-section-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+    color: #000 !important;
+  }
+
+  .menu-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .menu-item-label {
+    font-size: 14px !important;
+    color: #000 !important;
+  }
+
+  .menu-item-price {
+    font-size: 14px !important;
+    color: #71717A !important;
+  }
+
+  /* Notes section */
+  .notes-section {
+    margin-top: 2rem !important;
+  }
+
+  .notes-section textarea {
+    border: 1px solid #E5E7EB !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    min-height: 100px !important;
   }
 
   /* Ensure all content inside print container is visible */
