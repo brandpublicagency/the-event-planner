@@ -6,9 +6,7 @@ export const useChatContext = () => {
   return useQuery({
     queryKey: ['chat-context'],
     queryFn: async () => {
-      const today = new Date().toISOString();
-      
-      // Fetch upcoming events with all related details
+      // Fetch all events with their complete details
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -16,11 +14,13 @@ export const useChatContext = () => {
           wedding_details (*),
           corporate_details (*),
           event_venues (
-            venues (name)
+            venues (
+              id,
+              name
+            )
           ),
           menu_selections (*)
         `)
-        .gte('event_date', today)
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;
