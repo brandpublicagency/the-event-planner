@@ -67,3 +67,18 @@ export const ensureUserProfile = async (userId: string) => {
 
   return data;
 };
+
+export const checkEventStatus = async (eventCode: string): Promise<boolean | null> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('completed')
+    .eq('event_code', eventCode)
+    .single();
+
+  if (error) {
+    console.error('Error checking event status:', error);
+    return null;
+  }
+
+  return data?.completed || false;
+};
