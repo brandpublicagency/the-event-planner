@@ -30,9 +30,6 @@ const MenuContent = ({
             onMenuStateChange('customMenuDetails', value);
           }}
         />
-        <div className="flex justify-end print:hidden">
-          <Button onClick={saveMenuSelections}>Save Menu</Button>
-        </div>
       </div>
     );
   }
@@ -163,12 +160,6 @@ const MenuContent = ({
             }}
           />
         </div>
-      </div>
-
-      <div className="flex justify-end print:hidden">
-        <Button onClick={saveMenuSelections}>
-          Save Menu
-        </Button>
       </div>
     </div>
   );

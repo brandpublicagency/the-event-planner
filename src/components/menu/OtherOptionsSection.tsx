@@ -35,7 +35,7 @@ const OtherOptionsSection = ({
             min="0"
             value={quantities[option.value] || 0}
             onChange={(e) => handleQuantityChange(option.value, e.target.value)}
-            className="w-16 text-center"
+            className="w-12 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
       ))}

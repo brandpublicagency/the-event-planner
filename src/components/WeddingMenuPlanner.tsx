@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import MenuHeader from './menu/MenuHeader';
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
@@ -76,6 +77,11 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
           notes={menuState.notes}
           onChange={(value) => handleMenuStateChange('notes', value)}
         />
+        <div className="flex justify-end print:hidden">
+          <Button onClick={saveMenuSelections}>
+            Save Menu
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
