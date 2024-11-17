@@ -53,7 +53,7 @@ const WeddingMenuPlanner = ({ eventCode, eventName }: WeddingMenuPlannerProps) =
   }
 
   return (
-    <Card className="mt-8 print:mt-0 print:shadow-none print:border-none">
+    <Card className="mt-8 print:mt-0 print:shadow-none print:border-none bg-white">
       <div className="print:hidden">
         <MenuHeader 
           isCustomMenu={menuState.isCustomMenu} 
