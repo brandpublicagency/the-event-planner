@@ -139,14 +139,14 @@ const Calendar = () => {
       
       <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
 
-      <div className="grid gap-6 lg:grid-cols-[380px,1fr] transition-all">
-        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
+      <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200 bg-white">
           <CalendarComponent
             mode="single"
             selected={date}
             onSelect={setDate}
             className={cn(
-              "rounded-md border-none",
+              "rounded-md border-none select-none",
               isEventsLoading && "opacity-50 pointer-events-none"
             )}
             modifiers={{
@@ -155,7 +155,9 @@ const Calendar = () => {
             }}
             modifiersStyles={{
               hasEvent: {
-                fontWeight: '500'
+                fontWeight: '500',
+                backgroundColor: '#f4f4f5',
+                color: '#18181b'
               },
               selected: {
                 backgroundColor: '#18181B !important',
@@ -164,10 +166,11 @@ const Calendar = () => {
               }
             }}
             showOutsideDays={false}
+            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
           />
         </Card>
 
-        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200 bg-white">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-zinc-900">

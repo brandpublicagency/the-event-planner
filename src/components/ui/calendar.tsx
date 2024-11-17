@@ -34,20 +34,25 @@ function Calendar({
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
-          "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem]",
+          "text-zinc-500 rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
         row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-zinc-100/50 [&:has([aria-selected])]:bg-zinc-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        cell: cn(
+          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zinc-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+          props.mode === "range"
+            ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md"
+            : "[&:has([aria-selected])]:rounded-md"
+        ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 rounded-md transition-colors"
         ),
+        day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
-          "bg-zinc-900 text-zinc-50 hover:bg-zinc-900 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50",
-        day_today: "bg-zinc-100 text-zinc-900",
-        day_outside:
-          "day-outside text-zinc-500 opacity-50 aria-selected:bg-zinc-100/50 aria-selected:text-zinc-500 aria-selected:opacity-30",
-        day_disabled: "text-zinc-500 opacity-50",
+          "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50 focus:bg-zinc-900 focus:text-zinc-50 rounded-md",
+        day_today: "bg-zinc-100 text-zinc-900 rounded-md",
+        day_outside: "text-zinc-500 opacity-50 aria-selected:bg-zinc-100/50 aria-selected:text-zinc-500 aria-selected:opacity-30 hover:bg-transparent hover:text-zinc-500",
+        day_disabled: "text-zinc-500 opacity-50 hover:bg-transparent",
         day_range_middle:
           "aria-selected:bg-zinc-100 aria-selected:text-zinc-900",
         day_hidden: "invisible",

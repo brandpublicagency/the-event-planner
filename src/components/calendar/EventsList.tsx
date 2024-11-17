@@ -28,9 +28,10 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
 
   if (!events?.length) {
     return (
-      <div className="text-center py-8 text-zinc-500">
+      <div className="text-center py-12 text-zinc-500">
         <CalendarIcon className="h-12 w-12 mx-auto mb-4 text-zinc-400" />
-        <p>No events scheduled for this date.</p>
+        <p className="text-sm">No events scheduled for this date.</p>
+        <p className="text-xs mt-1 text-zinc-400">Select another date to view events</p>
       </div>
     );
   }
@@ -61,20 +62,19 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                 <span>•</span>
                 <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
                 {event.venues?.map((venue, index) => (
-                  <>
+                  <React.Fragment key={venue.id || index}>
                     <span>•</span>
                     <Badge 
-                      key={venue.id || index} 
                       variant="outline" 
-                      className="bg-zinc-50"
+                      className="bg-zinc-50 hover:bg-zinc-100"
                     >
                       {venue.name}
                     </Badge>
-                  </>
+                  </React.Fragment>
                 ))}
               </div>
               {event.description && (
-                <p className="text-sm text-zinc-600 mt-2">{event.description}</p>
+                <p className="text-sm text-zinc-600 mt-2 line-clamp-2">{event.description}</p>
               )}
             </div>
           </div>
