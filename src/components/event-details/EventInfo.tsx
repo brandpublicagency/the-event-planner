@@ -43,15 +43,8 @@ export const EventInfo = ({ event, formattedDate, formattedTime, venueNames }: E
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 text-sm text-zinc-600 print:text-sm">
-        <Badge variant="secondary">{formattedDate}, {formattedTime}</Badge>
-        <Badge variant="secondary" className="font-semibold">{event.pax} Guests</Badge>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{venueNames}</Badge>
-          <Badge variant="outline" className="text-xs bg-zinc-100">
-            {event.event_type}
-          </Badge>
-        </div>
+      <div className="text-sm text-zinc-600">
+        {formattedDate}, {formattedTime} / <span className="font-semibold">{event.pax} Guests</span> / {venueNames}
       </div>
     </div>
   );
