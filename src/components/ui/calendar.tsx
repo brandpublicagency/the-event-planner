@@ -4,7 +4,6 @@ import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
@@ -25,8 +24,7 @@ function Calendar({
         caption_label: "text-sm font-medium text-zinc-900",
         nav: "flex items-center space-x-1",
         nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-white p-0 border border-zinc-200 hover:bg-zinc-50"
+          "h-7 w-7 p-0 flex items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
