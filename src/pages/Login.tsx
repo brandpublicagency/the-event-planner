@@ -10,7 +10,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check current auth status
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/");
@@ -69,6 +68,7 @@ const Login = () => {
             supabaseClient={supabase}
             appearance={{
               theme: ThemeMinimal,
+              extend: true,
               variables: {
                 default: {
                   colors: {
@@ -125,9 +125,6 @@ const Login = () => {
             magicLink={false}
             redirectTo={window.location.origin}
             showLinks={true}
-            appearance={{ 
-              extend: true 
-            }}
           />
 
           <div className="text-left text-sm text-zinc-500">
