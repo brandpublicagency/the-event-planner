@@ -41,7 +41,7 @@ const EventDetails = () => {
 
         if (error) throw error;
         if (!data) throw new Error('Event not found');
-        
+
         return {
           ...data,
           venues: data.event_venues?.map(ev => ({
@@ -123,7 +123,7 @@ const EventDetails = () => {
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   const formattedTime = event.start_time && event.end_time ? `${event.start_time.slice(0, 5)} - ${event.end_time.slice(0, 5)}` : '';
   const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
-  
+
   return (
     <div className="flex-1 p-6 print:p-0 print:m-0">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
@@ -142,7 +142,7 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="print:block px-6 py-8">
+          <div className="print:block px-6 pb-8">
             <WeddingMenuPlanner 
               eventCode={event.event_code} 
               eventName={event.name}
