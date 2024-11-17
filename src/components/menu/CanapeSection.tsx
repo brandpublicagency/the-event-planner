@@ -1,8 +1,8 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { canapePackages, canapeOptions } from './MenuTypes';
 import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
+import MenuDropdown from './common/MenuDropdown';
 
 interface CanapeSectionProps {
   selectedCanapePackage: string;
@@ -22,24 +22,21 @@ const CanapeSection = ({
       <div className="space-y-4">
         <SelectionHeader title="NUMBER OF CANAPÉS" />
         {!selectedCanapePackage ? (
-          <Select value={selectedCanapePackage} onValueChange={onCanapePackageChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select number of canapés" />
-            </SelectTrigger>
-            <SelectContent>
-              {canapePackages.map((pkg) => (
-                <SelectItem key={pkg.value} value={pkg.value}>
-                  {pkg.label} - R {pkg.price.toFixed(2)} per person
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MenuDropdown
+            value={selectedCanapePackage}
+            onValueChange={onCanapePackageChange}
+            options={canapePackages.map(pkg => ({
+              value: pkg.value,
+              label: pkg.label,
+              price: pkg.price,
+              priceType: 'per_person'
+            }))}
+            placeholder="Select number of canapés"
+          />
         ) : (
           <SelectionDisplay
             label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label} - R ${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.price.toFixed(2)} per person`}
-            onRemove={() => {
-              onCanapePackageChange('');
-            }}
+            onRemove={() => onCanapePackageChange('')}
             actionLabel="Change"
           />
         )}
@@ -52,26 +49,17 @@ const CanapeSection = ({
             {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
               <div key={index}>
                 {!selectedCanapes[index] ? (
-                  <Select 
-                    value={selectedCanapes[index] || ''} 
+                  <MenuDropdown
+                    value={selectedCanapes[index] || ''}
                     onValueChange={(value) => onCanapeSelection(index + 1, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={`Select canapé ${index + 1}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {canapeOptions
-                        .filter(option => !selectedCanapes.includes(option.value))
-                        .map((canape) => (
-                          <SelectItem 
-                            key={canape.value} 
-                            value={canape.value}
-                          >
-                            {canape.label}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                    options={canapeOptions
+                      .filter(option => !selectedCanapes.includes(option.value))
+                      .map(canape => ({
+                        value: canape.value,
+                        label: canape.label
+                      }))}
+                    placeholder={`Select canapé ${index + 1}`}
+                  />
                 ) : (
                   <SelectionDisplay
                     label={canapeOptions.find(opt => opt.value === selectedCanapes[index])?.label || ''}
