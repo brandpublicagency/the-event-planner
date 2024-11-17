@@ -24,7 +24,7 @@ const OtherOptionsSection = ({
   };
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-1.5">
       {otherOptions.map((option) => (
         <div key={option.value} className="flex items-center justify-between gap-4">
           <div className="flex-grow">
@@ -35,7 +35,7 @@ const OtherOptionsSection = ({
             min="0"
             value={quantities[option.value] || 0}
             onChange={(e) => handleQuantityChange(option.value, e.target.value)}
-            className="w-10 h-7 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
+            className="w-10 h-7 text-center text-[0.7rem] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
           />
         </div>
       ))}
