@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { EventsList } from "@/components/calendar/EventsList";
 import { useToast } from "@/components/ui/use-toast";
-import type { Event } from "@/types/event";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +45,7 @@ const Calendar = () => {
     },
   });
 
-  const { data: events, isLoading: isEventsLoading, error: eventsError } = useQuery({
+  const { data: events = [], isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue],
     queryFn: async () => {
       if (!date) return [];
@@ -67,7 +66,7 @@ const Calendar = () => {
         `)
         .gte('event_date', startOfMonth.toISOString())
         .lte('event_date', endOfMonth.toISOString())
-        .order('event_date', { ascending: true });
+        .order('event_date');
 
       if (selectedVenue && selectedVenue !== 'all') {
         query = query.eq('event_venues.venue_id', selectedVenue);
@@ -84,25 +83,12 @@ const Calendar = () => {
         throw error;
       }
 
-      return data.map((event: any) => ({
+      return data?.map(event => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || [],
-        title: event.name,
-        progress: 0,
-        teamSize: event.pax || 0,
-        dueDate: event.event_date || '',
-        created_at: event.created_at,
-        updated_at: event.updated_at,
-        created_by: event.created_by,
-        description: event.description,
-        event_code: event.event_code,
-        event_type: event.event_type,
-        client_address: event.client_address,
-        package_id: event.package_id,
-        event_date: event.event_date,
-      }));
+      })) || [];
     },
-    enabled: !!date,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   if (eventsError) {
@@ -125,6 +111,10 @@ const Calendar = () => {
   const selectedDateEvents = events?.filter(event => 
     event.event_date && new Date(event.event_date).toDateString() === date?.toDateString()
   );
+
+  const eventDates = events
+    .map(event => event.event_date ? new Date(event.event_date) : null)
+    .filter(Boolean) as Date[];
 
   return (
     <div className="space-y-6 p-4 md:p-6 max-w-7xl mx-auto">
@@ -149,23 +139,14 @@ const Calendar = () => {
               "rounded-md border-none select-none",
               isEventsLoading && "opacity-50 pointer-events-none"
             )}
-            modifiers={{
-              hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
-              selected: date,
-            }}
+            modifiers={{ hasEvent: eventDates }}
             modifiersStyles={{
               hasEvent: {
-                fontWeight: '500',
                 backgroundColor: '#f4f4f5',
-                color: '#18181b'
-              },
-              selected: {
-                backgroundColor: '#18181B !important',
-                color: 'white !important',
+                color: '#18181b',
                 fontWeight: '500'
               }
             }}
-            showOutsideDays={false}
             disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
           />
         </Card>
