@@ -17,8 +17,8 @@ const CanapeSection = ({
   onCanapeSelection,
 }: CanapeSectionProps) => {
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-3">
+      <div className="space-y-2">
         {!selectedCanapePackage ? (
           <MenuDropdown
             value={selectedCanapePackage}
@@ -37,13 +37,14 @@ const CanapeSection = ({
               label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label} - R ${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.price.toFixed(2)} per person`}
               onRemove={() => onCanapePackageChange('')}
               actionLabel="Change"
+              isBold={true}
             />
           </div>
         )}
       </div>
 
       {selectedCanapePackage && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
             <div key={index}>
               {!selectedCanapes[index] ? (
@@ -62,6 +63,7 @@ const CanapeSection = ({
                 <SelectionDisplay
                   label={canapeOptions.find(opt => opt.value === selectedCanapes[index])?.label || ''}
                   onRemove={() => onCanapeSelection(index + 1, '')}
+                  actionLabel="Change"
                 />
               )}
             </div>

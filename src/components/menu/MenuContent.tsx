@@ -7,7 +7,6 @@ import CustomMenuSection from './CustomMenuSection';
 import MainCourseSection from './MainCourseSection';
 import DessertSection from './DessertSection';
 import OtherOptionsSection from './OtherOptionsSection';
-import { starterTypes } from './MenuTypes';
 
 interface MenuContentProps {
   menuState: any;
@@ -39,10 +38,10 @@ const MenuContent = ({
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-top-4">
-      <div className="space-y-4">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-4">
+      <div className="space-y-3">
         <div>
-          <h3 className="font-semibold text-lg">Arrival & Starter</h3>
+          <h3 className="font-semibold text-base mb-2">Arrival & Starter</h3>
           <StarterTypeSelect
             selectedStarterType={menuState.selectedStarterType}
             onStarterTypeChange={(value) => {
@@ -80,9 +79,9 @@ const MenuContent = ({
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
-          <h3 className="font-semibold text-lg">Main Course</h3>
+          <h3 className="font-semibold text-base mb-2">Main Course</h3>
           <MainCourseSection
             selectedMainCourse={menuState.mainCourseType}
             buffetMeatSelections={menuState.buffetMeatSelections}
@@ -90,7 +89,7 @@ const MenuContent = ({
             buffetStarchSelections={menuState.buffetStarchSelections}
             buffetSaladSelection={menuState.buffetSaladSelection}
             karooMeatSelection={menuState.karooMeatSelection}
-            karooStarchSelection={menuState.karooStarchSelection || []} // Ensure it's always an array
+            karooStarchSelection={menuState.karooStarchSelection || []}
             karooVegetableSelections={menuState.karooVegetableSelections}
             karooSaladSelection={menuState.karooSaladSelection}
             platedMainSelection={menuState.platedMainSelection}
@@ -122,9 +121,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
-          <h3 className="font-semibold text-lg">Dessert</h3>
+          <h3 className="font-semibold text-base mb-2">Dessert</h3>
           <DessertSection
             selectedDessert={menuState.dessertType}
             selectedTraditionalDessert={menuState.traditionalDessert}
@@ -143,9 +142,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
-          <h3 className="font-semibold text-lg">Additional Options</h3>
+          <h3 className="font-semibold text-base mb-2">Additional Options</h3>
           <OtherOptionsSection
             selectedOptions={menuState.otherSelections || []}
             onOptionsChange={(value) => {
