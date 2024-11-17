@@ -56,7 +56,7 @@ export const platedStarterOptions: PlatedStarterOption[] = [
 ];
 
 export const starterTypes = [
-  { value: 'harvest', label: 'Harvest Table', price: 130.00 },
-  { value: 'canapes', label: 'Canapés', price: 0.00 },
-  { value: 'plated', label: 'Plated Starter', price: 120.00 },
+  { value: 'harvest', label: 'Harvest Table', price: 130.00, priceType: 'per_person' },
+  { value: 'canapes', label: 'Canapés', price: 120.00, priceRange: { min: 120.00, max: 220.00 }, priceType: 'per_person' },
+  { value: 'plated', label: 'Plated Starter', price: 120.00, priceType: 'per_person' },
 ];
