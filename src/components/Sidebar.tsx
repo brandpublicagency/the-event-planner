@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
-import QuickAddTask from "./sidebar/QuickAddTask";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -46,13 +45,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     { icon: Bell, path: "/agreements", label: "Agreements" },
   ];
 
-  const handleAddTask = () => {
-    toast({
-      title: "Quick Add Task",
-      description: "This feature will be available soon!",
-    });
-  };
-
   return (
     <div 
       className={cn(
@@ -78,8 +70,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
             />
           </div>
         </div>
-
-        <QuickAddTask isCollapsed={isCollapsed} onAddTask={handleAddTask} />
       </div>
     </div>
   );
