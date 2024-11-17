@@ -9,7 +9,7 @@ interface MenuHeaderProps {
 
 const MenuHeader = ({ isCustomMenu, onCustomMenuToggle, eventName }: MenuHeaderProps) => {
   return (
-    <CardHeader className="bg-gradient-to-r from-zinc-50 to-zinc-100 border-b py-2">
+    <CardHeader className="border-b py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
