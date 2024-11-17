@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Printer, Copy } from "lucide-react";
+import { ArrowLeft, Edit, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
 
 interface EventHeaderProps {
   eventCode: string;
@@ -11,16 +10,6 @@ interface EventHeaderProps {
 
 export const EventHeader = ({ eventCode, onPrint }: EventHeaderProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleCopyEventCode = async () => {
-    if (eventCode) {
-      await navigator.clipboard.writeText(eventCode);
-      toast({
-        description: "Event code copied to clipboard",
-      });
-    }
-  };
 
   const handleEditBasicDetails = () => {
     if (eventCode) {
@@ -52,14 +41,6 @@ export const EventHeader = ({ eventCode, onPrint }: EventHeaderProps) => {
         <Button onClick={onPrint} variant="outline" size="sm">
           <Printer className="h-4 w-4 mr-2" />
           Print
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="print:hidden"
-          onClick={handleCopyEventCode}
-        >
-          <Copy className="h-4 w-4" />
         </Button>
       </div>
     </div>
