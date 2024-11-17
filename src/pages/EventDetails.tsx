@@ -135,7 +135,7 @@ const EventDetails = () => {
             onCustomMenuToggle={setIsCustomMenu}
           />
         </div>
-        <div className="bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:rounded-none">
+        <div className="bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:rounded-none print:absolute print:inset-0">
           <div className="pl-0 pr-6 mb-6 print:hidden">
             <EventInfo 
               event={event}
@@ -144,7 +144,7 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="print:block px-6 pb-8 print:p-8">
+          <div className="print:block px-6 pb-8 print:p-12">
             <WeddingMenuPlanner 
               eventCode={event.event_code} 
               eventName={event.name}

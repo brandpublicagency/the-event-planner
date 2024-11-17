@@ -26,6 +26,16 @@
       height: 297mm;
       margin: 0;
       padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .print\\:block, .print\\:block * {
+      visibility: visible;
     }
   }
 
