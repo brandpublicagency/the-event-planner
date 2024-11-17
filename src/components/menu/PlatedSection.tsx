@@ -17,9 +17,9 @@ const PlatedSection = ({
   onPlatedSaladSelectionChange,
 }: PlatedSectionProps) => {
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="text-zinc-600 mb-2">MAIN COURSE</div>
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h4 className="text-xs font-medium text-zinc-500">MAIN COURSE</h4>
         {!platedMainSelection ? (
           <MenuDropdown
             value={platedMainSelection}
@@ -36,8 +36,8 @@ const PlatedSection = ({
         )}
       </div>
 
-      <div className="space-y-4">
-        <div className="text-zinc-600 mb-2">TABLE SALAD</div>
+      <div className="space-y-1">
+        <h4 className="text-xs font-medium text-zinc-500">TABLE SALAD</h4>
         {!platedSaladSelection ? (
           <MenuDropdown
             value={platedSaladSelection}

@@ -47,8 +47,8 @@ const KarooSection = ({
     onSelect: (value: string) => void,
     maxSelections: number = 2
   ) => (
-    <div className="space-y-4">
-      <div className="text-zinc-600 mb-2">{title}</div>
+    <div className="space-y-1">
+      <h4 className="text-xs font-medium text-zinc-500">{title}</h4>
       {selections.map((selection) => {
         const option = options.find(opt => opt.value === selection);
         return (
@@ -71,9 +71,9 @@ const KarooSection = ({
   );
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="text-zinc-600 mb-2">MEAT SELECTION</div>
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h4 className="text-xs font-medium text-zinc-500">MEAT SELECTION</h4>
         {!karooMeatSelection ? (
           <MenuDropdown
             value={karooMeatSelection}
@@ -85,7 +85,6 @@ const KarooSection = ({
           <SelectionDisplay
             label={karooMeatOptions.find(opt => opt.value === karooMeatSelection)?.label || ''}
             onRemove={() => onKarooMeatSelectionChange('')}
-            actionLabel="Change"
           />
         )}
       </div>
@@ -104,20 +103,19 @@ const KarooSection = ({
         handleVegetableSelection
       )}
 
-      <div className="space-y-4">
-        <div className="text-zinc-600 mb-2">TABLE SALAD</div>
+      <div className="space-y-1">
+        <h4 className="text-xs font-medium text-zinc-500">TABLE SALAD</h4>
         {!karooSaladSelection ? (
           <MenuDropdown
             value={karooSaladSelection}
             onValueChange={onKarooSaladSelectionChange}
             options={saladOptions}
-            placeholder="Select a salad"
+            placeholder="Choose one salad"
           />
         ) : (
           <SelectionDisplay
             label={saladOptions.find(opt => opt.value === karooSaladSelection)?.label || ''}
             onRemove={() => onKarooSaladSelectionChange('')}
-            actionLabel="Change"
           />
         )}
       </div>
