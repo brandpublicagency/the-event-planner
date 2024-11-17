@@ -38,11 +38,13 @@
     /* Show the menu content */
     .print-container {
       display: block !important;
-      position: absolute;
-      left: 0;
-      top: 0;
       width: 210mm;
       min-height: 297mm;
+      padding: 20mm;
+      margin: 0 auto;
+      background: white;
+      box-shadow: none;
+      border-radius: 0;
     }
   }
 

@@ -64,10 +64,6 @@ const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuTo
   return (
     <div className="mt-4 print:mt-0">
       <div className="space-y-4">
-        <div className="print:mb-8">
-          <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>
-          {eventName && <h2 className="hidden print:block text-xl text-center text-muted-foreground mb-6">{eventName}</h2>}
-        </div>
         <MenuContent 
           menuState={menuState}
           onMenuStateChange={handleMenuStateChange}
