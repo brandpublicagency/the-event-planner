@@ -90,7 +90,7 @@ const MenuContent = ({
             buffetStarchSelections={menuState.buffetStarchSelections}
             buffetSaladSelection={menuState.buffetSaladSelection}
             karooMeatSelection={menuState.karooMeatSelection}
-            karooStarchSelection={menuState.karooStarchSelection}
+            karooStarchSelection={menuState.karooStarchSelection || []} // Ensure it's always an array
             karooVegetableSelections={menuState.karooVegetableSelections}
             karooSaladSelection={menuState.karooSaladSelection}
             platedMainSelection={menuState.platedMainSelection}
@@ -102,7 +102,7 @@ const MenuContent = ({
               onMenuStateChange('buffetStarchSelections', []);
               onMenuStateChange('buffetSaladSelection', '');
               onMenuStateChange('karooMeatSelection', '');
-              onMenuStateChange('karooStarchSelection', '');
+              onMenuStateChange('karooStarchSelection', []);  // Initialize as empty array
               onMenuStateChange('karooVegetableSelections', []);
               onMenuStateChange('karooSaladSelection', '');
               onMenuStateChange('platedMainSelection', '');

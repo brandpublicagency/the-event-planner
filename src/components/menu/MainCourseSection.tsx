@@ -13,7 +13,7 @@ interface MainCourseSectionProps {
   buffetStarchSelections?: string[];
   buffetSaladSelection?: string;
   karooMeatSelection?: string;
-  karooStarchSelection?: string[];  // Changed from string to string[]
+  karooStarchSelection: string[];  // Changed from string to string[]
   karooVegetableSelections?: string[];
   karooSaladSelection?: string;
   platedMainSelection?: string;
