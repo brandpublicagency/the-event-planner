@@ -144,7 +144,7 @@ const NewEvent = () => {
         <div className="mb-8 space-y-4">
           <Button 
             variant="ghost" 
-            className="h-8 px-2 lg:px-3 -ml-2"
+            className="h-8 px-2 lg:px-3 -ml-2 focus:ring-0 focus:ring-offset-0"
             onClick={() => navigate("/events")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
