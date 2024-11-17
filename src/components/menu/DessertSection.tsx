@@ -48,23 +48,20 @@ const DessertSection = ({
             value={selectedDessert}
             onValueChange={onDessertChange}
             options={dessertTypes}
-            placeholder="Select dessert type"
+            placeholder="Select dessert option"
           />
         ) : (
-          <div>
-            <div className="text-sm font-medium text-zinc-500 mb-1">DESSERT TYPE</div>
-            <SelectionDisplay
-              label={`${dessertTypes.find(type => type.value === selectedDessert)?.label} - R ${dessertTypes.find(type => type.value === selectedDessert)?.price.toFixed(2)} ${dessertTypes.find(type => type.value === selectedDessert)?.priceType === 'per_person' ? 'per person' : 'per item'}`}
-              onRemove={() => onDessertChange('')}
-              actionLabel="Change"
-            />
-          </div>
+          <SelectionDisplay
+            label={`${dessertTypes.find(type => type.value === selectedDessert)?.label} - R ${dessertTypes.find(type => type.value === selectedDessert)?.price.toFixed(2)} ${dessertTypes.find(type => type.value === selectedDessert)?.priceType === 'per_person' ? 'per person' : 'per item'}`}
+            onRemove={() => onDessertChange('')}
+            actionLabel="Change"
+          />
         )}
       </div>
 
       {selectedDessert === 'traditional' && (
         <div className="space-y-1">
-          <div className="text-sm font-medium text-zinc-500">TRADITIONAL BAKED DESSERT</div>
+          <div className="text-xs font-medium text-zinc-500">TRADITIONAL BAKED DESSERT</div>
           {!selectedTraditionalDessert ? (
             <MenuDropdown
               value={selectedTraditionalDessert}
@@ -83,7 +80,7 @@ const DessertSection = ({
 
       {selectedDessert === 'canapes' && (
         <div className="space-y-1">
-          <div className="text-sm font-medium text-zinc-500">DESSERT CANAPÉS (Choose 3)</div>
+          <div className="text-xs font-medium text-zinc-500">DESSERT CANAPÉS (Choose 3)</div>
           {selectedDessertCanapes.map((selection) => (
             <SelectionDisplay
               key={selection}
@@ -104,7 +101,7 @@ const DessertSection = ({
 
       {selectedDessert === 'cakes' && (
         <div className="space-y-1">
-          <div className="text-sm font-medium text-zinc-500">INDIVIDUAL CAKES</div>
+          <div className="text-xs font-medium text-zinc-500">INDIVIDUAL CAKES</div>
           {selectedIndividualCakes.map((selection) => (
             <SelectionDisplay
               key={selection}

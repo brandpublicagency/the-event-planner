@@ -56,8 +56,8 @@ const MainCourseSection = ({
   onPlatedSaladSelectionChange,
 }: MainCourseSectionProps) => {
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-4">
+      <div className="space-y-1">
         {!selectedMainCourse ? (
           <MenuDropdown
             value={selectedMainCourse}
@@ -66,14 +66,11 @@ const MainCourseSection = ({
             placeholder="Select main course option"
           />
         ) : (
-          <div>
-            <div className="text-zinc-600 mb-2">MENU TYPE</div>
-            <SelectionDisplay
-              label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
-              onRemove={() => onMainCourseChange('')}
-              actionLabel="Change"
-            />
-          </div>
+          <SelectionDisplay
+            label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
+            onRemove={() => onMainCourseChange('')}
+            actionLabel="Change"
+          />
         )}
       </div>
 

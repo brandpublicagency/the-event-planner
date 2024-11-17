@@ -56,7 +56,7 @@ const BuffetSection = ({
     maxSelections: number = 2
   ) => (
     <div className="space-y-1">
-      <h4 className="text-sm font-medium text-zinc-500">{title}</h4>
+      <h4 className="text-xs font-medium text-zinc-500">{title}</h4>
       {selections.map((selection) => {
         const option = options.find(opt => opt.value === selection);
         return (
@@ -102,7 +102,7 @@ const BuffetSection = ({
       )}
 
       <div className="space-y-1">
-        <h4 className="text-sm font-medium text-zinc-500">TABLE SALAD</h4>
+        <h4 className="text-xs font-medium text-zinc-500">TABLE SALAD</h4>
         {!buffetSaladSelection ? (
           <MenuDropdown
             value={buffetSaladSelection}
