@@ -2,28 +2,30 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Check } from 'lucide-react';
 import { starterTypes, mainCourseTypes, dessertTypes, otherOptions } from '@/components/menu/MenuTypes';
+import { calculatePrices } from './menuPriceCalculator';
+import { MenuState, SaveMenuData } from './menuStateTypes';
 
 export const useMenuState = (eventCode: string, toast: any) => {
-  const [menuState, setMenuState] = useState({
+  const [menuState, setMenuState] = useState<MenuState>({
     isCustomMenu: false,
     customMenuDetails: '',
     selectedStarterType: '',
     selectedCanapePackage: '',
-    selectedCanapes: [] as string[],
+    selectedCanapes: [],
     selectedPlatedStarter: '',
     mainCourseType: '',
-    buffetMeatSelections: [] as string[],
-    buffetVegetableSelections: [] as string[],
-    buffetStarchSelections: [] as string[],
+    buffetMeatSelections: [],
+    buffetVegetableSelections: [],
+    buffetStarchSelections: [],
     buffetSaladSelection: '',
     karooMeatSelection: '',
-    karooStarchSelection: [] as string[], // Initialize as empty array
-    karooVegetableSelections: [] as string[],
+    karooStarchSelection: [], // Initialize as empty array
+    karooVegetableSelections: [],
     karooSaladSelection: '',
     platedMainSelection: '',
     platedSaladSelection: '',
     dessertType: '',
-    otherSelections: [] as string[],
+    otherSelections: [],
     notes: '',
   });
 
@@ -58,7 +60,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
             buffetStarchSelections: data.buffet_starch_selections || [],
             buffetSaladSelection: data.buffet_salad_selection || '',
             karooMeatSelection: data.karoo_meat_selection || '',
-            karooStarchSelection: data.karoo_starch_selection || [], // Ensure it's an array
+            karooStarchSelection: Array.isArray(data.karoo_starch_selection) ? data.karoo_starch_selection : [],
             karooVegetableSelections: data.karoo_vegetable_selections || [],
             karooSaladSelection: data.karoo_salad_selection || '',
             platedMainSelection: data.plated_main_selection || '',
@@ -79,57 +81,11 @@ export const useMenuState = (eventCode: string, toast: any) => {
     fetchMenuSelections();
   }, [eventCode]);
 
-  const calculatePrices = () => {
-    let starterPrice = 0;
-    let mainCoursePrice = 0;
-    let dessertPrice = 0;
-    let otherTotalPrice = 0;
-
-    // Calculate starter price
-    if (menuState.selectedStarterType) {
-      const starter = starterTypes.find(s => s.value === menuState.selectedStarterType);
-      if (starter) {
-        starterPrice = starter.price;
-      }
-    }
-
-    // Calculate main course price
-    if (menuState.mainCourseType) {
-      const mainCourse = mainCourseTypes.find(m => m.value === menuState.mainCourseType);
-      if (mainCourse) {
-        mainCoursePrice = mainCourse.price;
-      }
-    }
-
-    // Calculate dessert price
-    if (menuState.dessertType) {
-      const dessert = dessertTypes.find(d => d.value === menuState.dessertType);
-      if (dessert) {
-        dessertPrice = dessert.price;
-      }
-    }
-
-    // Calculate other options total
-    menuState.otherSelections.forEach(selection => {
-      const option = otherOptions.find(o => o.value === selection);
-      if (option) {
-        otherTotalPrice += option.price;
-      }
-    });
-
-    return {
-      starterPrice,
-      mainCoursePrice,
-      dessertPrice,
-      otherTotalPrice
-    };
-  };
-
   const saveMenuSelections = async () => {
     try {
-      const prices = calculatePrices();
+      const prices = calculatePrices(menuState);
       
-      const menuData = {
+      const menuData: SaveMenuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
         custom_menu_details: menuState.customMenuDetails,
@@ -179,22 +135,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     }
   };
 
-  const handleCustomMenuToggle = (checked: boolean) => {
-    setMenuState(prev => ({
-      ...prev,
-      isCustomMenu: checked,
-    }));
-  };
-
-  const handleCanapeSelection = (position: number, value: string) => {
-    setMenuState(prev => {
-      const newCanapes = [...prev.selectedCanapes];
-      newCanapes[position - 1] = value;
-      return { ...prev, selectedCanapes: newCanapes };
-    });
-  };
-
-  const handleMenuStateChange = (field: string, value: any) => {
+  const handleMenuStateChange = (field: keyof MenuState, value: any) => {
     setMenuState(prev => ({ ...prev, [field]: value }));
   };
 
@@ -202,8 +143,6 @@ export const useMenuState = (eventCode: string, toast: any) => {
     menuState,
     error,
     isLoading,
-    handleCustomMenuToggle,
-    handleCanapeSelection,
     handleMenuStateChange,
     saveMenuSelections,
   };
