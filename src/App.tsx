@@ -11,6 +11,7 @@ import { TaskProvider } from "@/contexts/TaskContext";
 import Sidebar from "./components/Sidebar";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
+import PassedEvents from "./pages/PassedEvents";
 import Calendar from "./pages/Calendar";
 import NewEvent from "./pages/NewEvent";
 import EditEvent from "./pages/EditEvent";
@@ -106,6 +107,16 @@ const App = () => (
                   <PrivateRoute>
                     <RootLayout>
                       <Events />
+                    </RootLayout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/passed-events"
+                element={
+                  <PrivateRoute>
+                    <RootLayout>
+                      <PassedEvents />
                     </RootLayout>
                   </PrivateRoute>
                 }

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { Event } from "@/types/event";
 import {
   AlertDialog,
@@ -36,6 +37,28 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
     });
   };
 
+  const handleComplete = async (eventCode: string, completed: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ completed })
+        .eq('event_code', eventCode);
+
+      if (error) throw error;
+
+      toast({
+        title: completed ? "Event Completed" : "Event Restored",
+        description: completed ? "Event marked as completed" : "Event marked as active",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getVenueNames = (event: Event) => {
     if (!event.event_venues || event.event_venues.length === 0) return 'No venues';
     return event.event_venues.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
@@ -62,7 +85,11 @@ const EventsTable = ({ groupedEvents, handleDelete }: EventsTableProps) => {
                       <div className="flex flex-col gap-2.5 min-w-0">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
-                            <Checkbox />
+                            <Checkbox 
+                              className="rounded-[2px] border-zinc-300 data-[state=checked]:border-zinc-300"
+                              checked={event.completed}
+                              onCheckedChange={(checked) => handleComplete(event.event_code, checked as boolean)}
+                            />
                             <button
                               onClick={() => navigate(`/events/${event.event_code}`)}
                               className="text-[11px] px-2 py-0.5 border border-zinc-200 rounded text-zinc-600 hover:bg-zinc-50 transition-colors"

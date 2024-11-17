@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Bell, Wallet, ListTodo } from "lucide-react";
+import { LayoutGrid, FileText, Bell, Wallet, ListTodo, Archive } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -30,6 +30,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const mainNavItems = [
     { icon: LayoutGrid, path: "/", label: "Dashboard" },
     { icon: FileText, path: "/events", label: "Events" },
+    { icon: Archive, path: "/passed-events", label: "Passed Events" },
     { icon: Wallet, path: "/calendar", label: "Calendar" },
     { icon: Bell, path: "/notifications", label: "Notification" },
   ];

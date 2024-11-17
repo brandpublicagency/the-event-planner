@@ -13,6 +13,7 @@ export interface Event {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  completed: boolean;
   
   // Related tables
   venues?: {
