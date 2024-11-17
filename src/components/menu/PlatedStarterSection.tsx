@@ -26,9 +26,9 @@ const PlatedStarterSection = ({
       ) : (
         <SelectionDisplay
           label={selectedOption?.label || ''}
-          price={{ value: 120.00, type: 'per_person' }}
           onRemove={() => onPlatedStarterChange('')}
           actionLabel="Change"
+          showPrice={false}
         />
       )}
     </div>

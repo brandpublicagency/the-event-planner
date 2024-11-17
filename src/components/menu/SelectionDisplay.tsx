@@ -5,13 +5,15 @@ interface SelectionDisplayProps {
   price?: { value: number; type: 'per_person' | 'per_item' };
   onRemove: () => void;
   actionLabel?: string;
+  showPrice?: boolean;
 }
 
 const SelectionDisplay = ({ 
   label, 
   price,
   onRemove, 
-  actionLabel = "Remove" 
+  actionLabel = "Remove",
+  showPrice = false
 }: SelectionDisplayProps) => {
   const formatPrice = (price: { value: number; type: 'per_person' | 'per_item' }) => {
     return `R ${price.value.toFixed(2)} ${price.type === 'per_person' ? 'per person' : 'per item'}`;
@@ -21,7 +23,7 @@ const SelectionDisplay = ({
     <div className="flex justify-between items-center">
       <div className="flex-1">
         <span>{label}</span>
-        {price && (
+        {showPrice && price && (
           <span className="text-sm text-muted-foreground ml-2">
             ({formatPrice(price)})
           </span>

@@ -38,6 +38,7 @@ const StarterTypeSelect = ({
           } : undefined}
           onRemove={() => onStarterTypeChange('')}
           actionLabel="Change"
+          showPrice={true}
         />
       )}
     </div>
