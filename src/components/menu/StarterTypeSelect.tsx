@@ -15,6 +15,13 @@ const StarterTypeSelect = ({
 }: StarterTypeSelectProps) => {
   const selectedType = starterTypes.find(s => s.value === selectedStarterType);
 
+  const formatPrice = (type: typeof starterTypes[0]) => {
+    if (type.priceRange) {
+      return `R ${type.priceRange.min.toFixed(2)} - R ${type.priceRange.max.toFixed(2)} per person`;
+    }
+    return `R ${type.price.toFixed(2)} per person`;
+  };
+
   return (
     <div className="space-y-4">
       <SelectionHeader title="STARTER TYPE" />
@@ -26,13 +33,14 @@ const StarterTypeSelect = ({
             value: type.value,
             label: type.label,
             price: type.price,
+            priceRange: type.priceRange,
             priceType: 'per_person'
           }))}
           placeholder="Choose starter option"
         />
       ) : (
         <SelectionDisplay
-          label={`${selectedType?.label} - R ${selectedType?.price.toFixed(2)} per person`}
+          label={`${selectedType?.label} - ${formatPrice(selectedType!)}`}
           onRemove={() => onStarterTypeChange('')}
           actionLabel="Change"
         />
