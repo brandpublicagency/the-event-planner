@@ -44,11 +44,14 @@ export const EventInfo = ({ event, formattedDate, formattedTime, venueNames }: E
       </div>
 
       <div className="flex flex-wrap gap-2 text-sm text-zinc-600 print:text-sm">
-        <Badge variant="secondary">{formattedDate}</Badge>
-        {formattedTime && <Badge variant="secondary">{formattedTime}</Badge>}
-        <Badge variant="secondary">{event.event_type}</Badge>
-        <Badge variant="secondary">{event.pax || 'No'} Guests</Badge>
-        <Badge variant="secondary">{venueNames}</Badge>
+        <Badge variant="secondary">{formattedDate}, {formattedTime}</Badge>
+        <Badge variant="secondary" className="font-semibold">{event.pax} Guests</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{venueNames}</Badge>
+          <Badge variant="outline" className="text-xs bg-zinc-100">
+            {event.event_type}
+          </Badge>
+        </div>
       </div>
     </div>
   );
