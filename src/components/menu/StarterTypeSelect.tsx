@@ -1,6 +1,5 @@
 import React from 'react';
 import { starterTypes } from './MenuTypes';
-import SelectionHeader from './SelectionHeader';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -24,7 +23,6 @@ const StarterTypeSelect = ({
 
   return (
     <div className="space-y-4">
-      <SelectionHeader title="STARTER TYPE" />
       {!selectedStarterType ? (
         <MenuDropdown
           value={selectedStarterType}
@@ -39,11 +37,14 @@ const StarterTypeSelect = ({
           placeholder="Choose starter option"
         />
       ) : (
-        <SelectionDisplay
-          label={`${selectedType?.label} - ${formatPrice(selectedType!)}`}
-          onRemove={() => onStarterTypeChange('')}
-          actionLabel="Change"
-        />
+        <div>
+          <div className="text-zinc-600 mb-2">{selectedType?.label.toUpperCase()} - {formatPrice(selectedType!)}</div>
+          <SelectionDisplay
+            label={`${selectedType?.label}`}
+            onRemove={() => onStarterTypeChange('')}
+            actionLabel="Change"
+          />
+        </div>
       )}
     </div>
   );

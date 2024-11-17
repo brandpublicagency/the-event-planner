@@ -44,7 +44,7 @@ const MenuDropdown = ({
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-full justify-between font-normal rounded-[7px] bg-white hover:bg-white"
+          className="w-full justify-between font-normal rounded-[7px] bg-white hover:bg-white text-zinc-600"
         >
           {selectedOption ? (
             <span className="flex-1 text-left">
