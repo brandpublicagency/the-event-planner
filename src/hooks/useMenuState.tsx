@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Check } from 'lucide-react';
-import { starterTypes, mainCourseTypes, dessertTypes, otherOptions } from '@/components/menu/MenuTypes';
 import { calculatePrices } from './menuPriceCalculator';
 import { MenuState, SaveMenuData } from './menuStateTypes';
 
@@ -81,6 +80,20 @@ export const useMenuState = (eventCode: string, toast: any) => {
     fetchMenuSelections();
   }, [eventCode]);
 
+  const handleMenuStateChange = (field: keyof MenuState, value: any) => {
+    setMenuState(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCustomMenuToggle = (checked: boolean) => {
+    handleMenuStateChange('isCustomMenu', checked);
+  };
+
+  const handleCanapeSelection = (position: number, value: string) => {
+    const newCanapes = [...menuState.selectedCanapes];
+    newCanapes[position - 1] = value;
+    handleMenuStateChange('selectedCanapes', newCanapes);
+  };
+
   const saveMenuSelections = async () => {
     try {
       const prices = calculatePrices(menuState);
@@ -135,15 +148,13 @@ export const useMenuState = (eventCode: string, toast: any) => {
     }
   };
 
-  const handleMenuStateChange = (field: keyof MenuState, value: any) => {
-    setMenuState(prev => ({ ...prev, [field]: value }));
-  };
-
   return {
     menuState,
     error,
     isLoading,
     handleMenuStateChange,
+    handleCustomMenuToggle,
+    handleCanapeSelection,
     saveMenuSelections,
   };
 };

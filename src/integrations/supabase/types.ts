@@ -236,7 +236,7 @@ export type Database = {
           is_custom: boolean | null
           karoo_meat_selection: string | null
           karoo_salad_selection: string | null
-          karoo_starch_selection: string | null
+          karoo_starch_selection: string[] | null
           karoo_vegetable_selections: string[] | null
           main_course_price: number | null
           main_course_type: string | null
@@ -265,7 +265,7 @@ export type Database = {
           is_custom?: boolean | null
           karoo_meat_selection?: string | null
           karoo_salad_selection?: string | null
-          karoo_starch_selection?: string | null
+          karoo_starch_selection?: string[] | null
           karoo_vegetable_selections?: string[] | null
           main_course_price?: number | null
           main_course_type?: string | null
@@ -294,7 +294,7 @@ export type Database = {
           is_custom?: boolean | null
           karoo_meat_selection?: string | null
           karoo_salad_selection?: string | null
-          karoo_starch_selection?: string | null
+          karoo_starch_selection?: string[] | null
           karoo_vegetable_selections?: string[] | null
           main_course_price?: number | null
           main_course_type?: string | null
