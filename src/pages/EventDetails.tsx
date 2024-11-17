@@ -62,7 +62,21 @@ const EventDetails = () => {
   });
 
   const handlePrint = () => {
+    const printContent = document.querySelector('.print-container');
+    const originalDisplay = document.body.style.display;
+    const originalVisibility = document.body.style.visibility;
+    
+    // Prepare for printing
+    document.body.style.visibility = 'hidden';
+    if (printContent) {
+      printContent.style.visibility = 'visible';
+    }
+    
     window.print();
+    
+    // Restore original styles
+    document.body.style.visibility = originalVisibility;
+    document.body.style.display = originalDisplay;
   };
 
   if (isLoading) {
