@@ -230,6 +230,7 @@ export type Database = {
           canape_selections: string[] | null
           created_at: string
           custom_menu_details: string | null
+          dessert_canapes: string[] | null
           dessert_price: number | null
           dessert_type: string | null
           event_code: string
@@ -259,6 +260,7 @@ export type Database = {
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
+          dessert_canapes?: string[] | null
           dessert_price?: number | null
           dessert_type?: string | null
           event_code: string
@@ -288,6 +290,7 @@ export type Database = {
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
+          dessert_canapes?: string[] | null
           dessert_price?: number | null
           dessert_type?: string | null
           event_code?: string
