@@ -74,10 +74,6 @@
   .border-gradient {
     @apply relative bg-card rounded-lg border;
   }
-
-  .text-muted-foreground {
-    @apply text-muted-foreground;
-  }
 }
 
 .rdp {
