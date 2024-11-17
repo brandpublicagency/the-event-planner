@@ -40,14 +40,12 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium text-zinc-900">
-          {date ? format(date, "MMMM d, yyyy") : "Events"}
-        </h4>
+      <div className="flex items-center justify-end">
         <Button
           size="sm"
+          variant="outline"
           onClick={handleAddEvent}
-          className="h-8 px-3 flex items-center gap-1 bg-zinc-900 hover:bg-zinc-800"
+          className="h-8 px-3 flex items-center gap-1 hover:bg-zinc-50"
         >
           <PlusCircle className="h-4 w-4" />
           Add event

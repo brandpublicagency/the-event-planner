@@ -153,10 +153,7 @@ const Calendar = () => {
 
         <Card className="p-6 bg-white border border-zinc-200">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium text-zinc-900">
-                Events for {format(date || new Date(), "MMMM d, yyyy")}
-              </h4>
+            <div className="flex items-center justify-end">
               {isEventsLoading && (
                 <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
               )}
