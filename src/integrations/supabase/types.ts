@@ -244,6 +244,7 @@ export type Database = {
           main_course_type: string | null
           notes: string | null
           other_selections: string[] | null
+          other_selections_quantities: Json | null
           other_total_price: number | null
           plated_main_selection: string | null
           plated_salad_selection: string | null
@@ -276,6 +277,7 @@ export type Database = {
           main_course_type?: string | null
           notes?: string | null
           other_selections?: string[] | null
+          other_selections_quantities?: Json | null
           other_total_price?: number | null
           plated_main_selection?: string | null
           plated_salad_selection?: string | null
@@ -308,6 +310,7 @@ export type Database = {
           main_course_type?: string | null
           notes?: string | null
           other_selections?: string[] | null
+          other_selections_quantities?: Json | null
           other_total_price?: number | null
           plated_main_selection?: string | null
           plated_salad_selection?: string | null
