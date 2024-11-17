@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -35,24 +34,12 @@ const NewClient = () => {
           <CardTitle>New Client</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Company Name</Label>
-              <Input id="name" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" />
-            </div>
-            <div className="pt-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <Input id="name" placeholder="Company Name" required />
+            <Input id="email" type="email" placeholder="Email" required />
+            <Input id="phone" type="tel" placeholder="Phone" />
+            <Input id="address" placeholder="Address" />
+            <div className="pt-2">
               <Button type="submit">Create Client</Button>
             </div>
           </form>

@@ -1,4 +1,4 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormData } from "@/types/eventForm";
@@ -9,15 +9,14 @@ interface CompanyDetailsProps {
 
 const CompanyDetails = ({ form }: CompanyDetailsProps) => {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <FormField
         control={form.control}
         name="company_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Company Name</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} placeholder="Company Name" className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -29,9 +28,8 @@ const CompanyDetails = ({ form }: CompanyDetailsProps) => {
         name="contact_person"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Contact Person</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} placeholder="Contact Person" className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -43,9 +41,8 @@ const CompanyDetails = ({ form }: CompanyDetailsProps) => {
         name="company_vat"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">VAT Number</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} placeholder="VAT Number" className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -57,9 +54,8 @@ const CompanyDetails = ({ form }: CompanyDetailsProps) => {
         name="company_address"
         render={({ field }) => (
           <FormItem className="col-span-2">
-            <FormLabel className="text-zinc-600">Company Address</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} placeholder="Company Address" className="bg-white border-zinc-200" />
             </FormControl>
             <FormMessage />
           </FormItem>
