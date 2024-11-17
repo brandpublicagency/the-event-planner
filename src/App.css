@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Remove outline animations */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}

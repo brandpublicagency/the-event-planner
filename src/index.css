@@ -15,6 +15,20 @@
   body {
     @apply bg-zinc-50 text-zinc-900 antialiased text-[0.875rem];
   }
+
+  /* Remove outline animation globally */
+  * {
+    @apply focus:outline-none focus-visible:outline-none;
+  }
+
+  /* Add a subtle border for focus states instead */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply ring-0 ring-offset-0;
+  }
 }
 
 @layer components {
