@@ -55,10 +55,9 @@ export interface SaveMenuData {
   other_total_price: number;
 }
 
-// Database response type matching the actual Supabase schema
 export interface MenuSelectionResponse {
   event_code: string;
-  is_custom: boolean | null;
+  is_custom: boolean;
   custom_menu_details: string | null;
   starter_type: string | null;
   canape_package: string | null;

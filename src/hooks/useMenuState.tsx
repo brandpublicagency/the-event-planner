@@ -70,7 +70,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
             platedSaladSelection: menuData.plated_salad_selection || '',
             dessertType: menuData.dessert_type || '',
             traditionalDessert: menuData.traditional_dessert || '',
-            dessertCanapes: menuData.dessert_canapes || [],
+            dessertCanapes: Array.isArray(menuData.dessert_canapes) ? menuData.dessert_canapes : [],
             individualCakes: menuData.individual_cakes || [],
             otherSelections: menuData.other_selections || [],
             notes: menuData.notes || '',
