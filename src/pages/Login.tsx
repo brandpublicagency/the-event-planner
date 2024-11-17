@@ -61,7 +61,7 @@ const Login = () => {
               Sign in to your account
             </h1>
             <p className="text-sm text-zinc-500">
-              Enter your email below to receive a magic link
+              Enter your email and password to sign in
             </p>
           </div>
 
@@ -96,10 +96,10 @@ const Login = () => {
                 },
               },
               className: {
-                container: 'w-full [&>form>div]:space-y-[15px] [&>form>button]:mt-5', // Added margin-top to button
+                container: 'w-full [&>form>div]:space-y-[15px] [&>form>button]:mt-5',
                 button: 'w-full bg-zinc-900 text-white hover:bg-zinc-800 text-left',
                 input: 'w-full',
-                label: 'hidden', // Hide labels
+                label: 'hidden',
                 divider: 'my-6',
                 anchor: 'text-zinc-900 hover:text-zinc-800 text-left block',
                 message: 'text-left',
@@ -116,7 +116,7 @@ const Login = () => {
               }
             }}
             providers={[]}
-            magicLink={true}
+            magicLink={false}
             redirectTo={window.location.origin}
             showLinks={false}
           />
