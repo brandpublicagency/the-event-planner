@@ -113,24 +113,6 @@ const Calendar = () => {
     });
   }
 
-  const modifiers = {
-    hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
-    selected: date,
-  };
-
-  const modifiersStyles = {
-    hasEvent: {
-      backgroundColor: 'rgb(250 250 250)',
-      color: '#18181B',
-      fontWeight: '500'
-    },
-    selected: {
-      backgroundColor: '#18181B !important',
-      color: 'white !important',
-      fontWeight: '500'
-    }
-  };
-
   if (isProfileLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -163,9 +145,24 @@ const Calendar = () => {
             mode="single"
             selected={date}
             onSelect={setDate}
-            className={cn("rounded-md", isEventsLoading && "opacity-50 pointer-events-none")}
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
+            className={cn(
+              "rounded-md border-none",
+              isEventsLoading && "opacity-50 pointer-events-none"
+            )}
+            modifiers={{
+              hasEvent: events?.map(event => event.event_date ? new Date(event.event_date) : null).filter(Boolean) || [],
+              selected: date,
+            }}
+            modifiersStyles={{
+              hasEvent: {
+                fontWeight: '500'
+              },
+              selected: {
+                backgroundColor: '#18181B !important',
+                color: 'white !important',
+                fontWeight: '500'
+              }
+            }}
             showOutsideDays={false}
           />
         </Card>
