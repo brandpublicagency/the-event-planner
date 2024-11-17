@@ -150,9 +150,9 @@ const EventDetails = () => {
           />
         </div>
         <div className="print-container bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none">
-          <div className="print:mb-8">
-            <h1 className="hidden print:block text-2xl font-semibold text-center mb-2">Menu Selection</h1>
-            {event.name && <h2 className="hidden print:block text-xl text-center text-muted-foreground mb-6">{event.name}</h2>}
+          <div className="print-header">
+            <h1 className="hidden print:block text-2xl font-semibold mb-2">Menu Selection</h1>
+            {event.name && <h2 className="hidden print:block text-xl text-zinc-500">{event.name}</h2>}
           </div>
           <div className="pl-0 pr-6 mb-6 print:hidden">
             <EventInfo 
@@ -162,7 +162,7 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="px-6 pb-8 print:p-8">
+          <div className="px-6 pb-8 print:p-0">
             <WeddingMenuPlanner 
               eventCode={event.event_code} 
               eventName={event.name}
