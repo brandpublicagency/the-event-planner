@@ -6,13 +6,35 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 217 33% 17%;
-    --radius: 0.4375rem;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   body {
-    @apply bg-primary-50 text-primary-900 antialiased text-[0.875rem];
+    @apply bg-background text-foreground antialiased text-[0.875rem];
   }
 
   * {
@@ -30,19 +52,19 @@
 
 @layer components {
   .sidebar-icon {
-    @apply h-4 w-4 text-primary-500;
+    @apply h-4 w-4 text-muted-foreground;
   }
   
   .metric-card {
-    @apply rounded-lg bg-white p-5 border border-primary-200;
+    @apply rounded-lg bg-card p-5 border;
   }
   
   .nav-link {
-    @apply flex items-center gap-2.5 rounded-md px-3 py-2 text-primary-600 hover:bg-primary-100 text-sm;
+    @apply flex items-center gap-2.5 rounded-md px-3 py-2 text-muted-foreground hover:bg-accent text-sm;
   }
   
   .nav-link.active {
-    @apply bg-primary-100 text-primary-900;
+    @apply bg-accent text-accent-foreground;
   }
 
   .badge-status {
@@ -50,11 +72,11 @@
   }
 
   .border-gradient {
-    @apply relative bg-white rounded-lg border border-primary-200;
+    @apply relative bg-card rounded-lg border;
   }
 
   .text-muted-foreground {
-    @apply text-primary-500;
+    @apply text-muted-foreground;
   }
 }
 
@@ -63,42 +85,42 @@
 }
 
 .rdp-months {
-  @apply bg-white border border-primary-200 rounded-lg p-4;
+  @apply bg-card border rounded-lg p-4;
 }
 
 .rdp-day_selected, 
 .rdp-day_selected:focus-visible, 
 .rdp-day_selected:hover {
-  @apply bg-primary-50 text-primary-900 border border-primary-200;
+  @apply bg-accent text-accent-foreground border;
 }
 
 .rdp-day_today {
-  @apply font-normal border border-primary-200;
+  @apply font-normal border;
 }
 
 .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  @apply bg-primary-50;
+  @apply bg-muted;
 }
 
 [data-radix-popper-content-wrapper] {
-  @apply !bg-white;
+  @apply !bg-popover;
 }
 
 .dropdown-content {
-  @apply bg-white border border-primary-200 rounded-[7px] shadow-md;
+  @apply bg-popover border rounded-[7px] shadow-md;
 }
 
 [data-state="open"] [data-radix-select-trigger],
 [data-state="closed"] [data-radix-select-trigger]:hover {
-  @apply !bg-white;
+  @apply !bg-popover;
 }
 
 [data-radix-select-trigger] {
-  @apply !ring-0 !ring-offset-0 rounded-[7px] bg-white hover:bg-white;
+  @apply !ring-0 !ring-offset-0 rounded-[7px] bg-popover hover:bg-popover;
 }
 
 [data-radix-select-content] {
-  @apply bg-white border border-primary-200 rounded-[7px] shadow-md overflow-hidden;
+  @apply bg-popover border rounded-[7px] shadow-md overflow-hidden;
 }
 
 [data-radix-select-item] {
