@@ -32,8 +32,8 @@ function Calendar({
         head_row: "flex",
         head_cell:
           "text-zinc-600 rounded-md w-9 font-normal text-[0.8rem] h-9 flex items-center justify-center",
-        row: "flex w-full mt-6",
-        cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 mt-2",
+        row: "flex w-full mt-2",
+        cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 mt-2 mr-2",
         day: cn(
           "h-9 w-9 p-0 font-normal text-zinc-900 rounded-md border border-transparent",
           "hover:bg-zinc-100 hover:text-zinc-900 hover:border-zinc-200",
