@@ -64,29 +64,29 @@
   .text-muted-foreground {
     @apply text-zinc-500 dark:text-zinc-400;
   }
+}
 
-  /* Calendar Specific Styles */
-  .rdp {
-    @apply p-0 w-full max-w-[400px] mx-auto;
-  }
-  
-  .rdp-months {
-    @apply bg-white border border-zinc-200 rounded-lg p-4;
-  }
-  
-  .rdp-day_selected, 
-  .rdp-day_selected:focus-visible, 
-  .rdp-day_selected:hover {
-    @apply bg-zinc-900 text-white;
-  }
-  
-  .rdp-day_today {
-    @apply font-normal border border-zinc-200;
-  }
-  
-  .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-    @apply bg-zinc-50;
-  }
+/* Calendar Specific Styles */
+.rdp {
+  @apply p-0 w-full max-w-[400px] mx-auto;
+}
+
+.rdp-months {
+  @apply bg-white border border-zinc-200 rounded-lg p-4;
+}
+
+.rdp-day_selected, 
+.rdp-day_selected:focus-visible, 
+.rdp-day_selected:hover {
+  @apply bg-zinc-900 text-white;
+}
+
+.rdp-day_today {
+  @apply font-normal border border-zinc-200;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  @apply bg-zinc-50;
 }
 
 /* Toast animation overrides */
@@ -121,4 +121,22 @@
 
 [data-sonner-toast][data-removing="true"] {
   animation: exit 0.3s ease forwards;
+}
+
+/* Dropdown Menu Overrides */
+[data-radix-popper-content-wrapper] {
+  @apply !bg-white;
+}
+
+.dropdown-content {
+  @apply bg-white border border-zinc-200 rounded-[7px] shadow-md;
+}
+
+[data-state="open"] [data-radix-select-trigger],
+[data-state="closed"] [data-radix-select-trigger]:hover {
+  @apply !bg-white;
+}
+
+[data-radix-select-trigger]:focus {
+  @apply !ring-0 !ring-offset-0;
 }

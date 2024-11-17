@@ -30,7 +30,7 @@ const MenuDropdown = ({
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-full justify-between font-normal"
+          className="w-full justify-between font-normal rounded-[7px] bg-white hover:bg-white"
         >
           {selectedOption ? (
             <span className="flex-1 text-left">
@@ -48,14 +48,14 @@ const MenuDropdown = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-[--radix-dropdown-trigger-width]" 
         align={align}
+        className="dropdown-content w-[--radix-dropdown-trigger-width]"
       >
         {options.map((option) => (
           <DropdownMenuItem
             key={option.value}
             onSelect={() => onValueChange(option.value)}
-            className="flex items-center justify-between"
+            className="flex items-center justify-between hover:bg-transparent focus:bg-transparent"
           >
             <span>
               {option.label}
