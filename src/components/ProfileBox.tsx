@@ -96,7 +96,7 @@ const ProfileBox = () => {
     <div className="h-full">
       <div className="relative h-full">
         <img
-          src="/abstract-waves.jpg"
+          src="https://www.brandpublic.agency/wp-content/uploads/2024/11/cee34d9e-f5bc-42ee-8530-9e4e55a1a702.jpeg"
           alt="Profile Cover"
           className="h-full w-full object-cover"
         />
