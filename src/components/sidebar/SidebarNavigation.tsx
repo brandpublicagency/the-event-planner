@@ -36,19 +36,21 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
               key={item.path} 
               to={item.path}
               className={cn(
-                "flex items-center h-10 rounded-lg",
+                "flex items-center h-10 rounded-lg relative",
                 isCollapsed 
-                  ? "justify-center w-10 mx-auto" 
+                  ? "justify-center w-10 mx-auto transition-colors duration-200" 
                   : "px-3",
                 isActive
-                  ? (isCollapsed ? "bg-[#2A2F3C]" : "bg-gray-100")
-                  : "hover:bg-gray-50",
-                isCollapsed 
-                  ? "text-gray-400 hover:text-white" 
-                  : "text-gray-600"
+                  ? (isCollapsed ? "bg-[#2A2F3C] text-white" : "bg-gray-100")
+                  : isCollapsed 
+                    ? "text-gray-400 hover:bg-[#2A2F3C] hover:text-white" 
+                    : "text-gray-600 hover:bg-gray-50",
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className={cn(
+                "h-5 w-5",
+                isCollapsed && "transition-colors duration-200"
+              )} />
               {!isCollapsed && (
                 <div className="flex flex-1 items-center">
                   <span className="ml-3 text-sm">{item.label}</span>
