@@ -95,5 +95,5 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
   }
 };
 
-// Remove the immediate execution of markSpecificEventAsCompleted
-// as it was causing the PATCH request error
+// Let's mark EVENT-1911-5898 as completed
+markEventAsCompleted('EVENT-1911-5898').catch(console.error);
