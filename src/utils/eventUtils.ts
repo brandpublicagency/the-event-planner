@@ -38,7 +38,7 @@ export const deleteEvent = async (eventCode: string) => {
 export const createEvent = async (data: EventCreate, userId: string) => {
   const eventData = {
     ...data,
-    completed: false // Set default completed status to false
+    completed: false
   };
 
   const { data: eventResponse, error } = await supabase
@@ -90,14 +90,10 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
     .eq('event_code', eventCode);
 
   if (error) {
+    console.error('Error marking event as completed:', error);
     throw new Error(`Failed to mark event as completed: ${error.message}`);
   }
 };
 
-// Let's add a function to mark the specific event as completed
-export const markSpecificEventAsCompleted = async () => {
-  await markEventAsCompleted('EVENT-121124');
-};
-
-// Execute the function immediately
-markSpecificEventAsCompleted().catch(console.error);
+// Remove the immediate execution of markSpecificEventAsCompleted
+// as it was causing the PATCH request error
