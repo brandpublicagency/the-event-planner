@@ -49,7 +49,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen",
+        "relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]",
         isCollapsed ? "w-[80px] bg-[#1A1F2C]" : "w-[280px] bg-white",
         className
       )}
@@ -57,7 +57,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         
-        <div className="flex-1 px-4 py-8">
+        <div className="flex-1 px-4 py-8 overflow-hidden">
           <div className="space-y-8">
             <SidebarNavigation 
               isCollapsed={isCollapsed} 
