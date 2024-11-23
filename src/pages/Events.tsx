@@ -2,19 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/EventsTable";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
-import { groupEventsByMonth } from "@/utils/eventUtils";
+import { groupEventsByMonth, markEventAsCompleted } from "@/utils/eventUtils";
 
 const Events = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const queryClient = useQueryClient();
 
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
@@ -30,7 +31,7 @@ const Events = () => {
             )
           )
         `)
-        .eq('completed', false)  // Only fetch non-completed events
+        .eq('completed', false)
         .order('event_date', { ascending: true });
 
       if (error) {
@@ -51,6 +52,36 @@ const Events = () => {
       })) as Event[];
     },
   });
+
+  // Check for passed events and mark them as completed
+  useEffect(() => {
+    const checkPassedEvents = async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const passedEvents = events.filter(event => {
+        if (!event.event_date) return false;
+        const eventDate = new Date(event.event_date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate < today;
+      });
+
+      for (const event of passedEvents) {
+        try {
+          await markEventAsCompleted(event.event_code);
+        } catch (error) {
+          console.error(`Failed to mark event ${event.event_code} as completed:`, error);
+        }
+      }
+
+      if (passedEvents.length > 0) {
+        // Refetch events to update the list
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+      }
+    };
+
+    checkPassedEvents();
+  }, [events, queryClient]);
 
   const groupedEvents = groupEventsByMonth(events);
 
