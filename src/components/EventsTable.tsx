@@ -62,7 +62,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                   key={event.event_code} 
                   className={isDashboard ? 
                     "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white" : 
-                    "group"
+                    "group p-4"
                   }
                 >
                   {isDashboard ? (
@@ -86,7 +86,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2 p-4">
+                    <div className="flex flex-col gap-2">
                       <h4 className="text-sm font-medium truncate">{event.name}</h4>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" />
