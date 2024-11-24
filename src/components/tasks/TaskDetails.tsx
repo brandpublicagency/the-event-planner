@@ -25,7 +25,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col">
+    <div className="h-full flex flex-col">
       <div className="flex items-start justify-between p-6 border-b">
         <div className="space-y-2">
           <h2 className="text-lg font-medium leading-none">{task.title}</h2>
@@ -58,7 +58,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       </div>
       
       <div className="flex-1 overflow-auto">
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 pb-8">
           <section>
             <div className="flex items-center gap-2 mb-4 text-sm font-medium">
               <CheckSquare className="h-4 w-4" />
