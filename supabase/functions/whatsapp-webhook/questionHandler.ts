@@ -11,7 +11,7 @@ const openai = new OpenAI({
 
 export const handleEventQuestion = async (question: string) => {
   try {
-    // Fetch all non-deleted events with their details
+    // Fetch all non-deleted events with their complete details
     const { data: events } = await supabase
       .from('events')
       .select(`
@@ -23,6 +23,14 @@ export const handleEventQuestion = async (question: string) => {
           venues (
             name
           )
+        ),
+        tasks (
+          id,
+          title,
+          completed,
+          due_date,
+          priority,
+          status
         )
       `)
       .is('deleted_at', null);
@@ -34,26 +42,39 @@ export const handleEventQuestion = async (question: string) => {
       };
     }
 
-    // Prepare context about all events
+    // Prepare context about all events and their related data
     const eventsContext = events.map(event => {
       const venues = event.event_venues?.map(v => v.venues?.name).filter(Boolean).join(', ') || 'No venue specified';
       const date = event.event_date ? new Date(event.event_date).toLocaleDateString() : 'Date not set';
       
-      let details = '';
+      let clientDetails = '';
       if (event.wedding_details) {
-        details = `Wedding of ${event.wedding_details.bride_name} & ${event.wedding_details.groom_name}`;
+        clientDetails = `Wedding of ${event.wedding_details.bride_name} & ${event.wedding_details.groom_name}`;
       } else if (event.corporate_details) {
-        details = `Corporate event for ${event.corporate_details.company_name}`;
+        clientDetails = `Corporate event for ${event.corporate_details.company_name}`;
       }
+
+      const tasks = event.tasks || [];
+      const tasksInfo = tasks.length > 0 
+        ? `\nRelated Tasks:\n${tasks.map(task => 
+          `- ${task.title} (${task.status})`).join('\n')}`
+        : '\nNo related tasks';
+
+      const menuInfo = event.menu_selections 
+        ? `\nMenu Type: ${event.menu_selections.starter_type || 'Not specified'}
+           Main Course: ${event.menu_selections.main_course_type || 'Not specified'}
+           Dessert: ${event.menu_selections.dessert_type || 'Not specified'}`
+        : '\nNo menu selected';
 
       return `Event: ${event.name}
 Type: ${event.event_type}
 Date: ${date}
 Venue: ${venues}
-Details: ${details}
+Details: ${clientDetails}
 Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}
-${event.menu_selections ? `Menu Type: ${event.menu_selections.starter_type || 'Not specified'}` : ''}`;
+${menuInfo}
+${tasksInfo}`;
     }).join('\n\n');
 
     // Get AI to interpret the question and provide an answer
@@ -66,7 +87,14 @@ ${event.menu_selections ? `Menu Type: ${event.menu_selections.starter_type || 'N
 
 ${eventsContext}
 
-Answer questions about these events naturally and conversationally. If you're not sure about something, say so. If the question is about an event that doesn't exist, let them know. Keep responses concise but informative.`
+Answer questions about these events naturally and conversationally. You can provide information about:
+- Event details and schedules
+- Menu selections and catering details
+- Task status and deadlines
+- Venue information
+- Client details
+
+If you're not sure about something, say so. If the question is about an event that doesn't exist, let them know. Keep responses concise but informative.`
         },
         {
           role: "user",
