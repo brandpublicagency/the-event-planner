@@ -44,6 +44,7 @@ const Index = () => {
       return data?.map(event => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ({
+          id: ev.venues?.id,
           name: ev.venues?.name
         })) || []
       })) || [];
@@ -103,6 +104,7 @@ const Index = () => {
             <EventsTable 
               groupedEvents={groupedEvents}
               handleDelete={handleDelete}
+              isDashboard={true}
             />
           </div>
         </div>
