@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom";
 
 interface Task {
   id: string;
@@ -16,7 +15,6 @@ interface Task {
 
 const TaskList = () => {
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -55,12 +53,7 @@ const TaskList = () => {
           className="group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white"
         >
           <div className="flex items-center justify-between w-full">
-            <button
-              onClick={() => navigate(`/tasks/${task.id}`)}
-              className="text-sm font-medium truncate hover:text-zinc-600 transition-colors text-left"
-            >
-              {task.title}
-            </button>
+            <h4 className="text-sm font-medium truncate">{task.title}</h4>
             <div className="flex items-center gap-3">
               {task.due_date && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

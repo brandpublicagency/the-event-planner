@@ -60,18 +60,13 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                   <div className="flex flex-col gap-2 p-4">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/events/${event.event_code}`)}
                             className="text-sm font-medium text-zinc-900 no-underline hover:no-underline"
                           >
                             {event.name}
                           </button>
-                          {event.event_date && (
-                            <span className="text-xs text-zinc-900">
-                              {format(new Date(event.event_date), 'dd MMMM')}
-                            </span>
-                          )}
                           {!isDashboard && (
                             <button
                               onClick={() => copyEventCode(event.event_code)}
@@ -83,19 +78,14 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-500">
+                          <span className="text-xs text-zinc-900">
+                            <span className="font-medium">
+                              {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
+                            </span>
                             {!isDashboard && (
-                              <>
-                                <span>{event.event_type}</span>
-                                <span className="mx-2">•</span>
-                              </>
-                            )}
-                            <span className="text-zinc-900">{event.pax} Pax</span>
-                            {!isDashboard && (
-                              <>
-                                <span className="mx-2">•</span>
-                                <span>{getVenueNames(event)}</span>
-                              </>
+                              <span className="ml-2 text-zinc-500">
+                                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
+                              </span>
                             )}
                           </span>
                         </div>
