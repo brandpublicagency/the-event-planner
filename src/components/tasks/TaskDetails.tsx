@@ -2,7 +2,6 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X, MessageSquare, Paperclip, CheckSquare } from "lucide-react";
 import { format } from "date-fns";
 import { TaskComments } from "./TaskComments";
@@ -52,31 +51,37 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       
       <Separator />
       
-      <Tabs defaultValue="comments" className="flex-1">
-        <TabsList className="p-4">
-          <TabsTrigger value="comments" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Comments
-          </TabsTrigger>
-          <TabsTrigger value="files" className="flex items-center gap-2">
-            <Paperclip className="h-4 w-4" />
-            Files
-          </TabsTrigger>
-          <TabsTrigger value="notes" className="flex items-center gap-2">
-            <CheckSquare className="h-4 w-4" />
-            Notes
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="comments" className="flex-1 p-4">
-          <TaskComments taskId={taskId} />
-        </TabsContent>
-        <TabsContent value="files" className="flex-1 p-4">
-          <TaskFiles taskId={taskId} />
-        </TabsContent>
-        <TabsContent value="notes" className="flex-1 p-4">
-          <TaskNotes taskId={taskId} />
-        </TabsContent>
-      </Tabs>
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 space-y-6">
+          <section>
+            <div className="flex items-center gap-2 mb-3 text-sm font-medium">
+              <MessageSquare className="h-4 w-4" />
+              Comments
+            </div>
+            <TaskComments taskId={taskId} />
+          </section>
+          
+          <Separator />
+          
+          <section>
+            <div className="flex items-center gap-2 mb-3 text-sm font-medium">
+              <Paperclip className="h-4 w-4" />
+              Files
+            </div>
+            <TaskFiles taskId={taskId} />
+          </section>
+          
+          <Separator />
+          
+          <section>
+            <div className="flex items-center gap-2 mb-3 text-sm font-medium">
+              <CheckSquare className="h-4 w-4" />
+              Notes
+            </div>
+            <TaskNotes taskId={taskId} />
+          </section>
+        </div>
+      </div>
     </div>
   );
 }
