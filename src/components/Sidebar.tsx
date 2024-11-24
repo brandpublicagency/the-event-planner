@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Bell, Wallet, ListTodo, Archive } from "lucide-react";
+import { LayoutGrid, FileText, Archive, Wallet, ListTodo } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -32,10 +32,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
     { icon: FileText, path: "/events", label: "Events" },
     { icon: Archive, path: "/passed-events", label: "Passed Events" },
     { icon: Wallet, path: "/calendar", label: "Calendar" },
-    { icon: Bell, path: "/notifications", label: "Notification" },
-  ];
-
-  const otherNavItems = [
     { 
       icon: ListTodo, 
       path: "/tasks", 
@@ -43,7 +39,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       badge: taskCount > 0 ? taskCount : undefined
     },
     { icon: FileText, path: "/documents", label: "Documents" },
-    { icon: Bell, path: "/agreements", label: "Agreements" },
   ];
 
   return (
@@ -63,11 +58,6 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               isCollapsed={isCollapsed} 
               items={mainNavItems} 
               sectionTitle="MAIN" 
-            />
-            <SidebarNavigation 
-              isCollapsed={isCollapsed} 
-              items={otherNavItems} 
-              sectionTitle="OTHER" 
             />
           </div>
         </div>
