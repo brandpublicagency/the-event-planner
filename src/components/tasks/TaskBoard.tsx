@@ -22,7 +22,7 @@ export function TaskBoard() {
       <div className="w-1/2">
         <TaskList onTaskSelect={(id) => setSelectedTaskId(id.toLowerCase())} selectedTaskId={selectedTaskId?.toLowerCase()} />
       </div>
-      <ScrollArea className="w-1/2 border-l">
+      <ScrollArea className="w-1/2 border-l bg-white h-[calc(100vh-12rem)] -mt-6 -mb-6 -mr-8 pl-6">
         {selectedTaskId ? (
           <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
         ) : (
