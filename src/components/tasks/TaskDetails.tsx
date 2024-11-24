@@ -38,15 +38,17 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 {task.priority}
               </Badge>
             )}
-            <Badge variant="outline">{task.task_code}</Badge>
             {task.due_date && (
               <span>Due {format(new Date(task.due_date), "MMM d, yyyy")}</span>
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+          <Badge variant="outline" className="mt-1">{task.task_code}</Badge>
+        </div>
       </div>
       
       <Separator />
