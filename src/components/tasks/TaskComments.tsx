@@ -22,7 +22,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
   const [content, setContent] = useState("");
   const queryClient = useQueryClient();
 
-  const { data: comments = [], isLoading } = useQuery({
+  const { data: comments = [], isLoading } = useQuery<Comment[]>({
     queryKey: ["task-comments", taskId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -71,7 +71,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-2">
         <Textarea
-          placeholder="Write a comment..."
+          placeholder="write a comment..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -82,10 +82,10 @@ export function TaskComments({ taskId }: { taskId: string }) {
           {addCommentMutation.isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Posting...
+              posting...
             </>
           ) : (
-            "Post Comment"
+            "post comment"
           )}
         </Button>
       </form>
@@ -96,13 +96,13 @@ export function TaskComments({ taskId }: { taskId: string }) {
             <Avatar className="h-8 w-8">
               <AvatarImage src={comment.profiles?.avatar_url || undefined} />
               <AvatarFallback>
-                {comment.profiles?.full_name?.[0] || "U"}
+                {comment.profiles?.full_name?.[0] || "u"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">
-                  {comment.profiles?.full_name || "User"}
+                  {comment.profiles?.full_name || "user"}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "MMM d, yyyy 'at' h:mm a")}
