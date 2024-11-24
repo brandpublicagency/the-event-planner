@@ -7,7 +7,7 @@ import EventsTable from "@/components/EventsTable";
 import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
-import { TaskList } from "@/components/TaskList";
+import TaskList from "@/components/TaskList";
 
 const Index = () => {
   const { toast } = useToast();
