@@ -37,10 +37,10 @@ const SidebarProfile = ({ isCollapsed, setIsCollapsed }: SidebarProfileProps) =>
       )} />
       {!isCollapsed && (
         <div className="flex-1">
-          <div className="text-xs text-gray-400">{userInfo?.email}</div>
           <div className="text-sm font-medium">
             {userInfo?.name} {userInfo?.surname}
           </div>
+          <div className="text-xs text-gray-400">{userInfo?.email}</div>
         </div>
       )}
       <button 

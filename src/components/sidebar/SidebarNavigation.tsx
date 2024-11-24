@@ -41,10 +41,10 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
                   ? "justify-center w-10 mx-auto transition-colors duration-200" 
                   : "px-3",
                 isActive
-                  ? (isCollapsed ? "bg-[#2A2F3C] text-white" : "bg-gray-100")
+                  ? (isCollapsed ? "text-gray-900" : "text-gray-900")
                   : isCollapsed 
-                    ? "text-gray-400 hover:bg-[#2A2F3C] hover:text-white" 
-                    : "text-gray-600 hover:bg-gray-50",
+                    ? "text-gray-400 hover:text-gray-900" 
+                    : "text-gray-400 hover:text-gray-900",
               )}
             >
               <Icon className={cn(
