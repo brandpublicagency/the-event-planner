@@ -65,20 +65,20 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
           
           <section>
             <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-              <Paperclip className="h-4 w-4" />
-              Files
+              <CheckSquare className="h-4 w-4" />
+              Notes
             </div>
-            <TaskFiles taskId={taskId} />
+            <TaskNotes taskId={taskId} />
           </section>
           
           <Separator />
           
           <section>
             <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-              <CheckSquare className="h-4 w-4" />
-              Notes
+              <Paperclip className="h-4 w-4" />
+              Files
             </div>
-            <TaskNotes taskId={taskId} />
+            <TaskFiles taskId={taskId} />
           </section>
         </div>
       </div>
