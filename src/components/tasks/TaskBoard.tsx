@@ -1,9 +1,9 @@
 import { useTaskContext } from "@/contexts/TaskContext";
-import { TaskColumn } from "./TaskColumn";
+import { TaskList } from "./TaskList";
 import { TaskDetails } from "./TaskDetails";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2 } from "lucide-react";
 
 export function TaskBoard() {
   const { tasks, isLoading } = useTaskContext();
@@ -17,34 +17,10 @@ export function TaskBoard() {
     );
   }
 
-  const todoTasks = tasks.filter(task => task.status === 'todo');
-  const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
-  const completedTasks = tasks.filter(task => task.status === 'completed');
-
   return (
     <div className="flex gap-6 h-[calc(100vh-12rem)]">
-      <div className="flex-1 flex gap-4">
-        <TaskColumn
-          title="To Do"
-          tasks={todoTasks}
-          status="todo"
-          onTaskSelect={setSelectedTaskId}
-          selectedTaskId={selectedTaskId}
-        />
-        <TaskColumn
-          title="In Progress"
-          tasks={inProgressTasks}
-          status="in-progress"
-          onTaskSelect={setSelectedTaskId}
-          selectedTaskId={selectedTaskId}
-        />
-        <TaskColumn
-          title="Completed"
-          tasks={completedTasks}
-          status="completed"
-          onTaskSelect={setSelectedTaskId}
-          selectedTaskId={selectedTaskId}
-        />
+      <div className="flex-1">
+        <TaskList onTaskSelect={setSelectedTaskId} selectedTaskId={selectedTaskId} />
       </div>
       <ScrollArea className="w-[400px] border-l">
         {selectedTaskId ? (

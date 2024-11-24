@@ -29,7 +29,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          profiles:user_id (
+          profiles:profiles!task_comments_user_id_fkey (
             full_name,
             avatar_url
           )
