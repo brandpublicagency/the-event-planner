@@ -28,6 +28,7 @@ const Index = () => {
             )
           )
         `)
+        .eq('completed', false)  // Add this line to exclude completed events
         .gte('event_date', today)
         .order('event_date', { ascending: true })
         .limit(4);
