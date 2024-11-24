@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
 
 interface TaskItemProps {
   id: string;
@@ -14,6 +15,7 @@ interface TaskItemProps {
   priority: string | null;
   isSelected: boolean;
   onClick: () => void;
+  onEdit: () => void;
 }
 
 export function TaskItem({
@@ -24,13 +26,19 @@ export function TaskItem({
   priority,
   isSelected,
   onClick,
+  onEdit,
 }: TaskItemProps) {
   const { toggleTask } = useTaskContext();
+  const navigate = useNavigate();
 
   const priorityColors = {
     high: "bg-red-100 text-red-800",
     medium: "bg-yellow-100 text-yellow-800",
     low: "bg-green-100 text-green-800",
+  };
+
+  const handleTitleClick = () => {
+    navigate(`/tasks?selected=${id}`);
   };
 
   return (
@@ -50,7 +58,7 @@ export function TaskItem({
           <Button
             variant="ghost"
             className="h-auto p-0 text-sm font-medium hover:text-primary"
-            onClick={onClick}
+            onClick={handleTitleClick}
           >
             {title}
           </Button>
@@ -73,6 +81,17 @@ export function TaskItem({
               {priority}
             </Badge>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            Edit
+          </Button>
         </div>
       </div>
     </div>

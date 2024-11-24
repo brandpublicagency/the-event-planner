@@ -85,6 +85,10 @@ const Index = () => {
   // Filter for upcoming tasks
   const upcomingTasks = tasks.filter(task => !task.completed);
 
+  const handleTaskSelect = (id: string) => {
+    navigate(`/tasks?selected=${id}`);
+  };
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
@@ -127,7 +131,7 @@ const Index = () => {
           <div className="h-[400px] overflow-auto">
             <TaskList 
               tasks={upcomingTasks}
-              onTaskSelect={(id) => setSelectedTaskId(id)}
+              onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
             />
           </div>
