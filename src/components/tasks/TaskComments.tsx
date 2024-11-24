@@ -12,7 +12,7 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
-  profiles?: {
+  profiles: {
     full_name: string | null;
     avatar_url: string | null;
   } | null;
@@ -29,7 +29,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          profiles:user_id (
+          profiles (
             full_name,
             avatar_url
           )
