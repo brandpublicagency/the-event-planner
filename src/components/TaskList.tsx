@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { TaskItem } from "./tasks/TaskItem";
 
 interface Task {
   id: string;
@@ -45,10 +46,8 @@ export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
 
   const handleTaskClick = (taskId: string) => {
     if (location.pathname === "/") {
-      // If on dashboard, navigate to tasks page
       navigate(`/tasks?selected=${taskId}`);
     } else if (onTaskSelect) {
-      // If on tasks page, use the selection handler
       onTaskSelect(taskId);
     }
   };
@@ -68,36 +67,16 @@ export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
   return (
     <div className="space-y-2">
       {tasks?.map((task) => (
-        <div
+        <TaskItem
           key={task.id}
-          className={cn(
-            "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white",
-            selectedTaskId === task.id && "border-primary bg-primary/5"
-          )}
-        >
-          <div className="flex items-center justify-between w-full">
-            <Button
-              variant="ghost"
-              className="h-auto p-0 text-sm font-medium hover:text-primary"
-              onClick={() => handleTaskClick(task.id)}
-            >
-              {task.title}
-            </Button>
-            <div className="flex items-center gap-3">
-              {task.due_date && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span>{format(new Date(task.due_date), "dd MMM yyyy")}</span>
-                </div>
-              )}
-              {task.priority && (
-                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
-                  {task.priority}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </div>
+          id={task.id}
+          title={task.title}
+          completed={task.completed}
+          dueDate={task.due_date}
+          priority={task.priority}
+          isSelected={task.id === selectedTaskId}
+          onClick={() => handleTaskClick(task.id)}
+        />
       ))}
       {tasks?.length === 0 && (
         <p className="text-center text-muted-foreground py-8">No upcoming tasks</p>

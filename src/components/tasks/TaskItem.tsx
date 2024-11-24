@@ -1,103 +1,68 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Trash2, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TaskItemProps {
   id: string;
   title: string;
   completed: boolean;
+  dueDate: string | null;
+  priority: string | null;
+  isSelected: boolean;
+  onClick: () => void;
 }
 
-export function TaskItem({ id, title, completed }: TaskItemProps) {
-  const { toggleTask, deleteTask } = useTaskContext();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleToggle = async (checked: boolean) => {
-    setIsUpdating(true);
-    try {
-      await toggleTask(id, checked);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteTask(id);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+export function TaskItem({
+  id,
+  title,
+  completed,
+  dueDate,
+  priority,
+  isSelected,
+  onClick,
+}: TaskItemProps) {
+  const { toggleTask } = useTaskContext();
 
   return (
-    <div className="flex items-center gap-3 p-3 hover:bg-accent rounded-lg group transition-colors">
-      <div className="relative flex-shrink-0">
-        {isUpdating ? (
-          <div className="h-4 w-4 flex items-center justify-center">
-            <Loader2 className="h-3 w-3 animate-spin" />
-          </div>
-        ) : (
+    <div
+      className={cn(
+        "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white",
+        isSelected && "border-primary bg-primary/5"
+      )}
+    >
+      <div className="flex items-center justify-between w-full gap-4">
+        <div className="flex items-center gap-3">
           <Checkbox
-            id={id}
             checked={completed}
-            onCheckedChange={handleToggle}
-            className="transition-colors"
+            onCheckedChange={(checked) => toggleTask(id, checked as boolean)}
+            onClick={(e) => e.stopPropagation()}
           />
-        )}
-      </div>
-      <label
-        htmlFor={id}
-        className={`flex-1 text-sm leading-tight cursor-pointer select-none ${
-          completed ? "line-through text-muted-foreground" : ""
-        }`}
-      >
-        {title}
-      </label>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
           <Button
             variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-            disabled={isDeleting}
+            className="h-auto p-0 text-sm font-medium hover:text-primary"
+            onClick={onClick}
           >
-            {isDeleting ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive transition-colors" />
-            )}
+            {title}
           </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this task? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </div>
+        <div className="flex items-center gap-3">
+          {dueDate && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>{format(new Date(dueDate), "dd MMM yyyy")}</span>
+            </div>
+          )}
+          {priority && (
+            <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+              {priority}
+            </Badge>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
