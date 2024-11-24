@@ -34,11 +34,13 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -81,103 +83,125 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-      <TooltipProvider>
-        <TaskProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <Index />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/events"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <Events />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/passed-events"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <PassedEvents />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/events/new"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <NewEvent />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/events/:id"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <EventDetails />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/events/:id/edit"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <EditEvent />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/calendar"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <Calendar />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/tasks"
-                element={
-                  <PrivateRoute>
-                    <RootLayout>
-                      <Tasks />
-                    </RootLayout>
-                  </PrivateRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
-        </TaskProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+        <TooltipProvider>
+          <TaskProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={
+                  session ? <Navigate to="/" replace /> : <Login />
+                } />
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <Index />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/events"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <Events />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/passed-events"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <PassedEvents />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/events/new"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <NewEvent />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/events/:id"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <EventDetails />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/events/:id/edit"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <EditEvent />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <Calendar />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/tasks"
+                  element={
+                    <PrivateRoute>
+                      <RootLayout>
+                        <Tasks />
+                      </RootLayout>
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </TaskProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
