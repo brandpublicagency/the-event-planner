@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { formatEventMenu } from './menuFormatters.ts';
 import { formatEventDetails } from './eventFormatters.ts';
 import { handleEventQuestion } from './questionHandler.ts';
-import { format } from "https://deno.land/x/date_fns@v2.22.1/index.js";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;

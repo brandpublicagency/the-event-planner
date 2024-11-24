@@ -1,3 +1,4 @@
+import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { formatMenuSelection, formatMainCourseSection } from './menuFormatters.ts';
 
 export const formatEventDetails = (event: any) => {
@@ -29,11 +30,7 @@ ${venues}${menuDetails}`;
 const formatDate = (dateStr: string) => {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-ZA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return format(date, "MMMM d, yyyy");
   } catch {
     return dateStr;
   }
