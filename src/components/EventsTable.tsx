@@ -78,12 +78,12 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-zinc-800">
+                          <span className="text-xs text-zinc-900">
                             <span className="font-medium">
                               {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
                             </span>
                             {!isDashboard && (
-                              <span className="ml-2">
+                              <span className="ml-2 text-zinc-500">
                                 {event.event_type} / {event.pax} Pax / {getVenueNames(event)}
                               </span>
                             )}
