@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { CalendarIcon } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface CalendarHeaderProps {
@@ -12,8 +12,8 @@ export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) 
     return (
       <Card className="p-6 bg-white border border-zinc-200">
         <div className="flex items-center space-x-4">
-          <div className="p-2 bg-zinc-100 rounded-lg">
-            <CalendarIcon className="h-6 w-6 text-zinc-400" />
+          <div className="p-2 bg-zinc-100 rounded-[1rem]">
+            <CalendarDays className="h-5 w-5 text-zinc-400" />
           </div>
           <Skeleton className="h-6 w-48" />
         </div>
@@ -24,8 +24,8 @@ export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) 
   return (
     <Card className="p-6 bg-white border border-zinc-200">
       <div className="flex items-center space-x-4">
-        <div className="p-2 bg-zinc-100 rounded-lg">
-          <CalendarIcon className="h-6 w-6 text-zinc-900" />
+        <div className="p-2 bg-zinc-100 rounded-[1rem]">
+          <CalendarDays className="h-5 w-5 text-zinc-900" />
         </div>
         <h3 className="text-lg font-medium text-zinc-900">
           {profileName ? `${profileName}'s Calendar` : "Your Calendar"}
