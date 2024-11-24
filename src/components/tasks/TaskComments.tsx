@@ -13,10 +13,10 @@ interface Comment {
   created_at: string;
   task_id: string;
   user_id: string;
-  user: {
-    full_name: string;
-    avatar_url: string;
-  };
+  profile: {
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 interface TaskCommentsProps {
@@ -35,7 +35,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
         .from("task_comments")
         .select(`
           *,
-          user:user_id(
+          profile:profiles(
             full_name,
             avatar_url
           )
@@ -84,15 +84,15 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.user?.avatar_url} />
+              <AvatarImage src={comment.profile?.avatar_url || undefined} />
               <AvatarFallback>
-                {comment.user?.full_name?.charAt(0) || "U"}
+                {comment.profile?.full_name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">
-                  {comment.user?.full_name || "Unknown User"}
+                  {comment.profile?.full_name || "Unknown User"}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "PP")}
