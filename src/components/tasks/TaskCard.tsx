@@ -161,7 +161,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 hover:border-destructive/50"
+                      className="h-6 w-6 border-border/40 hover:border-destructive/50"
                       disabled={isDeleting}
                       onClick={(e) => e.stopPropagation()}
                     >
