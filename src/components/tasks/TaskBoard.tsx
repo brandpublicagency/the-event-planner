@@ -19,12 +19,12 @@ export function TaskBoard() {
 
   return (
     <div className="flex gap-6 h-[calc(100vh-12rem)]">
-      <div className="flex-1">
-        <TaskList onTaskSelect={setSelectedTaskId} selectedTaskId={selectedTaskId} />
+      <div className="w-1/2">
+        <TaskList onTaskSelect={(id) => setSelectedTaskId(id.toLowerCase())} selectedTaskId={selectedTaskId?.toLowerCase()} />
       </div>
-      <ScrollArea className="w-[400px] border-l">
+      <ScrollArea className="w-1/2 border-l">
         {selectedTaskId ? (
-          <TaskDetails taskId={selectedTaskId} onClose={() => setSelectedTaskId(null)} />
+          <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
         ) : (
           <div className="p-4 text-center text-muted-foreground">
             Select a task to view details

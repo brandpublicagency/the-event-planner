@@ -55,7 +55,7 @@ export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
             <div
               key={task.id}
               className={`p-4 border rounded-lg hover:border-primary/50 cursor-pointer transition-all ${
-                selectedTaskId === task.id ? 'border-primary' : 'border-border'
+                selectedTaskId === task.id.toLowerCase() ? 'border-primary' : 'border-border'
               }`}
               onClick={() => onTaskSelect(task.id)}
             >
