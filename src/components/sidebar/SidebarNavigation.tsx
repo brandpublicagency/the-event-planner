@@ -41,7 +41,7 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
                   ? "justify-center w-10 mx-auto transition-colors duration-200" 
                   : "px-3",
                 isActive
-                  ? (isCollapsed ? "text-gray-900" : "text-gray-900")
+                  ? (isCollapsed ? "text-white" : "text-gray-900")
                   : isCollapsed 
                     ? "text-gray-400 hover:text-gray-900" 
                     : "text-gray-400 hover:text-gray-900",
