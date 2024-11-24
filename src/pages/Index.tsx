@@ -7,6 +7,7 @@ import EventsTable from "@/components/EventsTable";
 import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
+import { TaskList } from "@/components/TaskList";
 
 const Index = () => {
   const { toast } = useToast();
@@ -90,17 +91,33 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-semibold">Upcoming Events</h3>
-          <Button onClick={() => navigate('/events/new')}>
-            New Event
-          </Button>
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Upcoming Events</h3>
+            <Button onClick={() => navigate('/events/new')} size="sm">
+              New Event
+            </Button>
+          </div>
+          <div className="h-[400px] overflow-auto">
+            <EventsTable 
+              groupedEvents={groupedEvents}
+              handleDelete={handleDelete}
+            />
+          </div>
         </div>
-        <EventsTable 
-          groupedEvents={groupedEvents}
-          handleDelete={handleDelete}
-        />
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Upcoming Tasks</h3>
+            <Button onClick={() => navigate('/tasks/new')} size="sm">
+              New Task
+            </Button>
+          </div>
+          <div className="h-[400px] overflow-auto">
+            <TaskList />
+          </div>
+        </div>
       </div>
     </div>
   );
