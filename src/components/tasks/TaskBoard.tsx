@@ -32,7 +32,7 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
   const completedTasks = tasks.filter(task => task.completed);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-16rem)]">
+    <div className="flex flex-col lg:flex-row gap-6 h-full my-6">
       <div className="w-full lg:w-1/2">
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="w-full">
