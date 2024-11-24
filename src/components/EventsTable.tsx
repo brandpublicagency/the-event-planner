@@ -45,93 +45,58 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
     <ScrollArea className={isDashboard ? "h-full" : "h-[calc(100vh-12rem)]"}>
       <div className="space-y-4">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
-          <div key={monthYear} className="rounded-xl border bg-white">
-            <div className="flex items-center gap-2 p-3 border-b">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-medium">{monthYear}</h3>
-              <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
-                {monthEvents.length} events
-              </Badge>
-            </div>
+          <div key={monthYear} className={isDashboard ? "" : "rounded-xl border bg-white"}>
+            {!isDashboard && (
+              <div className="flex items-center gap-2 p-3 border-b">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium">{monthYear}</h3>
+                <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
+                  {monthEvents.length} events
+                </Badge>
+              </div>
+            )}
             
-            <div className="divide-y">
+            <div className={isDashboard ? "space-y-2" : "divide-y"}>
               {monthEvents.map((event) => (
-                <div key={event.event_code} className="group">
-                  <div className="flex flex-col gap-2 p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => navigate(`/events/${event.event_code}`)}
-                            className="text-sm font-medium text-zinc-900 no-underline hover:no-underline"
-                          >
-                            {event.name}
-                          </button>
-                          {!isDashboard && (
-                            <button
-                              onClick={() => copyEventCode(event.event_code)}
-                              className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
-                            >
-                              {event.event_code}
-                              <Copy className="h-3 w-3" />
-                            </button>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-900">
-                            <span className="font-medium">
-                              {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
-                            </span>
-                            {!isDashboard && (
-                              <span className="ml-2 text-zinc-500">
-                                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
-                              </span>
-                            )}
-                          </span>
-                        </div>
+                <div 
+                  key={event.event_code} 
+                  className={isDashboard ? 
+                    "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white" : 
+                    "group"
+                  }
+                >
+                  {isDashboard ? (
+                    <div className="flex items-center justify-between w-full">
+                      <button
+                        onClick={() => navigate(`/events/${event.event_code}`)}
+                        className="text-sm font-medium truncate text-left hover:underline"
+                      >
+                        {event.name}
+                      </button>
+                      <div className="flex items-center gap-3">
+                        {event.event_date && (
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            <span>{format(new Date(event.event_date), "dd MMM yyyy")}</span>
+                          </div>
+                        )}
+                        <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                          {event.event_type}
+                        </Badge>
                       </div>
-                      {!isDashboard && (
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/events/${event.event_code}/edit`)}
-                            className="text-zinc-600 hover:text-white hover:bg-zinc-900"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-zinc-600 hover:text-white hover:bg-zinc-900"
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this event? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDelete(event.event_code)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      )}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex flex-col gap-2 p-4">
+                      <h4 className="text-sm font-medium truncate">{event.name}</h4>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        <span>{format(new Date(event.event_date), "dd MMM yyyy")}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {getVenueNames(event)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
