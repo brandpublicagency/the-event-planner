@@ -64,9 +64,9 @@ export default {
         },
       },
       borderRadius: {
-        lg: "1rem",
-        md: "0.75rem",
-        sm: "0.5rem",
+        lg: "7px",
+        md: "7px",
+        sm: "7px",
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter var', 'sans-serif'],
