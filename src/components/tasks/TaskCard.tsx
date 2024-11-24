@@ -105,9 +105,9 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         isSelected && "border-primary shadow-sm"
       )}
     >
-      <CardContent className="p-5">
+      <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 pt-1">
+          <div className="flex-shrink-0">
             {isUpdating ? (
               <div className="h-4 w-4 flex items-center justify-center">
                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -119,7 +119,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                   updateTaskMutation.mutate(checked as boolean);
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="transition-colors"
+                className="transition-colors rounded-[3px]"
               />
             )}
           </div>
