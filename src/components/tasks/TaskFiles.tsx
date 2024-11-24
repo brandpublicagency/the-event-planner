@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileIcon, Loader2, Trash2, Upload } from "lucide-react";
+import { FileIcon, Loader2, Trash2, Upload, Download, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -103,6 +103,49 @@ export function TaskFiles({ taskId }: { taskId: string }) {
     }
   };
 
+  const handleViewFile = async (file: TaskFile) => {
+    try {
+      const { data } = await supabase.storage
+        .from("task-files")
+        .createSignedUrl(file.file_path, 60);
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error viewing file",
+        description: "Could not generate file preview URL.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadFile = async (file: TaskFile) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("task-files")
+        .download(file.file_path);
+
+      if (error) throw error;
+
+      const url = window.URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error: any) {
+      toast({
+        title: "Download failed",
+        description: "Could not download the file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center p-4">
@@ -149,7 +192,7 @@ export function TaskFiles({ taskId }: { taskId: string }) {
         {files.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-2 rounded-lg border"
+            className="flex items-center justify-between p-2 rounded-[7px] border"
           >
             <div className="flex items-center gap-2">
               <FileIcon className="h-4 w-4 text-blue-500" />
@@ -160,18 +203,36 @@ export function TaskFiles({ taskId }: { taskId: string }) {
                 </p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => deleteFileMutation.mutate(file.id)}
-              disabled={deleteFileMutation.isPending}
-            >
-              {deleteFileMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleViewFile(file)}
+                title="View file"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDownloadFile(file)}
+                title="Download file"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteFileMutation.mutate(file.id)}
+                disabled={deleteFileMutation.isPending}
+              >
+                {deleteFileMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
         ))}
         {files.length === 0 && (
