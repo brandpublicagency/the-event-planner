@@ -24,6 +24,7 @@ interface TaskContextType {
   addTask: (title: string) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  toggleTask: (id: string, completed: boolean) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -120,6 +121,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const toggleTask = async (id: string, completed: boolean) => {
+    await updateTaskMutation.mutateAsync({ 
+      id, 
+      updates: { completed } 
+    });
+  };
+
   const value = {
     tasks,
     isLoading,
@@ -127,6 +135,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     updateTask: (id: string, updates: Partial<Task>) =>
       updateTaskMutation.mutateAsync({ id, updates }),
     deleteTask: (id: string) => deleteTaskMutation.mutateAsync(id),
+    toggleTask,
   };
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
