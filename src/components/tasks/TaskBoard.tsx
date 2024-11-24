@@ -19,13 +19,13 @@ export function TaskBoard() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-16rem)]">
-      <div className="w-full lg:w-1/2 bg-background rounded-lg border shadow-sm">
+      <div className="w-full lg:w-1/2">
         <TaskList 
           onTaskSelect={(id) => setSelectedTaskId(id.toLowerCase())} 
           selectedTaskId={selectedTaskId?.toLowerCase()} 
         />
       </div>
-      <ScrollArea className="w-full lg:w-1/2 bg-background rounded-lg border shadow-sm p-6">
+      <ScrollArea className="w-full lg:w-1/2 p-6">
         {selectedTaskId ? (
           <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
         ) : (
