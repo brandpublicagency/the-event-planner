@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Edit, Trash, Copy, Square } from "lucide-react";
+import { Calendar, Edit, Trash, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -59,13 +59,34 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                 <div key={event.event_code} className="group">
                   <div className="flex flex-col gap-2 p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Square className="h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-1.5">
+                        <button
+                          onClick={() => navigate(`/events/${event.event_code}`)}
+                          className="text-sm font-medium text-zinc-900 hover:underline"
+                        >
+                          {event.name}
+                        </button>
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-muted-foreground">
-                            {event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date'}
+                            <span className="font-medium">
+                              {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
+                            </span>
+                            {!isDashboard && (
+                              <span className="ml-2">
+                                {event.event_type} / {event.pax} Pax / {getVenueNames(event)}
+                              </span>
+                            )}
                           </span>
                         </div>
+                        {!isDashboard && (
+                          <button
+                            onClick={() => copyEventCode(event.event_code)}
+                            className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
+                          >
+                            {event.event_code}
+                            <Copy className="h-3 w-3" />
+                          </button>
+                        )}
                       </div>
                       <div className="flex items-center gap-1">
                         <Button
@@ -105,31 +126,6 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                           </AlertDialogContent>
                         </AlertDialog>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => navigate(`/events/${event.event_code}`)}
-                          className="text-sm font-medium text-zinc-900 hover:underline"
-                        >
-                          {event.name}
-                        </button>
-                        {!isDashboard && (
-                          <button
-                            onClick={() => copyEventCode(event.event_code)}
-                            className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
-                          >
-                            {event.event_code}
-                            <Copy className="h-3 w-3" />
-                          </button>
-                        )}
-                      </div>
-                      {!isDashboard && (
-                        <div className="text-sm text-zinc-600">
-                          {event.event_type} / {event.pax} Pax / {getVenueNames(event)}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
