@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Calendar, ChevronDown, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TaskCard } from "./TaskCard";
 import { EditableTaskCard } from "./EditableTaskCard";
@@ -46,23 +46,11 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
   }
 
   const today = startOfToday();
-  const threeDaysFromNow = addDays(today, 3);
-
-  const nextTasks = tasks?.filter(task => 
-    !task.completed && 
-    task.due_date && 
-    isWithinInterval(new Date(task.due_date), { start: today, end: threeDaysFromNow })
-  ) || [];
-
-  const upcomingTasks = tasks?.filter(task => 
-    !task.completed && 
-    (!task.due_date || new Date(task.due_date) > threeDaysFromNow)
-  ) || [];
-
+  const upcomingTasks = tasks?.filter(task => !task.completed) || [];
   const completedTasks = tasks?.filter(task => task.completed) || [];
 
   const renderTaskList = (taskList: Task[]) => (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {taskList.map((task) => (
         editingTask === task.id ? (
           <EditableTaskCard
@@ -92,23 +80,16 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
   return (
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6 pr-4">
-        {nextTasks.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold mb-3">Next Tasks</h2>
-            {renderTaskList(nextTasks)}
-          </div>
-        )}
-
         {upcomingTasks.length > 0 && (
           <div>
-            <h2 className="text-lg font-semibold mb-3">Upcoming Tasks</h2>
+            <h2 className="text-xl font-semibold mb-3">Upcoming Tasks</h2>
             {renderTaskList(upcomingTasks)}
           </div>
         )}
 
         {completedTasks.length > 0 && (
           <Collapsible open={isCompletedOpen} onOpenChange={setIsCompletedOpen}>
-            <CollapsibleTrigger className="flex items-center gap-2 w-full text-lg font-semibold mb-3">
+            <CollapsibleTrigger className="flex items-center gap-2 w-full text-xl font-semibold mb-3">
               {isCompletedOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
               Completed Tasks ({completedTasks.length})
             </CollapsibleTrigger>

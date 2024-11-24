@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Task } from "@/contexts/TaskContext";
@@ -46,20 +46,10 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
             </div>
           </div>
           
-          {(task.due_date || task.assigned_to) && (
-            <div className="flex items-center gap-3 text-[0.7rem] text-muted-foreground">
-              {task.due_date && (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3" />
-                  {format(new Date(task.due_date), "dd MMMM yyyy")}
-                </div>
-              )}
-              {task.assigned_to && (
-                <div className="flex items-center gap-1.5">
-                  <User className="h-3 w-3" />
-                  Assigned
-                </div>
-              )}
+          {task.due_date && (
+            <div className="flex items-center gap-1.5 text-[0.7rem] text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              {format(new Date(task.due_date), "dd MMMM yyyy")}
             </div>
           )}
         </div>
