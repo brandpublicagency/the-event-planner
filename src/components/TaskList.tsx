@@ -36,6 +36,11 @@ const TaskList = () => {
     },
   });
 
+  const handleTaskClick = (taskId: string) => {
+    // Navigate to tasks page and pass the selected task ID as a URL parameter
+    navigate(`/tasks?selected=${taskId}`);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center p-4">
@@ -59,7 +64,7 @@ const TaskList = () => {
             <Button
               variant="ghost"
               className="h-auto p-0 text-sm font-medium hover:text-primary"
-              onClick={() => navigate(`/tasks/${task.id}`)}
+              onClick={() => handleTaskClick(task.id)}
             >
               {task.title}
             </Button>

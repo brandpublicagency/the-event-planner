@@ -1,13 +1,23 @@
 import { useTaskContext } from "@/contexts/TaskContext";
 import { TaskList } from "./TaskList";
 import { TaskDetails } from "./TaskDetails";
-import { useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
-export function TaskBoard() {
+interface TaskBoardProps {
+  initialSelectedTaskId?: string | null;
+}
+
+export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
   const { tasks, isLoading } = useTaskContext();
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialSelectedTaskId || null);
+
+  // Update selected task when initialSelectedTaskId changes
+  useEffect(() => {
+    if (initialSelectedTaskId) {
+      setSelectedTaskId(initialSelectedTaskId);
+    }
+  }, [initialSelectedTaskId]);
 
   if (isLoading) {
     return (

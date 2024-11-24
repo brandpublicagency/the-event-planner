@@ -1,12 +1,23 @@
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NewTaskForm } from "@/components/tasks/NewTaskForm";
+import { useSearchParams } from "react-router-dom";
 
 const Tasks = () => {
   const [open, setOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Get the selected task ID from URL parameters when the component mounts
+  useEffect(() => {
+    const selected = searchParams.get("selected");
+    if (selected) {
+      setSelectedTaskId(selected);
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex-1 space-y-8 p-6 md:p-10 max-w-[1600px] mx-auto">
@@ -33,7 +44,7 @@ const Tasks = () => {
         </Dialog>
       </div>
 
-      <TaskBoard />
+      <TaskBoard initialSelectedTaskId={selectedTaskId} />
     </div>
   );
 };
