@@ -10,12 +10,13 @@ export interface Task {
   user_id: string;
   created_at: string;
   updated_at: string;
-  task_code: string;
+  task_code: string | null;
   due_date: string | null;
   priority: string | null;
   status: string;
   assigned_to: string | null;
   notes: string[] | null;
+  todos: string[] | null;
 }
 
 interface TaskContextType {

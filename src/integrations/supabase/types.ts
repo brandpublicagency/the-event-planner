@@ -460,6 +460,7 @@ export type Database = {
           status: string | null
           task_code: string | null
           title: string
+          todos: string[] | null
           updated_at: string
           user_id: string
         }
@@ -474,6 +475,7 @@ export type Database = {
           status?: string | null
           task_code?: string | null
           title: string
+          todos?: string[] | null
           updated_at?: string
           user_id: string
         }
@@ -488,6 +490,7 @@ export type Database = {
           status?: string | null
           task_code?: string | null
           title?: string
+          todos?: string[] | null
           updated_at?: string
           user_id?: string
         }
