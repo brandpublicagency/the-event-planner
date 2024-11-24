@@ -15,7 +15,7 @@ interface Comment {
   profiles: {
     full_name: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 export function TaskComments({ taskId }: { taskId: string }) {
@@ -29,7 +29,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          profiles (
+          profiles:user_id (
             full_name,
             avatar_url
           )
