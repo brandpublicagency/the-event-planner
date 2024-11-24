@@ -133,7 +133,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                   )}>
                     {task.title}
                   </h3>
-                  <span className="text-[0.7rem] text-muted-foreground font-medium">
+                  <span className="text-[0.65rem] text-muted-foreground">
                     {task.task_code}
                   </span>
                 </div>
