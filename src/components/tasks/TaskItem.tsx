@@ -45,8 +45,8 @@ export function TaskItem({ id, title, completed }: TaskItemProps) {
   };
 
   return (
-    <div className="flex items-center space-x-2 p-2 hover:bg-accent rounded-lg group transition-colors">
-      <div className="relative">
+    <div className="flex items-center gap-3 p-3 hover:bg-accent rounded-lg group transition-colors">
+      <div className="relative flex-shrink-0">
         {isUpdating ? (
           <div className="h-4 w-4 flex items-center justify-center">
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -62,7 +62,7 @@ export function TaskItem({ id, title, completed }: TaskItemProps) {
       </div>
       <label
         htmlFor={id}
-        className={`flex-1 text-sm cursor-pointer select-none ${
+        className={`flex-1 text-sm leading-tight cursor-pointer select-none ${
           completed ? "line-through text-muted-foreground" : ""
         }`}
       >
@@ -73,13 +73,13 @@ export function TaskItem({ id, title, completed }: TaskItemProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive transition-colors" />
+              <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive transition-colors" />
             )}
           </Button>
         </AlertDialogTrigger>

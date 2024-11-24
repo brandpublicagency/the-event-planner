@@ -21,40 +21,48 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   return (
     <Card
       className={cn(
-        "hover:border-primary/50 cursor-pointer transition-colors",
-        isSelected && "border-primary"
+        "hover:border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-sm",
+        isSelected && "border-primary shadow-sm"
       )}
       onClick={onClick}
     >
-      <CardContent className="p-3 space-y-3">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-medium text-sm">{task.title}</h3>
-            <p className="text-xs text-muted-foreground text-[0.7rem]">{task.task_code}</p>
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <h3 className="font-medium text-sm leading-tight">{task.title}</h3>
+              <p className="text-[0.7rem] text-muted-foreground font-medium">{task.task_code}</p>
+            </div>
+            {task.priority && (
+              <Badge 
+                variant="secondary" 
+                className={cn(
+                  "shrink-0 text-[0.65rem] font-medium px-2 py-0.5",
+                  priorityColors[task.priority as keyof typeof priorityColors]
+                )}
+              >
+                {task.priority}
+              </Badge>
+            )}
           </div>
-          {task.priority && (
-            <Badge variant="secondary" className={cn(priorityColors[task.priority as keyof typeof priorityColors])}>
-              {task.priority}
-            </Badge>
+          
+          {(task.due_date || task.assigned_to) && (
+            <div className="flex items-center gap-3 text-[0.7rem] text-muted-foreground">
+              {task.due_date && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3 w-3" />
+                  {format(new Date(task.due_date), "MMM d")}
+                </div>
+              )}
+              {task.assigned_to && (
+                <div className="flex items-center gap-1.5">
+                  <User className="h-3 w-3" />
+                  Assigned
+                </div>
+              )}
+            </div>
           )}
         </div>
-        
-        {(task.due_date || task.assigned_to) && (
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            {task.due_date && (
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {format(new Date(task.due_date), "MMM d")}
-              </div>
-            )}
-            {task.assigned_to && (
-              <div className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                Assigned
-              </div>
-            )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

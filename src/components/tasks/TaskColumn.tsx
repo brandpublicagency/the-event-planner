@@ -14,15 +14,15 @@ interface TaskColumnProps {
 export function TaskColumn({ title, tasks, status, onTaskSelect, selectedTaskId }: TaskColumnProps) {
   return (
     <Card className="flex-1">
-      <CardHeader className="py-3">
+      <CardHeader className="py-3 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <span className="text-xs text-muted-foreground">{tasks.length}</span>
+          <span className="text-xs font-medium text-muted-foreground">{tasks.length}</span>
         </div>
       </CardHeader>
-      <CardContent className="py-2">
+      <CardContent className="p-3">
         <ScrollArea className="h-[calc(100vh-16rem)]">
-          <div className="space-y-3">
+          <div className="space-y-3 pr-3">
             {tasks.map((task) => (
               <TaskCard
                 key={task.id}
