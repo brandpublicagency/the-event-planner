@@ -5,7 +5,8 @@ import { Calendar, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface Task {
   id: string;
@@ -15,9 +16,15 @@ interface Task {
   priority: string | null;
 }
 
-const TaskList = () => {
+interface TaskListProps {
+  onTaskSelect?: (id: string) => void;
+  selectedTaskId?: string | null;
+}
+
+export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -37,8 +44,13 @@ const TaskList = () => {
   });
 
   const handleTaskClick = (taskId: string) => {
-    // Navigate to tasks page and pass the selected task ID as a URL parameter
-    navigate(`/tasks?selected=${taskId}`);
+    if (location.pathname === "/") {
+      // If on dashboard, navigate to tasks page
+      navigate(`/tasks?selected=${taskId}`);
+    } else if (onTaskSelect) {
+      // If on tasks page, use the selection handler
+      onTaskSelect(taskId);
+    }
   };
 
   if (isLoading) {
@@ -58,7 +70,10 @@ const TaskList = () => {
       {tasks?.map((task) => (
         <div
           key={task.id}
-          className="group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white"
+          className={cn(
+            "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white",
+            selectedTaskId === task.id && "border-primary bg-primary/5"
+          )}
         >
           <div className="flex items-center justify-between w-full">
             <Button
@@ -89,6 +104,4 @@ const TaskList = () => {
       )}
     </div>
   );
-};
-
-export default TaskList;
+}
