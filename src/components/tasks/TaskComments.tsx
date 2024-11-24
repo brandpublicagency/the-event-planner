@@ -12,10 +12,12 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
-  profiles: {
-    full_name: string;
-    avatar_url: string;
-  }[];
+  task_id: string;
+  updated_at: string;
+  profile: {
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 export function TaskComments({ taskId }: { taskId: string }) {
@@ -29,7 +31,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          profiles:user_id (
+          profile:profiles!task_comments_user_id_fkey (
             full_name,
             avatar_url
           )
@@ -67,15 +69,15 @@ export function TaskComments({ taskId }: { taskId: string }) {
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.profiles[0]?.avatar_url} />
+              <AvatarImage src={comment.profile?.avatar_url || undefined} />
               <AvatarFallback>
-                {comment.profiles[0]?.full_name?.charAt(0) || "U"}
+                {comment.profile?.full_name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">
-                  {comment.profiles[0]?.full_name || "Unknown User"}
+                  {comment.profile?.full_name || "Unknown User"}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "dd MMM yyyy 'at' HH:mm")}
