@@ -25,20 +25,18 @@ export function TaskBoard() {
           selectedTaskId={selectedTaskId?.toLowerCase()} 
         />
       </div>
-      <ScrollArea className="w-full lg:w-1/2">
-        <div className="bg-background rounded-lg border p-10 mx-auto">
-          {selectedTaskId ? (
-            <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-2">
-              <p className="text-lg font-medium text-muted-foreground">No task selected</p>
-              <p className="text-sm text-muted-foreground">
-                Select a task from the list to view its details
-              </p>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+      <div className="w-full lg:w-1/2 h-full bg-background border rounded-lg overflow-hidden">
+        {selectedTaskId ? (
+          <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-2 p-10">
+            <p className="text-lg font-medium text-muted-foreground">No task selected</p>
+            <p className="text-sm text-muted-foreground">
+              Select a task from the list to view its details
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
