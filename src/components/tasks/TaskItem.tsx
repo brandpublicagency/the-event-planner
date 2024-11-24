@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+import { Calendar, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -83,14 +83,14 @@ export function TaskItem({
           )}
           <Button
             variant="ghost"
-            size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
           >
-            Edit
+            <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
           </Button>
         </div>
       </div>
