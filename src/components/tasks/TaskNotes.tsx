@@ -24,6 +24,11 @@ export function TaskNotes({ taskId }: { taskId: string }) {
     await updateTask(taskId, { notes: updatedNotes });
   };
 
+  const handleTodosChange = async (todos: string[]) => {
+    if (!task) return;
+    await updateTask(taskId, { todos });
+  };
+
   if (!task) return null;
 
   return (
@@ -79,10 +84,10 @@ export function TaskNotes({ taskId }: { taskId: string }) {
 
       <Separator />
 
-      {/* To-do List Section */}
+      {/* Checklist Section */}
       <TodoList 
-        todos={[]}
-        onTodosChange={(todos) => console.log(todos)}
+        todos={task.todos || []}
+        onTodosChange={handleTodosChange}
       />
     </div>
   );
