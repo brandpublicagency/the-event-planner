@@ -27,6 +27,12 @@ export function TaskItem({
 }: TaskItemProps) {
   const { toggleTask } = useTaskContext();
 
+  const priorityColors = {
+    high: "bg-red-100 text-red-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    low: "bg-green-100 text-green-800",
+  };
+
   return (
     <div
       className={cn(
@@ -57,7 +63,13 @@ export function TaskItem({
             </div>
           )}
           {priority && (
-            <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+            <Badge 
+              variant="secondary" 
+              className={cn(
+                "text-xs",
+                priorityColors[priority as keyof typeof priorityColors]
+              )}
+            >
               {priority}
             </Badge>
           )}
