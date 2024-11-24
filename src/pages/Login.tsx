@@ -9,6 +9,9 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Get the current site URL for redirection
+  const siteUrl = window.location.origin;
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -122,8 +125,8 @@ const Login = () => {
               }
             }}
             providers={[]}
+            redirectTo={siteUrl}
             magicLink={false}
-            redirectTo={window.location.origin}
             showLinks={true}
           />
 
