@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, ChevronDown, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TaskCard } from "./TaskCard";
 import { EditableTaskCard } from "./EditableTaskCard";
 import { Task } from "@/contexts/TaskContext";
-import { addDays, isWithinInterval, startOfToday } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export function TaskList({ onTaskSelect, selectedTaskId }: { 
@@ -45,7 +44,6 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
     return <div className="text-red-500 p-4">{error}</div>;
   }
 
-  const today = startOfToday();
   const upcomingTasks = tasks?.filter(task => !task.completed) || [];
   const completedTasks = tasks?.filter(task => task.completed) || [];
 
@@ -82,7 +80,6 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
       <div className="space-y-6 pr-4">
         {upcomingTasks.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-3">Upcoming Tasks</h2>
             {renderTaskList(upcomingTasks)}
           </div>
         )}
