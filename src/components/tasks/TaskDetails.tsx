@@ -27,18 +27,29 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-start justify-between p-6 border-b">
-        <div className="space-y-1.5">
-          <h2 className="text-xl font-medium leading-none">{task.title}</h2>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {task.due_date && (
-              <span>Due {format(new Date(task.due_date), "dd MMMM yyyy")}</span>
-            )}
-            {task.priority && (
-              <Badge variant="secondary" className={priorityColors[task.priority as keyof typeof priorityColors]}>
-                {task.priority}
+        <div className="space-y-2">
+          <h2 className="text-lg font-medium leading-none">{task.title}</h2>
+          <div className="flex flex-col gap-1.5">
+            <div className="text-xs text-muted-foreground">
+              {task.due_date && (
+                <span>Due {format(new Date(task.due_date), "dd MMMM yyyy")}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {task.priority && (
+                <Badge 
+                  variant="secondary" 
+                  className={`text-[0.65rem] font-normal px-2 py-0.5 ${
+                    priorityColors[task.priority as keyof typeof priorityColors]
+                  }`}
+                >
+                  {task.priority}
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-[0.65rem] font-normal">
+                {task.task_code}
               </Badge>
-            )}
-            <Badge variant="outline">{task.task_code}</Badge>
+            </div>
           </div>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
