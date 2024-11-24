@@ -11,23 +11,29 @@ export function TaskBoard() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-12rem)]">
-      <div className="w-1/2">
-        <TaskList onTaskSelect={(id) => setSelectedTaskId(id.toLowerCase())} selectedTaskId={selectedTaskId?.toLowerCase()} />
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-16rem)]">
+      <div className="w-full lg:w-1/2 bg-background rounded-lg border shadow-sm">
+        <TaskList 
+          onTaskSelect={(id) => setSelectedTaskId(id.toLowerCase())} 
+          selectedTaskId={selectedTaskId?.toLowerCase()} 
+        />
       </div>
-      <ScrollArea className="w-1/2 bg-white h-[calc(100vh-12rem)] -mt-6 -mb-6 mr-6 pl-6 rounded-lg">
+      <ScrollArea className="w-full lg:w-1/2 bg-background rounded-lg border shadow-sm p-6">
         {selectedTaskId ? (
           <TaskDetails taskId={selectedTaskId.toLowerCase()} onClose={() => setSelectedTaskId(null)} />
         ) : (
-          <div className="p-4 text-center text-muted-foreground">
-            Select a task to view details
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-2">
+            <p className="text-lg font-medium text-muted-foreground">No task selected</p>
+            <p className="text-sm text-muted-foreground">
+              Select a task from the list to view its details
+            </p>
           </div>
         )}
       </ScrollArea>

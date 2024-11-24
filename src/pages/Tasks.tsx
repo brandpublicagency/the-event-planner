@@ -9,19 +9,19 @@ const Tasks = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Tasks</h2>
-          <p className="text-muted-foreground mt-2">
-            Manage and track your team's tasks
+    <div className="flex-1 space-y-8 p-6 md:p-10 max-w-[1600px] mx-auto">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage and track your team's tasks efficiently
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="sm" className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              Add Task
+              New Task
             </Button>
           </DialogTrigger>
           <DialogContent>
