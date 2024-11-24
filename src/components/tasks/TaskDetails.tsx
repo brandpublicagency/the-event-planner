@@ -30,7 +30,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       <div className="flex items-start justify-between p-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">{task.title}</h2>
+            <h2 className="text-sm font-normal">{task.title}</h2>
             <Badge variant="outline">{task.task_code}</Badge>
           </div>
           <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
