@@ -1,37 +1,41 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Comment {
   id: string;
   content: string;
   created_at: string;
-  user_id: string;
   task_id: string;
-  updated_at: string;
+  user_id: string;
   user: {
-    full_name: string | null;
-    avatar_url: string | null;
-  } | null;
+    full_name: string;
+    avatar_url: string;
+  };
 }
 
-export function TaskComments({ taskId }: { taskId: string }) {
-  const [newComment, setNewComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface TaskCommentsProps {
+  taskId: string;
+}
 
-  const { data: comments = [], refetch } = useQuery({
+export function TaskComments({ taskId }: TaskCommentsProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [newComment, setNewComment] = useState("");
+
+  const { data: comments = [], isLoading } = useQuery({
     queryKey: ["comments", taskId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("task_comments")
         .select(`
           *,
-          user:profiles!task_comments_user_id_fkey(
+          user:user_id(
             full_name,
             avatar_url
           )
@@ -44,23 +48,34 @@ export function TaskComments({ taskId }: { taskId: string }) {
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-
-    setIsSubmitting(true);
-    try {
+  const addCommentMutation = useMutation({
+    mutationFn: async (comment: string) => {
       const { error } = await supabase
         .from("task_comments")
-        .insert([{ task_id: taskId, content: newComment.trim() }]);
+        .insert([{ content: comment, task_id: taskId }]);
 
       if (error) throw error;
-      
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
       setNewComment("");
-      refetch();
-    } finally {
-      setIsSubmitting(false);
-    }
+      toast({
+        title: "Comment added",
+        description: "Your comment has been posted.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error adding comment",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
+    addCommentMutation.mutate(newComment);
   };
 
   return (
@@ -69,18 +84,18 @@ export function TaskComments({ taskId }: { taskId: string }) {
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.user?.avatar_url || undefined} />
+              <AvatarImage src={comment.user?.avatar_url} />
               <AvatarFallback>
                 {comment.user?.full_name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">
+                <span className="text-sm font-medium">
                   {comment.user?.full_name || "Unknown User"}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {format(new Date(comment.created_at), "dd MMM yyyy 'at' HH:mm")}
+                  {format(new Date(comment.created_at), "PP")}
                 </span>
               </div>
               <p className="text-sm mt-1">{comment.content}</p>
@@ -88,29 +103,18 @@ export function TaskComments({ taskId }: { taskId: string }) {
           </div>
         ))}
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-2">
+      
+      <div className="flex gap-2">
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Write a comment..."
           className="min-h-[80px]"
         />
-        <Button
-          type="submit"
-          disabled={!newComment.trim() || isSubmitting}
-          className="w-full"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Posting...
-            </>
-          ) : (
-            "Post Comment"
-          )}
+        <Button onClick={handleAddComment} className="self-end">
+          Post
         </Button>
-      </form>
+      </div>
     </div>
   );
 }
