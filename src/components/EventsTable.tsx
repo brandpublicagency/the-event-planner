@@ -63,7 +63,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/events/${event.event_code}`)}
-                            className="text-sm font-medium text-zinc-900 hover:underline"
+                            className="text-sm font-medium text-zinc-900 no-underline hover:no-underline"
                           >
                             {event.name}
                           </button>
