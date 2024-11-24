@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export function TaskNotes({ taskId }: { taskId: string }) {
   const [newNote, setNewNote] = useState("");
@@ -26,54 +27,81 @@ export function TaskNotes({ taskId }: { taskId: string }) {
   if (!task) return null;
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
-        <Input
-          placeholder="Add a note..."
-          value={newNote}
-          onChange={(e) => setNewNote(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddNote();
-            }
-          }}
-          className="h-10 text-sm"
-        />
-        <Button 
-          onClick={handleAddNote} 
-          disabled={!newNote.trim()}
-          size="icon"
-          className="shrink-0 h-10 w-10"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+    <div className="space-y-6">
+      {/* Notes Section */}
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Add a note..."
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddNote();
+              }
+            }}
+            className="h-10 text-sm"
+          />
+          <Button 
+            onClick={handleAddNote} 
+            disabled={!newNote.trim()}
+            size="icon"
+            className="shrink-0 h-10 w-10"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {task.notes?.map((note, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
+            >
+              <span className="text-sm">{note}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                onClick={() => handleRemoveNote(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {(!task.notes || task.notes.length === 0) && (
+            <p className="text-center text-sm text-muted-foreground py-4">
+              No notes added yet
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-2">
-        {task.notes?.map((note, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Checkbox />
-              <span className="text-sm">{note}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-              onClick={() => handleRemoveNote(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+      <Separator />
+
+      {/* To-do List Section */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">To-do List</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox id="todo1" />
+            <label htmlFor="todo1" className="text-sm font-normal">
+              First task
+            </label>
           </div>
-        ))}
-        {(!task.notes || task.notes.length === 0) && (
-          <p className="text-center text-sm text-muted-foreground py-4">
-            No notes added yet
-          </p>
-        )}
+          <div className="flex items-center space-x-2">
+            <Checkbox id="todo2" />
+            <label htmlFor="todo2" className="text-sm font-normal">
+              Second task
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="todo3" />
+            <label htmlFor="todo3" className="text-sm font-normal">
+              Third task
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   );
