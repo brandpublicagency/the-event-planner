@@ -57,13 +57,13 @@ export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
               className={`p-4 border rounded-lg hover:border-primary/50 cursor-pointer transition-all ${
                 selectedTaskId === task.id.toLowerCase() ? 'border-primary' : 'border-border'
               }`}
-              onClick={() => onTaskSelect(task.id)}
+              onClick={() => onTaskSelect(task.id.toLowerCase())}
             >
               <div className="flex items-start gap-3">
                 <Checkbox
                   checked={task.completed}
                   onCheckedChange={(checked) => {
-                    toggleTask(task.id, checked as boolean);
+                    toggleTask(task.id.toLowerCase(), checked as boolean);
                   }}
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -71,7 +71,7 @@ export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="font-medium text-sm">{task.title}</h3>
-                      <p className="text-xs text-muted-foreground">{task.task_code}</p>
+                      <p className="text-xs text-muted-foreground">{task.task_code?.toLowerCase()}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button variant="ghost" size="icon" className="h-8 w-8">
