@@ -2,9 +2,8 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { X, MessageSquare, Paperclip, CheckSquare } from "lucide-react";
+import { X, Paperclip, CheckSquare } from "lucide-react";
 import { format } from "date-fns";
-import { TaskComments } from "./TaskComments";
 import { TaskFiles } from "./TaskFiles";
 import { TaskNotes } from "./TaskNotes";
 
@@ -55,16 +54,6 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       
       <div className="flex-1 overflow-auto">
         <div className="p-4 space-y-6">
-          <section>
-            <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-              <MessageSquare className="h-4 w-4" />
-              Comments
-            </div>
-            <TaskComments taskId={taskId} />
-          </section>
-          
-          <Separator />
-          
           <section>
             <div className="flex items-center gap-2 mb-3 text-sm font-medium">
               <CheckSquare className="h-4 w-4" />

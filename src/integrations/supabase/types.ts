@@ -410,41 +410,6 @@ export type Database = {
         }
         Relationships: []
       }
-      task_comments: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          task_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          task_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          task_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "task_comments_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       task_files: {
         Row: {
           content_type: string | null
