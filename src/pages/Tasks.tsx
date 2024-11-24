@@ -19,7 +19,7 @@ const Tasks = () => {
   }, [searchParams]);
 
   return (
-    <div className="h-full flex-1 space-y-8 p-6 md:p-10 max-w-[1600px] mx-auto">
+    <div className="h-full flex-1 pb-5 p-6 md:p-10 max-w-[1600px] mx-auto">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
