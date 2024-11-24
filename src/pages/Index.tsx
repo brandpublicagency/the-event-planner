@@ -8,10 +8,14 @@ import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
+import { useState } from "react";
+import { useTaskContext } from "@/contexts/TaskContext";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const { tasks } = useTaskContext();
 
   const { data: events = [], refetch } = useQuery({
     queryKey: ['upcoming_events'],
@@ -78,6 +82,9 @@ const Index = () => {
 
   const groupedEvents = groupEventsByMonth(events);
 
+  // Filter for upcoming tasks
+  const upcomingTasks = tasks.filter(task => !task.completed);
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
@@ -113,12 +120,16 @@ const Index = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Tasks</h3>
-            <Button onClick={() => navigate('/tasks/new')} size="sm">
+            <Button onClick={() => navigate('/tasks')} size="sm">
               New Task
             </Button>
           </div>
           <div className="h-[400px] overflow-auto">
-            <TaskList />
+            <TaskList 
+              tasks={upcomingTasks}
+              onTaskSelect={(id) => setSelectedTaskId(id)}
+              selectedTaskId={selectedTaskId}
+            />
           </div>
         </div>
       </div>
