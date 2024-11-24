@@ -16,7 +16,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
           <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </ScrollArea>
       </div>
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pb-[15px]">
         {children}
       </main>
     </div>
