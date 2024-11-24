@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Calendar, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface Task {
   id: string;
   title: string;
   completed: boolean;
-  user_id: string;
+  due_date: string | null;
+  priority: string | null;
 }
 
 const TaskList = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
   const { data: tasks, isLoading } = useQuery({
@@ -23,34 +22,14 @@ const TaskList = () => {
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
-        .order("created_at", { ascending: false });
+        .eq("completed", false)
+        .order("due_date", { ascending: true });
 
       if (error) {
         setError(error.message);
         return [];
       }
       return data as Task[];
-    },
-  });
-
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ completed })
-        .eq("id", id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-      });
     },
   });
 
@@ -67,34 +46,34 @@ const TaskList = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {tasks?.map((task) => (
         <div
           key={task.id}
-          className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-lg"
+          className="group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white"
         >
-          <Checkbox
-            id={task.id}
-            checked={task.completed}
-            onCheckedChange={(checked) => {
-              updateTaskMutation.mutate({
-                id: task.id,
-                completed: checked as boolean,
-              });
-            }}
-          />
-          <label
-            htmlFor={task.id}
-            className={`text-sm ${
-              task.completed ? "line-through text-gray-500" : ""
-            }`}
-          >
-            {task.title}
-          </label>
+          <div className="flex items-center flex-1 min-w-0">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-medium truncate">{task.title}</h4>
+                {task.priority && (
+                  <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                    {task.priority}
+                  </Badge>
+                )}
+              </div>
+              {task.due_date && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>{format(new Date(task.due_date), "dd MMM yyyy")}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       ))}
       {tasks?.length === 0 && (
-        <p className="text-center text-gray-500">No tasks found</p>
+        <p className="text-center text-muted-foreground py-8">No upcoming tasks</p>
       )}
     </div>
   );
