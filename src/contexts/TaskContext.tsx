@@ -37,13 +37,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session?.user.id) throw new Error("User not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return [];
 
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", session.session.user.id)
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -53,13 +53,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session?.user.id) throw new Error("User not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error("User not authenticated");
 
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
-          user_id: session.session.user.id,
+          user_id: session.user.id,
           status: "todo",
         }
       ]);
@@ -83,10 +83,14 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error("User not authenticated");
+
       const { error } = await supabase
         .from("tasks")
         .update(updates)
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", session.user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -103,7 +107,14 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("tasks").delete().eq("id", id);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error("User not authenticated");
+
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", session.user.id);
       if (error) throw error;
     },
     onSuccess: () => {
