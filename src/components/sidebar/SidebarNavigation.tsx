@@ -43,7 +43,7 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
                 isActive
                   ? (isCollapsed ? "text-white" : "text-gray-900")
                   : isCollapsed 
-                    ? "text-gray-400 hover:text-gray-900" 
+                    ? "text-gray-400 hover:text-white" 
                     : "text-gray-400 hover:text-gray-900",
               )}
             >
