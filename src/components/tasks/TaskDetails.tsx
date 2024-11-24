@@ -30,17 +30,17 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       <div className="flex items-start justify-between p-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-normal">{task.title}</h2>
-            <Badge variant="outline">{task.task_code}</Badge>
+            <h2 className="text-lg font-medium">{task.title}</h2>
           </div>
           <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-            {task.due_date && (
-              <span>Due {format(new Date(task.due_date), "MMM d, yyyy")}</span>
-            )}
             {task.priority && (
               <Badge variant="secondary" className={priorityColors[task.priority as keyof typeof priorityColors]}>
                 {task.priority}
               </Badge>
+            )}
+            <Badge variant="outline">{task.task_code}</Badge>
+            {task.due_date && (
+              <span>Due {format(new Date(task.due_date), "MMM d, yyyy")}</span>
             )}
           </div>
         </div>
