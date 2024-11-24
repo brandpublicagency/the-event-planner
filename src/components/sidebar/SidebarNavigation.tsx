@@ -65,7 +65,7 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
                 <ChevronRight className="ml-auto h-4 w-4" />
               )}
               {isCollapsed && item.badge && (
-                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-600 rounded-full">
+                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-medium border border-gray-200 text-gray-500 rounded-full">
                   {item.badge}
                 </span>
               )}
