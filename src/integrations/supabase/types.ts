@@ -410,27 +410,118 @@ export type Database = {
         }
         Relationships: []
       }
-      tasks: {
+      task_comments: {
         Row: {
-          completed: boolean | null
+          content: string
           created_at: string
           id: string
+          task_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_files: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          task_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_files_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed: boolean | null
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string[] | null
+          priority: string | null
+          status: string | null
+          task_code: string | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          assigned_to?: string | null
           completed?: boolean | null
           created_at?: string
+          due_date?: string | null
           id?: string
+          notes?: string[] | null
+          priority?: string | null
+          status?: string | null
+          task_code?: string | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          assigned_to?: string | null
           completed?: boolean | null
           created_at?: string
+          due_date?: string | null
           id?: string
+          notes?: string[] | null
+          priority?: string | null
+          status?: string | null
+          task_code?: string | null
           title?: string
           updated_at?: string
           user_id?: string

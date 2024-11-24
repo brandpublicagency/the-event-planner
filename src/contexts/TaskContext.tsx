@@ -3,18 +3,26 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-interface Task {
+export interface Task {
   id: string;
   title: string;
   completed: boolean;
   user_id: string;
+  created_at: string;
+  updated_at: string;
+  task_code: string;
+  due_date: string | null;
+  priority: string | null;
+  status: string;
+  assigned_to: string | null;
+  notes: string[] | null;
 }
 
 interface TaskContextType {
   tasks: Task[];
   isLoading: boolean;
   addTask: (title: string) => Promise<void>;
-  toggleTask: (id: string, completed: boolean) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 }
 
@@ -50,6 +58,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         { 
           title,
           user_id: session.session.user.id,
+          status: "todo",
         }
       ]);
       if (error) throw error;
@@ -70,11 +79,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const toggleTaskMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
       const { error } = await supabase
         .from("tasks")
-        .update({ completed })
+        .update(updates)
         .eq("id", id);
       if (error) throw error;
     },
@@ -115,8 +124,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     tasks,
     isLoading,
     addTask: (title: string) => addTaskMutation.mutateAsync(title),
-    toggleTask: (id: string, completed: boolean) =>
-      toggleTaskMutation.mutateAsync({ id, completed }),
+    updateTask: (id: string, updates: Partial<Task>) =>
+      updateTaskMutation.mutateAsync({ id, updates }),
     deleteTask: (id: string) => deleteTaskMutation.mutateAsync(id),
   };
 

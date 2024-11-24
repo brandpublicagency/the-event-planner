@@ -1,4 +1,4 @@
-import { TaskList } from "@/components/tasks/TaskList";
+import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -14,7 +14,7 @@ const Tasks = () => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Tasks</h2>
           <p className="text-muted-foreground mt-2">
-            Manage your tasks and stay organized
+            Manage and track your team's tasks
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -33,9 +33,7 @@ const Tasks = () => {
         </Dialog>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <TaskList />
-      </div>
+      <TaskBoard />
     </div>
   );
 };
