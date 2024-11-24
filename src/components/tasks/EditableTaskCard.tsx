@@ -64,20 +64,20 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
 
   return (
     <Card className="border-primary/50">
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-6 space-y-6">
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Task title"
-          className="font-medium rounded-md"
+          className="font-medium"
         />
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal w-[240px] rounded-md",
+                  "w-full justify-start text-left font-normal",
                   !dueDate && "text-muted-foreground"
                 )}
               >
@@ -85,32 +85,31 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
                 {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 rounded-md">
+            <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
                 selected={dueDate}
                 onSelect={setDueDate}
                 initialFocus
-                className="rounded-md"
               />
             </PopoverContent>
           </Popover>
           <Select value={priority} onValueChange={setPriority}>
-            <SelectTrigger className="w-[180px] rounded-md">
+            <SelectTrigger>
               <SelectValue placeholder="Select priority" />
             </SelectTrigger>
-            <SelectContent className="rounded-md">
+            <SelectContent>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onCancel} className="rounded-md">
+        <div className="flex justify-end gap-3 pt-2">
+          <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="rounded-md">
+          <Button onClick={handleSave}>
             Save
           </Button>
         </div>
