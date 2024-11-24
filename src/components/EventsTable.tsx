@@ -59,7 +59,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                 <div key={event.event_code} className="group">
                   <div className="flex flex-col gap-2 p-4">
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/events/${event.event_code}`)}
@@ -84,7 +84,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                             </span>
                             {!isDashboard && (
                               <span className="ml-2 text-zinc-500">
-                                {event.event_type} / {event.pax} Pax / {getVenueNames(event)}
+                                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
                               </span>
                             )}
                           </span>
