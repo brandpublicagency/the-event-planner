@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ListChecks } from "lucide-react";
 
 interface TodoListProps {
   todos: string[];
@@ -26,7 +26,10 @@ export function TodoList({ todos = [], onTodosChange }: TodoListProps) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium">To-do List</h3>
+      <div className="flex items-center gap-2">
+        <ListChecks className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-sm font-medium">Checklist</h3>
+      </div>
       <div className="space-y-2">
         {todos.map((todo, index) => (
           <div key={index} className="flex items-center space-x-2">

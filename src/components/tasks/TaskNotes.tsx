@@ -81,7 +81,7 @@ export function TaskNotes({ taskId }: { taskId: string }) {
 
       {/* To-do List Section */}
       <TodoList 
-        todos={["First task", "Second task", "Third task"]}
+        todos={[]}
         onTodosChange={(todos) => console.log(todos)}
       />
     </div>
