@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Task } from "@/contexts/TaskContext";
 import { TaskItem } from "./tasks/TaskItem";
 import { EditableTaskCard } from "./tasks/EditableTaskCard";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { NewTaskForm } from "./tasks/NewTaskForm";
+import { useTaskContext } from "@/contexts/TaskContext";
 
 interface TaskListProps {
   tasks: Task[];
@@ -15,27 +15,17 @@ interface TaskListProps {
 
 export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const { addTask } = useTaskContext();
+
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+    await addTask(newTaskTitle);
+    setNewTaskTitle("");
+  };
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Dialog open={isNewTaskDialogOpen} onOpenChange={setIsNewTaskDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Task
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Task</DialogTitle>
-            </DialogHeader>
-            <NewTaskForm onSuccess={() => setIsNewTaskDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
-
       <div className="space-y-2">
         {tasks?.map((task) => (
           editingTaskId === task.id ? (
@@ -61,6 +51,31 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
         ))}
         {tasks?.length === 0 && (
           <p className="text-center text-muted-foreground py-8">No tasks</p>
+        )}
+        
+        {/* Only show the new task input in the upcoming tasks section */}
+        {!tasks?.[0]?.completed && (
+          <div className="flex items-center gap-2 mt-2">
+            <Input
+              placeholder="Add a new task..."
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddTask();
+                }
+              }}
+              className="h-9"
+            />
+            <Button 
+              size="sm"
+              onClick={handleAddTask}
+              disabled={!newTaskTitle.trim()}
+              className="h-9"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </div>
     </div>
