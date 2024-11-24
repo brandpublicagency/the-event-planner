@@ -52,21 +52,19 @@ const TaskList = () => {
           key={task.id}
           className="group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white"
         >
-          <div className="flex items-center flex-1 min-w-0">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <h4 className="text-sm font-medium truncate">{task.title}</h4>
-                {task.priority && (
-                  <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
-                    {task.priority}
-                  </Badge>
-                )}
-              </div>
+          <div className="flex items-center justify-between w-full">
+            <h4 className="text-sm font-medium truncate">{task.title}</h4>
+            <div className="flex items-center gap-3">
               {task.due_date && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
                   <span>{format(new Date(task.due_date), "dd MMM yyyy")}</span>
                 </div>
+              )}
+              {task.priority && (
+                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                  {task.priority}
+                </Badge>
               )}
             </div>
           </div>
