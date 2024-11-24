@@ -26,7 +26,7 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
 
   return (
     <div className="space-y-4">
-      <div className="space-y-3">
+      <div className="space-y-2">
         {tasks?.map((task) => (
           editingTaskId === task.id ? (
             <EditableTaskCard
@@ -50,14 +50,12 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
           )
         ))}
         {tasks?.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center space-y-2">
-            <p className="text-muted-foreground">No tasks found</p>
-          </div>
+          <p className="text-center text-muted-foreground py-8">No tasks</p>
         )}
         
         {/* Only show the new task input in the upcoming tasks section */}
         {!tasks?.[0]?.completed && (
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex items-center gap-2 mt-2">
             <Input
               placeholder="Add a new task..."
               value={newTaskTitle}

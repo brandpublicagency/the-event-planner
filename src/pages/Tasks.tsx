@@ -19,33 +19,31 @@ const Tasks = () => {
   }, [searchParams]);
 
   return (
-    <div className="flex-1 h-full bg-background">
-      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage and track your team's tasks efficiently
-            </p>
-          </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Task
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
-              </DialogHeader>
-              <NewTaskForm onSuccess={() => setOpen(false)} />
-            </DialogContent>
-          </Dialog>
+    <div className="h-full flex-1 pb-5 p-6 md:p-10 max-w-[1600px] mx-auto">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage and track your team's tasks efficiently
+          </p>
         </div>
-
-        <TaskBoard initialSelectedTaskId={selectedTaskId} />
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              New Task
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Task</DialogTitle>
+            </DialogHeader>
+            <NewTaskForm onSuccess={() => setOpen(false)} />
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <TaskBoard initialSelectedTaskId={selectedTaskId} />
     </div>
   );
 };
