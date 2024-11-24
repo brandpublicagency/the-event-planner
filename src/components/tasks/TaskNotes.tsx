@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { TodoList } from "./TodoList";
 
 export function TaskNotes({ taskId }: { taskId: string }) {
   const [newNote, setNewNote] = useState("");
@@ -80,29 +80,10 @@ export function TaskNotes({ taskId }: { taskId: string }) {
       <Separator />
 
       {/* To-do List Section */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">To-do List</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox id="todo1" />
-            <label htmlFor="todo1" className="text-sm font-normal">
-              First task
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="todo2" />
-            <label htmlFor="todo2" className="text-sm font-normal">
-              Second task
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="todo3" />
-            <label htmlFor="todo3" className="text-sm font-normal">
-              Third task
-            </label>
-          </div>
-        </div>
-      </div>
+      <TodoList 
+        todos={["First task", "Second task", "Third task"]}
+        onTodosChange={(todos) => console.log(todos)}
+      />
     </div>
   );
 }
