@@ -105,30 +105,30 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         isSelected && "border-primary shadow-sm"
       )}
     >
-      <CardContent className="p-4">
-        <div className="space-y-2.5">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 pt-0.5">
-              {isUpdating ? (
-                <div className="h-4 w-4 flex items-center justify-center">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                </div>
-              ) : (
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={(checked) => {
-                    updateTaskMutation.mutate(checked as boolean);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="transition-colors"
-                />
-              )}
-            </div>
-            <div className="flex items-start justify-between gap-3 flex-1" onClick={onClick}>
-              <div className="space-y-1">
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 pt-1">
+            {isUpdating ? (
+              <div className="h-4 w-4 flex items-center justify-center">
+                <Loader2 className="h-3 w-3 animate-spin" />
+              </div>
+            ) : (
+              <Checkbox
+                checked={task.completed}
+                onCheckedChange={(checked) => {
+                  updateTaskMutation.mutate(checked as boolean);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="transition-colors"
+              />
+            )}
+          </div>
+          <div className="flex-1 min-w-0" onClick={onClick}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <h3 className={cn(
-                    "font-medium text-sm leading-tight",
+                    "font-medium text-sm leading-none",
                     task.completed && "line-through text-muted-foreground"
                   )}>
                     {task.title}
@@ -138,18 +138,18 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                   </span>
                 </div>
                 {task.due_date && (
-                  <div className="flex items-center gap-1.5 text-[0.7rem] text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-[0.65rem] text-muted-foreground">
                     <Calendar className="h-3 w-3" />
                     {format(new Date(task.due_date), "dd MMMM yyyy")}
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {task.priority && (
                   <Badge 
                     variant="secondary" 
                     className={cn(
-                      "text-[0.65rem] font-medium px-2 py-0.5",
+                      "text-[0.65rem] px-2 py-0.5",
                       priorityColors[task.priority as keyof typeof priorityColors]
                     )}
                   >
