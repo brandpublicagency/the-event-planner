@@ -104,6 +104,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         "hover:border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-sm group",
         isSelected && "border-primary shadow-sm"
       )}
+      onClick={onClick}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">

@@ -1,20 +1,27 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ChevronDown, ChevronRight } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { TaskCard } from "./TaskCard";
-import { EditableTaskCard } from "./EditableTaskCard";
-import { Task } from "@/contexts/TaskContext";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Calendar, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export function TaskList({ onTaskSelect, selectedTaskId }: { 
+interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  due_date: string | null;
+  priority: string | null;
+}
+
+interface TaskListProps {
   onTaskSelect: (id: string) => void;
   selectedTaskId: string | null;
-}) {
-  const [editingTask, setEditingTask] = useState<string | null>(null);
+}
+
+export function TaskList({ onTaskSelect, selectedTaskId }: TaskListProps) {
   const [error, setError] = useState<string | null>(null);
-  const [isCompletedOpen, setIsCompletedOpen] = useState(false);
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -22,6 +29,7 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
+        .eq("completed", false)
         .order("due_date", { ascending: true });
 
       if (error) {
@@ -44,62 +52,43 @@ export function TaskList({ onTaskSelect, selectedTaskId }: {
     return <div className="text-red-500 p-4">{error}</div>;
   }
 
-  const upcomingTasks = tasks?.filter(task => !task.completed) || [];
-  const completedTasks = tasks?.filter(task => task.completed) || [];
-
-  const renderTaskList = (taskList: Task[]) => (
-    <div className="space-y-3">
-      {taskList.map((task) => (
-        editingTask === task.id ? (
-          <EditableTaskCard
-            key={task.id}
-            task={task}
-            onCancel={() => setEditingTask(null)}
-            onSave={() => setEditingTask(null)}
-          />
-        ) : (
-          <TaskCard
-            key={task.id}
-            task={task}
-            isSelected={task.id === selectedTaskId}
-            onClick={() => {
-              onTaskSelect(task.id);
-              setEditingTask(task.id);
-            }}
-          />
-        )
+  return (
+    <div className="space-y-2">
+      {tasks?.map((task) => (
+        <div
+          key={task.id}
+          className={cn(
+            "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white",
+            selectedTaskId === task.id && "border-primary bg-primary/5"
+          )}
+        >
+          <div className="flex items-center justify-between w-full">
+            <Button
+              variant="ghost"
+              className="h-auto p-0 text-sm font-medium hover:text-primary"
+              onClick={() => onTaskSelect(task.id)}
+            >
+              {task.title}
+            </Button>
+            <div className="flex items-center gap-3">
+              {task.due_date && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>{format(new Date(task.due_date), "dd MMM yyyy")}</span>
+                </div>
+              )}
+              {task.priority && (
+                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                  {task.priority}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
       ))}
-      {taskList.length === 0 && (
-        <p className="text-center text-muted-foreground py-4">No tasks</p>
+      {tasks?.length === 0 && (
+        <p className="text-center text-muted-foreground py-8">No upcoming tasks</p>
       )}
     </div>
-  );
-
-  return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
-      <div className="space-y-6 pr-4">
-        {upcomingTasks.length > 0 && (
-          <div>
-            {renderTaskList(upcomingTasks)}
-          </div>
-        )}
-
-        {completedTasks.length > 0 && (
-          <Collapsible open={isCompletedOpen} onOpenChange={setIsCompletedOpen}>
-            <CollapsibleTrigger className="flex items-center gap-2 w-full text-xl font-semibold mb-3">
-              {isCompletedOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              Completed Tasks ({completedTasks.length})
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              {renderTaskList(completedTasks)}
-            </CollapsibleContent>
-          </Collapsible>
-        )}
-
-        {tasks?.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">No tasks found</p>
-        )}
-      </div>
-    </ScrollArea>
   );
 }
