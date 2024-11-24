@@ -12,7 +12,7 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
-  user: {
+  profiles: {
     full_name: string | null;
     avatar_url: string | null;
   } | null;
@@ -29,7 +29,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          user:user_id (
+          profiles!task_comments_user_id_fkey (
             full_name,
             avatar_url
           )
@@ -97,15 +97,15 @@ export function TaskComments({ taskId }: { taskId: string }) {
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.user?.avatar_url || undefined} />
+              <AvatarImage src={comment.profiles?.avatar_url || undefined} />
               <AvatarFallback>
-                {comment.user?.full_name?.[0] || "U"}
+                {comment.profiles?.full_name?.[0] || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">
-                  {comment.user?.full_name || "User"}
+                  {comment.profiles?.full_name || "User"}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "MMM d, yyyy 'at' h:mm a")}
