@@ -25,7 +25,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-[calc(100vh-12rem)] flex flex-col">
       <div className="flex items-start justify-between p-6 border-b">
         <div className="space-y-2">
           <h2 className="text-lg font-medium leading-none">{task.title}</h2>
