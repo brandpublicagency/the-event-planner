@@ -1,4 +1,3 @@
-import { Task } from "@/contexts/TaskContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User } from "lucide-react";
@@ -30,7 +29,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-medium text-sm">{task.title}</h3>
-            <p className="text-xs text-muted-foreground">{task.task_code}</p>
+            <p className="text-xs text-muted-foreground text-[0.7rem]">{task.task_code}</p>
           </div>
           {task.priority && (
             <Badge variant="secondary" className={cn(priorityColors[task.priority as keyof typeof priorityColors])}>
