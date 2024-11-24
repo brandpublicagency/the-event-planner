@@ -29,7 +29,7 @@ export function TaskComments({ taskId }: { taskId: string }) {
         .from("task_comments")
         .select(`
           *,
-          profiles:profiles!task_comments_user_id_fkey(full_name, avatar_url)
+          profiles:user_id(full_name, avatar_url)
         `)
         .eq("task_id", taskId)
         .order("created_at", { ascending: true });

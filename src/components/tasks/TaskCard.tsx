@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Task } from "@/contexts/TaskContext";
 
 interface TaskCardProps {
   task: Task;
