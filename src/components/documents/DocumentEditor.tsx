@@ -28,14 +28,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
         heading: {
           levels: [2],
         },
@@ -48,9 +40,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         },
       }),
     ],
-    onUpdate: ({ editor }) => {
-      // We'll handle content updates here
-    },
   });
 
   const { data: document, isLoading } = useQuery({
