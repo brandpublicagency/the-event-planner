@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileDown, FileUp, Loader2, Save, FileText, FilePdf } from "lucide-react";
+import { FileDown, FileUp, Loader2, Save, FileText } from "lucide-react";
 import { Editor } from '@tiptap/react';
 import { exportDocument, importDocument } from "@/utils/documentUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -90,7 +90,7 @@ export function DocumentActions({ title, editor, onSave, isSaving }: DocumentAct
             Export as HTML
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handlePdfExport}>
-            <FilePdf className="h-4 w-4 mr-2" />
+            <FileText className="h-4 w-4 mr-2" />
             Export as PDF
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDocxExport}>
