@@ -39,8 +39,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (document) {
       setTitle(document.title);
-      const documentContent = document.content as DocumentContent;
-      setContent(documentContent?.text || "");
+      // Safely handle the content type conversion
+      const documentContent = document.content as unknown;
+      if (
+        documentContent &&
+        typeof documentContent === "object" &&
+        "text" in documentContent
+      ) {
+        setContent((documentContent as DocumentContent).text);
+      } else {
+        setContent("");
+      }
     }
   }, [document]);
 
