@@ -17,66 +17,47 @@ export const exportAsPdf = async (html: string, title: string) => {
   // Add custom styles to match editor formatting
   const style = document.createElement('style');
   style.textContent = `
-    h1 { font-size: 14px; font-weight: bold; margin: 12px 0 8px 0; }
-    h2 { font-size: 12px; font-weight: bold; margin: 10px 0 8px 0; }
-    h3 { font-size: 11px; font-weight: bold; margin: 8px 0 8px 0; }
-    ul { padding-left: 20px; margin: 8px 0; }
-    ol { padding-left: 20px; margin: 8px 0; }
-    li { margin: 4px 0; font-size: 10px; }
-    ul li { list-style-type: disc; }
-    ol li { list-style-type: decimal; }
-    p { margin: 8px 0; font-size: 10px; }
-    blockquote { margin: 12px 0; padding-left: 12px; border-left: 3px solid #e5e5e5; }
+    .pdf-content {
+      font-size: 10pt;
+      line-height: 1.4;
+      font-family: Arial, sans-serif;
+    }
+    h1 { font-size: 14pt; font-weight: bold; margin: 12pt 0 8pt 0; }
+    h2 { font-size: 12pt; font-weight: bold; margin: 10pt 0 8pt 0; }
+    h3 { font-size: 11pt; font-weight: bold; margin: 8pt 0 8pt 0; }
+    ul, ol { padding-left: 20pt; margin: 8pt 0; }
+    li { margin: 4pt 0; font-size: 10pt; }
+    p { margin: 8pt 0; font-size: 10pt; }
+    blockquote { margin: 12pt 0; padding-left: 12pt; border-left: 3pt solid #e5e5e5; }
   `;
   container.appendChild(style);
+  container.className = 'pdf-content';
   
-  // Initialize PDF
+  // Initialize PDF with A4 format
   const doc = new jsPDF({
-    unit: 'cm',
-    format: 'a4'
+    unit: 'pt',
+    format: 'a4',
   });
 
-  // Set margins
-  const margin = 1; // 1cm margin
-  
-  // Add title with smaller font size (approximately 14pt)
+  // Set title
   doc.setFontSize(14);
-  doc.text(title, margin, margin + 0.5);
+  doc.text(title, 40, 40);
   
   // Convert HTML content to PDF
-  doc.html(container, {
+  await doc.html(container, {
     callback: function (doc) {
       doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
       // Clean up
       document.body.removeChild(container);
     },
-    x: margin,
-    y: margin + 1,
-    width: doc.internal.pageSize.getWidth() - (margin * 2), // Account for margins
+    x: 40,
+    y: 60,
+    width: doc.internal.pageSize.getWidth() - 80, // 40pt margins on each side
+    windowWidth: 794, // A4 width in points
     html2canvas: {
-      scale: 2, // Increased scale for better quality
+      scale: 1,
       useCORS: true,
       logging: false,
-      onclone: function(clonedDoc) {
-        // Ensure lists are properly rendered
-        const lists = clonedDoc.querySelectorAll('ul, ol');
-        lists.forEach(list => {
-          if (list instanceof HTMLElement) {
-            if (list.tagName === 'UL') {
-              list.style.listStyleType = 'disc';
-            } else {
-              list.style.listStyleType = 'decimal';
-            }
-          }
-        });
-
-        // Set base font size for all text
-        const content = clonedDoc.querySelector('div');
-        if (content instanceof HTMLElement) {
-          content.style.fontSize = '10px';
-          content.style.lineHeight = '1.4';
-        }
-      }
     },
   });
 };
