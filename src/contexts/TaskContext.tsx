@@ -38,7 +38,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.id) return [];
+      if (!session?.user?.id) {
+        throw new Error("No authenticated user");
+      }
 
       const { data, error } = await supabase
         .from("tasks")
@@ -49,6 +51,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data as Task[];
     },
+    staleTime: 1000, // Consider data fresh for 1 second
+    refetchOnMount: true, // Ensure refetch when component mounts
+    retry: 3, // Retry failed requests 3 times
   });
 
   const addTaskMutation = useMutation({
