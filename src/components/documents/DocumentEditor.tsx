@@ -27,7 +27,13 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bulletList: true,
+        orderedList: true,
+        heading: {
+          levels: [2],
+        },
+      }),
       Underline,
       Link.configure({
         openOnClick: true,
