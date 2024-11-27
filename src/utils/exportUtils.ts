@@ -1,5 +1,6 @@
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const htmlToPlainText = (html: string) => {
   const temp = document.createElement('div');
@@ -8,19 +9,46 @@ const htmlToPlainText = (html: string) => {
 };
 
 export const exportAsPdf = async (html: string, title: string) => {
-  const doc = new jsPDF();
-  const text = htmlToPlainText(html);
+  // Create a temporary container to render the HTML
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  document.body.appendChild(container);
+  
+  // Initialize PDF with larger page size
+  const doc = new jsPDF({
+    unit: 'pt',
+    format: 'a4',
+  });
   
   // Add title
-  doc.setFontSize(16);
-  doc.text(title, 20, 20);
+  doc.setFontSize(18);
+  doc.text(title, 40, 40);
   
-  // Add content
+  // Get the computed styles
+  const computedStyle = window.getComputedStyle(container);
+  
+  // Set default styles
   doc.setFontSize(12);
-  const splitText = doc.splitTextToSize(text, 170);
-  doc.text(splitText, 20, 30);
+  doc.setFont('helvetica');
   
-  doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+  // Convert HTML content to PDF with styling
+  doc.html(container, {
+    callback: function (doc) {
+      doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+      // Clean up
+      document.body.removeChild(container);
+    },
+    x: 40,
+    y: 60,
+    width: 515, // A4 width minus margins
+    windowWidth: 675, // Reference HTML width
+    autoPaging: true,
+    margin: [40, 40, 40, 40],
+    html2canvas: {
+      scale: 0.7,
+      useCORS: true,
+    },
+  });
 };
 
 export const exportAsDocx = async (html: string, title: string) => {
