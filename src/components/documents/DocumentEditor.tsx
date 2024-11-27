@@ -51,6 +51,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         lowlight,
       }),
     ],
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
+      },
+    },
   });
 
   const { data: documentData, isLoading } = useQuery({
@@ -153,10 +158,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
       <EditorToolbar editor={editor} />
 
-      <EditorContent 
-        editor={editor} 
-        className="flex-1 overflow-y-auto prose prose-sm max-w-none bg-white border rounded-lg p-4"
-      />
+      <div className="flex-1 overflow-y-auto bg-white border rounded-lg">
+        <EditorContent 
+          editor={editor} 
+          className="min-h-[500px] p-4"
+        />
+      </div>
     </div>
   );
 }
