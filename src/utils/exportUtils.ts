@@ -61,10 +61,12 @@ export const exportAsPdf = async (html: string, title: string) => {
         // Ensure lists are properly rendered
         const lists = clonedDoc.querySelectorAll('ul, ol');
         lists.forEach(list => {
-          if (list.tagName === 'UL') {
-            list.style.listStyleType = 'disc';
-          } else {
-            list.style.listStyleType = 'decimal';
+          if (list instanceof HTMLElement) {
+            if (list.tagName === 'UL') {
+              list.style.listStyleType = 'disc';
+            } else {
+              list.style.listStyleType = 'decimal';
+            }
           }
         });
       }
