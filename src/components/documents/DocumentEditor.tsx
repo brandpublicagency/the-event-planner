@@ -58,7 +58,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  const { data: documentData, isLoading } = useQuery({
+  const { data: documentData, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) return null;
@@ -66,7 +66,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         .from("documents")
         .select("*")
         .eq("id", documentId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to handle missing documents
 
       if (error) throw error;
       return data;
@@ -135,6 +135,14 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error || !documentData) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        Document not found or error loading document
       </div>
     );
   }
