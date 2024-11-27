@@ -30,16 +30,18 @@ export const exportAsPdf = async (html: string, title: string) => {
   `;
   container.appendChild(style);
   
-  // Initialize PDF with 1cm margins
+  // Initialize PDF
   const doc = new jsPDF({
     unit: 'cm',
-    format: 'a4',
-    margin: 1
+    format: 'a4'
   });
+
+  // Set margins
+  const margin = 1; // 1cm margin
   
   // Add title with smaller font size
   doc.setFontSize(16);
-  doc.text(title, 1, 1.5);
+  doc.text(title, margin, margin + 0.5);
   
   // Convert HTML content to PDF
   doc.html(container, {
@@ -48,9 +50,9 @@ export const exportAsPdf = async (html: string, title: string) => {
       // Clean up
       document.body.removeChild(container);
     },
-    x: 1,
-    y: 2,
-    width: doc.internal.pageSize.getWidth() - 2, // Account for margins
+    x: margin,
+    y: margin + 1,
+    width: doc.internal.pageSize.getWidth() - (margin * 2), // Account for margins
     html2canvas: {
       scale: 0.7,
       useCORS: true,
