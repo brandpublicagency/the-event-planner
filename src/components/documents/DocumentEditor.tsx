@@ -171,7 +171,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
       <EditorContent 
         editor={editor} 
-        className="flex-1 overflow-y-auto prose prose-sm max-w-none border rounded-lg p-4"
+        className="flex-1 overflow-y-auto prose prose-sm max-w-none bg-white p-4"
       />
     </div>
   );
