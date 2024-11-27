@@ -107,6 +107,51 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
+  const handleExport = () => {
+    if (!editor || !title) return;
+    
+    const content = editor.getHTML();
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.toLowerCase().replace(/\s+/g, '-')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Document exported",
+      description: "Your document has been exported successfully.",
+    });
+  };
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.html,.txt';
+    
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file || !editor) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const content = event.target?.result as string;
+        editor.commands.setContent(content);
+        
+        toast({
+          title: "Document imported",
+          description: "Your document has been imported successfully.",
+        });
+      };
+      reader.readAsText(file);
+    };
+
+    input.click();
+  };
+
   if (!documentId) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
@@ -136,9 +181,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              // We'll implement export functionality here
-            }}
+            onClick={handleExport}
           >
             <FileDown className="h-4 w-4 mr-2" />
             Export
@@ -146,9 +189,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              // We'll implement import functionality here
-            }}
+            onClick={handleImport}
           >
             <FileUp className="h-4 w-4 mr-2" />
             Import
