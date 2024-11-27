@@ -31,19 +31,6 @@
   body {
     @apply bg-background text-foreground antialiased text-[0.875rem];
   }
-
-  * {
-    @apply focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0 focus-within:outline-none focus-within:ring-0;
-  }
-
-  *:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-
-  button, input, select, textarea {
-    @apply focus:outline-none focus-visible:outline-none focus:ring-0 focus:ring-offset-0 rounded-[1rem];
-  }
 }
 
 @layer components {
@@ -72,6 +59,52 @@
   }
 }
 
+/* Editor Styles */
+.ProseMirror {
+  @apply min-h-[500px] outline-none;
+}
+
+.ProseMirror h1 {
+  @apply text-4xl font-bold mb-4 mt-6;
+}
+
+.ProseMirror h2 {
+  @apply text-3xl font-bold mb-3 mt-5;
+}
+
+.ProseMirror h3 {
+  @apply text-2xl font-bold mb-3 mt-4;
+}
+
+.ProseMirror ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.ProseMirror ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.ProseMirror p {
+  @apply mb-4;
+}
+
+.ProseMirror blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.ProseMirror code {
+  @apply bg-gray-100 rounded px-1;
+}
+
+.ProseMirror pre {
+  @apply bg-gray-100 rounded p-4 my-4;
+}
+
+.ProseMirror mark {
+  @apply bg-yellow-200;
+}
+
+/* Keep existing styles */
 .rdp {
   @apply p-0 w-full max-w-[400px] mx-auto;
 }
