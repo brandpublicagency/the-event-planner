@@ -12,50 +12,61 @@ export const exportAsPdf = async (html: string, title: string) => {
   // Create a temporary container to render the HTML
   const container = document.createElement('div');
   container.innerHTML = html;
-  document.body.appendChild(container);
   
   // Add custom styles to match editor formatting
   const style = document.createElement('style');
   style.textContent = `
     .pdf-content {
-      font-size: 10pt;
-      line-height: 1.4;
       font-family: Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #000;
+      max-width: 100%;
+      padding: 20pt;
     }
-    h1 { font-size: 14pt; font-weight: bold; margin: 12pt 0 8pt 0; }
-    h2 { font-size: 12pt; font-weight: bold; margin: 10pt 0 8pt 0; }
-    h3 { font-size: 11pt; font-weight: bold; margin: 8pt 0 8pt 0; }
-    ul, ol { padding-left: 20pt; margin: 8pt 0; }
-    li { margin: 4pt 0; font-size: 10pt; }
-    p { margin: 8pt 0; font-size: 10pt; }
-    blockquote { margin: 12pt 0; padding-left: 12pt; border-left: 3pt solid #e5e5e5; }
+    h1 { font-size: 16pt; font-weight: bold; margin: 14pt 0 10pt 0; }
+    h2 { font-size: 14pt; font-weight: bold; margin: 12pt 0 8pt 0; }
+    h3 { font-size: 12pt; font-weight: bold; margin: 10pt 0 6pt 0; }
+    p { margin: 0 0 8pt 0; }
+    ul, ol { margin: 6pt 0; padding-left: 16pt; }
+    li { margin: 4pt 0; }
+    blockquote { 
+      margin: 10pt 0;
+      padding-left: 10pt;
+      border-left: 2pt solid #666;
+      font-style: italic;
+    }
   `;
+  
   container.appendChild(style);
   container.className = 'pdf-content';
-  
+  document.body.appendChild(container);
+
   // Initialize PDF with A4 format
   const doc = new jsPDF({
     unit: 'pt',
     format: 'a4',
+    orientation: 'portrait'
   });
 
   // Set title
-  doc.setFontSize(14);
+  doc.setFontSize(16);
   doc.text(title, 40, 40);
-  
+
   // Convert HTML content to PDF
   await doc.html(container, {
     callback: function (doc) {
       doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
-      // Clean up
       document.body.removeChild(container);
     },
     x: 40,
-    y: 60,
+    y: 80,
     width: doc.internal.pageSize.getWidth() - 80, // 40pt margins on each side
+    autoPaging: 'text',
     windowWidth: 794, // A4 width in points
+    margin: [40, 40, 40, 40],
     html2canvas: {
-      scale: 1,
+      scale: 0.7,
       useCORS: true,
       logging: false,
     },
