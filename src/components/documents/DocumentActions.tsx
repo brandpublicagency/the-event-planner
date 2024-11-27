@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { FileDown, FileUp, Loader2, Save } from "lucide-react";
+import { FileDown, FileUp, Loader2, Save, FileText, FilePdf } from "lucide-react";
 import { Editor } from '@tiptap/react';
 import { exportDocument, importDocument } from "@/utils/documentUtils";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 
 interface DocumentActionsProps {
   title: string;
@@ -19,8 +26,42 @@ export function DocumentActions({ title, editor, onSave, isSaving }: DocumentAct
     exportDocument(editor.getHTML(), title);
     toast({
       title: "Document exported",
-      description: "Your document has been exported successfully.",
+      description: "Your document has been exported as HTML.",
     });
+  };
+
+  const handlePdfExport = async () => {
+    if (!editor || !title) return;
+    try {
+      await exportAsPdf(editor.getHTML(), title);
+      toast({
+        title: "PDF exported",
+        description: "Your document has been exported as PDF.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDocxExport = async () => {
+    if (!editor || !title) return;
+    try {
+      await exportAsDocx(editor.getHTML(), title);
+      toast({
+        title: "DOCX exported",
+        description: "Your document has been exported as DOCX.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Failed to export DOCX. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleImport = () => {
@@ -36,14 +77,28 @@ export function DocumentActions({ title, editor, onSave, isSaving }: DocumentAct
 
   return (
     <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleExport}
-      >
-        <FileDown className="h-4 w-4 mr-2" />
-        Export
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <FileDown className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleExport}>
+            <FileText className="h-4 w-4 mr-2" />
+            Export as HTML
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handlePdfExport}>
+            <FilePdf className="h-4 w-4 mr-2" />
+            Export as PDF
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDocxExport}>
+            <FileDown className="h-4 w-4 mr-2" />
+            Export as DOCX
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button
         variant="outline"
         size="sm"
