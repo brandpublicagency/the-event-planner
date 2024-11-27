@@ -1,4 +1,8 @@
-import { Bold, Italic, Underline, Heading, Link, List, ListOrdered, SeparatorHorizontal } from "lucide-react";
+import { 
+  Bold, Italic, Underline, Heading1, Heading2, Heading3,
+  Link, List, ListOrdered, SeparatorHorizontal, Code,
+  Highlighter, Quote, 
+} from "lucide-react";
 import { Editor } from '@tiptap/react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -32,7 +36,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   }
 
   return (
-    <div className="border rounded-lg mb-4 p-1 flex items-center gap-1 bg-background">
+    <div className="border rounded-lg mb-4 p-1 flex items-center gap-1 flex-wrap bg-background">
       <MenuButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         active={editor.isActive('bold')}
@@ -53,11 +57,24 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       />
       <Separator orientation="vertical" className="mx-1 h-6" />
       <MenuButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        active={editor.isActive('heading', { level: 1 })}
+        icon={Heading1}
+        tooltip="Heading 1"
+      />
+      <MenuButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         active={editor.isActive('heading', { level: 2 })}
-        icon={Heading}
-        tooltip="Heading"
+        icon={Heading2}
+        tooltip="Heading 2"
       />
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        active={editor.isActive('heading', { level: 3 })}
+        icon={Heading3}
+        tooltip="Heading 3"
+      />
+      <Separator orientation="vertical" className="mx-1 h-6" />
       <MenuButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         active={editor.isActive('bulletList')}
@@ -81,6 +98,24 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         active={editor.isActive('link')}
         icon={Link}
         tooltip="Add Link"
+      />
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        active={editor.isActive('codeBlock')}
+        icon={Code}
+        tooltip="Code Block"
+      />
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
+        active={editor.isActive('highlight')}
+        icon={Highlighter}
+        tooltip="Highlight"
+      />
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        active={editor.isActive('blockquote')}
+        icon={Quote}
+        tooltip="Quote"
       />
       <MenuButton
         onClick={() => editor.chain().focus().setHorizontalRule().run()}

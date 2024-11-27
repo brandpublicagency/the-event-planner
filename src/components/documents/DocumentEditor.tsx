@@ -8,6 +8,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { lowlight } from 'lowlight';
 import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 
@@ -29,8 +32,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [2],
+          levels: [1, 2, 3],
         },
+        codeBlock: false,
       }),
       Underline,
       Link.configure({
@@ -38,6 +42,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         HTMLAttributes: {
           class: 'text-primary underline',
         },
+      }),
+      Highlight.configure({
+        multicolor: true,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
       }),
     ],
   });
