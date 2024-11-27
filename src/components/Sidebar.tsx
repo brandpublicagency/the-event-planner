@@ -19,19 +19,19 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
-        return 'bg-gradient-to-b from-blue-50/80 to-indigo-50/80';
+        return 'bg-gradient-to-b from-blue-50/50 via-indigo-50/50 to-blue-100/50';
       case '/events':
-        return 'bg-gradient-to-b from-emerald-50/80 to-teal-50/80';
+        return 'bg-gradient-to-b from-emerald-50/50 via-green-50/50 to-teal-100/50';
       case '/passed-events':
-        return 'bg-gradient-to-b from-violet-50/80 to-purple-50/80';
+        return 'bg-gradient-to-b from-violet-50/50 via-purple-50/50 to-violet-100/50';
       case '/calendar':
-        return 'bg-gradient-to-b from-rose-50/80 to-pink-50/80';
+        return 'bg-gradient-to-b from-rose-50/50 via-pink-50/50 to-rose-100/50';
       case '/tasks':
-        return 'bg-gradient-to-b from-amber-50/80 to-yellow-50/80';
+        return 'bg-gradient-to-b from-amber-50/50 via-yellow-50/50 to-amber-100/50';
       case '/documents':
-        return 'bg-gradient-to-b from-cyan-50/80 to-sky-50/80';
+        return 'bg-gradient-to-b from-cyan-50/50 via-sky-50/50 to-cyan-100/50';
       default:
-        return 'bg-gradient-to-b from-slate-50/80 to-gray-50/80';
+        return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
     }
   };
 
