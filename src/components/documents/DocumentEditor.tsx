@@ -161,7 +161,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       <div className="flex-1 overflow-y-auto bg-white border rounded-lg">
         <EditorContent 
           editor={editor} 
-          className="min-h-[500px] p-2" 
+          className="min-h-[500px] p-4" 
         />
       </div>
     </div>
