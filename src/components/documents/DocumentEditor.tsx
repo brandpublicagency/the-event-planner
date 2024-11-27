@@ -28,8 +28,14 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bulletList: true,
-        orderedList: true,
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
         heading: {
           levels: [2],
         },
