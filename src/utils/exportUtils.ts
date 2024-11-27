@@ -17,9 +17,9 @@ export const exportAsPdf = async (html: string, title: string) => {
   // Add custom styles to match editor formatting
   const style = document.createElement('style');
   style.textContent = `
-    h1 { font-size: 24px; font-weight: bold; margin: 16px 0 8px 0; }
-    h2 { font-size: 20px; font-weight: bold; margin: 14px 0 8px 0; }
-    h3 { font-size: 16px; font-weight: bold; margin: 12px 0 8px 0; }
+    h1 { font-size: 18px; font-weight: bold; margin: 12px 0 8px 0; }
+    h2 { font-size: 16px; font-weight: bold; margin: 10px 0 8px 0; }
+    h3 { font-size: 14px; font-weight: bold; margin: 8px 0 8px 0; }
     ul { padding-left: 20px; margin: 8px 0; }
     ol { padding-left: 20px; margin: 8px 0; }
     li { margin: 4px 0; }
@@ -30,15 +30,16 @@ export const exportAsPdf = async (html: string, title: string) => {
   `;
   container.appendChild(style);
   
-  // Initialize PDF
+  // Initialize PDF with 1cm margins
   const doc = new jsPDF({
-    unit: 'pt',
+    unit: 'cm',
     format: 'a4',
+    margin: 1
   });
   
-  // Add title
-  doc.setFontSize(24);
-  doc.text(title, 40, 40);
+  // Add title with smaller font size
+  doc.setFontSize(16);
+  doc.text(title, 1, 1.5);
   
   // Convert HTML content to PDF
   doc.html(container, {
@@ -47,12 +48,9 @@ export const exportAsPdf = async (html: string, title: string) => {
       // Clean up
       document.body.removeChild(container);
     },
-    x: 40,
-    y: 80,
-    width: 515, // A4 width minus margins
-    windowWidth: 675,
-    autoPaging: true,
-    margin: [40, 40, 40, 40],
+    x: 1,
+    y: 2,
+    width: doc.internal.pageSize.getWidth() - 2, // Account for margins
     html2canvas: {
       scale: 0.7,
       useCORS: true,
