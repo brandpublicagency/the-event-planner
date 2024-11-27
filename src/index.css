@@ -65,7 +65,7 @@
 }
 
 .ProseMirror h1 {
-  @apply text-lg font-bold mb-3 mt-6;  /* 18px */
+  @apply text-lg font-bold mb-3 mt-4;  /* reduced from mt-6 to mt-4 */
 }
 
 .ProseMirror h2 {
