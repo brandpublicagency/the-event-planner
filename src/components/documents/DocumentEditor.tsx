@@ -2,14 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2, Save, FileDown, FileUp } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import { EditorToolbar } from "./EditorToolbar";
+import { DocumentActions } from "./DocumentActions";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -42,7 +42,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     ],
   });
 
-  const { data: document, isLoading } = useQuery({
+  const { data: documentData, isLoading } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) return null;
@@ -59,9 +59,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   });
 
   useEffect(() => {
-    if (document) {
-      setTitle(document.title);
-      const documentContent = document.content as unknown;
+    if (documentData) {
+      setTitle(documentData.title);
+      const documentContent = documentData.content as unknown;
       if (
         documentContent &&
         typeof documentContent === "object" &&
@@ -72,7 +72,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         editor?.commands.setContent("");
       }
     }
-  }, [document, editor]);
+  }, [documentData, editor]);
 
   const updateDocument = useMutation({
     mutationFn: async () => {
@@ -107,51 +107,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  const handleExport = () => {
-    if (!editor || !title) return;
-    
-    const content = editor.getHTML();
-    const blob = new Blob([content], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title.toLowerCase().replace(/\s+/g, '-')}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Document exported",
-      description: "Your document has been exported successfully.",
-    });
-  };
-
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.html,.txt';
-    
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file || !editor) return;
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const content = event.target?.result as string;
-        editor.commands.setContent(content);
-        
-        toast({
-          title: "Document imported",
-          description: "Your document has been imported successfully.",
-        });
-      };
-      reader.readAsText(file);
-    };
-
-    input.click();
-  };
-
   if (!documentId) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
@@ -177,35 +132,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           placeholder="Untitled"
           className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
         />
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-          >
-            <FileDown className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleImport}
-          >
-            <FileUp className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button
-            onClick={() => updateDocument.mutate()}
-            disabled={updateDocument.isPending}
-          >
-            {updateDocument.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            <span className="ml-2">Save</span>
-          </Button>
-        </div>
+        <DocumentActions
+          title={title}
+          editor={editor}
+          onSave={() => updateDocument.mutate()}
+          isSaving={updateDocument.isPending}
+        />
       </div>
 
       <EditorToolbar editor={editor} />
