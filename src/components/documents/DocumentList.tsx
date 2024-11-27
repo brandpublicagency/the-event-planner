@@ -1,34 +1,52 @@
 import { cn } from "@/lib/utils";
+import { FileText, FileCode } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Document {
   id: string;
   title: string;
   created_at: string;
+  template?: boolean;
 }
 
 interface DocumentListProps {
   documents: Document[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  showTemplates?: boolean;
 }
 
-export default function DocumentList({ documents, selectedId, onSelect }: DocumentListProps) {
+export default function DocumentList({ 
+  documents, 
+  selectedId, 
+  onSelect,
+  showTemplates = false
+}: DocumentListProps) {
+  const filteredDocs = documents.filter(doc => 
+    showTemplates ? doc.template : !doc.template
+  );
+
   return (
     <div className="space-y-1">
-      {documents.map((doc) => (
-        <button
+      {filteredDocs.map((doc) => (
+        <Button
           key={doc.id}
+          variant="ghost"
           onClick={() => onSelect(doc.id)}
           className={cn(
-            "w-full text-left px-2 py-1.5 rounded-md text-sm",
-            "hover:bg-accent hover:text-accent-foreground",
+            "w-full justify-start gap-2",
             selectedId === doc.id && "bg-accent text-accent-foreground"
           )}
         >
-          {doc.title || "Untitled"}
-        </button>
+          {doc.template ? (
+            <FileCode className="h-4 w-4" />
+          ) : (
+            <FileText className="h-4 w-4" />
+          )}
+          <span className="truncate">{doc.title || "Untitled"}</span>
+        </Button>
       ))}
-      {documents.length === 0 && (
+      {filteredDocs.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
           No documents found
         </p>
