@@ -40,12 +40,14 @@ export default function Documents() {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("User not authenticated");
 
+      // First, insert the document without the path
       const { data, error } = await supabase
         .from("documents")
         .insert({
           title: "Untitled Document",
           content: { html: "", text: "" },
-          user_id: user.user.id
+          user_id: user.user.id,
+          depth: 1
         })
         .select()
         .single();
