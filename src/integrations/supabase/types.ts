@@ -53,6 +53,56 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          category: string | null
+          content: Json | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          parent_id: string | null
+          tags: string[] | null
+          template: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          parent_id?: string | null
+          tags?: string[] | null
+          template?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          parent_id?: string | null
+          tags?: string[] | null
+          template?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_documents: {
         Row: {
           content_type: string | null

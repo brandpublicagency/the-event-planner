@@ -158,6 +158,16 @@ export const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/documents"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Documents />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
