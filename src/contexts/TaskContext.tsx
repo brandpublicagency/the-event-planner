@@ -51,9 +51,10 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data as Task[];
     },
-    staleTime: 1000, // Consider data fresh for 1 second
-    refetchOnMount: true, // Ensure refetch when component mounts
-    retry: 3, // Retry failed requests 3 times
+    staleTime: 1000,
+    refetchOnMount: true,
+    retry: 3,
+    refetchOnWindowFocus: true,
   });
 
   const addTaskMutation = useMutation({

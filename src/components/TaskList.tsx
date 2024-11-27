@@ -4,7 +4,7 @@ import { TaskItem } from "./tasks/TaskItem";
 import { EditableTaskCard } from "./tasks/EditableTaskCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
 
 interface TaskListProps {
@@ -16,13 +16,21 @@ interface TaskListProps {
 export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const { addTask } = useTaskContext();
+  const { addTask, isLoading } = useTaskContext();
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
     await addTask(newTaskTitle);
     setNewTaskTitle("");
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -49,7 +57,7 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
             />
           )
         ))}
-        {tasks?.length === 0 && (
+        {!isLoading && tasks?.length === 0 && (
           <p className="text-center text-muted-foreground py-8">No tasks</p>
         )}
         
