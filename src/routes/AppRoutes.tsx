@@ -13,6 +13,7 @@ import EventDetails from "@/pages/EventDetails";
 import Tasks from "@/pages/Tasks";
 import TaskDetails from "@/pages/TaskDetails";
 import Login from "@/pages/Login";
+import Documents from "@/pages/Documents";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);

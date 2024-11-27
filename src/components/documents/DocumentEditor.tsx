@@ -10,6 +10,10 @@ interface DocumentEditorProps {
   documentId: string | null;
 }
 
+interface DocumentContent {
+  text: string;
+}
+
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -35,7 +39,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (document) {
       setTitle(document.title);
-      setContent(document.content?.text || "");
+      const documentContent = document.content as DocumentContent;
+      setContent(documentContent?.text || "");
     }
   }, [document]);
 
