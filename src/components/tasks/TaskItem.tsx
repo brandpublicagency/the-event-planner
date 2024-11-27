@@ -37,31 +37,27 @@ export function TaskItem({
     low: "bg-green-100 text-green-800",
   };
 
-  const handleTitleClick = () => {
-    navigate(`/tasks?selected=${id}`);
-  };
-
   return (
     <div
       className={cn(
-        "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white",
+        "group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white cursor-pointer",
         isSelected && "border-primary bg-primary/5"
       )}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between w-full gap-4">
         <div className="flex items-center gap-3">
           <Checkbox
             checked={completed}
-            onCheckedChange={(checked) => toggleTask(id, checked as boolean)}
-            onClick={(e) => e.stopPropagation()}
+            onCheckedChange={(checked) => {
+              toggleTask(id, checked as boolean);
+              // Prevent the onClick event from bubbling up
+              event?.stopPropagation();
+            }}
           />
-          <Button
-            variant="ghost"
-            className="h-auto p-0 text-sm font-medium hover:text-primary"
-            onClick={handleTitleClick}
-          >
+          <span className="text-sm font-medium hover:text-primary">
             {title}
-          </Button>
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {dueDate && (
