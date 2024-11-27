@@ -87,13 +87,11 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
   const { error } = await supabase
     .from('events')
     .update({ completed: true })
-    .eq('event_code', eventCode);
+    .eq('event_code', eventCode)
+    .select();
 
   if (error) {
     console.error('Error marking event as completed:', error);
     throw new Error(`Failed to mark event as completed: ${error.message}`);
   }
 };
-
-// Let's mark EVENT-1911-5898 as completed
-markEventAsCompleted('EVENT-1911-5898').catch(console.error);
