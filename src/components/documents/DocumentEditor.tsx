@@ -13,6 +13,7 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
+import { LinkPreview } from "./LinkPreview";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -43,6 +44,20 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         HTMLAttributes: {
           class: 'text-primary underline',
         },
+        renderHTML({ HTMLAttributes }) {
+          const url = HTMLAttributes.href;
+          if (url && !url.startsWith('/')) {
+            return [
+              ['div', { class: 'my-4' }, [
+                ['a', HTMLAttributes, 0],
+                ['div', { class: 'mt-2' }, [
+                  ['link-preview', { url }]
+                ]]
+              ]]
+            ];
+          }
+          return ['a', HTMLAttributes, 0];
+        },
       }),
       Highlight.configure({
         multicolor: true,
@@ -54,6 +69,27 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
+      },
+      nodeViews: {
+        'link-preview': ({ node }) => {
+          const container = document.createElement('div');
+          const preview = document.createElement('div');
+          preview.setAttribute('data-url', node.attrs.url);
+          
+          // Create React root and render LinkPreview
+          const root = ReactDOM.createRoot(preview);
+          root.render(
+            <LinkPreview url={node.attrs.url} />
+          );
+          
+          container.appendChild(preview);
+          return {
+            dom: container,
+            destroy: () => {
+              root.unmount();
+            },
+          };
+        },
       },
     },
   });
