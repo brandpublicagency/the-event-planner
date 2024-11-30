@@ -2,16 +2,19 @@ import { createRoot } from 'react-dom/client';
 import { LinkPreview } from './LinkPreview';
 import { Node } from '@tiptap/core';
 
+interface NodeAttributes {
+  href?: string;
+}
+
 export const createLinkPreviewNodeView = (node: Node) => {
   const container = document.createElement('div');
   const preview = document.createElement('div');
-  const url = node.attrs?.href;
+  const url = (node.attrs as NodeAttributes)?.href;
   
   if (!url) return { dom: container };
   
   preview.setAttribute('data-url', url);
   
-  // Create React root and render LinkPreview
   const root = createRoot(preview);
   root.render(<LinkPreview url={url} />);
   
