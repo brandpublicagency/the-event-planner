@@ -5,15 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import Link from '@tiptap/extension-link';
-import Highlight from '@tiptap/extension-highlight';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { common, createLowlight } from 'lowlight';
 import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
-import { LinkPreview } from "./LinkPreview";
+import { getEditorExtensions } from "./editorExtensions";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -28,68 +22,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const lowlight = createLowlight(common);
 
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-        codeBlock: false,
-      }),
-      Underline,
-      Link.configure({
-        openOnClick: true,
-        HTMLAttributes: {
-          class: 'text-primary underline',
-        },
-        renderHTML({ HTMLAttributes }) {
-          const url = HTMLAttributes.href;
-          if (url && !url.startsWith('/')) {
-            return [
-              ['div', { class: 'my-4' }, [
-                ['a', HTMLAttributes, 0],
-                ['div', { class: 'mt-2' }, [
-                  ['link-preview', { url }]
-                ]]
-              ]]
-            ];
-          }
-          return ['a', HTMLAttributes, 0];
-        },
-      }),
-      Highlight.configure({
-        multicolor: true,
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-    ],
+    extensions: getEditorExtensions(),
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
-      },
-      nodeViews: {
-        'link-preview': ({ node }) => {
-          const container = document.createElement('div');
-          const preview = document.createElement('div');
-          preview.setAttribute('data-url', node.attrs.url);
-          
-          // Create React root and render LinkPreview
-          const root = ReactDOM.createRoot(preview);
-          root.render(
-            <LinkPreview url={node.attrs.url} />
-          );
-          
-          container.appendChild(preview);
-          return {
-            dom: container,
-            destroy: () => {
-              root.unmount();
-            },
-          };
-        },
       },
     },
   });
@@ -102,7 +40,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         .from("documents")
         .select("*")
         .eq("id", documentId)
-        .maybeSingle(); // Use maybeSingle instead of single to handle missing documents
+        .maybeSingle();
 
       if (error) throw error;
       return data;
