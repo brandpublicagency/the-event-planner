@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { LinkPreview } from './LinkPreview';
-import { Node } from '@tiptap/core';
+import { Node } from '@tiptap/pm/model';
 
 interface NodeAttributes {
   href?: string;
@@ -9,7 +9,8 @@ interface NodeAttributes {
 export const createLinkPreviewNodeView = (node: Node) => {
   const container = document.createElement('div');
   const preview = document.createElement('div');
-  const url = (node.attrs as NodeAttributes)?.href;
+  const attrs = node.attrs as NodeAttributes;
+  const url = attrs?.href;
   
   if (!url) return { dom: container };
   

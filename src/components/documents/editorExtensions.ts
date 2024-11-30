@@ -21,7 +21,7 @@ export const getEditorExtensions = () => [
     HTMLAttributes: {
       class: 'text-primary underline',
     },
-    onCreate: ({ editor }) => {
+    onSelectionUpdate: ({ editor }) => {
       const node = editor.state.selection.$anchor.parent;
       const url = node.attrs?.href;
       if (url && !url.startsWith('/')) {
