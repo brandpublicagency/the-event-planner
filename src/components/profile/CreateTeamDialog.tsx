@@ -88,8 +88,12 @@ export const CreateTeamDialog = () => {
         description: "Company and team created successfully",
       });
       
-      setIsOpen(false);
+      // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['team'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      
+      setIsOpen(false);
+      form.reset();
     } catch (error: any) {
       console.error('Error creating team:', error);
       toast({
