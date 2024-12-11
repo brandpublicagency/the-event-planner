@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, ListChecks } from "lucide-react";
+import { Plus, ListChecks, X } from "lucide-react";
 
 interface TodoListProps {
   todos: string[];
@@ -24,6 +24,11 @@ export function TodoList({ todos = [], onTodosChange }: TodoListProps) {
     onTodosChange(updatedTodos);
   };
 
+  const handleDeleteTodo = (index: number) => {
+    const updatedTodos = todos.filter((_, i) => i !== index);
+    onTodosChange(updatedTodos);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -32,13 +37,21 @@ export function TodoList({ todos = [], onTodosChange }: TodoListProps) {
       </div>
       <div className="space-y-2">
         {todos.map((todo, index) => (
-          <div key={index} className="flex items-center space-x-2">
+          <div key={index} className="flex items-center space-x-2 group">
             <Checkbox id={`todo-${index}`} />
             <Input
               value={todo}
               onChange={(e) => handleUpdateTodo(index, e.target.value)}
               className="h-8 text-sm"
             />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => handleDeleteTodo(index)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         ))}
         <div className="flex gap-2">

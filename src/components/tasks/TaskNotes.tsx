@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TodoList } from "./TodoList";
+import { useToast } from "@/components/ui/use-toast";
 
 export function TaskNotes({ taskId }: { taskId: string }) {
+  const { toast } = useToast();
   const [newNote, setNewNote] = useState("");
   const { tasks, updateTask } = useTaskContext();
   const task = tasks.find((t) => t.id === taskId);
@@ -14,19 +16,43 @@ export function TaskNotes({ taskId }: { taskId: string }) {
   const handleAddNote = async () => {
     if (!newNote.trim() || !task) return;
     const updatedNotes = [...(task.notes || []), newNote];
-    await updateTask(taskId, { notes: updatedNotes });
-    setNewNote("");
+    try {
+      await updateTask(taskId, { notes: updatedNotes });
+      setNewNote("");
+    } catch (error) {
+      toast({
+        title: "Error adding note",
+        description: "Failed to add note. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRemoveNote = async (index: number) => {
     if (!task) return;
     const updatedNotes = task.notes?.filter((_, i) => i !== index);
-    await updateTask(taskId, { notes: updatedNotes });
+    try {
+      await updateTask(taskId, { notes: updatedNotes });
+    } catch (error) {
+      toast({
+        title: "Error removing note",
+        description: "Failed to remove note. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleTodosChange = async (todos: string[]) => {
     if (!task) return;
-    await updateTask(taskId, { todos });
+    try {
+      await updateTask(taskId, { todos });
+    } catch (error) {
+      toast({
+        title: "Error updating todos",
+        description: "Failed to update todo list. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!task) return null;
