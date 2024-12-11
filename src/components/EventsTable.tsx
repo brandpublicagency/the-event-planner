@@ -20,11 +20,15 @@ import {
 
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
-  handleDelete: (eventCode: string) => Promise<void>;
+  handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
 }
 
-const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: EventsTableProps) => {
+export const EventsTable = ({ 
+  groupedEvents, 
+  handleDelete, 
+  isDashboard = false 
+}: EventsTableProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -90,7 +94,7 @@ const EventsTable = ({ groupedEvents, handleDelete, isDashboard = false }: Event
                           </span>
                         </div>
                       </div>
-                      {!isDashboard && (
+                      {!isDashboard && handleDelete && (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
