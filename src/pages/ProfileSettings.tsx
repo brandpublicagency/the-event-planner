@@ -6,6 +6,7 @@ import TeamManagement from "@/components/profile/TeamManagement";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
 
 const ProfileSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -73,7 +74,7 @@ const ProfileSettings = () => {
           </TabsList>
           <TabsContent value="profile" className="h-full">
             <ScrollArea className="h-full">
-              <div className="space-y-6">
+              <Card className="p-6">
                 <ProfileForm
                   profile={profile}
                   isEditing={isEditing}
@@ -82,14 +83,12 @@ const ProfileSettings = () => {
                   handleEdit={handleEdit}
                   handleSave={handleSave}
                 />
-              </div>
+              </Card>
             </ScrollArea>
           </TabsContent>
           <TabsContent value="team" className="h-full">
             <ScrollArea className="h-full">
-              <div className="space-y-6">
-                <TeamManagement />
-              </div>
+              <TeamManagement />
             </ScrollArea>
           </TabsContent>
         </Tabs>

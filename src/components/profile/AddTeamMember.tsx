@@ -12,12 +12,13 @@ const AddTeamMember = ({ email, onEmailChange, onAdd }: AddTeamMemberProps) => {
   return (
     <div className="flex gap-2">
       <Input
+        type="email"
         placeholder="Enter email address"
         value={email}
         onChange={(e) => onEmailChange(e.target.value)}
         className="w-64"
       />
-      <Button onClick={onAdd}>
+      <Button onClick={onAdd} size="sm">
         <UserPlus className="h-4 w-4 mr-2" />
         Add Member
       </Button>
