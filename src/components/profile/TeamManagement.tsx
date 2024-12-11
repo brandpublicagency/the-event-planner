@@ -11,6 +11,7 @@ const TeamManagement = () => {
   const {
     teamData,
     isAdmin,
+    isTeamLoading,
     addTeamMemberMutation,
     removeTeamMemberMutation,
     toggleRoleMutation,
@@ -46,6 +47,16 @@ const TeamManagement = () => {
       },
     });
   };
+
+  if (isTeamLoading) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-muted-foreground">
+          Loading team data...
+        </div>
+      </Card>
+    );
+  }
 
   if (!teamData) {
     console.log('No team data available');

@@ -6,7 +6,7 @@ export const useTeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: teamData } = useQuery({
+  const { data: teamData, isLoading: isTeamLoading } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -42,13 +42,17 @@ export const useTeamManagement = () => {
     },
   });
 
-  // Determine if user is admin based on teamData and current user
-  const isAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    return teamData?.team_members?.some(
-      (member: any) => member.user_id === user?.id && member.role === 'admin'
-    ) ?? false;
-  };
+  // Get current user's admin status
+  const { data: isAdmin } = useQuery({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return teamData?.team_members?.some(
+        (member: any) => member.user_id === user?.id && member.role === 'admin'
+      ) ?? false;
+    },
+    enabled: !!teamData, // Only run this query when teamData is available
+  });
 
   const addTeamMemberMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -140,7 +144,8 @@ export const useTeamManagement = () => {
 
   return {
     teamData,
-    isAdmin,
+    isAdmin: isAdmin ?? false,
+    isTeamLoading,
     addTeamMemberMutation,
     removeTeamMemberMutation,
     toggleRoleMutation,
