@@ -1,172 +1,18 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
-import TeamMemberItem from "./TeamMemberItem";
+import TeamMembersList from "./TeamMembersList";
 import AddTeamMember from "./AddTeamMember";
+import { useTeamManagement } from "@/hooks/useTeamManagement";
 
 const TeamManagement = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [newTeamMemberEmail, setNewTeamMemberEmail] = useState("");
-
-  const { data: teamData } = useQuery({
-    queryKey: ['team'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      // First get the team_id for the current user
-      const { data: userTeamMember, error: teamMemberError } = await supabase
-        .from('team_members')
-        .select('team_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (teamMemberError) {
-        console.error('Error fetching team member:', teamMemberError);
-        return null;
-      }
-
-      if (!userTeamMember?.team_id) return null;
-
-      // Then get the team details with its members
-      const { data: team, error: teamError } = await supabase
-        .from('teams')
-        .select(`
-          *,
-          team_members (
-            id,
-            user_id,
-            role,
-            profiles:profiles (
-              full_name
-            )
-          )
-        `)
-        .eq('id', userTeamMember.team_id)
-        .single();
-
-      if (teamError) {
-        console.error('Error fetching team:', teamError);
-        return null;
-      }
-
-      return team;
-    },
-  });
-
-  const { data: isAdmin } = useQuery({
-    queryKey: ['isAdmin'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
-
-      const { data: member, error } = await supabase
-        .from('team_members')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error checking admin status:', error);
-        return false;
-      }
-
-      return member?.role === 'admin';
-    },
-  });
-
-  const addTeamMemberMutation = useMutation({
-    mutationFn: async (email: string) => {
-      // First get the user profile by email
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      if (profileError || !userProfile) {
-        throw new Error('User not found');
-      }
-
-      const { error } = await supabase
-        .from('team_members')
-        .insert({
-          team_id: teamData?.id,
-          user_id: userProfile.id,
-          role: 'member'
-        });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      toast({
-        title: "Success",
-        description: "Team member added successfully",
-      });
-      setNewTeamMemberEmail("");
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const removeTeamMemberMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('team_members')
-        .delete()
-        .eq('user_id', userId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      toast({
-        title: "Success",
-        description: "Team member removed successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const toggleRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string, newRole: 'admin' | 'member' }) => {
-      const { error } = await supabase
-        .from('team_members')
-        .update({ role: newRole })
-        .eq('user_id', userId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      toast({
-        title: "Success",
-        description: "Role updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  const {
+    teamData,
+    isAdmin,
+    addTeamMemberMutation,
+    removeTeamMemberMutation,
+    toggleRoleMutation,
+  } = useTeamManagement();
 
   if (!teamData) return null;
 
@@ -181,26 +27,21 @@ const TeamManagement = () => {
             <AddTeamMember
               email={newTeamMemberEmail}
               onEmailChange={setNewTeamMemberEmail}
-              onAdd={() => addTeamMemberMutation.mutate(newTeamMemberEmail)}
+              onAdd={() => {
+                addTeamMemberMutation.mutate(newTeamMemberEmail);
+                setNewTeamMemberEmail("");
+              }}
             />
           )}
         </div>
 
-        <div className="space-y-4">
-          {teamData.team_members?.map((member: any) => (
-            <TeamMemberItem
-              key={member.id}
-              member={{
-                ...member,
-                profiles: member.profiles // Adjust the structure to match the new query
-              }}
-              isAdmin={isAdmin}
-              currentAdminId={currentAdminId}
-              onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
-              onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
-            />
-          ))}
-        </div>
+        <TeamMembersList
+          members={teamData.team_members || []}
+          isAdmin={isAdmin}
+          currentAdminId={currentAdminId}
+          onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
+          onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
+        />
       </div>
     </Card>
   );
