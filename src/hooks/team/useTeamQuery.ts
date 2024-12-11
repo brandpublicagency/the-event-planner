@@ -7,7 +7,6 @@ export const useTeamQuery = () => {
     queryFn: async () => {
       console.log('Fetching team data...');
       
-      // First get the authenticated user
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
@@ -22,7 +21,7 @@ export const useTeamQuery = () => {
 
       console.log('Authenticated user:', user.id);
       
-      // Get the team membership for the current user
+      // First get the user's team membership
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select('team_id, role')
@@ -39,19 +38,17 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      console.log('Team member data:', teamMember);
-
-      // Then get the team details and its members
+      // Then get the team details and its members in a separate query
       const { data: team, error: teamError } = await supabase
         .from('teams')
         .select(`
           id,
           name,
-          team_members!inner (
+          team_members (
             id,
             user_id,
             role,
-            profiles!inner (
+            profiles (
               full_name
             )
           )
@@ -64,8 +61,10 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      console.log('Team data:', team);
-      return team;
+      return {
+        ...team,
+        role: teamMember.role // Include the user's role in the team
+      };
     },
   });
 };
