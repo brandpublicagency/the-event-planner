@@ -18,10 +18,15 @@ export const useTeamMutations = () => {
         throw new Error('User not found');
       }
 
+      const teamData = await queryClient.getQueryData(['team']) as any;
+      if (!teamData?.id) {
+        throw new Error('Team not found');
+      }
+
       const { error } = await supabase
         .from('team_members')
         .insert({
-          team_id: (await queryClient.getQueryData(['team']) as any)?.id,
+          team_id: teamData.id,
           user_id: userProfile.id,
           role: 'member'
         });
