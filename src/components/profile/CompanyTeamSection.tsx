@@ -7,6 +7,10 @@ import { useTeamMembership } from "./company/useTeamMembership";
 const CompanyTeamSection = () => {
   const { data: teamMembership, refetch: refetchTeamMembership } = useTeamMembership();
 
+  const handleSuccess = async () => {
+    await refetchTeamMembership();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
@@ -16,7 +20,7 @@ const CompanyTeamSection = () => {
       
       <Card className="p-6">
         <CreateCompanyForm 
-          onSuccess={refetchTeamMembership}
+          onSuccess={handleSuccess}
         />
       </Card>
 
