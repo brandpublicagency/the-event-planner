@@ -54,20 +54,10 @@ const SidebarNavigation = ({ isCollapsed, items, sectionTitle }: SidebarNavigati
               {!isCollapsed && (
                 <div className="flex flex-1 items-center">
                   <span className="ml-3 text-sm">{item.label}</span>
-                  {item.badge && (
-                    <span className="ml-auto px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
                 </div>
               )}
               {!isCollapsed && isActive && (
                 <ChevronRight className="ml-auto h-4 w-4" />
-              )}
-              {isCollapsed && item.badge && (
-                <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[10px] font-medium border border-gray-200 text-gray-500 rounded-full">
-                  {item.badge}
-                </span>
               )}
             </Link>
           );
