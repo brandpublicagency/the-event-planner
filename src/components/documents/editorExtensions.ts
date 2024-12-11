@@ -21,7 +21,8 @@ export const getEditorExtensions = () => [
     HTMLAttributes: {
       class: 'text-primary underline',
     },
-    inline: true,
+    protocols: ['http', 'https', 'mailto', 'tel'],
+    validate: href => /^https?:\/\//.test(href),
   }),
   Highlight.configure({
     multicolor: true,
