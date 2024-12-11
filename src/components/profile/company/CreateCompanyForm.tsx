@@ -8,15 +8,8 @@ interface CreateCompanyFormProps {
   onSuccess: () => Promise<void>;
 }
 
-type CreateCompanyAndTeamResponse = {
-  company_id: string;
-  team_id: string;
-};
-
-type CreateCompanyAndTeamArgs = {
-  p_company_name: string;
-  p_user_id: string;
-};
+type CreateCompanyAndTeamResponse = Database["public"]["Functions"]["create_company_and_team"]["Returns"];
+type CreateCompanyAndTeamArgs = Database["public"]["Functions"]["create_company_and_team"]["Args"];
 
 export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
   const form = useForm();
@@ -36,7 +29,7 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse, CreateCompanyAndTeamArgs>(
+      const { data: result, error: rpcError } = await supabase.rpc(
         'create_company_and_team',
         {
           p_company_name: data.company_name,
