@@ -9,6 +9,53 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      tasks: {
+        Row: {
+          id: string
+          title: string
+          completed: boolean | null
+          user_id: string
+          created_at: string
+          updated_at: string
+          task_code: string | null
+          due_date: string | null
+          priority: string | null
+          status: string | null
+          assigned_to: string | null
+          notes: string[] | null
+          todos: string[] | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          completed?: boolean | null
+          user_id: string
+          created_at?: string
+          updated_at?: string
+          task_code?: string | null
+          due_date?: string | null
+          priority?: string | null
+          status?: string | null
+          assigned_to?: string | null
+          notes?: string[] | null
+          todos?: string[] | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          completed?: boolean | null
+          user_id?: string
+          created_at?: string
+          updated_at?: string
+          task_code?: string | null
+          due_date?: string | null
+          priority?: string | null
+          status?: string | null
+          assigned_to?: string | null
+          notes?: string[] | null
+          todos?: string[] | null
+        }
+      }
       companies: {
         Row: {
           created_at: string
@@ -136,7 +183,7 @@ export type Database = {
           depth?: number | null
           id?: string
           parent_id?: string | null
-          path?: unknown | null
+          path?: unknown
           tags?: string[] | null
           template?: boolean | null
           title: string
@@ -151,7 +198,7 @@ export type Database = {
           depth?: number | null
           id?: string
           parent_id?: string | null
-          path?: unknown | null
+          path?: unknown
           tags?: string[] | null
           template?: boolean | null
           title?: string
@@ -457,7 +504,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          name: string
+          name?: string
         }
         Update: {
           created_at?: string
@@ -563,96 +610,6 @@ export type Database = {
           },
         ]
       }
-      tasks: {
-        Row: {
-          assigned_to: string | null
-          completed: boolean | null
-          created_at: string
-          due_date: string | null
-          id: string
-          notes: string[] | null
-          priority: string | null
-          status: string | null
-          task_code: string | null
-          title: string
-          todos: string[] | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          assigned_to?: string | null
-          completed?: boolean | null
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          notes?: string[] | null
-          priority?: string | null
-          status?: string | null
-          task_code?: string | null
-          title: string
-          todos?: string[] | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          assigned_to?: string | null
-          completed?: boolean | null
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          notes?: string[] | null
-          priority?: string | null
-          status?: string | null
-          task_code?: string | null
-          title?: string
-          todos?: string[] | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      team_members: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["team_role"]
-          team_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_members_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "team_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       teams: {
         Row: {
           company_id: string | null
@@ -719,12 +676,12 @@ export type Database = {
           bride_email?: string | null
           bride_mobile?: string | null
           bride_name?: string | null
-          created_at?: string
+          created_at: string
           event_code: string
           groom_email?: string | null
           groom_mobile?: string | null
           groom_name?: string | null
-          updated_at?: string
+          updated_at: string
         }
         Update: {
           bride_email?: string | null
@@ -735,7 +692,7 @@ export type Database = {
           groom_email?: string | null
           groom_mobile?: string | null
           groom_name?: string | null
-          updated_at?: string
+          updated_at: string
         }
         Relationships: [
           {
@@ -752,253 +709,166 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_company_and_team: {
+        Args: {
+          p_company_name: string;
+          p_user_id: string;
+        };
+        Returns: {
+          company_id: string;
+          team_id: string;
+        };
+      };
       _ltree_compress: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       _ltree_gist_options: {
         Args: {
           "": unknown
-        }
-        Returns: undefined
-      }
+        };
+        Returns: undefined;
+      };
       generate_unique_event_code: {
         Args: {
           base_code: string
-        }
-        Returns: string
-      }
+        };
+        Returns: string;
+      };
       lca: {
         Args: {
           "": unknown[]
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       lquery_in: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       lquery_out: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       lquery_recv: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       lquery_send: {
         Args: {
           "": unknown
-        }
-        Returns: string
-      }
+        };
+        Returns: string;
+      };
       ltree_compress: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_decompress: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_gist_in: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_gist_options: {
         Args: {
           "": unknown
-        }
-        Returns: undefined
-      }
+        };
+        Returns: undefined;
+      };
       ltree_gist_out: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_in: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_out: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_recv: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltree_send: {
         Args: {
           "": unknown
-        }
-        Returns: string
-      }
+        };
+        Returns: string;
+      };
       ltree2text: {
         Args: {
           "": unknown
-        }
-        Returns: string
-      }
+        };
+        Returns: string;
+      };
       ltxtq_in: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltxtq_out: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltxtq_recv: {
         Args: {
           "": unknown
-        }
-        Returns: unknown
-      }
+        };
+        Returns: unknown;
+      };
       ltxtq_send: {
         Args: {
-          "": unknown
-        }
-        Returns: string
-      }
+          "": string;
+        };
+        Returns: string;
+      };
       nlevel: {
         Args: {
           "": unknown
-        }
-        Returns: number
-      }
+        };
+        Returns: number;
+      };
       text2ltree: {
         Args: {
-          "": string
-        }
-        Returns: unknown
-      }
+          "": string;
+        };
+        Returns: unknown;
+      };
     }
     Enums: {
-      team_role: "admin" | "member"
+      team_role: "admin" | "member";
     }
     CompositeTypes: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
   }
 }
-
-type PublicSchema = Database[Extract<keyof Database, "public">]
-
-export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never

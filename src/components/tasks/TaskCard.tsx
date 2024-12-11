@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { TaskStatusBadges } from "./TaskStatusBadges";
 import { TaskActions } from "./TaskActions";
 import { cn } from "@/lib/utils";
+import { TablesUpdate } from "@/integrations/supabase/types/tables";
 
 interface TaskCardProps {
   task: Task;
@@ -26,7 +27,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
     mutationFn: async (completed: boolean) => {
       const { error } = await supabase
         .from("tasks")
-        .update({ completed })
+        .update({ completed, title: task.title })
         .eq("id", task.id);
 
       if (error) throw error;

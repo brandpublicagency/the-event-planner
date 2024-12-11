@@ -12,6 +12,7 @@ import { Task } from "@/contexts/TaskContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { TablesUpdate } from "@/integrations/supabase/types/tables";
 
 interface EditableTaskCardProps {
   task: Task;
@@ -29,7 +30,7 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
   const [priority, setPriority] = useState(task.priority || "");
 
   const updateTaskMutation = useMutation({
-    mutationFn: async (updates: Partial<Task>) => {
+    mutationFn: async (updates: TablesUpdate<'tasks'>) => {
       const { error } = await supabase
         .from("tasks")
         .update(updates)
