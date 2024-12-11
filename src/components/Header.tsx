@@ -72,7 +72,7 @@ export default function Header() {
                       {profile?.full_name || 'User'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {profile?.email || ''}
+                      {profile?.mobile || 'No contact info'}
                     </p>
                   </div>
                 </DropdownMenuLabel>
