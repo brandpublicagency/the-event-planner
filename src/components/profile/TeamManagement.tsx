@@ -22,7 +22,7 @@ const TeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: teams } = await supabase
+      const { data: teams, error } = await supabase
         .from('teams')
         .select(`
           *,
@@ -31,11 +31,18 @@ const TeamManagement = () => {
             user_id,
             role,
             profiles:user_id (
-              full_name
+              full_name,
+              email
             )
           )
         `)
         .single();
+
+      if (error) {
+        console.error('Error fetching team:', error);
+        return null;
+      }
+
       return teams;
     },
   });
@@ -46,11 +53,16 @@ const TeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      const { data: member } = await supabase
+      const { data: member, error } = await supabase
         .from('team_members')
         .select('role')
         .eq('user_id', user.id)
         .single();
+
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
 
       return member?.role === 'admin';
     },
@@ -58,17 +70,22 @@ const TeamManagement = () => {
 
   const addTeamMemberMutation = useMutation({
     mutationFn: async (email: string) => {
-      const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-      if (userError) throw userError;
+      // First get the user profile by email
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
 
-      const user = (users as User[]).find(u => u.email === email);
-      if (!user) throw new Error('User not found');
+      if (profileError || !userProfile) {
+        throw new Error('User not found');
+      }
 
       const { error } = await supabase
         .from('team_members')
         .insert({
           team_id: teamData?.id,
-          user_id: user.id,
+          user_id: userProfile.id,
           role: 'member'
         });
 
