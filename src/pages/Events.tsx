@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useTenant } from "@/contexts/TenantContext";
 import { EventsTable } from "@/components/EventsTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -10,7 +9,6 @@ import { format } from "date-fns";
 
 const Events = () => {
   const navigate = useNavigate();
-  const { currentTeam } = useTenant();
   const [isLoading, setIsLoading] = useState(true);
 
   // Check authentication status
@@ -33,18 +31,18 @@ const Events = () => {
   }, [navigate]);
 
   const { data: events = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['events', currentTeam?.id],
+    queryKey: ['events'],
     queryFn: async () => {
-      if (!currentTeam?.id) return [];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
 
-      const { data: teamMembers } = await supabase
+      const { data: teamMember } = await supabase
         .from('team_members')
-        .select('user_id')
-        .eq('team_id', currentTeam.id);
+        .select('team_id')
+        .eq('user_id', user.id)
+        .single();
 
-      if (!teamMembers?.length) return [];
-
-      const userIds = teamMembers.map(member => member.user_id);
+      if (!teamMember) return [];
 
       const { data, error } = await supabase
         .from('events')
@@ -54,29 +52,18 @@ const Events = () => {
             venue:venues(*)
           )
         `)
-        .in('created_by', userIds)
         .is('deleted_at', null)
         .order('event_date', { ascending: true });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!currentTeam?.id,
   });
 
   if (isLoading || eventsLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
-  if (!currentTeam) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] gap-4">
-        <h2 className="text-xl font-semibold">Please select a team to view events</h2>
-        <p className="text-gray-500">Use the team selector in the header to choose a team</p>
       </div>
     );
   }
