@@ -18,8 +18,10 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
-      onError: (error) => {
-        console.error('Query error:', error);
+      meta: {
+        errorHandler: (error: Error) => {
+          console.error('Query error:', error);
+        },
       },
     },
   },
@@ -73,13 +75,13 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProviders>
-        <TenantProvider>
-          <BrowserRouter>
+      <BrowserRouter>
+        <AppProviders>
+          <TenantProvider>
             <AppRoutes />
-          </BrowserRouter>
-        </TenantProvider>
-      </AppProviders>
+          </TenantProvider>
+        </AppProviders>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };

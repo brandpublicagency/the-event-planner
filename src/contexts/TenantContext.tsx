@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Team {
   id: string;
@@ -24,11 +24,11 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { data: userTeams = [], isLoading, error } = useQuery({
     queryKey: ['user-teams'],
     queryFn: async () => {
-      // First check if user is authenticated
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -38,7 +38,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
       if (!session) {
         console.log('No session found, redirecting to login');
-        navigate('/login');
+        if (location.pathname !== '/login') {
+          navigate('/login');
+        }
         return [];
       }
 
@@ -74,18 +76,19 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         setCurrentTeam(null);
-        navigate('/login');
+        if (location.pathname !== '/login') {
+          navigate('/login');
+        }
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   useEffect(() => {
     const savedTeamId = localStorage.getItem('currentTeamId');
