@@ -29,16 +29,15 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse, CreateCompanyAndTeamArgs>(
+      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse>(
         'create_company_and_team',
         {
           p_company_name: data.company_name,
           p_user_id: user.id
-        }
+        } as CreateCompanyAndTeamArgs
       );
 
       if (rpcError) {
-        // Check for the specific error message about user already belonging to a team
         if (rpcError.message.includes("User already belongs to a team")) {
           toast({
             title: "Error",
