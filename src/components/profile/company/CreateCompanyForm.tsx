@@ -2,15 +2,15 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import CompanyDetails from "../../forms/CompanyDetails";
 import { supabase } from "@/integrations/supabase/client";
-import { DatabaseFunctions } from "@/integrations/supabase/types/functions";
-
-type CreateCompanyAndTeamFunction = DatabaseFunctions['create_company_and_team'];
-type CreateCompanyAndTeamArgs = CreateCompanyAndTeamFunction['Args'];
-type CreateCompanyAndTeamReturns = CreateCompanyAndTeamFunction['Returns'];
 
 interface CreateCompanyFormProps {
   onSuccess: () => Promise<void>;
 }
+
+type CreateCompanyAndTeamResponse = {
+  company_id: string;
+  team_id: string;
+};
 
 export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
   const form = useForm();
@@ -30,13 +30,13 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { data: result, error: rpcError } = await supabase.rpc<
-        CreateCompanyAndTeamReturns,
-        CreateCompanyAndTeamArgs
-      >('create_company_and_team', {
-        p_company_name: data.company_name,
-        p_user_id: user.id
-      });
+      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse>(
+        'create_company_and_team',
+        {
+          p_company_name: data.company_name,
+          p_user_id: user.id
+        }
+      );
 
       if (rpcError) throw rpcError;
 
