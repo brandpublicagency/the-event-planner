@@ -669,6 +669,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      generate_unique_event_code: {
+        Args: {
+          base_code: string
+        }
+        Returns: string
+      }
       lca: {
         Args: {
           "": unknown[]
