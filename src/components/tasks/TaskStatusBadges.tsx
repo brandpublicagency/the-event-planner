@@ -1,20 +1,20 @@
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { isPast } from "date-fns";
 
 interface TaskStatusBadgesProps {
   priority: string | null;
   dueDate: string | null;
+  completed?: boolean;
 }
 
-export function TaskStatusBadges({ priority, dueDate }: TaskStatusBadgesProps) {
+export function TaskStatusBadges({ priority, dueDate, completed }: TaskStatusBadgesProps) {
   const priorityColors = {
     high: "bg-red-100 text-red-800",
     medium: "bg-yellow-100 text-yellow-800",
     low: "bg-green-100 text-green-800",
   };
 
-  const isOverdue = dueDate && isPast(new Date(dueDate));
+  const isOverdue = dueDate && !completed && isPast(new Date(dueDate));
 
   return (
     <div className="flex items-center gap-2 flex-shrink-0">
@@ -23,7 +23,7 @@ export function TaskStatusBadges({ priority, dueDate }: TaskStatusBadgesProps) {
           Overdue
         </Badge>
       )}
-      {priority && (
+      {priority && !isOverdue && (
         <Badge 
           variant="secondary" 
           className={`text-[0.65rem] px-2 py-0.5 ${

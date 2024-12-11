@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
@@ -8,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { TaskStatusBadges } from "./TaskStatusBadges";
 import { TaskActions } from "./TaskActions";
+import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
   task: Task;
@@ -19,6 +21,27 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async (completed: boolean) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ completed })
+        .eq("id", task.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error updating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
@@ -93,7 +116,8 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
               <div className="flex items-center gap-2">
                 <TaskStatusBadges 
                   priority={task.priority} 
-                  dueDate={task.due_date} 
+                  dueDate={task.due_date}
+                  completed={task.completed}
                 />
                 <TaskActions 
                   isDeleting={isDeleting}
