@@ -12,6 +12,7 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
+      // First get the user's team membership
       const { data: userTeamMember, error: teamMemberError } = await supabase
         .from('team_members')
         .select('team_id')
@@ -25,6 +26,7 @@ export const useTeamManagement = () => {
 
       if (!userTeamMember?.team_id) return null;
 
+      // Then fetch the team details with members
       const { data: team, error: teamError } = await supabase
         .from('teams')
         .select(`
@@ -33,7 +35,7 @@ export const useTeamManagement = () => {
             id,
             user_id,
             role,
-            profiles:profiles (
+            profiles (
               full_name
             )
           )
