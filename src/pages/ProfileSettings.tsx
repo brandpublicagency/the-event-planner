@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   company_name: z.string().optional(),
@@ -30,6 +31,7 @@ type FormData = z.infer<typeof formSchema>;
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     full_name: "",
@@ -54,7 +56,16 @@ const ProfileSettings = () => {
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please try logging in again.",
+        });
+        navigate("/login");
+        return;
+      }
       if (!session) {
         navigate("/login");
       }
@@ -69,22 +80,35 @@ const ProfileSettings = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading, error } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('Authentication error');
+      }
 
-      const { data: profileData, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (profileError) {
+        throw profileError;
+      }
+
       return profileData;
+    },
+    retry: 1,
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error loading profile",
+        description: "Please try refreshing the page.",
+      });
     },
   });
 
@@ -108,11 +132,32 @@ const ProfileSettings = () => {
 
     if (!error) {
       setIsEditing(false);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+      });
     }
   };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">Error loading profile</h3>
+          <p className="text-sm text-muted-foreground">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
   }
 
   return (
