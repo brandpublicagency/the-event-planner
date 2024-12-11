@@ -21,7 +21,7 @@ export const useTeamQuery = () => {
 
       console.log('Authenticated user:', user.id);
       
-      // First get the user's team membership and basic team info
+      // First get the user's team membership
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
