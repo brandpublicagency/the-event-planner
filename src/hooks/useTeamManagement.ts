@@ -12,22 +12,25 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // First get the user's team
-      const { data: userTeam, error: teamError } = await supabase
-        .from('teams')
+      const { data: teamMember, error: teamError } = await supabase
+        .from('team_members')
         .select(`
-          id,
-          name,
-          team_members!inner (
+          team_id,
+          role,
+          teams (
             id,
-            user_id,
-            role,
-            profiles (
-              full_name
+            name,
+            team_members (
+              id,
+              user_id,
+              role,
+              profiles (
+                full_name
+              )
             )
           )
         `)
-        .eq('team_members.user_id', user.id)
+        .eq('user_id', user.id)
         .single();
 
       if (teamError) {
@@ -35,7 +38,7 @@ export const useTeamManagement = () => {
         return null;
       }
 
-      return userTeam;
+      return teamMember?.teams;
     },
   });
 
