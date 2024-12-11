@@ -21,31 +21,31 @@ export const useTeamQuery = () => {
 
       console.log('Authenticated user:', user.id);
       
-      // Get user's team membership with basic team info
-      const { data: teamMember, error: memberError } = await supabase
-        .from('team_members')
+      // First, get the teams the user belongs to
+      const { data: teams, error: teamsError } = await supabase
+        .from('teams')
         .select(`
-          role,
-          teams (
-            id,
-            name
+          id,
+          name,
+          team_members!inner (
+            role
           )
         `)
-        .eq('user_id', user.id)
+        .eq('team_members.user_id', user.id)
         .single();
 
-      if (memberError) {
-        console.error('Error fetching team member:', memberError);
+      if (teamsError) {
+        console.error('Error fetching teams:', teamsError);
         return null;
       }
 
-      if (!teamMember?.teams) {
+      if (!teams) {
         console.log('User has no team membership');
         return null;
       }
 
-      // Get all team members for this team
-      const { data: allTeamMembers, error: membersError } = await supabase
+      // Then get all members for this team
+      const { data: members, error: membersError } = await supabase
         .from('team_members')
         .select(`
           id,
@@ -55,7 +55,7 @@ export const useTeamQuery = () => {
             full_name
           )
         `)
-        .eq('team_id', teamMember.teams.id);
+        .eq('team_id', teams.id);
 
       if (membersError) {
         console.error('Error fetching team members:', membersError);
@@ -64,9 +64,10 @@ export const useTeamQuery = () => {
 
       // Combine the data
       return {
-        ...teamMember.teams,
-        role: teamMember.role,
-        team_members: allTeamMembers
+        id: teams.id,
+        name: teams.name,
+        role: teams.team_members[0].role,
+        team_members: members
       };
     },
   });
