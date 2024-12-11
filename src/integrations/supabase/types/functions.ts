@@ -10,147 +10,99 @@ export interface DatabaseFunctions {
     };
   };
   _ltree_compress: {
-    Args: {
-      "": unknown
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   _ltree_gist_options: {
-    Args: {
-      "": unknown
-    };
+    Args: { "": unknown };
     Returns: undefined;
   };
   generate_unique_event_code: {
-    Args: {
-      base_code: string;
-    };
+    Args: { base_code: string };
     Returns: string;
   };
   lca: {
-    Args: {
-      "": unknown[];
-    };
+    Args: { "": unknown[] };
     Returns: unknown;
   };
   lquery_in: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   lquery_out: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   lquery_recv: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   lquery_send: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: string;
   };
   ltree_compress: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_decompress: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_gist_in: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_gist_options: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: undefined;
   };
   ltree_gist_out: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_in: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_out: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_recv: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltree_send: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: string;
   };
   ltree2text: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: string;
   };
   ltxtq_in: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltxtq_out: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltxtq_recv: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: unknown;
   };
   ltxtq_send: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": string };
     Returns: string;
   };
   nlevel: {
-    Args: {
-      "": unknown;
-    };
+    Args: { "": unknown };
     Returns: number;
   };
   text2ltree: {
-    Args: {
-      "": string;
-    };
+    Args: { "": string };
     Returns: unknown;
   };
 }

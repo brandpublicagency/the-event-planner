@@ -7,6 +7,11 @@ import CompanyDetails from "../forms/CompanyDetails";
 import TeamManagement from "./TeamManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Database } from "@/integrations/supabase/types";
+
+type CreateCompanyAndTeamFunction = Database['public']['Functions']['create_company_and_team'];
+type CreateCompanyAndTeamArgs = CreateCompanyAndTeamFunction['Args'];
+type CreateCompanyAndTeamReturns = CreateCompanyAndTeamFunction['Returns'];
 
 const CompanyTeamSection = () => {
   const form = useForm();
@@ -60,7 +65,10 @@ const CompanyTeamSection = () => {
       if (!user) throw new Error("No authenticated user");
 
       // Start a transaction using RPC
-      const { data: result, error: rpcError } = await supabase.rpc('create_company_and_team', {
+      const { data: result, error: rpcError } = await supabase.rpc<
+        CreateCompanyAndTeamReturns,
+        CreateCompanyAndTeamArgs
+      >('create_company_and_team', {
         p_company_name: data.company_name,
         p_user_id: user.id
       });
