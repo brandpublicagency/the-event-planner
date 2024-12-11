@@ -6,10 +6,12 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useToast } from "@/components/ui/use-toast";
 
 const Events = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   // Check authentication status
   useEffect(() => {
@@ -36,15 +38,27 @@ const Events = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data: teamMember } = await supabase
+      // First get the user's team
+      const { data: teamMember, error: teamError } = await supabase
         .from('team_members')
         .select('team_id')
         .eq('user_id', user.id)
         .single();
 
+      if (teamError) {
+        console.error('Error fetching team:', teamError);
+        toast({
+          title: "Error",
+          description: "Could not fetch team information",
+          variant: "destructive",
+        });
+        return [];
+      }
+
       if (!teamMember) return [];
 
-      const { data, error } = await supabase
+      // Then get all events created by any team member
+      const { data: teamEvents, error: eventsError } = await supabase
         .from('events')
         .select(`
           *,
@@ -55,28 +69,19 @@ const Events = () => {
         .is('deleted_at', null)
         .order('event_date', { ascending: true });
 
-      if (error) throw error;
-      return data || [];
+      if (eventsError) {
+        console.error('Error fetching events:', eventsError);
+        toast({
+          title: "Error",
+          description: "Could not fetch events",
+          variant: "destructive",
+        });
+        return [];
+      }
+
+      return teamEvents || [];
     },
   });
-
-  if (isLoading || eventsLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
-  // Group events by month and year
-  const groupedEvents = events.reduce((acc, event) => {
-    if (!event.event_date) return acc;
-    const date = new Date(event.event_date);
-    const key = format(date, 'MMMM yyyy');
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(event);
-    return acc;
-  }, {});
 
   const handleDelete = async (eventCode: string) => {
     try {
@@ -88,8 +93,31 @@ const Events = () => {
       if (error) throw error;
     } catch (error) {
       console.error('Error deleting event:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete event",
+        variant: "destructive",
+      });
     }
   };
+
+  // Group events by month and year
+  const groupedEvents = events.reduce((acc, event) => {
+    if (!event.event_date) return acc;
+    const date = new Date(event.event_date);
+    const key = format(date, 'MMMM yyyy');
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(event);
+    return acc;
+  }, {});
+
+  if (isLoading || eventsLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-6">

@@ -24,11 +24,25 @@ const CompanyTeamSection = () => {
     }
 
     try {
-      // Create team with company name
+      // First create the company
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert([
+          { name: data.company_name }
+        ])
+        .select()
+        .single();
+
+      if (companyError) throw companyError;
+
+      // Then create team with company reference
       const { data: teamData, error: teamError } = await supabase
         .from('teams')
         .insert([
-          { name: data.company_name }
+          { 
+            name: `${data.company_name} Team`,
+            company_id: companyData.id
+          }
         ])
         .select()
         .single();
@@ -53,11 +67,12 @@ const CompanyTeamSection = () => {
 
       toast({
         title: "Success",
-        description: "Team created successfully",
+        description: "Company and team created successfully",
       });
       
       setIsCreatingTeam(false);
     } catch (error: any) {
+      console.error('Error creating team:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create team",
