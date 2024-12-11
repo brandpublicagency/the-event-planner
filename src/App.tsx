@@ -35,11 +35,7 @@ const App = () => {
     const initializeAuth = async () => {
       try {
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
-        }
-        
+        if (sessionError) throw sessionError;
         setSession(initialSession);
       } catch (error) {
         console.error("Error fetching initial session:", error);
@@ -52,8 +48,7 @@ const App = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event, session?.user?.id);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
         queryClient.clear();

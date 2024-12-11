@@ -56,10 +56,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           `)
           .eq('team_members.user_id', session.user.id);
 
-        if (teamsError) {
-          console.error('Teams fetch error:', teamsError);
-          throw teamsError;
-        }
+        if (teamsError) throw teamsError;
 
         return (teams || []).map(team => ({
           id: team.id,
@@ -71,8 +68,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    retry: 1,
-    staleTime: 30000,
+    retry: false,
   });
 
   useEffect(() => {
