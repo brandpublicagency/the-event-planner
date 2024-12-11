@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const useTeamManagement = () => {
   const { toast } = useToast();
@@ -50,7 +50,8 @@ export const useTeamManagement = () => {
           role,
           profiles:profiles (
             full_name,
-            email
+            surname,
+            mobile
           )
         `)
         .eq('team_id', teamMember.team.id);

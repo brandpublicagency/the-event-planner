@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTeamManagement } from "@/hooks/useTeamManagement";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Users } from "lucide-react";
 import AddTeamMember from "./AddTeamMember";
 import TeamMembersList from "./TeamMembersList";
