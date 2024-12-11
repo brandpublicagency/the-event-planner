@@ -24,7 +24,14 @@ export const useTeamQuery = () => {
       // First get the user's team membership
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
-        .select('team_id, role')
+        .select(`
+          team_id,
+          role,
+          teams (
+            id,
+            name
+          )
+        `)
         .eq('user_id', user.id)
         .single();
 
@@ -38,32 +45,28 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      // Then get the team details and its members in a separate query
-      const { data: team, error: teamError } = await supabase
-        .from('teams')
+      // Then get all team members in a separate query
+      const { data: teamMembers, error: membersError } = await supabase
+        .from('team_members')
         .select(`
           id,
-          name,
-          team_members (
-            id,
-            user_id,
-            role,
-            profiles (
-              full_name
-            )
+          user_id,
+          role,
+          profiles (
+            full_name
           )
         `)
-        .eq('id', teamMember.team_id)
-        .single();
+        .eq('team_id', teamMember.team_id);
 
-      if (teamError) {
-        console.error('Error fetching team:', teamError);
+      if (membersError) {
+        console.error('Error fetching team members:', membersError);
         return null;
       }
 
       return {
-        ...team,
-        role: teamMember.role // Include the user's role in the team
+        ...teamMember.teams,
+        role: teamMember.role,
+        team_members: teamMembers
       };
     },
   });
