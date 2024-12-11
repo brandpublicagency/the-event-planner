@@ -12,6 +12,11 @@ type CreateCompanyAndTeamResponse = {
   team_id: string;
 };
 
+type CreateCompanyAndTeamArgs = {
+  p_company_name: string;
+  p_user_id: string;
+};
+
 export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
   const form = useForm();
   const { toast } = useToast();
@@ -30,7 +35,7 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse>(
+      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse, CreateCompanyAndTeamArgs>(
         'create_company_and_team',
         {
           p_company_name: data.company_name,
@@ -38,7 +43,23 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
         }
       );
 
-      if (rpcError) throw rpcError;
+      if (rpcError) {
+        // Check for the specific error message about user already belonging to a team
+        if (rpcError.message.includes("User already belongs to a team")) {
+          toast({
+            title: "Error",
+            description: "You already belong to a team. You cannot create another one.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: rpcError.message || "Failed to create team",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
 
       toast({
         title: "Success",
@@ -53,7 +74,6 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
         description: error.message || "Failed to create team",
         variant: "destructive",
       });
-      throw error;
     }
   };
 
