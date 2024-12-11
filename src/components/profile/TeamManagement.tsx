@@ -3,9 +3,11 @@ import { Card } from "@/components/ui/card";
 import TeamMembersList from "./TeamMembersList";
 import AddTeamMember from "./AddTeamMember";
 import { useTeamManagement } from "@/hooks/useTeamManagement";
+import { useToast } from "@/components/ui/use-toast";
 
 const TeamManagement = () => {
   const [newTeamMemberEmail, setNewTeamMemberEmail] = useState("");
+  const { toast } = useToast();
   const {
     teamData,
     isAdmin,
@@ -14,7 +16,47 @@ const TeamManagement = () => {
     toggleRoleMutation,
   } = useTeamManagement();
 
-  if (!teamData) return null;
+  console.log('TeamManagement component - teamData:', teamData);
+  console.log('TeamManagement component - isAdmin:', isAdmin);
+
+  const handleAddMember = () => {
+    if (!newTeamMemberEmail) {
+      toast({
+        title: "Error",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addTeamMemberMutation.mutate(newTeamMemberEmail, {
+      onSuccess: () => {
+        setNewTeamMemberEmail("");
+        toast({
+          title: "Success",
+          description: "Team member added successfully",
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to add team member",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
+  if (!teamData) {
+    console.log('No team data available');
+    return (
+      <Card className="p-6">
+        <div className="text-center text-muted-foreground">
+          No team data available. Please create or join a team.
+        </div>
+      </Card>
+    );
+  }
 
   const currentAdminId = teamData.team_members?.find((m: any) => m.role === 'admin')?.user_id;
 
@@ -27,10 +69,7 @@ const TeamManagement = () => {
             <AddTeamMember
               email={newTeamMemberEmail}
               onEmailChange={setNewTeamMemberEmail}
-              onAdd={() => {
-                addTeamMemberMutation.mutate(newTeamMemberEmail);
-                setNewTeamMemberEmail("");
-              }}
+              onAdd={handleAddMember}
             />
           )}
         </div>
