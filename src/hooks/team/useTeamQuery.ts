@@ -45,7 +45,7 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      // Then get all team members in a separate query
+      // Then get all team members for this team in a separate query
       const { data: teamMembers, error: membersError } = await supabase
         .from('team_members')
         .select(`
