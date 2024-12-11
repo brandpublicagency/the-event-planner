@@ -5,14 +5,18 @@ interface FormSectionProps {
   title: string;
   description?: string;
   children: ReactNode;
+  icon?: ReactNode;
 }
 
-const FormSection = ({ title, description, children }: FormSectionProps) => {
+const FormSection = ({ title, description, children, icon }: FormSectionProps) => {
   return (
     <Card className="p-6 bg-white">
       <div className="space-y-6">
         <div className="space-y-1 border-b pb-4">
-          <h3 className="text-lg font-semibold text-zinc-900">{title}</h3>
+          <div className="flex items-center gap-2">
+            {icon}
+            <h3 className="text-lg font-semibold text-zinc-900">{title}</h3>
+          </div>
           {description && (
             <p className="text-sm text-zinc-500">{description}</p>
           )}

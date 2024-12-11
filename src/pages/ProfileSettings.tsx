@@ -3,10 +3,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileForm from "@/components/profile/ProfileForm";
 import TeamManagement from "@/components/profile/TeamManagement";
+import CompanyDetails from "@/components/forms/CompanyDetails";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Building, Users } from "lucide-react";
+import FormSection from "@/components/forms/FormSection";
+import { useForm } from "react-hook-form";
+import { EventFormData } from "@/types/eventForm";
 
 const ProfileSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,6 +19,15 @@ const ProfileSettings = () => {
     full_name: "",
     surname: "",
     mobile: "",
+  });
+
+  const form = useForm<EventFormData>({
+    defaultValues: {
+      company_name: "",
+      company_address: "",
+      company_vat: "",
+      contact_person: "",
+    },
   });
 
   const { data: profile } = useQuery({
@@ -70,8 +84,10 @@ const ProfileSettings = () => {
         <Tabs defaultValue="profile" className="h-full space-y-6">
           <TabsList>
             <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="company">Company</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="profile" className="h-full">
             <ScrollArea className="h-full">
               <Card className="p-6">
@@ -86,9 +102,28 @@ const ProfileSettings = () => {
               </Card>
             </ScrollArea>
           </TabsContent>
+
+          <TabsContent value="company" className="h-full">
+            <ScrollArea className="h-full">
+              <FormSection
+                title="Company Details"
+                description="Manage your company information"
+                icon={<Building className="h-5 w-5" />}
+              >
+                <CompanyDetails form={form} />
+              </FormSection>
+            </ScrollArea>
+          </TabsContent>
+
           <TabsContent value="team" className="h-full">
             <ScrollArea className="h-full">
-              <TeamManagement />
+              <FormSection
+                title="Team Management"
+                description="Manage your team members and their roles"
+                icon={<Users className="h-5 w-5" />}
+              >
+                <TeamManagement />
+              </FormSection>
             </ScrollArea>
           </TabsContent>
         </Tabs>
