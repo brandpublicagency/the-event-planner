@@ -17,7 +17,22 @@ const TeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: teams, error } = await supabase
+      // First get the team_id for the current user
+      const { data: userTeamMember, error: teamMemberError } = await supabase
+        .from('team_members')
+        .select('team_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (teamMemberError) {
+        console.error('Error fetching team member:', teamMemberError);
+        return null;
+      }
+
+      if (!userTeamMember?.team_id) return null;
+
+      // Then get the team details with its members
+      const { data: team, error: teamError } = await supabase
         .from('teams')
         .select(`
           *,
@@ -25,19 +40,20 @@ const TeamManagement = () => {
             id,
             user_id,
             role,
-            profiles:user_id (
+            profiles:profiles (
               full_name
             )
           )
         `)
+        .eq('id', userTeamMember.team_id)
         .single();
 
-      if (error) {
-        console.error('Error fetching team:', error);
+      if (teamError) {
+        console.error('Error fetching team:', teamError);
         return null;
       }
 
-      return teams;
+      return team;
     },
   });
 
@@ -174,7 +190,10 @@ const TeamManagement = () => {
           {teamData.team_members?.map((member: any) => (
             <TeamMemberItem
               key={member.id}
-              member={member}
+              member={{
+                ...member,
+                profiles: member.profiles // Adjust the structure to match the new query
+              }}
               isAdmin={isAdmin}
               currentAdminId={currentAdminId}
               onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
