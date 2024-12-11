@@ -29,12 +29,12 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse>(
+      const { data: result, error: rpcError } = await supabase.rpc<CreateCompanyAndTeamResponse, CreateCompanyAndTeamArgs>(
         'create_company_and_team',
         {
           p_company_name: data.company_name,
           p_user_id: user.id
-        } as CreateCompanyAndTeamArgs
+        }
       );
 
       if (rpcError) {
