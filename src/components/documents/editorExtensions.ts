@@ -21,12 +21,16 @@ export const getEditorExtensions = () => [
     HTMLAttributes: {
       class: 'text-primary underline',
     },
-    renderLabel: ({ node }) => {
-      const url = node.attrs?.href;
-      if (url && !url.startsWith('/')) {
-        return createLinkPreviewNodeView(node);
-      }
-      return null;
+    addNodeView: () => {
+      return {
+        onBeforeCreate({ node }) {
+          const url = node.attrs?.href;
+          if (url && !url.startsWith('/')) {
+            return createLinkPreviewNodeView(node);
+          }
+          return null;
+        }
+      };
     }
   }),
   Highlight.configure({
