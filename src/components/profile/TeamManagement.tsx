@@ -6,10 +6,16 @@ import AddTeamMember from "./AddTeamMember";
 import { useTeamManagement } from "@/hooks/useTeamManagement";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus, Users } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 const TeamManagement = () => {
   const [newTeamMemberEmail, setNewTeamMemberEmail] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const form = useForm();
   const {
     teamData,
     isAdmin,
@@ -19,8 +25,73 @@ const TeamManagement = () => {
     toggleRoleMutation,
   } = useTeamManagement();
 
-  console.log('TeamManagement component - teamData:', teamData);
-  console.log('TeamManagement component - isAdmin:', isAdmin);
+  const handleCreateTeam = async (data: { company_name: string }) => {
+    if (!data.company_name) {
+      toast({
+        title: "Error",
+        description: "Please enter a company name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // First create the company
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert([
+          { name: data.company_name }
+        ])
+        .select()
+        .single();
+
+      if (companyError) throw companyError;
+
+      // Then create team with company reference
+      const { data: teamData, error: teamError } = await supabase
+        .from('teams')
+        .insert([
+          { 
+            name: `${data.company_name} Team`,
+            company_id: companyData.id
+          }
+        ])
+        .select()
+        .single();
+
+      if (teamError) throw teamError;
+
+      // Add current user as admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user");
+
+      const { error: memberError } = await supabase
+        .from('team_members')
+        .insert([
+          { 
+            team_id: teamData.id,
+            user_id: user.id,
+            role: 'admin'
+          }
+        ]);
+
+      if (memberError) throw memberError;
+
+      toast({
+        title: "Success",
+        description: "Company and team created successfully",
+      });
+      
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error creating team:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create team",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAddMember = () => {
     if (!newTeamMemberEmail) {
@@ -61,7 +132,6 @@ const TeamManagement = () => {
   }
 
   if (!teamData) {
-    console.log('No team data available');
     return (
       <Card className="p-6">
         <div className="flex flex-col items-center justify-center space-y-4 py-8">
@@ -74,10 +144,31 @@ const TeamManagement = () => {
               You're not part of any team yet. Create a new team or ask your team admin to invite you.
             </p>
           </div>
-          <Button className="mt-4">
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Team
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Team
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Team</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={form.handleSubmit(handleCreateTeam)} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Company Name</label>
+                  <Input
+                    {...form.register("company_name")}
+                    placeholder="Enter company name"
+                  />
+                </div>
+                <Button type="submit" className="w-full">
+                  Create Team
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </Card>
     );
