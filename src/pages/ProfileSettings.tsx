@@ -1,6 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProfileBox from "@/components/ProfileBox";
+import ProfileForm from "@/components/profile/ProfileForm";
+import TeamManagement from "@/components/profile/TeamManagement";
 import Header from "@/components/Header";
 
 const ProfileSettings = () => {
@@ -11,28 +12,26 @@ const ProfileSettings = () => {
         <div className="space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Profile & Settings</h2>
           <p className="text-muted-foreground">
-            Manage your profile information and account settings
+            Manage your profile information and team settings
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="h-full space-y-6">
           <TabsList>
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="team">Team</TabsTrigger>
           </TabsList>
           <TabsContent value="profile" className="h-full">
             <ScrollArea className="h-full">
               <div className="space-y-6">
-                <ProfileBox />
+                <ProfileForm />
               </div>
             </ScrollArea>
           </TabsContent>
-          <TabsContent value="settings" className="h-full">
+          <TabsContent value="team" className="h-full">
             <ScrollArea className="h-full">
               <div className="space-y-6">
-                <div className="text-sm text-muted-foreground">
-                  Settings options will be added here
-                </div>
+                <TeamManagement />
               </div>
             </ScrollArea>
           </TabsContent>
