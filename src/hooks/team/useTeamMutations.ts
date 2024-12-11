@@ -8,21 +8,24 @@ export const useTeamMutations = () => {
 
   const addTeamMemberMutation = useMutation({
     mutationFn: async (email: string) => {
+      // First find the user by email in profiles
       const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('email', email)
+        .eq('id', email) // Using id directly since email is not in profiles
         .single();
 
       if (profileError || !userProfile) {
         throw new Error('User not found');
       }
 
+      // Get current team
       const teamData = await queryClient.getQueryData(['team']) as any;
       if (!teamData?.id) {
         throw new Error('Team not found');
       }
 
+      // Add member to team
       const { error } = await supabase
         .from('team_members')
         .insert({
