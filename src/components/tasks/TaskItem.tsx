@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
+import { TaskActions } from "./TaskActions";
 
 interface TaskItemProps {
   id: string;
@@ -28,7 +29,7 @@ export function TaskItem({
   onClick,
   onEdit,
 }: TaskItemProps) {
-  const { toggleTask } = useTaskContext();
+  const { toggleTask, deleteTask } = useTaskContext();
   const navigate = useNavigate();
 
   const priorityColors = {
@@ -88,6 +89,12 @@ export function TaskItem({
           >
             <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
           </Button>
+          <TaskActions
+            isDeleting={false}
+            onDelete={() => {
+              deleteTask(id);
+            }}
+          />
         </div>
       </div>
     </div>
