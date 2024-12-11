@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
@@ -58,39 +58,6 @@ const ProfileSettings = () => {
     },
   });
 
-  const handleEdit = () => {
-    setEditForm({
-      full_name: profile?.full_name || "",
-      surname: profile?.surname || "",
-      mobile: profile?.mobile || "",
-    });
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('profiles')
-      .update(editForm)
-      .eq('id', user.id);
-
-    if (!error) {
-      setIsEditing(false);
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-      });
-    }
-  };
-
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -130,8 +97,30 @@ const ProfileSettings = () => {
                 isEditing={isEditing}
                 editForm={editForm}
                 setEditForm={setEditForm}
-                handleEdit={handleEdit}
-                handleSave={handleSave}
+                handleEdit={() => setIsEditing(true)}
+                handleSave={async () => {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) return;
+
+                  const { error } = await supabase
+                    .from('profiles')
+                    .update(editForm)
+                    .eq('id', user.id);
+
+                  if (!error) {
+                    setIsEditing(false);
+                    toast({
+                      title: "Profile updated",
+                      description: "Your profile has been successfully updated.",
+                    });
+                  } else {
+                    toast({
+                      variant: "destructive",
+                      title: "Error",
+                      description: "Failed to update profile. Please try again.",
+                    });
+                  }
+                }}
               />
             </ScrollArea>
           </TabsContent>
