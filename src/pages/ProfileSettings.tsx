@@ -16,9 +16,13 @@ import * as z from "zod";
 
 const formSchema = z.object({
   company_name: z.string().optional(),
-  company_address: z.string().optional(),
-  company_vat: z.string().optional(),
   contact_person: z.string().optional(),
+  contact_number: z.string().optional(),
+  company_vat: z.string().optional(),
+  street_address: z.string().optional(),
+  suburb: z.string().optional(),
+  city: z.string().optional(),
+  postal_code: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -35,9 +39,13 @@ const ProfileSettings = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       company_name: "",
-      company_address: "",
-      company_vat: "",
       contact_person: "",
+      contact_number: "",
+      company_vat: "",
+      street_address: "",
+      suburb: "",
+      city: "",
+      postal_code: "",
     },
   });
 
