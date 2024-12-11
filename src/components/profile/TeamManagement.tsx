@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import TeamMembersList from "./TeamMembersList";
 import AddTeamMember from "./AddTeamMember";
 import { useTeamManagement } from "@/hooks/useTeamManagement";
 import { useToast } from "@/components/ui/use-toast";
+import { Plus, Users } from "lucide-react";
 
 const TeamManagement = () => {
   const [newTeamMemberEmail, setNewTeamMemberEmail] = useState("");
@@ -62,8 +64,20 @@ const TeamManagement = () => {
     console.log('No team data available');
     return (
       <Card className="p-6">
-        <div className="text-center text-muted-foreground">
-          No team data available. Please create or join a team.
+        <div className="flex flex-col items-center justify-center space-y-4 py-8">
+          <div className="rounded-full bg-muted p-3">
+            <Users className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold">No Team Found</h3>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              You're not part of any team yet. Create a new team or ask your team admin to invite you.
+            </p>
+          </div>
+          <Button className="mt-4">
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Team
+          </Button>
         </div>
       </Card>
     );
