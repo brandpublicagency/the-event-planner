@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Team {
   id: string;
@@ -22,35 +23,69 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 export function TenantProvider({ children }: { children: ReactNode }) {
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: userTeams = [], isLoading, error } = useQuery({
     queryKey: ['user-teams'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No authenticated user');
+      // First check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw sessionError;
+      }
 
-      const { data: teams, error: teamsError } = await supabase
-        .from('teams')
-        .select(`
-          id,
-          name,
-          team_members!inner (
-            role
-          )
-        `)
-        .eq('team_members.user_id', user.id);
+      if (!session) {
+        console.log('No session found, redirecting to login');
+        navigate('/login');
+        return [];
+      }
 
-      if (teamsError) throw teamsError;
+      try {
+        const { data: teams, error: teamsError } = await supabase
+          .from('teams')
+          .select(`
+            id,
+            name,
+            team_members!inner (
+              role
+            )
+          `)
+          .eq('team_members.user_id', session.user.id);
 
-      return (teams || []).map(team => ({
-        id: team.id,
-        name: team.name,
-        role: team.team_members[0].role,
-      }));
+        if (teamsError) {
+          console.error('Teams fetch error:', teamsError);
+          throw teamsError;
+        }
+
+        return (teams || []).map(team => ({
+          id: team.id,
+          name: team.name,
+          role: team.team_members[0].role,
+        }));
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+        throw error;
+      }
     },
     retry: 1,
     staleTime: 30000,
   });
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setCurrentTeam(null);
+        navigate('/login');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   useEffect(() => {
     const savedTeamId = localStorage.getItem('currentTeamId');

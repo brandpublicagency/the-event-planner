@@ -12,13 +12,15 @@ import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
 import { TenantProvider } from "./contexts/TenantContext";
 
-// Initialize QueryClient with retry configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
+      onError: (error) => {
+        console.error('Query error:', error);
+      },
     },
   },
 });
@@ -28,12 +30,13 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize Supabase auth listener
     const initializeAuth = async () => {
       try {
-        // Get initial session
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         
         setSession(initialSession);
       } catch (error) {
@@ -45,14 +48,12 @@ const App = () => {
 
     initializeAuth();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", _event, session?.user?.id);
       setSession(session);
       if (!session) {
-        // Clear query cache when user logs out
         queryClient.clear();
       }
     });
