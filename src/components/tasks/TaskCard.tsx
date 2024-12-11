@@ -1,26 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Trash2, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Task } from "@/contexts/TaskContext";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { TaskStatusBadges } from "./TaskStatusBadges";
+import { TaskActions } from "./TaskActions";
 
 interface TaskCardProps {
   task: Task;
@@ -31,43 +18,7 @@ interface TaskCardProps {
 export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const priorityColors = {
-    high: "bg-red-100 text-red-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    low: "bg-green-100 text-green-800",
-  };
-
-  const updateTaskMutation = useMutation({
-    mutationFn: async (completed: boolean) => {
-      setIsUpdating(true);
-      const { error } = await supabase
-        .from("tasks")
-        .update({ completed })
-        .eq("id", task.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: task.completed ? "Task uncompleted" : "Task completed",
-        description: `"${task.title}" has been ${task.completed ? "uncompleted" : "completed"}.`,
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-    onSettled: () => {
-      setIsUpdating(false);
-    },
-  });
 
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
@@ -109,22 +60,16 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            {isUpdating ? (
-              <div className="h-4 w-4 flex items-center justify-center">
-                <Loader2 className="h-3 w-3 animate-spin" />
-              </div>
-            ) : (
-              <Checkbox
-                checked={task.completed}
-                onCheckedChange={(checked) => {
-                  updateTaskMutation.mutate(checked as boolean);
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="transition-colors rounded-[3px]"
-              />
-            )}
+            <Checkbox
+              checked={task.completed}
+              onCheckedChange={(checked) => {
+                updateTaskMutation.mutate(checked as boolean);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="transition-colors rounded-[3px]"
+            />
           </div>
-          <div className="flex-1 min-w-0" onClick={onClick}>
+          <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -145,52 +90,15 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {task.priority && (
-                  <Badge 
-                    variant="secondary" 
-                    className={cn(
-                      "text-[0.65rem] px-2 py-0.5",
-                      priorityColors[task.priority as keyof typeof priorityColors]
-                    )}
-                  >
-                    {task.priority}
-                  </Badge>
-                )}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 border-border/40 hover:border-destructive/50"
-                      disabled={isDeleting}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {isDeleting ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3 w-3 text-muted-foreground transition-colors" />
-                      )}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this task? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => deleteTaskMutation.mutate()}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              <div className="flex items-center gap-2">
+                <TaskStatusBadges 
+                  priority={task.priority} 
+                  dueDate={task.due_date} 
+                />
+                <TaskActions 
+                  isDeleting={isDeleting}
+                  onDelete={() => deleteTaskMutation.mutate()}
+                />
               </div>
             </div>
           </div>
