@@ -18,14 +18,20 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
     setIsEditing(!isEditing);
   };
 
-  const handleSubmit = (data: any) => {
-    onSubmit?.(data);
-    setIsEditing(false);
+  const handleSubmit = async (data: any) => {
+    try {
+      if (onSubmit) {
+        await onSubmit(data);
+      }
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   return (
     <Form {...form}>
-      <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -51,7 +57,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="VAT Number" className="bg-white border-zinc-200" />
+                  <Input 
+                    {...field} 
+                    placeholder="VAT Number" 
+                    className="bg-white border-zinc-200"
+                    disabled={!isEditing}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -64,7 +75,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Contact Person" className="bg-white border-zinc-200" />
+                  <Input 
+                    {...field} 
+                    placeholder="Contact Person" 
+                    className="bg-white border-zinc-200"
+                    disabled={!isEditing}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,7 +93,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Contact Number" className="bg-white border-zinc-200" />
+                  <Input 
+                    {...field} 
+                    placeholder="Contact Number" 
+                    className="bg-white border-zinc-200"
+                    disabled={!isEditing}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -94,7 +115,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
               render={({ field }) => (
                 <FormItem className="col-span-2">
                   <FormControl>
-                    <Input {...field} placeholder="Street Address" className="bg-white border-zinc-200" />
+                    <Input 
+                      {...field} 
+                      placeholder="Street Address" 
+                      className="bg-white border-zinc-200"
+                      disabled={!isEditing}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,7 +133,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="Suburb" className="bg-white border-zinc-200" />
+                    <Input 
+                      {...field} 
+                      placeholder="Suburb" 
+                      className="bg-white border-zinc-200"
+                      disabled={!isEditing}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,7 +151,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="City" className="bg-white border-zinc-200" />
+                    <Input 
+                      {...field} 
+                      placeholder="City" 
+                      className="bg-white border-zinc-200"
+                      disabled={!isEditing}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,7 +169,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="Postal Code" className="bg-white border-zinc-200" />
+                    <Input 
+                      {...field} 
+                      placeholder="Postal Code" 
+                      className="bg-white border-zinc-200"
+                      disabled={!isEditing}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -28,7 +28,7 @@ const CompanyTeamSection = () => {
       const { data: teamData, error: teamError } = await supabase
         .from('teams')
         .insert([
-          { name: `Team ${data.company_name}` }
+          { name: data.company_name }
         ])
         .select()
         .single();
@@ -36,12 +36,15 @@ const CompanyTeamSection = () => {
       if (teamError) throw teamError;
 
       // Add current user as admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user");
+
       const { error: memberError } = await supabase
         .from('team_members')
         .insert([
           { 
             team_id: teamData.id,
-            user_id: (await supabase.auth.getUser()).data.user?.id,
+            user_id: user.id,
             role: 'admin'
           }
         ]);
