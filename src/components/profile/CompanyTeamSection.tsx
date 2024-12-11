@@ -25,7 +25,7 @@ const CompanyTeamSection = () => {
 
     try {
       // First create the company
-      const { data: companyData, error: companyError } = await supabase
+      const companyResponse = await supabase
         .from('companies')
         .insert([
           { name: data.company_name }
@@ -33,37 +33,39 @@ const CompanyTeamSection = () => {
         .select()
         .single();
 
-      if (companyError) throw companyError;
+      if (companyResponse.error) throw companyResponse.error;
+      const company = companyResponse.data;
 
       // Then create team with company reference
-      const { data: teamData, error: teamError } = await supabase
+      const teamResponse = await supabase
         .from('teams')
         .insert([
           { 
             name: `${data.company_name} Team`,
-            company_id: companyData.id
+            company_id: company.id
           }
         ])
         .select()
         .single();
 
-      if (teamError) throw teamError;
+      if (teamResponse.error) throw teamResponse.error;
+      const team = teamResponse.data;
 
       // Add current user as admin
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const { error: memberError } = await supabase
+      const memberResponse = await supabase
         .from('team_members')
         .insert([
           { 
-            team_id: teamData.id,
+            team_id: team.id,
             user_id: user.id,
             role: 'admin'
           }
         ]);
 
-      if (memberError) throw memberError;
+      if (memberResponse.error) throw memberResponse.error;
 
       toast({
         title: "Success",
@@ -78,6 +80,7 @@ const CompanyTeamSection = () => {
         description: error.message || "Failed to create team",
         variant: "destructive",
       });
+      throw error; // Re-throw to be handled by the form
     }
   };
 
