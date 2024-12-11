@@ -8,18 +8,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
-import Sidebar from "./components/Sidebar";
-import Index from "./pages/Index";
-import Events from "./pages/Events";
-import PassedEvents from "./pages/PassedEvents";
-import Calendar from "./pages/Calendar";
-import NewEvent from "./pages/NewEvent";
-import EditEvent from "./pages/EditEvent";
-import EventDetails from "./pages/EventDetails";
-import Tasks from "./pages/Tasks";
-import TaskDetails from "./pages/TaskDetails";
-import Login from "./pages/Login";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
 import { RootLayout } from "./layouts/RootLayout";
@@ -34,6 +22,28 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        // Clear query cache when user logs out
+        queryClient.clear();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AppProviders>
