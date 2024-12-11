@@ -2,21 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { UserPlus, Trash2, Shield, User } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import TeamMemberItem from "./TeamMemberItem";
+import AddTeamMember from "./AddTeamMember";
 
 const TeamManagement = () => {
   const { toast } = useToast();
@@ -26,9 +14,22 @@ const TeamManagement = () => {
   const { data: teamData } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
       const { data: teams } = await supabase
         .from('teams')
-        .select('*, team_members(*, profiles(*))')
+        .select(`
+          *,
+          team_members (
+            id,
+            user_id,
+            role,
+            profiles:user_id (
+              full_name
+            )
+          )
+        `)
         .single();
       return teams;
     },
@@ -137,81 +138,32 @@ const TeamManagement = () => {
 
   if (!teamData) return null;
 
+  const currentAdminId = teamData.team_members?.find((m: any) => m.role === 'admin')?.user_id;
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <h3 className="text-lg font-semibold">Team Management</h3>
           {isAdmin && (
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter email address"
-                value={newTeamMemberEmail}
-                onChange={(e) => setNewTeamMemberEmail(e.target.value)}
-                className="w-64"
-              />
-              <Button onClick={() => addTeamMemberMutation.mutate(newTeamMemberEmail)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add Member
-              </Button>
-            </div>
+            <AddTeamMember
+              email={newTeamMemberEmail}
+              onEmailChange={setNewTeamMemberEmail}
+              onAdd={() => addTeamMemberMutation.mutate(newTeamMemberEmail)}
+            />
           )}
         </div>
 
         <div className="space-y-4">
           {teamData.team_members?.map((member: any) => (
-            <div key={member.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
-              <div className="flex items-center gap-3">
-                {member.role === 'admin' ? (
-                  <Shield className="h-4 w-4 text-primary" />
-                ) : (
-                  <User className="h-4 w-4 text-muted-foreground" />
-                )}
-                <div>
-                  <p className="font-medium">{member.profiles?.full_name || 'Unnamed User'}</p>
-                  <p className="text-sm text-muted-foreground">Role: {member.role}</p>
-                </div>
-              </div>
-              
-              {isAdmin && member.user_id !== (teamData.team_members.find((m: any) => m.role === 'admin')?.user_id) && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleRoleMutation.mutate({
-                      userId: member.user_id,
-                      newRole: member.role === 'admin' ? 'member' : 'admin'
-                    })}
-                  >
-                    {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
-                  </Button>
-                  
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to remove this team member? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => removeTeamMemberMutation.mutate(member.user_id)}
-                        >
-                          Remove
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )}
-            </div>
+            <TeamMemberItem
+              key={member.id}
+              member={member}
+              isAdmin={isAdmin}
+              currentAdminId={currentAdminId}
+              onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
+              onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
+            />
           ))}
         </div>
       </div>
