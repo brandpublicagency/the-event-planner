@@ -2,15 +2,18 @@ import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/f
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 
 interface CompanyDetailsProps {
   form: UseFormReturn<any>;
+  onSubmit?: (data: any) => void;
+  showSubmit?: boolean;
 }
 
-const CompanyDetails = ({ form }: CompanyDetailsProps) => {
+const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => {
   return (
     <Form {...form}>
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit || (() => {}))}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -121,6 +124,12 @@ const CompanyDetails = ({ form }: CompanyDetailsProps) => {
             />
           </div>
         </div>
+
+        {showSubmit && (
+          <div className="flex justify-end">
+            <Button type="submit">Create Team</Button>
+          </div>
+        )}
       </form>
     </Form>
   );

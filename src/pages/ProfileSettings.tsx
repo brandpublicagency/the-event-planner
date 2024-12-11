@@ -1,33 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProfileForm from "@/components/profile/ProfileForm";
-import TeamManagement from "@/components/profile/TeamManagement";
-import CompanyDetails from "@/components/forms/CompanyDetails";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Building, Users } from "lucide-react";
-import FormSection from "@/components/forms/FormSection";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import ProfileSection from "@/components/profile/ProfileSection";
+import CompanyTeamSection from "@/components/profile/CompanyTeamSection";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-
-const formSchema = z.object({
-  company_name: z.string().optional(),
-  contact_person: z.string().optional(),
-  contact_number: z.string().optional(),
-  company_vat: z.string().optional(),
-  street_address: z.string().optional(),
-  suburb: z.string().optional(),
-  city: z.string().optional(),
-  postal_code: z.string().optional(),
-});
-
-type FormData = z.infer<typeof formSchema>;
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -39,47 +19,21 @@ const ProfileSettings = () => {
     mobile: "",
   });
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      company_name: "",
-      contact_person: "",
-      contact_number: "",
-      company_vat: "",
-      street_address: "",
-      suburb: "",
-      city: "",
-      postal_code: "",
-    },
-  });
-
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
+      if (error || !session) {
         toast({
           variant: "destructive",
           title: "Authentication Error",
           description: "Please try logging in again.",
         });
         navigate("/login");
-        return;
-      }
-      if (!session) {
-        navigate("/login");
       }
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
   const { data: profile, isLoading, error } = useQuery({
@@ -101,14 +55,6 @@ const ProfileSettings = () => {
       }
 
       return profileData;
-    },
-    retry: 1,
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error loading profile",
-        description: "Please try refreshing the page.",
-      });
     },
   });
 
@@ -167,53 +113,32 @@ const ProfileSettings = () => {
         <div className="space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Profile & Settings</h2>
           <p className="text-muted-foreground">
-            Manage your profile information and team settings
+            Manage your profile information and company settings
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="h-full space-y-6">
           <TabsList>
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="company">Company</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
+            <TabsTrigger value="company">Company & Team</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="h-full">
             <ScrollArea className="h-full">
-              <Card className="p-6">
-                <ProfileForm
-                  profile={profile}
-                  isEditing={isEditing}
-                  editForm={editForm}
-                  setEditForm={setEditForm}
-                  handleEdit={handleEdit}
-                  handleSave={handleSave}
-                />
-              </Card>
+              <ProfileSection
+                profile={profile}
+                isEditing={isEditing}
+                editForm={editForm}
+                setEditForm={setEditForm}
+                handleEdit={handleEdit}
+                handleSave={handleSave}
+              />
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="company" className="h-full">
             <ScrollArea className="h-full">
-              <FormSection
-                title="Company Details"
-                description="Manage your company information"
-                icon={<Building className="h-5 w-5" />}
-              >
-                <CompanyDetails form={form} />
-              </FormSection>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="team" className="h-full">
-            <ScrollArea className="h-full">
-              <FormSection
-                title="Team Management"
-                description="Manage your team members and their roles"
-                icon={<Users className="h-5 w-5" />}
-              >
-                <TeamManagement />
-              </FormSection>
+              <CompanyTeamSection />
             </ScrollArea>
           </TabsContent>
         </Tabs>
