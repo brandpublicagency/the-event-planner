@@ -41,7 +41,7 @@ export const CreateTeamDialog = () => {
         return;
       }
 
-      // Create company with RLS-compatible insert
+      // Create company
       const { data: company, error: companyError } = await supabase
         .from('companies')
         .insert([{ 
@@ -87,7 +87,7 @@ export const CreateTeamDialog = () => {
       });
       
       setIsOpen(false);
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ['team'] });
     } catch (error: any) {
       console.error('Error creating team:', error);
       toast({

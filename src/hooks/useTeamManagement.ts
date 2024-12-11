@@ -58,7 +58,7 @@ export const useTeamManagement = () => {
 
       if (membersError) {
         console.error('Error fetching team members:', membersError);
-        return null;
+        throw membersError;
       }
 
       return {
@@ -66,7 +66,7 @@ export const useTeamManagement = () => {
         name: teamMember.team.name,
         company_id: teamMember.team.company_id,
         role: teamMember.role,
-        team_members: members
+        team_members: members || []
       };
     },
   });
@@ -95,9 +95,10 @@ export const useTeamManagement = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Error adding team member:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to add team member",
         variant: "destructive",
       });
     },
@@ -123,9 +124,10 @@ export const useTeamManagement = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Error removing team member:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to remove team member",
         variant: "destructive",
       });
     },
@@ -151,9 +153,10 @@ export const useTeamManagement = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Error updating role:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to update role",
         variant: "destructive",
       });
     },
