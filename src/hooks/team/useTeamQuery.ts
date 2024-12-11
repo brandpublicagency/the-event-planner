@@ -7,10 +7,26 @@ export const useTeamQuery = () => {
     queryFn: async () => {
       console.log('Fetching team data...');
       
-      // First get the team membership for the current user
+      // First get the authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Auth error:', authError);
+        return null;
+      }
+
+      if (!user) {
+        console.log('No authenticated user found');
+        return null;
+      }
+
+      console.log('Authenticated user:', user.id);
+      
+      // Get the team membership for the current user
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select('team_id, role')
+        .eq('user_id', user.id)
         .single();
 
       if (memberError) {
@@ -22,6 +38,8 @@ export const useTeamQuery = () => {
         console.log('User has no team membership');
         return null;
       }
+
+      console.log('Team member data:', teamMember);
 
       // Then get the team details and its members
       const { data: team, error: teamError } = await supabase

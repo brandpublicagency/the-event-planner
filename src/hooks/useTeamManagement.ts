@@ -42,12 +42,13 @@ export const useTeamManagement = () => {
     },
   });
 
-  // Determine if user is admin based on teamData
-  const isAdmin = teamData?.team_members?.some(
-    (member: any) => 
-      member.user_id === (supabase.auth.getUser() as any)._data?.user?.id && 
-      member.role === 'admin'
-  ) ?? false;
+  // Determine if user is admin based on teamData and current user
+  const isAdmin = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return teamData?.team_members?.some(
+      (member: any) => member.user_id === user?.id && member.role === 'admin'
+    ) ?? false;
+  };
 
   const addTeamMemberMutation = useMutation({
     mutationFn: async (email: string) => {
