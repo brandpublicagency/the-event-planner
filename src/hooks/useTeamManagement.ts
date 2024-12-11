@@ -6,33 +6,28 @@ export const useTeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // First, get the user's team membership
   const { data: teamData } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // Get user's team membership and role in a single query
+      // First get the user's team
       const { data: userTeam, error: teamError } = await supabase
-        .from('team_members')
+        .from('teams')
         .select(`
-          team_id,
-          role,
-          teams (
+          id,
+          name,
+          team_members!inner (
             id,
-            name,
-            team_members (
-              id,
-              user_id,
-              role,
-              profiles (
-                full_name
-              )
+            user_id,
+            role,
+            profiles (
+              full_name
             )
           )
         `)
-        .eq('user_id', user.id)
+        .eq('team_members.user_id', user.id)
         .single();
 
       if (teamError) {
@@ -40,7 +35,7 @@ export const useTeamManagement = () => {
         return null;
       }
 
-      return userTeam?.teams;
+      return userTeam;
     },
   });
 
