@@ -3,14 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
-import { RootLayout } from "./layouts/RootLayout";
+import { TenantProvider } from "./contexts/TenantContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,9 +47,11 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AppProviders>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <TenantProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TenantProvider>
       </AppProviders>
     </QueryClientProvider>
   );
