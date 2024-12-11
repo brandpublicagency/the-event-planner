@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const CreateTeamDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const form = useForm();
+  const navigate = useNavigate();
 
   const handleCreateTeam = async (formData: { company_name: string }) => {
     if (!formData.company_name) {
@@ -22,18 +25,37 @@ export const CreateTeamDialog = () => {
       return;
     }
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user");
+    setIsLoading(true);
 
-      // Create company
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) throw authError;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to create a team",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      // Create company with RLS-compatible insert
       const { data: company, error: companyError } = await supabase
         .from('companies')
-        .insert([{ name: formData.company_name }])
+        .insert([{ 
+          name: formData.company_name,
+        }])
         .select()
         .single();
 
-      if (companyError) throw companyError;
+      if (companyError) {
+        console.error('Company creation error:', companyError);
+        throw new Error(companyError.message);
+      }
+
+      if (!company) throw new Error("Failed to create company");
 
       // Create team
       const { data: team, error: teamError } = await supabase
@@ -46,6 +68,7 @@ export const CreateTeamDialog = () => {
         .single();
 
       if (teamError) throw teamError;
+      if (!team) throw new Error("Failed to create team");
 
       // Add current user as admin
       const { error: memberError } = await supabase
@@ -72,6 +95,8 @@ export const CreateTeamDialog = () => {
         description: error.message || "Failed to create team",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,6 +111,9 @@ export const CreateTeamDialog = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Team</DialogTitle>
+          <DialogDescription>
+            Create a new company and team. You'll be automatically added as an admin.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleCreateTeam)} className="space-y-4">
           <div>
@@ -93,10 +121,11 @@ export const CreateTeamDialog = () => {
             <Input
               {...form.register("company_name")}
               placeholder="Enter company name"
+              disabled={isLoading}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Create Team
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Team"}
           </Button>
         </form>
       </DialogContent>
