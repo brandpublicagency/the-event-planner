@@ -136,7 +136,7 @@ export type Database = {
           depth?: number | null
           id?: string
           parent_id?: string | null
-          path?: unknown | null
+          path?: unknown
           tags?: string[] | null
           template?: boolean | null
           title: string
@@ -151,7 +151,7 @@ export type Database = {
           depth?: number | null
           id?: string
           parent_id?: string | null
-          path?: unknown | null
+          path?: unknown
           tags?: string[] | null
           template?: boolean | null
           title?: string
@@ -604,7 +604,7 @@ export type Database = {
           priority?: string | null
           status?: string | null
           task_code?: string | null
-          title?: string
+          title: string
           todos?: string[] | null
           updated_at?: string
           user_id?: string
@@ -735,7 +735,7 @@ export type Database = {
           groom_email?: string | null
           groom_mobile?: string | null
           groom_name?: string | null
-          updated_at?: string
+          updated_at: string
         }
         Relationships: [
           {
@@ -880,7 +880,7 @@ export type Database = {
       }
       ltxtq_send: {
         Args: {
-          "": unknown
+          "": string
         }
         Returns: string
       }
@@ -896,6 +896,16 @@ export type Database = {
         }
         Returns: unknown
       }
+      create_company_and_team: {
+        Args: {
+          p_company_name: string;
+          p_user_id: string;
+        };
+        Returns: {
+          company_id: string;
+          team_id: string;
+        };
+      };
     }
     Enums: {
       team_role: "admin" | "member"
@@ -915,7 +925,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
