@@ -2,20 +2,14 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import CompanyDetails from "../../forms/CompanyDetails";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 interface CreateCompanyFormProps {
   onSuccess: () => Promise<void>;
 }
 
-type CreateCompanyAndTeamResponse = {
-  company_id: string;
-  team_id: string;
-};
-
-type CreateCompanyAndTeamArgs = {
-  p_company_name: string;
-  p_user_id: string;
-};
+type CreateCompanyAndTeamResponse = Database["public"]["Functions"]["create_company_and_team"]["Returns"];
+type CreateCompanyAndTeamArgs = Database["public"]["Functions"]["create_company_and_team"]["Args"];
 
 export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
   const form = useForm();
