@@ -12,25 +12,17 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: teamMember, error: teamError } = await supabase
-        .from('team_members')
+      // First, get the user's team
+      const { data: team, error: teamError } = await supabase
+        .from('teams')
         .select(`
-          team_id,
-          role,
-          teams (
-            id,
-            name,
-            team_members (
-              id,
-              user_id,
-              role,
-              profiles (
-                full_name
-              )
-            )
+          id,
+          name,
+          team_members!inner (
+            role
           )
         `)
-        .eq('user_id', user.id)
+        .eq('team_members.user_id', user.id)
         .single();
 
       if (teamError) {
@@ -38,21 +30,40 @@ export const useTeamManagement = () => {
         return null;
       }
 
-      return teamMember?.teams;
+      // Then get all members for this team
+      const { data: members, error: membersError } = await supabase
+        .from('team_members')
+        .select(`
+          id,
+          user_id,
+          role,
+          profiles (
+            full_name
+          )
+        `)
+        .eq('team_id', team.id);
+
+      if (membersError) {
+        console.error('Error fetching team members:', membersError);
+        return null;
+      }
+
+      return {
+        id: team.id,
+        name: team.name,
+        role: team.team_members[0].role,
+        team_members: members
+      };
     },
+    retry: 1,
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   // Get current user's admin status
-  const { data: isAdmin } = useQuery({
-    queryKey: ['isAdmin'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return teamData?.team_members?.some(
-        (member: any) => member.user_id === user?.id && member.role === 'admin'
-      ) ?? false;
-    },
-    enabled: !!teamData, // Only run this query when teamData is available
-  });
+  const isAdmin = teamData?.team_members?.some(
+    (member: any) => member.user_id === (supabase.auth.getUser() as any)._data?.user?.id && 
+    member.role === 'admin'
+  ) ?? false;
 
   const addTeamMemberMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -144,7 +155,7 @@ export const useTeamManagement = () => {
 
   return {
     teamData,
-    isAdmin: isAdmin ?? false,
+    isAdmin,
     isTeamLoading,
     addTeamMemberMutation,
     removeTeamMemberMutation,

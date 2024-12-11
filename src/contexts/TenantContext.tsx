@@ -29,31 +29,35 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user');
 
-      const { data, error } = await supabase
-        .from('team_members')
+      // First, get the teams the user is a member of
+      const { data: teamMemberships, error: teamsError } = await supabase
+        .from('teams')
         .select(`
-          role,
-          teams (
-            id,
-            name
+          id,
+          name,
+          team_members!inner (
+            role
           )
         `)
-        .eq('user_id', user.id);
+        .eq('team_members.user_id', user.id);
 
-      if (error) throw error;
+      if (teamsError) throw teamsError;
 
-      return data.map(({ teams, role }) => ({
-        id: teams.id,
-        name: teams.name,
-        role,
+      return teamMemberships.map(team => ({
+        id: team.id,
+        name: team.name,
+        role: team.team_members[0].role,
       }));
     },
+    retry: 1,
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   useEffect(() => {
-    // Set the first team as current if none is selected and teams are loaded
-    if (!currentTeam && userTeams.length > 0) {
-      const savedTeamId = localStorage.getItem('currentTeamId');
+    const savedTeamId = localStorage.getItem('currentTeamId');
+    
+    // Only set current team if we have teams and no current team
+    if (userTeams.length > 0 && !currentTeam) {
       const savedTeam = savedTeamId 
         ? userTeams.find(team => team.id === savedTeamId)
         : userTeams[0];
