@@ -7,9 +7,9 @@ import CompanyDetails from "../forms/CompanyDetails";
 import TeamManagement from "./TeamManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Database } from "@/integrations/supabase/types";
+import { DatabaseFunctions } from "@/integrations/supabase/types/functions";
 
-type CreateCompanyAndTeamFunction = Database['public']['Functions']['create_company_and_team'];
+type CreateCompanyAndTeamFunction = DatabaseFunctions['create_company_and_team'];
 type CreateCompanyAndTeamArgs = CreateCompanyAndTeamFunction['Args'];
 type CreateCompanyAndTeamReturns = CreateCompanyAndTeamFunction['Returns'];
 
