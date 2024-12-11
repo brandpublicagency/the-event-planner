@@ -6,11 +6,6 @@ import { Card } from "@/components/ui/card";
 import TeamMemberItem from "./TeamMemberItem";
 import AddTeamMember from "./AddTeamMember";
 
-type User = {
-  id: string;
-  email: string;
-};
-
 const TeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,8 +26,7 @@ const TeamManagement = () => {
             user_id,
             role,
             profiles:user_id (
-              full_name,
-              email
+              full_name
             )
           )
         `)
