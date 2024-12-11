@@ -17,32 +17,44 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });
 
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setIsLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (!session) {
         // Clear query cache when user logs out
         queryClient.clear();
       }
+      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
