@@ -11,7 +11,17 @@ import { Card } from "@/components/ui/card";
 import { Building, Users } from "lucide-react";
 import FormSection from "@/components/forms/FormSection";
 import { useForm } from "react-hook-form";
-import { EventFormData } from "@/types/eventForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const formSchema = z.object({
+  company_name: z.string().optional(),
+  company_address: z.string().optional(),
+  company_vat: z.string().optional(),
+  contact_person: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 const ProfileSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +31,8 @@ const ProfileSettings = () => {
     mobile: "",
   });
 
-  const form = useForm<EventFormData>({
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       company_name: "",
       company_address: "",
