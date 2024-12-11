@@ -6,31 +6,43 @@ export const useTeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Simplified team query
   const { data: teamData, isLoading: isTeamLoading } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
+      console.log('Fetching team data...');
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      // First, get the user's team
-      const { data: team, error: teamError } = await supabase
-        .from('teams')
-        .select(`
-          id,
-          name,
-          team_members!inner (
-            role
-          )
-        `)
-        .eq('team_members.user_id', user.id)
-        .single();
-
-      if (teamError) {
-        console.error('Error fetching team:', teamError);
+      
+      if (!user) {
+        console.log('No authenticated user found');
         return null;
       }
 
-      // Then get all members for this team
+      // Get user's team membership
+      const { data: teamMember, error: memberError } = await supabase
+        .from('team_members')
+        .select(`
+          team:teams (
+            id,
+            name,
+            company_id
+          ),
+          role
+        `)
+        .eq('user_id', user.id)
+        .single();
+
+      if (memberError) {
+        console.error('Error fetching team:', memberError);
+        return null;
+      }
+
+      if (!teamMember?.team) {
+        console.log('User has no team');
+        return null;
+      }
+
+      // Get all team members
       const { data: members, error: membersError } = await supabase
         .from('team_members')
         .select(`
@@ -38,10 +50,11 @@ export const useTeamManagement = () => {
           user_id,
           role,
           profiles (
-            full_name
+            full_name,
+            email
           )
         `)
-        .eq('team_id', team.id);
+        .eq('team_id', teamMember.team.id);
 
       if (membersError) {
         console.error('Error fetching team members:', membersError);
@@ -49,39 +62,27 @@ export const useTeamManagement = () => {
       }
 
       return {
-        id: team.id,
-        name: team.name,
-        role: team.team_members[0].role,
+        id: teamMember.team.id,
+        name: teamMember.team.name,
+        company_id: teamMember.team.company_id,
+        role: teamMember.role,
         team_members: members
       };
     },
-    retry: 1,
-    staleTime: 30000, // Cache for 30 seconds
   });
 
-  // Get current user's admin status
-  const isAdmin = teamData?.team_members?.some(
-    (member: any) => member.user_id === (supabase.auth.getUser() as any)._data?.user?.id && 
-    member.role === 'admin'
-  ) ?? false;
+  // Check if current user is admin
+  const isAdmin = teamData?.role === 'admin';
 
   const addTeamMemberMutation = useMutation({
-    mutationFn: async (email: string) => {
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      if (profileError || !userProfile) {
-        throw new Error('User not found');
-      }
+    mutationFn: async (userId: string) => {
+      if (!teamData?.id) throw new Error('No team found');
 
       const { error } = await supabase
         .from('team_members')
         .insert({
-          team_id: teamData?.id,
-          user_id: userProfile.id,
+          team_id: teamData.id,
+          user_id: userId,
           role: 'member'
         });
 
@@ -105,9 +106,12 @@ export const useTeamManagement = () => {
 
   const removeTeamMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
+      if (!teamData?.id) throw new Error('No team found');
+
       const { error } = await supabase
         .from('team_members')
         .delete()
+        .eq('team_id', teamData.id)
         .eq('user_id', userId);
 
       if (error) throw error;
@@ -130,9 +134,12 @@ export const useTeamManagement = () => {
 
   const toggleRoleMutation = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string, newRole: 'admin' | 'member' }) => {
+      if (!teamData?.id) throw new Error('No team found');
+
       const { error } = await supabase
         .from('team_members')
         .update({ role: newRole })
+        .eq('team_id', teamData.id)
         .eq('user_id', userId);
 
       if (error) throw error;

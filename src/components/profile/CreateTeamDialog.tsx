@@ -26,18 +26,17 @@ export const CreateTeamDialog = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      // Create company and get the response
-      const companyResponse = await supabase
+      // Create company
+      const { data: company, error: companyError } = await supabase
         .from('companies')
         .insert([{ name: formData.company_name }])
         .select()
         .single();
 
-      if (companyResponse.error) throw companyResponse.error;
-      const company = companyResponse.data;
+      if (companyError) throw companyError;
 
-      // Create team with company reference
-      const teamResponse = await supabase
+      // Create team
+      const { data: team, error: teamError } = await supabase
         .from('teams')
         .insert([{ 
           name: `${formData.company_name} Team`,
@@ -46,11 +45,10 @@ export const CreateTeamDialog = () => {
         .select()
         .single();
 
-      if (teamResponse.error) throw teamResponse.error;
-      const team = teamResponse.data;
+      if (teamError) throw teamError;
 
       // Add current user as admin
-      const memberResponse = await supabase
+      const { error: memberError } = await supabase
         .from('team_members')
         .insert([{ 
           team_id: team.id,
@@ -58,7 +56,7 @@ export const CreateTeamDialog = () => {
           role: 'admin'
         }]);
 
-      if (memberResponse.error) throw memberResponse.error;
+      if (memberError) throw memberError;
 
       toast({
         title: "Success",
@@ -66,7 +64,6 @@ export const CreateTeamDialog = () => {
       });
       
       setIsOpen(false);
-      // Reload the page to show the new team
       window.location.reload();
     } catch (error: any) {
       console.error('Error creating team:', error);

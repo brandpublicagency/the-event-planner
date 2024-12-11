@@ -20,32 +20,22 @@ const TeamManagement = () => {
     toggleRoleMutation,
   } = useTeamManagement();
 
-  const handleAddMember = () => {
+  const handleAddMember = async () => {
     if (!newTeamMemberEmail) {
       toast({
         title: "Error",
-        description: "Please enter an email address",
+        description: "Please enter a user ID",
         variant: "destructive",
       });
       return;
     }
 
-    addTeamMemberMutation.mutate(newTeamMemberEmail, {
-      onSuccess: () => {
-        setNewTeamMemberEmail("");
-        toast({
-          title: "Success",
-          description: "Team member added successfully",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to add team member",
-          variant: "destructive",
-        });
-      },
-    });
+    try {
+      await addTeamMemberMutation.mutateAsync(newTeamMemberEmail);
+      setNewTeamMemberEmail("");
+    } catch (error: any) {
+      console.error('Error adding team member:', error);
+    }
   };
 
   if (isTeamLoading) {
@@ -77,8 +67,6 @@ const TeamManagement = () => {
     );
   }
 
-  const currentAdminId = teamData.team_members?.find((m: any) => m.role === 'admin')?.user_id;
-
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -96,7 +84,7 @@ const TeamManagement = () => {
         <TeamMembersList
           members={teamData.team_members || []}
           isAdmin={isAdmin}
-          currentAdminId={currentAdminId}
+          currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
           onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
           onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
         />
