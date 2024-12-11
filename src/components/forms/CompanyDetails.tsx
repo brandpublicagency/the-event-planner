@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface CompanyDetailsProps {
   form: UseFormReturn<any>;
@@ -11,9 +12,20 @@ interface CompanyDetailsProps {
 }
 
 const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleSubmit = (data: any) => {
+    onSubmit?.(data);
+    setIsEditing(false);
+  };
+
   return (
     <Form {...form}>
-      <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit || (() => {}))}>
+      <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -21,7 +33,12 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Company Name" className="bg-white border-zinc-200" />
+                  <Input 
+                    {...field} 
+                    placeholder="Company Name" 
+                    className="bg-white border-zinc-200" 
+                    disabled={!isEditing}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -126,8 +143,28 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
         </div>
 
         {showSubmit && (
-          <div className="flex justify-end">
-            <Button type="submit">Create Team</Button>
+          <div className="flex justify-end space-x-4">
+            {!isEditing ? (
+              <Button 
+                type="button" 
+                onClick={handleEditToggle}
+              >
+                Edit Company Details
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleEditToggle}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Company Details
+                </Button>
+              </>
+            )}
           </div>
         )}
       </form>
