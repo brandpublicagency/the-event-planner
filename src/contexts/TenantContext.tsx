@@ -29,56 +29,46 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const { data: userTeams = [], isLoading, error } = useQuery({
     queryKey: ['user-teams'],
     queryFn: async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        throw sessionError;
-      }
-
       if (!session) {
-        console.log('No session found, redirecting to login');
         if (location.pathname !== '/login') {
           navigate('/login');
         }
         return [];
       }
 
-      try {
-        // First get team memberships
-        const { data: memberships, error: membershipError } = await supabase
-          .from('team_members')
-          .select('team_id, role')
-          .eq('user_id', session.user.id);
+      // Fetch team memberships with team details in a single query
+      const { data, error: teamsError } = await supabase
+        .from('team_members')
+        .select(`
+          role,
+          team:teams (
+            id,
+            name
+          )
+        `)
+        .eq('user_id', session.user.id);
 
-        if (membershipError) throw membershipError;
-
-        if (!memberships || memberships.length === 0) return [];
-
-        // Then get team details
-        const { data: teams, error: teamsError } = await supabase
-          .from('teams')
-          .select('id, name')
-          .in('id', memberships.map(m => m.team_id));
-
-        if (teamsError) throw teamsError;
-
-        // Combine the data
-        return teams.map(team => ({
-          id: team.id,
-          name: team.name,
-          role: memberships.find(m => m.team_id === team.id)?.role || 'member'
-        }));
-      } catch (error) {
-        console.error('Error fetching teams:', error);
-        throw error;
+      if (teamsError) {
+        console.error('Error fetching teams:', teamsError);
+        throw teamsError;
       }
+
+      // Transform the data into the expected format
+      return data
+        .filter(membership => membership.team) // Filter out any null teams
+        .map(membership => ({
+          id: membership.team.id,
+          name: membership.team.name,
+          role: membership.role
+        }));
     },
     retry: false,
   });
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
         setCurrentTeam(null);
         if (location.pathname !== '/login') {

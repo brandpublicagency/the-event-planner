@@ -6,7 +6,6 @@ export const useTeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Simplified team query
   const { data: teamData, isLoading: isTeamLoading } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
@@ -18,16 +17,16 @@ export const useTeamManagement = () => {
         return null;
       }
 
-      // Get user's team membership
+      // Get user's team membership and team details in a single query
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
+          role,
           team:teams (
             id,
             name,
             company_id
-          ),
-          role
+          )
         `)
         .eq('user_id', user.id)
         .single();
@@ -42,14 +41,14 @@ export const useTeamManagement = () => {
         return null;
       }
 
-      // Get all team members
+      // Get all team members in a separate query
       const { data: members, error: membersError } = await supabase
         .from('team_members')
         .select(`
           id,
           user_id,
           role,
-          profiles (
+          profiles:profiles (
             full_name,
             email
           )
@@ -71,18 +70,17 @@ export const useTeamManagement = () => {
     },
   });
 
-  // Check if current user is admin
   const isAdmin = teamData?.role === 'admin';
 
   const addTeamMemberMutation = useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async (email: string) => {
       if (!teamData?.id) throw new Error('No team found');
 
       const { error } = await supabase
         .from('team_members')
         .insert({
           team_id: teamData.id,
-          user_id: userId,
+          user_id: email,
           role: 'member'
         });
 
