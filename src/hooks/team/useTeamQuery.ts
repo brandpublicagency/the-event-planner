@@ -21,11 +21,10 @@ export const useTeamQuery = () => {
 
       console.log('Authenticated user:', user.id);
       
-      // First get the user's team membership
+      // Get user's team membership with basic team info
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
-          team_id,
           role,
           teams (
             id,
@@ -40,13 +39,13 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      if (!teamMember?.team_id) {
+      if (!teamMember?.teams) {
         console.log('User has no team membership');
         return null;
       }
 
-      // Then get all team members for this team in a separate query
-      const { data: teamMembers, error: membersError } = await supabase
+      // Get all team members for this team
+      const { data: allTeamMembers, error: membersError } = await supabase
         .from('team_members')
         .select(`
           id,
@@ -56,7 +55,7 @@ export const useTeamQuery = () => {
             full_name
           )
         `)
-        .eq('team_id', teamMember.team_id);
+        .eq('team_id', teamMember.teams.id);
 
       if (membersError) {
         console.error('Error fetching team members:', membersError);
@@ -67,7 +66,7 @@ export const useTeamQuery = () => {
       return {
         ...teamMember.teams,
         role: teamMember.role,
-        team_members: teamMembers
+        team_members: allTeamMembers
       };
     },
   });
