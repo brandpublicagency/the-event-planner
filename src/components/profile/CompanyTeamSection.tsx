@@ -14,7 +14,7 @@ const CompanyTeamSection = () => {
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
   // First fetch the user's team membership
-  const { data: teamMembership } = useQuery({
+  const { data: teamMembership, refetch: refetchTeamMembership } = useQuery({
     queryKey: ['team-membership'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -59,43 +59,21 @@ const CompanyTeamSection = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      // Create company
-      const { data: company, error: companyError } = await supabase
-        .from('companies')
-        .insert([{ name: data.company_name }])
-        .select()
-        .single();
+      // Start a transaction using RPC
+      const { data: result, error: rpcError } = await supabase.rpc('create_company_and_team', {
+        p_company_name: data.company_name,
+        p_user_id: user.id
+      });
 
-      if (companyError) throw companyError;
-
-      // Create team
-      const { data: team, error: teamError } = await supabase
-        .from('teams')
-        .insert([{ 
-          name: `${data.company_name} Team`,
-          company_id: company.id
-        }])
-        .select()
-        .single();
-
-      if (teamError) throw teamError;
-
-      // Add current user as admin
-      const { error: memberError } = await supabase
-        .from('team_members')
-        .insert([{ 
-          team_id: team.id,
-          user_id: user.id,
-          role: 'admin'
-        }]);
-
-      if (memberError) throw memberError;
+      if (rpcError) throw rpcError;
 
       toast({
         title: "Success",
         description: "Company and team created successfully",
       });
       
+      // Refetch team membership to update the UI
+      await refetchTeamMembership();
       setIsCreatingTeam(false);
     } catch (error: any) {
       console.error('Error creating team:', error);
@@ -119,7 +97,7 @@ const CompanyTeamSection = () => {
         <CompanyDetails 
           form={form} 
           onSubmit={handleCreateTeam}
-          showSubmit={!isCreatingTeam}
+          showSubmit={!teamMembership}
         />
       </Card>
 
