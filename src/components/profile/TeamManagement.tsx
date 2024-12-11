@@ -6,6 +6,11 @@ import { Card } from "@/components/ui/card";
 import TeamMemberItem from "./TeamMemberItem";
 import AddTeamMember from "./AddTeamMember";
 
+type User = {
+  id: string;
+  email: string;
+};
+
 const TeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,7 +61,7 @@ const TeamManagement = () => {
       const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
       if (userError) throw userError;
 
-      const user = users.find(u => u.email === email);
+      const user = (users as User[]).find(u => u.email === email);
       if (!user) throw new Error('User not found');
 
       const { error } = await supabase
