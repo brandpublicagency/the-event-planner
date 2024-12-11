@@ -45,23 +45,29 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        // First get team memberships
+        const { data: memberships, error: membershipError } = await supabase
+          .from('team_members')
+          .select('team_id, role')
+          .eq('user_id', session.user.id);
+
+        if (membershipError) throw membershipError;
+
+        if (!memberships || memberships.length === 0) return [];
+
+        // Then get team details
         const { data: teams, error: teamsError } = await supabase
           .from('teams')
-          .select(`
-            id,
-            name,
-            team_members!inner (
-              role
-            )
-          `)
-          .eq('team_members.user_id', session.user.id);
+          .select('id, name')
+          .in('id', memberships.map(m => m.team_id));
 
         if (teamsError) throw teamsError;
 
-        return (teams || []).map(team => ({
+        // Combine the data
+        return teams.map(team => ({
           id: team.id,
           name: team.name,
-          role: team.team_members[0].role,
+          role: memberships.find(m => m.team_id === team.id)?.role || 'member'
         }));
       } catch (error) {
         console.error('Error fetching teams:', error);
