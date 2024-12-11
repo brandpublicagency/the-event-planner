@@ -1,8 +1,11 @@
 import { Bell, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <header className="flex h-16 items-center justify-between bg-white px-6 shadow-sm">
       <div className="flex items-center gap-4">
@@ -19,7 +22,12 @@ const Header = () => {
         <Button variant="ghost" size="icon" className="h-9 w-9 text-zinc-500 hover:text-zinc-900">
           <Bell className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9 text-zinc-500 hover:text-zinc-900">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-9 w-9 text-zinc-500 hover:text-zinc-900"
+          onClick={() => navigate('/profile-settings')}
+        >
           <User className="h-4 w-4" />
         </Button>
       </div>

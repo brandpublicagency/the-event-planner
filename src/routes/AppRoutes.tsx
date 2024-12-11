@@ -14,6 +14,7 @@ import Tasks from "@/pages/Tasks";
 import TaskDetails from "@/pages/TaskDetails";
 import Login from "@/pages/Login";
 import Documents from "@/pages/Documents";
+import ProfileSettings from "@/pages/ProfileSettings";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -165,6 +166,16 @@ export const AppRoutes = () => {
           <PrivateRoute>
             <RootLayout>
               <Documents />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile-settings"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <ProfileSettings />
             </RootLayout>
           </PrivateRoute>
         }
