@@ -84,9 +84,9 @@ const TeamManagement = () => {
         <TeamMembersList
           members={teamData.team_members || []}
           isAdmin={isAdmin}
-          currentAdminEmail={teamData.team_members?.find(m => m.role === 'admin')?.email}
-          onToggleRole={(email, newRole) => toggleRoleMutation.mutate({ email, newRole })}
-          onRemoveMember={(email) => removeTeamMemberMutation.mutate(email)}
+          currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
+          onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
+          onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
         />
       </div>
     </Card>

@@ -3,19 +3,19 @@ import TeamMemberItem from "./TeamMemberItem";
 interface TeamMembersListProps {
   members: Array<{
     id: string;
-    email: string;
+    user_id: string;
     role: 'admin' | 'member';
   }>;
   isAdmin: boolean;
-  currentAdminEmail: string;
-  onToggleRole: (email: string, newRole: 'admin' | 'member') => void;
-  onRemoveMember: (email: string) => void;
+  currentAdminId: string;
+  onToggleRole: (userId: string, newRole: 'admin' | 'member') => void;
+  onRemoveMember: (userId: string) => void;
 }
 
 const TeamMembersList = ({
   members,
   isAdmin,
-  currentAdminEmail,
+  currentAdminId,
   onToggleRole,
   onRemoveMember,
 }: TeamMembersListProps) => {
@@ -26,7 +26,7 @@ const TeamMembersList = ({
           key={member.id}
           member={member}
           isAdmin={isAdmin}
-          currentAdminEmail={currentAdminEmail}
+          currentAdminId={currentAdminId}
           onToggleRole={onToggleRole}
           onRemoveMember={onRemoveMember}
         />
