@@ -37,26 +37,27 @@ export const useChatState = () => {
 
   // Optimized message adding with useCallback
   const addMessage = useCallback((message: ChatMessage) => {
-    setMessages(prev => [...prev, message]);
+    setMessages(prev => {
+      const newMessages = [...prev, message];
+      try {
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(newMessages));
+        sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+      } catch (error) {
+        console.error('Error saving chat messages:', error);
+      }
+      return newMessages;
+    });
   }, []);
 
   const addSystemMessage = useCallback((text: string) => {
+    console.log('Adding system message:', text);
     addMessage({ text, isUser: false });
   }, [addMessage]);
 
   const addUserMessage = useCallback((text: string) => {
+    console.log('Adding user message:', text);
     addMessage({ text, isUser: true });
   }, [addMessage]);
-
-  // Persist messages to session storage
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
-      sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
-    } catch (error) {
-      console.error('Error saving chat messages:', error);
-    }
-  }, [messages]);
 
   // Update last activity
   useEffect(() => {
