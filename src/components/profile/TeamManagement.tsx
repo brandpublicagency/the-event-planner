@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import TeamMembersList from "./TeamMembersList";
 import { CreateTeamDialog } from "./CreateTeamDialog";
 import AddTeamMemberForm from "./AddTeamMemberForm";
+import { EditTeamDialog } from "./EditTeamDialog";
 
 const TeamManagement = () => {
   const {
@@ -52,14 +53,24 @@ const TeamManagement = () => {
             {teamData.company && (
               <div className="pb-4 border-b">
                 <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
-                <p className="text-lg font-medium">{teamData.company.name}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-medium">{teamData.company.name}</p>
+                </div>
               </div>
             )}
 
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Team</h4>
-                <p className="text-lg font-medium">{teamData.name}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-medium">{teamData.name}</p>
+                  {isAdmin && (
+                    <EditTeamDialog 
+                      teamId={teamData.id} 
+                      currentName={teamData.name} 
+                    />
+                  )}
+                </div>
               </div>
 
               <div className="pt-4">
