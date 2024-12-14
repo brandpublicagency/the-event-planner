@@ -12,6 +12,8 @@ const openai = new OpenAI({
 
 export const handleEventQuestion = async (question: string) => {
   try {
+    console.log('Processing question:', question);
+    
     // Fetch all non-deleted events with their complete details
     const { data: events } = await supabase
       .from('events')
@@ -46,7 +48,7 @@ export const handleEventQuestion = async (question: string) => {
     // Prepare context about all events and their related data
     const eventsContext = events.map(event => {
       const venues = event.event_venues?.map(v => v.venues?.name).filter(Boolean).join(', ') || 'No venue specified';
-      const date = event.event_date ? new Date(event.event_date).toLocaleDateString() : 'Date not set';
+      const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set';
       
       let clientDetails = '';
       if (event.wedding_details) {
@@ -61,12 +63,6 @@ export const handleEventQuestion = async (question: string) => {
           `- ${task.title} (${task.status})`).join('\n')}`
         : '\nNo related tasks';
 
-      const menuInfo = event.menu_selections 
-        ? `\nMenu Type: ${event.menu_selections.starter_type || 'Not specified'}
-           Main Course: ${event.menu_selections.main_course_type || 'Not specified'}
-           Dessert: ${event.menu_selections.dessert_type || 'Not specified'}`
-        : '\nNo menu selected';
-
       return `Event: ${event.name}
 Type: ${event.event_type}
 Date: ${date}
@@ -74,28 +70,26 @@ Venue: ${venues}
 Details: ${clientDetails}
 Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}
-${menuInfo}
 ${tasksInfo}`;
     }).join('\n\n');
 
-    // Get AI to interpret the question and provide an answer
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `You are a helpful event planning assistant. You have access to information about the following events:
+          content: `You are a helpful event planning assistant. Answer questions about these events:
 
 ${eventsContext}
 
-Answer questions about these events naturally and conversationally. You can provide information about:
+Answer naturally and conversationally. You can provide information about:
 - Event details and schedules
-- Menu selections and catering details
 - Task status and deadlines
 - Venue information
 - Client details
 
-If you're not sure about something, say so. If the question is about an event that doesn't exist, let them know. Keep responses concise but informative.`
+If unsure, say so. If the question is about an event that doesn't exist, let them know.
+Keep responses concise but informative.`
         },
         {
           role: "user",

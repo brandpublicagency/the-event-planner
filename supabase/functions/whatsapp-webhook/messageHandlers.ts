@@ -3,40 +3,41 @@ import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { formatEventMenu } from './menuFormatters.ts';
 import { formatEventDetails } from './eventFormatters.ts';
 import { handleEventQuestion } from './questionHandler.ts';
+import { getTaskDetails, getUpcomingEventsList, getWelcomeMessage } from './menuHandlers.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const getWelcomeMessage = async () => {
-  return {
-    type: 'interactive',
-    interactive: {
-      type: 'list',
-      header: {
-        type: 'text',
-        text: 'Welcome! How can I help you today?'
-      },
-      body: {
-        text: 'Please select an option:'
-      },
-      action: {
-        button: 'View Options',
-        sections: [{
-          title: 'Event Management',
-          rows: [
-            { id: 'upcoming_events', title: 'View Upcoming Events' },
-            { id: 'event_menus', title: 'View Event Menus' },
-            { id: 'tasks', title: 'View Tasks' },
-            { id: 'calendar', title: 'View Calendar' }
-          ]
-        }]
-      }
+export const handleMessage = async (messageText: string) => {
+  console.log('Handling message:', messageText);
+  const lowercaseMessage = messageText.toLowerCase().trim();
+  
+  // Handle greetings
+  if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
+    return await getWelcomeMessage();
+  } 
+
+  // Handle menu selections
+  if (['upcoming_events', 'event_menus', 'tasks', 'calendar'].includes(lowercaseMessage)) {
+    switch (lowercaseMessage) {
+      case 'upcoming_events':
+        return await getUpcomingEventsList();
+      case 'tasks':
+        return await getTaskDetails();
+      case 'calendar':
+        return await getCalendarView();
+      case 'help':
+        return getHelpMessage();
     }
-  };
+  }
+  
+  // Try to handle it as a question about an event or task
+  return await handleEventQuestion(messageText);
 };
 
 export const getEventDetails = async (eventCode: string) => {
+  console.log('Fetching event details for:', eventCode);
   const { data: event } = await supabase
     .from('events')
     .select(`
@@ -76,38 +77,35 @@ export const getEventDetails = async (eventCode: string) => {
     : '';
 
   return {
-    type: 'text',
-    message: message + tasksSummary
+    type: 'interactive',
+    interactive: {
+      type: 'button',
+      body: {
+        text: message + tasksSummary
+      },
+      action: {
+        buttons: [
+          {
+            type: 'reply',
+            reply: {
+              id: `menu_${event.event_code}`,
+              title: 'View Menu'
+            }
+          },
+          {
+            type: 'reply',
+            reply: {
+              id: `tasks_${event.event_code}`,
+              title: 'View Tasks'
+            }
+          }
+        ]
+      }
+    }
   };
 };
 
-export const getTasksList = async () => {
-  const { data: tasks } = await supabase
-    .from('tasks')
-    .select('*')
-    .order('due_date', { ascending: true })
-    .limit(10);
-
-  if (!tasks?.length) {
-    return {
-      type: 'text',
-      message: "No tasks found."
-    };
-  }
-
-  const message = "*Recent Tasks:*\n\n" + tasks.map(task => 
-    `• ${task.title}\n  Status: ${task.status.toUpperCase()}\n  Due: ${
-      task.due_date ? format(new Date(task.due_date), 'dd MMM yyyy') : 'No due date'
-    }`
-  ).join('\n\n');
-
-  return {
-    type: 'text',
-    message
-  };
-};
-
-export const getCalendarView = async () => {
+const getCalendarView = async () => {
   const today = new Date();
   const { data: events } = await supabase
     .from('events')
@@ -147,111 +145,4 @@ export const getHelpMessage = () => {
 • Ask any question about events or tasks
 • Send 'help' to see this message again`
   };
-};
-
-export const handleMessage = async (messageText: string) => {
-  const lowercaseMessage = messageText.toLowerCase().trim();
-  
-  if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
-    return await getWelcomeMessage();
-  } 
-  
-  if (lowercaseMessage === 'menu') {
-    return await getMenuList();
-  }
-
-  if (lowercaseMessage === 'tasks') {
-    return await getTasksList();
-  }
-
-  if (lowercaseMessage === 'calendar') {
-    return await getCalendarView();
-  }
-  
-  if (lowercaseMessage === 'help') {
-    return getHelpMessage();
-  }
-
-  // Handle interactive list responses
-  if (['upcoming_events', 'event_menus', 'tasks', 'calendar'].includes(lowercaseMessage)) {
-    switch (lowercaseMessage) {
-      case 'upcoming_events':
-        return await getUpcomingEventsList("Here are the upcoming events:");
-      case 'event_menus':
-        return await getMenuList();
-      case 'tasks':
-        return await getTasksList();
-      case 'calendar':
-        return await getCalendarView();
-    }
-  }
-  
-  // Try to handle it as a question about an event
-  return await handleEventQuestion(messageText);
-};
-
-const getUpcomingEventsList = async (headerText: string) => {
-  const today = new Date().toISOString();
-  
-  const { data: events } = await supabase
-    .from('events')
-    .select(`
-      *,
-      event_venues (
-        venues (
-          id,
-          name
-        )
-      ),
-      menu_selections (*)
-    `)
-    .gte('event_date', today)
-    .is('deleted_at', null)
-    .order('event_date', { ascending: true })
-    .limit(10);
-
-  if (!events?.length) {
-    return {
-      type: 'text',
-      message: "There are no upcoming events at the moment."
-    };
-  }
-
-  const sections = events.map(event => ({
-    id: event.event_code,
-    title: truncateTitle(event.name),
-    description: formatEventDate(event.event_date)
-  }));
-
-  return {
-    type: 'interactive',
-    interactive: {
-      type: 'list',
-      header: {
-        type: 'text',
-        text: headerText
-      },
-      body: {
-        text: 'Select an event to view details'
-      },
-      action: {
-        button: 'View Events',
-        sections: [{
-          rows: sections
-        }]
-      }
-    }
-  };
-};
-
-const formatEventDate = (dateStr: string | null) => {
-  if (!dateStr) return 'Date not set';
-  
-  const date = new Date(dateStr);
-  return format(date, 'dd MMMM yyyy');
-};
-
-const truncateTitle = (title: string) => {
-  const maxLength = 24;
-  return title.length <= maxLength ? title : title.substring(0, maxLength - 3) + '...';
 };
