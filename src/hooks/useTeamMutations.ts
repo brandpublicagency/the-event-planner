@@ -13,13 +13,6 @@ export const useTeamMutations = () => {
         throw new Error('Team not found');
       }
 
-      // First check if user already exists in auth
-      const { data: existingUser, error: userError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-
       // Add member to team
       const { error } = await supabase
         .from('team_members')
@@ -30,17 +23,6 @@ export const useTeamMutations = () => {
         });
 
       if (error) throw error;
-
-      // If user doesn't exist, send invitation email through Supabase
-      if (!existingUser) {
-        const { data, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-          data: {
-            team_id: teamData.id,
-          },
-        });
-        
-        if (inviteError) throw inviteError;
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
