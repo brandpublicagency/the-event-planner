@@ -4,7 +4,7 @@ import ChatMessage from "./ChatMessage";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
-import { useEffect, useRef, useLayoutEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const ChatContainer = () => {
   const {
@@ -17,24 +17,22 @@ const ChatContainer = () => {
 
   const { data: contextData } = useChatContext();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // Immediate scroll on new messages
-  useLayoutEffect(() => {
-    requestAnimationFrame(() => {
-      if (scrollAreaRef.current) {
-        const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (scrollArea) {
-          scrollArea.scrollTop = scrollArea.scrollHeight;
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollArea) {
+        const shouldScroll = Math.abs(
+          scrollArea.scrollHeight - scrollArea.clientHeight - scrollArea.scrollTop
+        ) < 100;
+
+        if (shouldScroll) {
+          setTimeout(() => {
+            scrollArea.scrollTop = scrollArea.scrollHeight;
+          }, 100);
         }
       }
-    });
-  }, [chatMessages]);
-
-  // Smooth scroll for better UX
-  useEffect(() => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [chatMessages]);
 
@@ -55,14 +53,19 @@ const ChatContainer = () => {
             <div className="space-y-4 pb-2">
               {chatMessages.map((message, index) => (
                 <div
-                  key={index}
-                  ref={index === chatMessages.length - 1 ? lastMessageRef : null}
-                  className="transition-opacity duration-200 ease-in-out"
-                  style={{ opacity: 1 }}
+                  key={`${index}-${message.text.substring(0, 10)}`}
+                  className="transition-all duration-300 ease-in-out"
                 >
                   <ChatMessage {...message} />
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start animate-pulse">
+                  <div className="rounded-3xl px-4 py-2 border border-gray-300 bg-gray-100">
+                    Typing...
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
           <ChatMessageHandler

@@ -5,7 +5,9 @@ interface ChatMessageProps {
 
 const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <div 
+      className={`flex ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-300`}
+    >
       <div
         className={`rounded-3xl px-4 py-2 max-w-[80%] border ${
           isUser
