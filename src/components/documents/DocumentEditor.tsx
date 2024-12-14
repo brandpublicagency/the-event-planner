@@ -72,11 +72,13 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (documentData) {
       setTitle(documentData.title);
-      const content = documentData.content as unknown as DocumentContent;
-      if (content?.html) {
-        editor?.commands.setContent(content.html);
-      } else {
-        editor?.commands.setContent("");
+      if (documentData.content) {
+        const content = documentData.content as DocumentContent;
+        if (content?.html) {
+          editor?.commands.setContent(content.html);
+        } else {
+          editor?.commands.setContent("");
+        }
       }
     }
   }, [documentData, editor]);
