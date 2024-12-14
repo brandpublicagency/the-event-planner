@@ -45,15 +45,20 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
 
       try {
-        const documentPromise = supabase
-          .from("documents")
-          .select("*")
-          .eq("id", documentId)
-          .maybeSingle() as Promise<PostgrestResponse<Document>>;
+        const response = await Promise.race([
+          supabase
+            .from("documents")
+            .select("*")
+            .eq("id", documentId)
+            .maybeSingle(),
+          timeoutPromise
+        ]) as PostgrestResponse<Document>;
 
-        const result = await Promise.race([documentPromise, timeoutPromise]);
-        if (!result || result.error) throw result.error || new Error("Failed to fetch document");
-        return result.data;
+        if (!response || response.error) {
+          throw response?.error || new Error("Failed to fetch document");
+        }
+
+        return response.data;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
