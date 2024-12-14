@@ -745,7 +745,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      team_admin_memberships: {
+        Row: {
+          team_id: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _ltree_compress: {

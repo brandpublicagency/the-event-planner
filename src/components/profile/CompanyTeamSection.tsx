@@ -1,7 +1,6 @@
 import { Building } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import TeamManagement from "./TeamManagement";
-import { CreateCompanyForm } from "./company/CreateCompanyForm";
 import { useTeamMembership } from "./company/useTeamMembership";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -47,12 +46,6 @@ const CompanyTeamSection = () => {
           </div>
         </Card>
       ) : null}
-
-      <Card className="p-6">
-        <CreateCompanyForm 
-          onSuccess={handleSuccess}
-        />
-      </Card>
 
       <div className="mt-8">
         <TeamManagement />
