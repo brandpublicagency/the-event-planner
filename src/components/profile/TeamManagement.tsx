@@ -1,16 +1,11 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useTeamManagement } from "@/hooks/useTeamManagement";
-import { useToast } from "@/hooks/use-toast";
 import { Users } from "lucide-react";
-import AddTeamMember from "./AddTeamMember";
 import TeamMembersList from "./TeamMembersList";
 import { CreateTeamDialog } from "./CreateTeamDialog";
+import AddTeamMemberForm from "./AddTeamMemberForm";
 
 const TeamManagement = () => {
-  const [newTeamMemberEmail, setNewTeamMemberEmail] = useState("");
-  const { toast } = useToast();
   const {
     teamData,
     isAdmin,
@@ -19,24 +14,6 @@ const TeamManagement = () => {
     removeTeamMemberMutation,
     toggleRoleMutation,
   } = useTeamManagement();
-
-  const handleAddMember = async () => {
-    if (!newTeamMemberEmail) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await addTeamMemberMutation.mutateAsync(newTeamMemberEmail);
-      setNewTeamMemberEmail("");
-    } catch (error: any) {
-      console.error('Error adding team member:', error);
-    }
-  };
 
   if (isTeamLoading) {
     return (
@@ -68,40 +45,46 @@ const TeamManagement = () => {
   }
 
   return (
-    <Card className="p-6">
-      <div className="space-y-6">
-        {teamData.company && (
-          <div className="pb-4 border-b">
-            <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
-            <p className="text-lg">{teamData.company.name}</p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground">Team</h4>
-              <p className="text-lg">{teamData.name}</p>
-            </div>
-            {isAdmin && (
-              <AddTeamMember
-                email={newTeamMemberEmail}
-                onEmailChange={setNewTeamMemberEmail}
-                onAdd={handleAddMember}
-              />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-2">
+        <Card className="p-6">
+          <div className="space-y-6">
+            {teamData.company && (
+              <div className="pb-4 border-b">
+                <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
+                <p className="text-lg font-medium">{teamData.company.name}</p>
+              </div>
             )}
-          </div>
 
-          <TeamMembersList
-            members={teamData.team_members || []}
-            isAdmin={isAdmin}
-            currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
-            onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
-            onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">Team</h4>
+                <p className="text-lg font-medium">{teamData.name}</p>
+              </div>
+
+              <div className="pt-4">
+                <h4 className="text-sm font-medium text-muted-foreground mb-4">Team Members</h4>
+                <TeamMembersList
+                  members={teamData.team_members || []}
+                  isAdmin={isAdmin}
+                  currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
+                  onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
+                  onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {isAdmin && (
+        <div className="md:col-span-1">
+          <AddTeamMemberForm
+            onAddMember={(email) => addTeamMemberMutation.mutateAsync(email)}
           />
         </div>
-      </div>
-    </Card>
+      )}
+    </div>
   );
 };
 
