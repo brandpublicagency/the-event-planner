@@ -39,7 +39,7 @@ const TeamMemberItem = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, id, email')
+        .select('full_name, id')
         .eq('id', member.user_id)
         .single();
 
@@ -58,7 +58,6 @@ const TeamMemberItem = ({
         )}
         <div>
           <p className="font-medium">{profile?.full_name || 'Unknown User'}</p>
-          <p className="text-sm text-muted-foreground">{profile?.email || 'No email available'}</p>
           <p className="text-xs text-muted-foreground">Role: {member.role}</p>
         </div>
       </div>
