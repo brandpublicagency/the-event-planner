@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
+import { formatEventMenu } from './menuFormatters.ts';
+import { formatEventDetails } from './eventFormatters.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -35,7 +37,7 @@ export const getWelcomeMessage = async () => {
 
 export const getUpcomingEventsList = async () => {
   console.log('Fetching upcoming events');
-  const today = new Date().toISOString();
+  const today = new Date().toISOString().split('T')[0]; // Get just the date part
   
   try {
     const { data: events, error } = await supabase
@@ -53,6 +55,7 @@ export const getUpcomingEventsList = async () => {
       `)
       .gte('event_date', today)
       .is('deleted_at', null)
+      .is('completed', false)
       .order('event_date', { ascending: true })
       .limit(10);
 
@@ -73,26 +76,37 @@ export const getUpcomingEventsList = async () => {
       };
     }
 
-    const sections = events.reduce((acc: any[], event) => {
-      const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
-      const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date TBC';
-      
-      let description = `📅 ${date}\n📍 ${venue}`;
-      if (event.pax) {
-        description += `\n👥 ${event.pax} guests`;
+    // Group events by type
+    const groupedEvents = events.reduce((acc: { [key: string]: any[] }, event) => {
+      const type = event.event_type === 'wedding' ? 'Wedding Events' : 'Corporate Events';
+      if (!acc[type]) {
+        acc[type] = [];
       }
-
-      acc.push({
-        title: event.event_type === 'wedding' ? '💒 Wedding Events' : '🏢 Corporate Events',
-        rows: [{
-          id: event.event_code,
-          title: event.name,
-          description
-        }]
-      });
-
+      acc[type].push(event);
       return acc;
-    }, []);
+    }, {});
+
+    const sections = Object.entries(groupedEvents).map(([type, events]) => {
+      const emoji = type === 'Wedding Events' ? '💒' : '🏢';
+      return {
+        title: `${emoji} ${type}`,
+        rows: events.map(event => {
+          const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
+          const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date TBC';
+          
+          let description = `📅 ${date}\n📍 ${venue}`;
+          if (event.pax) {
+            description += `\n👥 ${event.pax} guests`;
+          }
+
+          return {
+            id: event.event_code,
+            title: event.name,
+            description
+          };
+        })
+      };
+    });
 
     return {
       type: 'interactive',

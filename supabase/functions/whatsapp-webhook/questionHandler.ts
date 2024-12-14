@@ -14,6 +14,7 @@ export const handleEventQuestion = async (question: string) => {
   try {
     console.log('Processing question:', question);
     
+    const today = new Date().toISOString().split('T')[0];
     const { data: events, error } = await supabase
       .from('events')
       .select(`
@@ -35,8 +36,10 @@ export const handleEventQuestion = async (question: string) => {
           status
         )
       `)
+      .gte('event_date', today)
       .is('deleted_at', null)
-      .is('completed', false);
+      .is('completed', false)
+      .order('event_date', { ascending: true });
 
     if (error) {
       console.error('Error fetching events:', error);
@@ -49,7 +52,7 @@ export const handleEventQuestion = async (question: string) => {
     if (!events?.length) {
       return {
         type: 'text',
-        message: "I couldn't find any events to answer questions about."
+        message: "I couldn't find any upcoming events to answer questions about."
       };
     }
 
@@ -71,14 +74,21 @@ export const handleEventQuestion = async (question: string) => {
           `- ${task.title} (${task.status})`).join('\n')}`
         : '\nNo related tasks';
 
+      const menuInfo = event.menu_selections 
+        ? `\nMenu Type: ${event.menu_selections.is_custom ? 'Custom Menu' : 'Standard Menu'}
+           ${event.menu_selections.custom_menu_details ? `\nCustom Menu Details: ${event.menu_selections.custom_menu_details}` : ''}`
+        : '\nNo menu selected';
+
       return `Event: ${event.name}
 Type: ${event.event_type}
 Date: ${date}
+Time: ${event.start_time ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}` : 'Time not set'}
 Venue: ${venues}
 Details: ${clientDetails}
 Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}
-${tasksInfo}`;
+${tasksInfo}
+${menuInfo}`;
     }).join('\n\n');
 
     const completion = await openai.chat.completions.create({
@@ -95,6 +105,7 @@ Answer naturally and conversationally. You can provide information about:
 - Task status and deadlines
 - Venue information
 - Client details
+- Menu selections and preferences
 
 If unsure, say so. If the question is about an event that doesn't exist, let them know.
 Keep responses concise but informative.`

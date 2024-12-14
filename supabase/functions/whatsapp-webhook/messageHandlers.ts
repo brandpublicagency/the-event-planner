@@ -11,34 +11,52 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const handleMessage = async (messageText: string) => {
   console.log('Handling message:', messageText);
-  const lowercaseMessage = messageText.toLowerCase().trim();
   
-  // Handle greetings
-  if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
-    return await getWelcomeMessage();
-  } 
+  try {
+    const lowercaseMessage = messageText.toLowerCase().trim();
+    
+    // Handle greetings
+    if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
+      return await getWelcomeMessage();
+    } 
 
-  // Handle menu selections
-  if (['upcoming_events', 'event_menus', 'tasks', 'calendar'].includes(lowercaseMessage)) {
-    switch (lowercaseMessage) {
-      case 'upcoming_events':
-        return await getUpcomingEventsList();
-      case 'tasks':
-        return await getTaskDetails();
-      case 'calendar':
-        return await getCalendarView();
-      case 'help':
-        return getHelpMessage();
+    // Handle menu selections
+    if (['upcoming_events', 'event_menus', 'tasks', 'calendar'].includes(lowercaseMessage)) {
+      switch (lowercaseMessage) {
+        case 'upcoming_events':
+          return await getUpcomingEventsList();
+        case 'tasks':
+          return await getTaskDetails();
+        case 'calendar':
+          return await getCalendarView();
+        case 'help':
+          return getHelpMessage();
+      }
     }
+    
+    // Try to handle it as a question about an event or task
+    return await handleEventQuestion(messageText);
+  } catch (error) {
+    console.error('Error in handleMessage:', error);
+    return {
+      type: 'text',
+      message: "I encountered an error processing your request. Please try again or type 'help' for available commands."
+    };
   }
-  
-  // Try to handle it as a question about an event or task
-  return await handleEventQuestion(messageText);
 };
 
 export const getEventDetails = async (eventCode: string) => {
   console.log('Fetching event details for:', eventCode);
+  
   try {
+    if (!eventCode) {
+      console.error('Invalid event code provided:', eventCode);
+      return {
+        type: 'text',
+        message: "Sorry, I couldn't find the event you're looking for."
+      };
+    }
+
     const { data: event, error } = await supabase
       .from('events')
       .select(`
@@ -61,6 +79,7 @@ export const getEventDetails = async (eventCode: string) => {
         )
       `)
       .eq('event_code', eventCode)
+      .is('deleted_at', null)
       .single();
 
     if (error) {
@@ -148,7 +167,7 @@ const getCalendarView = async () => {
     }
 
     const message = "*Upcoming Calendar Events:*\n\n" + events.map(event => 
-      `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')}\n${event.name}\n${
+      `📅 ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Date TBD'}\n${event.name}\n${
         event.event_type
       } (${event.event_code})`
     ).join('\n\n');
