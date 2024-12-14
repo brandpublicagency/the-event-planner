@@ -25,11 +25,9 @@ export const useChatContext = () => {
 
       if (eventsError) throw eventsError;
 
-      // Fetch processed PDF content
+      // Fetch processed PDF content using raw query
       const { data: pdfContent, error: pdfError } = await supabase
-        .from('pdf_processed_content')
-        .select('*')
-        .order('created_at', { ascending: false }) as { data: PdfProcessedContent[] | null, error: any };
+        .rpc('get_pdf_content') as { data: PdfProcessedContent[] | null, error: any };
 
       if (pdfError) throw pdfError;
 

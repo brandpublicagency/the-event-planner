@@ -47,7 +47,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (documentData) {
       setTitle(documentData.title);
-      const content = documentData.content as DocumentContent | null;
+      const content = documentData.content as unknown as DocumentContent;
       if (content?.html) {
         editor?.commands.setContent(content.html);
       } else {
@@ -80,7 +80,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         description: "Your changes have been saved successfully.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error saving document",
         description: error.message,
