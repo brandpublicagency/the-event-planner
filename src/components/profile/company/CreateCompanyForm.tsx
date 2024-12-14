@@ -4,6 +4,8 @@ import CompanyDetails from "../../forms/CompanyDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { useTeamMembership } from "./useTeamMembership";
+import { Card } from "@/components/ui/card";
+import { Building2, Users } from "lucide-react";
 
 interface CreateCompanyFormProps {
   onSuccess: () => Promise<void>;
@@ -74,11 +76,31 @@ export const CreateCompanyForm = ({ onSuccess }: CreateCompanyFormProps) => {
     }
   };
 
-  // If user already belongs to a team, don't show the form
-  if (teamMembership) {
+  // If user already belongs to a team, show team information
+  if (teamMembership?.team) {
     return (
-      <div className="text-sm text-muted-foreground">
-        You are already a member of a team. You cannot create another one.
+      <div className="space-y-4">
+        <Card className="p-6">
+          <div className="flex items-center space-x-4">
+            <Building2 className="h-6 w-6 text-primary" />
+            <div>
+              <h3 className="text-lg font-semibold">{teamMembership.team.company?.name}</h3>
+              <p className="text-sm text-muted-foreground">Company</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center space-x-4">
+            <Users className="h-6 w-6 text-primary" />
+            <div>
+              <h3 className="text-lg font-semibold">{teamMembership.team.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                Your role: {teamMembership.role}
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     );
   }

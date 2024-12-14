@@ -25,7 +25,10 @@ export const useTeamManagement = () => {
           team:teams (
             id,
             name,
-            company_id
+            company:companies (
+              id,
+              name
+            )
           )
         `)
         .eq('user_id', user.id)
@@ -64,7 +67,7 @@ export const useTeamManagement = () => {
       return {
         id: teamMember.team.id,
         name: teamMember.team.name,
-        company_id: teamMember.team.company_id,
+        company: teamMember.team.company,
         role: teamMember.role,
         team_members: members || []
       };
@@ -77,14 +80,11 @@ export const useTeamManagement = () => {
     mutationFn: async (email: string) => {
       if (!teamData?.id) throw new Error('No team found');
 
-      // First, find the user by email in profiles
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', email)
-        .single();
+      // First, find the user by email in auth.users
+      const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+      const user = users?.find(u => u.email === email);
 
-      if (profileError || !userProfile) {
+      if (authError || !user) {
         throw new Error('User not found');
       }
 
@@ -93,7 +93,7 @@ export const useTeamManagement = () => {
         .from('team_members')
         .insert({
           team_id: teamData.id,
-          user_id: userProfile.id,
+          user_id: user.id,
           role: 'member'
         });
 
