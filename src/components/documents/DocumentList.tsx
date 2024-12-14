@@ -1,13 +1,7 @@
 import { cn } from "@/lib/utils";
 import { FileText, FileCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface Document {
-  id: string;
-  title: string;
-  created_at: string;
-  template?: boolean;
-}
+import type { Document } from "@/types/document";
 
 interface DocumentListProps {
   documents: Document[];

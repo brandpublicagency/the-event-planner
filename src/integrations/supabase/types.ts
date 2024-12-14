@@ -74,6 +74,39 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          content: Json | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          template: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          template?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          template?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_documents: {
         Row: {
           content_type: string | null

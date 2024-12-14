@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState } from "react";
+import type { Document } from "@/types/document";
 
 export default function Documents() {
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
@@ -14,7 +15,7 @@ export default function Documents() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: documents, isLoading } = useQuery({
+  const { data: documents, isLoading } = useQuery<Document[]>({
     queryKey: ["documents"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -76,11 +77,10 @@ export default function Documents() {
 
   const filteredDocuments = documents?.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) || [];
 
   return (
     <div className="flex h-full">
-      {/* Sidebar */}
       <div className="w-64 border-r bg-white p-4 flex flex-col h-full">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ export default function Documents() {
             </div>
           ) : (
             <DocumentList
-              documents={filteredDocuments || []}
+              documents={filteredDocuments}
               selectedId={selectedDocId}
               onSelect={setSelectedDocId}
             />
@@ -124,7 +124,6 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 h-full overflow-auto">
         <DocumentEditor documentId={selectedDocId} />
       </div>
