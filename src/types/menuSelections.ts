@@ -11,4 +11,23 @@ export interface MenuSelections {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  buffet_meat_selections: string[] | null;
+  buffet_vegetable_selections: string[] | null;
+  buffet_starch_selections: string[] | null;
+  buffet_salad_selection: string | null;
+  karoo_meat_selection: string | null;
+  karoo_starch_selection: string[] | null;
+  karoo_vegetable_selections: string[] | null;
+  karoo_salad_selection: string | null;
+  plated_main_selection: string | null;
+  plated_salad_selection: string | null;
+  dessert_canapes: string[] | null;
+  individual_cakes: string[] | null;
+  traditional_dessert: string | null;
+  other_selections: string[] | null;
+  other_selections_quantities: Record<string, number> | null;
+  starter_price: number | null;
+  main_course_price: number | null;
+  dessert_price: number | null;
+  other_total_price: number | null;
 }
