@@ -23,9 +23,8 @@ Due Date: ${task.due_date ? new Date(task.due_date).toLocaleDateString() : 'Not 
   `).join('\n');
 };
 
-export const getSystemMessage = (eventsContext: string, pdfContext?: string, tasksContext?: string) => ({
-  role: "system",
-  content: `You are an AI assistant for an event planning and task management system. 
+export const getSystemMessage = (eventsContext: string, pdfContext?: string, tasksContext?: string): string => {
+  return `You are an AI assistant for an event planning and task management system. 
 ${eventsContext ? `\nHere are the current events:\n${eventsContext}` : ''}
 ${tasksContext ? `\nHere are the current tasks:\n${tasksContext}` : ''}
 ${pdfContext ? `\nHere is additional context from documents:\n${pdfContext}` : ''}
@@ -41,5 +40,5 @@ When asked about tasks or to-do items:
 - For incomplete tasks, mention their status and due dates
 - If there are no tasks, suggest creating new ones
 
-Use natural, helpful language and always provide context in your responses.`
-});
+Use natural, helpful language and always provide context in your responses.`;
+};

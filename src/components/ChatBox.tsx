@@ -102,23 +102,23 @@ const ChatBox = () => {
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const systemMessage: ChatCompletionMessageParam = {
-        role: "system",
-        content: getSystemMessage(eventsContext, pdfContext, tasksContext)
-      };
-
-      const userMessages: ChatCompletionMessageParam[] = messages.map(msg => ({
-        role: msg.isUser ? "user" : "assistant",
-        content: msg.text
-      }));
-
-      const currentMessage: ChatCompletionMessageParam = {
-        role: "user",
-        content: inputValue
-      };
+      const messages: ChatCompletionMessageParam[] = [
+        {
+          role: "system",
+          content: getSystemMessage(eventsContext, pdfContext, tasksContext)
+        },
+        ...messages.map(msg => ({
+          role: msg.isUser ? "user" : "assistant",
+          content: msg.text
+        })),
+        {
+          role: "user",
+          content: inputValue
+        }
+      ];
 
       const response = await Promise.race<string>([
-        getChatCompletion([systemMessage, ...userMessages, currentMessage]),
+        getChatCompletion(messages),
         timeoutPromise
       ]);
 
