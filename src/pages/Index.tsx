@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/EventsTable";
-import ProfileBox from "@/components/ProfileBox";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
@@ -95,13 +94,8 @@ const Index = () => {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="w-full">
-          <ProfileBox />
-        </div>
-        <div className="w-full">
-          <ChatBox />
-        </div>
+      <div className="w-full">
+        <ChatBox />
       </div>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
