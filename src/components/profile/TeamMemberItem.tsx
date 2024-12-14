@@ -39,23 +39,12 @@ const TeamMemberItem = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, id')
+        .select('full_name, id, email')
         .eq('id', member.user_id)
         .single();
 
       if (error) throw error;
       return data;
-    },
-  });
-
-  const { data: userEmail } = useQuery({
-    queryKey: ['user-email', member.user_id],
-    queryFn: async () => {
-      const { data: { users }, error } = await supabase.auth.admin.listUsers();
-      if (error) throw error;
-      
-      const user = users.find(u => u.id === member.user_id);
-      return user?.email;
     },
   });
 
@@ -69,7 +58,7 @@ const TeamMemberItem = ({
         )}
         <div>
           <p className="font-medium">{profile?.full_name || 'Unknown User'}</p>
-          <p className="text-sm text-muted-foreground">{userEmail || 'No email available'}</p>
+          <p className="text-sm text-muted-foreground">{profile?.email || 'No email available'}</p>
           <p className="text-xs text-muted-foreground">Role: {member.role}</p>
         </div>
       </div>
