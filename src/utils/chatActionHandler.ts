@@ -6,6 +6,7 @@ import type { PendingAction } from "@/types/chat";
 import type { EventCreate } from "@/types/event";
 import { format, parse } from "date-fns";
 import { queryClient } from "@/lib/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const handleChatAction = async (
   action: PendingAction,
@@ -100,11 +101,21 @@ export const handleChatAction = async (
         if (!action.task_id || !action.updates) {
           throw new Error("Missing required fields for task update");
         }
+        
+        // Special handling for notes
+        if (action.updates.notes) {
+          const { data: task } = await supabase
+            .from('tasks')
+            .select('notes')
+            .eq('id', action.task_id)
+            .single();
+            
+          const updatedNotes = [...(task?.notes || []), action.updates.notes];
+          action.updates.notes = updatedNotes;
+        }
+        
         await updateTask(action.task_id, action.updates);
-        
-        // Invalidate tasks queries
         await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        
         onSuccess("Task updated successfully!");
         break;
 

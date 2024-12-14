@@ -28,7 +28,7 @@ const ChatBox = () => {
   } = useChatState();
 
   const { data: contextData } = useChatContext() || {};
-  const { tasks } = useTaskContext();
+  const { tasks, updateTask } = useTaskContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,9 +104,9 @@ const ChatBox = () => {
 
       const apiMessages: ChatCompletionMessageParam[] = [
         {
-          role: "system",
+          role: "system" as const,
           content: getSystemMessage(eventsContext, pdfContext, tasksContext)
-        } as const,
+        },
         ...chatMessages.map(msg => ({
           role: msg.isUser ? "user" as const : "assistant" as const,
           content: msg.text
@@ -131,11 +131,22 @@ const ChatBox = () => {
       try {
         const jsonResponse = JSON.parse(response);
         
-        if (jsonResponse.action === "update_event") {
-          setPendingAction(jsonResponse);
-          addSystemMessage(
-            `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`
-          );
+        if (jsonResponse.action === "update_task") {
+          const task = tasks.find(t => t.id === jsonResponse.task_id);
+          if (task) {
+            if (jsonResponse.updates.notes) {
+              const updatedNotes = [...(task.notes || []), jsonResponse.updates.notes];
+              await updateTask(task.id, { notes: updatedNotes });
+              addSystemMessage(`Note added to task "${task.title}": ${jsonResponse.updates.notes}`);
+            } else {
+              setPendingAction(jsonResponse);
+              addSystemMessage(
+                `I'll help you update the task. Please confirm this action by replying with 'yes' or 'no'.`
+              );
+            }
+          } else {
+            addSystemMessage("I couldn't find the specified task. Please try again with a valid task ID.");
+          }
         } else {
           addSystemMessage(String(response));
         }
