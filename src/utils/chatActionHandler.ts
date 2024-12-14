@@ -5,6 +5,7 @@ import { createTask, updateTask, deleteTask } from "@/services/taskService";
 import type { PendingAction } from "@/types/chat";
 import type { EventCreate } from "@/types/event";
 import { format, parse } from "date-fns";
+import { queryClient } from "@/lib/react-query";
 
 export const handleChatAction = async (
   action: PendingAction,
@@ -31,6 +32,12 @@ export const handleChatAction = async (
         }
 
         await updateEvent(action.event_code, action.updates);
+        
+        // Invalidate relevant queries to trigger a refetch
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+        await queryClient.invalidateQueries({ queryKey: ['events', action.event_code] });
+        
         onSuccess(`Event ${action.event_code} has been updated successfully! The changes have been applied.`);
         break;
 
@@ -56,6 +63,11 @@ export const handleChatAction = async (
         }
         const eventData = action.event_data as EventCreate;
         await createEvent(eventData);
+        
+        // Invalidate events queries after creation
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+        
         onSuccess("Event created successfully!");
         break;
 
@@ -64,6 +76,11 @@ export const handleChatAction = async (
           throw new Error("Missing event code");
         }
         await deleteEvent(action.event_code);
+        
+        // Invalidate events queries after deletion
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+        
         onSuccess("Event deleted successfully!");
         break;
 
@@ -72,6 +89,10 @@ export const handleChatAction = async (
           throw new Error("Missing task data");
         }
         await createTask(action.task_data);
+        
+        // Invalidate tasks queries
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        
         onSuccess("Task created successfully!");
         break;
 
@@ -80,6 +101,10 @@ export const handleChatAction = async (
           throw new Error("Missing required fields for task update");
         }
         await updateTask(action.task_id, action.updates);
+        
+        // Invalidate tasks queries
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        
         onSuccess("Task updated successfully!");
         break;
 
@@ -88,6 +113,10 @@ export const handleChatAction = async (
           throw new Error("Missing task ID");
         }
         await deleteTask(action.task_id);
+        
+        // Invalidate tasks queries
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        
         onSuccess("Task deleted successfully!");
         break;
 
