@@ -2,9 +2,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 
 export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
+  // Remove related fields that aren't in the events table
+  const { venues, event_venues, wedding_details, corporate_details, menu_selections, ...eventUpdates } = updates;
+
   const { data, error } = await supabase
     .from('events')
-    .update(updates)
+    .update(eventUpdates)
     .eq('event_code', eventCode)
     .select()
     .single();

@@ -14,6 +14,7 @@ export interface Event {
   updated_at: string;
   created_by: string | null;
   completed: boolean;
+  deleted_at: string | null;
   
   // Related tables
   venues?: {
