@@ -614,6 +614,7 @@ export type Database = {
       team_members: {
         Row: {
           created_at: string
+          email: string | null
           id: string
           role: Database["public"]["Enums"]["team_role"]
           team_id: string | null
@@ -622,6 +623,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           id?: string
           role?: Database["public"]["Enums"]["team_role"]
           team_id?: string | null
@@ -630,6 +632,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           id?: string
           role?: Database["public"]["Enums"]["team_role"]
           team_id?: string | null
@@ -642,13 +645,6 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "team_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
