@@ -7,7 +7,6 @@ export const handleMessage = async (message: any) => {
   console.log('Processing message:', message);
 
   try {
-    // Handle interactive responses (list selections)
     if (message.interactive) {
       console.log('Handling interactive message:', {
         type: message.interactive.type,
@@ -27,14 +26,12 @@ export const handleMessage = async (message: any) => {
       }
     }
 
-    // Handle text messages
     const messageText = message.text?.body?.toLowerCase().trim();
     if (!messageText) {
       console.error('Invalid message format:', message);
       throw new Error('Invalid message format');
     }
 
-    // Handle greetings
     if (['hi', 'hello', 'hey'].includes(messageText)) {
       return {
         type: 'interactive',
@@ -74,7 +71,6 @@ export const handleMessage = async (message: any) => {
       };
     }
 
-    // Handle specific commands
     if (messageText.includes('next event')) {
       return await getNextEvent();
     }
@@ -83,7 +79,6 @@ export const handleMessage = async (message: any) => {
       return await getNextTask(message.from);
     }
 
-    // Handle questions about events
     if (messageText.includes('event') || 
         messageText.includes('when') || 
         messageText.includes('menu') ||
@@ -104,7 +99,6 @@ export const handleMessage = async (message: any) => {
       };
     }
 
-    // Default response
     return {
       type: 'interactive',
       interactive: {

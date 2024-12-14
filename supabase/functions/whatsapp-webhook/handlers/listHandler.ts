@@ -18,17 +18,14 @@ export const handleListSelection = async (buttonId: string) => {
       case 'todo_list':
         return await getTodoList();
       default:
-        // Handle event-specific selections
         if (buttonId.startsWith('event_')) {
           const eventCode = buttonId.replace('event_', '');
           return await getEventDetails(eventCode);
         }
-        // Handle menu-specific selections
         if (buttonId.startsWith('menu_')) {
           const eventCode = buttonId.replace('menu_', '');
           return await getEventMenuDetails(eventCode);
         }
-        // Handle task-specific selections
         if (buttonId.startsWith('task_')) {
           const taskId = buttonId.replace('task_', '');
           return await getTaskDetails(taskId);
@@ -81,13 +78,13 @@ const getUpcomingEventsList = async () => {
     }
 
     const sections = events.map(event => {
-      const date = format(new Date(event.event_date), 'dd MMM yyyy');
+      const date = format(new Date(event.event_date), 'd MMMM yyyy');
       const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
       
       return {
         id: `event_${event.event_code}`,
         title: event.name,
-        description: `📅 ${date}\n📍 ${venue}\n👥 ${event.pax || 'TBC'} guests`
+        description: `Date: ${date}\nVenue: ${venue}\nGuests: ${event.pax || 'TBC'}`
       };
     });
 
@@ -105,7 +102,7 @@ const getUpcomingEventsList = async () => {
         action: {
           button: 'View Events',
           sections: [{
-            title: '📅 Events',
+            title: 'Events',
             rows: sections
           }]
         }
