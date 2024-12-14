@@ -12,7 +12,7 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // Get user's team membership using email
+      // Get user's team membership
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
@@ -26,7 +26,7 @@ export const useTeamManagement = () => {
             )
           )
         `)
-        .eq('email', user.email)
+        .eq('user_id', user.id)
         .single();
 
       if (memberError) {
@@ -43,7 +43,7 @@ export const useTeamManagement = () => {
         .from('team_members')
         .select(`
           id,
-          email,
+          user_id,
           role
         `)
         .eq('team_id', teamMember.team.id);
@@ -97,14 +97,14 @@ export const useTeamManagement = () => {
   });
 
   const removeTeamMemberMutation = useMutation({
-    mutationFn: async (email: string) => {
+    mutationFn: async (userId: string) => {
       if (!teamData?.id) throw new Error('No team found');
 
       const { error } = await supabase
         .from('team_members')
         .delete()
         .eq('team_id', teamData.id)
-        .eq('email', email);
+        .eq('user_id', userId);
 
       if (error) throw error;
     },
@@ -126,14 +126,14 @@ export const useTeamManagement = () => {
   });
 
   const toggleRoleMutation = useMutation({
-    mutationFn: async ({ email, newRole }: { email: string, newRole: 'admin' | 'member' }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: 'admin' | 'member' }) => {
       if (!teamData?.id) throw new Error('No team found');
 
       const { error } = await supabase
         .from('team_members')
         .update({ role: newRole })
         .eq('team_id', teamData.id)
-        .eq('email', email);
+        .eq('user_id', userId);
 
       if (error) throw error;
     },

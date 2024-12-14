@@ -38,7 +38,6 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         return [];
       }
 
-      // Fetch team memberships with team details in a single query
       const { data, error: teamsError } = await supabase
         .from('team_members')
         .select(`
@@ -55,9 +54,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         throw teamsError;
       }
 
-      // Transform the data into the expected format
       return data
-        .filter(membership => membership.team) // Filter out any null teams
+        .filter(membership => membership.team)
         .map(membership => ({
           id: membership.team.id,
           name: membership.team.name,
