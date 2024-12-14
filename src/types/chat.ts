@@ -1,3 +1,5 @@
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+
 export interface ChatMessage {
   text: string;
   isUser: boolean;
@@ -14,4 +16,11 @@ export interface PendingAction {
   event_data?: Record<string, any>;
   task_data?: Record<string, any>;
   task_id?: string;
+}
+
+export type ChatRole = "system" | "user" | "assistant";
+
+export interface ChatMessageForAPI {
+  role: ChatRole;
+  content: string;
 }

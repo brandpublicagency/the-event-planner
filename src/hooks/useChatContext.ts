@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { PdfProcessedContent } from "@/integrations/supabase/types/pdfContent";
 
 export const useChatContext = () => {
   return useQuery({
@@ -37,6 +36,8 @@ export const useChatContext = () => {
       };
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2 // Retry failed requests twice
+    retry: 2, // Retry failed requests twice
+    refetchOnWindowFocus: false, // Prevent refetching on window focus
+    refetchInterval: false // Disable automatic refetching
   });
 };

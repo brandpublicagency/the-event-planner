@@ -7,6 +7,7 @@ import { useChatState } from "@/hooks/useChatState";
 import { handleConfirmation } from "./chat/ChatConfirmation";
 import { getChatCompletion } from "@/services/openai";
 import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
+import type { ChatMessageForAPI } from "@/types/chat";
 
 const TIMEOUT_DURATION = 45000;
 
@@ -99,10 +100,9 @@ const ChatBox = () => {
       ).join('\n\n');
 
       const systemMessage = getSystemMessage(eventsContext, pdfContext);
-      const userMessages = messages.map(msg => ({
+      const userMessages: ChatMessageForAPI[] = messages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
-        content: msg.text,
-        name: undefined
+        content: msg.text
       }));
 
       const response = await Promise.race<string>([
