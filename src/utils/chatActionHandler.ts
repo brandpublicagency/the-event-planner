@@ -4,6 +4,7 @@ import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
 import { createTask, updateTask, deleteTask } from "@/services/taskService";
 import type { PendingAction } from "@/types/chat";
 import type { EventCreate } from "@/types/event";
+import { format, parse } from "date-fns";
 
 export const handleChatAction = async (
   action: PendingAction,
@@ -16,8 +17,21 @@ export const handleChatAction = async (
         if (!action.event_code || !action.updates) {
           throw new Error("Missing required fields for event update");
         }
+
+        // If there's a date update, ensure it's in the correct format
+        if (action.updates.event_date && typeof action.updates.event_date === 'string') {
+          try {
+            // Parse the date if it's in a readable format
+            const parsedDate = parse(action.updates.event_date, 'dd MMMM yyyy', new Date());
+            action.updates.event_date = format(parsedDate, 'yyyy-MM-dd');
+          } catch (error) {
+            console.error('Date parsing error:', error);
+            throw new Error("Invalid date format. Please use the format 'DD Month YYYY'");
+          }
+        }
+
         await updateEvent(action.event_code, action.updates);
-        onSuccess(`Event ${action.event_code} has been updated successfully!`);
+        onSuccess(`Event ${action.event_code} has been updated successfully! The changes have been applied.`);
         break;
 
       case "update_menu":
