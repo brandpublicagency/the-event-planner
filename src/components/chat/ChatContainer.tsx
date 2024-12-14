@@ -5,6 +5,7 @@ import ChatInput from "./ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
+import { useEffect, useRef } from "react";
 
 const ChatContainer = () => {
   const {
@@ -16,6 +17,15 @@ const ChatContainer = () => {
   } = useChatState();
 
   const { data: contextData } = useChatContext();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages change or component mounts
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current;
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  }, [chatMessages]);
 
   return (
     <div className="relative h-[450px]">
@@ -27,7 +37,10 @@ const ChatContainer = () => {
         }}
       >
         <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea 
+            className="flex-1 p-4"
+            ref={scrollAreaRef}
+          >
             <div className="space-y-4">
               {chatMessages.map((message, index) => (
                 <ChatMessage key={index} {...message} />
