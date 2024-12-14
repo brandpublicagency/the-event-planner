@@ -5,7 +5,7 @@ import ChatInput from "./ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useLayoutEffect } from "react";
 
 const ChatContainer = () => {
   const {
@@ -18,14 +18,22 @@ const ChatContainer = () => {
 
   const { data: contextData } = useChatContext();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change or component mounts
-  useEffect(() => {
+  // Use useLayoutEffect to scroll before browser paint
+  useLayoutEffect(() => {
     if (scrollAreaRef.current) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
         scrollArea.scrollTop = scrollArea.scrollHeight;
       }
+    }
+  }, [chatMessages]); // Dependency on chatMessages ensures scroll on new messages
+
+  // Backup scroll effect for smooth scrolling to last message
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
 
@@ -45,7 +53,12 @@ const ChatContainer = () => {
           >
             <div className="space-y-4">
               {chatMessages.map((message, index) => (
-                <ChatMessage key={index} {...message} />
+                <div
+                  key={index}
+                  ref={index === chatMessages.length - 1 ? lastMessageRef : null}
+                >
+                  <ChatMessage {...message} />
+                </div>
               ))}
             </div>
           </ScrollArea>
