@@ -50,7 +50,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
             .from("documents")
             .select("*")
             .eq("id", documentId)
-            .maybeSingle(),
+            .single(),
           timeoutPromise
         ]) as PostgrestResponse<Document>;
 
