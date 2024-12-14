@@ -34,19 +34,40 @@ const TeamMemberItem = ({
 }: TeamMemberItemProps) => {
   const canModify = isAdmin && member.user_id !== currentAdminId;
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', member.user_id],
     queryFn: async () => {
+      if (!member.user_id) {
+        console.error('No user ID provided for profile query');
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, id')
         .eq('id', member.user_id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
       return data;
     },
+    enabled: !!member.user_id, // Only run query if we have a user_id
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-between p-4 bg-muted rounded-lg animate-pulse">
+        <div className="flex items-center gap-3">
+          <div className="w-4 h-4 bg-gray-300 rounded" />
+          <div className="h-4 w-32 bg-gray-300 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
