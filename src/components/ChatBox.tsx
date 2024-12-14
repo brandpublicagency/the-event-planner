@@ -19,12 +19,69 @@ const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingAction, setPendingAction] = useState<any>(null);
   const { toast } = useToast();
   const { data: contextData, isLoading: isContextLoading } = useChatContext();
+
+  const handleConfirmation = async (confirmed: boolean) => {
+    if (!confirmed || !pendingAction) {
+      setMessages(prev => [...prev, { 
+        text: "Action cancelled.", 
+        isUser: false 
+      }]);
+      setPendingAction(null);
+      return;
+    }
+
+    try {
+      switch (pendingAction.action) {
+        case "update_event":
+          await updateEvent(pendingAction.event_code, pendingAction.updates);
+          setMessages(prev => [...prev, { 
+            text: `Event ${pendingAction.event_code} has been updated successfully!`, 
+            isUser: false 
+          }]);
+          break;
+        // Add other action types here as needed
+      }
+      toast({
+        title: "Success",
+        description: "Action completed successfully",
+      });
+    } catch (error) {
+      console.error('Error executing action:', error);
+      toast({
+        title: "Error",
+        description: "Failed to execute the requested action",
+        variant: "destructive",
+      });
+      setMessages(prev => [...prev, { 
+        text: "Sorry, I encountered an error while executing the action.", 
+        isUser: false 
+      }]);
+    }
+    setPendingAction(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
+
+    if (pendingAction) {
+      const isConfirmation = inputValue.toLowerCase().includes('yes') || 
+                            inputValue.toLowerCase().includes('confirm') ||
+                            inputValue.toLowerCase() === 'y';
+      const isDenial = inputValue.toLowerCase().includes('no') || 
+                      inputValue.toLowerCase().includes('cancel') ||
+                      inputValue.toLowerCase() === 'n';
+
+      if (isConfirmation || isDenial) {
+        setMessages(prev => [...prev, { text: inputValue, isUser: true }]);
+        setInputValue("");
+        await handleConfirmation(isConfirmation);
+        return;
+      }
+    }
 
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
       toast({
@@ -74,19 +131,18 @@ const ChatBox = () => {
       try {
         const jsonResponse = JSON.parse(response);
         
-        if (jsonResponse.action === "update_menu") {
+        if (jsonResponse.action === "update_event") {
+          setPendingAction(jsonResponse);
+          setMessages([...newMessages, { 
+            text: `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`, 
+            isUser: false 
+          }]);
+        } else if (jsonResponse.action === "update_menu") {
           await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
           setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
-          toast({
-            title: "Success",
-            description: "Menu has been updated",
-          });
         } else if (jsonResponse.action === "send_email") {
           await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
           setMessages([...newMessages, { text: "Email sent successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "update_event") {
-          await updateEvent(jsonResponse.event_code, jsonResponse.updates);
-          setMessages([...newMessages, { text: "Event updated successfully!", isUser: false }]);
         } else if (jsonResponse.action === "create_event") {
           await createEvent(jsonResponse.event_data);
           setMessages([...newMessages, { text: "Event created successfully!", isUser: false }]);
