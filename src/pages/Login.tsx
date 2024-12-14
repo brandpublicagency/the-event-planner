@@ -41,6 +41,7 @@ const Login = () => {
           providers={[]}
           redirectTo={`${window.location.origin}/`}
           {...(email ? { defaultEmail: email } : {})}
+          view={email ? "sign_up" : "sign_in"}
         />
       </Card>
     </div>

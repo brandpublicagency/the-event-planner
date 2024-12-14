@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { sendEmail } from "@/services/email";
 
 export const useTeamMutations = () => {
   const { toast } = useToast();
@@ -21,21 +20,6 @@ export const useTeamMutations = () => {
         .eq('email', email)
         .single();
 
-      if (!existingUser) {
-        // Send invitation email
-        try {
-          const inviteUrl = `${window.location.origin}/login?email=${encodeURIComponent(email)}`;
-          await sendEmail([email], 'Team Invitation', `
-            <h2>You've been invited to join a team!</h2>
-            <p>Click the link below to accept the invitation and create your account:</p>
-            <a href="${inviteUrl}">Accept Invitation</a>
-          `);
-        } catch (error) {
-          console.error('Error sending invitation:', error);
-          throw new Error('Failed to send invitation email');
-        }
-      }
-
       // Add member to team
       const { error } = await supabase
         .from('team_members')
@@ -46,6 +30,17 @@ export const useTeamMutations = () => {
         });
 
       if (error) throw error;
+
+      // If user doesn't exist, send invitation email through Supabase
+      if (!existingUser) {
+        const { data, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+          data: {
+            team_id: teamData.id,
+          },
+        });
+        
+        if (inviteError) throw inviteError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
