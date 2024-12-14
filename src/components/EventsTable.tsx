@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,12 +23,14 @@ interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
+  className?: string;
 }
 
 export const EventsTable = ({ 
   groupedEvents, 
   handleDelete, 
-  isDashboard = false 
+  isDashboard = false,
+  className 
 }: EventsTableProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -46,7 +49,10 @@ export const EventsTable = ({
   };
 
   return (
-    <ScrollArea className={isDashboard ? "h-full" : "h-[calc(100vh-12rem)]"}>
+    <ScrollArea className={cn(
+      isDashboard ? "h-full" : "h-[calc(100vh-12rem)]",
+      className
+    )}>
       <div className="space-y-4">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
           <div key={monthYear} className="rounded-xl border bg-white">
