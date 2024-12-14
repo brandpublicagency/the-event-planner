@@ -14,7 +14,7 @@ async function sendWhatsAppMessage(to: string, messageData: any) {
   const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
   
   try {
-    console.log('Sending WhatsApp message:', {
+    console.log('Preparing WhatsApp message:', {
       to,
       messageData: JSON.stringify(messageData, null, 2)
     });
@@ -30,6 +30,8 @@ async function sendWhatsAppMessage(to: string, messageData: any) {
       )
     };
 
+    console.log('Sending WhatsApp API request:', JSON.stringify(messageBody, null, 2));
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -43,16 +45,20 @@ async function sendWhatsAppMessage(to: string, messageData: any) {
       const errorData = await response.json();
       console.error('WhatsApp API error:', {
         status: response.status,
+        statusText: response.statusText,
         data: errorData
       });
-      throw new Error(`WhatsApp API error: ${response.status}`);
+      throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const responseData = await response.json();
-    console.log('WhatsApp message sent successfully:', responseData);
+    console.log('WhatsApp API success response:', responseData);
     return responseData;
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
+    console.error('Error sending WhatsApp message:', {
+      error: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 }
@@ -84,7 +90,7 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       const body = await req.json();
-      console.log('Webhook body:', JSON.stringify(body, null, 2));
+      console.log('Webhook body received:', JSON.stringify(body, null, 2));
       
       const entry = body.entry?.[0];
       const changes = entry?.changes?.[0];
@@ -100,12 +106,18 @@ serve(async (req) => {
 
       const message = messages[0];
       if (!message?.from) {
-        console.error('Invalid message format:', message);
+        console.error('Invalid message format - missing from field:', message);
         throw new Error('Invalid message format - missing from field');
       }
 
+      console.log('Processing message from:', message.from);
       const response = await handleMessage(message);
       console.log('Generated response:', JSON.stringify(response, null, 2));
+
+      if (!response) {
+        console.error('No response generated from handleMessage');
+        throw new Error('No response generated');
+      }
 
       await sendWhatsAppMessage(message.from, response);
       console.log('Message sent successfully');
@@ -120,7 +132,10 @@ serve(async (req) => {
       headers: corsHeaders 
     });
   } catch (error) {
-    console.error('Webhook handler error:', error);
+    console.error('Webhook handler error:', {
+      message: error.message,
+      stack: error.stack
+    });
     return new Response(JSON.stringify({ 
       error: error.message,
       stack: error.stack 
