@@ -32,13 +32,21 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize auth state
     const initializeAuth = async () => {
       try {
-        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
-        setSession(initialSession);
+        // Clear any stale session data
+        const currentSession = await supabase.auth.getSession();
+        if (currentSession.error) {
+          await supabase.auth.signOut();
+          setSession(null);
+        } else {
+          setSession(currentSession.data.session);
+        }
       } catch (error) {
-        console.error("Error fetching initial session:", error);
+        console.error("Error initializing auth:", error);
+        // If there's an error, clear the session to be safe
+        setSession(null);
       } finally {
         setIsLoading(false);
       }
@@ -46,15 +54,19 @@ const App = () => {
 
     initializeAuth();
 
+    // Set up auth state change listener
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event);
       setSession(session);
+      
       if (!session) {
         queryClient.clear();
       }
     });
 
+    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
