@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, isFuture, parseISO } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 
 const Events = () => {
@@ -62,11 +62,15 @@ const Events = () => {
         .from('events')
         .select(`
           *,
-          venues:event_venues(
-            venue:venues(*)
+          event_venues (
+            venues (
+              id,
+              name
+            )
           )
         `)
         .is('deleted_at', null)
+        .is('completed', false)
         .order('event_date', { ascending: true });
 
       if (eventsError) {
@@ -101,10 +105,12 @@ const Events = () => {
     }
   };
 
-  // Group events by month and year
+  // Group events by month and year, only including future events
   const groupedEvents = events.reduce((acc, event) => {
     if (!event.event_date) return acc;
-    const date = new Date(event.event_date);
+    const date = parseISO(event.event_date);
+    if (!isFuture(date)) return acc;
+    
     const key = format(date, 'MMMM yyyy');
     if (!acc[key]) acc[key] = [];
     acc[key].push(event);
