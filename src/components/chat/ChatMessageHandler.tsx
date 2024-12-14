@@ -5,6 +5,7 @@ import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
 import { getChatCompletion } from "@/services/openai";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 interface ChatMessageHandlerProps {
   contextData: any;
@@ -56,7 +57,7 @@ export const ChatMessageHandler = ({
       const systemMessage = getSystemMessage(eventsContext, contextData?.pdfContent, tasksContext);
 
       // First try to get a natural language response
-      const messages = [
+      const messages: ChatCompletionMessageParam[] = [
         { role: "system", content: systemMessage },
         ...chatMessages.map(msg => ({
           role: msg.isUser ? "user" : "assistant",
