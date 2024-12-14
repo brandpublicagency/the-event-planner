@@ -2,6 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+interface User {
+  id: string;
+  email?: string;
+}
+
 export const useTeamManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -82,7 +87,7 @@ export const useTeamManagement = () => {
 
       // First, find the user by email in auth.users
       const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
-      const user = users?.find(u => u.email === email);
+      const user = (users as User[])?.find(u => u.email === email);
 
       if (authError || !user) {
         throw new Error('User not found');
