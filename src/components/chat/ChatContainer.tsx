@@ -51,13 +51,13 @@ const ChatContainer = () => {
   return (
     <div className="relative h-[450px]">
       <div 
-        className="absolute inset-0 rounded-3xl"
+        className="absolute inset-0 rounded-lg"
         style={{
           background: "linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6)",
           padding: "1px",
         }}
       >
-        <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
+        <Card className="h-full w-full flex flex-col bg-background rounded-lg">
           <ScrollArea 
             className="flex-1 p-4"
             ref={scrollAreaRef}
@@ -74,7 +74,7 @@ const ChatContainer = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start animate-pulse">
-                  <div className="rounded-3xl px-4 py-2 border border-gray-300 bg-gray-100">
+                  <div className="rounded-lg px-4 py-2 border border-gray-300 bg-gray-100">
                     Typing...
                   </div>
                 </div>
