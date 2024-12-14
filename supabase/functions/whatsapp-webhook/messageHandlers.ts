@@ -38,99 +38,132 @@ export const handleMessage = async (messageText: string) => {
 
 export const getEventDetails = async (eventCode: string) => {
   console.log('Fetching event details for:', eventCode);
-  const { data: event } = await supabase
-    .from('events')
-    .select(`
-      *,
-      wedding_details (*),
-      corporate_details (*),
-      menu_selections (*),
-      event_venues (
-        venues (
-          name
+  try {
+    const { data: event, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        wedding_details (*),
+        corporate_details (*),
+        menu_selections (*),
+        event_venues (
+          venues (
+            name
+          )
+        ),
+        tasks (
+          id,
+          title,
+          completed,
+          due_date,
+          priority,
+          status
         )
-      ),
-      tasks (
-        id,
-        title,
-        completed,
-        due_date,
-        priority,
-        status
-      )
-    `)
-    .eq('event_code', eventCode)
-    .single();
+      `)
+      .eq('event_code', eventCode)
+      .single();
 
-  if (!event) {
+    if (error) {
+      console.error('Error fetching event:', error);
+      return {
+        type: 'text',
+        message: "Error fetching event details. Please try again later."
+      };
+    }
+
+    if (!event) {
+      return {
+        type: 'text',
+        message: "Event not found."
+      };
+    }
+
+    const message = formatEventDetails(event);
+    const tasks = event.tasks || [];
+    const tasksSummary = tasks.length > 0 
+      ? `\n\n*Related Tasks:*\n${tasks.map(task => 
+        `• ${task.title} (${task.status.toUpperCase()})`).join('\n')}`
+      : '';
+
+    return {
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: {
+          text: message + tasksSummary
+        },
+        action: {
+          buttons: [
+            {
+              type: 'reply',
+              reply: {
+                id: `menu_${event.event_code}`,
+                title: 'View Menu'
+              }
+            },
+            {
+              type: 'reply',
+              reply: {
+                id: `tasks_${event.event_code}`,
+                title: 'View Tasks'
+              }
+            }
+          ]
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error in getEventDetails:', error);
     return {
       type: 'text',
-      message: "Event not found."
+      message: "An error occurred while fetching event details. Please try again later."
     };
   }
-
-  const message = formatEventDetails(event);
-  const tasks = event.tasks || [];
-  const tasksSummary = tasks.length > 0 
-    ? `\n\n*Related Tasks:*\n${tasks.map(task => 
-      `• ${task.title} (${task.status.toUpperCase()})`).join('\n')}`
-    : '';
-
-  return {
-    type: 'interactive',
-    interactive: {
-      type: 'button',
-      body: {
-        text: message + tasksSummary
-      },
-      action: {
-        buttons: [
-          {
-            type: 'reply',
-            reply: {
-              id: `menu_${event.event_code}`,
-              title: 'View Menu'
-            }
-          },
-          {
-            type: 'reply',
-            reply: {
-              id: `tasks_${event.event_code}`,
-              title: 'View Tasks'
-            }
-          }
-        ]
-      }
-    }
-  };
 };
 
 const getCalendarView = async () => {
-  const today = new Date();
-  const { data: events } = await supabase
-    .from('events')
-    .select('*')
-    .gte('event_date', today.toISOString())
-    .order('event_date', { ascending: true })
-    .limit(10);
+  try {
+    const today = new Date();
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', today.toISOString())
+      .is('deleted_at', null)
+      .order('event_date', { ascending: true })
+      .limit(10);
 
-  if (!events?.length) {
+    if (error) {
+      console.error('Error fetching calendar events:', error);
+      return {
+        type: 'text',
+        message: "Error fetching calendar events. Please try again later."
+      };
+    }
+
+    if (!events?.length) {
+      return {
+        type: 'text',
+        message: "No upcoming events in the calendar."
+      };
+    }
+
+    const message = "*Upcoming Calendar Events:*\n\n" + events.map(event => 
+      `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')}\n${event.name}\n${
+        event.event_type
+      } (${event.event_code})`
+    ).join('\n\n');
+
     return {
       type: 'text',
-      message: "No upcoming events in the calendar."
+      message
+    };
+  } catch (error) {
+    console.error('Error in getCalendarView:', error);
+    return {
+      type: 'text',
+      message: "An error occurred while fetching calendar events. Please try again later."
     };
   }
-
-  const message = "*Upcoming Calendar Events:*\n\n" + events.map(event => 
-    `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')}\n${event.name}\n${
-      event.event_type
-    } (${event.event_code})`
-  ).join('\n\n');
-
-  return {
-    type: 'text',
-    message
-  };
 };
 
 export const getHelpMessage = () => {

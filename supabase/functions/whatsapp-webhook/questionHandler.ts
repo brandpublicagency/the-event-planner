@@ -14,8 +14,7 @@ export const handleEventQuestion = async (question: string) => {
   try {
     console.log('Processing question:', question);
     
-    // Fetch all non-deleted events with their complete details
-    const { data: events } = await supabase
+    const { data: events, error } = await supabase
       .from('events')
       .select(`
         *,
@@ -36,7 +35,16 @@ export const handleEventQuestion = async (question: string) => {
           status
         )
       `)
-      .is('deleted_at', null);
+      .is('deleted_at', null)
+      .is('completed', false);
+
+    if (error) {
+      console.error('Error fetching events:', error);
+      return {
+        type: 'text',
+        message: "Error fetching event information. Please try again later."
+      };
+    }
 
     if (!events?.length) {
       return {
@@ -52,9 +60,9 @@ export const handleEventQuestion = async (question: string) => {
       
       let clientDetails = '';
       if (event.wedding_details) {
-        clientDetails = `Wedding of ${event.wedding_details.bride_name} & ${event.wedding_details.groom_name}`;
+        clientDetails = `Wedding of ${event.wedding_details.bride_name || 'Bride'} & ${event.wedding_details.groom_name || 'Groom'}`;
       } else if (event.corporate_details) {
-        clientDetails = `Corporate event for ${event.corporate_details.company_name}`;
+        clientDetails = `Corporate event for ${event.corporate_details.company_name || 'Company'}`;
       }
 
       const tasks = event.tasks || [];
@@ -74,7 +82,7 @@ ${tasksInfo}`;
     }).join('\n\n');
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
