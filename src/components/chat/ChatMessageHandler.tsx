@@ -60,17 +60,22 @@ export const ChatMessageHandler = ({
       if (response.type === 'text') {
         addSystemMessage(response.message);
       } else if (response.type === 'interactive') {
-        // Handle interactive messages (buttons, lists)
+        // Handle interactive messages (lists)
         const message = response.interactive.body.text;
         addSystemMessage(message);
         
-        // You might want to add UI elements for buttons/lists here
-        if (response.interactive.action?.buttons) {
-          // Add button options as a separate message
-          const buttonOptions = response.interactive.action.buttons
-            .map(button => `- ${button.reply.title}`)
-            .join('\n');
-          addSystemMessage(`Available actions:\n${buttonOptions}`);
+        // Add list options as a separate message if present
+        if (response.interactive.action?.sections) {
+          const listOptions = response.interactive.action.sections
+            .map(section => {
+              const sectionItems = section.rows
+                .map(row => `- ${row.title}: ${row.description}`)
+                .join('\n');
+              return `${section.title}:\n${sectionItems}`;
+            })
+            .join('\n\n');
+          
+          addSystemMessage(`Available options:\n${listOptions}`);
         }
       }
     } catch (error: any) {
