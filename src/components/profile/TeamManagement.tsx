@@ -24,7 +24,7 @@ const TeamManagement = () => {
     if (!newTeamMemberEmail) {
       toast({
         title: "Error",
-        description: "Please enter a user ID",
+        description: "Please enter an email address",
         variant: "destructive",
       });
       return;
@@ -84,9 +84,9 @@ const TeamManagement = () => {
         <TeamMembersList
           members={teamData.team_members || []}
           isAdmin={isAdmin}
-          currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
-          onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
-          onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
+          currentAdminEmail={teamData.team_members?.find(m => m.role === 'admin')?.email}
+          onToggleRole={(email, newRole) => toggleRoleMutation.mutate({ email, newRole })}
+          onRemoveMember={(email) => removeTeamMemberMutation.mutate(email)}
         />
       </div>
     </Card>

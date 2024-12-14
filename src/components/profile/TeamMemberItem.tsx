@@ -13,11 +13,14 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface TeamMemberItemProps {
-  member: any;
+  member: {
+    email: string;
+    role: 'admin' | 'member';
+  };
   isAdmin: boolean;
-  onToggleRole: (userId: string, newRole: 'admin' | 'member') => void;
-  onRemoveMember: (userId: string) => void;
-  currentAdminId?: string;
+  onToggleRole: (email: string, newRole: 'admin' | 'member') => void;
+  onRemoveMember: (email: string) => void;
+  currentAdminEmail?: string;
 }
 
 const TeamMemberItem = ({ 
@@ -25,9 +28,9 @@ const TeamMemberItem = ({
   isAdmin, 
   onToggleRole, 
   onRemoveMember,
-  currentAdminId 
+  currentAdminEmail 
 }: TeamMemberItemProps) => {
-  const canModify = isAdmin && member.user_id !== currentAdminId;
+  const canModify = isAdmin && member.email !== currentAdminEmail;
 
   return (
     <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
@@ -38,7 +41,7 @@ const TeamMemberItem = ({
           <User className="h-4 w-4 text-muted-foreground" />
         )}
         <div>
-          <p className="font-medium">{member.profiles?.full_name || 'Unnamed User'}</p>
+          <p className="font-medium">{member.email}</p>
           <p className="text-sm text-muted-foreground">Role: {member.role}</p>
         </div>
       </div>
@@ -48,7 +51,7 @@ const TeamMemberItem = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onToggleRole(member.user_id, member.role === 'admin' ? 'member' : 'admin')}
+            onClick={() => onToggleRole(member.email, member.role === 'admin' ? 'member' : 'admin')}
           >
             {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
           </Button>
@@ -68,7 +71,7 @@ const TeamMemberItem = ({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onRemoveMember(member.user_id)}>
+                <AlertDialogAction onClick={() => onRemoveMember(member.email)}>
                   Remove
                 </AlertDialogAction>
               </AlertDialogFooter>

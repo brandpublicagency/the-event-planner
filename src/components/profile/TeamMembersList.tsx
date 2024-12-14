@@ -2,17 +2,21 @@ import { Card } from "@/components/ui/card";
 import TeamMemberItem from "./TeamMemberItem";
 
 interface TeamMembersListProps {
-  members: any[];
+  members: Array<{
+    id: string;
+    email: string;
+    role: 'admin' | 'member';
+  }>;
   isAdmin: boolean;
-  currentAdminId: string;
-  onToggleRole: (userId: string, newRole: 'admin' | 'member') => void;
-  onRemoveMember: (userId: string) => void;
+  currentAdminEmail: string;
+  onToggleRole: (email: string, newRole: 'admin' | 'member') => void;
+  onRemoveMember: (email: string) => void;
 }
 
 const TeamMembersList = ({
   members,
   isAdmin,
-  currentAdminId,
+  currentAdminEmail,
   onToggleRole,
   onRemoveMember,
 }: TeamMembersListProps) => {
@@ -21,12 +25,9 @@ const TeamMembersList = ({
       {members?.map((member) => (
         <TeamMemberItem
           key={member.id}
-          member={{
-            ...member,
-            profiles: member.profiles
-          }}
+          member={member}
           isAdmin={isAdmin}
-          currentAdminId={currentAdminId}
+          currentAdminEmail={currentAdminEmail}
           onToggleRole={onToggleRole}
           onRemoveMember={onRemoveMember}
         />
