@@ -22,6 +22,7 @@ const Projects = () => {
       updated_at: new Date().toISOString(),
       created_by: null,
       completed: false,
+      deleted_at: null,
       event_venues: [{ venues: { name: "Main Office" } }]
     },
     {
@@ -39,6 +40,7 @@ const Projects = () => {
       updated_at: new Date().toISOString(),
       created_by: null,
       completed: false,
+      deleted_at: null,
       event_venues: [{ venues: { name: "Tech Hub" } }]
     },
     {
@@ -56,6 +58,7 @@ const Projects = () => {
       updated_at: new Date().toISOString(),
       created_by: null,
       completed: false,
+      deleted_at: null,
       event_venues: [{ venues: { name: "Design Studio" } }]
     },
   ];
