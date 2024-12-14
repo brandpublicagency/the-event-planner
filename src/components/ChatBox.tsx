@@ -6,8 +6,9 @@ import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { handleConfirmation } from "./chat/ChatConfirmation";
 import { getChatCompletion } from "@/services/openai";
-import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
+import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatMessageForAPI } from "@/types/chat";
+import { useTaskContext } from "@/contexts/TaskContext";
 
 const TIMEOUT_DURATION = 45000;
 
@@ -27,6 +28,7 @@ const ChatBox = () => {
   } = useChatState();
 
   const { data: contextData, isLoading: isContextLoading } = useChatContext();
+  const { tasks } = useTaskContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,11 +97,12 @@ const ChatBox = () => {
 
     try {
       const eventsContext = prepareEventsContext(contextData?.events);
+      const tasksContext = prepareTasksContext(tasks);
       const pdfContext = contextData?.pdfContent?.map(pdf => 
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const systemMessage = getSystemMessage(eventsContext, pdfContext);
+      const systemMessage = getSystemMessage(eventsContext, pdfContext, tasksContext);
       const userMessages: ChatMessageForAPI[] = messages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text
