@@ -1,8 +1,6 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { handleMessage } from './messageHandlers.ts';
+import { handleMessage } from './handlers/messageHandler.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
-import { handleError } from './utils/errorHandler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,17 +12,14 @@ const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 serve(async (req) => {
   console.log('Webhook request received:', {
     method: req.method,
-    url: req.url,
-    headers: Object.fromEntries(req.headers.entries())
+    url: req.url
   });
 
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Handle webhook verification
     if (req.method === 'GET') {
       const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
@@ -39,7 +34,6 @@ serve(async (req) => {
       return new Response('Forbidden', { status: 403, headers: corsHeaders });
     }
 
-    // Handle incoming messages
     if (req.method === 'POST') {
       const body = await req.json();
       console.log('Webhook body:', JSON.stringify(body, null, 2));
@@ -62,28 +56,11 @@ serve(async (req) => {
         throw new Error('Invalid message format - missing from field');
       }
 
-      let response;
-      try {
-        response = await handleMessage(message);
-        console.log('Generated response:', JSON.stringify(response, null, 2));
-      } catch (error) {
-        console.error('Error handling message:', error);
-        response = handleError(error, 'message handling');
-      }
+      const response = await handleMessage(message);
+      console.log('Generated response:', JSON.stringify(response, null, 2));
 
-      try {
-        await sendWhatsAppMessage(message.from, response);
-        console.log('Message sent successfully');
-      } catch (error) {
-        console.error('Error sending WhatsApp message:', error);
-        // Try to send a simple error message as fallback
-        await sendWhatsAppMessage(message.from, {
-          type: 'text',
-          message: "Sorry, I encountered an error. Please try again."
-        }).catch(err => {
-          console.error('Failed to send error message:', err);
-        });
-      }
+      await sendWhatsAppMessage(message.from, response);
+      console.log('Message sent successfully');
 
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
