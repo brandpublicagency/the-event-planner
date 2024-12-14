@@ -25,9 +25,9 @@ export const useChatContext = () => {
 
       if (eventsError) throw eventsError;
 
-      // Fetch processed PDF content using raw query
+      // Use the RPC function to get PDF content
       const { data: pdfContent, error: pdfError } = await supabase
-        .rpc('get_pdf_content') as { data: PdfProcessedContent[] | null, error: any };
+        .rpc('get_pdf_content');
 
       if (pdfError) throw pdfError;
 
@@ -35,6 +35,8 @@ export const useChatContext = () => {
         events: events || [],
         pdfContent: pdfContent || []
       };
-    }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2 // Retry failed requests twice
   });
 };
