@@ -4,7 +4,7 @@ import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
 import { createTask, updateTask, deleteTask } from "@/services/taskService";
 import type { PendingAction } from "@/types/chat";
 import type { EventCreate } from "@/types/event";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import { queryClient } from "@/lib/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,21 +20,28 @@ export const handleChatAction = async (
           throw new Error("Missing required fields for event update");
         }
 
-        // If there's a date update, ensure it's in the correct format
+        // Handle date updates with better validation
         if (action.updates.event_date && typeof action.updates.event_date === 'string') {
+          let parsedDate;
           try {
-            // Parse the date if it's in a readable format
-            const parsedDate = parse(action.updates.event_date, 'dd MMMM yyyy', new Date());
+            // Try parsing various date formats
+            parsedDate = parse(action.updates.event_date, 'yyyy-MM-dd', new Date());
+            if (!isValid(parsedDate)) {
+              parsedDate = parse(action.updates.event_date, 'dd MMMM yyyy', new Date());
+            }
+            if (!isValid(parsedDate)) {
+              throw new Error("Invalid date format");
+            }
             action.updates.event_date = format(parsedDate, 'yyyy-MM-dd');
           } catch (error) {
             console.error('Date parsing error:', error);
-            throw new Error("Invalid date format. Please use the format 'DD Month YYYY'");
+            throw new Error("Invalid date format. Please use the format 'YYYY-MM-DD' or 'DD Month YYYY'");
           }
         }
 
         await updateEvent(action.event_code, action.updates);
         
-        // Invalidate relevant queries to trigger a refetch
+        // Invalidate relevant queries
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
         await queryClient.invalidateQueries({ queryKey: ['events', action.event_code] });
