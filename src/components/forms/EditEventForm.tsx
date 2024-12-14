@@ -45,7 +45,7 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
             title="Company Details" 
             description="Update the company's information."
           >
-            <CompanyDetails form={form} />
+            <CompanyDetails form={form} isEditing={true} />
           </FormSection>
         )}
 

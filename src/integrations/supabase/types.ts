@@ -74,100 +74,6 @@ export type Database = {
           },
         ]
       }
-      document_versions: {
-        Row: {
-          content: Json
-          created_at: string
-          created_by: string
-          document_id: string
-          id: string
-          title: string
-          version_number: number
-        }
-        Insert: {
-          content: Json
-          created_at?: string
-          created_by: string
-          document_id: string
-          id?: string
-          title: string
-          version_number: number
-        }
-        Update: {
-          content?: Json
-          created_at?: string
-          created_by?: string
-          document_id?: string
-          id?: string
-          title?: string
-          version_number?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_versions_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      documents: {
-        Row: {
-          category: string | null
-          content: Json | null
-          created_at: string
-          deleted_at: string | null
-          depth: number | null
-          id: string
-          parent_id: string | null
-          path: unknown | null
-          tags: string[] | null
-          template: boolean | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          content?: Json | null
-          created_at?: string
-          deleted_at?: string | null
-          depth?: number | null
-          id?: string
-          parent_id?: string | null
-          path?: unknown | null
-          tags?: string[] | null
-          template?: boolean | null
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          content?: Json | null
-          created_at?: string
-          deleted_at?: string | null
-          depth?: number | null
-          id?: string
-          parent_id?: string | null
-          path?: unknown | null
-          tags?: string[] | null
-          template?: boolean | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "documents_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       event_documents: {
         Row: {
           content_type: string | null
@@ -465,38 +371,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      pdf_processed_content: {
-        Row: {
-          content: string | null
-          created_at: string
-          id: string
-          pdf_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string
-          id?: string
-          pdf_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          content?: string | null
-          created_at?: string
-          id?: string
-          pdf_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pdf_processed_content_pdf_id_fkey"
-            columns: ["pdf_id"]
-            isOneToOne: false
-            referencedRelation: "event_documents"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {

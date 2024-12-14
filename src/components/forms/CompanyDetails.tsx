@@ -8,13 +8,22 @@ interface CompanyDetailsProps {
   form: UseFormReturn<any>;
   onSubmit?: (data: any) => Promise<void>;
   showSubmit?: boolean;
+  isEditing?: boolean; // Add this prop
 }
 
-const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => {
-  const [isEditing, setIsEditing] = useState(false);
+const CompanyDetails = ({ 
+  form, 
+  onSubmit, 
+  showSubmit,
+  isEditing: externalIsEditing // Receive external editing state
+}: CompanyDetailsProps) => {
+  const [internalIsEditing, setInternalIsEditing] = useState(false);
+  
+  // Use external editing state if provided, otherwise use internal state
+  const isEditing = externalIsEditing !== undefined ? externalIsEditing : internalIsEditing;
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
+    setInternalIsEditing(!internalIsEditing);
   };
 
   const handleSubmit = async (data: any) => {
@@ -22,10 +31,10 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
     
     try {
       await onSubmit(data);
-      setIsEditing(false);
+      setInternalIsEditing(false);
     } catch (error) {
       console.error('Error submitting form:', error);
-      throw error; // Re-throw to be handled by the parent component
+      throw error;
     }
   };
 
@@ -34,7 +43,7 @@ const CompanyDetails = ({ form, onSubmit, showSubmit }: CompanyDetailsProps) => 
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <CompanyDetailsFields form={form} isEditing={isEditing} />
 
-        {showSubmit && (
+        {showSubmit && !externalIsEditing && (
           <div className="flex justify-end space-x-4">
             {!isEditing ? (
               <Button 
