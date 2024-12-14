@@ -77,11 +77,23 @@ export const useTeamManagement = () => {
     mutationFn: async (email: string) => {
       if (!teamData?.id) throw new Error('No team found');
 
+      // First, find the user by email in profiles
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', email)
+        .single();
+
+      if (profileError || !userProfile) {
+        throw new Error('User not found');
+      }
+
+      // Then add the user to the team using their ID
       const { error } = await supabase
         .from('team_members')
         .insert({
           team_id: teamData.id,
-          user_id: email,
+          user_id: userProfile.id,
           role: 'member'
         });
 
