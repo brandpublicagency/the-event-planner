@@ -20,7 +20,7 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
       type: messageData.type,
       ...(messageData.type === 'interactive' 
         ? { interactive: messageData.interactive }
-        : { text: { preview_url: false, body: messageData.message } }
+        : { text: { preview_url: false, body: messageData.message || 'No message content' } }
       )
     };
 
@@ -35,16 +35,21 @@ export async function sendWhatsAppMessage(to: string, messageData: { type: 'text
       body: JSON.stringify(messageBody),
     });
 
-    const responseData = await response.json();
-    console.log('WhatsApp API response:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: JSON.stringify(responseData, null, 2)
-    });
-
     if (!response.ok) {
+      const responseData = await response.json();
+      console.error('WhatsApp API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: responseData
+      });
       throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(responseData)}`);
     }
+
+    const responseData = await response.json();
+    console.log('WhatsApp API success response:', {
+      status: response.status,
+      data: responseData
+    });
 
     return responseData;
   } catch (error) {

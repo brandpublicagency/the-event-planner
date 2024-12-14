@@ -1,7 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getEventDetails, getHelpMessage, getWelcomeMessage, handleMessage } from './messageHandlers.ts';
+import { handleMessage } from './messageHandlers.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
+import { handleError } from './utils/errorHandler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,11 +18,13 @@ serve(async (req) => {
     headers: Object.fromEntries(req.headers.entries())
   });
 
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Handle webhook verification
     if (req.method === 'GET') {
       const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
@@ -36,6 +39,7 @@ serve(async (req) => {
       return new Response('Forbidden', { status: 403, headers: corsHeaders });
     }
 
+    // Handle incoming messages
     if (req.method === 'POST') {
       const body = await req.json();
       console.log('Webhook body:', JSON.stringify(body, null, 2));
@@ -59,31 +63,27 @@ serve(async (req) => {
       }
 
       let response;
-      if (message.type === 'interactive') {
-        if (message.interactive?.type === 'list_reply') {
-          console.log('Processing list reply:', {
-            id: message.interactive.list_reply.id,
-            title: message.interactive.list_reply.title
-          });
-          response = await getEventDetails(message.interactive.list_reply.id);
-        } else if (message.interactive?.type === 'button_reply') {
-          console.log('Processing button reply:', {
-            id: message.interactive.button_reply.id,
-            title: message.interactive.button_reply.title
-          });
-          response = await handleButtonReply(message.interactive.button_reply.id);
-        }
-      } else if (message.type === 'text' && message.text?.body) {
-        response = await handleMessage(message.text.body);
-      } else {
-        console.log('Unsupported message type:', message.type);
-        response = {
-          type: 'text',
-          message: "I don't understand this type of message. Try sending 'hi' or 'help'."
-        };
+      try {
+        response = await handleMessage(message);
+        console.log('Generated response:', JSON.stringify(response, null, 2));
+      } catch (error) {
+        console.error('Error handling message:', error);
+        response = handleError(error, 'message handling');
       }
 
-      await sendWhatsAppMessage(message.from, response);
+      try {
+        await sendWhatsAppMessage(message.from, response);
+        console.log('Message sent successfully');
+      } catch (error) {
+        console.error('Error sending WhatsApp message:', error);
+        // Try to send a simple error message as fallback
+        await sendWhatsAppMessage(message.from, {
+          type: 'text',
+          message: "Sorry, I encountered an error. Please try again."
+        }).catch(err => {
+          console.error('Failed to send error message:', err);
+        });
+      }
 
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -105,16 +105,3 @@ serve(async (req) => {
     });
   }
 });
-
-async function handleButtonReply(buttonId: string) {
-  if (buttonId.startsWith('menu_')) {
-    const eventCode = buttonId.replace('menu_', '');
-    // Handle menu view
-    return await getEventDetails(eventCode);
-  } else if (buttonId.startsWith('tasks_')) {
-    const eventCode = buttonId.replace('tasks_', '');
-    // Handle tasks view
-    return await getEventDetails(eventCode);
-  }
-  return await getWelcomeMessage();
-}
