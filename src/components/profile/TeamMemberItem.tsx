@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Shield, User, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +34,31 @@ const TeamMemberItem = ({
 }: TeamMemberItemProps) => {
   const canModify = isAdmin && member.user_id !== currentAdminId;
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', member.user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, id')
+        .eq('id', member.user_id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: userEmail } = useQuery({
+    queryKey: ['user-email', member.user_id],
+    queryFn: async () => {
+      const { data: { users }, error } = await supabase.auth.admin.listUsers();
+      if (error) throw error;
+      
+      const user = users.find(u => u.id === member.user_id);
+      return user?.email;
+    },
+  });
+
   return (
     <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
       <div className="flex items-center gap-3">
@@ -41,8 +68,9 @@ const TeamMemberItem = ({
           <User className="h-4 w-4 text-muted-foreground" />
         )}
         <div>
-          <p className="font-medium">{member.user_id}</p>
-          <p className="text-sm text-muted-foreground">Role: {member.role}</p>
+          <p className="font-medium">{profile?.full_name || 'Unknown User'}</p>
+          <p className="text-sm text-muted-foreground">{userEmail || 'No email available'}</p>
+          <p className="text-xs text-muted-foreground">Role: {member.role}</p>
         </div>
       </div>
       
