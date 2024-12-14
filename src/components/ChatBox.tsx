@@ -5,8 +5,11 @@ import ChatInput from "./chat/ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { handleConfirmation } from "./chat/ChatConfirmation";
-import { handleChatSubmission, handlePendingAction } from "@/utils/chatUtils";
+import { getChatCompletion } from "@/services/openai";
+import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatMessageForAPI } from "@/types/chat";
+
+const TIMEOUT_DURATION = 45000;
 
 const ChatBox = () => {
   const {
@@ -30,11 +33,18 @@ const ChatBox = () => {
     if (!inputValue.trim()) return;
 
     if (pendingAction) {
-      addUserMessage(inputValue);
-      clearInput();
-      
-      await handlePendingAction(inputValue, pendingAction, {
-        onConfirm: async () => {
+      const isConfirmation = inputValue.toLowerCase().includes('yes') || 
+                            inputValue.toLowerCase().includes('confirm') ||
+                            inputValue.toLowerCase() === 'y';
+      const isDenial = inputValue.toLowerCase().includes('no') || 
+                      inputValue.toLowerCase().includes('cancel') ||
+                      inputValue.toLowerCase() === 'n';
+
+      if (isConfirmation || isDenial) {
+        addUserMessage(inputValue);
+        clearInput();
+        
+        if (isConfirmation) {
           await handleConfirmation({
             pendingAction,
             onComplete: () => setPendingAction(null),
@@ -55,13 +65,12 @@ const ChatBox = () => {
               });
             }
           });
-        },
-        onDeny: () => {
+        } else {
           addSystemMessage("Action cancelled.");
           setPendingAction(null);
         }
-      });
-      return;
+        return;
+      }
     }
 
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
@@ -77,48 +86,64 @@ const ChatBox = () => {
     clearInput();
     setIsLoading(true);
 
+    let timeoutId: NodeJS.Timeout;
+    const timeoutPromise = new Promise<string>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error("Request timed out. Please try a shorter message or try again later."));
+      }, TIMEOUT_DURATION);
+    });
+
     try {
+      const eventsContext = prepareEventsContext(contextData?.events);
+      const pdfContext = contextData?.pdfContent?.map(pdf => 
+        `Document Content: ${pdf.content}`
+      ).join('\n\n');
+
+      const systemMessage = getSystemMessage(eventsContext, pdfContext);
       const userMessages: ChatMessageForAPI[] = messages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text
       }));
 
-      await handleChatSubmission({
-        messages: userMessages,
-        inputValue,
-        contextData,
-        onSuccess: (response) => {
-          try {
-            const jsonResponse = JSON.parse(response);
-            
-            if (jsonResponse.action === "update_event") {
-              setPendingAction(jsonResponse);
-              addSystemMessage(
-                `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`
-              );
-            } else {
-              addSystemMessage(String(response));
-            }
-          } catch {
-            addSystemMessage(String(response));
-          }
-        },
-        onError: (error) => {
-          console.error('Error in chat completion:', error);
-          
-          const errorMessage = error.message === "Request timed out. Please try a shorter message or try again later."
-            ? error.message
-            : "I apologize, but I encountered an error. Please try again with a shorter message.";
-          
-          toast({
-            title: "Error",
-            description: errorMessage,
-            variant: "destructive",
-          });
+      const response = await Promise.race<string>([
+        getChatCompletion([systemMessage, ...userMessages]),
+        timeoutPromise
+      ]);
 
-          addSystemMessage(errorMessage);
+      clearTimeout(timeoutId);
+
+      if (!response) {
+        throw new Error("No response received from AI");
+      }
+
+      try {
+        const jsonResponse = JSON.parse(response);
+        
+        if (jsonResponse.action === "update_event") {
+          setPendingAction(jsonResponse);
+          addSystemMessage(
+            `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`
+          );
+        } else {
+          addSystemMessage(String(response));
         }
+      } catch {
+        addSystemMessage(String(response));
+      }
+    } catch (error: any) {
+      console.error('Error in chat completion:', error);
+      
+      const errorMessage = error.message === "Request timed out. Please try a shorter message or try again later."
+        ? error.message
+        : "I apologize, but I encountered an error. Please try again with a shorter message.";
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
       });
+
+      addSystemMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
