@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import type { ChatMessage, PendingAction } from "@/types/chat";
 
@@ -35,6 +35,20 @@ export const useChatState = () => {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const { toast } = useToast();
 
+  // Optimized message adding with useCallback
+  const addMessage = useCallback((message: ChatMessage) => {
+    setMessages(prev => [...prev, message]);
+  }, []);
+
+  const addSystemMessage = useCallback((text: string) => {
+    addMessage({ text, isUser: false });
+  }, [addMessage]);
+
+  const addUserMessage = useCallback((text: string) => {
+    addMessage({ text, isUser: true });
+  }, [addMessage]);
+
+  // Persist messages to session storage
   useEffect(() => {
     try {
       sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
@@ -44,6 +58,7 @@ export const useChatState = () => {
     }
   }, [messages]);
 
+  // Update last activity
   useEffect(() => {
     const updateLastActivity = () => {
       sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
@@ -60,21 +75,9 @@ export const useChatState = () => {
     };
   }, []);
 
-  const addMessage = (message: ChatMessage) => {
-    setMessages(prev => [...prev, message]);
-  };
-
-  const addSystemMessage = (text: string) => {
-    addMessage({ text, isUser: false });
-  };
-
-  const addUserMessage = (text: string) => {
-    addMessage({ text, isUser: true });
-  };
-
-  const clearInput = () => {
+  const clearInput = useCallback(() => {
     setInputValue("");
-  };
+  }, []);
 
   return {
     messages,

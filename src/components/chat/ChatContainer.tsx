@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
-import ChatInput from "./ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
@@ -20,20 +19,22 @@ const ChatContainer = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // Use useLayoutEffect to scroll before browser paint
+  // Immediate scroll on new messages
   useLayoutEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollArea) {
-        scrollArea.scrollTop = scrollArea.scrollHeight;
+    requestAnimationFrame(() => {
+      if (scrollAreaRef.current) {
+        const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollArea) {
+          scrollArea.scrollTop = scrollArea.scrollHeight;
+        }
       }
-    }
-  }, [chatMessages]); // Dependency on chatMessages ensures scroll on new messages
+    });
+  }, [chatMessages]);
 
-  // Backup scroll effect for smooth scrolling to last message
+  // Smooth scroll for better UX
   useEffect(() => {
     if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [chatMessages]);
 
@@ -51,11 +52,13 @@ const ChatContainer = () => {
             className="flex-1 p-4"
             ref={scrollAreaRef}
           >
-            <div className="space-y-4">
+            <div className="space-y-4 pb-2">
               {chatMessages.map((message, index) => (
                 <div
                   key={index}
                   ref={index === chatMessages.length - 1 ? lastMessageRef : null}
+                  className="transition-opacity duration-200 ease-in-out"
+                  style={{ opacity: 1 }}
                 >
                   <ChatMessage {...message} />
                 </div>
