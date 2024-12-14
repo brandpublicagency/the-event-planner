@@ -45,6 +45,9 @@ const TeamManagement = () => {
     );
   }
 
+  // Filter out members with null user_id before passing to TeamMembersList
+  const validTeamMembers = teamData.team_members?.filter(member => member.user_id) || [];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
@@ -76,9 +79,9 @@ const TeamManagement = () => {
               <div className="pt-4">
                 <h4 className="text-sm font-medium text-muted-foreground mb-4">Team Members</h4>
                 <TeamMembersList
-                  members={teamData.team_members || []}
+                  members={validTeamMembers}
                   isAdmin={isAdmin}
-                  currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
+                  currentAdminId={validTeamMembers.find(m => m.role === 'admin')?.user_id}
                   onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
                   onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
                 />
