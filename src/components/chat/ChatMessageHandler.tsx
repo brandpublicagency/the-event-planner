@@ -58,12 +58,12 @@ export const ChatMessageHandler = ({
 
       // First try to get a natural language response
       const messages: ChatCompletionMessageParam[] = [
-        { role: "system" as const, content: systemMessage },
+        { role: "system", content: systemMessage },
         ...chatMessages.map(msg => ({
-          role: (msg.isUser ? "user" : "assistant") as const,
+          role: msg.isUser ? "user" : "assistant",
           content: msg.text
         })),
-        { role: "user" as const, content: inputValue }
+        { role: "user", content: inputValue }
       ];
 
       const aiResponse = await getChatCompletion(messages);
