@@ -35,10 +35,12 @@ export const ChatMessageHandler = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with input:', inputValue);
     if (!inputValue.trim()) return;
 
     // Handle pending actions first
     if (pendingAction) {
+      console.log('Handling pending action:', pendingAction);
       const isConfirmation = inputValue.toLowerCase().includes('yes') || 
                             inputValue.toLowerCase().includes('confirm') ||
                             inputValue.toLowerCase() === 'y';
@@ -63,6 +65,7 @@ export const ChatMessageHandler = ({
 
     // Check for OpenAI API key
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      console.error('OpenAI API key not configured');
       toast({
         title: "Error",
         description: "OpenAI API key not configured",
@@ -72,6 +75,7 @@ export const ChatMessageHandler = ({
     }
 
     // Add user message immediately and clear input
+    console.log('Adding user message:', inputValue);
     addUserMessage(inputValue);
     clearInput();
     setIsLoading(true);
@@ -107,6 +111,7 @@ export const ChatMessageHandler = ({
 
       try {
         const jsonResponse = JSON.parse(response);
+        console.log('Parsed JSON response:', jsonResponse);
         
         if (jsonResponse.action === "update_task" || jsonResponse.action === "update_event") {
           setPendingAction(jsonResponse);
@@ -116,7 +121,8 @@ export const ChatMessageHandler = ({
         } else {
           addSystemMessage(response);
         }
-      } catch {
+      } catch (error) {
+        console.log('Response is not JSON, adding as plain text');
         addSystemMessage(response);
       }
     } catch (error: any) {
