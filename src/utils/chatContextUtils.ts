@@ -1,21 +1,26 @@
 import type { Event } from "@/types/event";
-import { format } from "date-fns";
+import { format, isFuture, parseISO } from "date-fns";
 
 export const prepareEventsContext = (events: Event[] = []) => {
-  return events.map(event => {
-    const venues = event.event_venues
-      ?.map(ev => ev.venues?.name)
-      .filter(Boolean)
-      .join(' + ') || 'No venue';
-    
-    const formattedDate = event.event_date 
-      ? format(new Date(event.event_date), 'dd MMMM')
-      : 'Date not set';
+  return events
+    .filter(event => {
+      if (!event.event_date) return false;
+      return isFuture(parseISO(event.event_date));
+    })
+    .map(event => {
+      const venues = event.event_venues
+        ?.map(ev => ev.venues?.name)
+        .filter(Boolean)
+        .join(' + ') || 'No venue';
+      
+      const formattedDate = event.event_date 
+        ? format(new Date(event.event_date), 'dd MMMM')
+        : 'Date not set';
 
-    const menuDetails = event.menu_selections ? formatMenuDetails(event.menu_selections) : 'No menu selected';
-    const clientDetails = formatClientDetails(event);
+      const menuDetails = event.menu_selections ? formatMenuDetails(event.menu_selections) : 'No menu selected';
+      const clientDetails = formatClientDetails(event);
 
-    return `Event: ${event.name}
+      return `Event: ${event.name}
 Date: ${formattedDate}
 Venue: ${venues}
 Pax: ${event.pax || 'Not specified'}
@@ -27,7 +32,8 @@ ${clientDetails}
 
 Menu Details:
 ${menuDetails}`;
-  }).join('\n\n');
+    })
+    .join('\n\n');
 };
 
 const formatClientDetails = (event: Event) => {
