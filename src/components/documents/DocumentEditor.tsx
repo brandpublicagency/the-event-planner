@@ -9,6 +9,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 import { getEditorExtensions } from "./editorExtensions";
 import type { Document, DocumentContent } from "@/types/document";
+import { PostgrestResponse } from "@supabase/supabase-js";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -48,12 +49,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           .from("documents")
           .select("*")
           .eq("id", documentId)
-          .maybeSingle();
+          .maybeSingle() as Promise<PostgrestResponse<Document>>;
 
         const result = await Promise.race([documentPromise, timeoutPromise]);
-        if (result.data === null) return null;
-        if (result.error) throw result.error;
-        return result.data as Document;
+        if (!result || result.error) throw result.error || new Error("Failed to fetch document");
+        return result.data;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
