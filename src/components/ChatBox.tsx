@@ -8,10 +8,12 @@ import { useChatContext } from "@/hooks/useChatContext";
 import { getChatCompletion } from "@/services/openai";
 import { sendEmail } from "@/services/email";
 import { updateMenuSelection } from "@/services/menuService";
+import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
+import { createTask, updateTask, deleteTask } from "@/services/taskService";
 import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-const TIMEOUT_DURATION = 45000; // 45 seconds timeout
+const TIMEOUT_DURATION = 45000;
 
 const ChatBox = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
@@ -73,26 +75,33 @@ const ChatBox = () => {
         const jsonResponse = JSON.parse(response);
         
         if (jsonResponse.action === "update_menu") {
-          const menuUpdates = {
-            ...jsonResponse.menu_updates,
-            canape_selections: Array.isArray(jsonResponse.menu_updates.canape_selections) 
-              ? jsonResponse.menu_updates.canape_selections 
-              : null
-          };
-          
-          await updateMenuSelection(jsonResponse.event_code, menuUpdates);
+          await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
           setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
-          
           toast({
             title: "Success",
             description: "Menu has been updated",
           });
         } else if (jsonResponse.action === "send_email") {
           await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
-          setMessages([
-            ...newMessages,
-            { text: "Email sent successfully!", isUser: false }
-          ]);
+          setMessages([...newMessages, { text: "Email sent successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "update_event") {
+          await updateEvent(jsonResponse.event_code, jsonResponse.updates);
+          setMessages([...newMessages, { text: "Event updated successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "create_event") {
+          await createEvent(jsonResponse.event_data);
+          setMessages([...newMessages, { text: "Event created successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "delete_event") {
+          await deleteEvent(jsonResponse.event_code);
+          setMessages([...newMessages, { text: "Event deleted successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "create_task") {
+          await createTask(jsonResponse.task_data);
+          setMessages([...newMessages, { text: "Task created successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "update_task") {
+          await updateTask(jsonResponse.task_id, jsonResponse.updates);
+          setMessages([...newMessages, { text: "Task updated successfully!", isUser: false }]);
+        } else if (jsonResponse.action === "delete_task") {
+          await deleteTask(jsonResponse.task_id);
+          setMessages([...newMessages, { text: "Task deleted successfully!", isUser: false }]);
         } else {
           setMessages([...newMessages, { text: String(response), isUser: false }]);
         }

@@ -1,39 +1,61 @@
 import type { Event } from "@/types/event";
-import { format, isFuture, parseISO } from "date-fns";
+import { format, isFuture, parseISO, compareAsc } from "date-fns";
 
 export const prepareEventsContext = (events: Event[] = []) => {
-  return events
-    .filter(event => {
-      if (!event.event_date) return false;
-      return isFuture(parseISO(event.event_date));
-    })
-    .map(event => {
-      const venues = event.event_venues
-        ?.map(ev => ev.venues?.name)
-        .filter(Boolean)
-        .join(' + ') || 'No venue';
-      
-      const formattedDate = event.event_date 
-        ? format(new Date(event.event_date), 'dd MMMM')
-        : 'Date not set';
+  // Sort events by date and filter out past events
+  const sortedFutureEvents = events
+    .filter(event => event.event_date && isFuture(parseISO(event.event_date)))
+    .sort((a, b) => {
+      if (!a.event_date || !b.event_date) return 0;
+      return compareAsc(parseISO(a.event_date), parseISO(b.event_date));
+    });
 
-      const menuDetails = event.menu_selections ? formatMenuDetails(event.menu_selections) : 'No menu selected';
-      const clientDetails = formatClientDetails(event);
+  const pastEvents = events
+    .filter(event => event.event_date && !isFuture(parseISO(event.event_date)))
+    .sort((a, b) => {
+      if (!a.event_date || !b.event_date) return 0;
+      return compareAsc(parseISO(b.event_date), parseISO(a.event_date));
+    });
 
-      return `Event: ${event.name}
+  const eventsContext = sortedFutureEvents.map(formatEventDetails).join('\n\n');
+  const pastEventsContext = pastEvents.length > 0 
+    ? `\n\nPast Events:\n${pastEvents.map(formatEventDetails).join('\n\n')}`
+    : '';
+
+  return `Current and Upcoming Events:\n${eventsContext}${pastEventsContext}`;
+};
+
+const formatEventDetails = (event: Event) => {
+  const venues = event.event_venues
+    ?.map(ev => ev.venues?.name)
+    .filter(Boolean)
+    .join(' + ') || 'No venue';
+  
+  const formattedDate = event.event_date 
+    ? format(new Date(event.event_date), 'dd MMMM yyyy')
+    : 'Date not set';
+
+  const formattedTime = event.start_time 
+    ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}`
+    : 'Time not set';
+
+  const menuDetails = event.menu_selections ? formatMenuDetails(event.menu_selections) : 'No menu selected';
+  const clientDetails = formatClientDetails(event);
+
+  return `Event: ${event.name}
 Date: ${formattedDate}
+Time: ${formattedTime}
 Venue: ${venues}
-Pax: ${event.pax || 'Not specified'}
 Type: ${event.event_type}
+Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}
+Status: ${event.completed ? 'Completed' : 'Active'}
 
 Client Details:
 ${clientDetails}
 
 Menu Details:
 ${menuDetails}`;
-    })
-    .join('\n\n');
 };
 
 const formatClientDetails = (event: Event) => {
@@ -154,50 +176,81 @@ const formatSelection = (selection: string) => {
 export const getSystemMessage = (eventsContext: string, pdfContext: string) => {
   return {
     role: "system" as const,
-    content: `You are an expert event planning assistant with access to the following information:
+    content: `You are an expert event planning assistant with comprehensive access to and control over the entire event management system. You can help with all aspects of event management including creating, updating, and managing events, tasks, and settings.
 
-1. Upcoming Events:
-${eventsContext || 'No upcoming events found.'}
+Available Information:
+${eventsContext || 'No events found.'}
 
-2. Document Knowledge Base:
+Document Knowledge Base:
 ${pdfContext || 'No documents available.'}
 
-Your role is to help with:
-1. Event Planning & Management
-2. Schedule Coordination
-3. Venue Information
-4. Client Details
-5. Menu Planning and Selection
-6. Best Practices & Guidelines
+Your capabilities include:
+1. Event Management
+   - View all events (past and upcoming)
+   - Create new events
+   - Update existing events
+   - Delete events
+   - Manage event details, venues, and schedules
 
-You can provide detailed information about:
-- Event details including dates, venues, and client information
-- Complete menu selections including starters, main courses, and desserts
-- Specific menu items and their details
-- Client contact information and preferences
-- Venue information and logistics
+2. Menu Management
+   - View and modify menu selections
+   - Update catering details
+   - Handle special dietary requirements
 
-You can update menu selections for events. To update a menu, respond with a JSON object in this format:
+3. Task Management
+   - Create and assign tasks
+   - Update task status
+   - Set task priorities
+   - Track task completion
+
+4. Client Communication
+   - Send emails to clients
+   - Update client information
+   - Handle client requests
+
+5. Document Management
+   - Access event documents
+   - Process PDF content
+   - Generate reports
+
+You can perform actions by responding with specific JSON formats:
+
+1. For menu updates:
 {
   "action": "update_menu",
   "event_code": "EVENT-CODE",
   "menu_updates": {
-    "starter_type": "harvest",
-    "plated_starter": "soup",
+    "starter_type": "type",
     "is_custom": false,
-    "custom_menu_details": null,
-    "canape_package": null,
-    "canape_selections": null,
-    "notes": "Additional notes here"
+    "notes": "Additional notes"
   }
 }
 
-You can also send emails to clients when needed. To send an email, respond with a JSON object in this format:
+2. For sending emails:
 {
   "action": "send_email",
   "to": ["recipient@email.com"],
-  "subject": "Email subject",
-  "content": "Email content in HTML format"
-}`
+  "subject": "Subject",
+  "content": "Email content"
+}
+
+3. For creating/updating events:
+{
+  "action": "update_event",
+  "event_code": "EVENT-CODE",
+  "updates": {
+    "name": "Event Name",
+    "event_date": "2024-03-20",
+    "pax": 100
+  }
+}
+
+When asked about events:
+- Always prioritize upcoming events over past events
+- For "next event" queries, return the closest future event
+- Include relevant details like date, time, venue, and status
+- Mention if an event has passed or is upcoming
+
+Respond naturally and conversationally while maintaining accurate information about events, tasks, and system status.`
   };
 };
