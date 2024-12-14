@@ -1,11 +1,21 @@
+import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
-import { handleAIQuestion } from './questionHandler.ts';
 
 export const handleMessage = async (message: any) => {
   console.log('Processing message:', message);
 
   try {
+    // Handle interactive responses (list selections)
+    if (message.interactive) {
+      console.log('Handling interactive message:', message.interactive);
+      
+      if (message.interactive.list_reply) {
+        return await handleListSelection(message.interactive.list_reply.id);
+      }
+    }
+
+    // Handle text messages
     const messageText = message.text?.body?.toLowerCase().trim();
     if (!messageText) {
       console.error('Invalid message format:', message);
@@ -30,9 +40,9 @@ export const handleMessage = async (message: any) => {
             sections: [{
               title: 'Event Management',
               rows: [
-                { id: 'next_event', title: 'Next Event' },
-                { id: 'next_task', title: 'Next Task' },
-                { id: 'help', title: 'Help' }
+                { id: 'upcoming_events', title: 'Upcoming Events', description: 'View all upcoming events' },
+                { id: 'event_menus', title: 'Event Menus', description: 'View event menus' },
+                { id: 'todo_list', title: 'Your To-do List', description: 'View your pending tasks' }
               ]
             }]
           }
@@ -41,11 +51,11 @@ export const handleMessage = async (message: any) => {
     }
 
     // Handle specific commands
-    if (messageText.includes('next event') || messageText === 'next_event') {
+    if (messageText.includes('next event')) {
       return await getNextEvent();
     }
 
-    if (messageText.includes('next task') || messageText === 'next_task') {
+    if (messageText.includes('next task')) {
       return await getNextTask(message.from);
     }
 
@@ -56,13 +66,36 @@ export const handleMessage = async (message: any) => {
 • Send 'hi' or 'hello' for main menu
 • 'next event' for upcoming event
 • 'next task' for next task
-• Ask any question about events or tasks
+• Select from the list menu for more options
 • 'help' to see this message`
       };
     }
 
-    // Handle natural language questions
-    return await handleAIQuestion(messageText);
+    // Default response
+    return {
+      type: 'interactive',
+      interactive: {
+        type: 'list',
+        header: {
+          type: 'text',
+          text: 'How can I help?'
+        },
+        body: {
+          text: 'Please select an option:'
+        },
+        action: {
+          button: 'View Options',
+          sections: [{
+            title: 'Event Management',
+            rows: [
+              { id: 'upcoming_events', title: 'Upcoming Events', description: 'View all upcoming events' },
+              { id: 'event_menus', title: 'Event Menus', description: 'View event menus' },
+              { id: 'todo_list', title: 'Your To-do List', description: 'View your pending tasks' }
+            ]
+          }]
+        }
+      }
+    };
 
   } catch (error) {
     console.error('Error in handleMessage:', error);
