@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Shield, User, Trash2 } from "lucide-react";
+import { Shield, User, Trash2, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -17,7 +17,12 @@ import {
 interface TeamMemberItemProps {
   member: {
     user_id: string;
+    email?: string;
     role: 'admin' | 'member';
+    profiles?: {
+      full_name: string | null;
+      email: string | null;
+    } | null;
   };
   isAdmin: boolean;
   onToggleRole: (userId: string, newRole: 'admin' | 'member') => void;
@@ -33,12 +38,12 @@ const TeamMemberItem = ({
   currentAdminId 
 }: TeamMemberItemProps) => {
   const canModify = isAdmin && member.user_id !== currentAdminId;
+  const isPending = !member.profiles;
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', member.user_id],
     queryFn: async () => {
-      if (!member.user_id) {
-        console.error('No user ID provided for profile query');
+      if (!member.user_id || isPending) {
         return null;
       }
 
@@ -55,7 +60,7 @@ const TeamMemberItem = ({
 
       return data;
     },
-    enabled: !!member.user_id, // Only run query if we have a user_id
+    enabled: !!member.user_id && !isPending,
   });
 
   if (isLoading) {
@@ -74,24 +79,32 @@ const TeamMemberItem = ({
       <div className="flex items-center gap-3">
         {member.role === 'admin' ? (
           <Shield className="h-4 w-4 text-primary" />
+        ) : isPending ? (
+          <Mail className="h-4 w-4 text-muted-foreground" />
         ) : (
           <User className="h-4 w-4 text-muted-foreground" />
         )}
         <div>
-          <p className="font-medium">{profile?.full_name || 'Unknown User'}</p>
-          <p className="text-xs text-muted-foreground">Role: {member.role}</p>
+          <p className="font-medium">
+            {isPending ? member.email : (profile?.full_name || 'Unknown User')}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {isPending ? 'Pending Invitation' : `Role: ${member.role}`}
+          </p>
         </div>
       </div>
       
       {canModify && (
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onToggleRole(member.user_id, member.role === 'admin' ? 'member' : 'admin')}
-          >
-            {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
-          </Button>
+          {!isPending && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onToggleRole(member.user_id, member.role === 'admin' ? 'member' : 'admin')}
+            >
+              {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
+            </Button>
+          )}
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -101,15 +114,19 @@ const TeamMemberItem = ({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {isPending ? 'Cancel Invitation' : 'Remove Team Member'}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to remove this team member? This action cannot be undone.
+                  {isPending 
+                    ? 'Are you sure you want to cancel this invitation?' 
+                    : 'Are you sure you want to remove this team member? This action cannot be undone.'}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={() => onRemoveMember(member.user_id)}>
-                  Remove
+                  {isPending ? 'Cancel Invitation' : 'Remove'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

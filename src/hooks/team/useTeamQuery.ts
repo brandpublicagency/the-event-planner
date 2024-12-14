@@ -46,15 +46,17 @@ export const useTeamQuery = () => {
         return null;
       }
 
-      // Then get all members for this team
+      // Then get all members for this team, including invited members
       const { data: members, error: membersError } = await supabase
         .from('team_members')
         .select(`
           id,
           user_id,
+          email,
           role,
-          profiles (
-            full_name
+          profiles:user_id (
+            full_name,
+            email
           )
         `)
         .eq('team_id', userTeamMember.team.id);
