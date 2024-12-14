@@ -8,7 +8,6 @@ const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 60 minutes in milliseconds
 
 export const useChatState = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    // Initialize from session storage if available
     try {
       const lastActivity = sessionStorage.getItem(LAST_ACTIVITY_KEY);
       const storedMessages = sessionStorage.getItem(CHAT_STORAGE_KEY);
@@ -17,7 +16,6 @@ export const useChatState = () => {
         const lastActivityTime = parseInt(lastActivity, 10);
         const now = Date.now();
         
-        // Check if session has expired (60 minutes of inactivity)
         if (now - lastActivityTime > INACTIVITY_TIMEOUT) {
           sessionStorage.removeItem(CHAT_STORAGE_KEY);
           sessionStorage.removeItem(LAST_ACTIVITY_KEY);
@@ -37,7 +35,6 @@ export const useChatState = () => {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const { toast } = useToast();
 
-  // Update session storage whenever messages change
   useEffect(() => {
     try {
       sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
@@ -47,7 +44,6 @@ export const useChatState = () => {
     }
   }, [messages]);
 
-  // Update last activity timestamp on user interaction
   useEffect(() => {
     const updateLastActivity = () => {
       sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());

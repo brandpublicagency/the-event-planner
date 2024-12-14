@@ -5,6 +5,7 @@ import { getChatCompletion } from "@/services/openai";
 import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import ChatInput from "./ChatInput";
+import { supabase } from "@/integrations/supabase/client";
 
 const TIMEOUT_DURATION = 45000;
 
@@ -52,26 +53,41 @@ export const ChatMessageHandler = ({
         clearInput();
         
         if (isConfirmation) {
-          await handleConfirmation({
-            pendingAction,
-            onComplete: () => setPendingAction(null),
-            onSuccess: (message) => {
-              addSystemMessage(message);
+          try {
+            if (pendingAction.action === "update_task") {
+              const task = tasks.find(t => t.id === pendingAction.task_id);
+              if (task) {
+                await updateTask(task.id, pendingAction.updates);
+                addSystemMessage(`Task "${task.title}" has been updated successfully.`);
+                toast({
+                  title: "Success",
+                  description: "Task updated successfully",
+                });
+              }
+            } else if (pendingAction.action === "update_event") {
+              const { error } = await supabase
+                .from('events')
+                .update(pendingAction.updates)
+                .eq('event_code', pendingAction.event_code);
+
+              if (error) throw error;
+
+              addSystemMessage(`Event has been updated successfully.`);
               toast({
                 title: "Success",
-                description: "Action completed successfully",
-              });
-            },
-            onError: (error) => {
-              console.error('Error executing action:', error);
-              addSystemMessage("Sorry, I encountered an error while executing the action.");
-              toast({
-                title: "Error",
-                description: "Failed to execute the requested action",
-                variant: "destructive",
+                description: "Event updated successfully",
               });
             }
-          });
+            setPendingAction(null);
+          } catch (error: any) {
+            console.error('Error executing action:', error);
+            addSystemMessage("Sorry, I encountered an error while executing the action.");
+            toast({
+              title: "Error",
+              description: error.message || "Failed to execute the requested action",
+              variant: "destructive",
+            });
+          }
         } else {
           addSystemMessage("Action cancelled.");
           setPendingAction(null);
@@ -136,22 +152,11 @@ export const ChatMessageHandler = ({
       try {
         const jsonResponse = JSON.parse(response);
         
-        if (jsonResponse.action === "update_task") {
-          const task = tasks.find(t => t.id === jsonResponse.task_id);
-          if (task) {
-            if (jsonResponse.updates.notes) {
-              const updatedNotes = [...(task.notes || []), jsonResponse.updates.notes];
-              await updateTask(task.id, { notes: updatedNotes });
-              addSystemMessage(`Note added to task "${task.title}": ${jsonResponse.updates.notes}`);
-            } else {
-              setPendingAction(jsonResponse);
-              addSystemMessage(
-                `I'll help you update the task. Please confirm this action by replying with 'yes' or 'no'.`
-              );
-            }
-          } else {
-            addSystemMessage("I couldn't find the specified task. Please try again with a valid task ID.");
-          }
+        if (jsonResponse.action === "update_task" || jsonResponse.action === "update_event") {
+          setPendingAction(jsonResponse);
+          addSystemMessage(
+            `I'll help you update the ${jsonResponse.action === "update_task" ? "task" : "event"}. Please confirm this action by replying with 'yes' or 'no'.`
+          );
         } else {
           addSystemMessage(String(response));
         }
