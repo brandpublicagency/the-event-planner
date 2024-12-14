@@ -9,22 +9,43 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const handleListSelection = async (buttonId: string) => {
   console.log('Handling list selection:', buttonId);
   
-  switch (buttonId) {
-    case 'upcoming_events':
-      return await getUpcomingEventsList();
-    case 'event_menus':
-      return await getEventMenusList();
-    case 'todo_list':
-      return await getTodoList();
-    default:
-      if (buttonId.startsWith('event_')) {
-        const eventCode = buttonId.replace('event_', '');
-        return await getEventDetails(eventCode);
-      }
-      return {
-        type: 'text',
-        message: "Invalid selection. Please try again."
-      };
+  try {
+    switch (buttonId) {
+      case 'upcoming_events':
+        return await getUpcomingEventsList();
+      case 'event_menus':
+        return await getEventMenusList();
+      case 'todo_list':
+        return await getTodoList();
+      default:
+        // Handle event-specific selections
+        if (buttonId.startsWith('event_')) {
+          const eventCode = buttonId.replace('event_', '');
+          return await getEventDetails(eventCode);
+        }
+        // Handle menu-specific selections
+        if (buttonId.startsWith('menu_')) {
+          const eventCode = buttonId.replace('menu_', '');
+          return await getEventMenuDetails(eventCode);
+        }
+        // Handle task-specific selections
+        if (buttonId.startsWith('task_')) {
+          const taskId = buttonId.replace('task_', '');
+          return await getTaskDetails(taskId);
+        }
+        
+        console.error('Invalid selection ID:', buttonId);
+        return {
+          type: 'text',
+          message: "Invalid selection. Please try again or type 'help' for available commands."
+        };
+    }
+  } catch (error) {
+    console.error('Error in handleListSelection:', error);
+    return {
+      type: 'text',
+      message: "An error occurred while processing your selection. Please try again."
+    };
   }
 };
 
@@ -59,17 +80,16 @@ const getUpcomingEventsList = async () => {
       };
     }
 
-    // Group events by type for better organization
-    const sections = events.reduce((acc: any[], event) => {
+    const sections = events.map(event => {
       const date = format(new Date(event.event_date), 'dd MMM yyyy');
       const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
       
-      return [...acc, {
+      return {
         id: `event_${event.event_code}`,
         title: event.name,
         description: `📅 ${date}\n📍 ${venue}\n👥 ${event.pax || 'TBC'} guests`
-      }];
-    }, []);
+      };
+    });
 
     return {
       type: 'interactive',
@@ -96,6 +116,69 @@ const getUpcomingEventsList = async () => {
     return {
       type: 'text',
       message: "An error occurred while fetching events. Please try again later."
+    };
+  }
+};
+
+const getEventDetails = async (eventCode: string) => {
+  try {
+    console.log('Fetching event details for:', eventCode);
+    
+    const { data: event, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        wedding_details (*),
+        corporate_details (*),
+        menu_selections (*),
+        event_venues (
+          venues (
+            name
+          )
+        )
+      `)
+      .eq('event_code', eventCode)
+      .single();
+
+    if (error) {
+      console.error('Error fetching event:', error);
+      throw error;
+    }
+
+    if (!event) {
+      return {
+        type: 'text',
+        message: "Event not found."
+      };
+    }
+
+    const formattedDetails = formatEventDetails(event);
+
+    return {
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: {
+          text: formattedDetails
+        },
+        action: {
+          buttons: [
+            {
+              type: 'reply',
+              reply: {
+                id: `menu_${event.event_code}`,
+                title: 'View Menu'
+              }
+            }
+          ]
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error in getEventDetails:', error);
+    return {
+      type: 'text',
+      message: "An error occurred while fetching event details. Please try again later."
     };
   }
 };
@@ -217,48 +300,6 @@ const getTodoList = async () => {
     return {
       type: 'text',
       message: "An error occurred while fetching tasks. Please try again later."
-    };
-  }
-};
-
-const getEventDetails = async (eventCode: string) => {
-  try {
-    const { data: event, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        wedding_details (*),
-        corporate_details (*),
-        menu_selections (*),
-        event_venues (
-          venues (
-            name
-          )
-        )
-      `)
-      .eq('event_code', eventCode)
-      .single();
-
-    if (error) throw error;
-
-    if (!event) {
-      return {
-        type: 'text',
-        message: "Event not found."
-      };
-    }
-
-    const formattedDetails = formatEventDetails(event);
-
-    return {
-      type: 'text',
-      message: formattedDetails
-    };
-  } catch (error) {
-    console.error('Error in getEventDetails:', error);
-    return {
-      type: 'text',
-      message: "An error occurred while fetching event details. Please try again later."
     };
   }
 };

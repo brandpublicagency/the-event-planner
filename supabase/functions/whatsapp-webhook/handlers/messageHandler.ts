@@ -1,6 +1,7 @@
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
+import { handleEventQuestion } from './questionHandler.ts';
 
 export const handleMessage = async (message: any) => {
   console.log('Processing message:', message);
@@ -8,10 +9,21 @@ export const handleMessage = async (message: any) => {
   try {
     // Handle interactive responses (list selections)
     if (message.interactive) {
-      console.log('Handling interactive message:', message.interactive);
+      console.log('Handling interactive message:', {
+        type: message.interactive.type,
+        data: message.interactive
+      });
       
       if (message.interactive.list_reply) {
-        return await handleListSelection(message.interactive.list_reply.id);
+        const selectedId = message.interactive.list_reply.id;
+        console.log('List selection ID:', selectedId);
+        return await handleListSelection(selectedId);
+      }
+
+      if (message.interactive.button_reply) {
+        const buttonId = message.interactive.button_reply.id;
+        console.log('Button selection ID:', buttonId);
+        return await handleListSelection(buttonId);
       }
     }
 
@@ -40,9 +52,21 @@ export const handleMessage = async (message: any) => {
             sections: [{
               title: 'Event Management',
               rows: [
-                { id: 'upcoming_events', title: 'Upcoming Events', description: 'View all upcoming events' },
-                { id: 'event_menus', title: 'Event Menus', description: 'View event menus' },
-                { id: 'todo_list', title: 'Your To-do List', description: 'View your pending tasks' }
+                { 
+                  id: 'upcoming_events', 
+                  title: 'Upcoming Events',
+                  description: 'View all upcoming events'
+                },
+                { 
+                  id: 'event_menus', 
+                  title: 'Event Menus',
+                  description: 'View event menus'
+                },
+                { 
+                  id: 'todo_list', 
+                  title: 'Your To-do List',
+                  description: 'View your pending tasks'
+                }
               ]
             }]
           }
@@ -59,6 +83,14 @@ export const handleMessage = async (message: any) => {
       return await getNextTask(message.from);
     }
 
+    // Handle questions about events
+    if (messageText.includes('event') || 
+        messageText.includes('when') || 
+        messageText.includes('menu') ||
+        messageText.includes('task')) {
+      return await handleEventQuestion(messageText);
+    }
+
     if (messageText === 'help') {
       return {
         type: 'text',
@@ -67,6 +99,7 @@ export const handleMessage = async (message: any) => {
 • 'next event' for upcoming event
 • 'next task' for next task
 • Select from the list menu for more options
+• Ask any question about events or tasks
 • 'help' to see this message`
       };
     }
@@ -88,15 +121,26 @@ export const handleMessage = async (message: any) => {
           sections: [{
             title: 'Event Management',
             rows: [
-              { id: 'upcoming_events', title: 'Upcoming Events', description: 'View all upcoming events' },
-              { id: 'event_menus', title: 'Event Menus', description: 'View event menus' },
-              { id: 'todo_list', title: 'Your To-do List', description: 'View your pending tasks' }
+              { 
+                id: 'upcoming_events', 
+                title: 'Upcoming Events',
+                description: 'View all upcoming events'
+              },
+              { 
+                id: 'event_menus', 
+                title: 'Event Menus',
+                description: 'View event menus'
+              },
+              { 
+                id: 'todo_list', 
+                title: 'Your To-do List',
+                description: 'View your pending tasks'
+              }
             ]
           }]
         }
       }
     };
-
   } catch (error) {
     console.error('Error in handleMessage:', error);
     return {
