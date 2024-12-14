@@ -106,7 +106,7 @@ const ChatBox = () => {
       }));
 
       const response = await Promise.race<string>([
-        getChatCompletion([systemMessage, ...userMessages]),
+        getChatCompletion([systemMessage, ...userMessages, { role: "user", content: inputValue }]),
         timeoutPromise
       ]);
 
