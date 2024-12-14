@@ -57,4 +57,17 @@ export interface Event {
   };
 }
 
-export type EventCreate = Pick<Event, 'event_code' | 'name' | 'description' | 'event_type' | 'event_date' | 'pax' | 'package_id' | 'client_address' | 'created_by' | 'completed' | 'start_time' | 'end_time'>;
+export interface EventCreate {
+  event_code: string;
+  name: string;
+  description?: string | null;
+  event_type: string;
+  event_date?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  pax?: number | null;
+  package_id?: string | null;
+  client_address?: string | null;
+  created_by?: string | null;
+  completed?: boolean;
+}

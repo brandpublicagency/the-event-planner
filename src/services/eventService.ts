@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Event } from "@/types/event";
+import type { Event, EventCreate } from "@/types/event";
 
 export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
   const { data, error } = await supabase
@@ -13,7 +13,7 @@ export const updateEvent = async (eventCode: string, updates: Partial<Event>) =>
   return data;
 };
 
-export const createEvent = async (eventData: Partial<Event>) => {
+export const createEvent = async (eventData: EventCreate) => {
   const { data, error } = await supabase
     .from('events')
     .insert(eventData)
