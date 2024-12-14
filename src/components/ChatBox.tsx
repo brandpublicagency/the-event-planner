@@ -27,7 +27,7 @@ const ChatBox = () => {
     toast
   } = useChatState();
 
-  const { data: contextData, isLoading: isContextLoading } = useChatContext();
+  const { data: contextData } = useChatContext() || {};
   const { tasks } = useTaskContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,14 +102,23 @@ const ChatBox = () => {
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const systemMessage = getSystemMessage(eventsContext, pdfContext, tasksContext);
+      const systemMessage: ChatCompletionMessageParam = {
+        role: "system",
+        content: getSystemMessage(eventsContext, pdfContext, tasksContext)
+      };
+
       const userMessages: ChatCompletionMessageParam[] = messages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text
       }));
 
+      const currentMessage: ChatCompletionMessageParam = {
+        role: "user",
+        content: inputValue
+      };
+
       const response = await Promise.race<string>([
-        getChatCompletion([systemMessage, ...userMessages, { role: "user", content: inputValue }]),
+        getChatCompletion([systemMessage, ...userMessages, currentMessage]),
         timeoutPromise
       ]);
 
@@ -173,7 +182,7 @@ const ChatBox = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onSubmit={handleSubmit}
-            isLoading={isLoading || isContextLoading}
+            isLoading={isLoading}
           />
         </Card>
       </div>
