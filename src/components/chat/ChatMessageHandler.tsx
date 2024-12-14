@@ -135,19 +135,25 @@ export const ChatMessageHandler = ({
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
+      const systemMessage: ChatCompletionMessageParam = {
+        role: "system",
+        content: getSystemMessage(eventsContext, pdfContext, tasksContext)
+      };
+
+      const userMessages: ChatCompletionMessageParam[] = chatMessages.map(msg => ({
+        role: msg.isUser ? "user" : "assistant",
+        content: msg.text
+      }));
+
+      const currentMessage: ChatCompletionMessageParam = {
+        role: "user",
+        content: inputValue
+      };
+
       const apiMessages: ChatCompletionMessageParam[] = [
-        {
-          role: "system" as const,
-          content: getSystemMessage(eventsContext, pdfContext, tasksContext)
-        },
-        ...chatMessages.map(msg => ({
-          role: (msg.isUser ? "user" : "assistant") as const,
-          content: msg.text
-        })),
-        {
-          role: "user" as const,
-          content: inputValue
-        }
+        systemMessage,
+        ...userMessages,
+        currentMessage
       ];
 
       console.log('Sending request to OpenAI...', { apiMessages });
