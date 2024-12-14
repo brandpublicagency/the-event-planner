@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleMessage } from './handlers/messageHandler.ts';
-import { sendWhatsAppMessage } from './whatsappApi.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +7,55 @@ const corsHeaders = {
 };
 
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
+const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
+const PHONE_NUMBER_ID = '494335320427022';
+
+async function sendWhatsAppMessage(to: string, messageData: any) {
+  const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
+  
+  try {
+    console.log('Sending WhatsApp message:', {
+      to,
+      messageData: JSON.stringify(messageData, null, 2)
+    });
+
+    const messageBody = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to,
+      type: messageData.type,
+      ...(messageData.type === 'interactive' 
+        ? { interactive: messageData.interactive }
+        : { text: { preview_url: false, body: messageData.message } }
+      )
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('WhatsApp API error:', {
+        status: response.status,
+        data: errorData
+      });
+      throw new Error(`WhatsApp API error: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('WhatsApp message sent successfully:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error);
+    throw error;
+  }
+}
 
 serve(async (req) => {
   console.log('Webhook request received:', {

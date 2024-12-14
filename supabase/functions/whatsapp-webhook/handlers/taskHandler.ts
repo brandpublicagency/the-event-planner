@@ -7,6 +7,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getNextTask = async (userId: string) => {
   try {
+    console.log('Fetching next task for user:', userId);
+    
     const { data: tasks, error } = await supabase
       .from('tasks')
       .select('*')
@@ -17,7 +19,7 @@ export const getNextTask = async (userId: string) => {
 
     if (error) {
       console.error('Error fetching tasks:', error);
-      throw new Error("Error fetching tasks");
+      throw error;
     }
 
     if (!tasks?.length) {
@@ -30,12 +32,25 @@ export const getNextTask = async (userId: string) => {
     const task = tasks[0];
     const dueDate = task.due_date ? format(new Date(task.due_date), 'MMMM d, yyyy') : 'No due date';
 
+    const message = `The next task on your to-do list is "${task.title}". Here are the details:
+
+- ID: ${task.id}
+- Status: ${task.status === 'todo' ? 'Pending (todo)' : task.status}
+- Priority: ${task.priority || 'Not set'}
+- Due Date: ${dueDate}
+- Assigned To: ${task.assigned_to ? 'Assigned' : 'Unassigned'}
+
+Please note that ${task.todos?.length ? `there are ${task.todos.length} todo items` : 'there are no specific todo items'} ${task.notes?.length ? `and ${task.notes.length} notes` : 'and no notes'} associated with this task${task.todos?.length || task.notes?.length ? '.' : ' at the moment.'} If you need to update anything or require further information, feel free to ask.`;
+
     return {
       type: 'text',
-      message: `Next task: "${task.title}"\nPriority: ${task.priority || 'Not set'}\nDue: ${dueDate}\nStatus: ${task.status}`
+      message
     };
   } catch (error) {
     console.error('Error in getNextTask:', error);
-    throw error;
+    return {
+      type: 'text',
+      message: "I encountered an error fetching your next task. Please try again later."
+    };
   }
 };
