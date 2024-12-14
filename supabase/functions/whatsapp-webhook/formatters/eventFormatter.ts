@@ -8,14 +8,6 @@ interface Event {
   pax?: number;
   start_time?: string;
   end_time?: string;
-  wedding_details?: {
-    bride_name?: string;
-    groom_name?: string;
-  };
-  corporate_details?: {
-    company_name?: string;
-    contact_person?: string;
-  };
   event_venues?: Array<{
     venues?: {
       name?: string;
