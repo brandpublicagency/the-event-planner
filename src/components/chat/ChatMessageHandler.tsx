@@ -137,15 +137,15 @@ export const ChatMessageHandler = ({
 
       const apiMessages: ChatCompletionMessageParam[] = [
         {
-          role: "system",
+          role: "system" as const,
           content: getSystemMessage(eventsContext, pdfContext, tasksContext)
         },
         ...chatMessages.map(msg => ({
-          role: msg.isUser ? "user" : "assistant",
+          role: (msg.isUser ? "user" : "assistant") as const,
           content: msg.text
         })),
         {
-          role: "user",
+          role: "user" as const,
           content: inputValue
         }
       ];
