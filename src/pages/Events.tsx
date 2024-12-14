@@ -120,7 +120,7 @@ const Events = () => {
   }
 
   return (
-    <div className="container py-6">
+    <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Events</h1>
         <Button onClick={() => navigate('/events/new')}>
@@ -128,7 +128,11 @@ const Events = () => {
           New Event
         </Button>
       </div>
-      <EventsTable groupedEvents={groupedEvents} handleDelete={handleDelete} />
+      <EventsTable 
+        groupedEvents={groupedEvents} 
+        handleDelete={handleDelete} 
+        className="flex-grow" 
+      />
     </div>
   );
 };
