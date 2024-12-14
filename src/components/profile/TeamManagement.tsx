@@ -16,6 +16,8 @@ const TeamManagement = () => {
     isAdmin,
     isTeamLoading,
     addTeamMemberMutation,
+    removeTeamMemberMutation,
+    toggleRoleMutation,
   } = useTeamManagement();
 
   const handleAddMember = async () => {
@@ -94,8 +96,8 @@ const TeamManagement = () => {
             members={teamData.team_members || []}
             isAdmin={isAdmin}
             currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
-            onToggleRole={(userId, newRole) => teamData.toggleRoleMutation.mutate({ userId, newRole })}
-            onRemoveMember={(userId) => teamData.removeTeamMemberMutation.mutate(userId)}
+            onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
+            onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
           />
         </div>
       </div>
