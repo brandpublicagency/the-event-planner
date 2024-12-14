@@ -13,7 +13,9 @@ export const useTeamMembership = () => {
         return null;
       }
 
-      // First get the team membership with basic team info
+      console.log('Authenticated user:', user.id);
+
+      // Get team membership for the current user
       const { data: membership, error: membershipError } = await supabase
         .from('team_members')
         .select(`
@@ -28,7 +30,7 @@ export const useTeamMembership = () => {
           )
         `)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (membershipError) {
         console.error('Error fetching team membership:', membershipError);
@@ -40,10 +42,14 @@ export const useTeamMembership = () => {
         return null;
       }
 
+      console.log('Team membership found:', membership);
+
       return {
         role: membership.role,
         team: membership.team
       };
     },
+    retry: false,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 };
