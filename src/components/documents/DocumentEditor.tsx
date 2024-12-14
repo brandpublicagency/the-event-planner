@@ -26,6 +26,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
       },
     },
+    onUpdate: ({ editor }) => {
+      // Trigger save when content changes
+      if (documentId) {
+        updateDocument.mutate();
+      }
+    },
   });
 
   const { data: documentData, isLoading, error } = useQuery({
@@ -45,8 +51,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           .maybeSingle();
 
         const result = await Promise.race([documentPromise, timeoutPromise]);
+        if (result.data === null) return null;
         if (result.error) throw result.error;
-        return result.data as Document | null;
+        return result.data as Document;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
@@ -95,14 +102,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-      queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-      toast({
-        title: "Document saved",
-        description: "Your changes have been saved successfully.",
-      });
-    },
     onError: (error: Error) => {
       console.error("Save error:", error);
       toast({
@@ -112,6 +111,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
     },
   });
+
+  // Add title change handler to trigger save
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    updateDocument.mutate();
+  };
 
   if (!documentId) {
     return (
@@ -142,15 +147,13 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       <div className="flex items-center justify-between mb-6">
         <Input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
           placeholder="Untitled"
           className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
         />
         <DocumentActions
           title={title}
           editor={editor}
-          onSave={() => updateDocument.mutate()}
-          isSaving={updateDocument.isPending}
         />
       </div>
 
