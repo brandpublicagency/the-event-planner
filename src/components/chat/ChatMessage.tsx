@@ -4,6 +4,8 @@ interface ChatMessageProps {
 }
 
 const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
+  console.log('Rendering ChatMessage:', { text, isUser });
+  
   return (
     <div 
       className={`flex ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-300`}

@@ -20,19 +20,42 @@ const ChatContainer = () => {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
+    console.log('Messages updated:', {
+      messageCount: chatMessages.length,
+      lastMessage: chatMessages[chatMessages.length - 1]?.text,
+      isLoading
+    });
+
     if (scrollAreaRef.current) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
+        console.log('Scroll metrics:', {
+          scrollHeight: scrollArea.scrollHeight,
+          clientHeight: scrollArea.clientHeight,
+          scrollTop: scrollArea.scrollTop,
+          distanceFromBottom: Math.abs(
+            scrollArea.scrollHeight - scrollArea.clientHeight - scrollArea.scrollTop
+          )
+        });
+
         const shouldScroll = Math.abs(
           scrollArea.scrollHeight - scrollArea.clientHeight - scrollArea.scrollTop
         ) < 100;
 
+        console.log('Should scroll?', shouldScroll);
+
         if (shouldScroll) {
+          console.log('Initiating scroll...');
           setTimeout(() => {
             scrollArea.scrollTop = scrollArea.scrollHeight;
+            console.log('Scroll complete. New scroll position:', scrollArea.scrollTop);
           }, 100);
         }
+      } else {
+        console.warn('Scroll area viewport not found');
       }
+    } else {
+      console.warn('scrollAreaRef.current is null');
     }
   }, [chatMessages]);
 
@@ -51,14 +74,17 @@ const ChatContainer = () => {
             ref={scrollAreaRef}
           >
             <div className="space-y-4 pb-2">
-              {chatMessages.map((message, index) => (
-                <div
-                  key={`${index}-${message.text.substring(0, 10)}`}
-                  className="transition-all duration-300 ease-in-out"
-                >
-                  <ChatMessage {...message} />
-                </div>
-              ))}
+              {chatMessages.map((message, index) => {
+                console.log('Rendering message:', { index, text: message.text, isUser: message.isUser });
+                return (
+                  <div
+                    key={`${index}-${message.text.substring(0, 10)}`}
+                    className="transition-all duration-300 ease-in-out"
+                  >
+                    <ChatMessage {...message} />
+                  </div>
+                );
+              })}
               {isLoading && (
                 <div className="flex justify-start animate-pulse">
                   <div className="rounded-3xl px-4 py-2 border border-gray-300 bg-gray-100">
