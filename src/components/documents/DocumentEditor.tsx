@@ -32,16 +32,29 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) return null;
-      const { data, error } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("id", documentId)
-        .maybeSingle();
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Document fetch timed out")), 10000);
+      });
 
-      if (error) throw error;
-      return data as Document | null;
+      try {
+        const documentPromise = supabase
+          .from("documents")
+          .select("*")
+          .eq("id", documentId)
+          .maybeSingle();
+
+        const result = await Promise.race([documentPromise, timeoutPromise]);
+        if (result.error) throw result.error;
+        return result.data as Document | null;
+      } catch (error) {
+        console.error("Error fetching document:", error);
+        throw error;
+      }
     },
     enabled: !!documentId,
+    retry: 1,
+    staleTime: 30000,
   });
 
   useEffect(() => {
@@ -59,18 +72,28 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const updateDocument = useMutation({
     mutationFn: async () => {
       if (!documentId || !editor) return;
-      const { error } = await supabase
-        .from("documents")
-        .update({
-          title,
-          content: {
-            html: editor.getHTML(),
-            text: editor.getText(),
-          },
-        })
-        .eq("id", documentId);
 
-      if (error) throw error;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Save operation timed out")), 10000);
+      });
+
+      try {
+        const updatePromise = supabase
+          .from("documents")
+          .update({
+            title,
+            content: {
+              html: editor.getHTML(),
+              text: editor.getText(),
+            },
+          })
+          .eq("id", documentId);
+
+        await Promise.race([updatePromise, timeoutPromise]);
+      } catch (error) {
+        console.error("Error saving document:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
@@ -81,9 +104,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
     },
     onError: (error: Error) => {
+      console.error("Save error:", error);
       toast({
         title: "Error saving document",
-        description: error.message,
+        description: error.message || "Failed to save document. Please try again.",
         variant: "destructive",
       });
     },
@@ -108,7 +132,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   if (error || !documentData) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
-        Document not found or error loading document
+        {error ? `Error: ${error.message}` : "Document not found"}
       </div>
     );
   }
