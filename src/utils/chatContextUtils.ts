@@ -3,10 +3,13 @@ import type { Event } from "@/types/event";
 
 const formatEventDateTime = (event: Event) => {
   const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set';
-  const time = event.start_time 
-    ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}`
-    : 'Time not set';
-  return { date, time };
+  const startTime = event.start_time || 'Start time not set';
+  const endTime = event.end_time || 'End time not set';
+  return { 
+    date,
+    time: `${startTime} - ${endTime}`,
+    fullDateTime: `${date} at ${startTime}${event.end_time ? ` - ${endTime}` : ''}`
+  };
 };
 
 const formatVenues = (event: Event) => {
@@ -43,13 +46,14 @@ const formatClientDetails = (event: Event) => {
 
 export const prepareEventsContext = (events: Event[] = []) => {
   return events.map(event => {
-    const { date, time } = formatEventDateTime(event);
+    const { date, time, fullDateTime } = formatEventDateTime(event);
     const venues = formatVenues(event);
     const clientInfo = formatClientDetails(event);
     
     return `Event: ${event.name}
 Type: ${clientInfo.type}
 Client: ${clientInfo.details}
+Schedule: ${fullDateTime}
 Date: ${date}
 Time: ${time}
 Venue: ${venues}
@@ -75,19 +79,20 @@ ${eventsContext || 'No events found.'}
 ${pdfContext ? `Additional Documentation:\n${pdfContext}` : ''}
 
 Guidelines for Responses:
-1. Be direct and specific when answering questions about events
-2. Always include dates and times when asked about scheduling
-3. For weddings, include the couple's full names
-4. For corporate events, include the company name
-5. Always mention venue information when relevant
-6. If information isn't available, clearly state what's missing
-7. Keep responses concise but complete
-8. Use a friendly, professional tone
+1. When asked about time, provide the specific time (e.g., "The event starts at 14:00 and ends at 17:00")
+2. When asked about dates, provide the full date (e.g., "The event is on 15 March 2024")
+3. When asked about schedule, provide both date and time (e.g., "The event is scheduled for 15 March 2024 at 14:00")
+4. For weddings, always include the couple's full names
+5. For corporate events, include the company name
+6. Always mention venue information when relevant
+7. If information isn't available, clearly state what's missing
+8. Keep responses concise but complete
+9. Use a friendly, professional tone
 
 Remember:
-- Provide exact dates, times, and locations when available
-- If you're not sure about specific details, acknowledge what you don't know
-- For follow-up questions about the same event, maintain context
-- If asked about an event that doesn't exist, politely indicate that you can't find it`
+- Distinguish between time and date queries
+- Provide exact times when specifically asked about timing
+- If asked about an event that doesn't exist, politely indicate that you can't find it
+- For follow-up questions about the same event, maintain context`
   };
 };
