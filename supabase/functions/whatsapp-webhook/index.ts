@@ -59,14 +59,21 @@ serve(async (req) => {
       }
 
       let response;
-      if (message.type === 'interactive' && message.interactive?.type === 'list_reply') {
-        console.log('Processing list reply:', {
-          id: message.interactive.list_reply.id,
-          title: message.interactive.list_reply.title
-        });
-        response = await getEventDetails(message.interactive.list_reply.id);
-      } 
-      else if (message.type === 'text' && message.text?.body) {
+      if (message.type === 'interactive') {
+        if (message.interactive?.type === 'list_reply') {
+          console.log('Processing list reply:', {
+            id: message.interactive.list_reply.id,
+            title: message.interactive.list_reply.title
+          });
+          response = await getEventDetails(message.interactive.list_reply.id);
+        } else if (message.interactive?.type === 'button_reply') {
+          console.log('Processing button reply:', {
+            id: message.interactive.button_reply.id,
+            title: message.interactive.button_reply.title
+          });
+          response = await handleButtonReply(message.interactive.button_reply.id);
+        }
+      } else if (message.type === 'text' && message.text?.body) {
         response = await handleMessage(message.text.body);
       } else {
         console.log('Unsupported message type:', message.type);
@@ -98,3 +105,16 @@ serve(async (req) => {
     });
   }
 });
+
+async function handleButtonReply(buttonId: string) {
+  if (buttonId.startsWith('menu_')) {
+    const eventCode = buttonId.replace('menu_', '');
+    // Handle menu view
+    return await getEventDetails(eventCode);
+  } else if (buttonId.startsWith('tasks_')) {
+    const eventCode = buttonId.replace('tasks_', '');
+    // Handle tasks view
+    return await getEventDetails(eventCode);
+  }
+  return await getWelcomeMessage();
+}

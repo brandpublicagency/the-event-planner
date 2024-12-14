@@ -37,7 +37,7 @@ export const getWelcomeMessage = async () => {
 
 export const getUpcomingEventsList = async () => {
   console.log('Fetching upcoming events');
-  const today = new Date().toISOString().split('T')[0]; // Get just the date part
+  const today = new Date().toISOString().split('T')[0];
   
   try {
     const { data: events, error } = await supabase
@@ -63,10 +63,7 @@ export const getUpcomingEventsList = async () => {
 
     if (error) {
       console.error('Error fetching events:', error);
-      return {
-        type: 'text',
-        message: "Error fetching events. Please try again later."
-      };
+      throw error;
     }
 
     if (!events?.length) {
@@ -145,10 +142,7 @@ export const getTaskDetails = async () => {
 
     if (error) {
       console.error('Error fetching tasks:', error);
-      return {
-        type: 'text',
-        message: "Error fetching tasks. Please try again later."
-      };
+      throw error;
     }
 
     if (!tasks?.length) {

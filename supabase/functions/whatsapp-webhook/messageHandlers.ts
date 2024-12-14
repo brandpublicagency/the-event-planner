@@ -18,7 +18,7 @@ export const handleMessage = async (messageText: string) => {
     // Handle greetings
     if (['hi', 'hello', 'hey'].includes(lowercaseMessage)) {
       return await getWelcomeMessage();
-    } 
+    }
 
     // Handle menu selections
     if (['upcoming_events', 'event_menus', 'tasks', 'calendar'].includes(lowercaseMessage)) {
@@ -33,9 +33,17 @@ export const handleMessage = async (messageText: string) => {
           return getHelpMessage();
       }
     }
+
+    // Handle natural language questions about events
+    if (lowercaseMessage.includes('event') || 
+        lowercaseMessage.includes('when') || 
+        lowercaseMessage.includes('next') ||
+        lowercaseMessage.includes('menu')) {
+      return await handleEventQuestion(messageText);
+    }
     
-    // Try to handle it as a question about an event or task
-    return await handleEventQuestion(messageText);
+    // Default to welcome message if no other matches
+    return await getWelcomeMessage();
   } catch (error) {
     console.error('Error in handleMessage:', error);
     return {
@@ -80,6 +88,7 @@ export const getEventDetails = async (eventCode: string) => {
       `)
       .eq('event_code', eventCode)
       .is('deleted_at', null)
+      .is('completed', false)
       .single();
 
     if (error) {
@@ -148,6 +157,7 @@ const getCalendarView = async () => {
       .select('*')
       .gte('event_date', today.toISOString())
       .is('deleted_at', null)
+      .is('completed', false)
       .order('event_date', { ascending: true })
       .limit(10);
 
