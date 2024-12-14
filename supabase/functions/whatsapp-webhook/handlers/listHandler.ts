@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { formatEventDetails } from '../formatters/eventFormatter.ts';
+import { getTaskDetails } from './taskHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -10,6 +11,12 @@ export const handleListSelection = async (buttonId: string) => {
   console.log('Handling list selection:', buttonId);
   
   try {
+    // Handle task selection
+    if (buttonId.startsWith('task_')) {
+      const taskId = buttonId.replace('task_', '');
+      return await getTaskDetails(taskId);
+    }
+
     switch (buttonId) {
       case 'upcoming_events':
         return await getUpcomingEventsList();
@@ -25,10 +32,6 @@ export const handleListSelection = async (buttonId: string) => {
         if (buttonId.startsWith('menu_')) {
           const eventCode = buttonId.replace('menu_', '');
           return await getEventMenuDetails(eventCode);
-        }
-        if (buttonId.startsWith('task_')) {
-          const taskId = buttonId.replace('task_', '');
-          return await getTaskDetails(taskId);
         }
         
         console.error('Invalid selection ID:', buttonId);
@@ -297,6 +300,52 @@ const getTodoList = async () => {
     return {
       type: 'text',
       message: "An error occurred while fetching tasks. Please try again later."
+    };
+  }
+};
+
+const getEventMenuDetails = async (eventCode: string) => {
+  try {
+    const { data: event, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        menu_selections (*)
+      `)
+      .eq('event_code', eventCode)
+      .single();
+
+    if (error) {
+      console.error('Error fetching event menu:', error);
+      throw error;
+    }
+
+    if (!event || !event.menu_selections) {
+      return {
+        type: 'text',
+        message: "No menu found for this event."
+      };
+    }
+
+    const menu = event.menu_selections;
+    const message = `*Menu Details for ${event.name}*
+
+Type: ${menu.is_custom ? 'Custom Menu' : 'Standard Menu'}
+${menu.custom_menu_details ? `Custom Details: ${menu.custom_menu_details}\n` : ''}
+${menu.starter_type ? `Starter: ${menu.starter_type}\n` : ''}
+${menu.main_course_type ? `Main Course: ${menu.main_course_type}\n` : ''}
+${menu.dessert_type ? `Dessert: ${menu.dessert_type}\n` : ''}
+${menu.notes ? `\nNotes: ${menu.notes}` : ''}`;
+
+    return {
+      type: 'text',
+      message
+    };
+  } catch (error) {
+    console.error('Error in getEventMenuDetails:', error);
+    return {
+      type: 'text',
+      message: "An error occurred while fetching menu details. Please try again later."
     };
   }
 };
