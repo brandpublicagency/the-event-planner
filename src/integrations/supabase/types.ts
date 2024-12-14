@@ -697,6 +697,16 @@ export type Database = {
         }
         Returns: string
       }
+      get_pdf_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          pdf_id: string
+          content: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       lca: {
         Args: {
           "": unknown[]
