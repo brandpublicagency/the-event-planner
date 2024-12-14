@@ -1,21 +1,24 @@
 import type { Event } from "@/types/event";
 import type { Task } from "@/contexts/TaskContext";
+import type { MenuSelections } from "@/types/menuSelections";
 
 export const prepareEventsContext = (events: Event[] = []) => {
   if (!events?.length) return "";
   
-  return events.map(event => `
+  return events.map(event => {
+    const menuSelections = event.menu_selections as MenuSelections;
+    return `
 Event: ${event.name}
 Type: ${event.event_type}
 Date: ${event.event_date || 'Not set'}
 Code: ${event.event_code}
 Status: ${event.completed ? 'Completed' : 'Upcoming'}
-Menu Details: ${event.menu_selections ? `Custom Menu: ${event.menu_selections.is_custom ? 'Yes' : 'No'}
-${event.menu_selections.custom_menu_details ? `Custom Details: ${event.menu_selections.custom_menu_details}` : ''}
-Starter: ${event.menu_selections.starter_type || 'Not selected'}
-Main Course: ${event.menu_selections.main_course_type || 'Not selected'}
-Dessert: ${event.menu_selections.dessert_type || 'Not selected'}` : 'No menu selected'}
-  `).join('\n');
+Menu Details: ${menuSelections ? `Custom Menu: ${menuSelections.is_custom ? 'Yes' : 'No'}
+${menuSelections.custom_menu_details ? `Custom Details: ${menuSelections.custom_menu_details}` : ''}
+Starter: ${menuSelections.starter_type || 'Not selected'}
+Main Course: ${menuSelections.main_course_type || 'Not selected'}
+Dessert: ${menuSelections.dessert_type || 'Not selected'}` : 'No menu selected'}
+  `}).join('\n');
 };
 
 export const prepareTasksContext = (tasks: Task[] = []) => {
