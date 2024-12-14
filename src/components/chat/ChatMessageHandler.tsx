@@ -1,11 +1,11 @@
 import { useChatState } from "@/hooks/useChatState";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { handleConfirmation } from "./ChatConfirmation";
 import { getChatCompletion } from "@/services/openai";
 import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/utils/chatContextUtils";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import ChatInput from "./ChatInput";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const TIMEOUT_DURATION = 45000;
 
@@ -35,6 +35,7 @@ export const ChatMessageHandler = ({
   } = useChatState();
 
   const { tasks, updateTask } = useTaskContext();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +60,7 @@ export const ChatMessageHandler = ({
               if (task) {
                 await updateTask(task.id, pendingAction.updates);
                 addSystemMessage(`Task "${task.title}" has been updated successfully.`);
+                await queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 toast({
                   title: "Success",
                   description: "Task updated successfully",
@@ -71,6 +73,9 @@ export const ChatMessageHandler = ({
                 .eq('event_code', pendingAction.event_code);
 
               if (error) throw error;
+
+              await queryClient.invalidateQueries({ queryKey: ['events'] });
+              await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 
               addSystemMessage(`Event has been updated successfully.`);
               toast({

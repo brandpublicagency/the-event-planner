@@ -22,8 +22,10 @@ const ChatContainer = () => {
   // Scroll to bottom when messages change or component mounts
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const scrollArea = scrollAreaRef.current;
-      scrollArea.scrollTop = scrollArea.scrollHeight;
+      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollArea) {
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+      }
     }
   }, [chatMessages]);
 
