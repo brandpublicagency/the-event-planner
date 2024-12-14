@@ -1,13 +1,9 @@
 import { useChatState } from "@/hooks/useChatState";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { getChatCompletion } from "@/services/openai";
 import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/utils/chatContextUtils";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import ChatInput from "./ChatInput";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-
-const TIMEOUT_DURATION = 45000;
+import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
+import { useActionHandler } from "./handlers/ActionHandler";
 
 interface ChatMessageHandlerProps {
   contextData: any;
@@ -34,8 +30,8 @@ export const ChatMessageHandler = ({
     toast
   } = useChatState();
 
-  const { tasks, updateTask } = useTaskContext();
-  const queryClient = useQueryClient();
+  const { tasks } = useTaskContext();
+  const { handlePendingAction } = useActionHandler();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,56 +47,15 @@ export const ChatMessageHandler = ({
                       inputValue.toLowerCase() === 'n';
 
       if (isConfirmation || isDenial) {
-        // Add user message immediately
         addUserMessage(inputValue);
         clearInput();
         
         if (isConfirmation) {
           setIsLoading(true);
-          try {
-            if (pendingAction.action === "update_task") {
-              const task = tasks.find(t => t.id === pendingAction.task_id);
-              if (task) {
-                await updateTask(task.id, pendingAction.updates);
-                addSystemMessage(`Task "${task.title}" has been updated successfully.`);
-                await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-                toast({
-                  title: "Success",
-                  description: "Task updated successfully",
-                });
-              }
-            } else if (pendingAction.action === "update_event") {
-              const { error } = await supabase
-                .from('events')
-                .update(pendingAction.updates)
-                .eq('event_code', pendingAction.event_code);
-
-              if (error) throw error;
-
-              await queryClient.invalidateQueries({ queryKey: ['events'] });
-              await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
-
-              addSystemMessage(`Event has been updated successfully.`);
-              toast({
-                title: "Success",
-                description: "Event updated successfully",
-              });
-            }
-            setPendingAction(null);
-          } catch (error: any) {
-            console.error('Error executing action:', error);
-            addSystemMessage("Sorry, I encountered an error while executing the action.");
-            toast({
-              title: "Error",
-              description: error.message || "Failed to execute the requested action",
-              variant: "destructive",
-            });
-          } finally {
-            setIsLoading(false);
-          }
+          await handlePendingAction(pendingAction, true);
+          setIsLoading(false);
         } else {
-          addSystemMessage("Action cancelled.");
-          setPendingAction(null);
+          await handlePendingAction(pendingAction, false);
         }
         return;
       }
@@ -121,13 +76,6 @@ export const ChatMessageHandler = ({
     clearInput();
     setIsLoading(true);
 
-    let timeoutId: NodeJS.Timeout;
-    const timeoutPromise = new Promise<string>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        reject(new Error("Request timed out. Please try a shorter message or try again later."));
-      }, TIMEOUT_DURATION);
-    });
-
     try {
       const eventsContext = prepareEventsContext(contextData?.events);
       const tasksContext = prepareTasksContext(tasks);
@@ -135,35 +83,22 @@ export const ChatMessageHandler = ({
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const systemMessage: ChatCompletionMessageParam = {
-        role: "system",
-        content: getSystemMessage(eventsContext, pdfContext, tasksContext)
-      };
+      const systemMessage = getSystemMessage(eventsContext, pdfContext, tasksContext);
+      const messages = prepareOpenAIMessages(systemMessage, chatMessages, inputValue);
 
-      const userMessages: ChatCompletionMessageParam[] = chatMessages.map(msg => ({
-        role: msg.isUser ? "user" : "assistant",
-        content: msg.text
-      }));
+      console.log('Sending request to OpenAI...', { messages });
 
-      const currentMessage: ChatCompletionMessageParam = {
-        role: "user",
-        content: inputValue
-      };
+      const response = await handleOpenAIRequest(
+        messages,
+        () => {
+          toast({
+            title: "Error",
+            description: "Request timed out. Please try a shorter message.",
+            variant: "destructive",
+          });
+        }
+      );
 
-      const apiMessages: ChatCompletionMessageParam[] = [
-        systemMessage,
-        ...userMessages,
-        currentMessage
-      ];
-
-      console.log('Sending request to OpenAI...', { apiMessages });
-
-      const response = await Promise.race([
-        getChatCompletion(apiMessages),
-        timeoutPromise
-      ]);
-
-      clearTimeout(timeoutId);
       console.log('Received response from OpenAI:', response);
 
       if (!response) {
