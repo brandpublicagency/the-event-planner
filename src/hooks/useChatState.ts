@@ -35,10 +35,10 @@ export const useChatState = () => {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const { toast } = useToast();
 
-  // Optimized message adding with useCallback
   const addMessage = useCallback((message: ChatMessage) => {
-    setMessages(prev => {
-      const newMessages = [...prev, message];
+    console.log('Adding message:', message);
+    setMessages(prevMessages => {
+      const newMessages = [...prevMessages, message];
       try {
         sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(newMessages));
         sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
@@ -59,6 +59,10 @@ export const useChatState = () => {
     addMessage({ text, isUser: true });
   }, [addMessage]);
 
+  const clearInput = useCallback(() => {
+    setInputValue("");
+  }, []);
+
   // Update last activity
   useEffect(() => {
     const updateLastActivity = () => {
@@ -74,10 +78,6 @@ export const useChatState = () => {
       window.removeEventListener('keydown', updateLastActivity);
       window.removeEventListener('click', updateLastActivity);
     };
-  }, []);
-
-  const clearInput = useCallback(() => {
-    setInputValue("");
   }, []);
 
   return {

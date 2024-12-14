@@ -4,7 +4,7 @@ import ChatMessage from "./ChatMessage";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const ChatContainer = () => {
   const {
@@ -17,6 +17,7 @@ const ChatContainer = () => {
 
   const { data: contextData } = useChatContext();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -26,38 +27,26 @@ const ChatContainer = () => {
       isLoading
     });
 
-    if (scrollAreaRef.current) {
+    if (scrollAreaRef.current && shouldAutoScroll) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
-        console.log('Scroll metrics:', {
-          scrollHeight: scrollArea.scrollHeight,
-          clientHeight: scrollArea.clientHeight,
-          scrollTop: scrollArea.scrollTop,
-          distanceFromBottom: Math.abs(
-            scrollArea.scrollHeight - scrollArea.clientHeight - scrollArea.scrollTop
-          )
-        });
-
-        const shouldScroll = Math.abs(
-          scrollArea.scrollHeight - scrollArea.clientHeight - scrollArea.scrollTop
-        ) < 100;
-
-        console.log('Should scroll?', shouldScroll);
-
-        if (shouldScroll) {
-          console.log('Initiating scroll...');
-          setTimeout(() => {
-            scrollArea.scrollTop = scrollArea.scrollHeight;
-            console.log('Scroll complete. New scroll position:', scrollArea.scrollTop);
-          }, 100);
-        }
-      } else {
-        console.warn('Scroll area viewport not found');
+        console.log('Initiating scroll...');
+        setTimeout(() => {
+          scrollArea.scrollTop = scrollArea.scrollHeight;
+          console.log('Scroll complete. New scroll position:', scrollArea.scrollTop);
+        }, 100);
       }
-    } else {
-      console.warn('scrollAreaRef.current is null');
     }
-  }, [chatMessages]);
+  }, [chatMessages, shouldAutoScroll, isLoading]);
+
+  // Handle scroll events to determine if auto-scroll should be enabled
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLDivElement;
+    const isNearBottom = Math.abs(
+      target.scrollHeight - target.clientHeight - target.scrollTop
+    ) < 100;
+    setShouldAutoScroll(isNearBottom);
+  };
 
   return (
     <div className="relative h-[450px]">
@@ -72,19 +61,17 @@ const ChatContainer = () => {
           <ScrollArea 
             className="flex-1 p-4"
             ref={scrollAreaRef}
+            onScroll={handleScroll}
           >
             <div className="space-y-4 pb-2">
-              {chatMessages.map((message, index) => {
-                console.log('Rendering message:', { index, text: message.text, isUser: message.isUser });
-                return (
-                  <div
-                    key={`${index}-${message.text.substring(0, 10)}`}
-                    className="transition-all duration-300 ease-in-out"
-                  >
-                    <ChatMessage {...message} />
-                  </div>
-                );
-              })}
+              {chatMessages.map((message, index) => (
+                <div
+                  key={`${index}-${message.text.substring(0, 10)}`}
+                  className="transition-all duration-300 ease-in-out"
+                >
+                  <ChatMessage {...message} />
+                </div>
+              ))}
               {isLoading && (
                 <div className="flex justify-start animate-pulse">
                   <div className="rounded-3xl px-4 py-2 border border-gray-300 bg-gray-100">
