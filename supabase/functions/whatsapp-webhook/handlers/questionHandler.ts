@@ -26,6 +26,14 @@ export const handleAIQuestion = async (question: string) => {
           venues (
             name
           )
+        ),
+        tasks (
+          id,
+          title,
+          completed,
+          due_date,
+          priority,
+          status
         )
       `)
       .gte('event_date', today)
@@ -53,18 +61,23 @@ export const handleAIQuestion = async (question: string) => {
         clientDetails = `Corporate event for ${event.corporate_details.company_name || 'Company'}`;
       }
 
+      const menuInfo = event.menu_selections 
+        ? `Menu: ${event.menu_selections.is_custom ? 'Custom Menu' : 'Standard Menu'}`
+        : 'No menu selected';
+
       return `Event: ${event.name}
 Type: ${event.event_type}
 Date: ${date}
 Time: ${event.start_time || 'Not set'}${event.end_time ? ` - ${event.end_time}` : ''}
 Venue: ${venues}
 Details: ${clientDetails}
+${menuInfo}
 Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}`;
     }).join('\n\n') || 'No upcoming events found.';
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -72,7 +85,10 @@ Event Code: ${event.event_code}`;
 
 ${eventsContext}
 
-Answer naturally and conversationally. Keep responses concise but informative.`
+Answer naturally and conversationally. Keep responses concise but informative.
+If you're not sure about something, say so.
+If asked about an event that doesn't exist, let them know.
+Always maintain a professional and helpful tone.`
         },
         {
           role: "user",

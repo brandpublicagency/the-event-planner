@@ -4,6 +4,7 @@ import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/u
 import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
+import { getChatCompletion } from "@/services/openai";
 
 interface ChatMessageHandlerProps {
   contextData: any;
@@ -49,33 +50,52 @@ export const ChatMessageHandler = ({
       clearInput();
       setIsLoading(true);
 
-      // Use WhatsApp message handler
-      const response = await handleMessage({
-        type: 'text',
-        text: { body: inputValue }
-      });
+      // Prepare context for the AI
+      const eventsContext = contextData?.events ? prepareEventsContext(contextData.events) : "";
+      const tasksContext = tasks ? prepareTasksContext(tasks) : "";
+      const systemMessage = getSystemMessage(eventsContext, contextData?.pdfContent, tasksContext);
 
-      console.log('Received response:', response);
+      // First try to get a natural language response
+      const messages = [
+        { role: "system", content: systemMessage },
+        ...chatMessages.map(msg => ({
+          role: msg.isUser ? "user" : "assistant",
+          content: msg.text
+        })),
+        { role: "user", content: inputValue }
+      ];
 
-      if (response.type === 'text') {
-        addSystemMessage(response.message);
-      } else if (response.type === 'interactive') {
-        // Handle interactive messages (lists)
-        const message = response.interactive.body.text;
-        addSystemMessage(message);
-        
-        // Add list options as a separate message if present
-        if (response.interactive.action?.sections) {
-          const listOptions = response.interactive.action.sections
-            .map(section => {
-              const sectionItems = section.rows
-                .map(row => `- ${row.title}: ${row.description}`)
-                .join('\n');
-              return `${section.title}:\n${sectionItems}`;
-            })
-            .join('\n\n');
+      const aiResponse = await getChatCompletion(messages);
+      
+      if (aiResponse) {
+        addSystemMessage(aiResponse);
+      } else {
+        // Fallback to WhatsApp handler if AI doesn't provide a response
+        const response = await handleMessage({
+          type: 'text',
+          text: { body: inputValue }
+        });
+
+        console.log('Received response:', response);
+
+        if (response.type === 'text') {
+          addSystemMessage(response.message);
+        } else if (response.type === 'interactive') {
+          const message = response.interactive.body.text;
+          addSystemMessage(message);
           
-          addSystemMessage(`Available options:\n${listOptions}`);
+          if (response.interactive.action?.sections) {
+            const listOptions = response.interactive.action.sections
+              .map(section => {
+                const sectionItems = section.rows
+                  .map(row => `- ${row.title}: ${row.description}`)
+                  .join('\n');
+                return `${section.title}:\n${sectionItems}`;
+              })
+              .join('\n\n');
+            
+            addSystemMessage(`Available options:\n${listOptions}`);
+          }
         }
       }
     } catch (error: any) {

@@ -1,7 +1,7 @@
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
-import { handleEventQuestion } from '../questionHandler.ts';
+import { handleAIQuestion } from './questionHandler.ts';
 import { formatEventMenu } from '../formatters/eventFormatter.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
@@ -21,54 +21,13 @@ export const handleMessage = async (message: any) => {
       });
       
       if (message.interactive.list_reply) {
-        const selectedId = message.interactive.list_reply.id;
-        console.log('List selection received:', selectedId);
-        return await handleListSelection(selectedId);
+        return await handleListSelection(message.interactive.list_reply.id);
       }
 
       if (message.interactive.button_reply) {
-        const buttonId = message.interactive.button_reply.id;
-        console.log('Button selection received:', buttonId);
-        
-        // Handle menu view button
-        if (buttonId.startsWith('menu_')) {
-          const eventCode = buttonId.replace('menu_', '');
-          console.log('Fetching menu for event:', eventCode);
-          
-          const { data: event, error } = await supabase
-            .from('events')
-            .select(`
-              *,
-              menu_selections (*)
-            `)
-            .eq('event_code', eventCode)
-            .single();
-
-          if (error) {
-            console.error('Error fetching event menu:', error);
-            return {
-              type: 'text',
-              message: "Failed to fetch menu details. Please try again."
-            };
-          }
-
-          if (!event) {
-            return {
-              type: 'text',
-              message: "Event not found."
-            };
-          }
-
-          return {
-            type: 'text',
-            message: formatEventMenu(event)
-          };
-        }
-
-        return await handleListSelection(buttonId);
+        return await handleListSelection(message.interactive.button_reply.id);
       }
 
-      console.log('Unknown interactive type:', message.interactive.type);
       return {
         type: 'text',
         message: "I couldn't process that selection. Please try again."
@@ -80,6 +39,7 @@ export const handleMessage = async (message: any) => {
       const messageText = message.text.body.toLowerCase().trim();
       console.log('Processing text message:', messageText);
 
+      // Handle specific commands
       if (['hi', 'hello', 'hey'].includes(messageText)) {
         return {
           type: 'interactive',
@@ -114,21 +74,6 @@ export const handleMessage = async (message: any) => {
         };
       }
 
-      if (messageText.includes('next event')) {
-        return await getNextEvent();
-      }
-
-      if (messageText.includes('next task')) {
-        return await getNextTask(message.from);
-      }
-
-      if (messageText.includes('event') || 
-          messageText.includes('when') || 
-          messageText.includes('menu') ||
-          messageText.includes('task')) {
-        return await handleEventQuestion(messageText);
-      }
-
       if (messageText === 'help') {
         return {
           type: 'text',
@@ -142,44 +87,17 @@ export const handleMessage = async (message: any) => {
         };
       }
 
-      // Default response for unrecognized text
-      console.log('Unrecognized message, showing default menu');
-      return {
-        type: 'interactive',
-        interactive: {
-          type: 'list',
-          header: {
-            type: 'text',
-            text: 'How can I help?'
-          },
-          body: {
-            text: 'Please select an option:'
-          },
-          action: {
-            button: 'View Options',
-            sections: [{
-              title: 'Event Management',
-              rows: [
-                { 
-                  id: 'upcoming_events', 
-                  title: 'Upcoming Events',
-                  description: 'View all upcoming events'
-                },
-                { 
-                  id: 'event_menus', 
-                  title: 'Event Menus',
-                  description: 'View event menus'
-                },
-                { 
-                  id: 'todo_list', 
-                  title: 'Your To-do List',
-                  description: 'View your pending tasks'
-                }
-              ]
-            }]
-          }
-        }
-      };
+      // Handle specific queries
+      if (messageText === 'next event') {
+        return await getNextEvent();
+      }
+
+      if (messageText === 'next task') {
+        return await getNextTask(message.from);
+      }
+
+      // For all other messages, use AI to generate a natural language response
+      return await handleAIQuestion(message.text.body);
     }
 
     // Handle messages without text or interactive content
@@ -188,7 +106,6 @@ export const handleMessage = async (message: any) => {
       type: 'text',
       message: "I couldn't understand that message. Please try again or type 'help' for available commands."
     };
-
   } catch (error) {
     console.error('Error in handleMessage:', error);
     return {
