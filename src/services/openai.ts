@@ -9,7 +9,7 @@ const openai = new OpenAI({
 export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
   const completion = await openai.chat.completions.create({
     messages,
-    model: "gpt-4o-mini",
+    model: "gpt-4",
     temperature: 0.7,
     max_tokens: 500,
     presence_penalty: 0.6,

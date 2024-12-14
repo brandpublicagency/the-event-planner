@@ -41,6 +41,7 @@ export const ChatMessageHandler = ({
     e.preventDefault();
     if (!inputValue.trim()) return;
 
+    // Handle pending actions first
     if (pendingAction) {
       const isConfirmation = inputValue.toLowerCase().includes('yes') || 
                             inputValue.toLowerCase().includes('confirm') ||
@@ -50,10 +51,12 @@ export const ChatMessageHandler = ({
                       inputValue.toLowerCase() === 'n';
 
       if (isConfirmation || isDenial) {
+        // Add user message immediately
         addUserMessage(inputValue);
         clearInput();
         
         if (isConfirmation) {
+          setIsLoading(true);
           try {
             if (pendingAction.action === "update_task") {
               const task = tasks.find(t => t.id === pendingAction.task_id);
@@ -92,6 +95,8 @@ export const ChatMessageHandler = ({
               description: error.message || "Failed to execute the requested action",
               variant: "destructive",
             });
+          } finally {
+            setIsLoading(false);
           }
         } else {
           addSystemMessage("Action cancelled.");
@@ -101,6 +106,7 @@ export const ChatMessageHandler = ({
       }
     }
 
+    // Check for OpenAI API key
     if (!import.meta.env.VITE_OPENAI_API_KEY) {
       toast({
         title: "Error",
@@ -110,6 +116,7 @@ export const ChatMessageHandler = ({
       return;
     }
 
+    // Add user message immediately and clear input
     addUserMessage(inputValue);
     clearInput();
     setIsLoading(true);
@@ -130,25 +137,28 @@ export const ChatMessageHandler = ({
 
       const apiMessages: ChatCompletionMessageParam[] = [
         {
-          role: "system" as const,
+          role: "system",
           content: getSystemMessage(eventsContext, pdfContext, tasksContext)
         },
         ...chatMessages.map(msg => ({
-          role: msg.isUser ? "user" as const : "assistant" as const,
+          role: msg.isUser ? "user" : "assistant",
           content: msg.text
         })),
         {
-          role: "user" as const,
+          role: "user",
           content: inputValue
         }
       ];
 
-      const response = await Promise.race<string>([
+      console.log('Sending request to OpenAI...', { apiMessages });
+
+      const response = await Promise.race([
         getChatCompletion(apiMessages),
         timeoutPromise
       ]);
 
       clearTimeout(timeoutId);
+      console.log('Received response from OpenAI:', response);
 
       if (!response) {
         throw new Error("No response received from AI");
@@ -163,17 +173,17 @@ export const ChatMessageHandler = ({
             `I'll help you update the ${jsonResponse.action === "update_task" ? "task" : "event"}. Please confirm this action by replying with 'yes' or 'no'.`
           );
         } else {
-          addSystemMessage(String(response));
+          addSystemMessage(response);
         }
       } catch {
-        addSystemMessage(String(response));
+        addSystemMessage(response);
       }
     } catch (error: any) {
       console.error('Error in chat completion:', error);
       
       const errorMessage = error.message === "Request timed out. Please try a shorter message or try again later."
         ? error.message
-        : "I apologize, but I encountered an error. Please try again with a shorter message.";
+        : "I apologize, but I encountered an error. Please try again.";
       
       toast({
         title: "Error",
