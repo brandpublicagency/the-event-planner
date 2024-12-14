@@ -12,7 +12,7 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // Get user's team membership and team details
+      // Get user's team membership and team details using email
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
