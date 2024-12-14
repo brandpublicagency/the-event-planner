@@ -14,7 +14,7 @@ const TIMEOUT_DURATION = 45000;
 
 const ChatBox = () => {
   const {
-    messages,
+    messages: chatMessages,
     inputValue,
     isLoading,
     pendingAction,
@@ -102,23 +102,23 @@ const ChatBox = () => {
         `Document Content: ${pdf.content}`
       ).join('\n\n');
 
-      const messages: ChatCompletionMessageParam[] = [
+      const apiMessages: ChatCompletionMessageParam[] = [
         {
           role: "system",
           content: getSystemMessage(eventsContext, pdfContext, tasksContext)
-        },
-        ...messages.map(msg => ({
-          role: msg.isUser ? "user" : "assistant",
+        } as const,
+        ...chatMessages.map(msg => ({
+          role: msg.isUser ? "user" as const : "assistant" as const,
           content: msg.text
         })),
         {
-          role: "user",
+          role: "user" as const,
           content: inputValue
         }
       ];
 
       const response = await Promise.race<string>([
-        getChatCompletion(messages),
+        getChatCompletion(apiMessages),
         timeoutPromise
       ]);
 
@@ -173,7 +173,7 @@ const ChatBox = () => {
         <Card className="h-full w-full flex flex-col bg-background rounded-3xl">
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message, index) => (
+              {chatMessages.map((message, index) => (
                 <ChatMessage key={index} {...message} />
               ))}
             </div>
