@@ -16,8 +16,6 @@ const TeamManagement = () => {
     isAdmin,
     isTeamLoading,
     addTeamMemberMutation,
-    removeTeamMemberMutation,
-    toggleRoleMutation,
   } = useTeamManagement();
 
   const handleAddMember = async () => {
@@ -58,7 +56,7 @@ const TeamManagement = () => {
           <div className="text-center space-y-2">
             <h3 className="text-lg font-semibold">No Team Found</h3>
             <p className="text-sm text-muted-foreground max-w-sm">
-              You're not part of any team yet. Create a new team or ask your team admin to invite you.
+              You're not part of any team yet. Create a new team to get started.
             </p>
           </div>
           <CreateTeamDialog />
@@ -70,24 +68,36 @@ const TeamManagement = () => {
   return (
     <Card className="p-6">
       <div className="space-y-6">
-        <div className="flex justify-between items-center border-b pb-4">
-          <h3 className="text-lg font-semibold">Team Management</h3>
-          {isAdmin && (
-            <AddTeamMember
-              email={newTeamMemberEmail}
-              onEmailChange={setNewTeamMemberEmail}
-              onAdd={handleAddMember}
-            />
-          )}
-        </div>
+        {teamData.company && (
+          <div className="pb-4 border-b">
+            <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
+            <p className="text-lg">{teamData.company.name}</p>
+          </div>
+        )}
 
-        <TeamMembersList
-          members={teamData.team_members || []}
-          isAdmin={isAdmin}
-          currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
-          onToggleRole={(userId, newRole) => toggleRoleMutation.mutate({ userId, newRole })}
-          onRemoveMember={(userId) => removeTeamMemberMutation.mutate(userId)}
-        />
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">Team</h4>
+              <p className="text-lg">{teamData.name}</p>
+            </div>
+            {isAdmin && (
+              <AddTeamMember
+                email={newTeamMemberEmail}
+                onEmailChange={setNewTeamMemberEmail}
+                onAdd={handleAddMember}
+              />
+            )}
+          </div>
+
+          <TeamMembersList
+            members={teamData.team_members || []}
+            isAdmin={isAdmin}
+            currentAdminId={teamData.team_members?.find(m => m.role === 'admin')?.user_id}
+            onToggleRole={(userId, newRole) => teamData.toggleRoleMutation.mutate({ userId, newRole })}
+            onRemoveMember={(userId) => teamData.removeTeamMemberMutation.mutate(userId)}
+          />
+        </div>
       </div>
     </Card>
   );
