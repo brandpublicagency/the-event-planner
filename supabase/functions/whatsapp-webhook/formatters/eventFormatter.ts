@@ -21,6 +21,13 @@ interface Event {
       name?: string;
     };
   }>;
+  menu_selections?: {
+    is_custom: boolean;
+    starter_type?: string;
+    main_course_type?: string;
+    dessert_type?: string;
+    custom_menu_details?: string;
+  };
 }
 
 export const formatEventDetails = (event: Event): string => {
@@ -30,20 +37,35 @@ export const formatEventDetails = (event: Event): string => {
     : 'Time TBC';
   const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
 
-  let clientDetails = '';
-  if (event.event_type === 'wedding' && event.wedding_details) {
-    clientDetails = `\nBride: ${event.wedding_details.bride_name || 'TBC'}
-Groom: ${event.wedding_details.groom_name || 'TBC'}`;
-  } else if (event.event_type === 'corporate' && event.corporate_details) {
-    clientDetails = `\nCompany: ${event.corporate_details.company_name || 'TBC'}
-Contact: ${event.corporate_details.contact_person || 'TBC'}`;
-  }
-
   return `${event.name}
-Type: ${event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+Type: ${event.event_type}
 Date: ${date}
 Time: ${time}
 Venue: ${venue}
-Guests: ${event.pax || 'TBC'}${clientDetails}
+Guests: ${event.pax || 'TBC'}
 Event Code: ${event.event_code}`;
+};
+
+export const formatEventMenu = (event: Event): string => {
+  if (!event.menu_selections) {
+    return 'No menu selected for this event.';
+  }
+
+  const menu = event.menu_selections;
+  let menuText = `Menu Details for ${event.name}\n`;
+  menuText += `Date: ${format(new Date(event.event_date), "d MMMM yyyy")}\n\n`;
+
+  if (menu.is_custom) {
+    menuText += 'Custom Menu\n';
+    if (menu.custom_menu_details) {
+      menuText += menu.custom_menu_details;
+    }
+    return menuText;
+  }
+
+  menuText += `Starter: ${menu.starter_type || 'Not selected'}\n`;
+  menuText += `Main Course: ${menu.main_course_type || 'Not selected'}\n`;
+  menuText += `Dessert: ${menu.dessert_type || 'Not selected'}`;
+
+  return menuText;
 };

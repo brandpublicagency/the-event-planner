@@ -2,6 +2,12 @@ import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
 import { handleEventQuestion } from '../questionHandler.ts';
+import { formatEventMenu } from '../formatters/eventFormatter.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const handleMessage = async (message: any) => {
   try {
@@ -23,6 +29,42 @@ export const handleMessage = async (message: any) => {
       if (message.interactive.button_reply) {
         const buttonId = message.interactive.button_reply.id;
         console.log('Button selection received:', buttonId);
+        
+        // Handle menu view button
+        if (buttonId.startsWith('menu_')) {
+          const eventCode = buttonId.replace('menu_', '');
+          console.log('Fetching menu for event:', eventCode);
+          
+          const { data: event, error } = await supabase
+            .from('events')
+            .select(`
+              *,
+              menu_selections (*)
+            `)
+            .eq('event_code', eventCode)
+            .single();
+
+          if (error) {
+            console.error('Error fetching event menu:', error);
+            return {
+              type: 'text',
+              message: "Failed to fetch menu details. Please try again."
+            };
+          }
+
+          if (!event) {
+            return {
+              type: 'text',
+              message: "Event not found."
+            };
+          }
+
+          return {
+            type: 'text',
+            message: formatEventMenu(event)
+          };
+        }
+
         return await handleListSelection(buttonId);
       }
 
@@ -59,11 +101,6 @@ export const handleMessage = async (message: any) => {
                     id: 'upcoming_events', 
                     title: 'Upcoming Events',
                     description: 'View all upcoming events'
-                  },
-                  { 
-                    id: 'event_menus', 
-                    title: 'Event Menus',
-                    description: 'View event menus'
                   },
                   { 
                     id: 'todo_list', 
