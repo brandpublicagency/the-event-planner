@@ -15,7 +15,7 @@ export default function Documents() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: documents, isLoading } = useQuery<Document[]>({
+  const { data: documents, isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +32,7 @@ export default function Documents() {
         });
         return [];
       }
-      return data;
+      return data as Document[];
     },
   });
 
@@ -52,7 +52,7 @@ export default function Documents() {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Document;
     },
     onSuccess: (newDoc) => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });

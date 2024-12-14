@@ -8,7 +8,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 import { getEditorExtensions } from "./editorExtensions";
-import type { Document } from "@/types/document";
+import type { Document, DocumentContent } from "@/types/document";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -28,7 +28,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  const { data: documentData, isLoading, error } = useQuery<Document | null>({
+  const { data: documentData, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) return null;
@@ -39,7 +39,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as Document | null;
     },
     enabled: !!documentId,
   });
@@ -47,8 +47,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (documentData) {
       setTitle(documentData.title);
-      if (documentData.content && typeof documentData.content === 'object' && 'html' in documentData.content) {
-        editor?.commands.setContent(documentData.content.html);
+      const content = documentData.content as DocumentContent | null;
+      if (content?.html) {
+        editor?.commands.setContent(content.html);
       } else {
         editor?.commands.setContent("");
       }
