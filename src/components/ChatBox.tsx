@@ -1,67 +1,31 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/components/ui/use-toast";
 import ChatMessage from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
 import { useChatContext } from "@/hooks/useChatContext";
+import { useChatState } from "@/hooks/useChatState";
+import { handleConfirmation } from "./chat/ChatConfirmation";
 import { getChatCompletion } from "@/services/openai";
-import { sendEmail } from "@/services/email";
-import { updateMenuSelection } from "@/services/menuService";
-import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
-import { createTask, updateTask, deleteTask } from "@/services/taskService";
 import { prepareEventsContext, getSystemMessage } from "@/utils/chatContextUtils";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 const TIMEOUT_DURATION = 45000;
 
 const ChatBox = () => {
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [pendingAction, setPendingAction] = useState<any>(null);
-  const { toast } = useToast();
+  const {
+    messages,
+    inputValue,
+    isLoading,
+    pendingAction,
+    setInputValue,
+    setIsLoading,
+    setPendingAction,
+    addUserMessage,
+    addSystemMessage,
+    clearInput,
+    toast
+  } = useChatState();
+
   const { data: contextData, isLoading: isContextLoading } = useChatContext();
-
-  const handleConfirmation = async (confirmed: boolean) => {
-    if (!confirmed || !pendingAction) {
-      setMessages(prev => [...prev, { 
-        text: "Action cancelled.", 
-        isUser: false 
-      }]);
-      setPendingAction(null);
-      return;
-    }
-
-    try {
-      switch (pendingAction.action) {
-        case "update_event":
-          await updateEvent(pendingAction.event_code, pendingAction.updates);
-          setMessages(prev => [...prev, { 
-            text: `Event ${pendingAction.event_code} has been updated successfully!`, 
-            isUser: false 
-          }]);
-          break;
-        // Add other action types here as needed
-      }
-      toast({
-        title: "Success",
-        description: "Action completed successfully",
-      });
-    } catch (error) {
-      console.error('Error executing action:', error);
-      toast({
-        title: "Error",
-        description: "Failed to execute the requested action",
-        variant: "destructive",
-      });
-      setMessages(prev => [...prev, { 
-        text: "Sorry, I encountered an error while executing the action.", 
-        isUser: false 
-      }]);
-    }
-    setPendingAction(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,9 +40,34 @@ const ChatBox = () => {
                       inputValue.toLowerCase() === 'n';
 
       if (isConfirmation || isDenial) {
-        setMessages(prev => [...prev, { text: inputValue, isUser: true }]);
-        setInputValue("");
-        await handleConfirmation(isConfirmation);
+        addUserMessage(inputValue);
+        clearInput();
+        
+        if (isConfirmation) {
+          await handleConfirmation({
+            pendingAction,
+            onComplete: () => setPendingAction(null),
+            onSuccess: (message) => {
+              addSystemMessage(message);
+              toast({
+                title: "Success",
+                description: "Action completed successfully",
+              });
+            },
+            onError: (error) => {
+              console.error('Error executing action:', error);
+              addSystemMessage("Sorry, I encountered an error while executing the action.");
+              toast({
+                title: "Error",
+                description: "Failed to execute the requested action",
+                variant: "destructive",
+              });
+            }
+          });
+        } else {
+          addSystemMessage("Action cancelled.");
+          setPendingAction(null);
+        }
         return;
       }
     }
@@ -92,9 +81,8 @@ const ChatBox = () => {
       return;
     }
 
-    const newMessages = [...messages, { text: inputValue, isUser: true }];
-    setMessages(newMessages);
-    setInputValue("");
+    addUserMessage(inputValue);
+    clearInput();
     setIsLoading(true);
 
     let timeoutId: NodeJS.Timeout;
@@ -111,7 +99,7 @@ const ChatBox = () => {
       ).join('\n\n');
 
       const systemMessage = getSystemMessage(eventsContext, pdfContext);
-      const userMessages: ChatCompletionMessageParam[] = newMessages.map(msg => ({
+      const userMessages = messages.map(msg => ({
         role: msg.isUser ? "user" : "assistant",
         content: msg.text,
         name: undefined
@@ -133,36 +121,14 @@ const ChatBox = () => {
         
         if (jsonResponse.action === "update_event") {
           setPendingAction(jsonResponse);
-          setMessages([...newMessages, { 
-            text: `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`, 
-            isUser: false 
-          }]);
-        } else if (jsonResponse.action === "update_menu") {
-          await updateMenuSelection(jsonResponse.event_code, jsonResponse.menu_updates);
-          setMessages([...newMessages, { text: "Menu updated successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "send_email") {
-          await sendEmail(jsonResponse.to, jsonResponse.subject, jsonResponse.content);
-          setMessages([...newMessages, { text: "Email sent successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "create_event") {
-          await createEvent(jsonResponse.event_data);
-          setMessages([...newMessages, { text: "Event created successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "delete_event") {
-          await deleteEvent(jsonResponse.event_code);
-          setMessages([...newMessages, { text: "Event deleted successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "create_task") {
-          await createTask(jsonResponse.task_data);
-          setMessages([...newMessages, { text: "Task created successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "update_task") {
-          await updateTask(jsonResponse.task_id, jsonResponse.updates);
-          setMessages([...newMessages, { text: "Task updated successfully!", isUser: false }]);
-        } else if (jsonResponse.action === "delete_task") {
-          await deleteTask(jsonResponse.task_id);
-          setMessages([...newMessages, { text: "Task deleted successfully!", isUser: false }]);
+          addSystemMessage(
+            `I'll help you update the event (${jsonResponse.event_code}). Please confirm this action by replying with 'yes' or 'no'.`
+          );
         } else {
-          setMessages([...newMessages, { text: String(response), isUser: false }]);
+          addSystemMessage(String(response));
         }
       } catch {
-        setMessages([...newMessages, { text: String(response), isUser: false }]);
+        addSystemMessage(String(response));
       }
     } catch (error: any) {
       console.error('Error in chat completion:', error);
@@ -177,10 +143,7 @@ const ChatBox = () => {
         variant: "destructive",
       });
 
-      setMessages([...newMessages, { 
-        text: errorMessage, 
-        isUser: false 
-      }]);
+      addSystemMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
