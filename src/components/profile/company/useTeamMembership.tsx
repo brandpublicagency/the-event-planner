@@ -13,10 +13,20 @@ export const useTeamMembership = () => {
         return null;
       }
 
-      // First get the team membership
+      // First get the team membership with basic team info
       const { data: membership, error: membershipError } = await supabase
         .from('team_members')
-        .select('role, team_id')
+        .select(`
+          role,
+          team:teams (
+            id,
+            name,
+            company:companies (
+              id,
+              name
+            )
+          )
+        `)
         .eq('user_id', user.id)
         .single();
 
@@ -30,28 +40,9 @@ export const useTeamMembership = () => {
         return null;
       }
 
-      // Then get the team and company details
-      const { data: teamData, error: teamError } = await supabase
-        .from('teams')
-        .select(`
-          id,
-          name,
-          company:companies (
-            id,
-            name
-          )
-        `)
-        .eq('id', membership.team_id)
-        .single();
-
-      if (teamError) {
-        console.error('Error fetching team:', teamError);
-        throw teamError;
-      }
-
       return {
         role: membership.role,
-        team: teamData
+        team: membership.team
       };
     },
   });
