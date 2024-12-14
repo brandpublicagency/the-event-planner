@@ -75,7 +75,7 @@ const ChatContainer = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start animate-pulse">
-                  <div style={{ borderRadius: "14px" }} className="px-4 py-2 border border-gray-300 bg-gray-100">
+                  <div style={{ borderRadius: "10px" }} className="px-4 py-2 border border-gray-300 bg-gray-100">
                     Typing...
                   </div>
                 </div>

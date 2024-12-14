@@ -11,7 +11,7 @@ const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
       className={`flex ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-300`}
     >
       <div
-        style={{ borderRadius: "14px" }}
+        style={{ borderRadius: "10px" }}
         className={`px-4 py-2 max-w-[80%] border ${
           isUser
             ? "border-purple-500 text-purple-800 bg-white"
