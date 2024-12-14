@@ -20,7 +20,4 @@ export interface PendingAction {
 
 export type ChatRole = "system" | "user" | "assistant";
 
-export interface ChatMessageForAPI {
-  role: ChatRole;
-  content: string;
-}
+export type ChatMessageForAPI = ChatCompletionMessageParam;
