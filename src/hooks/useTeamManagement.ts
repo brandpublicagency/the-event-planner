@@ -12,7 +12,7 @@ export const useTeamManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // Get user's team membership and team details using email
+      // Get user's team membership using email
       const { data: teamMember, error: memberError } = await supabase
         .from('team_members')
         .select(`
@@ -69,19 +69,6 @@ export const useTeamManagement = () => {
     mutationFn: async (email: string) => {
       if (!teamData?.id) throw new Error('No team found');
 
-      // First, send the magic link invitation
-      const { error: authError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        }
-      });
-
-      if (authError) {
-        throw new Error('Failed to send invitation email');
-      }
-
-      // Then add the user to the team
       const { error } = await supabase
         .from('team_members')
         .insert({
@@ -96,7 +83,7 @@ export const useTeamManagement = () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
       toast({
         title: "Success",
-        description: "Team member invited successfully",
+        description: "Team member added successfully",
       });
     },
     onError: (error: any) => {

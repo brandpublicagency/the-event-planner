@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import TeamMemberItem from "./TeamMemberItem";
 
 interface TeamMembersListProps {
