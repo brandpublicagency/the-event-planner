@@ -18,9 +18,7 @@ export default function Events() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
+      // Removed the deleted_at filter to see all events
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -33,12 +31,14 @@ export default function Events() {
           )
         `)
         .eq('created_by', user.id)
-        .is('deleted_at', null)
-        .gte('event_date', today.toISOString())
-        .is('completed', false)
         .order('event_date', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching events:', error);
+        throw error;
+      }
+
+      console.log('Fetched events:', data); // Added for debugging
 
       return data.map(event => ({
         ...event,
