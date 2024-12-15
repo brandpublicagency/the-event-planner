@@ -25,12 +25,28 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
     mutationFn: async () => {
       console.log("Starting file deletion process for:", file);
 
-      // First delete from database to prevent orphaned storage files
+      // First check if the file still exists in the database
+      const { data: existingFile, error: checkError } = await supabase
+        .from("task_files")
+        .select()
+        .eq("id", file.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error("Error checking file existence:", checkError);
+        throw new Error(`Failed to check file existence: ${checkError.message}`);
+      }
+
+      if (!existingFile) {
+        console.log("File already deleted from database");
+        return;
+      }
+
+      // Delete from database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id)
-        .single();
+        .eq("id", file.id);
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
