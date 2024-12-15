@@ -51,9 +51,7 @@ export const getEditorExtensions = () => [
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
-    // Using paste event handler instead of transformPasted
-    addPasteRules: true,
-    // Custom paste handler to create link previews
+    // Handle paste events through the editor instance
     onCreate: ({ editor }) => {
       editor.on('paste', (event) => {
         const url = event.clipboardData?.getData('text/plain');
