@@ -3,30 +3,78 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, ListChecks, X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface TodoListProps {
   todos: string[];
   onTodosChange: (todos: string[]) => void;
+  taskId: string;
 }
 
-export function TodoList({ todos = [], onTodosChange }: TodoListProps) {
+interface Todo {
+  text: string;
+  checked: boolean;
+}
+
+export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
   const [newTodo, setNewTodo] = useState("");
+  const queryClient = useQueryClient();
+
+  // Convert string array to Todo objects with checked state
+  const parsedTodos: Todo[] = todos.map(todo => {
+    try {
+      const parsed = JSON.parse(todo);
+      return typeof parsed === 'object' && parsed.text ? parsed : { text: todo, checked: false };
+    } catch {
+      return { text: todo, checked: false };
+    }
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async (updatedTodos: Todo[]) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ 
+          todos: updatedTodos.map(todo => JSON.stringify(todo))
+        })
+        .eq("id", taskId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
   const handleAddTodo = () => {
     if (!newTodo.trim()) return;
-    onTodosChange([...todos, newTodo]);
+    const newTodoItem = { text: newTodo, checked: false };
+    const updatedTodos = [...parsedTodos, newTodoItem];
+    updateTaskMutation.mutate(updatedTodos);
+    onTodosChange(updatedTodos.map(todo => JSON.stringify(todo)));
     setNewTodo("");
   };
 
   const handleUpdateTodo = (index: number, value: string) => {
-    const updatedTodos = [...todos];
-    updatedTodos[index] = value;
-    onTodosChange(updatedTodos);
+    const updatedTodos = [...parsedTodos];
+    updatedTodos[index] = { ...updatedTodos[index], text: value };
+    updateTaskMutation.mutate(updatedTodos);
+    onTodosChange(updatedTodos.map(todo => JSON.stringify(todo)));
   };
 
   const handleDeleteTodo = (index: number) => {
-    const updatedTodos = todos.filter((_, i) => i !== index);
-    onTodosChange(updatedTodos);
+    const updatedTodos = parsedTodos.filter((_, i) => i !== index);
+    updateTaskMutation.mutate(updatedTodos);
+    onTodosChange(updatedTodos.map(todo => JSON.stringify(todo)));
+  };
+
+  const handleToggleTodo = (index: number, checked: boolean) => {
+    const updatedTodos = [...parsedTodos];
+    updatedTodos[index] = { ...updatedTodos[index], checked };
+    updateTaskMutation.mutate(updatedTodos);
+    onTodosChange(updatedTodos.map(todo => JSON.stringify(todo)));
   };
 
   return (
@@ -36,13 +84,19 @@ export function TodoList({ todos = [], onTodosChange }: TodoListProps) {
         <h3 className="text-sm font-medium">Checklist</h3>
       </div>
       <div className="space-y-2">
-        {todos.map((todo, index) => (
+        {parsedTodos.map((todo, index) => (
           <div key={index} className="flex items-center space-x-2 group">
-            <Checkbox id={`todo-${index}`} />
+            <Checkbox 
+              checked={todo.checked}
+              onCheckedChange={(checked) => handleToggleTodo(index, checked as boolean)}
+            />
             <Input
-              value={todo}
+              value={todo.text}
               onChange={(e) => handleUpdateTodo(index, e.target.value)}
-              className="h-8 text-sm"
+              className={cn(
+                "h-8 text-sm",
+                todo.checked && "line-through text-muted-foreground"
+              )}
             />
             <Button
               variant="ghost"
