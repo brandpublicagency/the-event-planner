@@ -24,10 +24,18 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: session } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) {
         throw new Error("No authenticated user");
       }
@@ -41,11 +49,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data as Task[];
     },
+    enabled: !!session?.user?.id,
   });
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error("User not authenticated");
 
       const { error } = await supabase.from("tasks").insert([
@@ -76,7 +84,6 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error("User not authenticated");
 
       const { error } = await supabase
@@ -101,7 +108,6 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error("User not authenticated");
 
       // First, delete all associated files from storage
