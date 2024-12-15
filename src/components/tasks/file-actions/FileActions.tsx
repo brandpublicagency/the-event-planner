@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Eye, Download } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { FileActionButton } from "./FileActionButton";
 import { FileDeleteDialog } from "./FileDeleteDialog";
+import { useFileDownload } from "./useFileDownload";
+import { useFileView } from "./useFileView";
+import { useFileDelete } from "./useFileDelete";
 
 interface FileActionsProps {
   file: {
@@ -16,150 +15,28 @@ interface FileActionsProps {
 }
 
 export function FileActions({ file }: FileActionsProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { handleDownload, isLoading: isDownloading } = useFileDownload();
+  const { handleView, isLoading: isViewing } = useFileView();
+  const { handleDelete, isDeleting } = useFileDelete();
 
-  const handleDelete = async () => {
-    if (isDeleting || isLoading) return;
-    
-    try {
-      setIsDeleting(true);
-      console.log('Starting file deletion:', file);
-      
-      // Delete from storage first
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
-
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw storageError;
-      }
-
-      console.log('Storage deletion successful');
-
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error('Database deletion error:', dbError);
-        throw dbError;
-      }
-
-      console.log('Database deletion successful');
-
-      // Invalidate queries to refresh the file list
-      await queryClient.invalidateQueries({ 
-        queryKey: ["task-files", file.task_id] 
-      });
-
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
-    } catch (error: any) {
-      console.error('Delete error:', error);
-      toast({
-        title: "Error deleting file",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (isDeleting || isLoading) return;
-
-    try {
-      setIsLoading(true);
-      
-      const { data: { signedUrl }, error } = await supabase.storage
-        .from("task-files")
-        .createSignedUrl(file.file_path, 60);
-
-      if (error) throw error;
-      
-      const response = await fetch(signedUrl);
-      if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
-      
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.file_name;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Cleanup
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
-    } catch (error: any) {
-      toast({
-        title: "Error downloading file",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleView = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (isDeleting || isLoading) return;
-
-    try {
-      setIsLoading(true);
-      
-      const { data: { signedUrl }, error } = await supabase.storage
-        .from("task-files")
-        .createSignedUrl(file.file_path, 60);
-
-      if (error) throw error;
-      
-      window.open(signedUrl, "_blank");
-    } catch (error: any) {
-      toast({
-        title: "Error viewing file",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isDisabled = isDeleting || isDownloading || isViewing;
 
   return (
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       <FileActionButton
         icon={Eye}
-        onClick={handleView}
-        disabled={isDeleting || isLoading}
+        onClick={() => handleView(file.file_path)}
+        disabled={isDisabled}
       />
       <FileActionButton
         icon={Download}
-        onClick={handleDownload}
-        disabled={isDeleting || isLoading}
+        onClick={() => handleDownload(file.file_path, file.file_name)}
+        disabled={isDisabled}
       />
       <FileDeleteDialog
         isDeleting={isDeleting}
-        onDelete={handleDelete}
-        disabled={isLoading}
+        onDelete={() => handleDelete(file)}
+        disabled={isDisabled}
       />
     </div>
   );
