@@ -8,8 +8,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 import { getEditorExtensions } from "./editorExtensions";
-import type { Document, DocumentContent } from "@/types/document";
+import type { Document } from "@/types/document";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -20,6 +21,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const debouncedTitle = useDebounce(title, 500);
+  const navigate = useNavigate();
 
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -32,6 +34,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       if (documentId) {
         updateDocument.mutate({
           content: {
+            type: 'doc',
             html: editor.getHTML(),
             text: editor.getText(),
           }
@@ -39,6 +42,22 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       }
     },
   });
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to access documents",
+          variant: "destructive",
+        });
+        navigate("/login");
+      }
+    };
+    checkAuth();
+  }, [navigate, toast]);
 
   const { data: document, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
@@ -63,7 +82,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (document) {
       setTitle(document.title);
       if (document.content) {
-        const content = document.content as unknown as DocumentContent;
+        const content = document.content as any;
         if (content?.html) {
           editor?.commands.setContent(content.html);
         } else {
@@ -83,7 +102,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const updateDocument = useMutation({
     mutationFn: async (updates: { 
       title?: string;
-      content?: DocumentContent;
+      content?: {
+        type: 'doc';
+        html: string;
+        text: string;
+      };
     }) => {
       if (!documentId) return;
 

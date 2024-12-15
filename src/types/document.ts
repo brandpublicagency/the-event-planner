@@ -3,7 +3,7 @@ import { Json } from "@/integrations/supabase/types/json";
 export interface Document {
   id: string;
   title: string;
-  content: Json | null;
+  content: Json;
   user_id: string;
   template: boolean | null;
   created_at: string;
@@ -12,6 +12,7 @@ export interface Document {
 }
 
 export interface DocumentContent {
+  type: 'doc';
   html: string;
   text: string;
 }
