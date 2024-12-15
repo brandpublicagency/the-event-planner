@@ -28,7 +28,10 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         .from("task-files")
         .remove([file.file_path]);
 
-      if (storageError) throw storageError;
+      if (storageError) {
+        console.error("Storage deletion error:", storageError);
+        throw storageError;
+      }
 
       // Then delete from database
       const { error: dbError } = await supabase
@@ -36,7 +39,10 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         .delete()
         .eq("id", file.id);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database deletion error:", dbError);
+        throw dbError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-files"] });
@@ -46,6 +52,7 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
       });
     },
     onError: (error: Error) => {
+      console.error("File deletion error:", error);
       toast({
         title: "Error deleting file",
         description: error.message,
@@ -64,6 +71,7 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         window.open(data.signedUrl, '_blank');
       }
     } catch (error: any) {
+      console.error("Error viewing file:", error);
       toast({
         title: "Error viewing file",
         description: "Could not generate file preview URL.",
@@ -89,6 +97,7 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error: any) {
+      console.error("Error downloading file:", error);
       toast({
         title: "Download failed",
         description: "Could not download the file.",
