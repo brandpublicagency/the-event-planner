@@ -115,10 +115,6 @@ export function TaskNotes({ taskId }: { taskId: string }) {
 
       {/* Checklist Section */}
       <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium">Checklist</h3>
-        </div>
         <TodoList 
           todos={task.todos || []}
           onTodosChange={handleTodosChange}
