@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { TablesRow, TablesInsert, TablesUpdate } from "@/integrations/supabase/types/tables";
+import { useNavigate } from "react-router-dom";
 
 export type Task = TablesRow<'tasks'>;
 type TaskInsert = TablesInsert<'tasks'>;
@@ -23,16 +24,27 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export function TaskProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: session } = useQuery({
+  // Query for session
+  const { data: session, isLoading: isSessionLoading } = useQuery({
     queryKey: ["auth-session"],
     queryFn: async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
+      if (error) {
+        console.error("Session error:", error);
+        navigate("/login");
+        return null;
+      }
+      if (!session) {
+        navigate("/login");
+        return null;
+      }
       return session;
     },
   });
 
+  // Query for tasks
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
@@ -49,12 +61,20 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data as Task[];
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id && !isSessionLoading,
   });
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
+      if (!session?.user?.id) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to add tasks",
+          variant: "destructive",
+        });
+        navigate("/login");
+        throw new Error("User not authenticated");
+      }
 
       const { error } = await supabase.from("tasks").insert([
         { 
@@ -84,7 +104,15 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
+      if (!session?.user?.id) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to update tasks",
+          variant: "destructive",
+        });
+        navigate("/login");
+        throw new Error("User not authenticated");
+      }
 
       const { error } = await supabase
         .from("tasks")
@@ -108,7 +136,15 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
+      if (!session?.user?.id) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to delete tasks",
+          variant: "destructive",
+        });
+        navigate("/login");
+        throw new Error("User not authenticated");
+      }
 
       // First, delete all associated files from storage
       const { data: files, error: filesError } = await supabase
@@ -169,7 +205,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const value = {
     tasks,
-    isLoading,
+    isLoading: isLoading || isSessionLoading,
     error,
     addTask: (title: string) => addTaskMutation.mutateAsync(title),
     updateTask: (id: string, updates: TaskUpdate) =>
