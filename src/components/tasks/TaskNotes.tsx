@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, X, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TodoList } from "./TodoList";
@@ -86,22 +86,24 @@ export function TaskNotes({ taskId }: { taskId: string }) {
       {/* Notes Section */}
       <div className="space-y-3">
         <div className="flex gap-2">
-          <Input
+          <Textarea
             placeholder="Add a note..."
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
                 handleAddNote();
               }
             }}
-            className="h-10 text-sm"
+            className="min-h-[60px] text-sm resize-none"
+            rows={2}
           />
           <Button 
             onClick={handleAddNote} 
             disabled={!newNote.trim()}
             size="icon"
-            className="shrink-0 h-10 w-10"
+            className="shrink-0 h-[60px] w-10"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -111,25 +113,27 @@ export function TaskNotes({ taskId }: { taskId: string }) {
           {task.notes?.map((note, index) => (
             <div
               key={index}
-              className="flex items-center justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
+              className="flex items-start justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
             >
               {editingIndex === index ? (
                 <div className="flex-1 flex gap-2">
-                  <Input
+                  <Textarea
                     value={editingText}
                     onChange={(e) => setEditingText(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
                         handleEditNote(index);
                       }
                     }}
-                    className="h-8 text-sm"
+                    className="min-h-[60px] text-sm resize-none"
+                    rows={2}
                     autoFocus
                   />
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-[60px] w-8"
                     onClick={() => handleEditNote(index)}
                   >
                     <Plus className="h-4 w-4" />
@@ -137,7 +141,7 @@ export function TaskNotes({ taskId }: { taskId: string }) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-[60px] w-8"
                     onClick={() => setEditingIndex(null)}
                   >
                     <X className="h-4 w-4" />
@@ -145,7 +149,7 @@ export function TaskNotes({ taskId }: { taskId: string }) {
                 </div>
               ) : (
                 <>
-                  <span className="text-sm">{note}</span>
+                  <span className="text-sm whitespace-pre-line">{note}</span>
                   <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
