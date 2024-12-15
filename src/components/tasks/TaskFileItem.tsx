@@ -113,7 +113,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         .createSignedUrl(file.file_path, 60);
 
       if (error) {
-        console.error('Signed URL error:', error);
+        console.error('View error:', error);
         throw error;
       }
 
