@@ -12,24 +12,13 @@ const ProfileBox = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/login');
-      }
-    };
-    
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate('/login');
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const { data: profile, isError } = useQuery({
@@ -54,7 +43,6 @@ const ProfileBox = () => {
 
       return profileData;
     },
-    retry: false,
     meta: {
       errorHandler: (error: Error) => {
         console.error("Profile query error:", error);

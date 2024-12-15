@@ -31,55 +31,22 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
-
-        if (currentSession) {
-          setSession(currentSession);
-          console.log("Session initialized:", currentSession);
-        } else {
-          console.log("No valid session found");
-          queryClient.clear();
-          setSession(null);
-        }
-      } catch (error) {
-        console.error("Error initializing auth:", error);
-        if (mounted) {
-          await supabase.auth.signOut();
-          queryClient.clear();
-          setSession(null);
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!mounted) return;
-      
-      console.log("Auth state changed:", _event, newSession);
-      
-      if (!newSession) {
-        queryClient.clear();
-      }
-      
-      setSession(newSession);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       setIsLoading(false);
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        queryClient.clear();
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isLoading) {
