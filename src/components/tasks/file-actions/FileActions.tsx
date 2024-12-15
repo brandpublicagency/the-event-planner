@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Eye, Download, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteFile, getSignedUrl } from "@/utils/fileOperations";
+import { getSignedUrl } from "@/utils/fileOperations";
 import { FileActionButton } from "./FileActionButton";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,14 +27,16 @@ export function FileActions({ file }: FileActionsProps) {
     try {
       setIsDeleting(true);
       
-      // Delete from storage
+      // Delete from storage first
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
 
-      if (storageError) throw storageError;
+      if (storageError && !storageError.message?.includes('404')) {
+        throw storageError;
+      }
 
-      // Delete from database
+      // Then delete from database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
@@ -42,10 +44,8 @@ export function FileActions({ file }: FileActionsProps) {
 
       if (dbError) throw dbError;
 
-      // Update UI
-      queryClient.setQueryData(["files", file.task_id], (oldData: any) => {
-        return oldData?.filter((f: any) => f.id !== file.id) ?? [];
-      });
+      // Invalidate the query to refetch the files
+      queryClient.invalidateQueries({ queryKey: ["files", file.task_id] });
       
       toast({
         title: "Success",
@@ -55,7 +55,7 @@ export function FileActions({ file }: FileActionsProps) {
       console.error('[Delete] Error:', error);
       toast({
         title: "Error deleting file",
-        description: error.message,
+        description: error.message || 'Failed to delete file',
         variant: "destructive",
       });
     } finally {
