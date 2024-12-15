@@ -36,6 +36,33 @@ const LinkPreviewNode = Node.create({
   },
 });
 
+// Create a custom Link extension that extends the base Link extension
+const CustomLink = Link.extend({
+  addProseMirrorPlugins() {
+    const plugins = this.parent?.() || [];
+
+    // Add a paste handler through the editor's ProseMirror plugin
+    return [
+      ...plugins,
+      {
+        props: {
+          handlePaste: (view, event) => {
+            const url = event.clipboardData?.getData('text/plain');
+            if (url && /^https?:\/\//.test(url)) {
+              // Set the link
+              this.editor?.commands.setLink({ href: url });
+              // Create the link preview
+              this.editor?.commands.createLinkPreview({ href: url });
+              return true;
+            }
+            return false;
+          },
+        },
+      },
+    ];
+  },
+});
+
 export const getEditorExtensions = () => [
   StarterKit.configure({
     heading: {
@@ -44,23 +71,13 @@ export const getEditorExtensions = () => [
     codeBlock: false,
   }),
   Underline,
-  Link.configure({
+  CustomLink.configure({
     openOnClick: true,
     HTMLAttributes: {
       class: 'text-primary underline',
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
-    // Handle paste events through the editor instance
-    onCreate: ({ editor }) => {
-      editor.on('paste', (event) => {
-        const url = event.clipboardData?.getData('text/plain');
-        if (url && /^https?:\/\//.test(url)) {
-          editor.commands.setLink({ href: url });
-          editor.commands.createLinkPreview({ href: url });
-        }
-      });
-    },
   }),
   LinkPreviewNode,
   Highlight.configure({
