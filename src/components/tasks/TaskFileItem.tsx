@@ -25,10 +25,11 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
+    if (isDeleting) return;
+    
     try {
       setIsDeleting(true);
-      console.log("Starting file deletion process for:", file);
-
+      
       // First delete from storage
       const { error: storageError } = await supabase.storage
         .from("task-files")
@@ -39,23 +40,19 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         throw new Error(`Failed to delete file from storage: ${storageError.message}`);
       }
 
-      console.log("Successfully deleted from storage");
-
-      // Delete from the database
+      // Then delete from the database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq('id', file.id);
+        .eq("id", file.id);
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
-      console.log("Successfully deleted from database");
-
       // Invalidate queries to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ['task-files', file.task_id] });
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
         title: "Success",
@@ -81,7 +78,6 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
       if (error) throw error;
 
-      // Create a temporary anchor element to trigger the download
       const link = document.createElement('a');
       link.href = data.signedUrl;
       link.download = file.file_name;
