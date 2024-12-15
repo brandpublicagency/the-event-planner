@@ -21,12 +21,16 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${taskId}/${Math.random()}.${fileExt}`;
+      // Create a simpler file path using just taskId and a random number for uniqueness
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${taskId}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("task-files")
-        .upload(filePath, file);
+        .upload(fileName, file, {
+          cacheControl: "3600",
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 
@@ -34,7 +38,7 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
         {
           task_id: taskId,
           file_name: file.name,
-          file_path: filePath,
+          file_path: fileName,
           content_type: file.type,
         },
       ]);
@@ -47,6 +51,7 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
         description: "Your file has been uploaded successfully.",
       });
     } catch (error: any) {
+      console.error("Upload error:", error);
       toast({
         title: "Upload failed",
         description: error.message,

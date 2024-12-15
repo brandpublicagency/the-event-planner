@@ -29,7 +29,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
     try {
       setIsDeleting(true);
       
-      // First delete from storage
+      // Delete from storage first
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
