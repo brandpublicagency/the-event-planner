@@ -1,6 +1,7 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/EventsTable";
@@ -31,14 +32,12 @@ const Index = () => {
         .select(`
           *,
           event_venues (
-            venue_id,
             venues (
               name
             )
           )
         `)
         .eq('created_by', user.id)
-        .is('deleted_at', null)
         .gte('event_date', today.toISOString().split('T')[0])
         .is('completed', false)
         .order('event_date', { ascending: true });
@@ -53,7 +52,7 @@ const Index = () => {
         throw error;
       }
 
-      console.log('Fetched dashboard events:', data); // For debugging
+      console.log('Fetched dashboard events:', data);
 
       return data?.map(event => ({
         ...event,
@@ -67,9 +66,23 @@ const Index = () => {
 
   const handleDelete = async (eventCode: string) => {
     try {
+      // First delete related records
+      const deleteRelated = async () => {
+        await Promise.all([
+          supabase.from('wedding_details').delete().eq('event_code', eventCode),
+          supabase.from('corporate_details').delete().eq('event_code', eventCode),
+          supabase.from('menu_selections').delete().eq('event_code', eventCode),
+          supabase.from('event_venues').delete().eq('event_code', eventCode),
+          supabase.from('event_documents').delete().eq('event_code', eventCode),
+        ]);
+      };
+
+      await deleteRelated();
+
+      // Then delete the event itself
       const { error } = await supabase
         .from('events')
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .eq('event_code', eventCode);
 
       if (error) throw error;
