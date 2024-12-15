@@ -18,24 +18,25 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading, isError } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Preview request timed out')), 10000);
+      });
 
       try {
-        const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
-          body: { url },
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (error) throw error;
-        return data;
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          throw new Error('Preview request timed out');
-        }
-        throw err;
+        const result = await Promise.race([
+          supabase.functions.invoke<PreviewData>("get-link-preview", {
+            body: { url }
+          }),
+          timeoutPromise
+        ]);
+
+        // Type assertion to handle the Supabase response
+        const response = result as { data: PreviewData | null, error: any };
+        if (response.error) throw response.error;
+        return response.data;
+      } catch (error) {
+        console.error("Link preview error:", error);
+        throw error;
       }
     },
     retry: 1,
