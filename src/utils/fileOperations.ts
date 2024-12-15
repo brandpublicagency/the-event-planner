@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 export async function checkFileExists(filePath: string) {
   console.log('[Storage] Checking if file exists:', filePath);
@@ -33,6 +33,11 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
   
   if (checkError) {
     console.error('[Delete] Error checking file existence:', checkError);
+    toast({
+      title: "File Check Error",
+      description: `Failed to check file existence: ${checkError.message}`,
+      variant: "destructive"
+    });
     throw new Error(`Failed to check file existence: ${checkError.message}`);
   }
 
@@ -49,6 +54,11 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
 
     if (storageError) {
       console.error('[Delete] Storage deletion error:', storageError);
+      toast({
+        title: "Storage Deletion Error",
+        description: `Failed to delete file from storage: ${storageError.message}`,
+        variant: "destructive"
+      });
       throw new Error(`Failed to delete file from storage: ${storageError.message}`);
     }
   } else {
@@ -67,8 +77,18 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
 
   if (dbError) {
     console.error('[Delete] Database deletion error:', dbError);
+    toast({
+      title: "Database Deletion Error",
+      description: `Failed to delete file record: ${dbError.message}`,
+      variant: "destructive"
+    });
     throw new Error(`Failed to delete file record: ${dbError.message}`);
   }
+
+  toast({
+    title: "File Deleted",
+    description: "The file was successfully deleted.",
+  });
 
   console.log('[Delete] File deletion completed successfully');
 }
@@ -80,11 +100,21 @@ export async function getSignedUrl(filePath: string) {
   
   if (checkError) {
     console.error('[Storage] Error checking file existence:', checkError);
+    toast({
+      title: "File Check Error",
+      description: `Failed to check file existence: ${checkError.message}`,
+      variant: "destructive"
+    });
     throw new Error(`Failed to check file existence: ${checkError.message}`);
   }
 
   if (!exists) {
     console.error('[Storage] File not found:', filePath);
+    toast({
+      title: "File Not Found",
+      description: "The requested file does not exist in storage.",
+      variant: "destructive"
+    });
     throw new Error('File not found in storage');
   }
 
@@ -99,6 +129,11 @@ export async function getSignedUrl(filePath: string) {
 
   if (error) {
     console.error('[Storage] Signed URL error:', error);
+    toast({
+      title: "URL Generation Error",
+      description: `Failed to generate signed URL: ${error.message}`,
+      variant: "destructive"
+    });
     throw error;
   }
 
