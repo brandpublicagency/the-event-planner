@@ -14,8 +14,13 @@ const ProfileBox = () => {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        console.log("No valid session found:", error);
+      if (error) {
+        console.error("Session check error:", error);
+        navigate('/login');
+        return;
+      }
+      if (!session) {
+        console.log("No valid session found");
         navigate('/login');
         return;
       }
@@ -25,7 +30,7 @@ const ProfileBox = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in ProfileBox:", event, session);
-      if (!session) {
+      if (event === 'SIGNED_OUT') {
         navigate('/login');
       }
     });
@@ -37,8 +42,13 @@ const ProfileBox = () => {
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        console.log("Session error in profile query:", sessionError);
+      if (sessionError) {
+        console.error("Session error in profile query:", sessionError);
+        throw sessionError;
+      }
+      
+      if (!session) {
+        console.log("No valid session in profile query");
         navigate('/login');
         return null;
       }

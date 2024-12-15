@@ -36,7 +36,10 @@ const App = () => {
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-        if (error) throw error;
+        if (error) {
+          console.error("Session initialization error:", error);
+          throw error;
+        }
         
         if (!mounted) return;
 
@@ -51,7 +54,6 @@ const App = () => {
       } catch (error) {
         console.error("Error initializing auth:", error);
         if (mounted) {
-          await supabase.auth.signOut();
           queryClient.clear();
           setSession(null);
         }
@@ -69,7 +71,7 @@ const App = () => {
       
       console.log("Auth state changed:", event, newSession);
       
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      if (event === 'SIGNED_OUT') {
         queryClient.clear();
         setSession(null);
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
