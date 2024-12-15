@@ -22,6 +22,44 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const navigate = useNavigate();
   const debouncedTitle = useDebounce(title, 500);
 
+  // Initialize authentication state
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session) {
+          console.error("Auth error:", error);
+          toast({
+            title: "Authentication required",
+            description: "Please sign in to access documents",
+            variant: "destructive",
+          });
+          navigate("/login");
+          return;
+        }
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        navigate("/login");
+      }
+    };
+    
+    checkAuth();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setIsAuthenticated(false);
+        navigate("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
+
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
   const editor = useEditor({
@@ -32,60 +70,25 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      if (documentId && isAuthenticated) {
-        updateDocument.mutate({
-          content: {
-            type: 'doc',
-            html: editor.getHTML(),
-            text: editor.getText(),
-          }
-        });
-      }
+      if (!documentId || !isAuthenticated) return;
+      
+      updateDocument.mutate({
+        content: {
+          type: 'doc',
+          html: editor.getHTML(),
+          text: editor.getText(),
+        }
+      });
     },
   });
 
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to access documents",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-      
-      setIsAuthenticated(true);
-    };
-    
-    checkAuth();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, toast]);
-
   // Update editor content when document changes
   useEffect(() => {
-    if (document) {
+    if (document && editor) {
       setTitle(document.title);
       if (document.content) {
         const content = document.content as any;
-        if (content?.html) {
-          editor?.commands.setContent(content.html);
-        } else {
-          editor?.commands.setContent("");
-        }
+        editor.commands.setContent(content.html || "");
       }
     }
   }, [document, editor]);

@@ -19,11 +19,15 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         .is("deleted_at", null)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Document fetch error:", error);
+        throw error;
+      }
       if (!data) throw new Error("Document not found");
       return data as Document;
     },
     enabled: !!documentId && isAuthenticated,
+    retry: 1,
   });
 
   const updateDocument = useMutation({
@@ -35,7 +39,9 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         text: string;
       };
     }) => {
-      if (!documentId) return;
+      if (!documentId || !isAuthenticated) {
+        throw new Error("Cannot update document: not authenticated");
+      }
 
       const { error } = await supabase
         .from("documents")
@@ -45,7 +51,10 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         })
         .eq("id", documentId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Document update error:", error);
+        throw error;
+      }
     },
     onError: (error: Error) => {
       console.error("Save error:", error);
