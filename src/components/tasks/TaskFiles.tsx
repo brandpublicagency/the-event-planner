@@ -28,7 +28,8 @@ export function TaskFiles({ taskId }: { taskId: string }) {
       return data as TaskFile[];
     },
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache the data
+    gcTime: 0, // Don't keep old data in cache
+    refetchOnMount: true // Refetch when component mounts
   });
 
   if (isLoading) {

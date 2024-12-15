@@ -27,15 +27,17 @@ export function FileActions({ file }: FileActionsProps) {
       setIsDeleting(true);
       await deleteFile(file.file_path, file.id, file.task_id);
       
-      // Immediately invalidate the task-files query to trigger a refresh
+      // Force refetch the task files
+      queryClient.removeQueries({ queryKey: ["task-files", file.task_id] });
       await queryClient.invalidateQueries({ 
         queryKey: ["task-files", file.task_id],
-        exact: true 
+        exact: true,
+        refetchType: 'active'
       });
       
       toast({
-        title: "File deleted",
-        description: "The file has been successfully deleted.",
+        title: "Success",
+        description: "File deleted successfully",
       });
     } catch (error: any) {
       console.error('[Delete] Error:', error);
