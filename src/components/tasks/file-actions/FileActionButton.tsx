@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
+import { forwardRef } from "react";
 
 interface FileActionButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -8,14 +9,15 @@ interface FileActionButtonProps {
   variant?: "ghost" | "destructive";
 }
 
-export function FileActionButton({ 
+export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonProps>(({ 
   onClick, 
   icon: Icon, 
   disabled, 
   variant = "ghost" 
-}: FileActionButtonProps) {
+}, ref) => {
   return (
     <Button
+      ref={ref}
       variant={variant}
       size="icon"
       onClick={(e) => {
@@ -31,4 +33,6 @@ export function FileActionButton({
       <Icon className="h-4 w-4" />
     </Button>
   );
-}
+});
+
+FileActionButton.displayName = "FileActionButton";

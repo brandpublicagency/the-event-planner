@@ -79,11 +79,8 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleDownload = async (e: React.MouseEvent) => {
+  const handleDownload = async () => {
     if (isDeleting || isLoading) return;
-
-    e.preventDefault();
-    e.stopPropagation();
 
     try {
       setIsLoading(true);
@@ -125,11 +122,8 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleView = async (e: React.MouseEvent) => {
+  const handleView = async () => {
     if (isDeleting || isLoading) return;
-
-    e.preventDefault();
-    e.stopPropagation();
 
     try {
       setIsLoading(true);
