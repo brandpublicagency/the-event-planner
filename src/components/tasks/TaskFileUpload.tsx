@@ -3,82 +3,96 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFileUploadProps {
   taskId: string;
+  onSuccess?: () => void;
 }
 
-export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
+export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      setIsUploading(true);
+      try {
+        // Generate a clean filename
+        const fileExt = file.name.split('.').pop();
+        const timestamp = new Date().getTime();
+        const cleanFileName = `${timestamp}.${fileExt}`;
+        const filePath = cleanFileName;
 
-    setIsUploading(true);
-    try {
-      // Generate a clean filename
-      const fileExt = file.name.split('.').pop();
-      const timestamp = new Date().getTime();
-      const cleanFileName = `${timestamp}.${fileExt}`;
-      const filePath = cleanFileName; // Simplified path structure
-
-      console.log('Starting file upload:', {
-        taskId,
-        fileName: file.name,
-        filePath,
-        contentType: file.type
-      });
-
-      // Upload file to storage
-      const { error: uploadError, data: uploadData } = await supabase.storage
-        .from("task-files")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true
+        console.log('Starting file upload:', {
+          taskId,
+          fileName: file.name,
+          filePath,
+          contentType: file.type
         });
 
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw uploadError;
+        // Upload file to storage
+        const { error: uploadError, data: uploadData } = await supabase.storage
+          .from("task-files")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: true
+          });
+
+        if (uploadError) {
+          console.error('Storage upload error:', uploadError);
+          throw uploadError;
+        }
+
+        console.log('File uploaded successfully:', uploadData);
+
+        // Create database record
+        const { error: dbError } = await supabase.from("task_files").insert([
+          {
+            task_id: taskId,
+            file_name: file.name,
+            file_path: filePath,
+            content_type: file.type,
+          },
+        ]);
+
+        if (dbError) {
+          console.error('Database insert error:', dbError);
+          throw dbError;
+        }
+
+        return { success: true };
+      } catch (error: any) {
+        throw error;
       }
-
-      console.log('File uploaded successfully:', uploadData);
-
-      // Create database record
-      const { error: dbError } = await supabase.from("task_files").insert([
-        {
-          task_id: taskId,
-          file_name: file.name,
-          file_path: filePath,
-          content_type: file.type,
-        },
-      ]);
-
-      if (dbError) {
-        console.error('Database insert error:', dbError);
-        throw dbError;
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
+    },
+    onSuccess: () => {
       toast({
         title: "File uploaded",
         description: "Your file has been uploaded successfully.",
       });
-    } catch (error: any) {
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (error: any) => {
       console.error("Upload error:", error);
       toast({
         title: "Upload failed",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
+    },
+    onSettled: () => {
       setIsUploading(false);
-    }
+    },
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadMutation.mutate(file);
   };
 
   return (

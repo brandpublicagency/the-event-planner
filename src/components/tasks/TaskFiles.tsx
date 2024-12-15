@@ -14,16 +14,23 @@ interface TaskFile {
 }
 
 export function TaskFiles({ taskId }: { taskId: string }) {
-  const { data: files = [], isLoading } = useQuery({
+  const { data: files = [], isLoading, refetch } = useQuery({
     queryKey: ["task-files", taskId],
     queryFn: async () => {
+      console.log('Fetching files for task:', taskId);
+      
       const { data, error } = await supabase
         .from("task_files")
         .select("*")
         .eq("task_id", taskId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching files:', error);
+        throw error;
+      }
+
+      console.log('Files fetched:', data);
 
       // Filter out files that don't exist in storage
       const validFiles = await Promise.all(
@@ -33,7 +40,6 @@ export function TaskFiles({ taskId }: { taskId: string }) {
         })
       );
 
-      // Remove any null values (files that don't exist in storage)
       return validFiles.filter((file): file is TaskFile => file !== null);
     },
     staleTime: 0,
@@ -51,10 +57,10 @@ export function TaskFiles({ taskId }: { taskId: string }) {
 
   return (
     <div className="space-y-4">
-      <TaskFileUpload taskId={taskId} />
+      <TaskFileUpload taskId={taskId} onSuccess={refetch} />
       <div className="space-y-2">
         {files.map((file) => (
-          <TaskFileItem key={file.id} file={file} />
+          <TaskFileItem key={file.id} file={file} onDelete={refetch} />
         ))}
         {files.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-4">

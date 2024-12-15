@@ -1,9 +1,8 @@
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, Loader2 } from "lucide-react";
 import { FileActionButton } from "./FileActionButton";
 import { FileDeleteDialog } from "./FileDeleteDialog";
 import { useFileDownload } from "./useFileDownload";
 import { useFileView } from "./useFileView";
-import { useFileDelete } from "./useFileDelete";
 
 interface FileActionsProps {
   file: {
@@ -12,12 +11,13 @@ interface FileActionsProps {
     file_name: string;
     file_path: string;
   };
+  onDelete: () => void;
+  isDeleting: boolean;
 }
 
-export function FileActions({ file }: FileActionsProps) {
+export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
   const { handleDownload, isLoading: isDownloading } = useFileDownload();
   const { handleView, isLoading: isViewing } = useFileView();
-  const { handleDelete, isDeleting } = useFileDelete();
 
   const isDisabled = isDeleting || isDownloading || isViewing;
 
@@ -33,10 +33,11 @@ export function FileActions({ file }: FileActionsProps) {
         onClick={() => handleDownload(file.file_path, file.file_name)}
         disabled={isDisabled}
       />
-      <FileDeleteDialog
-        isDeleting={isDeleting}
-        onDelete={() => handleDelete(file)}
+      <FileActionButton
+        icon={isDeleting ? Loader2 : undefined}
+        onClick={onDelete}
         disabled={isDisabled}
+        variant="destructive"
       />
     </div>
   );

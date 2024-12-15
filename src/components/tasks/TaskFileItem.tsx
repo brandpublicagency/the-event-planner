@@ -1,5 +1,8 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFile {
   id: string;
@@ -11,16 +14,58 @@ interface TaskFile {
 
 interface TaskFileItemProps {
   file: TaskFile;
+  onDelete?: () => void;
 }
 
-export const TaskFileItem = ({ file }: TaskFileItemProps) => {
+export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
+  const { toast } = useToast();
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      // First delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Then delete from database
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id);
+
+      if (dbError) throw dbError;
+    },
+    onSuccess: () => {
+      toast({
+        title: "File deleted",
+        description: "File has been deleted successfully.",
+      });
+      if (onDelete) {
+        onDelete();
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting file",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="flex items-center justify-between p-2 rounded-lg border bg-card">
       <div className="flex items-center gap-2">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">{file.file_name}</span>
       </div>
-      <FileActions file={file} />
+      <FileActions 
+        file={file} 
+        onDelete={() => deleteMutation.mutate()} 
+        isDeleting={deleteMutation.isLoading}
+      />
     </div>
   );
 };
