@@ -18,9 +18,7 @@ interface TaskActionsProps {
 }
 
 export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDelete = () => {
     onDelete();
   };
 
@@ -52,12 +50,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

@@ -31,10 +31,7 @@ export function FileActions({ file }: FileActionsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleDelete = async () => {
     if (isDeleting || isLoading) return;
     
     try {
@@ -174,10 +171,11 @@ export function FileActions({ file }: FileActionsProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={e => e.stopPropagation()}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
