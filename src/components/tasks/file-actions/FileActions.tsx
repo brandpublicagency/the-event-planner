@@ -31,7 +31,10 @@ export function FileActions({ file }: FileActionsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isDeleting || isLoading) return;
     
     try {
@@ -42,10 +45,7 @@ export function FileActions({ file }: FileActionsProps) {
         .from("task-files")
         .remove([file.file_path]);
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw storageError;
-      }
+      if (storageError) throw storageError;
 
       // Then delete from database
       const { error: dbError } = await supabase
@@ -53,10 +53,7 @@ export function FileActions({ file }: FileActionsProps) {
         .delete()
         .eq("id", file.id);
 
-      if (dbError) {
-        console.error('Database deletion error:', dbError);
-        throw dbError;
-      }
+      if (dbError) throw dbError;
 
       // Invalidate queries to refresh the file list
       await queryClient.invalidateQueries({ 
@@ -79,7 +76,10 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isDeleting || isLoading) return;
 
     try {
@@ -92,10 +92,7 @@ export function FileActions({ file }: FileActionsProps) {
       if (error) throw error;
       
       const response = await fetch(signedUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download file: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
       
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -122,7 +119,10 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleView = async () => {
+  const handleView = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isDeleting || isLoading) return;
 
     try {
@@ -147,7 +147,7 @@ export function FileActions({ file }: FileActionsProps) {
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       <FileActionButton
         icon={Eye}
         onClick={handleView}
@@ -174,11 +174,10 @@ export function FileActions({ file }: FileActionsProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogCancel onClick={e => e.stopPropagation()}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

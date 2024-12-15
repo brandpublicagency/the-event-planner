@@ -21,11 +21,9 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
       variant={variant}
       size="icon"
       onClick={(e) => {
-        if (onClick) {
-          e.preventDefault();
-          e.stopPropagation();
-          onClick(e);
-        }
+        e.preventDefault();
+        e.stopPropagation();
+        if (onClick) onClick(e);
       }}
       disabled={disabled}
       className="h-8 w-8"
