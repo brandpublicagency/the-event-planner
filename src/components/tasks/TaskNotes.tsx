@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { CheckSquare } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TodoList } from "./TodoList";
 import { useToast } from "@/components/ui/use-toast";
