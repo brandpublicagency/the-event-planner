@@ -29,113 +29,98 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
     taskId
   });
 
-  const { exists, error: checkError } = await checkFileExists(filePath);
-  
-  if (checkError) {
-    console.error('[Delete] Error checking file existence:', checkError);
-    toast({
-      title: "File Check Error",
-      description: `Failed to check file existence: ${checkError.message}`,
-      variant: "destructive"
-    });
-    throw new Error(`Failed to check file existence: ${checkError.message}`);
-  }
-
-  if (exists) {
-    console.log('[Delete] File exists in storage, proceeding with deletion');
-    const { error: storageError } = await supabase.storage
-      .from("task-files")
-      .remove([filePath]);
-
-    console.log('[Delete] Storage deletion result:', {
-      success: !storageError,
-      error: storageError
-    });
-
-    if (storageError) {
-      console.error('[Delete] Storage deletion error:', storageError);
-      toast({
-        title: "Storage Deletion Error",
-        description: `Failed to delete file from storage: ${storageError.message}`,
-        variant: "destructive"
-      });
-      throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+  try {
+    // First, check if the file exists in storage
+    const { exists, error: checkError } = await checkFileExists(filePath);
+    
+    if (checkError) {
+      console.error('[Delete] Error checking file existence:', checkError);
+      throw new Error(`Failed to check file existence: ${checkError.message}`);
     }
-  } else {
-    console.log('[Delete] File not found in storage, proceeding with database cleanup');
-  }
 
-  const { error: dbError } = await supabase
-    .from("task_files")
-    .delete()
-    .eq("id", fileId);
+    // If the file exists in storage, delete it
+    if (exists) {
+      console.log('[Delete] File exists in storage, proceeding with deletion');
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([filePath]);
 
-  console.log('[Delete] Database deletion result:', {
-    success: !dbError,
-    error: dbError
-  });
+      if (storageError) {
+        console.error('[Delete] Storage deletion error:', storageError);
+        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+      }
 
-  if (dbError) {
-    console.error('[Delete] Database deletion error:', dbError);
-    toast({
-      title: "Database Deletion Error",
-      description: `Failed to delete file record: ${dbError.message}`,
-      variant: "destructive"
+      console.log('[Delete] Storage deletion successful');
+    } else {
+      console.log('[Delete] File not found in storage, proceeding with database cleanup');
+    }
+
+    // Always delete the database record
+    const { error: dbError } = await supabase
+      .from("task_files")
+      .delete()
+      .eq("id", fileId);
+
+    console.log('[Delete] Database deletion result:', {
+      success: !dbError,
+      error: dbError
     });
-    throw new Error(`Failed to delete file record: ${dbError.message}`);
+
+    if (dbError) {
+      throw new Error(`Failed to delete file record: ${dbError.message}`);
+    }
+
+    toast({
+      title: "Success",
+      description: "File deleted successfully",
+    });
+
+    console.log('[Delete] File deletion completed successfully');
+    return true;
+  } catch (error) {
+    console.error('[Delete] Error during deletion:', error);
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    });
+    throw error;
   }
-
-  toast({
-    title: "File Deleted",
-    description: "The file was successfully deleted.",
-  });
-
-  console.log('[Delete] File deletion completed successfully');
 }
 
 export async function getSignedUrl(filePath: string) {
   console.log('[Storage] Getting signed URL for:', filePath);
   
-  const { exists, error: checkError } = await checkFileExists(filePath);
-  
-  if (checkError) {
-    console.error('[Storage] Error checking file existence:', checkError);
-    toast({
-      title: "File Check Error",
-      description: `Failed to check file existence: ${checkError.message}`,
-      variant: "destructive"
+  try {
+    const { exists, error: checkError } = await checkFileExists(filePath);
+    
+    if (checkError) {
+      throw new Error(`Failed to check file existence: ${checkError.message}`);
+    }
+
+    if (!exists) {
+      throw new Error('File not found in storage');
+    }
+
+    const { data, error } = await supabase.storage
+      .from("task-files")
+      .createSignedUrl(filePath, 60);
+
+    console.log('[Storage] Signed URL generation result:', {
+      success: !!data,
+      error: error
     });
-    throw new Error(`Failed to check file existence: ${checkError.message}`);
-  }
 
-  if (!exists) {
-    console.error('[Storage] File not found:', filePath);
+    if (error) throw error;
+
+    return data.signedUrl;
+  } catch (error) {
+    console.error('[Storage] Error getting signed URL:', error);
     toast({
-      title: "File Not Found",
-      description: "The requested file does not exist in storage.",
-      variant: "destructive"
-    });
-    throw new Error('File not found in storage');
-  }
-
-  const { data, error } = await supabase.storage
-    .from("task-files")
-    .createSignedUrl(filePath, 60);
-
-  console.log('[Storage] Signed URL generation result:', {
-    success: !!data,
-    error: error
-  });
-
-  if (error) {
-    console.error('[Storage] Signed URL error:', error);
-    toast({
-      title: "URL Generation Error",
-      description: `Failed to generate signed URL: ${error.message}`,
-      variant: "destructive"
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
     });
     throw error;
   }
-
-  return data.signedUrl;
 }

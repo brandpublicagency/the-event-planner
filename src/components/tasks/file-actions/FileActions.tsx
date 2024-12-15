@@ -16,37 +16,27 @@ interface FileActionsProps {
 
 export function FileActions({ file }: FileActionsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
-    if (isDeleting) return;
+    if (isDeleting || isLoading) return;
     
     try {
       setIsDeleting(true);
       await deleteFile(file.file_path, file.id, file.task_id);
-      
-      console.log('[Delete] Invalidating queries for task files');
       await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
-      
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
-    } catch (error: any) {
-      console.error('[Delete] Deletion process failed:', error);
-      toast({
-        title: "Error deleting file",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setIsDeleting(false);
     }
   };
 
   const handleDownload = async () => {
+    if (isDeleting || isLoading) return;
+
     try {
+      setIsLoading(true);
       console.log('[Download] Starting download process for file:', {
         id: file.id,
         name: file.file_name,
@@ -54,16 +44,8 @@ export function FileActions({ file }: FileActionsProps) {
       });
       
       const signedUrl = await getSignedUrl(file.file_path);
-      
-      console.log('[Download] Attempting to fetch file from signed URL');
       const response = await fetch(signedUrl);
       
-      console.log('[Download] Fetch response:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText
-      });
-
       if (!response.ok) {
         throw new Error(`Failed to download file: ${response.statusText}`);
       }
@@ -87,11 +69,16 @@ export function FileActions({ file }: FileActionsProps) {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleView = async () => {
+    if (isDeleting || isLoading) return;
+
     try {
+      setIsLoading(true);
       console.log('[View] Starting view process for file:', {
         id: file.id,
         name: file.file_name,
@@ -108,6 +95,8 @@ export function FileActions({ file }: FileActionsProps) {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,15 +105,17 @@ export function FileActions({ file }: FileActionsProps) {
       <FileActionButton
         icon={Eye}
         onClick={handleView}
+        disabled={isDeleting || isLoading}
       />
       <FileActionButton
         icon={Download}
         onClick={handleDownload}
+        disabled={isDeleting || isLoading}
       />
       <FileActionButton
         icon={isDeleting ? Loader2 : Trash2}
         onClick={handleDelete}
-        disabled={isDeleting}
+        disabled={isDeleting || isLoading}
         variant="ghost"
       />
     </div>
