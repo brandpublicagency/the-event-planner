@@ -174,7 +174,7 @@ export function FileActions({ file }: FileActionsProps) {
             variant="ghost"
           />
         </AlertDialogTrigger>
-        <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete File</AlertDialogTitle>
             <AlertDialogDescription>
