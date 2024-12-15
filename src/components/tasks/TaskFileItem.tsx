@@ -3,15 +3,14 @@ import { FileText, Trash2, Download, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TaskFile {
   id: string;
   task_id: string;
   file_name: string;
   file_path: string;
-  content_type: string | null;
+  content_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -20,13 +19,13 @@ interface TaskFileItemProps {
   file: TaskFile;
 }
 
-export function TaskFileItem({ file }: TaskFileItemProps) {
+export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const deleteFileMutation = useMutation({
-    mutationFn: async () => {
+  const handleDelete = async () => {
+    try {
       setIsDeleting(true);
       console.log("Starting file deletion process for:", file);
 
@@ -42,56 +41,58 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       console.log("Successfully deleted from storage");
 
-      // Then delete from the database immediately
+      // Delete from the database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id);
+        .eq('id', file.id);
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
-      return file.id;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+      console.log("Successfully deleted from database");
+
+      // Invalidate queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ['task-files', file.task_id] });
+
       toast({
-        title: "File deleted",
-        description: "The file has been successfully deleted.",
+        title: "Success",
+        description: "File deleted successfully",
       });
-    },
-    onError: (error: Error) => {
+    } catch (error: any) {
       console.error("File deletion error:", error);
       toast({
         title: "Error deleting file",
         description: error.message,
         variant: "destructive",
       });
-    },
-    onSettled: () => {
+    } finally {
       setIsDeleting(false);
-    },
-  });
+    }
+  };
 
   const handleDownload = async () => {
     try {
       const { data, error } = await supabase.storage
         .from("task-files")
-        .download(file.file_path);
+        .createSignedUrl(file.file_path, 60);
 
       if (error) throw error;
 
-      // Create a download link and trigger it
-      const url = window.URL.createObjectURL(data);
-      const link = document.createElement("a");
-      link.href = url;
+      // Create a temporary anchor element to trigger the download
+      const link = document.createElement('a');
+      link.href = data.signedUrl;
       link.download = file.file_name;
       document.body.appendChild(link);
       link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+
+      toast({
+        title: "Success",
+        description: "File download started",
+      });
     } catch (error: any) {
       toast({
         title: "Error downloading file",
@@ -105,11 +106,10 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
     try {
       const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(file.file_path, 60); // URL valid for 60 seconds
+        .createSignedUrl(file.file_path, 60);
 
       if (error) throw error;
 
-      // Open the signed URL in a new tab
       window.open(data.signedUrl, '_blank');
     } catch (error: any) {
       toast({
@@ -146,17 +146,15 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => deleteFileMutation.mutate()}
+          onClick={handleDelete}
           disabled={isDeleting}
           className="h-8 w-8 text-destructive hover:text-destructive"
         >
-          {isDeleting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
   );
-}
+};
+
+export default TaskFileItem;
