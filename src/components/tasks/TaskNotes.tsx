@@ -114,6 +114,7 @@ export function TaskNotes({ taskId }: { taskId: string }) {
       <TodoList 
         todos={task.todos || []}
         onTodosChange={handleTodosChange}
+        taskId={taskId}
       />
     </div>
   );
