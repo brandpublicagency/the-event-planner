@@ -56,6 +56,22 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       console.log("Successfully deleted from storage");
 
+      // Add a small delay to allow storage system to process the deletion
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Verify the file is actually deleted from storage
+      const { data: storageCheck } = await supabase.storage
+        .from("task-files")
+        .list(file.file_path.split('/')[0]);
+
+      const fileStillExists = storageCheck?.some(f => 
+        f.name === file.file_path.split('/').pop()
+      );
+
+      if (fileStillExists) {
+        throw new Error("File still exists in storage after deletion attempt");
+      }
+
       // Then delete from database
       const { error: dbError } = await supabase
         .from("task_files")
@@ -64,23 +80,10 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
-        // If database deletion fails, we should try to restore the file in storage
-        // but for now, just throw the error
         throw new Error(`Database deletion failed: ${dbError.message}`);
       }
 
       console.log("Successfully deleted from database");
-      
-      // Verify the file is actually deleted from storage
-      const { data: storageCheck } = await supabase.storage
-        .from("task-files")
-        .list(file.file_path.split('/')[0]);
-        
-      if (storageCheck?.some(f => f.name === file.file_path.split('/')[1])) {
-        throw new Error("File still exists in storage after deletion");
-      }
-
-      console.log("File deletion completed successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-files"] });
