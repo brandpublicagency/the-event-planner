@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 
 interface FileActionButtonProps {
-  onClick: () => void;
+  onClick?: () => void;
   icon: LucideIcon;
   disabled?: boolean;
   variant?: "ghost" | "destructive";
@@ -18,7 +18,11 @@ export function FileActionButton({
     <Button
       variant={variant}
       size="icon"
-      onClick={onClick}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick?.();
+      }}
       disabled={disabled}
       className="h-8 w-8"
     >
