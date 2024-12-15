@@ -11,7 +11,6 @@ interface TaskFile {
   file_name: string;
   file_path: string;
   content_type: string;
-  created_at: string;
 }
 
 interface TaskFileItemProps {
@@ -73,16 +72,22 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   const handleDownload = async () => {
     try {
       console.log('Downloading file:', file.file_path);
-      const { data, error } = await supabase.storage
+      
+      // First get a signed URL for the file
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("task-files")
-        .download(file.file_path);
+        .createSignedUrl(file.file_path, 60);
 
-      if (error) {
-        console.error('Download error:', error);
-        throw error;
+      if (signedUrlError) {
+        console.error('Signed URL error:', signedUrlError);
+        throw signedUrlError;
       }
 
-      const url = URL.createObjectURL(data);
+      // Use the signed URL to download the file
+      const response = await fetch(signedUrlData.signedUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
       const a = document.createElement("a");
       a.href = url;
       a.download = file.file_name;
