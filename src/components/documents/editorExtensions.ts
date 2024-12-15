@@ -35,16 +35,6 @@ const LinkPreviewNode = Node.create({
   addNodeView() {
     return createLinkPreviewNodeView as unknown as NodeViewRenderer;
   },
-  addCommands() {
-    return {
-      createLinkPreview: attributes => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: attributes
-        });
-      },
-    };
-  },
 });
 
 // Create a paste handler extension
@@ -60,8 +50,11 @@ const PasteHandler = Extension.create({
             if (url && /^https?:\/\//.test(url)) {
               // Set the link
               this.editor.commands.setLink({ href: url });
-              // Create the link preview
-              this.editor.commands.createLinkPreview({ href: url });
+              // Insert the link preview node
+              this.editor.commands.insertContent({
+                type: 'linkPreview',
+                attrs: { href: url }
+              });
               return true;
             }
             return false;
