@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteFile, getSignedUrl } from "@/utils/fileOperations";
 import { FileActionButton } from "./FileActionButton";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FileActionsProps {
   file: {
@@ -25,7 +26,23 @@ export function FileActions({ file }: FileActionsProps) {
     
     try {
       setIsDeleting(true);
-      await deleteFile(file.file_path, file.id, file.task_id);
+      
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id);
+
+      if (dbError) throw dbError;
+
+      // Update UI
       queryClient.setQueryData(["files", file.task_id], (oldData: any) => {
         return oldData?.filter((f: any) => f.id !== file.id) ?? [];
       });
