@@ -56,19 +56,28 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       console.log("Successfully deleted from storage");
 
-      // Add a small delay to allow storage system to process the deletion
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Add a delay to ensure storage system processes the deletion
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Get the directory and filename from the file path
+      const pathParts = file.file_path.split('/');
+      const directory = pathParts[0];
+      const filename = pathParts[pathParts.length - 1];
 
       // Verify the file is actually deleted from storage
-      const { data: storageCheck } = await supabase.storage
+      const { data: storageCheck, error: listError } = await supabase.storage
         .from("task-files")
-        .list(file.file_path.split('/')[0]);
+        .list(directory);
 
-      const fileStillExists = storageCheck?.some(f => 
-        f.name === file.file_path.split('/').pop()
-      );
+      if (listError) {
+        console.error("Error checking storage after deletion:", listError);
+        throw new Error(`Failed to verify storage deletion: ${listError.message}`);
+      }
+
+      const fileStillExists = storageCheck?.some(f => f.name === filename);
 
       if (fileStillExists) {
+        console.error("File still exists in storage:", filename);
         throw new Error("File still exists in storage after deletion attempt");
       }
 
