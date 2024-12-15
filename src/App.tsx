@@ -34,17 +34,24 @@ const App = () => {
     // Initialize auth state
     const initializeAuth = async () => {
       try {
-        // Clear any stale session data
-        const currentSession = await supabase.auth.getSession();
-        if (currentSession.error) {
+        // Get the current session
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
           await supabase.auth.signOut();
           setSession(null);
+        } else if (!currentSession) {
+          // No valid session found
+          setSession(null);
         } else {
-          setSession(currentSession.data.session);
+          // Valid session found
+          setSession(currentSession);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
         // If there's an error, clear the session to be safe
+        await supabase.auth.signOut();
         setSession(null);
       } finally {
         setIsLoading(false);
@@ -61,6 +68,7 @@ const App = () => {
       setSession(session);
       
       if (!session) {
+        // Clear query cache when user logs out
         queryClient.clear();
       }
     });
