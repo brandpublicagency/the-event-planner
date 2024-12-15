@@ -26,16 +26,8 @@ export function FileActions({ file }: FileActionsProps) {
     try {
       setIsDeleting(true);
       await deleteFile(file.file_path, file.id, file.task_id);
-      
-      // First update the cache immediately for UI responsiveness
       queryClient.setQueryData(["files", file.task_id], (oldData: any) => {
         return oldData?.filter((f: any) => f.id !== file.id) ?? [];
-      });
-      
-      // Then invalidate the query to ensure fresh data on next fetch
-      await queryClient.invalidateQueries({
-        queryKey: ["files", file.task_id],
-        exact: true
       });
       
       toast({
@@ -48,12 +40,6 @@ export function FileActions({ file }: FileActionsProps) {
         title: "Error deleting file",
         description: error.message,
         variant: "destructive",
-      });
-      
-      // Refetch to ensure UI is in sync with server state
-      queryClient.invalidateQueries({
-        queryKey: ["files", file.task_id],
-        exact: true
       });
     } finally {
       setIsDeleting(false);
