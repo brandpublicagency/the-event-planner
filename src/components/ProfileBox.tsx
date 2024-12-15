@@ -35,14 +35,16 @@ const ProfileBox = () => {
       return profileData;
     },
     retry: false,
-    onError: (error) => {
-      console.error("Profile query error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load profile data",
-        variant: "destructive",
-      });
-    },
+    meta: {
+      errorHandler: (error: Error) => {
+        console.error("Profile query error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      }
+    }
   });
 
   const handleLogout = async () => {
