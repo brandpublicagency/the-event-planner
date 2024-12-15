@@ -26,10 +26,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           size="icon"
           className="h-6 w-6 border-border/40 hover:border-destructive/50"
           disabled={isDeleting}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          onClick={(e) => e.stopPropagation()}
         >
           {isDeleting ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -48,9 +45,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={() => {
-              onDelete();
-            }}
+            onClick={onDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
