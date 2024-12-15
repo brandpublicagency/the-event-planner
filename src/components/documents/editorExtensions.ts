@@ -4,9 +4,37 @@ import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import { Node } from '@tiptap/core';
 import { createLinkPreviewNodeView } from './LinkPreviewNodeView';
 
 const lowlight = createLowlight(common);
+
+// Custom node for link previews
+const LinkPreviewNode = Node.create({
+  name: 'linkPreview',
+  group: 'block',
+  atom: true,
+  addAttributes() {
+    return {
+      href: {
+        default: null,
+      },
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="link-preview"]',
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', { ...HTMLAttributes, 'data-type': 'link-preview' }];
+  },
+  addNodeView() {
+    return createLinkPreviewNodeView;
+  },
+});
 
 export const getEditorExtensions = () => [
   StarterKit.configure({
@@ -23,7 +51,15 @@ export const getEditorExtensions = () => [
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
+    onModifyLink: (url) => {
+      // Convert link to preview when pasted
+      return {
+        href: url,
+        'data-type': 'link-preview',
+      };
+    },
   }),
+  LinkPreviewNode,
   Highlight.configure({
     multicolor: true,
   }),
