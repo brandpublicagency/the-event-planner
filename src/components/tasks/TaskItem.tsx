@@ -5,32 +5,23 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate } from "react-router-dom";
 import { TaskActions } from "./TaskActions";
+import { Task } from "@/contexts/TaskContext";
 
 interface TaskItemProps {
-  id: string;
-  title: string;
-  completed: boolean;
-  dueDate: string | null;
-  priority: string | null;
+  task: Task;
   isSelected: boolean;
   onClick: () => void;
   onEdit: () => void;
 }
 
 export function TaskItem({
-  id,
-  title,
-  completed,
-  dueDate,
-  priority,
+  task,
   isSelected,
   onClick,
   onEdit,
 }: TaskItemProps) {
   const { toggleTask, deleteTask } = useTaskContext();
-  const navigate = useNavigate();
 
   const priorityColors = {
     high: "bg-red-100 text-red-800",
@@ -49,33 +40,33 @@ export function TaskItem({
       <div className="flex items-center justify-between w-full gap-4">
         <div className="flex items-center gap-3">
           <Checkbox
-            checked={completed}
+            checked={task.completed}
             onCheckedChange={(checked) => {
-              toggleTask(id, checked as boolean);
+              toggleTask(task.id, checked as boolean);
               // Prevent the onClick event from bubbling up
               event?.stopPropagation();
             }}
           />
           <span className="text-sm font-medium hover:text-primary">
-            {title}
+            {task.title}
           </span>
         </div>
         <div className="flex items-center gap-3">
-          {dueDate && (
+          {task.due_date && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
-              <span>{format(new Date(dueDate), "dd MMM yyyy")}</span>
+              <span>{format(new Date(task.due_date), "dd MMM yyyy")}</span>
             </div>
           )}
-          {priority && (
+          {task.priority && (
             <Badge 
               variant="secondary" 
               className={cn(
                 "text-xs",
-                priorityColors[priority as keyof typeof priorityColors]
+                priorityColors[task.priority as keyof typeof priorityColors]
               )}
             >
-              {priority}
+              {task.priority}
             </Badge>
           )}
           <Button
@@ -92,7 +83,7 @@ export function TaskItem({
           <TaskActions
             isDeleting={false}
             onDelete={() => {
-              deleteTask(id);
+              deleteTask(task.id);
             }}
           />
         </div>

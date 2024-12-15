@@ -46,11 +46,7 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
           ) : (
             <TaskItem
               key={task.id}
-              id={task.id}
-              title={task.title}
-              completed={task.completed}
-              dueDate={task.due_date}
-              priority={task.priority}
+              task={task}
               isSelected={task.id === selectedTaskId}
               onClick={() => onTaskSelect(task.id)}
               onEdit={() => setEditingTaskId(task.id)}
@@ -61,7 +57,6 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
           <p className="text-center text-muted-foreground py-8">No tasks</p>
         )}
         
-        {/* Only show the new task input in the upcoming tasks section */}
         {!tasks?.[0]?.completed && (
           <div className="flex items-center gap-2 mt-2">
             <Input

@@ -40,10 +40,6 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data as Task[];
     },
-    staleTime: 1000,
-    refetchOnMount: true,
-    retry: 3,
-    refetchOnWindowFocus: true,
   });
 
   const addTaskMutation = useMutation({
@@ -105,11 +101,37 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error("User not authenticated");
 
+      // First, delete all associated files from storage
+      const { data: files, error: filesError } = await supabase
+        .from("task_files")
+        .select("file_path")
+        .eq("task_id", id);
+
+      if (filesError) throw filesError;
+
+      if (files && files.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove(files.map(file => file.file_path));
+
+        if (storageError) throw storageError;
+      }
+
+      // Then delete the file records
+      const { error: fileDeleteError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("task_id", id);
+
+      if (fileDeleteError) throw fileDeleteError;
+
+      // Finally delete the task
       const { error } = await supabase
         .from("tasks")
         .delete()
         .eq("id", id)
         .eq("user_id", session.user.id);
+
       if (error) throw error;
     },
     onSuccess: () => {
