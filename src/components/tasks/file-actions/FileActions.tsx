@@ -31,11 +31,8 @@ export function FileActions({ file }: FileActionsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = async () => {
     if (isDeleting || isLoading) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
     
     try {
       setIsDeleting(true);
@@ -60,7 +57,7 @@ export function FileActions({ file }: FileActionsProps) {
       }
       
       // Invalidate queries to refresh the file list
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+      await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
         title: "Success",
