@@ -27,38 +27,79 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
     
     try {
       setIsDeleting(true);
-      console.log('Deleting file:', file.file_path);
+      console.log('[Delete] Starting deletion process for file:', {
+        id: file.id,
+        name: file.file_name,
+        path: file.file_path,
+        taskId: file.task_id
+      });
       
-      // Delete from storage first
-      const { error: storageError } = await supabase.storage
+      // First check if file exists in storage
+      const { data: existingFiles, error: listError } = await supabase.storage
         .from("task-files")
-        .remove([file.file_path]);
+        .list(file.file_path.split('/')[0], {
+          search: file.file_path.split('/')[1]
+        });
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+      console.log('[Delete] Storage check result:', {
+        exists: existingFiles && existingFiles.length > 0,
+        filesFound: existingFiles?.length,
+        listError
+      });
+
+      if (listError) {
+        console.error('[Delete] Error checking file existence:', listError);
+        throw new Error(`Failed to check file existence: ${listError.message}`);
       }
 
-      // Then delete from the database
+      // Delete from storage if file exists
+      if (existingFiles && existingFiles.length > 0) {
+        console.log('[Delete] File exists in storage, proceeding with deletion');
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
+
+        console.log('[Delete] Storage deletion result:', {
+          success: !storageError,
+          error: storageError
+        });
+
+        if (storageError) {
+          console.error('[Delete] Storage deletion error:', storageError);
+          throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+        }
+      } else {
+        console.log('[Delete] File not found in storage, proceeding with database cleanup');
+      }
+
+      // Delete from database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
         .eq("id", file.id);
 
+      console.log('[Delete] Database deletion result:', {
+        success: !dbError,
+        error: dbError
+      });
+
       if (dbError) {
-        console.error('Database deletion error:', dbError);
+        console.error('[Delete] Database deletion error:', dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
-      // Invalidate queries to refresh the UI
+      // Invalidate queries to refresh UI
+      console.log('[Delete] Invalidating queries for task files');
       await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
+
+      console.log('[Delete] File deletion completed successfully');
     } catch (error: any) {
-      console.error("File deletion error:", error);
+      console.error('[Delete] Deletion process failed:', error);
       toast({
         title: "Error deleting file",
         description: error.message,
@@ -71,32 +112,57 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
   const handleDownload = async () => {
     try {
-      console.log('Downloading file:', file.file_path);
+      console.log('[Download] Starting download process for file:', {
+        id: file.id,
+        name: file.file_name,
+        path: file.file_path
+      });
       
-      // First check if the file exists
-      const { data: exists } = await supabase.storage
+      // Check if file exists
+      const { data: existingFiles, error: listError } = await supabase.storage
         .from("task-files")
         .list(file.file_path.split('/')[0], {
           search: file.file_path.split('/')[1]
         });
 
-      if (!exists || exists.length === 0) {
+      console.log('[Download] Storage check result:', {
+        exists: existingFiles && existingFiles.length > 0,
+        filesFound: existingFiles?.length,
+        listError
+      });
+
+      if (!existingFiles || existingFiles.length === 0) {
         throw new Error("File not found in storage");
       }
 
-      // Get a signed URL for the file
+      // Get signed URL
       const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
 
+      console.log('[Download] Signed URL generation result:', {
+        success: !!signedUrlData,
+        error: signedUrlError
+      });
+
       if (signedUrlError) {
-        console.error('Signed URL error:', signedUrlError);
+        console.error('[Download] Signed URL error:', signedUrlError);
         throw signedUrlError;
       }
 
-      // Use the signed URL to download the file
+      // Download file
+      console.log('[Download] Attempting to fetch file from signed URL');
       const response = await fetch(signedUrlData.signedUrl);
-      if (!response.ok) throw new Error('Failed to download file');
+      
+      console.log('[Download] Fetch response:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to download file: ${response.statusText}`);
+      }
       
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -108,8 +174,10 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
       a.click();
       URL.revokeObjectURL(url);
       document.body.removeChild(a);
+
+      console.log('[Download] File downloaded successfully');
     } catch (error: any) {
-      console.error('Download error:', error);
+      console.error('[Download] Download process failed:', error);
       toast({
         title: "Error downloading file",
         description: error.message,
@@ -120,16 +188,26 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
   const handleView = async () => {
     try {
-      console.log('Viewing file:', file.file_path);
+      console.log('[View] Starting view process for file:', {
+        id: file.id,
+        name: file.file_name,
+        path: file.file_path
+      });
       
-      // First check if the file exists
-      const { data: exists } = await supabase.storage
+      // Check if file exists
+      const { data: existingFiles, error: listError } = await supabase.storage
         .from("task-files")
         .list(file.file_path.split('/')[0], {
           search: file.file_path.split('/')[1]
         });
 
-      if (!exists || exists.length === 0) {
+      console.log('[View] Storage check result:', {
+        exists: existingFiles && existingFiles.length > 0,
+        filesFound: existingFiles?.length,
+        listError
+      });
+
+      if (!existingFiles || existingFiles.length === 0) {
         throw new Error("File not found in storage");
       }
 
@@ -137,14 +215,20 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
 
+      console.log('[View] Signed URL generation result:', {
+        success: !!data,
+        error: error
+      });
+
       if (error) {
-        console.error('View error:', error);
+        console.error('[View] Signed URL error:', error);
         throw error;
       }
 
+      console.log('[View] Opening file in new window');
       window.open(data.signedUrl, "_blank");
     } catch (error: any) {
-      console.error('View error:', error);
+      console.error('[View] View process failed:', error);
       toast({
         title: "Error viewing file",
         description: error.message,
