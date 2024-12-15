@@ -24,41 +24,53 @@ export function FileActions({ file }: FileActionsProps) {
   const handleDelete = async () => {
     if (isDeleting || isLoading) return;
     
-    // Optimistically remove the file from the UI
-    const previousFiles = queryClient.getQueryData(["files", file.task_id]);
-    queryClient.setQueryData(["files", file.task_id], (old: any) => 
-      old?.filter((f: any) => f.id !== file.id) ?? []
-    );
+    console.log('[Delete] Starting deletion process for file:', {
+      id: file.id,
+      taskId: file.task_id,
+      path: file.file_path
+    });
     
     try {
       setIsDeleting(true);
       
       // Delete from storage first
+      console.log('[Delete] Attempting to delete from storage:', file.file_path);
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
 
       if (storageError && !storageError.message?.includes('404')) {
+        console.error('[Delete] Storage deletion error:', storageError);
         throw storageError;
       }
 
+      console.log('[Delete] Storage deletion successful or file not found');
+
       // Then delete from database
+      console.log('[Delete] Attempting to delete from database:', file.id);
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
         .eq("id", file.id);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('[Delete] Database deletion error:', dbError);
+        throw dbError;
+      }
+
+      console.log('[Delete] Database deletion successful');
       
+      // Update the cache after successful deletion
+      queryClient.setQueryData(["task-files", file.task_id], (old: any) => 
+        old?.filter((f: any) => f.id !== file.id) ?? []
+      );
+
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
     } catch (error: any) {
-      // Revert the optimistic update on error
-      queryClient.setQueryData(["files", file.task_id], previousFiles);
-      
-      console.error('[Delete] Error:', error);
+      console.error('[Delete] Error during deletion:', error);
       toast({
         title: "Error deleting file",
         description: error.message || 'Failed to delete file',
@@ -66,8 +78,8 @@ export function FileActions({ file }: FileActionsProps) {
       });
     } finally {
       setIsDeleting(false);
-      // Refetch to ensure UI is in sync with server
-      queryClient.invalidateQueries({ queryKey: ["files", file.task_id] });
+      // Force a refetch to ensure UI is in sync with server
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
     }
   };
 
