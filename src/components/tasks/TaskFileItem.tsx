@@ -28,6 +28,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
     
     try {
       setIsDeleting(true);
+      console.log('Deleting file:', file.file_path);
       
       // Delete from storage first
       const { error: storageError } = await supabase.storage
@@ -35,6 +36,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         .remove([file.file_path]);
 
       if (storageError) {
+        console.error('Storage deletion error:', storageError);
         throw new Error(`Failed to delete file from storage: ${storageError.message}`);
       }
 
@@ -45,6 +47,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         .eq("id", file.id);
 
       if (dbError) {
+        console.error('Database deletion error:', dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
@@ -69,11 +72,13 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
   const handleDownload = async () => {
     try {
+      console.log('Downloading file:', file.file_path);
       const { data, error } = await supabase.storage
         .from("task-files")
         .download(file.file_path);
 
       if (error) {
+        console.error('Download error:', error);
         throw error;
       }
 
@@ -86,6 +91,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
       URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error: any) {
+      console.error('Download error:', error);
       toast({
         title: "Error downloading file",
         description: error.message,
@@ -96,16 +102,19 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
   const handleView = async () => {
     try {
+      console.log('Viewing file:', file.file_path);
       const { data, error } = await supabase.storage
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
 
       if (error) {
+        console.error('Signed URL error:', error);
         throw error;
       }
 
       window.open(data.signedUrl, "_blank");
     } catch (error: any) {
+      console.error('View error:', error);
       toast({
         title: "Error viewing file",
         description: error.message,

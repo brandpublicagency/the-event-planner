@@ -21,29 +21,38 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
 
     setIsUploading(true);
     try {
-      // Create a simpler file path using just taskId and a random number for uniqueness
+      // Generate a clean filename without special characters
       const fileExt = file.name.split('.').pop();
-      const fileName = `${taskId}/${Math.random()}.${fileExt}`;
+      const timestamp = new Date().getTime();
+      const cleanFileName = `${taskId}/${timestamp}.${fileExt}`;
+
+      console.log('Uploading file:', cleanFileName);
 
       const { error: uploadError } = await supabase.storage
         .from("task-files")
-        .upload(fileName, file, {
+        .upload(cleanFileName, file, {
           cacheControl: "3600",
-          upsert: false
+          upsert: true // Allow overwriting in case of retry
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { error: dbError } = await supabase.from("task_files").insert([
         {
           task_id: taskId,
           file_name: file.name,
-          file_path: fileName,
+          file_path: cleanFileName,
           content_type: file.type,
         },
       ]);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw dbError;
+      }
 
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       toast({
