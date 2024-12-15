@@ -14,7 +14,7 @@ interface TaskFile {
 
 export function TaskFiles({ taskId }: { taskId: string }) {
   const { data: files = [], isLoading } = useQuery({
-    queryKey: ["files", taskId],
+    queryKey: ["task-files", taskId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("task_files")

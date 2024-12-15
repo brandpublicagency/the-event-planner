@@ -60,10 +60,8 @@ export function FileActions({ file }: FileActionsProps) {
 
       console.log('[Delete] Database deletion successful');
       
-      // Update the cache after successful deletion
-      queryClient.setQueryData(["task-files", file.task_id], (old: any) => 
-        old?.filter((f: any) => f.id !== file.id) ?? []
-      );
+      // Invalidate the query to trigger a refetch
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
         title: "Success",
@@ -78,8 +76,6 @@ export function FileActions({ file }: FileActionsProps) {
       });
     } finally {
       setIsDeleting(false);
-      // Force a refetch to ensure UI is in sync with server
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
     }
   };
 
