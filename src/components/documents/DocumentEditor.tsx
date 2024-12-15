@@ -1,15 +1,12 @@
 import { useEditor } from '@tiptap/react';
-import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/useDebounce";
-import { DocumentActions } from "./DocumentActions";
 import { DocumentContent } from "./DocumentContent";
+import { DocumentTitle } from "./DocumentTitle";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
+import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -17,48 +14,8 @@ interface DocumentEditorProps {
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const isAuthenticated = useDocumentAuth();
   const debouncedTitle = useDebounce(title, 1000);
-
-  // Initialize authentication state
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error || !session) {
-          console.error("Auth error:", error);
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to access documents",
-            variant: "destructive",
-          });
-          navigate("/login");
-          return;
-        }
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        navigate("/login");
-      }
-    };
-    
-    checkAuth();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        setIsAuthenticated(false);
-        navigate("/login");
-      } else {
-        setIsAuthenticated(true);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, toast]);
 
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
@@ -95,7 +52,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         editor.commands.setContent(content.html || "");
       }
     }
-  }, [document, editor]);
+  }, [document, editor, title]);
 
   // Update title when it changes
   useEffect(() => {
@@ -103,7 +60,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       console.log('Updating title to:', debouncedTitle);
       updateDocument.mutate({ title: debouncedTitle });
     }
-  }, [debouncedTitle, documentId, document?.title, isAuthenticated]);
+  }, [debouncedTitle, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
     return (
@@ -131,20 +88,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   return (
     <div className="h-full flex flex-col p-6">
-      <div className="flex items-center justify-between mb-6">
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Untitled"
-          className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
-        />
-        <DocumentActions
-          documentId={documentId}
-          title={title}
-          editor={editor}
-        />
-      </div>
-
+      <DocumentTitle
+        title={title}
+        onTitleChange={setTitle}
+        documentId={documentId}
+        editor={editor}
+      />
       <DocumentContent editor={editor} />
     </div>
   );
