@@ -3,6 +3,7 @@ import { Plugin } from 'prosemirror-state';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
 import { createLinkPreviewNodeView } from './LinkPreviewNodeView';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
@@ -82,6 +83,9 @@ export const getEditorExtensions = () => [
     HTMLAttributes: {
       class: 'text-primary underline decoration-primary cursor-pointer',
     },
+  }),
+  Highlight.configure({
+    multicolor: false,
   }),
   CodeBlockLowlight.configure({
     lowlight,
