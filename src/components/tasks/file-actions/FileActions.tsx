@@ -21,6 +21,12 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
 
   const isDisabled = isDeleting || isDownloading || isViewing;
 
+  // Wrap the onDelete callback in a Promise
+  const handleDelete = async () => {
+    onDelete();
+    return Promise.resolve();
+  };
+
   return (
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       <FileActionButton
@@ -35,7 +41,7 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
       />
       <FileDeleteDialog
         isDeleting={isDeleting}
-        onDelete={onDelete}
+        onDelete={handleDelete}
         disabled={isDisabled}
       />
     </div>
