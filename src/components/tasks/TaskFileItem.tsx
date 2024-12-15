@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Download, Eye } from "lucide-react";
+import { FileText, Download, Eye, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +12,6 @@ interface TaskFile {
   file_path: string;
   content_type: string;
   created_at: string;
-  updated_at: string;
 }
 
 interface TaskFileItemProps {
@@ -20,27 +19,72 @@ interface TaskFileItemProps {
 }
 
 export const TaskFileItem = ({ file }: TaskFileItemProps) => {
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    
+    try {
+      setIsDeleting(true);
+      
+      // First delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) {
+        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+      }
+
+      // Then delete from the database
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id);
+
+      if (dbError) {
+        throw new Error(`Failed to delete file record: ${dbError.message}`);
+      }
+
+      // Invalidate queries to refresh the UI
+      await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully",
+      });
+    } catch (error: any) {
+      console.error("File deletion error:", error);
+      toast({
+        title: "Error deleting file",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleDownload = async () => {
     try {
       const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(file.file_path, 60);
+        .download(file.file_path);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      const link = document.createElement('a');
-      link.href = data.signedUrl;
-      link.download = file.file_name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast({
-        title: "Success",
-        description: "File download started",
-      });
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error: any) {
       toast({
         title: "Error downloading file",
@@ -56,9 +100,11 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      window.open(data.signedUrl, '_blank');
+      window.open(data.signedUrl, "_blank");
     } catch (error: any) {
       toast({
         title: "Error viewing file",
@@ -69,12 +115,12 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-2 rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="flex items-center justify-between p-2 rounded-lg border bg-card">
       <div className="flex items-center gap-2">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">{file.file_name}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="icon"
@@ -91,9 +137,20 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         >
           <Download className="h-4 w-4" />
         </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="h-8 w-8 text-destructive hover:text-destructive"
+        >
+          {isDeleting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
+        </Button>
       </div>
     </div>
   );
 };
-
-export default TaskFileItem;

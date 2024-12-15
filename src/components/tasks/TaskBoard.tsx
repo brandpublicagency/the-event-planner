@@ -59,21 +59,14 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
           </TabsContent>
         </Tabs>
       </div>
-      <div className="w-full lg:w-1/2">
-        <h2 className="text-xl font-semibold mb-3">Task Details</h2>
-        <div className="h-[calc(100%-2rem)] bg-background border rounded-lg overflow-hidden">
-          {selectedTaskId ? (
+      {selectedTaskId && (
+        <div className="w-full lg:w-1/2">
+          <h2 className="text-xl font-semibold mb-3">Task Details</h2>
+          <div className="h-[calc(100%-2rem)] bg-background border rounded-lg overflow-hidden">
             <TaskDetails taskId={selectedTaskId} onClose={() => setSelectedTaskId(null)} />
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-2 p-10">
-              <p className="text-lg font-medium text-muted-foreground">No task selected</p>
-              <p className="text-sm text-muted-foreground">
-                Select a task from the list to view its details
-              </p>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
