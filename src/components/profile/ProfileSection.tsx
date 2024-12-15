@@ -4,7 +4,15 @@ import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Save, Edit } from "lucide-react";
 
 interface ProfileSectionProps {
-  profile: any;
+  profile: {
+    id: string;
+    full_name: string | null;
+    surname: string | null;
+    mobile: string | null;
+    email: string | null;
+    avatar_url: string | null;
+    updated_at: string;
+  } | null;
   isEditing: boolean;
   editForm: {
     full_name: string;
@@ -52,14 +60,14 @@ const ProfileSection = ({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-muted-foreground">Name</label>
+            <label className="text-sm font-medium text-muted-foreground">Full Name</label>
             {isEditing ? (
               <div className="flex items-center space-x-2 mt-1">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <Input
                   value={editForm.full_name}
                   onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                  placeholder="Enter your name"
+                  placeholder="Enter your full name"
                   className="flex-1"
                 />
               </div>
