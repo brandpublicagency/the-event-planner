@@ -18,7 +18,10 @@ export default function Events() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      // Removed the deleted_at filter to see all events
+      // Get today's date at the start of the day
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -31,6 +34,8 @@ export default function Events() {
           )
         `)
         .eq('created_by', user.id)
+        .eq('completed', false) // Only get non-completed events
+        .gte('event_date', today.toISOString().split('T')[0]) // Only get future events
         .order('event_date', { ascending: true });
 
       if (error) {
@@ -38,7 +43,7 @@ export default function Events() {
         throw error;
       }
 
-      console.log('Fetched events:', data); // Added for debugging
+      console.log('Fetched events:', data);
 
       return data.map(event => ({
         ...event,
