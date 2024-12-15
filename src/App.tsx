@@ -10,7 +10,6 @@ import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
-import { TenantProvider } from "./contexts/TenantContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,9 +83,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppProviders>
-          <TenantProvider>
-            <AppRoutes />
-          </TenantProvider>
+          <AppRoutes />
         </AppProviders>
       </BrowserRouter>
     </QueryClientProvider>
