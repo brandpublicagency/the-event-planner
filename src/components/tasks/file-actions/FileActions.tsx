@@ -24,6 +24,12 @@ export function FileActions({ file }: FileActionsProps) {
   const handleDelete = async () => {
     if (isDeleting || isLoading) return;
     
+    // Optimistically remove the file from the UI
+    const previousFiles = queryClient.getQueryData(["files", file.task_id]);
+    queryClient.setQueryData(["files", file.task_id], (old: any) => 
+      old?.filter((f: any) => f.id !== file.id) ?? []
+    );
+    
     try {
       setIsDeleting(true);
       
@@ -43,15 +49,15 @@ export function FileActions({ file }: FileActionsProps) {
         .eq("id", file.id);
 
       if (dbError) throw dbError;
-
-      // Invalidate the query to refetch the files
-      queryClient.invalidateQueries({ queryKey: ["files", file.task_id] });
       
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
     } catch (error: any) {
+      // Revert the optimistic update on error
+      queryClient.setQueryData(["files", file.task_id], previousFiles);
+      
       console.error('[Delete] Error:', error);
       toast({
         title: "Error deleting file",
@@ -60,6 +66,8 @@ export function FileActions({ file }: FileActionsProps) {
       });
     } finally {
       setIsDeleting(false);
+      // Refetch to ensure UI is in sync with server
+      queryClient.invalidateQueries({ queryKey: ["files", file.task_id] });
     }
   };
 
