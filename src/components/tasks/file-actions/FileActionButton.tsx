@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 
 interface FileActionButtonProps {
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   icon: LucideIcon;
   disabled?: boolean;
   variant?: "ghost" | "destructive";
@@ -19,9 +19,11 @@ export function FileActionButton({
       variant={variant}
       size="icon"
       onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClick?.();
+        if (onClick) {
+          e.preventDefault();
+          e.stopPropagation();
+          onClick(e);
+        }
       }}
       disabled={disabled}
       className="h-8 w-8"

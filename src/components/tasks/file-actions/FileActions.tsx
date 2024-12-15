@@ -32,8 +32,11 @@ export function FileActions({ file }: FileActionsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
     if (isDeleting || isLoading) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
     
     console.log('[Delete] Starting deletion process for file:', {
       id: file.id,
@@ -90,8 +93,11 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
     if (isDeleting || isLoading) return;
+
+    e.preventDefault();
+    e.stopPropagation();
 
     try {
       setIsLoading(true);
@@ -136,8 +142,11 @@ export function FileActions({ file }: FileActionsProps) {
     }
   };
 
-  const handleView = async () => {
+  const handleView = async (e: React.MouseEvent) => {
     if (isDeleting || isLoading) return;
+
+    e.preventDefault();
+    e.stopPropagation();
 
     try {
       setIsLoading(true);
