@@ -29,6 +29,7 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
     
     try {
       setIsDeleting(true);
+      console.log("Starting file deletion process for:", file.file_path);
       
       // First delete from storage
       const { error: storageError } = await supabase.storage
@@ -40,19 +41,24 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
         throw new Error(`Failed to delete file from storage: ${storageError.message}`);
       }
 
+      console.log("Successfully deleted file from storage");
+
       // Then delete from the database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id);
+        .eq("id", file.id)
+        .single();
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
+      console.log("Successfully deleted file record from database");
+
       // Invalidate queries to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+      await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
         title: "Success",
