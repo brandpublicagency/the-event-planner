@@ -38,8 +38,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     queryFn: async () => {
       if (!documentId) return null;
       
+      // Increased timeout to 30 seconds
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Document fetch timed out")), 10000);
+        setTimeout(() => reject(new Error("Document fetch timed out")), 30000);
       });
 
       try {
