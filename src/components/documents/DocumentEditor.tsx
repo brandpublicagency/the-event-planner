@@ -20,7 +20,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const debouncedTitle = useDebounce(title, 1000); // Increased debounce time to 1 second
+  const debouncedTitle = useDebounce(title, 1000);
 
   // Initialize authentication state
   useEffect(() => {
@@ -85,8 +85,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   // Update editor content when document changes
   useEffect(() => {
     if (document && editor) {
-      // Only update title if it's different from current state
-      if (document.title !== title) {
+      // Only update title if document has changed and title is different
+      if (document.title && document.title !== title) {
+        console.log('Setting title from document:', document.title);
         setTitle(document.title);
       }
       if (document.content) {
@@ -98,7 +99,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Update title when it changes
   useEffect(() => {
-    if (documentId && isAuthenticated && debouncedTitle !== document?.title) {
+    if (documentId && isAuthenticated && debouncedTitle !== document?.title && debouncedTitle !== "") {
       console.log('Updating title to:', debouncedTitle);
       updateDocument.mutate({ title: debouncedTitle });
     }
