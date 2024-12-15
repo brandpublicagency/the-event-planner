@@ -18,7 +18,7 @@ export function NoteInput({
   autoFocus = false 
 }: NoteInputProps) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center">
       <Textarea
         placeholder={placeholder}
         value={value}
@@ -37,9 +37,9 @@ export function NoteInput({
         onClick={onSubmit} 
         disabled={!value.trim()}
         size="sm"
-        className="shrink-0 h-[30px] w-[30px] rounded-full"
+        className="shrink-0 h-[30px] w-[30px] rounded-full self-center"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-5 w-5" />
       </Button>
     </div>
   );
