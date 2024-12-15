@@ -36,10 +36,10 @@ export function NoteInput({
       <Button 
         onClick={onSubmit} 
         disabled={!value.trim()}
-        size="sm"
-        className="shrink-0 h-[30px] w-[30px] rounded-full self-center"
+        size="icon"
+        className="h-8 w-8 rounded-full"
       >
-        <Plus className="h-5 w-5" />
+        <Plus className="h-4 w-4" />
       </Button>
     </div>
   );
