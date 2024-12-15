@@ -107,11 +107,9 @@ export const EventsTable = ({
                             <span className="font-medium">
                               {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
                             </span>
-                            {!isDashboard && (
-                              <span className="ml-2 text-zinc-500">
-                                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
-                              </span>
-                            )}
+                            <span className="ml-2 text-zinc-500">
+                              {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
+                            </span>
                           </span>
                         </div>
                       </div>
