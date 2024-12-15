@@ -51,11 +51,15 @@ export const getEditorExtensions = () => [
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
-    transformPasted: (url) => {
-      return {
-        href: url,
-        'data-type': 'link-preview',
-      };
+    onPaste: (props) => {
+      const url = props.event.clipboardData?.getData('text/plain');
+      if (url && /^https?:\/\//.test(url)) {
+        return {
+          href: url,
+          'data-type': 'link-preview',
+        };
+      }
+      return null;
     },
   }),
   LinkPreviewNode,

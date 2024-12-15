@@ -43,7 +43,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
 
       try {
-        const { data, error } = await Promise.race([
+        const result = await Promise.race([
           supabase
             .from("documents")
             .select("*")
@@ -52,8 +52,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           timeoutPromise
         ]);
 
-        if (error) throw error;
-        return data as Document;
+        // Type assertion to handle Supabase response
+        const response = result as { data: Document | null, error: any };
+        if (response.error) throw response.error;
+        if (!response.data) throw new Error("Document not found");
+        return response.data;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
@@ -68,7 +71,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (document) {
       setTitle(document.title);
       if (document.content) {
-        const content = document.content as DocumentContent;
+        // Type assertion to ensure content matches DocumentContent structure
+        const content = document.content as unknown as DocumentContent;
         if (content?.html) {
           editor?.commands.setContent(content.html);
         } else {
