@@ -73,7 +73,18 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
     try {
       console.log('Downloading file:', file.file_path);
       
-      // First get a signed URL for the file
+      // First check if the file exists
+      const { data: exists } = await supabase.storage
+        .from("task-files")
+        .list(file.file_path.split('/')[0], {
+          search: file.file_path.split('/')[1]
+        });
+
+      if (!exists || exists.length === 0) {
+        throw new Error("File not found in storage");
+      }
+
+      // Get a signed URL for the file
       const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
@@ -85,6 +96,8 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
       // Use the signed URL to download the file
       const response = await fetch(signedUrlData.signedUrl);
+      if (!response.ok) throw new Error('Failed to download file');
+      
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       
@@ -108,6 +121,18 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   const handleView = async () => {
     try {
       console.log('Viewing file:', file.file_path);
+      
+      // First check if the file exists
+      const { data: exists } = await supabase.storage
+        .from("task-files")
+        .list(file.file_path.split('/')[0], {
+          search: file.file_path.split('/')[1]
+        });
+
+      if (!exists || exists.length === 0) {
+        throw new Error("File not found in storage");
+      }
+
       const { data, error } = await supabase.storage
         .from("task-files")
         .createSignedUrl(file.file_path, 60);
