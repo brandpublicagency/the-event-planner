@@ -6,10 +6,12 @@ import { TaskFileItem } from "./TaskFileItem";
 
 interface TaskFile {
   id: string;
+  task_id: string;
   file_name: string;
   file_path: string;
   content_type: string;
   created_at: string;
+  updated_at: string;
 }
 
 export function TaskFiles({ taskId }: { taskId: string }) {
