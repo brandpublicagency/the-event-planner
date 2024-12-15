@@ -21,18 +21,25 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
 
     setIsUploading(true);
     try {
-      // Generate a clean filename without special characters
+      // Generate a clean filename
       const fileExt = file.name.split('.').pop();
       const timestamp = new Date().getTime();
-      const cleanFileName = `${taskId}/${timestamp}.${fileExt}`;
+      const cleanFileName = `${timestamp}.${fileExt}`;
+      const filePath = cleanFileName; // Simplified path structure
 
-      console.log('Uploading file:', cleanFileName);
+      console.log('Starting file upload:', {
+        taskId,
+        fileName: file.name,
+        filePath,
+        contentType: file.type
+      });
 
-      const { error: uploadError } = await supabase.storage
+      // Upload file to storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from("task-files")
-        .upload(cleanFileName, file, {
+        .upload(filePath, file, {
           cacheControl: "3600",
-          upsert: true // Allow overwriting in case of retry
+          upsert: true
         });
 
       if (uploadError) {
@@ -40,11 +47,14 @@ export function TaskFileUpload({ taskId }: TaskFileUploadProps) {
         throw uploadError;
       }
 
+      console.log('File uploaded successfully:', uploadData);
+
+      // Create database record
       const { error: dbError } = await supabase.from("task_files").insert([
         {
           task_id: taskId,
           file_name: file.name,
-          file_path: cleanFileName,
+          file_path: filePath,
           content_type: file.type,
         },
       ]);
