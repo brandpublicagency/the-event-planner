@@ -27,10 +27,10 @@ export function FileActions({ file }: FileActionsProps) {
       setIsDeleting(true);
       await deleteFile(file.file_path, file.id, file.task_id);
       
-      // Force refetch the task files
-      queryClient.removeQueries({ queryKey: ["task-files", file.task_id] });
+      // Force refetch the files
+      queryClient.removeQueries({ queryKey: ["files", file.task_id] });
       await queryClient.invalidateQueries({ 
-        queryKey: ["task-files", file.task_id],
+        queryKey: ["files", file.task_id],
         exact: true,
         refetchType: 'active'
       });

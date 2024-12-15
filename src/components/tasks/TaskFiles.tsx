@@ -10,13 +10,11 @@ interface TaskFile {
   file_name: string;
   file_path: string;
   content_type: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export function TaskFiles({ taskId }: { taskId: string }) {
   const { data: files = [], isLoading } = useQuery({
-    queryKey: ["task-files", taskId],
+    queryKey: ["files", taskId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("task_files")
@@ -27,9 +25,9 @@ export function TaskFiles({ taskId }: { taskId: string }) {
       if (error) throw error;
       return data as TaskFile[];
     },
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Don't keep old data in cache
-    refetchOnMount: true // Refetch when component mounts
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true
   });
 
   if (isLoading) {
