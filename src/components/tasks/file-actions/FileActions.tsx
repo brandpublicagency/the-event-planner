@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Eye, Download, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { getSignedUrl, deleteFile } from "@/utils/fileOperations";
+import { supabase } from "@/integrations/supabase/client";
 import { FileActionButton } from "./FileActionButton";
 import {
   AlertDialog,
@@ -40,7 +40,24 @@ export function FileActions({ file }: FileActionsProps) {
     try {
       setIsDeleting(true);
       
-      await deleteFile(file.file_path, file.id, file.task_id);
+      // Delete from storage first
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) {
+        throw storageError;
+      }
+
+      // Then delete from database
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id);
+
+      if (dbError) {
+        throw dbError;
+      }
       
       // Invalidate queries to refresh the file list
       queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
@@ -50,7 +67,7 @@ export function FileActions({ file }: FileActionsProps) {
         description: "File deleted successfully",
       });
     } catch (error: any) {
-      console.error('[Delete] Error during deletion:', error);
+      console.error('Error deleting file:', error);
       toast({
         title: "Error deleting file",
         description: error.message,
@@ -69,7 +86,13 @@ export function FileActions({ file }: FileActionsProps) {
 
     try {
       setIsLoading(true);
-      const signedUrl = await getSignedUrl(file.file_path);
+      
+      const { data: { signedUrl }, error } = await supabase.storage
+        .from("task-files")
+        .createSignedUrl(file.file_path, 60);
+
+      if (error) throw error;
+      
       const response = await fetch(signedUrl);
       
       if (!response.ok) {
@@ -91,7 +114,6 @@ export function FileActions({ file }: FileActionsProps) {
         document.body.removeChild(a);
       }, 100);
     } catch (error: any) {
-      console.error('[Download] Error:', error);
       toast({
         title: "Error downloading file",
         description: error.message,
@@ -110,10 +132,15 @@ export function FileActions({ file }: FileActionsProps) {
 
     try {
       setIsLoading(true);
-      const signedUrl = await getSignedUrl(file.file_path);
+      
+      const { data: { signedUrl }, error } = await supabase.storage
+        .from("task-files")
+        .createSignedUrl(file.file_path, 60);
+
+      if (error) throw error;
+      
       window.open(signedUrl, "_blank");
     } catch (error: any) {
-      console.error('[View] Error:', error);
       toast({
         title: "Error viewing file",
         description: error.message,

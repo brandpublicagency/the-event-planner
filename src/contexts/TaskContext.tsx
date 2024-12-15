@@ -146,7 +146,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         throw new Error("User not authenticated");
       }
 
-      // First, delete all associated files from storage
+      // First, get all associated files
       const { data: files, error: filesError } = await supabase
         .from("task_files")
         .select("file_path")
@@ -154,6 +154,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
       if (filesError) throw filesError;
 
+      // Delete files from storage if they exist
       if (files && files.length > 0) {
         const { error: storageError } = await supabase.storage
           .from("task-files")
@@ -162,7 +163,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         if (storageError) throw storageError;
       }
 
-      // Then delete the file records
+      // Delete file records from the database
       const { error: fileDeleteError } = await supabase
         .from("task_files")
         .delete()
