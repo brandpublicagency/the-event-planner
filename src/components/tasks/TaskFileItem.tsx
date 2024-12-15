@@ -7,10 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFile {
   id: string;
+  task_id: string;
   file_name: string;
   file_path: string;
   content_type: string;
   created_at: string;
+  updated_at: string;
 }
 
 interface TaskFileItemProps {
@@ -42,7 +44,19 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         return;
       }
 
-      // Delete from database
+      // Delete from storage first
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) {
+        console.error("Storage deletion error:", storageError);
+        throw new Error(`Storage deletion failed: ${storageError.message}`);
+      }
+
+      console.log("Successfully deleted from storage");
+
+      // Then delete from database
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
@@ -50,26 +64,25 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
+        // If database deletion fails, we should try to restore the file in storage
+        // but for now, just throw the error
         throw new Error(`Database deletion failed: ${dbError.message}`);
       }
 
-      console.log("Successfully deleted from database, now removing from storage");
-
-      // Then delete from storage
-      const { error: storageError } = await supabase.storage
+      console.log("Successfully deleted from database");
+      
+      // Verify the file is actually deleted from storage
+      const { data: storageCheck } = await supabase.storage
         .from("task-files")
-        .remove([file.file_path]);
-
-      if (storageError) {
-        console.error("Storage deletion error:", storageError);
-        // Even if storage deletion fails, the file reference is already removed from DB
-        throw new Error(`Storage deletion failed: ${storageError.message}`);
+        .list(file.file_path.split('/')[0]);
+        
+      if (storageCheck?.some(f => f.name === file.file_path.split('/')[1])) {
+        throw new Error("File still exists in storage after deletion");
       }
 
-      console.log("Successfully deleted from storage");
+      console.log("File deletion completed successfully");
     },
     onSuccess: () => {
-      console.log("File deletion completed successfully");
       queryClient.invalidateQueries({ queryKey: ["task-files"] });
       toast({
         title: "File deleted",
