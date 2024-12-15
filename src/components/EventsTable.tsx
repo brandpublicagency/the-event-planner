@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
+import { getVenueNames } from "@/utils/venueUtils";
 import {
   AlertDialog,
   AlertDialogAction,
