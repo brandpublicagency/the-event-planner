@@ -43,6 +43,7 @@ export function FileActions({ file }: FileActionsProps) {
         .remove([file.file_path]);
 
       if (storageError) {
+        console.error('Storage deletion error:', storageError);
         throw storageError;
       }
 
@@ -53,18 +54,21 @@ export function FileActions({ file }: FileActionsProps) {
         .eq("id", file.id);
 
       if (dbError) {
+        console.error('Database deletion error:', dbError);
         throw dbError;
       }
       
       // Invalidate queries to refresh the file list
-      await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+      await queryClient.invalidateQueries({ 
+        queryKey: ["task-files", file.task_id] 
+      });
 
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
     } catch (error: any) {
-      console.error('Error deleting file:', error);
+      console.error('Delete error:', error);
       toast({
         title: "Error deleting file",
         description: error.message,
