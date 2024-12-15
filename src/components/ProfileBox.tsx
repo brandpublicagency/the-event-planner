@@ -13,13 +13,16 @@ const ProfileBox = () => {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        return null;
+      }
 
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .maybeSingle();
 
       if (error) throw error;

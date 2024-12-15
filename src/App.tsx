@@ -34,24 +34,17 @@ const App = () => {
     // Initialize auth state
     const initializeAuth = async () => {
       try {
-        // Get the current session
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        const { data: currentSession } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          await supabase.auth.signOut();
-          setSession(null);
-        } else if (!currentSession) {
-          // No valid session found
-          setSession(null);
+        if (currentSession && currentSession.session) {
+          setSession(currentSession.session);
+          console.log("Session initialized:", currentSession.session);
         } else {
-          // Valid session found
-          setSession(currentSession);
+          setSession(null);
+          console.log("No valid session found");
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
-        // If there's an error, clear the session to be safe
-        await supabase.auth.signOut();
         setSession(null);
       } finally {
         setIsLoading(false);
@@ -64,11 +57,10 @@ const App = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event);
+      console.log("Auth state changed:", _event, session);
       setSession(session);
       
       if (!session) {
-        // Clear query cache when user logs out
         queryClient.clear();
       }
     });
