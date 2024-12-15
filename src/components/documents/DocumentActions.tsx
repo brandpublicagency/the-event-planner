@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { FileDown, FileUp, FileText } from "lucide-react";
+import { FileDown, FileText, Trash2 } from "lucide-react";
 import { Editor } from '@tiptap/react';
-import { exportDocument, importDocument } from "@/utils/documentUtils";
+import { exportDocument } from "@/utils/documentUtils";
 import { useToast } from "@/components/ui/use-toast";
 import {
   DropdownMenu,
@@ -10,14 +10,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentActionsProps {
+  documentId: string;
   title: string;
   editor: Editor | null;
 }
 
-export function DocumentActions({ title, editor }: DocumentActionsProps) {
+export function DocumentActions({ documentId, title, editor }: DocumentActionsProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleExport = () => {
     if (!editor || !title) return;
@@ -62,15 +66,35 @@ export function DocumentActions({ title, editor }: DocumentActionsProps) {
     }
   };
 
-  const handleImport = () => {
-    if (!editor) return;
-    importDocument((content) => {
-      editor.commands.setContent(content);
+  const deleteDocument = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("documents")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", documentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast({
-        title: "Document imported",
-        description: "Your document has been imported successfully.",
+        title: "Document deleted",
+        description: "Your document has been deleted successfully.",
       });
-    });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting document",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this document?")) {
+      deleteDocument.mutate();
+    }
   };
 
   return (
@@ -100,10 +124,11 @@ export function DocumentActions({ title, editor }: DocumentActionsProps) {
       <Button
         variant="outline"
         size="sm"
-        onClick={handleImport}
+        onClick={handleDelete}
+        className="text-destructive hover:text-destructive"
       >
-        <FileUp className="h-4 w-4 mr-2" />
-        Import
+        <Trash2 className="h-4 w-4 mr-2" />
+        Delete
       </Button>
     </div>
   );

@@ -158,6 +158,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
         />
         <DocumentActions
+          documentId={documentId}
           title={title}
           editor={editor}
         />
