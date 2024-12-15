@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Trash2, Download, Eye } from "lucide-react";
+import { FileText, Trash2, Download, Eye, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -43,12 +43,11 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
 
       console.log("Successfully deleted file from storage");
 
-      // Then delete from the database
+      // Then delete from the database using delete() instead of single()
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id)
-        .single();
+        .eq("id", file.id);
 
       if (dbError) {
         console.error("Database deletion error:", dbError);
@@ -152,7 +151,11 @@ export const TaskFileItem = ({ file }: TaskFileItemProps) => {
           disabled={isDeleting}
           className="h-8 w-8 text-destructive hover:text-destructive"
         >
-          <Trash2 className="h-4 w-4" />
+          {isDeleting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
         </Button>
       </div>
     </div>
