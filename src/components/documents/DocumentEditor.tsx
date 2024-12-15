@@ -18,6 +18,7 @@ interface DocumentEditorProps {
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const debouncedTitle = useDebounce(title, 500);
@@ -31,7 +32,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      if (documentId) {
+      if (documentId && isAuthenticated) {
         updateDocument.mutate({
           content: {
             type: 'doc',
@@ -46,17 +47,32 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
         toast({
           title: "Authentication required",
           description: "Please sign in to access documents",
           variant: "destructive",
         });
         navigate("/login");
+        return;
       }
+      
+      setIsAuthenticated(true);
     };
+    
     checkAuth();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   const { data: document, isLoading, error } = useQuery({
@@ -75,7 +91,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       if (!data) throw new Error("Document not found");
       return data as Document;
     },
-    enabled: !!documentId,
+    enabled: !!documentId && isAuthenticated,
   });
 
   useEffect(() => {
@@ -94,10 +110,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Update when title changes
   useEffect(() => {
-    if (documentId && debouncedTitle !== document?.title) {
+    if (documentId && isAuthenticated && debouncedTitle !== document?.title) {
       updateDocument.mutate({ title: debouncedTitle });
     }
-  }, [debouncedTitle, documentId, document?.title]);
+  }, [debouncedTitle, documentId, document?.title, isAuthenticated]);
 
   const updateDocument = useMutation({
     mutationFn: async (updates: { 
@@ -142,7 +158,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     );
   }
 
-  if (isLoading) {
+  if (!isAuthenticated || isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
