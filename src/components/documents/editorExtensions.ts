@@ -4,8 +4,9 @@ import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
-import { Node } from '@tiptap/core';
+import { Node, Extension } from '@tiptap/core';
 import type { NodeViewRenderer } from '@tiptap/core';
+import { Plugin } from '@tiptap/pm/state';
 import { createLinkPreviewNodeView } from './LinkPreviewNodeView';
 
 const lowlight = createLowlight(common);
@@ -34,31 +35,39 @@ const LinkPreviewNode = Node.create({
   addNodeView() {
     return createLinkPreviewNodeView as unknown as NodeViewRenderer;
   },
+  addCommands() {
+    return {
+      createLinkPreview: attributes => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: attributes
+        });
+      },
+    };
+  },
 });
 
-// Create a custom Link extension that extends the base Link extension
-const CustomLink = Link.extend({
-  addProseMirrorPlugins() {
-    const plugins = this.parent?.() || [];
+// Create a paste handler extension
+const PasteHandler = Extension.create({
+  name: 'pasteHandler',
 
-    // Add a paste handler through the editor's ProseMirror plugin
+  addProseMirrorPlugins() {
     return [
-      ...plugins,
-      {
+      new Plugin({
         props: {
           handlePaste: (view, event) => {
             const url = event.clipboardData?.getData('text/plain');
             if (url && /^https?:\/\//.test(url)) {
               // Set the link
-              this.editor?.commands.setLink({ href: url });
+              this.editor.commands.setLink({ href: url });
               // Create the link preview
-              this.editor?.commands.createLinkPreview({ href: url });
+              this.editor.commands.createLinkPreview({ href: url });
               return true;
             }
             return false;
           },
         },
-      },
+      }),
     ];
   },
 });
@@ -71,7 +80,7 @@ export const getEditorExtensions = () => [
     codeBlock: false,
   }),
   Underline,
-  CustomLink.configure({
+  Link.configure({
     openOnClick: true,
     HTMLAttributes: {
       class: 'text-primary underline',
@@ -80,6 +89,7 @@ export const getEditorExtensions = () => [
     validate: href => /^https?:\/\//.test(href),
   }),
   LinkPreviewNode,
+  PasteHandler,
   Highlight.configure({
     multicolor: true,
   }),
