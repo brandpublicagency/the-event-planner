@@ -16,11 +16,12 @@ export const useProfile = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
       return profileData;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   const updateProfile = useMutation({

@@ -6,85 +6,52 @@ import FlipCard from "@/components/FlipCard";
 import ProfileFrontContent from "@/components/profile/ProfileFrontContent";
 import ProfileBackContent from "@/components/profile/ProfileBackContent";
 import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfileBox = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const { data: session, isLoading: isSessionLoading } = useQuery({
+    queryKey: ['auth-session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error("Session check error:", error);
-          navigate('/login');
-          return;
-        }
-        if (!session) {
-          console.log("No valid session found");
-          navigate('/login');
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking session:", error);
-        navigate('/login');
-      }
-    };
-    
-    checkSession();
+    if (!isSessionLoading && !session) {
+      navigate('/login');
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      console.log("Auth state changed in ProfileBox:", event);
       if (event === 'SIGNED_OUT') {
         navigate('/login');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, session, isSessionLoading]);
 
-  const { data: profile, isError } = useQuery({
-    queryKey: ['profile'],
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
+    queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error("Session error in profile query:", sessionError);
-          throw sessionError;
-        }
-        
-        if (!session) {
-          console.log("No valid session in profile query");
-          navigate('/login');
-          return null;
-        }
+      if (!session?.user?.id) return null;
 
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
 
-        if (profileError) {
-          throw profileError;
-        }
-
-        return profileData;
-      } catch (error) {
-        console.error("Profile query error:", error);
-        throw error;
-      }
+      if (error) throw error;
+      return profileData;
     },
-    meta: {
-      errorHandler: (error: Error) => {
-        console.error("Profile query error:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load profile data",
-          variant: "destructive",
-        });
-      }
-    }
+    enabled: !!session?.user?.id,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   const handleLogout = async () => {
@@ -102,7 +69,17 @@ const ProfileBox = () => {
     }
   };
 
-  if (isError) {
+  if (isSessionLoading || isProfileLoading) {
+    return (
+      <div className="h-[450px] w-full space-y-4 p-6">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
+  if (!session || !profile) {
     return (
       <div className="h-[450px] w-full flex items-center justify-center">
         <div className="text-center">
