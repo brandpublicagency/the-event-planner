@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TodoList } from "./TodoList";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,8 @@ import { useToast } from "@/components/ui/use-toast";
 export function TaskNotes({ taskId }: { taskId: string }) {
   const { toast } = useToast();
   const [newNote, setNewNote] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState("");
   const { tasks, updateTask } = useTaskContext();
   const task = tasks.find((t) => t.id === taskId);
 
@@ -37,6 +39,28 @@ export function TaskNotes({ taskId }: { taskId: string }) {
       toast({
         title: "Error removing note",
         description: "Failed to remove note. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const startEditing = (index: number, note: string) => {
+    setEditingIndex(index);
+    setEditingText(note);
+  };
+
+  const handleEditNote = async (index: number) => {
+    if (!task || !editingText.trim()) return;
+    const updatedNotes = [...(task.notes || [])];
+    updatedNotes[index] = editingText;
+    try {
+      await updateTask(taskId, { notes: updatedNotes });
+      setEditingIndex(null);
+      setEditingText("");
+    } catch (error) {
+      toast({
+        title: "Error updating note",
+        description: "Failed to update note. Please try again.",
         variant: "destructive",
       });
     }
@@ -89,15 +113,59 @@ export function TaskNotes({ taskId }: { taskId: string }) {
               key={index}
               className="flex items-center justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
             >
-              <span className="text-sm">{note}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                onClick={() => handleRemoveNote(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {editingIndex === index ? (
+                <div className="flex-1 flex gap-2">
+                  <Input
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleEditNote(index);
+                      }
+                    }}
+                    className="h-8 text-sm"
+                    autoFocus
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleEditNote(index)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setEditingIndex(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <span className="text-sm">{note}</span>
+                  <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => startEditing(index, note)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleRemoveNote(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
           {(!task.notes || task.notes.length === 0) && (
