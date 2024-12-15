@@ -51,6 +51,41 @@ export const EventsTable = ({
     return event.venues.map(v => v.name).join(' + ');
   };
 
+  if (isDashboard) {
+    return (
+      <ScrollArea className="h-[400px]">
+        <div className="space-y-4">
+          {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
+            <div key={monthYear} className="rounded-xl border bg-white">
+              <div className="flex items-center gap-2 p-2 border-b">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium">{monthYear}</h3>
+                <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
+                  {monthEvents.length}
+                </Badge>
+              </div>
+              <div className="divide-y">
+                {monthEvents.map((event) => (
+                  <button
+                    key={event.event_code}
+                    onClick={() => navigate(`/events/${event.event_code}`)}
+                    className="w-full text-left p-3 hover:bg-zinc-50"
+                  >
+                    <span className="text-sm">
+                      {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
+                      {' - '}
+                      <span className="text-zinc-900">{event.name}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    );
+  }
+
   return (
     <ScrollArea className={cn(
       isDashboard ? "h-[400px]" : "h-[calc(100vh-12rem)]",
