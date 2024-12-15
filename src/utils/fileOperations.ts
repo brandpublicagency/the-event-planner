@@ -70,29 +70,14 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
       .delete()
       .eq("id", fileId);
 
-    console.log('[Delete] Database deletion result:', {
-      success: !dbError,
-      error: dbError
-    });
-
     if (dbError) {
       throw new Error(`Failed to delete file record: ${dbError.message}`);
     }
-
-    toast({
-      title: "Success",
-      description: "File deleted successfully",
-    });
 
     console.log('[Delete] File deletion completed successfully');
     return true;
   } catch (error: any) {
     console.error('[Delete] Error during deletion:', error);
-    toast({
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    });
     throw error;
   }
 }
@@ -125,11 +110,6 @@ export async function getSignedUrl(filePath: string) {
     return data.signedUrl;
   } catch (error: any) {
     console.error('[Storage] Error getting signed URL:', error);
-    toast({
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    });
     throw error;
   }
 }

@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Eye, Download, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { getSignedUrl } from "@/utils/fileOperations";
+import { getSignedUrl, deleteFile } from "@/utils/fileOperations";
 import { FileActionButton } from "./FileActionButton";
-import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,43 +37,12 @@ export function FileActions({ file }: FileActionsProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('[Delete] Starting deletion process for file:', {
-      id: file.id,
-      taskId: file.task_id,
-      path: file.file_path
-    });
-    
     try {
       setIsDeleting(true);
       
-      // Delete from storage first
-      console.log('[Delete] Attempting to delete from storage:', file.file_path);
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
-
-      if (storageError && !storageError.message?.includes('404')) {
-        console.error('[Delete] Storage deletion error:', storageError);
-        throw storageError;
-      }
-
-      console.log('[Delete] Storage deletion successful or file not found');
-
-      // Then delete from database
-      console.log('[Delete] Attempting to delete from database:', file.id);
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error('[Delete] Database deletion error:', dbError);
-        throw dbError;
-      }
-
-      console.log('[Delete] Database deletion successful');
+      await deleteFile(file.file_path, file.id, file.task_id);
       
-      // Invalidate the query to trigger a refetch
+      // Invalidate queries to refresh the file list
       queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
 
       toast({
@@ -85,7 +53,7 @@ export function FileActions({ file }: FileActionsProps) {
       console.error('[Delete] Error during deletion:', error);
       toast({
         title: "Error deleting file",
-        description: error.message || 'Failed to delete file',
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -101,12 +69,6 @@ export function FileActions({ file }: FileActionsProps) {
 
     try {
       setIsLoading(true);
-      console.log('[Download] Starting download process for file:', {
-        id: file.id,
-        name: file.file_name,
-        path: file.file_path
-      });
-      
       const signedUrl = await getSignedUrl(file.file_path);
       const response = await fetch(signedUrl);
       
@@ -128,10 +90,8 @@ export function FileActions({ file }: FileActionsProps) {
         URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }, 100);
-
-      console.log('[Download] File downloaded successfully');
     } catch (error: any) {
-      console.error('[Download] Download process failed:', error);
+      console.error('[Download] Error:', error);
       toast({
         title: "Error downloading file",
         description: error.message,
@@ -150,16 +110,10 @@ export function FileActions({ file }: FileActionsProps) {
 
     try {
       setIsLoading(true);
-      console.log('[View] Starting view process for file:', {
-        id: file.id,
-        name: file.file_name,
-        path: file.file_path
-      });
-      
       const signedUrl = await getSignedUrl(file.file_path);
       window.open(signedUrl, "_blank");
     } catch (error: any) {
-      console.error('[View] View process failed:', error);
+      console.error('[View] Error:', error);
       toast({
         title: "Error viewing file",
         description: error.message,
