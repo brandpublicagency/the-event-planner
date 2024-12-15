@@ -33,7 +33,6 @@ const App = () => {
   useEffect(() => {
     let mounted = true;
 
-    // Initialize auth state
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
@@ -43,18 +42,21 @@ const App = () => {
         if (sessionError) {
           console.error("Session error:", sessionError);
           await supabase.auth.signOut();
+          queryClient.clear();
           setSession(null);
         } else if (currentSession) {
           setSession(currentSession);
           console.log("Session initialized:", currentSession);
         } else {
           console.log("No valid session found");
+          queryClient.clear();
           setSession(null);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
         if (mounted) {
           await supabase.auth.signOut();
+          queryClient.clear();
           setSession(null);
         }
       } finally {
@@ -66,21 +68,20 @@ const App = () => {
 
     initializeAuth();
 
-    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       if (!mounted) return;
       
       console.log("Auth state changed:", _event, newSession);
-      setSession(newSession);
       
       if (!newSession) {
         queryClient.clear();
       }
+      
+      setSession(newSession);
     });
 
-    // Cleanup subscription and mounted flag on unmount
     return () => {
       mounted = false;
       subscription.unsubscribe();

@@ -5,12 +5,36 @@ import { useNavigate } from "react-router-dom";
 import FlipCard from "@/components/FlipCard";
 import ProfileFrontContent from "@/components/profile/ProfileFrontContent";
 import ProfileBackContent from "@/components/profile/ProfileBackContent";
+import { useEffect } from "react";
 
 const ProfileBox = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: profile } = useQuery({
+  // Check session on component mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.error("Session error:", error);
+        navigate('/login');
+      }
+    };
+    
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate('/login');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  const { data: profile, isError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -61,6 +85,22 @@ const ProfileBox = () => {
       });
     }
   };
+
+  if (isError) {
+    return (
+      <div className="h-[450px] w-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">Failed to load profile</p>
+          <button 
+            onClick={() => navigate('/login')} 
+            className="mt-4 text-sm text-blue-500 hover:underline"
+          >
+            Return to login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[450px] w-full">
