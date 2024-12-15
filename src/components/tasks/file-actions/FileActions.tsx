@@ -33,11 +33,10 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
         onClick={() => handleDownload(file.file_path, file.file_name)}
         disabled={isDisabled}
       />
-      <FileActionButton
-        icon={isDeleting ? Loader2 : undefined}
-        onClick={onDelete}
+      <FileDeleteDialog
+        isDeleting={isDeleting}
+        onDelete={onDelete}
         disabled={isDisabled}
-        variant="destructive"
       />
     </div>
   );

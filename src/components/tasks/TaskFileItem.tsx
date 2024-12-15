@@ -64,7 +64,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       <FileActions 
         file={file} 
         onDelete={() => deleteMutation.mutate()} 
-        isDeleting={deleteMutation.isLoading}
+        isDeleting={deleteMutation.isPending}
       />
     </div>
   );
