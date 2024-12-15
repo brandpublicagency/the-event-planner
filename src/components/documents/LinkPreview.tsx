@@ -15,17 +15,44 @@ interface PreviewData {
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
-  const { data: preview, isLoading } = useQuery({
+  const { data: preview, isLoading, isError } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
-        body: { url }
-      });
-      
-      if (error) throw error;
-      return data;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      try {
+        const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
+          body: { url },
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw new Error('Preview request timed out');
+        }
+        throw err;
+      }
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
+
+  if (isError) {
+    return (
+      <Card className="w-full max-w-[600px] overflow-hidden">
+        <div className="p-4">
+          <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            {url}
+          </a>
+        </div>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (

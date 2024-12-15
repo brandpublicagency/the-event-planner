@@ -1,16 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { LinkPreview } from './LinkPreview';
 import type { NodeViewRenderer } from '@tiptap/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-    },
-  },
-});
+import { queryClient } from '@/lib/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 export const createLinkPreviewNodeView: NodeViewRenderer = (props) => {
   const container = document.createElement('div');
