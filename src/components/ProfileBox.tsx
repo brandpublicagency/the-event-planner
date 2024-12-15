@@ -13,23 +13,28 @@ const ProfileBox = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Session check error:", error);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session check error:", error);
+          navigate('/login');
+          return;
+        }
+        if (!session) {
+          console.log("No valid session found");
+          navigate('/login');
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
         navigate('/login');
-        return;
-      }
-      if (!session) {
-        console.log("No valid session found");
-        navigate('/login');
-        return;
       }
     };
     
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed in ProfileBox:", event, session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      console.log("Auth state changed in ProfileBox:", event);
       if (event === 'SIGNED_OUT') {
         navigate('/login');
       }
@@ -41,29 +46,34 @@ const ProfileBox = () => {
   const { data: profile, isError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.error("Session error in profile query:", sessionError);
-        throw sessionError;
-      }
-      
-      if (!session) {
-        console.log("No valid session in profile query");
-        navigate('/login');
-        return null;
-      }
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("Session error in profile query:", sessionError);
+          throw sessionError;
+        }
+        
+        if (!session) {
+          console.log("No valid session in profile query");
+          navigate('/login');
+          return null;
+        }
 
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-      if (profileError) {
-        throw profileError;
+        if (profileError) {
+          throw profileError;
+        }
+
+        return profileData;
+      } catch (error) {
+        console.error("Profile query error:", error);
+        throw error;
       }
-
-      return profileData;
     },
     meta: {
       errorHandler: (error: Error) => {

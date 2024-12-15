@@ -38,9 +38,13 @@ const App = () => {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         if (error) {
           console.error("Session initialization error:", error);
-          throw error;
+          if (mounted) {
+            queryClient.clear();
+            setSession(null);
+          }
+          return;
         }
-        
+
         if (!mounted) return;
 
         if (currentSession) {
