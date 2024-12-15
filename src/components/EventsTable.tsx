@@ -53,13 +53,16 @@ export const EventsTable = ({
 
   return (
     <ScrollArea className={cn(
-      isDashboard ? "h-full" : "h-[calc(100vh-12rem)]",
+      isDashboard ? "h-[400px]" : "h-[calc(100vh-12rem)]",
       className
     )}>
       <div className="space-y-4">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
           <div key={monthYear} className="rounded-xl border bg-white">
-            <div className="flex items-center gap-2 p-3 border-b">
+            <div className={cn(
+              "flex items-center gap-2 p-3 border-b",
+              isDashboard && "p-2"
+            )}>
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <h3 className="font-medium">{monthYear}</h3>
               <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
@@ -67,10 +70,19 @@ export const EventsTable = ({
               </Badge>
             </div>
             
-            <div className="divide-y">
+            <div className={cn(
+              "divide-y",
+              isDashboard && "grid grid-cols-1 gap-2 p-2 divide-y-0"
+            )}>
               {monthEvents.map((event) => (
-                <div key={event.event_code} className="group">
-                  <div className="flex flex-col gap-2 p-4">
+                <div key={event.event_code} className={cn(
+                  "group",
+                  isDashboard && "border rounded-lg"
+                )}>
+                  <div className={cn(
+                    "flex flex-col gap-2 p-4",
+                    isDashboard && "p-3"
+                  )}>
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
