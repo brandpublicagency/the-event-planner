@@ -19,7 +19,13 @@ const Index = () => {
   const { data: events = [], refetch } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      // Get today's date at the start of the day
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -31,12 +37,14 @@ const Index = () => {
             )
           )
         `)
-        .eq('completed', false)
-        .gte('event_date', today)
-        .order('event_date', { ascending: true })
-        .limit(4);
+        .eq('created_by', user.id)
+        .is('deleted_at', null)
+        .gte('event_date', today.toISOString().split('T')[0])
+        .is('completed', false)
+        .order('event_date', { ascending: true });
 
       if (error) {
+        console.error('Error fetching events:', error);
         toast({
           title: "Error",
           description: "Failed to fetch events",
@@ -44,6 +52,8 @@ const Index = () => {
         });
         throw error;
       }
+
+      console.log('Fetched dashboard events:', data); // For debugging
 
       return data?.map(event => ({
         ...event,
@@ -59,7 +69,7 @@ const Index = () => {
     try {
       const { error } = await supabase
         .from('events')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('event_code', eventCode);
 
       if (error) throw error;
