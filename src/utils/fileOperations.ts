@@ -4,22 +4,31 @@ import { toast } from "@/components/ui/use-toast";
 export async function checkFileExists(filePath: string) {
   console.log('[Storage] Checking if file exists:', filePath);
   
-  const { data: files, error: listError } = await supabase.storage
-    .from("task-files")
-    .list(filePath.split('/')[0], {
-      search: filePath.split('/')[1]
+  try {
+    const { data: files, error: listError } = await supabase.storage
+      .from("task-files")
+      .list(filePath.split('/')[0], {
+        search: filePath.split('/')[1]
+      });
+
+    if (listError) {
+      console.error('[Storage] Error checking file existence:', listError);
+      return { exists: false, error: listError };
+    }
+
+    const exists = files && files.length > 0;
+    
+    console.log('[Storage] Check result:', {
+      exists,
+      filesFound: files?.length,
+      error: null
     });
 
-  console.log('[Storage] Check result:', {
-    exists: files && files.length > 0,
-    filesFound: files?.length,
-    error: listError
-  });
-
-  return {
-    exists: files && files.length > 0,
-    error: listError
-  };
+    return { exists, error: null };
+  } catch (error) {
+    console.error('[Storage] Error checking file:', error);
+    return { exists: false, error };
+  }
 }
 
 export async function deleteFile(filePath: string, fileId: string, taskId: string) {
@@ -77,7 +86,7 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
 
     console.log('[Delete] File deletion completed successfully');
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Delete] Error during deletion:', error);
     toast({
       title: "Error",
@@ -114,7 +123,7 @@ export async function getSignedUrl(filePath: string) {
     if (error) throw error;
 
     return data.signedUrl;
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Storage] Error getting signed URL:', error);
     toast({
       title: "Error",
