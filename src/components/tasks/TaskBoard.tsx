@@ -10,7 +10,7 @@ interface TaskBoardProps {
 }
 
 export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
-  const { tasks, isLoading } = useTaskContext();
+  const { tasks, isLoading, error } = useTaskContext();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialSelectedTaskId || null);
 
   // Update selected task when initialSelectedTaskId changes
@@ -20,6 +20,14 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
     }
   }, [initialSelectedTaskId]);
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
+        <p className="text-destructive">Error loading tasks: {error.message}</p>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
@@ -28,8 +36,8 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
     );
   }
 
-  const upcomingTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
+  const upcomingTasks = tasks?.filter(task => !task.completed) || [];
+  const completedTasks = tasks?.filter(task => task.completed) || [];
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full my-6">

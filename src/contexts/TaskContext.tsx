@@ -11,6 +11,7 @@ type TaskUpdate = TablesUpdate<'tasks'>;
 interface TaskContextType {
   tasks: Task[];
   isLoading: boolean;
+  error: Error | null;
   addTask: (title: string) => Promise<void>;
   updateTask: (id: string, updates: TaskUpdate) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
@@ -23,7 +24,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -64,6 +65,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Add task error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -88,6 +90,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error: Error) => {
+      console.error("Update task error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -142,6 +145,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Delete task error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -160,6 +164,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const value = {
     tasks,
     isLoading,
+    error,
     addTask: (title: string) => addTaskMutation.mutateAsync(title),
     updateTask: (id: string, updates: TaskUpdate) =>
       updateTaskMutation.mutateAsync({ id, updates }),
