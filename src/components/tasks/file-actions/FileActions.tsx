@@ -36,13 +36,19 @@ export function FileActions({ file }: FileActionsProps) {
     
     try {
       setIsDeleting(true);
+      console.log('Starting file deletion:', file);
       
       // Delete from storage first
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
 
-      if (storageError) throw storageError;
+      if (storageError) {
+        console.error('Storage deletion error:', storageError);
+        throw storageError;
+      }
+
+      console.log('Storage deletion successful');
 
       // Then delete from database
       const { error: dbError } = await supabase
@@ -50,7 +56,12 @@ export function FileActions({ file }: FileActionsProps) {
         .delete()
         .eq("id", file.id);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database deletion error:', dbError);
+        throw dbError;
+      }
+
+      console.log('Database deletion successful');
 
       // Invalidate queries to refresh the file list
       await queryClient.invalidateQueries({ 
@@ -163,7 +174,7 @@ export function FileActions({ file }: FileActionsProps) {
             variant="ghost"
           />
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete File</AlertDialogTitle>
             <AlertDialogDescription>
@@ -171,9 +182,13 @@ export function FileActions({ file }: FileActionsProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDelete();
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete

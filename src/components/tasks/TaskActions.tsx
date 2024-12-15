@@ -18,10 +18,6 @@ interface TaskActionsProps {
 }
 
 export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
-  const handleDelete = () => {
-    onDelete();
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -42,7 +38,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           )}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Task</AlertDialogTitle>
           <AlertDialogDescription>
@@ -50,9 +46,13 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
