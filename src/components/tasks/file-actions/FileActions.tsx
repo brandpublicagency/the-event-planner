@@ -57,7 +57,7 @@ export function FileActions({ file }: FileActionsProps) {
         console.error('Database deletion error:', dbError);
         throw dbError;
       }
-      
+
       // Invalidate queries to refresh the file list
       await queryClient.invalidateQueries({ 
         queryKey: ["task-files", file.task_id] 
