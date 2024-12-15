@@ -5,6 +5,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Node } from '@tiptap/core';
+import type { NodeViewRenderer } from '@tiptap/core';
 import { createLinkPreviewNodeView } from './LinkPreviewNodeView';
 
 const lowlight = createLowlight(common);
@@ -32,7 +33,7 @@ const LinkPreviewNode = Node.create({
     return ['div', { ...HTMLAttributes, 'data-type': 'link-preview' }];
   },
   addNodeView() {
-    return createLinkPreviewNodeView;
+    return createLinkPreviewNodeView as unknown as NodeViewRenderer;
   },
 });
 
@@ -51,7 +52,7 @@ export const getEditorExtensions = () => [
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
-    onModifyLink: (url) => {
+    modifySelection: (url) => {
       // Convert link to preview when pasted
       return {
         href: url,

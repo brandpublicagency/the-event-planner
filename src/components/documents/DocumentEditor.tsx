@@ -45,7 +45,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
 
       try {
-        const { data, error } = await Promise.race([
+        const response = await Promise.race([
           supabase
             .from("documents")
             .select("*")
@@ -54,11 +54,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           timeoutPromise
         ]) as PostgrestResponse<Document>;
 
-        if (error) {
-          throw error;
-        }
-
-        return data;
+        if (response.error) throw response.error;
+        return response.data;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
