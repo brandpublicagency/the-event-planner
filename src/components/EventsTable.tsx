@@ -44,7 +44,7 @@ export const EventsTable = ({
     });
   };
 
-  // Filter out past events for dashboard view
+  // Filter out past events and completed events for dashboard view
   const filteredGroupedEvents = isDashboard ? 
     Object.entries(groupedEvents).reduce((acc, [monthYear, events]) => {
       const today = new Date();
@@ -53,7 +53,8 @@ export const EventsTable = ({
       const filteredEvents = events.filter(event => {
         if (!event.event_date) return false;
         const eventDate = new Date(event.event_date);
-        return eventDate >= today;
+        // Filter out past events and completed events
+        return eventDate >= today && !event.completed;
       });
 
       if (filteredEvents.length > 0) {
@@ -93,6 +94,11 @@ export const EventsTable = ({
               </div>
             </div>
           ))}
+          {Object.keys(filteredGroupedEvents).length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No upcoming events
+            </div>
+          )}
         </div>
       </ScrollArea>
     );
