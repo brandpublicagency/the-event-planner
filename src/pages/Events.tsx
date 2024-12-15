@@ -6,6 +6,8 @@ import EventsTable from "@/components/EventsTable";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { format } from "date-fns";
+import type { Event } from "@/types/event";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -38,6 +40,17 @@ export default function Events() {
     checkAuth();
   }, [navigate]);
 
+  // Group events by month and year
+  const groupedEvents = events?.reduce((acc: Record<string, Event[]>, event) => {
+    if (!event.event_date) return acc;
+    const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
+    if (!acc[monthYear]) {
+      acc[monthYear] = [];
+    }
+    acc[monthYear].push(event);
+    return acc;
+  }, {}) || {};
+
   return (
     <div className="flex h-full flex-col">
       <Header />
@@ -53,7 +66,7 @@ export default function Events() {
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          <EventsTable events={events || []} />
+          <EventsTable groupedEvents={groupedEvents} />
         )}
       </div>
     </div>
