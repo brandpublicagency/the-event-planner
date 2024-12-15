@@ -26,7 +26,6 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           size="icon"
           className="h-6 w-6 border-border/40 hover:border-destructive/50"
           disabled={isDeleting}
-          onClick={(e) => e.stopPropagation()}
         >
           {isDeleting ? (
             <Loader2 className="h-3 w-3 animate-spin" />
