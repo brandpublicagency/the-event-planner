@@ -41,7 +41,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-zinc-600">
+        <h4 className="text-xs font-medium text-zinc-600">
           {date ? format(date, "MMMM d, yyyy") : "Events"}
         </h4>
         <Button
@@ -58,8 +58,8 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
       {!events?.length ? (
         <div className="text-center py-12 text-zinc-500">
           <CalendarIcon className="h-12 w-12 mx-auto mb-4 text-zinc-400" />
-          <p className="text-sm">No events scheduled for this date.</p>
-          <p className="text-xs mt-1 text-zinc-400">Select another date to view events</p>
+          <p className="text-xs">No events scheduled for this date.</p>
+          <p className="text-[10px] mt-1 text-zinc-400">Select another date to view events</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -72,12 +72,12 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-zinc-900 truncate">{event.name}</h4>
-                    <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+                    <h4 className="text-xs font-medium text-zinc-900 truncate">{event.name}</h4>
+                    <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 text-[10px]">
                       {event.event_type}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-zinc-500">
+                  <div className="flex items-center gap-2 text-xs text-zinc-500">
                     <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
                     <span>•</span>
                     <span>{event.pax} Guests</span>
