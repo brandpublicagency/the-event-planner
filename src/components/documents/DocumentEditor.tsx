@@ -9,6 +9,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 import { getEditorExtensions } from "./editorExtensions";
 import type { Document, DocumentContent } from "@/types/document";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -18,6 +19,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const debouncedTitle = useDebounce(title, 500);
 
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -28,7 +30,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
     onUpdate: ({ editor }) => {
       if (documentId) {
-        updateDocument.mutate();
+        updateDocument.mutate({
+          content: {
+            html: editor.getHTML(),
+            text: editor.getText(),
+          }
+        });
       }
     },
   });
@@ -38,41 +45,24 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     queryFn: async () => {
       if (!documentId) return null;
       
-      // Increased timeout to 30 seconds
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Document fetch timed out")), 30000);
-      });
+      const { data, error } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("id", documentId)
+        .is("deleted_at", null)
+        .single();
 
-      try {
-        const result = await Promise.race([
-          supabase
-            .from("documents")
-            .select("*")
-            .eq("id", documentId)
-            .single(),
-          timeoutPromise
-        ]);
-
-        // Type assertion to handle Supabase response
-        const response = result as { data: Document | null, error: any };
-        if (response.error) throw response.error;
-        if (!response.data) throw new Error("Document not found");
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching document:", error);
-        throw error;
-      }
+      if (error) throw error;
+      if (!data) throw new Error("Document not found");
+      return data as Document;
     },
     enabled: !!documentId,
-    retry: 1,
-    staleTime: 30000,
   });
 
   useEffect(() => {
     if (document) {
       setTitle(document.title);
       if (document.content) {
-        // Type assertion to ensure content matches DocumentContent structure
         const content = document.content as unknown as DocumentContent;
         if (content?.html) {
           editor?.commands.setContent(content.html);
@@ -83,46 +73,43 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     }
   }, [document, editor]);
 
+  // Update when title changes
+  useEffect(() => {
+    if (documentId && debouncedTitle !== document?.title) {
+      updateDocument.mutate({ title: debouncedTitle });
+    }
+  }, [debouncedTitle, documentId, document?.title]);
+
   const updateDocument = useMutation({
-    mutationFn: async () => {
-      if (!documentId || !editor) return;
+    mutationFn: async (updates: { 
+      title?: string;
+      content?: DocumentContent;
+    }) => {
+      if (!documentId) return;
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Save operation timed out")), 10000);
-      });
+      const { error } = await supabase
+        .from("documents")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", documentId);
 
-      try {
-        const updatePromise = supabase
-          .from("documents")
-          .update({
-            title,
-            content: {
-              html: editor.getHTML(),
-              text: editor.getText(),
-            },
-          })
-          .eq("id", documentId);
-
-        await Promise.race([updatePromise, timeoutPromise]);
-      } catch (error) {
-        console.error("Error saving document:", error);
-        throw error;
-      }
+      if (error) throw error;
     },
     onError: (error: Error) => {
       console.error("Save error:", error);
       toast({
         title: "Error saving document",
-        description: error.message || "Failed to save document. Please try again.",
+        description: "Your changes could not be saved. Please try again.",
         variant: "destructive",
       });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["document", documentId] });
+    },
   });
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-    updateDocument.mutate();
-  };
 
   if (!documentId) {
     return (
@@ -153,7 +140,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       <div className="flex items-center justify-between mb-6">
         <Input
           value={title}
-          onChange={handleTitleChange}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="Untitled"
           className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
         />
