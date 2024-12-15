@@ -12,7 +12,19 @@ const ProfileBox = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.log("No valid session found:", error);
+        navigate('/login');
+        return;
+      }
+    };
+    
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in ProfileBox:", event, session);
       if (!session) {
         navigate('/login');
       }
@@ -24,9 +36,9 @@ const ProfileBox = () => {
   const { data: profile, isError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        console.log("Session error in profile query:", sessionError);
         navigate('/login');
         return null;
       }

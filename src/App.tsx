@@ -31,22 +31,58 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsLoading(false);
-    });
+    let mounted = true;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        queryClient.clear();
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        if (!mounted) return;
+
+        if (currentSession) {
+          console.log("Session initialized:", currentSession);
+          setSession(currentSession);
+        } else {
+          console.log("No valid session found");
+          queryClient.clear();
+          setSession(null);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        if (mounted) {
+          await supabase.auth.signOut();
+          queryClient.clear();
+          setSession(null);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (!mounted) return;
+      
+      console.log("Auth state changed:", event, newSession);
+      
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        queryClient.clear();
+        setSession(null);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
+      }
+      
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
