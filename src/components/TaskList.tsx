@@ -53,33 +53,31 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
             />
           )
         ))}
-        {!isLoading && tasks?.length === 0 && (
+        {!isLoading && (!tasks || tasks.length === 0) && (
           <p className="text-center text-muted-foreground py-8">No tasks</p>
         )}
         
-        {!tasks?.[0]?.completed && (
-          <div className="flex items-center gap-2 mt-2">
-            <Input
-              placeholder="Add a new task..."
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleAddTask();
-                }
-              }}
-              className="h-9"
-            />
-            <Button 
-              size="sm"
-              onClick={handleAddTask}
-              disabled={!newTaskTitle.trim()}
-              className="h-9"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2 mt-2">
+          <Input
+            placeholder="Add a new task..."
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddTask();
+              }
+            }}
+            className="h-9"
+          />
+          <Button 
+            size="sm"
+            onClick={handleAddTask}
+            disabled={!newTaskTitle.trim()}
+            className="h-9"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
