@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Trash2, Download } from "lucide-react";
+import { FileText, Trash2, Download, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -42,32 +42,7 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
       console.log("Successfully deleted from storage");
 
-      // Add a delay to ensure storage system processes the deletion
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Get the directory and filename from the file path
-      const pathParts = file.file_path.split('/');
-      const directory = pathParts[0];
-      const filename = pathParts[pathParts.length - 1];
-
-      // Verify the file is actually deleted from storage
-      const { data: storageCheck, error: listError } = await supabase.storage
-        .from("task-files")
-        .list(directory);
-
-      if (listError) {
-        console.error("Error checking storage after deletion:", listError);
-        throw new Error(`Failed to verify storage deletion: ${listError.message}`);
-      }
-
-      const fileStillExists = storageCheck?.some(f => f.name === filename);
-
-      if (fileStillExists) {
-        console.error("File still exists in storage:", filename);
-        throw new Error("File still exists in storage after deletion attempt");
-      }
-
-      // Then delete from the database
+      // Then delete from the database immediately
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
@@ -126,6 +101,25 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
     }
   };
 
+  const handleView = async () => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("task-files")
+        .createSignedUrl(file.file_path, 60); // URL valid for 60 seconds
+
+      if (error) throw error;
+
+      // Open the signed URL in a new tab
+      window.open(data.signedUrl, '_blank');
+    } catch (error: any) {
+      toast({
+        title: "Error viewing file",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-2 rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex items-center gap-2">
@@ -133,6 +127,14 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
         <span className="text-sm font-medium">{file.file_name}</span>
       </div>
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleView}
+          className="h-8 w-8"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
