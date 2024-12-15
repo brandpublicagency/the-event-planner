@@ -35,16 +35,11 @@ const App = () => {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (!mounted) return;
 
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          await supabase.auth.signOut();
-          queryClient.clear();
-          setSession(null);
-        } else if (currentSession) {
+        if (currentSession) {
           setSession(currentSession);
           console.log("Session initialized:", currentSession);
         } else {
@@ -68,9 +63,7 @@ const App = () => {
 
     initializeAuth();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (!mounted) return;
       
       console.log("Auth state changed:", _event, newSession);
@@ -80,6 +73,7 @@ const App = () => {
       }
       
       setSession(newSession);
+      setIsLoading(false);
     });
 
     return () => {

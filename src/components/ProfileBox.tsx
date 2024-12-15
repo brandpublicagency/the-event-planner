@@ -11,12 +11,10 @@ const ProfileBox = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Check session on component mount
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        console.error("Session error:", error);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         navigate('/login');
       }
     };
@@ -37,10 +35,9 @@ const ProfileBox = () => {
   const { data: profile, isError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
-        console.error("Session error:", sessionError);
+      if (!session) {
         navigate('/login');
         return null;
       }
@@ -49,10 +46,9 @@ const ProfileBox = () => {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
-        console.error("Profile error:", profileError);
         throw profileError;
       }
 
