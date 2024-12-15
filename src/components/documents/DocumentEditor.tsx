@@ -9,7 +9,6 @@ import { EditorToolbar } from "./EditorToolbar";
 import { DocumentActions } from "./DocumentActions";
 import { getEditorExtensions } from "./editorExtensions";
 import type { Document, DocumentContent } from "@/types/document";
-import { PostgrestResponse } from "@supabase/supabase-js";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -28,14 +27,13 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      // Trigger save when content changes
       if (documentId) {
         updateDocument.mutate();
       }
     },
   });
 
-  const { data: documentData, isLoading, error } = useQuery({
+  const { data: document, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) return null;
@@ -45,17 +43,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
 
       try {
-        const response = await Promise.race([
+        const { data, error } = await Promise.race([
           supabase
             .from("documents")
             .select("*")
             .eq("id", documentId)
             .single(),
           timeoutPromise
-        ]) as PostgrestResponse<Document>;
+        ]);
 
-        if (response.error) throw response.error;
-        return response.data;
+        if (error) throw error;
+        return data as Document;
       } catch (error) {
         console.error("Error fetching document:", error);
         throw error;
@@ -67,10 +65,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   });
 
   useEffect(() => {
-    if (documentData) {
-      setTitle(documentData.title);
-      if (documentData.content) {
-        const content = documentData.content as DocumentContent;
+    if (document) {
+      setTitle(document.title);
+      if (document.content) {
+        const content = document.content as DocumentContent;
         if (content?.html) {
           editor?.commands.setContent(content.html);
         } else {
@@ -78,7 +76,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         }
       }
     }
-  }, [documentData, editor]);
+  }, [document, editor]);
 
   const updateDocument = useMutation({
     mutationFn: async () => {
@@ -116,7 +114,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  // Add title change handler to trigger save
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
     updateDocument.mutate();
@@ -138,7 +135,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     );
   }
 
-  if (error || !documentData) {
+  if (error || !document) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
         {error ? `Error: ${error.message}` : "Document not found"}

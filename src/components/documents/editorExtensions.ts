@@ -10,7 +10,6 @@ import { createLinkPreviewNodeView } from './LinkPreviewNodeView';
 
 const lowlight = createLowlight(common);
 
-// Custom node for link previews
 const LinkPreviewNode = Node.create({
   name: 'linkPreview',
   group: 'block',
@@ -52,8 +51,7 @@ export const getEditorExtensions = () => [
     },
     protocols: ['http', 'https', 'mailto', 'tel'],
     validate: href => /^https?:\/\//.test(href),
-    modifySelection: (url) => {
-      // Convert link to preview when pasted
+    transformPasted: (url) => {
       return {
         href: url,
         'data-type': 'link-preview',
