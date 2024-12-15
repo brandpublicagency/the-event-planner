@@ -38,7 +38,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           )}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Task</AlertDialogTitle>
           <AlertDialogDescription>
@@ -46,11 +46,9 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onClick={() => {
               onDelete();
             }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
