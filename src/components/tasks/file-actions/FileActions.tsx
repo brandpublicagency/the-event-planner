@@ -26,7 +26,24 @@ export function FileActions({ file }: FileActionsProps) {
     try {
       setIsDeleting(true);
       await deleteFile(file.file_path, file.id, file.task_id);
-      await queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
+      
+      // Immediately invalidate the task-files query to trigger a refresh
+      await queryClient.invalidateQueries({ 
+        queryKey: ["task-files", file.task_id],
+        exact: true 
+      });
+      
+      toast({
+        title: "File deleted",
+        description: "The file has been successfully deleted.",
+      });
+    } catch (error: any) {
+      console.error('[Delete] Error:', error);
+      toast({
+        title: "Error deleting file",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -58,8 +75,12 @@ export function FileActions({ file }: FileActionsProps) {
       a.download = file.file_name;
       document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Cleanup
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
 
       console.log('[Download] File downloaded successfully');
     } catch (error: any) {
@@ -86,7 +107,6 @@ export function FileActions({ file }: FileActionsProps) {
       });
       
       const signedUrl = await getSignedUrl(file.file_path);
-      console.log('[View] Opening file in new window');
       window.open(signedUrl, "_blank");
     } catch (error: any) {
       console.error('[View] View process failed:', error);

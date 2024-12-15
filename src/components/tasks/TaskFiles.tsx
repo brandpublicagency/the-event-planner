@@ -27,6 +27,8 @@ export function TaskFiles({ taskId }: { taskId: string }) {
       if (error) throw error;
       return data as TaskFile[];
     },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
   });
 
   if (isLoading) {
