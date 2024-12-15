@@ -60,7 +60,7 @@ const ProfileSection = ({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+            <label className="text-sm font-medium text-muted-foreground">First Name</label>
             {isEditing ? (
               <div className="flex items-center space-x-2 mt-1">
                 <User className="h-4 w-4 text-muted-foreground" />
