@@ -23,28 +23,37 @@ export function TaskFileItem({ file }: TaskFileItemProps) {
 
   const deleteFileMutation = useMutation({
     mutationFn: async () => {
-      // First delete from storage
+      console.log("Starting file deletion process for:", file);
+
+      // First delete from database to prevent orphaned storage files
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id)
+        .single();
+
+      if (dbError) {
+        console.error("Database deletion error:", dbError);
+        throw new Error(`Database deletion failed: ${dbError.message}`);
+      }
+
+      console.log("Successfully deleted from database, now removing from storage");
+
+      // Then delete from storage
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
 
       if (storageError) {
         console.error("Storage deletion error:", storageError);
-        throw storageError;
+        // Even if storage deletion fails, the file reference is already removed from DB
+        throw new Error(`Storage deletion failed: ${storageError.message}`);
       }
 
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error("Database deletion error:", dbError);
-        throw dbError;
-      }
+      console.log("Successfully deleted from storage");
     },
     onSuccess: () => {
+      console.log("File deletion completed successfully");
       queryClient.invalidateQueries({ queryKey: ["task-files"] });
       toast({
         title: "File deleted",
