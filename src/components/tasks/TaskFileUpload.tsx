@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFileUploadProps {
@@ -14,6 +14,7 @@ interface TaskFileUploadProps {
 export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -50,10 +51,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         // Upload file to storage
         const { error: uploadError } = await supabase.storage
           .from("task-files")
-          .upload(filePath, file, {
-            contentType: file.type,
-            cacheControl: '3600'
-          });
+          .upload(filePath, file);
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
@@ -93,6 +91,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         title: "File uploaded",
         description: "Your file has been uploaded successfully.",
       });
+      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       if (onSuccess) {
         onSuccess();
       }
