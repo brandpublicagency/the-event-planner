@@ -1,7 +1,8 @@
-import { TablesRow, TablesUpdate } from "@/integrations/supabase/types/tables";
+import { Database } from "@/integrations/supabase/types/database";
 
-export type Task = TablesRow<'tasks'>;
-export type TaskUpdate = TablesUpdate<'tasks'>;
+export type Tables = Database['public']['Tables'];
+export type Task = Tables['tasks']['Row'];
+export type TaskUpdate = Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>;
 
 export interface TaskContextType {
   tasks: Task[];
