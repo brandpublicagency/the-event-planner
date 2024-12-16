@@ -26,12 +26,19 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         setIsLoading(true);
         
         // First try to get from cache
-        const { data: cachedPreview } = await supabase
+        const { data: cachedPreviews, error: cacheError } = await supabase
           .from('link_previews')
-          .select()
+          .select('*')
           .eq('url', url)
-          .single();
+          .limit(1);
 
+        if (cacheError) {
+          console.error('Cache fetch error:', cacheError);
+          throw cacheError;
+        }
+
+        const cachedPreview = cachedPreviews?.[0];
+        
         if (cachedPreview) {
           setImageUrl(cachedPreview.image_url);
           setTitle(cachedPreview.title);
