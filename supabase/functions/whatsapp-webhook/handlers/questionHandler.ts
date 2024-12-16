@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
+import { withTimeout, handleTimeoutError } from '../utils/timeoutUtils.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -10,22 +11,14 @@ const openai = new OpenAI({
   apiKey: Deno.env.get('OPENAI_API_KEY')!
 });
 
-// Set a timeout of 15 seconds
-const TIMEOUT = 15000;
-
 export const handleAIQuestion = async (question: string) => {
   try {
     console.log('Processing AI question:', question);
     
     const today = new Date().toISOString().split('T')[0];
     
-    // Create a promise that rejects after the timeout
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timed out')), TIMEOUT);
-    });
-
-    // Fetch events with a timeout
-    const eventsPromise = supabase
+    // Fetch events with timeout
+    const eventsQuery = supabase
       .from('events')
       .select(`
         *,
@@ -51,7 +44,10 @@ export const handleAIQuestion = async (question: string) => {
       .is('completed', false)
       .order('event_date', { ascending: true });
 
-    const { data: events, error } = await Promise.race([eventsPromise, timeoutPromise]) as any;
+    const { data: events, error } = await withTimeout(
+      eventsQuery,
+      'Events query'
+    );
 
     if (error) {
       console.error('Error fetching events:', error);
@@ -88,13 +84,14 @@ Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}`;
     }).join('\n\n') || 'No upcoming events found.';
 
-    // Use GPT-3.5-turbo instead of GPT-4 for faster responses
-    const completionPromise = openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful event planning assistant. Answer questions about these events:
+    // Use GPT-3.5-turbo for faster responses
+    const completion = await withTimeout(
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful event planning assistant. Answer questions about these events:
 
 ${eventsContext}
 
@@ -102,17 +99,18 @@ Answer naturally and conversationally. Keep responses concise but informative.
 If you're not sure about something, say so.
 If asked about an event that doesn't exist, let them know.
 Always maintain a professional and helpful tone.`
-        },
-        {
-          role: "user",
-          content: question
-        }
-      ],
-      max_tokens: 300, // Limit response length
-      temperature: 0.7
-    });
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ],
+        max_tokens: 300,
+        temperature: 0.7
+      }),
+      'AI completion'
+    );
 
-    const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
     const answer = completion.choices[0]?.message?.content || "I'm sorry, I couldn't process your question. Please try again.";
     console.log('Generated AI response:', answer);
 
@@ -122,15 +120,6 @@ Always maintain a professional and helpful tone.`
     };
   } catch (error) {
     console.error('Error handling AI question:', error);
-    if (error.message === 'Request timed out') {
-      return {
-        type: 'text',
-        message: "I apologize, but the request took too long to process. Please try asking a simpler question or try again later."
-      };
-    }
-    return {
-      type: 'text',
-      message: "I'm sorry, I encountered an error while trying to answer your question. Please try again later."
-    };
+    return handleTimeoutError(error);
   }
 };

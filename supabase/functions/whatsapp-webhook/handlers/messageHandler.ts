@@ -2,12 +2,7 @@ import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
 import { handleAIQuestion } from './questionHandler.ts';
-import { formatEventMenu } from '../formatters/eventFormatter.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { withTimeout } from '../utils/timeoutUtils.ts';
 
 export const handleMessage = async (message: any) => {
   try {
@@ -21,11 +16,17 @@ export const handleMessage = async (message: any) => {
       });
       
       if (message.interactive.list_reply) {
-        return await handleListSelection(message.interactive.list_reply.id);
+        return await withTimeout(
+          handleListSelection(message.interactive.list_reply.id),
+          'List selection'
+        );
       }
 
       if (message.interactive.button_reply) {
-        return await handleListSelection(message.interactive.button_reply.id);
+        return await withTimeout(
+          handleListSelection(message.interactive.button_reply.id),
+          'Button selection'
+        );
       }
 
       return {
@@ -87,20 +88,25 @@ export const handleMessage = async (message: any) => {
         };
       }
 
-      // Handle specific queries
+      // Handle specific queries with timeout
       if (messageText === 'next event') {
-        return await getNextEvent();
+        return await withTimeout(getNextEvent(), 'Next event query');
       }
 
       if (messageText === 'next task') {
-        return await getNextTask(message.from);
+        return await withTimeout(
+          getNextTask(message.from),
+          'Next task query'
+        );
       }
 
-      // For all other messages, use AI to generate a natural language response
-      return await handleAIQuestion(message.text.body);
+      // For all other messages, use AI to generate a response
+      return await withTimeout(
+        handleAIQuestion(message.text.body),
+        'AI question handling'
+      );
     }
 
-    // Handle messages without text or interactive content
     console.error('Invalid message format:', JSON.stringify(message, null, 2));
     return {
       type: 'text',
