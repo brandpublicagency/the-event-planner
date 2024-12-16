@@ -23,59 +23,63 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading, error } = useQuery({
     queryKey: ['linkPreview', url],
     queryFn: async () => {
-      console.log('Fetching preview for:', url);
+      console.log('Starting preview fetch for:', url);
       
-      // First try to get from cache
-      const { data: existingPreview, error: cacheError } = await supabase
-        .from('link_previews')
-        .select('*')
-        .eq('url', url)
-        .single();
+      try {
+        // First try to get from cache
+        const { data: existingPreview, error: cacheError } = await supabase
+          .from('link_previews')
+          .select('*')
+          .eq('url', url)
+          .single();
 
-      if (existingPreview) {
-        console.log('Found cached preview:', existingPreview);
-        return existingPreview as LinkPreviewData;
-      }
+        if (existingPreview) {
+          console.log('Found cached preview:', existingPreview);
+          return existingPreview as LinkPreviewData;
+        }
 
-      // If not in cache, fetch from edge function
-      console.log('No cache found, fetching from edge function');
-      const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
-        body: { url },
-      });
+        console.log('No cache found, invoking edge function');
+        const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+          body: { url },
+        });
 
-      if (error) {
-        console.error('Edge function error:', error);
+        if (error) {
+          console.error('Edge function error:', error);
+          throw error;
+        }
+
+        if (!data) {
+          throw new Error('No preview data returned');
+        }
+
+        console.log('Got preview from edge function:', data);
+        
+        // Store in database
+        const { error: insertError } = await supabase
+          .from('link_previews')
+          .insert(data);
+
+        if (insertError) {
+          console.error('Error caching link preview:', insertError);
+          toast({
+            title: "Warning",
+            description: "Preview was generated but couldn't be cached",
+            variant: "destructive",
+          });
+        }
+
+        return data as LinkPreviewData;
+      } catch (error) {
+        console.error('Preview fetch error:', error);
         throw error;
       }
-
-      if (!data) {
-        throw new Error('No preview data returned');
-      }
-
-      console.log('Got preview from edge function:', data);
-      
-      // Store in database
-      const { error: insertError } = await supabase
-        .from('link_previews')
-        .insert(data);
-
-      if (insertError) {
-        console.error('Error caching link preview:', insertError);
-        toast({
-          title: "Warning",
-          description: "Preview was generated but couldn't be cached",
-          variant: "destructive",
-        });
-      }
-
-      return data as LinkPreviewData;
     },
     retry: 1,
   });
 
   if (error) {
     console.error('Preview error:', error);
-    return null; // Silently fail if preview can't be loaded
+    return null;
   }
 
   if (isLoading) {
