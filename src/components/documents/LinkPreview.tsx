@@ -47,26 +47,24 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       <Card className="w-full max-w-[400px] overflow-hidden group hover:bg-accent/50 transition-colors">
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
           <div className="p-4 space-y-3">
-            {/* Header with favicon and domain */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="relative w-5 h-5 flex-shrink-0">
-                  <img 
-                    src={faviconUrl} 
-                    alt=""
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  <Globe className="h-5 w-5 text-muted-foreground hidden absolute inset-0" />
-                </div>
-                <p className="text-sm font-medium text-foreground truncate">
-                  {domain}
-                </p>
+            {/* URL and favicon */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-5 h-5 flex-shrink-0">
+                <img 
+                  src={faviconUrl} 
+                  alt=""
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <Globe className="h-5 w-5 text-muted-foreground hidden absolute inset-0" />
               </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              <p className="text-sm text-muted-foreground truncate">
+                {url}
+              </p>
+              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
             </div>
             
             {/* Title and description */}
@@ -85,9 +83,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
                   {preview.description}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground/60 break-all line-clamp-1">
-                {url}
-              </p>
             </div>
           </div>
         </a>
