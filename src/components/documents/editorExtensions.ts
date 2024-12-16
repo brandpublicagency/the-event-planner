@@ -20,13 +20,16 @@ export const PasteHandler = Node.create({
       new Plugin({
         props: {
           handlePaste: (view, event) => {
+            console.log('Paste event detected');
             const text = event.clipboardData?.getData('text/plain');
             if (!text) return false;
             
             // Check if the text is a URL
             try {
+              console.log('Checking URL:', text);
               const url = new URL(text);
               if (url.protocol === 'http:' || url.protocol === 'https:') {
+                console.log('Valid URL detected:', url.href);
                 const { tr } = view.state;
                 
                 // Create a paragraph node with the link mark
@@ -51,7 +54,7 @@ export const PasteHandler = Node.create({
                 return true;
               }
             } catch (e) {
-              // Not a valid URL, let the default paste handler take over
+              console.log('Not a valid URL:', e);
               return false;
             }
             return false;

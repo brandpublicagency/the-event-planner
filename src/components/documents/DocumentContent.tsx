@@ -17,6 +17,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
   useEffect(() => {
     if (!contentRef.current) return;
     
+    console.log('Content updated, checking for link previews');
     const previewElements = contentRef.current.querySelectorAll('p');
     const newPreviews: Array<{ id: string; url: string }> = [];
     
@@ -25,6 +26,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
       if (text?.startsWith('<link-preview url="') && text?.endsWith('">')) {
         const url = text.match(/url="([^"]+)"/)?.[1];
         if (url) {
+          console.log('Found link preview for URL:', url);
           const id = `preview-${index}`;
           newPreviews.push({ id, url });
           
@@ -36,6 +38,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
       }
     });
     
+    console.log('Setting link previews:', newPreviews);
     setLinkPreviews(newPreviews);
   }, [editor.getHTML()]);
 

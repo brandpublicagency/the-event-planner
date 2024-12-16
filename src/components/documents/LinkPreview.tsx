@@ -41,9 +41,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         console.log('No cache found, invoking edge function');
         const { data, error: functionError } = await supabase.functions.invoke('fetch-link-preview', {
           body: { url },
-          headers: {
-            'Content-Type': 'application/json',
-          },
         });
 
         if (functionError) {
