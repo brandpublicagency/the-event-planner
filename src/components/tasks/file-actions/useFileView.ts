@@ -11,23 +11,17 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      // Get the public URL but we need to transform it
-      const { data } = supabase.storage
+      // Get a signed URL that expires in 60 seconds
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60);
 
-      if (!data.publicUrl) {
-        throw new Error('Could not generate URL for file');
+      if (error || !data?.signedUrl) {
+        throw new Error('Could not generate signed URL for file');
       }
 
-      // Transform the URL to use the direct download endpoint
-      const downloadUrl = data.publicUrl.replace('/object/public/', '/object/sign/');
-      
-      // Add download=true parameter to force download for non-image files
-      const finalUrl = `${downloadUrl}?download=true`;
-      
-      console.log('[View] Opening file URL:', finalUrl);
-      window.open(finalUrl, '_blank');
+      console.log('[View] Opening file URL:', data.signedUrl);
+      window.open(data.signedUrl, '_blank');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
