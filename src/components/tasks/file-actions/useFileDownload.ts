@@ -11,30 +11,34 @@ export function useFileDownload() {
 
     try {
       setIsLoading(true);
+      console.log('[Download] Starting download for:', filePath);
       
-      const { data: { signedUrl }, error } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60);
+        .download(filePath);
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Download] Error downloading file:', error);
+        throw error;
+      }
+
+      console.log('[Download] File downloaded successfully');
       
-      const response = await fetch(signedUrl);
-      if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
-      
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      
+      // Create a download link for the blob
+      const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
       
+      // Cleanup
       setTimeout(() => {
         URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }, 100);
     } catch (error: any) {
+      console.error('[Download] Error:', error);
       toast({
         title: "Error downloading file",
         description: error.message,

@@ -11,15 +11,21 @@ export function useFileView() {
 
     try {
       setIsLoading(true);
+      console.log('[View] Starting file view for:', filePath);
       
-      const { data: { signedUrl }, error } = await supabase.storage
+      const { data: { publicUrl }, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60);
+        .getPublicUrl(filePath);
 
-      if (error) throw error;
-      
-      window.open(signedUrl, "_blank");
+      if (error) {
+        console.error('[View] Error getting public URL:', error);
+        throw error;
+      }
+
+      console.log('[View] Opening file in new tab:', publicUrl);
+      window.open(publicUrl, "_blank");
     } catch (error: any) {
+      console.error('[View] Error:', error);
       toast({
         title: "Error viewing file",
         description: error.message,
