@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Globe } from "lucide-react";
+import { Globe, ExternalLink } from "lucide-react";
 
 interface LinkPreviewProps {
   url: string;
@@ -22,6 +22,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           description: url,
           domain: domain,
           favicon: faviconUrl,
+          image: null,
         };
       } catch (error) {
         console.error("Link preview error:", error);
@@ -30,6 +31,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           description: 'Preview unavailable',
           domain: 'unknown',
           favicon: null,
+          image: null,
         };
       }
     },
@@ -39,9 +41,12 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   if (isLoading) {
     return (
       <Card className="w-full max-w-[600px] overflow-hidden">
-        <div className="p-4 space-y-3">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
+        <div className="flex gap-4 p-4">
+          <div className="space-y-3 flex-1">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+          <Skeleton className="h-24 w-24 rounded" />
         </div>
       </Card>
     );
@@ -52,27 +57,44 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   return (
     <Card className="w-full max-w-[600px] overflow-hidden hover:bg-accent/50 transition-colors">
       <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-        <div className="p-4 space-y-2">
-          <div className="flex items-center gap-2">
-            {preview.favicon ? (
+        <div className="flex gap-4 p-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              {preview.favicon ? (
+                <img 
+                  src={preview.favicon} 
+                  alt={`${preview.domain} favicon`}
+                  className="h-4 w-4"
+                  onError={(e) => {
+                    // Fallback to Globe icon if favicon fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <Globe className={`h-4 w-4 text-muted-foreground ${preview.favicon ? 'hidden' : ''}`} />
+              <h3 className="font-medium text-lg leading-tight truncate">{preview.title}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {preview.description}
+            </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{preview.domain}</span>
+              <ExternalLink className="h-3 w-3" />
+            </div>
+          </div>
+          {preview.image && (
+            <div className="flex-shrink-0">
               <img 
-                src={preview.favicon} 
-                alt={`${preview.domain} favicon`}
-                className="h-4 w-4"
+                src={preview.image} 
+                alt=""
+                className="h-24 w-24 object-cover rounded"
                 onError={(e) => {
-                  // Fallback to Globe icon if favicon fails to load
                   e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
               />
-            ) : null}
-            <Globe className={`h-4 w-4 text-muted-foreground ${preview.favicon ? 'hidden' : ''}`} />
-            <h3 className="font-medium text-lg leading-tight">{preview.title}</h3>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {preview.description}
-          </p>
-          <p className="text-xs text-muted-foreground">{preview.domain}</p>
+            </div>
+          )}
         </div>
       </a>
     </Card>
