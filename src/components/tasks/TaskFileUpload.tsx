@@ -19,19 +19,22 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
     mutationFn: async (file: File) => {
       setIsUploading(true);
       try {
-        // First verify task ownership
+        // First verify task exists and user has access
         const { data: task, error: taskError } = await supabase
           .from('tasks')
-          .select('user_id, assigned_to')
+          .select('id, user_id')
           .eq('id', taskId)
           .single();
 
-        if (taskError) throw new Error('Failed to verify task ownership');
+        if (taskError || !task) {
+          console.error('Task verification error:', taskError);
+          throw new Error('Failed to verify task ownership');
+        }
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User not authenticated');
 
-        if (task.user_id !== user.id && task.assigned_to !== user.id) {
+        if (task.user_id !== user.id) {
           throw new Error('You do not have permission to upload files to this task');
         }
 
@@ -50,7 +53,10 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         // Upload file to storage
         const { error: uploadError } = await supabase.storage
           .from("task-files")
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            contentType: file.type,
+            cacheControl: '3600'
+          });
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
@@ -71,12 +77,18 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
 
         if (dbError) {
           console.error('Database insert error:', dbError);
+          // If database insert fails, clean up the uploaded file
+          await supabase.storage
+            .from("task-files")
+            .remove([filePath]);
           throw new Error('Failed to create file record');
         }
 
         console.log('File record created in database');
         return { success: true };
       } catch (error: any) {
+        // Clean up any uploaded file if there was an error
+        console.error('Upload error:', error);
         throw error;
       }
     },
