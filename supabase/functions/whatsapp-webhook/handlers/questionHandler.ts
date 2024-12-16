@@ -10,12 +10,22 @@ const openai = new OpenAI({
   apiKey: Deno.env.get('OPENAI_API_KEY')!
 });
 
+// Set a timeout of 15 seconds
+const TIMEOUT = 15000;
+
 export const handleAIQuestion = async (question: string) => {
   try {
     console.log('Processing AI question:', question);
     
     const today = new Date().toISOString().split('T')[0];
-    const { data: events, error } = await supabase
+    
+    // Create a promise that rejects after the timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out')), TIMEOUT);
+    });
+
+    // Fetch events with a timeout
+    const eventsPromise = supabase
       .from('events')
       .select(`
         *,
@@ -40,6 +50,8 @@ export const handleAIQuestion = async (question: string) => {
       .is('deleted_at', null)
       .is('completed', false)
       .order('event_date', { ascending: true });
+
+    const { data: events, error } = await Promise.race([eventsPromise, timeoutPromise]) as any;
 
     if (error) {
       console.error('Error fetching events:', error);
@@ -76,8 +88,9 @@ Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}`;
     }).join('\n\n') || 'No upcoming events found.';
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    // Use GPT-3.5-turbo instead of GPT-4 for faster responses
+    const completionPromise = openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -94,9 +107,12 @@ Always maintain a professional and helpful tone.`
           role: "user",
           content: question
         }
-      ]
+      ],
+      max_tokens: 300, // Limit response length
+      temperature: 0.7
     });
 
+    const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
     const answer = completion.choices[0]?.message?.content || "I'm sorry, I couldn't process your question. Please try again.";
     console.log('Generated AI response:', answer);
 
@@ -106,6 +122,12 @@ Always maintain a professional and helpful tone.`
     };
   } catch (error) {
     console.error('Error handling AI question:', error);
+    if (error.message === 'Request timed out') {
+      return {
+        type: 'text',
+        message: "I apologize, but the request took too long to process. Please try asking a simpler question or try again later."
+      };
+    }
     return {
       type: 'text',
       message: "I'm sorry, I encountered an error while trying to answer your question. Please try again later."
