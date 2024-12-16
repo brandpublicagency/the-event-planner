@@ -33,9 +33,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           .select("*")
           .eq("id", documentId)
           .is("deleted_at", null)
-          .single({
-            signal
-          });
+          .single();
 
         cleanup();
 
@@ -82,9 +80,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
             updated_at: new Date().toISOString(),
           })
           .eq("id", documentId)
-          .single({
-            signal
-          });
+          .single();
 
         cleanup();
 
