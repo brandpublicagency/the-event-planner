@@ -112,24 +112,24 @@ const Index = () => {
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-screen">
+      <div className="flex items-center justify-between p-4 md:p-8">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="w-full">
+      <div className="w-full px-4 md:px-8">
         <ChatBox />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 md:p-8 flex-1 overflow-hidden">
+        <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Events</h3>
             <Button onClick={() => navigate('/events/new')} size="sm">
               New Event
             </Button>
           </div>
-          <div className="h-[400px] overflow-auto">
+          <div className="flex-1 overflow-auto">
             <EventsTable 
               groupedEvents={groupedEvents}
               handleDelete={handleDelete}
@@ -138,14 +138,14 @@ const Index = () => {
           </div>
         </div>
 
-        <div>
+        <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Tasks</h3>
             <Button onClick={() => navigate('/tasks')} size="sm">
               New Task
             </Button>
           </div>
-          <div className="h-[400px] overflow-auto">
+          <div className="flex-1 overflow-auto">
             <TaskList 
               tasks={upcomingTasks}
               onTaskSelect={handleTaskSelect}
