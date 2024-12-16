@@ -12,6 +12,17 @@ import {
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface DocumentActionsProps {
   documentId: string;
@@ -91,12 +102,6 @@ export function DocumentActions({ documentId, title, editor }: DocumentActionsPr
     },
   });
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this document?")) {
-      deleteDocument.mutate();
-    }
-  };
-
   return (
     <div className="flex gap-2">
       <DropdownMenu>
@@ -121,15 +126,32 @@ export function DocumentActions({ documentId, title, editor }: DocumentActionsPr
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDelete}
-        className="text-destructive hover:text-destructive"
-      >
-        <Trash2 className="h-4 w-4 mr-2" />
-        Delete
-      </Button>
+
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" size="sm">
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this document? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteDocument.mutate()}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
