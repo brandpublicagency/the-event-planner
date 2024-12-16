@@ -33,25 +33,24 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       const { signal, cleanup } = createAbortableQuery();
       
       try {
-        const query = supabase
+        const { data, error } = await supabase
           .from("documents")
           .select("*")
           .eq("id", documentId)
           .is("deleted_at", null)
-          .abortSignal(signal);
-
-        const { data, error } = await query;
+          .abortSignal(signal)
+          .single();
 
         if (error) {
           console.error("Document fetch error:", error);
           throw error;
         }
         
-        if (!data || data.length === 0) {
+        if (!data) {
           throw new Error("Document not found");
         }
 
-        return data[0] as Document;
+        return data as Document;
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           throw new Error("Request timed out. Please try again.");
@@ -80,19 +79,22 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw new Error("Cannot update document: not authenticated");
       }
 
-      const { signal, cleanup } = createAbortableQuery();
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        throw new Error("User not authenticated");
+      }
 
       try {
-        const query = supabase
+        const { data, error } = await supabase
           .from("documents")
           .update({
             ...updates,
             updated_at: new Date().toISOString(),
           })
           .eq("id", documentId)
-          .abortSignal(signal);
-
-        const { error, data } = await query;
+          .eq("user_id", user.user.id)
+          .select()
+          .single();
 
         if (error) {
           console.error("Document update error:", error);
@@ -101,12 +103,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
         return data;
       } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          throw new Error("Save operation timed out. Please try again.");
-        }
+        console.error("Save error:", error);
         throw error;
-      } finally {
-        cleanup();
       }
     },
     onError: (error: Error) => {
