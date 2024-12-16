@@ -30,6 +30,16 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
     }
   };
 
+  // Show loading state while tasks are being fetched
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Show error state if task fetching failed
   if (error) {
     return (
       <Alert variant="destructive" className="my-4">
@@ -41,14 +51,7 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
+  // Filter tasks after loading is complete
   const upcomingTasks = tasks?.filter(task => !task.completed) || [];
   const completedTasks = tasks?.filter(task => task.completed) || [];
 

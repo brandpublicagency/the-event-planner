@@ -26,14 +26,6 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full my-6">
       <div className="w-full lg:w-1/2">
