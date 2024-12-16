@@ -22,10 +22,17 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         const response = await fetch(url, {
           mode: 'no-cors',
           headers: {
-            'Accept': 'text/html'
+            'Accept': 'text/html',
+            'User-Agent': 'Mozilla/5.0 (compatible; LinkPreview/1.0)'
           }
         });
 
+        // Note: In a real implementation without CORS restrictions, we would check these meta tags:
+        // 1. Facebook Open Graph: <meta property="og:image" content="...">
+        // 2. Facebook image: <meta property="fb:image" content="...">
+        // 3. Twitter image: <meta name="twitter:image" content="...">
+        // 4. Standard meta image: <meta name="image" content="...">
+        
         // Since we're using no-cors, we won't be able to read the response
         // Instead, we'll use a random placeholder image
         const randomIndex = Math.floor(Math.random() * PLACEHOLDER_IMAGES.length);
