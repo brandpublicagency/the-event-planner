@@ -1,12 +1,43 @@
 import { Card } from "@/components/ui/card";
 import { Globe, ExternalLink } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LinkPreviewProps {
   url: string;
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
+  const { data: preview, isLoading } = useQuery({
+    queryKey: ['link-preview', url],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('link_previews')
+        .select('*')
+        .eq('url', url)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-[400px] p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-5 rounded-full" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      </Card>
+    );
+  }
+
   try {
     const urlObj = new URL(url);
     const domain = urlObj.hostname.replace('www.', '');
@@ -38,9 +69,19 @@ export function LinkPreview({ url }: LinkPreviewProps) {
               <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             
-            {/* URL preview */}
+            {/* Title and description */}
             <div className="space-y-1.5">
-              <p className="text-xs text-muted-foreground/80 break-all line-clamp-2">
+              {preview?.title && (
+                <p className="text-sm font-medium line-clamp-2">
+                  {preview.title}
+                </p>
+              )}
+              {preview?.description && (
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {preview.description}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground/60 break-all line-clamp-1">
                 {url}
               </p>
             </div>
@@ -49,7 +90,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       </Card>
     );
   } catch (error) {
-    console.error("Link preview error:", error);
+    console.error('Error parsing URL:', error);
     return null;
   }
 }
