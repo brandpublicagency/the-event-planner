@@ -8,11 +8,11 @@ const TIMEOUT_DURATION = 30000; // 30 seconds
 // Utility function to create an abortable fetch with timeout
 const createAbortableQuery = (timeoutMs: number = TIMEOUT_DURATION) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   
   return {
     signal: controller.signal,
-    cleanup: () => clearTimeout(timeout)
+    cleanup: () => clearTimeout(timeoutId)
   };
 };
 
