@@ -27,27 +27,31 @@ export const PasteHandler = Node.create({
             try {
               const url = new URL(text);
               if (url.protocol === 'http:' || url.protocol === 'https:') {
-                // Insert both the link and the preview
                 const { tr } = view.state;
                 
-                // Insert the URL as a link
-                view.dispatch(
-                  tr.replaceSelectionWith(
-                    view.state.schema.text(text, [
-                      view.state.schema.marks.link.create({ href: text })
-                    ])
-                  )
-                );
-
-                // Insert the preview placeholder on a new line
-                const previewText = `<link-preview url="${text}">`;
-                const pos = view.state.selection.to;
-                view.dispatch(
-                  view.state.tr
-                    .insertText('\n\n' + previewText + '\n', pos)
-                    .scrollIntoView()
+                // Create a paragraph node with the link mark
+                const linkMark = view.state.schema.marks.link.create({ href: text });
+                const paragraph = view.state.schema.nodes.paragraph.create(
+                  null,
+                  view.state.schema.text(text, [linkMark])
                 );
                 
+                // Insert the paragraph with the link
+                tr.replaceSelectionWith(paragraph);
+                
+                // Insert the preview placeholder in a new paragraph
+                const previewText = `<link-preview url="${text}">`;
+                const previewParagraph = view.state.schema.nodes.paragraph.create(
+                  null,
+                  view.state.schema.text(previewText)
+                );
+                
+                // Add two newlines and the preview
+                tr.insert(tr.selection.to, view.state.schema.nodes.paragraph.create())
+                  .insert(tr.selection.to + 1, previewParagraph)
+                  .insert(tr.selection.to + 2, view.state.schema.nodes.paragraph.create());
+                
+                view.dispatch(tr.scrollIntoView());
                 return true;
               }
             } catch (e) {
