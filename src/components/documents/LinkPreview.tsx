@@ -51,7 +51,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
               />
             </div>
           )}
-          <div className="p-4 space-y-2.5">
+          <div className="p-4 space-y-1.5">
             <h3 className="font-medium text-base line-clamp-2">
               {preview?.title || `${domain} | Website`}
             </h3>
@@ -60,10 +60,10 @@ export function LinkPreview({ url }: LinkPreviewProps) {
                 {preview.description}
               </p>
             )}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe className="h-3.5 w-3.5" />
-              <span className="text-sm">{domain}</span>
-              <ExternalLink className="h-3.5 w-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Globe className="h-3 w-3" />
+              <span className="text-xs leading-none">{domain}</span>
+              <ExternalLink className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </a>
