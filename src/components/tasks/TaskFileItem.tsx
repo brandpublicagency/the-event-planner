@@ -25,31 +25,36 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
     mutationFn: async () => {
       console.log('Starting file deletion:', file);
       
-      // First delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
+      try {
+        // First delete from storage
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+          throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+        }
+
+        console.log('Storage deletion successful');
+
+        // Then delete from database
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .delete()
+          .eq("id", file.id);
+
+        if (dbError) {
+          console.error('Database deletion error:', dbError);
+          throw new Error(`Failed to delete file record: ${dbError.message}`);
+        }
+
+        console.log('Database deletion successful');
+        return true;
+      } catch (error: any) {
+        console.error('Delete error:', error);
+        throw error;
       }
-
-      console.log('Storage deletion successful');
-
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error('Database deletion error:', dbError);
-        throw new Error(`Failed to delete file record: ${dbError.message}`);
-      }
-
-      console.log('Database deletion successful');
-      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });

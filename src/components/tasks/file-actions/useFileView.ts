@@ -11,18 +11,18 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Starting file view for:', filePath);
       
-      // Get the signed URL for the file
-      const { data, error } = await supabase.storage
+      // Get the public URL directly
+      const { data } = supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .getPublicUrl(filePath);
 
-      if (error || !data?.signedUrl) {
-        throw new Error('Could not generate signed URL for file');
+      if (!data?.publicUrl) {
+        throw new Error('Could not generate public URL for file');
       }
 
       // Open in new tab
-      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
-      console.log('[View] File opened successfully:', data.signedUrl);
+      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      console.log('[View] File opened successfully:', data.publicUrl);
     } catch (error: any) {
       console.error('[View] Error:', error);
       toast({
