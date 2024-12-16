@@ -2,7 +2,6 @@ import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { DocumentContent } from "./DocumentContent";
-import { DocumentTitle } from "./DocumentTitle";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
@@ -14,12 +13,9 @@ interface DocumentEditorProps {
 }
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
-  const [title, setTitle] = useState("");
   const isAuthenticated = useDocumentAuth();
   const lastSavedContent = useRef<string>("");
-  const titleTimeoutRef = useRef<NodeJS.Timeout>();
   const contentInitialized = useRef(false);
-  const titleInitialized = useRef(false);
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
@@ -30,39 +26,36 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
       },
     },
-  });
-
-  // Save document content when unmounting or changing documents
-  useEffect(() => {
-    if (!editor || !documentId || !isAuthenticated) return;
-
-    const saveDocument = async () => {
+    onUpdate: ({ editor }) => {
+      const lines = editor.getText().split('\n');
+      const firstLine = lines[0] || 'Untitled Document';
       const currentContent = editor.getHTML();
-      if (!currentContent || currentContent === lastSavedContent.current) return;
+      
+      if (currentContent === lastSavedContent.current) return;
 
-      try {
-        const content: DocumentContentType = {
-          type: "doc",
-          html: currentContent,
-          text: editor.getText(),
-        };
+      const content: DocumentContentType = {
+        type: "doc",
+        html: currentContent,
+        text: editor.getText(),
+      };
 
-        await updateDocument.mutateAsync({ content });
-        lastSavedContent.current = currentContent;
-      } catch (error) {
-        console.error('Error saving document:', error);
-        toast({
-          title: "Error saving document",
-          description: "Failed to save your changes. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    return () => {
-      saveDocument();
-    };
-  }, [documentId, editor, isAuthenticated, updateDocument, toast]);
+      updateDocument.mutate({ 
+        title: firstLine,
+        content 
+      }, {
+        onError: (error) => {
+          console.error('Error saving document:', error);
+          toast({
+            title: "Error saving document",
+            description: "Failed to save your changes. Please try again.",
+            variant: "destructive",
+          });
+        }
+      });
+      
+      lastSavedContent.current = currentContent;
+    },
+  });
 
   // Load initial document content
   useEffect(() => {
@@ -75,34 +68,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       contentInitialized.current = true;
     }
   }, [document?.content, editor]);
-
-  // Initialize title state
-  useEffect(() => {
-    if (!document?.title || titleInitialized.current) return;
-    
-    setTitle(document.title);
-    titleInitialized.current = true;
-  }, [document?.title]);
-
-  // Handle title updates with debounce
-  useEffect(() => {
-    if (!documentId || !isAuthenticated || !title || !titleInitialized.current) return;
-    if (title === document?.title) return;
-
-    if (titleTimeoutRef.current) {
-      clearTimeout(titleTimeoutRef.current);
-    }
-
-    titleTimeoutRef.current = setTimeout(() => {
-      updateDocument.mutate({ title });
-    }, 500);
-
-    return () => {
-      if (titleTimeoutRef.current) {
-        clearTimeout(titleTimeoutRef.current);
-      }
-    };
-  }, [title, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
     return (
@@ -130,12 +95,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   return (
     <div className="h-full flex flex-col p-6">
-      <DocumentTitle
-        title={title}
-        onTitleChange={setTitle}
-        documentId={documentId}
-        editor={editor}
-      />
       <DocumentContent editor={editor} />
     </div>
   );
