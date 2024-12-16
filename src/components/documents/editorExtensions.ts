@@ -38,11 +38,14 @@ export const PasteHandler = Node.create({
                 const previewText = view.state.schema.text(`<link-preview url="${text}">`);
                 const previewParagraph = view.state.schema.nodes.paragraph.create(null, previewText);
                 
-                // Replace selection with link and add preview below
+                // Create an empty paragraph node for spacing
+                const emptyParagraph = view.state.schema.nodes.paragraph.create();
+                
+                // Replace selection with link and add preview below with proper spacing
                 tr.replaceSelectionWith(linkParagraph)
-                  .ensureNewline()
-                  .insert(tr.selection.to, previewParagraph)
-                  .ensureNewline();
+                  .insert(tr.selection.to, emptyParagraph)
+                  .insert(tr.selection.to + 1, previewParagraph)
+                  .insert(tr.selection.to + 2, emptyParagraph);
                 
                 view.dispatch(tr.scrollIntoView());
                 return true;
