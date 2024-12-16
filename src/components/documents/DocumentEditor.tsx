@@ -56,7 +56,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       }
     };
 
-    // Save when unmounting or changing documents
     return () => {
       saveDocument();
     };
@@ -67,18 +66,20 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (!editor || !document?.content || editor.isDestroyed) return;
 
     const docContent = document.content as DocumentContentType;
-    if (docContent?.html && docContent.html !== lastSavedContent.current) {
+    if (docContent?.html && docContent.html !== editor.getHTML()) {
       editor.commands.setContent(docContent.html);
       lastSavedContent.current = docContent.html;
     }
-    
-    // Only update title if document has changed and title is different
-    if (document.title && document.title !== title) {
+  }, [document?.content, editor]);
+
+  // Update title state when document title changes
+  useEffect(() => {
+    if (document?.title && document.title !== title) {
       setTitle(document.title);
     }
-  }, [document, editor]);
+  }, [document?.title]);
 
-  // Update title when it changes
+  // Handle title updates
   useEffect(() => {
     if (!documentId || !isAuthenticated || !title || title === document?.title) return;
     
