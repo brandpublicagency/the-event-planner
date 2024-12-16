@@ -31,25 +31,18 @@ export const PasteHandler = Node.create({
                 
                 // Create a paragraph node with the link mark
                 const linkMark = view.state.schema.marks.link.create({ href: text });
-                const paragraph = view.state.schema.nodes.paragraph.create(
-                  null,
-                  view.state.schema.text(text, [linkMark])
-                );
+                const linkText = view.state.schema.text(text, [linkMark]);
+                const linkParagraph = view.state.schema.nodes.paragraph.create(null, linkText);
                 
-                // Insert the paragraph with the link
-                tr.replaceSelectionWith(paragraph);
+                // Create a paragraph for the preview
+                const previewText = view.state.schema.text(`<link-preview url="${text}">`);
+                const previewParagraph = view.state.schema.nodes.paragraph.create(null, previewText);
                 
-                // Insert the preview placeholder in a new paragraph
-                const previewText = `<link-preview url="${text}">`;
-                const previewParagraph = view.state.schema.nodes.paragraph.create(
-                  null,
-                  view.state.schema.text(previewText)
-                );
-                
-                // Add two newlines and the preview
-                tr.insert(tr.selection.to, view.state.schema.nodes.paragraph.create())
-                  .insert(tr.selection.to + 1, previewParagraph)
-                  .insert(tr.selection.to + 2, view.state.schema.nodes.paragraph.create());
+                // Replace selection with link and add preview below
+                tr.replaceSelectionWith(linkParagraph)
+                  .ensureNewline()
+                  .insert(tr.selection.to, previewParagraph)
+                  .ensureNewline();
                 
                 view.dispatch(tr.scrollIntoView());
                 return true;
