@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -22,12 +22,19 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
+      console.log('Starting file deletion:', file);
+      
       // First delete from storage
       const { error: storageError } = await supabase.storage
         .from("task-files")
         .remove([file.file_path]);
 
-      if (storageError) throw storageError;
+      if (storageError) {
+        console.error('Storage deletion error:', storageError);
+        throw storageError;
+      }
+
+      console.log('Storage deletion successful');
 
       // Then delete from database
       const { error: dbError } = await supabase
@@ -35,7 +42,12 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
         .delete()
         .eq("id", file.id);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database deletion error:', dbError);
+        throw dbError;
+      }
+
+      console.log('Database deletion successful');
     },
     onSuccess: () => {
       toast({
@@ -47,6 +59,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       }
     },
     onError: (error: any) => {
+      console.error("Delete error:", error);
       toast({
         title: "Error deleting file",
         description: error.message,
