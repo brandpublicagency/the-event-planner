@@ -8,11 +8,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Task } from "@/contexts/TaskContext";
+import { Task, TaskUpdate } from "@/contexts/TaskContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { TablesUpdate } from "@/integrations/supabase/types/tables";
 
 interface EditableTaskCardProps {
   task: Task;
@@ -30,7 +29,7 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
   const [priority, setPriority] = useState(task.priority || "");
 
   const updateTaskMutation = useMutation({
-    mutationFn: async (updates: TablesUpdate<'tasks'>) => {
+    mutationFn: async (updates: TaskUpdate) => {
       const { error } = await supabase
         .from("tasks")
         .update(updates)

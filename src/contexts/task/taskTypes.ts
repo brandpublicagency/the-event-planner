@@ -2,7 +2,7 @@ import { Database } from "@/integrations/supabase/types/database";
 
 export type Tables = Database['public']['Tables'];
 export type Task = Tables['tasks']['Row'];
-export type TaskUpdate = Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>;
+export type TaskUpdate = Partial<Pick<Task, 'title' | 'completed' | 'due_date' | 'priority' | 'status' | 'assigned_to' | 'notes' | 'todos'>>;
 
 export interface TaskContextType {
   tasks: Task[];
