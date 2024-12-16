@@ -47,6 +47,21 @@ serve(async (req) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('text/html')) {
+        console.log('Not an HTML page:', contentType);
+        // Return basic info for non-HTML content
+        const domain = new URL(url).hostname.replace('www.', '');
+        return new Response(
+          JSON.stringify({
+            title: domain,
+            description: `Content type: ${contentType || 'unknown'}`,
+            domain,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       const html = await response.text();
       console.log('Successfully fetched HTML for URL:', url);
 
