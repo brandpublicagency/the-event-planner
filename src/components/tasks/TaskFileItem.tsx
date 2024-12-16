@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFile {
@@ -19,6 +19,7 @@ interface TaskFileItemProps {
 
 export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -48,12 +49,14 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       }
 
       console.log('Database deletion successful');
+      return true;
     },
     onSuccess: () => {
       toast({
         title: "File deleted",
         description: "File has been deleted successfully.",
       });
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
       if (onDelete) {
         onDelete();
       }
