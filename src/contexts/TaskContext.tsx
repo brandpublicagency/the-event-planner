@@ -1,29 +1,14 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTaskQuery } from "./task/useTaskQuery";
+import { useTaskMutations } from "./task/useTaskMutations";
+import { TaskContextType } from "./task/taskTypes";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { TablesRow, TablesInsert, TablesUpdate } from "@/integrations/supabase/types/tables";
 import { useNavigate } from "react-router-dom";
-
-export type Task = TablesRow<'tasks'>;
-type TaskInsert = TablesInsert<'tasks'>;
-type TaskUpdate = TablesUpdate<'tasks'>;
-
-interface TaskContextType {
-  tasks: Task[];
-  isLoading: boolean;
-  error: Error | null;
-  addTask: (title: string) => Promise<void>;
-  updateTask: (id: string, updates: TaskUpdate) => Promise<void>;
-  deleteTask: (id: string) => Promise<void>;
-  toggleTask: (id: string, completed: boolean) => Promise<void>;
-}
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   // Query for session
@@ -40,171 +25,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // Query for tasks
-  const { data: tasks = [], isLoading, error } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("No authenticated user");
-      }
-
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as Task[];
-    },
-    enabled: !!session?.user?.id && !isSessionLoading,
-  });
-
-  const addTaskMutation = useMutation({
-    mutationFn: async (title: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to add tasks",
-          variant: "destructive",
-        });
-        navigate("/login");
-        throw new Error("User not authenticated");
-      }
-
-      const { error } = await supabase.from("tasks").insert([
-        { 
-          title,
-          user_id: user.id,
-          status: "todo",
-        }
-      ]);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task added",
-        description: "Your task has been added successfully.",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Add task error:", error);
-      if (error.message === "User not authenticated") {
-        navigate("/login");
-      }
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to update tasks",
-          variant: "destructive",
-        });
-        navigate("/login");
-        throw new Error("User not authenticated");
-      }
-
-      const { error } = await supabase
-        .from("tasks")
-        .update(updates)
-        .eq("id", id)
-        .eq("user_id", user.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-    onError: (error: Error) => {
-      console.error("Update task error:", error);
-      if (error.message === "User not authenticated") {
-        navigate("/login");
-      }
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to delete tasks",
-          variant: "destructive",
-        });
-        navigate("/login");
-        throw new Error("User not authenticated");
-      }
-
-      // First, get all associated files
-      const { data: files, error: filesError } = await supabase
-        .from("task_files")
-        .select("file_path")
-        .eq("task_id", id);
-
-      if (filesError) throw filesError;
-
-      // Delete files from storage if they exist
-      if (files && files.length > 0) {
-        const { error: storageError } = await supabase.storage
-          .from("task-files")
-          .remove(files.map(file => file.file_path));
-
-        if (storageError) throw storageError;
-      }
-
-      // Delete file records from the database
-      const { error: fileDeleteError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("task_id", id);
-
-      if (fileDeleteError) throw fileDeleteError;
-
-      // Finally delete the task
-      const { error } = await supabase
-        .from("tasks")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task deleted",
-        description: "Your task has been deleted successfully.",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Delete task error:", error);
-      if (error.message === "User not authenticated") {
-        navigate("/login");
-      }
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  const { data: tasks = [], isLoading, error } = useTaskQuery(!isSessionLoading && !!session);
+  const { addTaskMutation, updateTaskMutation, deleteTaskMutation } = useTaskMutations();
 
   const toggleTask = async (id: string, completed: boolean) => {
     await updateTaskMutation.mutateAsync({ 
@@ -218,7 +40,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     isLoading: isLoading || isSessionLoading,
     error,
     addTask: (title: string) => addTaskMutation.mutateAsync(title),
-    updateTask: (id: string, updates: TaskUpdate) =>
+    updateTask: (id: string, updates: any) =>
       updateTaskMutation.mutateAsync({ id, updates }),
     deleteTask: (id: string) => deleteTaskMutation.mutateAsync(id),
     toggleTask,
