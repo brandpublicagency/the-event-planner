@@ -6,6 +6,7 @@ const extractDomain = (url: string): string => {
     const urlObj = new URL(url);
     return urlObj.hostname;
   } catch {
+    console.error('Invalid URL:', url);
     return '';
   }
 };
@@ -18,22 +19,42 @@ serve(async (req) => {
 
   try {
     const { url } = await req.json()
+    console.log('Fetching preview for URL:', url);
 
     if (!url) {
+      console.error('No URL provided');
       return new Response(
         JSON.stringify({ error: 'URL is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const response = await fetch(url)
-    const html = await response.text()
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0;)'
+      }
+    });
 
-    // Basic metadata extraction
-    const title = html.match(/<title[^>]*>([^<]+)<\/title>/)?.[1] || null
-    const description = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/)?.[1] ||
-                       html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/)?.[1] || null
-    const image = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/)?.[1] || null
+    if (!response.ok) {
+      console.error('Failed to fetch URL:', url, 'Status:', response.status);
+      throw new Error(`Failed to fetch URL: ${response.status}`);
+    }
+
+    const html = await response.text();
+    console.log('Successfully fetched HTML for:', url);
+
+    // Basic metadata extraction with better fallbacks
+    const title = html.match(/<title[^>]*>([^<]+)<\/title>/)?.[1]?.trim() || 
+                 html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/)?.[1]?.trim() ||
+                 null;
+
+    const description = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/)?.[1]?.trim() ||
+                       html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/)?.[1]?.trim() || 
+                       null;
+
+    const image = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/)?.[1]?.trim() ||
+                 html.match(/<link[^>]*rel="image_src"[^>]*href="([^"]*)"[^>]*>/)?.[1]?.trim() ||
+                 null;
 
     const preview = {
       url,
@@ -43,11 +64,14 @@ serve(async (req) => {
       domain: extractDomain(url),
     }
 
+    console.log('Generated preview:', preview);
+
     return new Response(
       JSON.stringify(preview),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Error processing link preview:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

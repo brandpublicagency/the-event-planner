@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LinkPreviewProps {
   url: string;
@@ -17,47 +18,63 @@ interface LinkPreviewData {
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
+  const { toast } = useToast();
+
   const { data: preview, isLoading, error } = useQuery({
     queryKey: ['linkPreview', url],
     queryFn: async () => {
+      console.log('Fetching preview for:', url);
+      
       // First try to get from cache
-      const { data: existingPreview } = await supabase
+      const { data: existingPreview, error: cacheError } = await supabase
         .from('link_previews')
         .select('*')
         .eq('url', url)
         .single();
 
       if (existingPreview) {
+        console.log('Found cached preview:', existingPreview);
         return existingPreview as LinkPreviewData;
       }
 
-      // If not in cache, fetch from edge function and store
-      const response = await fetch('/api/fetch-link-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+      // If not in cache, fetch from edge function
+      console.log('No cache found, fetching from edge function');
+      const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+        body: { url },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch link preview');
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
       }
 
-      const preview = await response.json();
+      if (!data) {
+        throw new Error('No preview data returned');
+      }
+
+      console.log('Got preview from edge function:', data);
       
       // Store in database
       const { error: insertError } = await supabase
         .from('link_previews')
-        .insert(preview);
+        .insert(data);
 
       if (insertError) {
         console.error('Error caching link preview:', insertError);
+        toast({
+          title: "Warning",
+          description: "Preview was generated but couldn't be cached",
+          variant: "destructive",
+        });
       }
 
-      return preview as LinkPreviewData;
+      return data as LinkPreviewData;
     },
+    retry: 1,
   });
 
   if (error) {
+    console.error('Preview error:', error);
     return null; // Silently fail if preview can't be loaded
   }
 
@@ -93,6 +110,10 @@ export function LinkPreview({ url }: LinkPreviewProps) {
               src={preview.image_url} 
               alt={preview.title || 'Link preview'} 
               className="h-16 w-16 object-cover rounded-md"
+              onError={(e) => {
+                console.log('Image failed to load:', preview.image_url);
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
           </div>
         )}
