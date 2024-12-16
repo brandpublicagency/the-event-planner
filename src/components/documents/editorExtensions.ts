@@ -10,7 +10,7 @@ import { common, createLowlight } from 'lowlight';
 const lowlight = createLowlight(common);
 
 // Create a paste handler extension
-export const PasteHandler = Node.create({
+const PasteHandler = Node.create({
   name: 'pasteHandler',
   group: 'block',
   atom: true,
@@ -18,16 +18,24 @@ export const PasteHandler = Node.create({
   addProseMirrorPlugins() {
     return [
       new Plugin({
+        key: new Plugin.key('pasteHandler'),
         props: {
-          handlePaste: (view, event) => {
-            console.log('Paste event detected');
+          handlePaste: (view, event, slice) => {
+            console.log('Paste event triggered', { event, slice });
+            
             const text = event.clipboardData?.getData('text/plain');
-            if (!text) return false;
+            console.log('Pasted text:', text);
+            
+            if (!text) {
+              console.log('No text found in clipboard');
+              return false;
+            }
             
             // Check if the text is a URL
             try {
-              console.log('Checking URL:', text);
+              console.log('Attempting to parse URL:', text);
               const url = new URL(text);
+              
               if (url.protocol === 'http:' || url.protocol === 'https:') {
                 console.log('Valid URL detected:', url.href);
                 const { tr } = view.state;
@@ -44,6 +52,8 @@ export const PasteHandler = Node.create({
                 // Create an empty paragraph node for spacing
                 const emptyParagraph = view.state.schema.nodes.paragraph.create();
                 
+                console.log('Creating document structure for link preview');
+                
                 // Replace selection with link and add preview below with proper spacing
                 tr.replaceSelectionWith(linkParagraph)
                   .insert(tr.selection.to, emptyParagraph)
@@ -51,13 +61,16 @@ export const PasteHandler = Node.create({
                   .insert(tr.selection.to + 2, emptyParagraph);
                 
                 view.dispatch(tr.scrollIntoView());
+                console.log('Link preview structure created successfully');
                 return true;
               }
+              
+              console.log('URL protocol not supported:', url.protocol);
+              return false;
             } catch (e) {
-              console.log('Not a valid URL:', e);
+              console.log('Invalid URL:', e);
               return false;
             }
-            return false;
           },
         },
       }),
