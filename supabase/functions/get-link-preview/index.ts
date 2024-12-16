@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const TIMEOUT_MS = 5000; // 5 second timeout
+const TIMEOUT_MS = 8000; // Increased to 8 seconds for slower sites
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -34,24 +34,16 @@ serve(async (req) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
           'Accept': 'text/html',
+          'Cache-Control': 'no-cache',
         },
+        redirect: 'follow',
       });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
-        return new Response(
-          JSON.stringify({
-            title: new URL(url).hostname.replace('www.', ''),
-            description: 'Preview unavailable',
-            domain: new URL(url).hostname.replace('www.', ''),
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200
-          }
-        );
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const contentType = response.headers.get('content-type')?.toLowerCase() || '';
