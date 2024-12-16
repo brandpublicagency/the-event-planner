@@ -69,13 +69,9 @@ export function LinkPreview({ url }: LinkPreviewProps) {
             
             {/* Title and description */}
             <div className="space-y-1.5">
-              {preview?.title ? (
+              {preview?.title && (
                 <p className="text-sm font-medium line-clamp-2">
                   {preview.title}
-                </p>
-              ) : (
-                <p className="text-sm font-medium line-clamp-2">
-                  {domain}
                 </p>
               )}
               {preview?.description && (
