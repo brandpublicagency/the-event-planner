@@ -8,11 +8,16 @@ const TIMEOUT_DURATION = 30000; // 30 seconds
 // Utility function to create an abortable fetch with timeout
 const createAbortableQuery = (timeoutMs: number = TIMEOUT_DURATION) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutId = setTimeout(() => {
+    controller.abort('Query timed out');
+  }, timeoutMs);
   
   return {
     signal: controller.signal,
-    cleanup: () => clearTimeout(timeoutId)
+    cleanup: () => {
+      clearTimeout(timeoutId);
+      controller.abort('Cleanup');
+    }
   };
 };
 
@@ -28,28 +33,32 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       const { signal, cleanup } = createAbortableQuery();
       
       try {
-        const { data, error } = await supabase
+        const query = supabase
           .from("documents")
           .select("*")
           .eq("id", documentId)
           .is("deleted_at", null)
-          .abortSignal(signal)
-          .single();
+          .abortSignal(signal);
 
-        cleanup();
+        const { data, error } = await query;
 
         if (error) {
           console.error("Document fetch error:", error);
           throw error;
         }
-        if (!data) throw new Error("Document not found");
-        return data as Document;
+        
+        if (!data || data.length === 0) {
+          throw new Error("Document not found");
+        }
+
+        return data[0] as Document;
       } catch (error) {
-        cleanup();
         if (error instanceof Error && error.name === "AbortError") {
           throw new Error("Request timed out. Please try again.");
         }
         throw error;
+      } finally {
+        cleanup();
       }
     },
     enabled: !!documentId && isAuthenticated,
@@ -74,28 +83,30 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       const { signal, cleanup } = createAbortableQuery();
 
       try {
-        const { error } = await supabase
+        const query = supabase
           .from("documents")
           .update({
             ...updates,
             updated_at: new Date().toISOString(),
           })
           .eq("id", documentId)
-          .abortSignal(signal)
-          .single();
+          .abortSignal(signal);
 
-        cleanup();
+        const { error, data } = await query;
 
         if (error) {
           console.error("Document update error:", error);
           throw error;
         }
+
+        return data;
       } catch (error) {
-        cleanup();
         if (error instanceof Error && error.name === "AbortError") {
           throw new Error("Save operation timed out. Please try again.");
         }
         throw error;
+      } finally {
+        cleanup();
       }
     },
     onError: (error: Error) => {
