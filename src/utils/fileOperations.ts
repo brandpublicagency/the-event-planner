@@ -5,24 +5,30 @@ export async function checkFileExists(filePath: string) {
   console.log('[Storage] Checking if file exists:', filePath);
   
   try {
-    const { data: files, error: listError } = await supabase.storage
+    // First try to get the file metadata
+    const { data: fileData, error: fileError } = await supabase.storage
       .from("task-files")
-      .list(filePath.split('/')[0], {
-        search: filePath.split('/')[1]
+      .list('', {
+        search: filePath
       });
 
-    if (listError) {
-      console.error('[Storage] Error checking file existence:', listError);
-      return { exists: false, error: listError };
+    if (fileError) {
+      console.error('[Storage] Error checking file metadata:', fileError);
+      return { exists: false, error: fileError };
     }
 
-    const exists = files && files.length > 0;
-    
-    console.log('[Storage] Check result:', {
-      exists,
-      filesFound: files?.length,
-      error: null
+    console.log('[Storage] File metadata check result:', {
+      filesFound: fileData?.length,
+      files: fileData
     });
+
+    const exists = fileData && fileData.length > 0;
+    
+    if (!exists) {
+      console.log('[Storage] File not found in storage:', filePath);
+    } else {
+      console.log('[Storage] File found in storage:', filePath);
+    }
 
     return { exists, error: null };
   } catch (error) {
@@ -86,16 +92,6 @@ export async function getSignedUrl(filePath: string) {
   console.log('[Storage] Getting signed URL for:', filePath);
   
   try {
-    const { exists, error: checkError } = await checkFileExists(filePath);
-    
-    if (checkError) {
-      throw new Error(`Failed to check file existence: ${checkError.message}`);
-    }
-
-    if (!exists) {
-      throw new Error('File not found in storage');
-    }
-
     const { data, error } = await supabase.storage
       .from("task-files")
       .createSignedUrl(filePath, 60);

@@ -20,10 +20,8 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
       setIsUploading(true);
       try {
         // Generate a clean filename
-        const fileExt = file.name.split('.').pop();
         const timestamp = new Date().getTime();
-        const cleanFileName = `${timestamp}.${fileExt}`;
-        const filePath = cleanFileName;
+        const filePath = `${timestamp}${file.name}`;
 
         console.log('Starting file upload:', {
           taskId,
