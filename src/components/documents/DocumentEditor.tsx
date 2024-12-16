@@ -35,7 +35,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
     const saveDocument = async () => {
       const currentContent = editor.getHTML();
-      if (currentContent === lastSavedContent.current) return;
+      if (!currentContent || currentContent === lastSavedContent.current) return;
 
       try {
         const content: DocumentContentType = {
@@ -64,24 +64,29 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Update editor content when document changes
   useEffect(() => {
-    if (!editor || !document || editor.isDestroyed) return;
+    if (!editor || !document?.content || editor.isDestroyed) return;
 
+    const docContent = document.content as DocumentContentType;
+    if (docContent?.html && docContent.html !== lastSavedContent.current) {
+      editor.commands.setContent(docContent.html);
+      lastSavedContent.current = docContent.html;
+    }
+    
     // Only update title if document has changed and title is different
     if (document.title && document.title !== title) {
       setTitle(document.title);
     }
-    
-    const docContent = document.content as DocumentContentType;
-    if (docContent?.html) {
-      editor.commands.setContent(docContent.html, false);
-      lastSavedContent.current = docContent.html;
-    }
-  }, [document, editor, title]);
+  }, [document, editor]);
 
   // Update title when it changes
   useEffect(() => {
-    if (!documentId || !isAuthenticated || title === document?.title || title === "") return;
-    updateDocument.mutate({ title });
+    if (!documentId || !isAuthenticated || !title || title === document?.title) return;
+    
+    const timeoutId = setTimeout(() => {
+      updateDocument.mutate({ title });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [title, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
