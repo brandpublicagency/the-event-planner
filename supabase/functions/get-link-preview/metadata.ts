@@ -10,13 +10,14 @@ export const getMetaContent = (html: string, pattern: RegExp, fallback = '') => 
 export const extractMetadata = (html: string, url: string) => {
   console.log('Extracting metadata for URL:', url);
   
-  const title = 
+  // First try Open Graph meta tags
+  let title = 
     getMetaContent(html, /<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<title[^>]*>(.*?)<\/title>/i) ||
     new URL(url).hostname;
 
-  const description = 
+  let description = 
     getMetaContent(html, /<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i);

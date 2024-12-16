@@ -18,15 +18,37 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
   const [domain, setDomain] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
+        setIsLoading(true);
+        
+        // First try to get from cache
+        const { data: cachedPreview } = await supabase
+          .from('link_previews')
+          .select()
+          .eq('url', url)
+          .single();
+
+        if (cachedPreview) {
+          setImageUrl(cachedPreview.image_url);
+          setTitle(cachedPreview.title);
+          setDomain(cachedPreview.domain);
+          setIsLoading(false);
+          return;
+        }
+
+        // If not in cache, fetch from edge function
         const { data, error } = await supabase.functions.invoke('get-link-preview', {
           body: { url }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching metadata:', error);
+          throw error;
+        }
 
         if (data.image) {
           setImageUrl(data.image);
@@ -39,22 +61,39 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         setTitle(data.title || new URL(url).hostname);
         setDomain(data.domain || new URL(url).hostname.replace('www.', ''));
       } catch (error) {
-        console.error('Error fetching metadata:', error);
-        // Use first placeholder image as fallback
-        setImageUrl(PLACEHOLDER_IMAGES[0]);
+        console.error('Error in fetchMetadata:', error);
         try {
           const urlObj = new URL(url);
-          setDomain(urlObj.hostname.replace('www.', ''));
-          setTitle(urlObj.hostname.replace('www.', ''));
+          const domain = urlObj.hostname.replace('www.', '');
+          setDomain(domain);
+          setTitle(domain);
+          setImageUrl(PLACEHOLDER_IMAGES[0]);
         } catch (e) {
           setDomain('Invalid URL');
           setTitle('Invalid URL');
+          setImageUrl(PLACEHOLDER_IMAGES[0]);
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchMetadata();
+    if (url) {
+      fetchMetadata();
+    }
   }, [url]);
+
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-[400px] overflow-hidden animate-pulse">
+        <div className="w-full aspect-[1.91/1] bg-muted" />
+        <div className="p-4 space-y-3">
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-[400px] overflow-hidden group hover:bg-accent/50 transition-colors">
@@ -63,7 +102,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           <div className="relative w-full aspect-[1.91/1] bg-muted">
             <img 
               src={imageUrl} 
-              alt={domain}
+              alt={title}
               className="w-full h-full object-cover"
               onError={() => setImageUrl(PLACEHOLDER_IMAGES[0])}
             />

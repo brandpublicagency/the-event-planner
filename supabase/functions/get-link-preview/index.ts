@@ -19,14 +19,10 @@ serve(async (req) => {
     if (!url) {
       console.log('No URL provided');
       return new Response(
-        JSON.stringify({
-          title: 'Invalid URL',
-          description: 'No URL provided',
-          domain: 'error',
-        }),
+        JSON.stringify({ error: 'No URL provided' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
+          status: 400
         }
       );
     }
@@ -40,53 +36,40 @@ serve(async (req) => {
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5',
-          'Cache-Control': 'no-cache',
         },
-        redirect: 'follow',
       });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.log(`HTTP error! status: ${response.status} for URL: ${url}`);
-        return new Response(
-          JSON.stringify({
-            title: new URL(url).hostname.replace('www.', ''),
-            description: 'Preview unavailable',
-            domain: new URL(url).hostname.replace('www.', ''),
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200
-          }
-        );
-      }
-
-      const contentType = response.headers.get('content-type')?.toLowerCase() || '';
-      if (!contentType.includes('text/html')) {
-        console.log('Non-HTML content type:', contentType, 'for URL:', url);
-        return new Response(
-          JSON.stringify({
-            title: new URL(url).hostname.replace('www.', ''),
-            description: `Content type: ${contentType}`,
-            domain: new URL(url).hostname.replace('www.', ''),
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200
-          }
-        );
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const html = await response.text();
       const metadata = extractMetadata(html, url);
+      
+      // Cache the metadata in the link_previews table
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      );
+
+      await supabaseClient.from('link_previews').upsert({
+        url,
+        title: metadata.title,
+        description: metadata.description,
+        image_url: metadata.image,
+        domain: metadata.domain,
+      }, {
+        onConflict: 'url'
+      });
 
       return new Response(
         JSON.stringify(metadata),
-        {
+        { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200
         }
@@ -95,14 +78,42 @@ serve(async (req) => {
       clearTimeout(timeoutId);
       console.error('Error fetching URL:', url, fetchError);
       
-      // Return a basic preview with just the domain
+      // Try to get cached preview
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      );
+
+      const { data: cachedPreview } = await supabaseClient
+        .from('link_previews')
+        .select()
+        .eq('url', url)
+        .single();
+
+      if (cachedPreview) {
+        return new Response(
+          JSON.stringify({
+            title: cachedPreview.title,
+            description: cachedPreview.description,
+            image: cachedPreview.image_url,
+            domain: cachedPreview.domain,
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      }
+
+      // Return basic preview with just the domain
+      const domain = new URL(url).hostname.replace('www.', '');
       return new Response(
         JSON.stringify({
-          title: new URL(url).hostname.replace('www.', ''),
+          title: domain,
           description: 'Preview unavailable',
-          domain: new URL(url).hostname.replace('www.', ''),
+          domain: domain,
         }),
-        {
+        { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200
         }
@@ -112,14 +123,12 @@ serve(async (req) => {
     console.error('Error in get-link-preview:', error);
     return new Response(
       JSON.stringify({ 
-        title: 'Error',
-        description: 'Preview unavailable',
-        domain: 'error',
-        error: error.message
+        error: 'Failed to generate preview',
+        details: error.message
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
+        status: 500
       }
     );
   }
