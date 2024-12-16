@@ -41,7 +41,8 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id);
+        .eq("id", file.id)
+        .single();
 
       if (dbError) {
         console.error('Database deletion error:', dbError);
