@@ -12,40 +12,56 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading } = useQuery({
     queryKey: ['link-preview', url],
     queryFn: async () => {
-      // First try to get from cache
-      const { data: cachedData } = await supabase
-        .from('link_previews')
-        .select('*')
-        .eq('url', url)
-        .single();
+      try {
+        // First try to get from cache
+        const { data: cachedData, error: cacheError } = await supabase
+          .from('link_previews')
+          .select('*')
+          .eq('url', url)
+          .maybeSingle();
 
-      if (cachedData) return cachedData;
+        if (cachedData) return cachedData;
 
-      // If not in cache, fetch from Edge Function
-      const response = await fetch('/api/get-link-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
+        // If not in cache, fetch from Edge Function
+        const { data: previewData, error: functionError } = await supabase.functions
+          .invoke('get-link-preview', {
+            body: { url },
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch link preview');
+        if (functionError) {
+          console.error('Edge function error:', functionError);
+          throw functionError;
+        }
+
+        if (!previewData) {
+          throw new Error('No preview data returned');
+        }
+
+        // Cache the result
+        const { error: upsertError } = await supabase
+          .from('link_previews')
+          .upsert({
+            url,
+            title: previewData.title,
+            description: previewData.description,
+            image_url: previewData.image,
+            domain: previewData.domain,
+          });
+
+        if (upsertError) {
+          console.error('Cache upsert error:', upsertError);
+        }
+
+        return previewData;
+      } catch (error) {
+        console.error('Link preview error:', error);
+        // Return basic fallback data
+        return {
+          title: new URL(url).hostname.replace('www.', ''),
+          description: 'Preview unavailable',
+          domain: new URL(url).hostname.replace('www.', ''),
+        };
       }
-
-      const preview = await response.json();
-      
-      // Cache the result
-      await supabase
-        .from('link_previews')
-        .upsert({
-          url,
-          title: preview.title,
-          description: preview.description,
-          image_url: preview.image,
-          domain: preview.domain,
-        });
-
-      return preview;
     },
   });
 
