@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,8 +41,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id)
-        .single();
+        .eq("id", file.id);
 
       if (dbError) {
         console.error('Database deletion error:', dbError);
