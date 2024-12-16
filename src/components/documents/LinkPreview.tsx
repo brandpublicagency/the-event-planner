@@ -32,47 +32,35 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
         if (error) {
           console.error("Link preview error:", error);
-          toast({
-            title: "Error fetching preview",
-            description: "Could not load preview for this link",
-            variant: "destructive",
-          });
-          throw error;
+          // Don't show error toast for preview failures
+          return {
+            title: new URL(url).hostname.replace('www.', ''),
+            description: 'Preview unavailable',
+            domain: new URL(url).hostname.replace('www.', ''),
+          };
         }
 
         if (!data) {
-          throw new Error("No preview data returned");
+          return {
+            title: new URL(url).hostname.replace('www.', ''),
+            description: 'Preview unavailable',
+            domain: new URL(url).hostname.replace('www.', ''),
+          };
         }
 
         return data;
       } catch (error) {
         console.error("Link preview error:", error);
-        toast({
-          title: "Error fetching preview",
-          description: "Could not load preview for this link",
-          variant: "destructive",
-        });
-        throw error;
+        return {
+          title: new URL(url).hostname.replace('www.', ''),
+          description: 'Preview unavailable',
+          domain: new URL(url).hostname.replace('www.', ''),
+        };
       }
     },
     retry: false, // Don't retry on failure
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
-
-  if (isError) {
-    return (
-      <Card className="w-full max-w-[600px] overflow-hidden">
-        <div className="p-4">
-          <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-            {url}
-          </a>
-          <p className="text-sm text-muted-foreground mt-2">
-            Preview unavailable
-          </p>
-        </div>
-      </Card>
-    );
-  }
 
   if (isLoading) {
     return (

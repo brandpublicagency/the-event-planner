@@ -43,7 +43,6 @@ serve(async (req) => {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5',
         },
-        redirect: 'follow',
       });
 
       clearTimeout(timeoutId);
@@ -61,7 +60,12 @@ serve(async (req) => {
             description: `Content type: ${contentType}`,
             domain,
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { 
+            headers: { 
+              ...corsHeaders, 
+              'Content-Type': 'application/json' 
+            } 
+          }
         );
       }
 
@@ -71,7 +75,10 @@ serve(async (req) => {
       return new Response(
         JSON.stringify(metadata),
         {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          },
         },
       );
     } catch (fetchError) {
@@ -87,7 +94,11 @@ serve(async (req) => {
           domain,
         }),
         {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          },
+          status: 200, // Return 200 even for failed fetches to handle gracefully
         },
       );
     }
@@ -99,8 +110,11 @@ serve(async (req) => {
         details: 'An error occurred while processing the link preview request'
       }),
       { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200, // Return 200 to handle errors gracefully on the client
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
       },
     );
   }
