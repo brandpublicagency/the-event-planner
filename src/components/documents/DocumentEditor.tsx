@@ -61,25 +61,24 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     };
   }, [documentId, editor, isAuthenticated, updateDocument, toast]);
 
-  // Update editor content when document changes
+  // Load initial document content
   useEffect(() => {
     if (!editor || !document?.content || editor.isDestroyed) return;
 
     const docContent = document.content as DocumentContentType;
-    if (docContent?.html && docContent.html !== editor.getHTML()) {
+    if (docContent?.html) {
       editor.commands.setContent(docContent.html);
       lastSavedContent.current = docContent.html;
     }
   }, [document?.content, editor]);
 
-  // Update title state when document title changes
+  // Update title state when document changes
   useEffect(() => {
-    if (document?.title && document.title !== title) {
-      setTitle(document.title);
-    }
+    if (!document?.title) return;
+    setTitle(document.title);
   }, [document?.title]);
 
-  // Handle title updates
+  // Handle title updates with debounce
   useEffect(() => {
     if (!documentId || !isAuthenticated || !title || title === document?.title) return;
     
