@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface LinkPreviewProps {
   url: string;
@@ -14,21 +15,36 @@ interface PreviewData {
   domain: string;
 }
 
+const QUERY_TIMEOUT = 10000; // 10 seconds
+
 export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
       try {
         console.log('Fetching preview for:', url);
+        
+        // Create an AbortController for the timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), QUERY_TIMEOUT);
+
         const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
           body: { url },
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (error) {
           console.error("Link preview error:", error);
+          toast({
+            title: "Preview Error",
+            description: "Could not load preview for this link",
+            variant: "destructive",
+          });
           return {
             title: new URL(url).hostname.replace('www.', ''),
             description: 'Preview unavailable',
@@ -47,6 +63,13 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         return data;
       } catch (error) {
         console.error("Link preview error:", error);
+        if (error.name === 'AbortError') {
+          toast({
+            title: "Preview Timeout",
+            description: "The preview took too long to load",
+            variant: "destructive",
+          });
+        }
         return {
           title: new URL(url).hostname.replace('www.', ''),
           description: 'Preview unavailable',
@@ -54,7 +77,8 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         };
       }
     },
-    retry: false, // Don't retry on failure
+    retry: 1, // Only retry once
+    retryDelay: 1000, // Wait 1 second before retrying
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
