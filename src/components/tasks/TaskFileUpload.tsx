@@ -21,7 +21,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
       try {
         // Generate a clean filename
         const timestamp = new Date().getTime();
-        const filePath = `${timestamp}${file.name}`;
+        const filePath = `${timestamp}-${file.name}`;
 
         console.log('Starting file upload:', {
           taskId,
@@ -31,19 +31,16 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         });
 
         // Upload file to storage
-        const { error: uploadError, data: uploadData } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("task-files")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: true
-          });
+          .upload(filePath, file);
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
           throw uploadError;
         }
 
-        console.log('File uploaded successfully:', uploadData);
+        console.log('File uploaded successfully to storage');
 
         // Create database record
         const { error: dbError } = await supabase.from("task_files").insert([
@@ -60,6 +57,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
           throw dbError;
         }
 
+        console.log('File record created in database');
         return { success: true };
       } catch (error: any) {
         throw error;

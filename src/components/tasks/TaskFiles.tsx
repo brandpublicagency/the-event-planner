@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { TaskFileUpload } from "./TaskFileUpload";
 import { TaskFileItem } from "./TaskFileItem";
-import { checkFileExists } from "@/utils/fileOperations";
 
 interface TaskFile {
   id: string;
@@ -31,16 +30,7 @@ export function TaskFiles({ taskId }: { taskId: string }) {
       }
 
       console.log('Files fetched:', data);
-
-      // Filter out files that don't exist in storage
-      const validFiles = await Promise.all(
-        (data as TaskFile[]).map(async (file) => {
-          const { exists } = await checkFileExists(file.file_path);
-          return exists ? file : null;
-        })
-      );
-
-      return validFiles.filter((file): file is TaskFile => file !== null);
+      return data as TaskFile[];
     },
     enabled: !!taskId,
     staleTime: 0,
