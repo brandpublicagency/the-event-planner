@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { TablesRow, TablesInsert, TablesUpdate } from "@/integrations/supabase/types/tables";
 import { useNavigate } from "react-router-dom";
 
@@ -36,10 +36,6 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         navigate("/login");
         return null;
       }
-      if (!session) {
-        navigate("/login");
-        return null;
-      }
       return session;
     },
   });
@@ -48,14 +44,15 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      if (!session?.user?.id) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         throw new Error("No authenticated user");
       }
 
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", session.user.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -66,7 +63,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      if (!session?.user?.id) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         toast({
           title: "Authentication required",
           description: "Please sign in to add tasks",
@@ -79,7 +77,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
-          user_id: session.user.id,
+          user_id: user.id,
           status: "todo",
         }
       ]);
@@ -94,6 +92,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       console.error("Add task error:", error);
+      if (error.message === "User not authenticated") {
+        navigate("/login");
+      }
       toast({
         title: "Error",
         description: error.message,
@@ -104,7 +105,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      if (!session?.user?.id) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         toast({
           title: "Authentication required",
           description: "Please sign in to update tasks",
@@ -118,7 +120,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         .from("tasks")
         .update(updates)
         .eq("id", id)
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -126,6 +128,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       console.error("Update task error:", error);
+      if (error.message === "User not authenticated") {
+        navigate("/login");
+      }
       toast({
         title: "Error",
         description: error.message,
@@ -136,7 +141,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      if (!session?.user?.id) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         toast({
           title: "Authentication required",
           description: "Please sign in to delete tasks",
@@ -176,7 +182,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         .from("tasks")
         .delete()
         .eq("id", id)
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
 
       if (error) throw error;
     },
@@ -189,6 +195,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       console.error("Delete task error:", error);
+      if (error.message === "User not authenticated") {
+        navigate("/login");
+      }
       toast({
         title: "Error",
         description: error.message,
