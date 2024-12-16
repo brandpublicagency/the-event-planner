@@ -23,9 +23,23 @@ export const PasteHandler = Node.create({
             const text = event.clipboardData?.getData('text/plain');
             if (!text) return false;
             
-            // Just set the link without preview
+            // Check if the text is a URL
             if (/^https?:\/\//.test(text.trim())) {
+              // Insert both the link and a paragraph node for the preview
+              const { tr } = view.state;
+              
+              // Create the link
               this.editor.commands.setLink({ href: text });
+              
+              // Insert a new paragraph with the preview component
+              const previewNode = this.editor.schema.nodes.paragraph.create(
+                null,
+                this.editor.schema.text(`<link-preview url="${text}">`)
+              );
+              
+              tr.insert(tr.selection.to, previewNode);
+              view.dispatch(tr);
+              
               return true;
             }
             return false;
