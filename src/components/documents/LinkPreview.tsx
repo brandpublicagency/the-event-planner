@@ -28,6 +28,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         <Skeleton className="w-full aspect-[1.91/1]" />
         <div className="p-4 space-y-2">
           <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-2/3" />
           <Skeleton className="h-4 w-1/4" />
         </div>
       </Card>
@@ -50,10 +51,15 @@ export function LinkPreview({ url }: LinkPreviewProps) {
               />
             </div>
           )}
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-2.5">
             <h3 className="font-medium text-base line-clamp-2">
               {preview?.title || `${domain} | Website`}
             </h3>
+            {preview?.description && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {preview.description}
+              </p>
+            )}
             <div className="flex items-center gap-2 text-muted-foreground">
               <Globe className="h-3.5 w-3.5" />
               <span className="text-sm">{domain}</span>
