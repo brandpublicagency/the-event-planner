@@ -13,12 +13,17 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Starting file view for:', filePath);
       
+      // Get the public URL directly - no need to await since this is synchronous
       const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
+      if (!data.publicUrl) {
+        throw new Error('Could not generate public URL for file');
+      }
+
       console.log('[View] Opening file in new tab:', data.publicUrl);
-      window.open(data.publicUrl, "_blank");
+      window.open(data.publicUrl, "_blank", "noopener,noreferrer");
     } catch (error: any) {
       console.error('[View] Error:', error);
       toast({
