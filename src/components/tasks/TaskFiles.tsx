@@ -1,150 +1,42 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FileIcon, Loader2, Trash2, Upload, Download, Eye } from "lucide-react";
-import { format } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+import { TaskFileUpload } from "./TaskFileUpload";
+import { TaskFileItem } from "./TaskFileItem";
 
 interface TaskFile {
   id: string;
+  task_id: string;
   file_name: string;
   file_path: string;
   content_type: string;
-  created_at: string;
 }
 
 export function TaskFiles({ taskId }: { taskId: string }) {
-  const [isUploading, setIsUploading] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: files = [], isLoading } = useQuery({
+  const { data: files = [], isLoading, refetch } = useQuery({
     queryKey: ["task-files", taskId],
     queryFn: async () => {
+      console.log('Fetching files for task:', taskId);
+      
       const { data, error } = await supabase
         .from("task_files")
         .select("*")
         .eq("task_id", taskId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching files:', error);
+        throw error;
+      }
+
+      console.log('Files fetched:', data);
       return data as TaskFile[];
     },
+    enabled: !!taskId,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true
   });
-
-  const deleteFileMutation = useMutation({
-    mutationFn: async (fileId: string) => {
-      const file = files.find(f => f.id === fileId);
-      if (!file) return;
-
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
-
-      if (storageError) throw storageError;
-
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", fileId);
-
-      if (dbError) throw dbError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
-      toast({
-        title: "File deleted",
-        description: "The file has been removed successfully.",
-      });
-    },
-  });
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${taskId}/${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("task-files")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase.from("task_files").insert([
-        {
-          task_id: taskId,
-          file_name: file.name,
-          file_path: filePath,
-          content_type: file.type,
-        },
-      ]);
-
-      if (dbError) throw dbError;
-
-      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
-      toast({
-        title: "File uploaded",
-        description: "Your file has been uploaded successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Upload failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleViewFile = async (file: TaskFile) => {
-    try {
-      const { data } = await supabase.storage
-        .from("task-files")
-        .createSignedUrl(file.file_path, 60);
-
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error viewing file",
-        description: "Could not generate file preview URL.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDownloadFile = async (file: TaskFile) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from("task-files")
-        .download(file.file_path);
-
-      if (error) throw error;
-
-      const url = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.file_name;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error: any) {
-      toast({
-        title: "Download failed",
-        description: "Could not download the file.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -156,84 +48,10 @@ export function TaskFiles({ taskId }: { taskId: string }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <Input
-          type="file"
-          onChange={handleFileUpload}
-          disabled={isUploading}
-          className="hidden"
-          id="file-upload"
-        />
-        <label htmlFor="file-upload">
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={isUploading}
-            asChild
-          >
-            <span>
-              {isUploading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload File
-                </>
-              )}
-            </span>
-          </Button>
-        </label>
-      </div>
-
+      <TaskFileUpload taskId={taskId} onSuccess={refetch} />
       <div className="space-y-2">
         {files.map((file) => (
-          <div
-            key={file.id}
-            className="flex items-center justify-between p-2 rounded-[7px] border"
-          >
-            <div className="flex items-center gap-2">
-              <FileIcon className="h-4 w-4 text-blue-500" />
-              <div>
-                <p className="text-sm font-medium">{file.file_name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {format(new Date(file.created_at), "MMM d, yyyy")}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleViewFile(file)}
-                title="View file"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDownloadFile(file)}
-                title="Download file"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => deleteFileMutation.mutate(file.id)}
-                disabled={deleteFileMutation.isPending}
-              >
-                {deleteFileMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
+          <TaskFileItem key={file.id} file={file} onDelete={refetch} />
         ))}
         {files.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-4">

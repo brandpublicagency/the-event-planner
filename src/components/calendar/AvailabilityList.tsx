@@ -30,7 +30,7 @@ const AvailabilityList = ({ availability, getStatusColor }: AvailabilityListProp
                 {format(new Date(slot.start_time), 'PPP')}
               </p>
               <p className="text-sm">
-                {format(new Date(slot.start_time), 'h:mm a')} - {format(new Date(slot.end_time), 'h:mm a')}
+                {format(new Date(slot.start_time), 'HH:mm')} - {format(new Date(slot.end_time), 'HH:mm')}
               </p>
               {slot.event && (
                 <div className="mt-2">

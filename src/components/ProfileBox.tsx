@@ -1,148 +1,106 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import FlipCard from "@/components/FlipCard";
-import ProfileForm from "@/components/profile/ProfileForm";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import ProfileFrontContent from "@/components/profile/ProfileFrontContent";
+import ProfileBackContent from "@/components/profile/ProfileBackContent";
+import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfileBox = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
-  const queryClient = useQueryClient();
-  
-  const [editForm, setEditForm] = useState({
-    full_name: "",
-    surname: "",
-    mobile: "",
+
+  const { data: session, isLoading: isSessionLoading } = useQuery({
+    queryKey: ['auth-session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
+  useEffect(() => {
+    if (!isSessionLoading && !session) {
+      navigate('/login');
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, session, isSessionLoading]);
+
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
+    queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!session?.user?.id) return null;
 
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
+        .eq('id', session.user.id)
+        .single();
 
       if (error) throw error;
       return profileData;
     },
+    enabled: !!session?.user?.id,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
-
-  const updateProfileMutation = useMutation({
-    mutationFn: async (updateData: typeof editForm) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-      setIsEditing(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleEdit = () => {
-    setEditForm({
-      full_name: profile?.full_name || "",
-      surname: profile?.surname || "",
-      mobile: profile?.mobile || "",
-    });
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
-    updateProfileMutation.mutate(editForm);
-  };
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
       toast({
         title: "Error",
         description: "Failed to sign out",
         variant: "destructive",
       });
-    } else {
-      navigate("/login");
     }
   };
 
-  const frontContent = (
-    <div className="h-full">
-      <div className="relative h-full">
-        <img
-          src="https://www.brandpublic.agency/wp-content/uploads/2024/11/cee34d9e-f5bc-42ee-8530-9e4e55a1a702.jpeg"
-          alt="Profile Cover"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h2 className="text-2xl font-semibold text-white">
-            {profile?.full_name || 'Welcome'}
-          </h2>
-          {profile?.surname && (
-            <p className="mt-1 text-sm text-white/80">{profile.surname}</p>
-          )}
+  if (isSessionLoading || isProfileLoading) {
+    return (
+      <div className="h-[450px] w-full space-y-4 p-6">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
+  if (!session || !profile) {
+    return (
+      <div className="h-[450px] w-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">Failed to load profile</p>
+          <button 
+            onClick={() => navigate('/login')} 
+            className="mt-4 text-sm text-blue-500 hover:underline"
+          >
+            Return to login
+          </button>
         </div>
       </div>
-    </div>
-  );
-
-  const backContent = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-6 pt-6">
-        <h3 className="text-2xl font-semibold">Profile Details</h3>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleLogout}
-          className="text-red-500 hover:text-red-600 hover:bg-transparent"
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign out
-        </Button>
-      </div>
-      <div className="flex-1 px-6 pb-6">
-        <ProfileForm
-          profile={profile}
-          isEditing={isEditing}
-          editForm={editForm}
-          setEditForm={setEditForm}
-          handleEdit={handleEdit}
-          handleSave={handleSave}
-        />
-      </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <div className="h-[450px] w-full">
-      <FlipCard front={frontContent} back={backContent} onEdit={handleEdit} />
+      <FlipCard 
+        front={<ProfileFrontContent profile={profile} />} 
+        back={<ProfileBackContent onLogout={handleLogout} />} 
+      />
     </div>
   );
 };

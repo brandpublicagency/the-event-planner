@@ -1,23 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
+import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useEditor, EditorContent } from '@tiptap/react';
-import { EditorToolbar } from "./EditorToolbar";
-import { DocumentActions } from "./DocumentActions";
+import { useState, useEffect, useRef } from "react";
+import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
-import type { Document, DocumentContent } from "@/types/document";
+import { useDocument } from "@/hooks/useDocument";
+import { useDocumentAuth } from "@/hooks/useDocumentAuth";
+import { useToast } from "@/components/ui/use-toast";
+import type { DocumentContent as DocumentContentType } from "@/types/document";
 
 interface DocumentEditorProps {
   documentId: string | null;
 }
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
-  const [title, setTitle] = useState("");
+  const isAuthenticated = useDocumentAuth();
+  const lastSavedContent = useRef<string>("");
+  const contentInitialized = useRef(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -26,68 +26,59 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
       },
     },
-  });
+    onUpdate: ({ editor }) => {
+      if (!isAuthenticated) return;
+      
+      const lines = editor.getText().split('\n');
+      const firstLine = lines[0] || 'Untitled Document';
+      const currentContent = editor.getHTML();
+      
+      if (currentContent === lastSavedContent.current) return;
 
-  const { data: documentData, isLoading, error } = useQuery({
-    queryKey: ["document", documentId],
-    queryFn: async () => {
-      if (!documentId) return null;
-      const { data, error } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("id", documentId)
-        .maybeSingle();
+      const content: DocumentContentType = {
+        type: "doc",
+        html: currentContent,
+        text: editor.getText(),
+      };
 
-      if (error) throw error;
-      return data as Document | null;
+      updateDocument.mutate({ 
+        title: firstLine,
+        content 
+      }, {
+        onError: (error) => {
+          console.error('Error saving document:', error);
+          toast({
+            title: "Error saving document",
+            description: "Failed to save your changes. Please try again.",
+            variant: "destructive",
+          });
+        }
+      });
+      
+      lastSavedContent.current = currentContent;
     },
-    enabled: !!documentId,
   });
 
+  // Reset state when document changes
   useEffect(() => {
-    if (documentData) {
-      setTitle(documentData.title);
-      const content = documentData.content as unknown as DocumentContent;
-      if (content?.html) {
-        editor?.commands.setContent(content.html);
-      } else {
-        editor?.commands.setContent("");
-      }
+    if (!editor || editor.isDestroyed) return;
+    
+    editor.commands.clearContent();
+    lastSavedContent.current = "";
+    contentInitialized.current = false;
+  }, [documentId, editor]);
+
+  // Load initial document content
+  useEffect(() => {
+    if (!editor || !document?.content || editor.isDestroyed || contentInitialized.current) return;
+
+    const docContent = document.content as DocumentContentType;
+    if (docContent?.html) {
+      editor.commands.setContent(docContent.html);
+      lastSavedContent.current = docContent.html;
+      contentInitialized.current = true;
     }
-  }, [documentData, editor]);
-
-  const updateDocument = useMutation({
-    mutationFn: async () => {
-      if (!documentId || !editor) return;
-      const { error } = await supabase
-        .from("documents")
-        .update({
-          title,
-          content: {
-            html: editor.getHTML(),
-            text: editor.getText(),
-          },
-        })
-        .eq("id", documentId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-      queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-      toast({
-        title: "Document saved",
-        description: "Your changes have been saved successfully.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error saving document",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  }, [document?.content, editor]);
 
   if (!documentId) {
     return (
@@ -97,7 +88,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     );
   }
 
-  if (isLoading) {
+  if (!isAuthenticated || isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -105,39 +96,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     );
   }
 
-  if (error || !documentData) {
+  if (error || !document) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
-        Document not found or error loading document
+        {error ? `Error: ${error.message}` : "Document not found"}
       </div>
     );
   }
 
   return (
     <div className="h-full flex flex-col p-6">
-      <div className="flex items-center justify-between mb-6">
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Untitled"
-          className="text-lg font-medium bg-transparent border-none h-auto px-0 focus-visible:ring-0"
-        />
-        <DocumentActions
-          title={title}
-          editor={editor}
-          onSave={() => updateDocument.mutate()}
-          isSaving={updateDocument.isPending}
-        />
-      </div>
-
-      <EditorToolbar editor={editor} />
-
-      <div className="flex-1 overflow-y-auto bg-white border rounded-lg">
-        <EditorContent 
-          editor={editor} 
-          className="min-h-[500px] p-4" 
-        />
-      </div>
+      <DocumentContent editor={editor} />
     </div>
   );
 }

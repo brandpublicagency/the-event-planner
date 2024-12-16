@@ -125,15 +125,22 @@ const MenuContent = ({
             selectedTraditionalDessert={menuState.traditionalDessert}
             selectedDessertCanapes={menuState.dessertCanapes}
             selectedIndividualCakes={menuState.individualCakes}
+            individualCakeQuantities={menuState.individual_cake_quantities}
             onDessertChange={(value) => {
               onMenuStateChange('dessertType', value);
               onMenuStateChange('traditionalDessert', '');
               onMenuStateChange('dessertCanapes', []);
               onMenuStateChange('individualCakes', []);
+              onMenuStateChange('individual_cake_quantities', {});
             }}
             onTraditionalDessertChange={(value) => onMenuStateChange('traditionalDessert', value)}
             onDessertCanapesChange={(value) => onMenuStateChange('dessertCanapes', value)}
-            onIndividualCakesChange={(value) => onMenuStateChange('individualCakes', value)}
+            onIndividualCakesChange={(cakes, quantities) => {
+              onMenuStateChange('individualCakes', cakes);
+              if (quantities) {
+                onMenuStateChange('individual_cake_quantities', quantities);
+              }
+            }}
           />
         </div>
       </div>

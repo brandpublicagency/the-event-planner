@@ -9,10 +9,11 @@ interface DessertSectionProps {
   selectedTraditionalDessert?: string;
   selectedDessertCanapes?: string[];
   selectedIndividualCakes?: string[];
+  individualCakeQuantities?: Record<string, number>;
   onDessertChange: (value: string) => void;
   onTraditionalDessertChange: (value: string) => void;
   onDessertCanapesChange: (value: string[]) => void;
-  onIndividualCakesChange: (value: string[]) => void;
+  onIndividualCakesChange: (value: string[], quantities?: Record<string, number>) => void;
 }
 
 const DessertSection = ({
@@ -20,6 +21,7 @@ const DessertSection = ({
   selectedTraditionalDessert = '',
   selectedDessertCanapes = [],
   selectedIndividualCakes = [],
+  individualCakeQuantities = {},
   onDessertChange,
   onTraditionalDessertChange,
   onDessertCanapesChange,
@@ -35,13 +37,17 @@ const DessertSection = ({
 
   const handleQuantityChange = (optionId: string, value: string) => {
     const quantity = parseInt(value) || 0;
+    const newQuantities = { ...individualCakeQuantities };
+    
     if (quantity > 0) {
-      if (!selectedIndividualCakes.includes(optionId)) {
-        onIndividualCakesChange([...selectedIndividualCakes, optionId]);
-      }
+      newQuantities[optionId] = quantity;
     } else {
-      onIndividualCakesChange(selectedIndividualCakes.filter(id => id !== optionId));
+      delete newQuantities[optionId];
     }
+
+    // Update both the selected cakes and their quantities
+    const updatedCakes = Object.keys(newQuantities);
+    onIndividualCakesChange(updatedCakes, newQuantities);
   };
 
   return (
@@ -113,7 +119,7 @@ const DessertSection = ({
               <Input
                 type="number"
                 min="0"
-                value={selectedIndividualCakes.includes(option.value) ? "1" : "0"}
+                value={individualCakeQuantities[option.value] || 0}
                 onChange={(e) => handleQuantityChange(option.value, e.target.value)}
                 className="w-10 h-7 text-center text-[0.7rem] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
               />

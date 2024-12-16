@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
+import { getVenueNames } from "@/utils/venueUtils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,23 +44,78 @@ export const EventsTable = ({
     });
   };
 
-  const getVenueNames = (event: Event) => {
-    if (!event.venues || event.venues.length === 0) {
-      if (!event.event_venues || event.event_venues.length === 0) return 'No venues';
-      return event.event_venues.map(ev => ev.venues?.name).filter(Boolean).join(' + ') || 'No venues';
-    }
-    return event.venues.map(v => v.name).join(' + ');
-  };
+  // Filter out past events and completed events for dashboard view
+  const filteredGroupedEvents = isDashboard ? 
+    Object.entries(groupedEvents).reduce((acc, [monthYear, events]) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const filteredEvents = events.filter(event => {
+        if (!event.event_date) return false;
+        const eventDate = new Date(event.event_date);
+        // Filter out past events and completed events
+        return eventDate >= today && !event.completed;
+      });
+
+      if (filteredEvents.length > 0) {
+        acc[monthYear] = filteredEvents;
+      }
+      return acc;
+    }, {} as Record<string, Event[]>) 
+    : groupedEvents;
+
+  if (isDashboard) {
+    return (
+      <ScrollArea className="h-[400px]">
+        <div className="space-y-4">
+          {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
+            <div key={monthYear} className="rounded-xl border bg-white">
+              <div className="flex items-center gap-2 p-2 border-b">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium">{monthYear}</h3>
+                <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
+                  {monthEvents.length}
+                </Badge>
+              </div>
+              <div className="divide-y">
+                {monthEvents.map((event) => (
+                  <button
+                    key={event.event_code}
+                    onClick={() => navigate(`/events/${event.event_code}`)}
+                    className="w-full text-left p-3 hover:bg-zinc-50"
+                  >
+                    <span className="text-xs">
+                      {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
+                      {' - '}
+                      <span className="text-zinc-900">{event.name}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          {Object.keys(filteredGroupedEvents).length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No upcoming events
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    );
+  }
 
   return (
     <ScrollArea className={cn(
-      isDashboard ? "h-full" : "h-[calc(100vh-12rem)]",
+      isDashboard ? "h-[400px]" : "h-[calc(100vh-12rem)]",
       className
     )}>
       <div className="space-y-4">
         {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
           <div key={monthYear} className="rounded-xl border bg-white">
-            <div className="flex items-center gap-2 p-3 border-b">
+            <div className={cn(
+              "flex items-center gap-2 p-3 border-b",
+              isDashboard && "p-2"
+            )}>
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <h3 className="font-medium">{monthYear}</h3>
               <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
@@ -67,10 +123,19 @@ export const EventsTable = ({
               </Badge>
             </div>
             
-            <div className="divide-y">
+            <div className={cn(
+              "divide-y",
+              isDashboard && "grid grid-cols-1 gap-2 p-2 divide-y-0"
+            )}>
               {monthEvents.map((event) => (
-                <div key={event.event_code} className="group">
-                  <div className="flex flex-col gap-2 p-4">
+                <div key={event.event_code} className={cn(
+                  "group",
+                  isDashboard && "border rounded-lg"
+                )}>
+                  <div className={cn(
+                    "flex flex-col gap-2 p-4",
+                    isDashboard && "p-3"
+                  )}>
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
@@ -95,11 +160,9 @@ export const EventsTable = ({
                             <span className="font-medium">
                               {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
                             </span>
-                            {!isDashboard && (
-                              <span className="ml-2 text-zinc-500">
-                                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
-                              </span>
-                            )}
+                            <span className="ml-2 text-zinc-500">
+                              {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
+                            </span>
                           </span>
                         </div>
                       </div>

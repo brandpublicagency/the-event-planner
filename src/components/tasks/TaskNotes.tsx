@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TodoList } from "./TodoList";
 import { useToast } from "@/components/ui/use-toast";
+import { NoteInput } from "./NoteInput";
+import { NoteItem } from "./NoteItem";
 
 export function TaskNotes({ taskId }: { taskId: string }) {
   const { toast } = useToast();
   const [newNote, setNewNote] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState("");
   const { tasks, updateTask } = useTaskContext();
   const task = tasks.find((t) => t.id === taskId);
 
@@ -42,6 +43,23 @@ export function TaskNotes({ taskId }: { taskId: string }) {
     }
   };
 
+  const handleEditNote = async (index: number) => {
+    if (!task || !editingText.trim()) return;
+    const updatedNotes = [...(task.notes || [])];
+    updatedNotes[index] = editingText;
+    try {
+      await updateTask(taskId, { notes: updatedNotes });
+      setEditingIndex(null);
+      setEditingText("");
+    } catch (error) {
+      toast({
+        title: "Error updating note",
+        description: "Failed to update note. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleTodosChange = async (todos: string[]) => {
     if (!task) return;
     try {
@@ -61,44 +79,28 @@ export function TaskNotes({ taskId }: { taskId: string }) {
     <div className="space-y-6">
       {/* Notes Section */}
       <div className="space-y-3">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add a note..."
-            value={newNote}
-            onChange={(e) => setNewNote(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleAddNote();
-              }
-            }}
-            className="h-10 text-sm"
-          />
-          <Button 
-            onClick={handleAddNote} 
-            disabled={!newNote.trim()}
-            size="icon"
-            className="shrink-0 h-10 w-10"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <NoteInput
+          value={newNote}
+          onChange={setNewNote}
+          onSubmit={handleAddNote}
+        />
 
         <div className="space-y-2">
           {task.notes?.map((note, index) => (
-            <div
+            <NoteItem
               key={index}
-              className="flex items-center justify-between py-2 px-3 rounded-lg border group hover:bg-accent/50 transition-colors"
-            >
-              <span className="text-sm">{note}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                onClick={() => handleRemoveNote(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+              note={note}
+              isEditing={editingIndex === index}
+              editingText={editingText}
+              onEditingTextChange={setEditingText}
+              onEditSubmit={() => handleEditNote(index)}
+              onEditStart={() => {
+                setEditingIndex(index);
+                setEditingText(note);
+              }}
+              onEditCancel={() => setEditingIndex(null)}
+              onDelete={() => handleRemoveNote(index)}
+            />
           ))}
           {(!task.notes || task.notes.length === 0) && (
             <p className="text-center text-sm text-muted-foreground py-4">
@@ -111,10 +113,13 @@ export function TaskNotes({ taskId }: { taskId: string }) {
       <Separator />
 
       {/* Checklist Section */}
-      <TodoList 
-        todos={task.todos || []}
-        onTodosChange={handleTodosChange}
-      />
+      <div className="space-y-3">
+        <TodoList 
+          todos={task.todos || []}
+          onTodosChange={handleTodosChange}
+          taskId={taskId}
+        />
+      </div>
     </div>
   );
 }

@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileSection from "@/components/profile/ProfileSection";
-import CompanyTeamSection from "@/components/profile/CompanyTeamSection";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -78,59 +76,44 @@ const ProfileSettings = () => {
       <Header />
       <div className="flex-1 space-y-8 overflow-hidden p-8">
         <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Profile & Settings</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Profile Settings</h2>
           <p className="text-muted-foreground">
-            Manage your profile information and company settings
+            Manage your profile information
           </p>
         </div>
 
-        <Tabs defaultValue="profile" className="h-full space-y-6">
-          <TabsList>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="company">Company & Team</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="profile" className="h-full">
-            <ScrollArea className="h-full">
-              <ProfileSection
-                profile={profile}
-                isEditing={isEditing}
-                editForm={editForm}
-                setEditForm={setEditForm}
-                handleEdit={() => setIsEditing(true)}
-                handleSave={async () => {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  if (!user) return;
+        <ScrollArea className="h-full">
+          <ProfileSection
+            profile={profile}
+            isEditing={isEditing}
+            editForm={editForm}
+            setEditForm={setEditForm}
+            handleEdit={() => setIsEditing(true)}
+            handleSave={async () => {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
 
-                  const { error } = await supabase
-                    .from('profiles')
-                    .update(editForm)
-                    .eq('id', user.id);
+              const { error } = await supabase
+                .from('profiles')
+                .update(editForm)
+                .eq('id', user.id);
 
-                  if (!error) {
-                    setIsEditing(false);
-                    toast({
-                      title: "Profile updated",
-                      description: "Your profile has been successfully updated.",
-                    });
-                  } else {
-                    toast({
-                      variant: "destructive",
-                      title: "Error",
-                      description: "Failed to update profile. Please try again.",
-                    });
-                  }
-                }}
-              />
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="company" className="h-full">
-            <ScrollArea className="h-full">
-              <CompanyTeamSection />
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+              if (!error) {
+                setIsEditing(false);
+                toast({
+                  title: "Profile updated",
+                  description: "Your profile has been successfully updated.",
+                });
+              } else {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Failed to update profile. Please try again.",
+                });
+              }
+            }}
+          />
+        </ScrollArea>
       </div>
     </div>
   );

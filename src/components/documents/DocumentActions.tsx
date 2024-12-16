@@ -1,123 +1,141 @@
 import { Button } from "@/components/ui/button";
-import { FileDown, FileUp, Loader2, Save, FileText } from "lucide-react";
-import { Editor } from '@tiptap/react';
-import { exportDocument, importDocument } from "@/utils/documentUtils";
-import { useToast } from "@/components/ui/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Download, Trash2 } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentActionsProps {
+  documentId: string;
   title: string;
-  editor: Editor | null;
-  onSave: () => void;
-  isSaving: boolean;
+  content: string;
 }
 
-export function DocumentActions({ title, editor, onSave, isSaving }: DocumentActionsProps) {
+export default function DocumentActions({ documentId, title, content }: DocumentActionsProps) {
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleExport = () => {
-    if (!editor || !title) return;
-    exportDocument(editor.getHTML(), title);
-    toast({
-      title: "Document exported",
-      description: "Your document has been exported as HTML.",
-    });
-  };
-
-  const handlePdfExport = async () => {
-    if (!editor || !title) return;
+  const handleExport = async (format: 'pdf' | 'docx') => {
     try {
-      await exportAsPdf(editor.getHTML(), title);
+      if (format === 'pdf') {
+        await exportAsPdf(title, content);
+      } else {
+        await exportAsDocx(title, content);
+      }
       toast({
-        title: "PDF exported",
-        description: "Your document has been exported as PDF.",
+        title: "Export successful",
+        description: `Document exported as ${format.toUpperCase()}`,
       });
     } catch (error) {
+      console.error('Export error:', error);
       toast({
         title: "Export failed",
-        description: "Failed to export PDF. Please try again.",
+        description: "Failed to export document. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const handleDocxExport = async () => {
-    if (!editor || !title) return;
-    try {
-      await exportAsDocx(editor.getHTML(), title);
+  const deleteDocument = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('documents')
+        .update({ 
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+
+      if (error) throw error;
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
       toast({
-        title: "DOCX exported",
-        description: "Your document has been exported as DOCX.",
+        title: "Document deleted",
+        description: "The document has been successfully deleted.",
       });
-    } catch (error) {
+      navigate('/documents');
+    },
+    onError: (error: Error) => {
+      console.error('Delete error:', error);
       toast({
-        title: "Export failed",
-        description: "Failed to export DOCX. Please try again.",
+        title: "Delete failed",
+        description: error.message || "Failed to delete document. Please try again.",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleImport = () => {
-    if (!editor) return;
-    importDocument((content) => {
-      editor.commands.setContent(content);
-      toast({
-        title: "Document imported",
-        description: "Your document has been imported successfully.",
-      });
-    });
-  };
+    },
+  });
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
-            <FileDown className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleExport}>
-            <FileText className="h-4 w-4 mr-2" />
-            Export as HTML
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handlePdfExport}>
-            <FileText className="h-4 w-4 mr-2" />
+          <DropdownMenuItem onClick={() => handleExport('pdf')}>
             Export as PDF
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDocxExport}>
-            <FileDown className="h-4 w-4 mr-2" />
+          <DropdownMenuItem onClick={() => handleExport('docx')}>
             Export as DOCX
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleImport}
-      >
-        <FileUp className="h-4 w-4 mr-2" />
-        Import
-      </Button>
-      <Button
-        onClick={onSave}
-        disabled={isSaving}
-      >
-        {isSaving ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Save className="h-4 w-4" />
-        )}
-        <span className="ml-2">Save</span>
-      </Button>
+
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button 
+            variant="destructive" 
+            size="sm"
+            className="gap-2"
+            disabled={deleteDocument.isPending}
+          >
+            <Trash2 className="h-4 w-4" />
+            {deleteDocument.isPending ? 'Deleting...' : 'Delete'}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this document? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteDocument.mutate()}
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={deleteDocument.isPending}
+            >
+              {deleteDocument.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

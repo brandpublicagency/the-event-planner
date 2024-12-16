@@ -1,5 +1,3 @@
-import { TeamSelector } from "./TeamSelector";
-import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,7 +14,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Settings, LogOut } from "lucide-react";
 
 export default function Header() {
-  const { currentTeam } = useTenant();
   const navigate = useNavigate();
 
   const { data: profile } = useQuery({
@@ -47,10 +44,9 @@ export default function Header() {
         <div className="mr-4 flex">
           <a className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold sm:inline-block">
-              {currentTeam?.name || "Loading..."}
+              Event Management
             </span>
           </a>
-          <TeamSelector />
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="flex items-center gap-2">

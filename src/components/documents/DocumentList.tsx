@@ -1,50 +1,75 @@
-import { cn } from "@/lib/utils";
-import { FileText, FileCode } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 import type { Document } from "@/types/document";
 
 interface DocumentListProps {
   documents: Document[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  showTemplates?: boolean;
 }
 
-export default function DocumentList({ 
-  documents, 
-  selectedId, 
-  onSelect,
-  showTemplates = false
-}: DocumentListProps) {
-  const filteredDocs = documents.filter(doc => 
-    showTemplates ? doc.template : !doc.template
-  );
+export default function DocumentList({ documents, selectedId, onSelect }: DocumentListProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteDocument = useMutation({
+    mutationFn: async (documentId: string) => {
+      const { error } = await supabase
+        .from("documents")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", documentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      toast({
+        title: "Document deleted",
+        description: "The document has been moved to trash",
+      });
+    },
+    onError: (error: { message: string }) => {
+      console.error("Delete error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete document",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <div className="space-y-1">
-      {filteredDocs.map((doc) => (
-        <Button
+      {documents.map((doc) => (
+        <div
           key={doc.id}
-          variant="ghost"
+          className={`flex items-center justify-between group px-2 py-1 rounded-md cursor-pointer ${
+            selectedId === doc.id ? "bg-accent" : "hover:bg-accent/50"
+          }`}
           onClick={() => onSelect(doc.id)}
-          className={cn(
-            "w-full justify-start gap-2",
-            selectedId === doc.id && "bg-accent text-accent-foreground"
-          )}
         >
-          {doc.template ? (
-            <FileCode className="h-4 w-4" />
-          ) : (
-            <FileText className="h-4 w-4" />
-          )}
-          <span className="truncate">{doc.title || "Untitled"}</span>
-        </Button>
+          <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm("Are you sure you want to delete this document?")) {
+                deleteDocument.mutate(doc.id);
+              }
+            }}
+            disabled={deleteDocument.isPending}
+          >
+            <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
+          </Button>
+        </div>
       ))}
-      {filteredDocs.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          No documents found
-        </p>
-      )}
     </div>
   );
 }

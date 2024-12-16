@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { TaskStatusBadges } from "./TaskStatusBadges";
 import { TaskActions } from "./TaskActions";
 import { cn } from "@/lib/utils";
-import { TablesUpdate } from "@/integrations/supabase/types/tables";
 
 interface TaskCardProps {
   task: Task;
@@ -27,7 +26,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
     mutationFn: async (completed: boolean) => {
       const { error } = await supabase
         .from("tasks")
-        .update({ completed, title: task.title })
+        .update({ completed })
         .eq("id", task.id);
 
       if (error) throw error;
@@ -47,12 +46,39 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
       setIsDeleting(true);
-      const { error } = await supabase
+      
+      // First, delete all associated files from storage
+      const { data: files, error: filesError } = await supabase
+        .from("task_files")
+        .select("file_path")
+        .eq("task_id", task.id);
+
+      if (filesError) throw filesError;
+
+      if (files && files.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove(files.map(file => file.file_path));
+
+        if (storageError) throw storageError;
+      }
+
+      // Then delete the file records from the database
+      const { error: fileDeleteError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("task_id", task.id);
+
+      if (fileDeleteError) throw fileDeleteError;
+
+      // Finally delete the task
+      const { error: taskDeleteError } = await supabase
         .from("tasks")
         .delete()
-        .eq("id", task.id);
+        .eq("id", task.id)
+        .eq("user_id", task.user_id);
 
-      if (error) throw error;
+      if (taskDeleteError) throw taskDeleteError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -62,6 +88,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
       });
     },
     onError: (error: Error) => {
+      console.error("Delete error:", error);
       toast({
         title: "Error deleting task",
         description: error.message,

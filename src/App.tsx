@@ -10,7 +10,6 @@ import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
-import { TenantProvider } from "./contexts/TenantContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,49 +29,37 @@ const queryClient = new QueryClient({
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
-    // Initialize auth state
-    const initializeAuth = async () => {
-      try {
-        // Clear any stale session data
-        const currentSession = await supabase.auth.getSession();
-        if (currentSession.error) {
-          await supabase.auth.signOut();
-          setSession(null);
-        } else {
-          setSession(currentSession.data.session);
-        }
-      } catch (error) {
-        console.error("Error initializing auth:", error);
-        // If there's an error, clear the session to be safe
-        setSession(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Set up initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
+      setSession(session);
+      setIsLoading(false);
+      setAuthInitialized(true);
+    });
 
-    initializeAuth();
-
-    // Set up auth state change listener
+    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', session);
       setSession(session);
+      setIsLoading(false);
       
       if (!session) {
+        // Clear query cache when user logs out
         queryClient.clear();
       }
     });
 
-    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !authInitialized) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
@@ -84,9 +71,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppProviders>
-          <TenantProvider>
-            <AppRoutes />
-          </TenantProvider>
+          <AppRoutes />
         </AppProviders>
       </BrowserRouter>
     </QueryClientProvider>
