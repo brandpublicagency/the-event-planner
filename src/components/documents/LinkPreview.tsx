@@ -18,7 +18,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         .eq('url', url);
 
       if (error) throw error;
-      // Return the first preview or null if none exists
       return data?.[0] || null;
     },
   });
@@ -40,20 +39,19 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
   try {
     const urlObj = new URL(url);
-    const domain = urlObj.hostname.replace('www.', '');
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
     
     return (
-      <Card className="w-full max-w-[400px] overflow-hidden group hover:bg-accent/50 transition-colors">
+      <Card className="w-full max-w-[400px] overflow-hidden hover:bg-accent/50 transition-colors">
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-          <div className="p-4 space-y-3">
+          <div className="p-5 space-y-4">
             {/* URL and favicon */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="relative w-5 h-5 flex-shrink-0">
                 <img 
                   src={faviconUrl} 
                   alt=""
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain rounded-sm"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -61,25 +59,27 @@ export function LinkPreview({ url }: LinkPreviewProps) {
                 />
                 <Globe className="h-5 w-5 text-muted-foreground hidden absolute inset-0" />
               </div>
-              <p className="text-sm text-muted-foreground truncate">
+              <p className="text-sm text-muted-foreground truncate flex-1">
                 {url}
               </p>
-              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
+              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             
-            {/* Title and description */}
-            <div className="space-y-1.5">
-              {preview?.title && (
-                <p className="text-sm font-medium line-clamp-2">
-                  {preview.title}
-                </p>
-              )}
-              {preview?.description && (
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {preview.description}
-                </p>
-              )}
-            </div>
+            {/* Content */}
+            {(preview?.title || preview?.description) && (
+              <div className="space-y-2 border-t pt-4">
+                {preview?.title && (
+                  <p className="text-sm font-medium line-clamp-2">
+                    {preview.title}
+                  </p>
+                )}
+                {preview?.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {preview.description}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </a>
       </Card>
