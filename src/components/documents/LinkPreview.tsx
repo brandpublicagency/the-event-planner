@@ -39,13 +39,16 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         }
 
         console.log('No cache found, invoking edge function');
-        const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+        const { data, error: functionError } = await supabase.functions.invoke('fetch-link-preview', {
           body: { url },
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
-        if (error) {
-          console.error('Edge function error:', error);
-          throw error;
+        if (functionError) {
+          console.error('Edge function error:', functionError);
+          throw functionError;
         }
 
         if (!data) {
@@ -79,7 +82,15 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
   if (error) {
     console.error('Preview error:', error);
-    return null;
+    return (
+      <Card className="my-2">
+        <CardContent className="p-4">
+          <div className="text-sm text-red-500">
+            Failed to load preview: {error.message}
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (isLoading) {
