@@ -6,11 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const TIMEOUT_MS = 10000; // 10 second timeout
-const USER_AGENTS = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-];
+const TIMEOUT_MS = 5000; // 5 second timeout
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -33,38 +29,42 @@ serve(async (req) => {
     }, TIMEOUT_MS);
 
     try {
-      // Randomly select a user agent
-      const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
-      
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          'User-Agent': userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
+          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+          'Accept': 'text/html',
         },
       });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error(`HTTP error! status: ${response.status}`);
+        return new Response(
+          JSON.stringify({
+            title: new URL(url).hostname.replace('www.', ''),
+            description: 'Preview unavailable',
+            domain: new URL(url).hostname.replace('www.', ''),
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
       }
 
       const contentType = response.headers.get('content-type')?.toLowerCase() || '';
       if (!contentType.includes('text/html')) {
-        const domain = new URL(url).hostname.replace('www.', '');
+        console.log('Non-HTML content type:', contentType);
         return new Response(
           JSON.stringify({
-            title: domain,
+            title: new URL(url).hostname.replace('www.', ''),
             description: `Content type: ${contentType}`,
-            domain,
+            domain: new URL(url).hostname.replace('www.', ''),
           }),
           { 
-            headers: { 
-              ...corsHeaders, 
-              'Content-Type': 'application/json' 
-            },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200
           }
         );
@@ -76,12 +76,9 @@ serve(async (req) => {
       return new Response(
         JSON.stringify(metadata),
         {
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json' 
-          },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200
-        },
+        }
       );
     } catch (fetchError) {
       clearTimeout(timeoutId);
@@ -96,12 +93,9 @@ serve(async (req) => {
           domain,
         }),
         {
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json' 
-          },
-          status: 200 // Return 200 even for failed fetches to handle gracefully
-        },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
       );
     }
   } catch (error) {
@@ -115,12 +109,9 @@ serve(async (req) => {
         error: error.message
       }),
       { 
-        status: 200, // Return 200 to handle errors gracefully on the client
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        },
-      },
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   }
 });
