@@ -20,22 +20,19 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
       setIsUploading(true);
       try {
         // First verify task exists and user has access
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const { data: task, error: taskError } = await supabase
           .from('tasks')
-          .select('id, user_id')
+          .select('id')
           .eq('id', taskId)
+          .eq('user_id', user.id)
           .single();
 
         if (taskError || !task) {
           console.error('Task verification error:', taskError);
-          throw new Error('Failed to verify task ownership');
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('User not authenticated');
-
-        if (task.user_id !== user.id) {
-          throw new Error('You do not have permission to upload files to this task');
+          throw new Error('Failed to verify task access');
         }
 
         // Generate a clean filename
@@ -66,14 +63,14 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         console.log('File uploaded successfully to storage');
 
         // Create database record
-        const { error: dbError } = await supabase.from("task_files").insert([
-          {
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .insert([{
             task_id: taskId,
             file_name: cleanFileName,
             file_path: filePath,
             content_type: file.type,
-          },
-        ]);
+          }]);
 
         if (dbError) {
           console.error('Database insert error:', dbError);
@@ -87,7 +84,6 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         console.log('File record created in database');
         return { success: true };
       } catch (error: any) {
-        // Clean up any uploaded file if there was an error
         console.error('Upload error:', error);
         throw error;
       }

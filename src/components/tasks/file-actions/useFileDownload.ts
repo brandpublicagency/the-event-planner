@@ -7,36 +7,27 @@ export function useFileDownload() {
   const { toast } = useToast();
 
   const handleDownload = async (filePath: string, fileName: string) => {
-    if (isLoading) return;
-
     try {
       setIsLoading(true);
-      console.log('[Download] Starting download for:', filePath);
+      console.log('[Download] Getting file URL for:', filePath);
       
-      const { data, error } = await supabase.storage
+      const { data } = supabase.storage
         .from("task-files")
-        .download(filePath);
+        .getPublicUrl(filePath);
 
-      if (error) {
-        console.error('[Download] Error downloading file:', error);
-        throw new Error('You do not have permission to download this file');
+      if (!data?.publicUrl) {
+        throw new Error('Could not generate download URL');
       }
 
-      console.log('[Download] File downloaded successfully');
-      
-      // Create a download link for the blob
-      const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Cleanup
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
+      // Create a temporary link element for downloading
+      const link = document.createElement('a');
+      link.href = data.publicUrl;
+      link.download = fileName; // Set the download attribute with the original filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('[Download] File download initiated');
     } catch (error: any) {
       console.error('[Download] Error:', error);
       toast({
@@ -49,5 +40,8 @@ export function useFileDownload() {
     }
   };
 
-  return { handleDownload, isLoading };
+  return {
+    handleDownload,
+    isLoading,
+  };
 }
