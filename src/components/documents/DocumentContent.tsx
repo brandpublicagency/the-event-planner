@@ -1,6 +1,8 @@
 import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
 import { LinkPreview } from "./LinkPreview";
+import { createRoot } from 'react-dom/client';
+import { useEffect, useRef } from 'react';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -8,6 +10,8 @@ interface DocumentContentProps {
 
 export function DocumentContent({ editor }: DocumentContentProps) {
   if (!editor) return null;
+
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Add a content transformer to render link previews
   const contentWithPreviews = editor.getHTML().replace(
@@ -17,8 +21,10 @@ export function DocumentContent({ editor }: DocumentContentProps) {
     }
   );
 
-  const renderLinkPreviews = (container: HTMLElement) => {
-    const previewElements = container.querySelectorAll('[data-link-preview]');
+  const renderLinkPreviews = () => {
+    if (!contentRef.current) return;
+    
+    const previewElements = contentRef.current.querySelectorAll('[data-link-preview]');
     previewElements.forEach((element) => {
       const url = element.getAttribute('data-link-preview');
       if (url) {
@@ -27,11 +33,16 @@ export function DocumentContent({ editor }: DocumentContentProps) {
         element.replaceWith(previewContainer);
         
         // Render the LinkPreview component
-        const root = ReactDOM.createRoot(previewContainer);
+        const root = createRoot(previewContainer);
         root.render(<LinkPreview url={url} />);
       }
     });
   };
+
+  // Use useEffect to handle link preview rendering after content updates
+  useEffect(() => {
+    renderLinkPreviews();
+  }, [editor.getHTML()]);
 
   return (
     <>
@@ -40,13 +51,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
         <EditorContent 
           editor={editor} 
           className="min-h-[500px] p-4"
-          onUpdate={() => {
-            // Find and render link previews after content updates
-            const container = document.querySelector('.ProseMirror');
-            if (container) {
-              renderLinkPreviews(container);
-            }
-          }}
+          ref={contentRef}
         />
       </div>
     </>
