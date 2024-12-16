@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 interface LinkPreviewProps {
   url: string;
@@ -16,9 +15,7 @@ interface PreviewData {
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
-  const { toast } = useToast();
-
-  const { data: preview, isLoading, isError } = useQuery({
+  const { data: preview, isLoading } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
       try {
@@ -32,7 +29,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
         if (error) {
           console.error("Link preview error:", error);
-          // Don't show error toast for preview failures
           return {
             title: new URL(url).hostname.replace('www.', ''),
             description: 'Preview unavailable',

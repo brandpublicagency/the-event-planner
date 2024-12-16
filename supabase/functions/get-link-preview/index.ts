@@ -64,7 +64,8 @@ serve(async (req) => {
             headers: { 
               ...corsHeaders, 
               'Content-Type': 'application/json' 
-            } 
+            },
+            status: 200
           }
         );
       }
@@ -79,6 +80,7 @@ serve(async (req) => {
             ...corsHeaders, 
             'Content-Type': 'application/json' 
           },
+          status: 200
         },
       );
     } catch (fetchError) {
@@ -98,16 +100,19 @@ serve(async (req) => {
             ...corsHeaders, 
             'Content-Type': 'application/json' 
           },
-          status: 200, // Return 200 even for failed fetches to handle gracefully
+          status: 200 // Return 200 even for failed fetches to handle gracefully
         },
       );
     }
   } catch (error) {
     console.error('Error in get-link-preview:', error);
+    const domain = error.message.includes('URL') ? 'Invalid URL' : 'Error';
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: 'An error occurred while processing the link preview request'
+        title: domain,
+        description: 'Preview unavailable',
+        domain,
+        error: error.message
       }),
       { 
         status: 200, // Return 200 to handle errors gracefully on the client
