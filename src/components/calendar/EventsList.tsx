@@ -79,7 +79,7 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-zinc-500">
                     <span>
-                      {event.start_time ? format(parseISO(`2000-01-01T${event.start_time}`), 'h:mm a') : 'Time not set'}
+                      {event.start_time ? format(parseISO(`2000-01-01T${event.start_time}`), 'HH:mm') : 'Time not set'}
                     </span>
                     <span>•</span>
                     <span>{event.pax} Guests</span>
