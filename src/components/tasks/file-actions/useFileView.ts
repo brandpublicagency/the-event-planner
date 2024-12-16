@@ -11,17 +11,18 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      const { data } = supabase.storage
+      // Get a direct download URL instead of just the public URL
+      const { data: { publicUrl }, error } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
-      if (!data?.publicUrl) {
-        console.error('[View] Error getting public URL');
+      if (error || !publicUrl) {
+        console.error('[View] Error getting public URL:', error);
         throw new Error('Could not generate URL for file');
       }
 
-      // For images, PDFs, and other viewable files, open in new tab
-      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      // Open the URL in a new tab
+      window.open(publicUrl, '_blank', 'noopener,noreferrer');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
