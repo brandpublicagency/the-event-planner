@@ -5,11 +5,11 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Extension } from '@tiptap/core';
-import { Plugin } from '@tiptap/pm/state';
+import { unfurl } from 'unfurl.js';
 
 const lowlight = createLowlight(common);
 
-// Create a custom extension for handling URL pastes
+// Create a custom extension for handling URL pastes with previews
 const PasteUrlHandler = Extension.create({
   name: 'pasteUrlHandler',
 
@@ -17,20 +17,42 @@ const PasteUrlHandler = Extension.create({
     return [
       new Plugin({
         props: {
-          handlePaste: (view, event) => {
+          handlePaste: async (view, event) => {
             const text = event.clipboardData?.getData('text/plain');
             if (!text) return false;
 
             // Check if the text is a URL
             try {
-              new URL(text);
-              // If it's a URL, insert it as a link
+              const url = new URL(text);
+              
+              // Insert the link immediately
               const { tr } = view.state;
               const link = view.state.schema.marks.link.create({ href: text });
               view.dispatch(tr.replaceSelectionWith(
                 view.state.schema.text(text),
                 false
               ).addMark(tr.selection.from, tr.selection.from + text.length, link));
+
+              // Try to fetch preview data asynchronously
+              try {
+                const result = await unfurl(text);
+                if (result.title) {
+                  const previewText = `${result.title}\n${text}`;
+                  const newTr = view.state.tr.replaceWith(
+                    tr.selection.from - text.length,
+                    tr.selection.from,
+                    view.state.schema.text(previewText)
+                  ).addMark(
+                    tr.selection.from - text.length,
+                    tr.selection.from - text.length + previewText.length,
+                    link
+                  );
+                  view.dispatch(newTr);
+                }
+              } catch (error) {
+                console.error('Error fetching link preview:', error);
+              }
+              
               return true;
             } catch {
               // If it's not a URL, let the editor handle it normally
@@ -54,9 +76,7 @@ export const getEditorExtensions = () => [
     HTMLAttributes: {
       class: 'text-primary underline decoration-primary cursor-pointer',
     },
-    // Add autolink functionality
     autolink: true,
-    // Validate URLs
     validate: href => /^https?:\/\//.test(href),
   }),
   Highlight.configure({
