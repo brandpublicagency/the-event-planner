@@ -11,13 +11,43 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Starting file view for:', filePath);
       
+      // First verify file access permission
+      const { data: fileData, error: fileError } = await supabase
+        .from('task_files')
+        .select('task_id')
+        .eq('file_path', filePath)
+        .single();
+
+      if (fileError) {
+        console.error('[View] Error getting file data:', fileError);
+        throw new Error('File not found');
+      }
+
+      const { data: task, error: taskError } = await supabase
+        .from('tasks')
+        .select('user_id, assigned_to')
+        .eq('id', fileData.task_id)
+        .single();
+
+      if (taskError) {
+        console.error('[View] Error getting task data:', taskError);
+        throw new Error('Task not found');
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      if (task.user_id !== user.id && task.assigned_to !== user.id) {
+        throw new Error('You do not have permission to view this file');
+      }
+
       const { data, error } = await supabase.storage
         .from("task-files")
         .createSignedUrl(filePath, 60);
 
       if (error) {
         console.error('[View] Error getting signed URL:', error);
-        throw new Error('You do not have permission to view this file');
+        throw new Error('Failed to generate file URL');
       }
 
       if (!data?.signedUrl) {

@@ -19,13 +19,30 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
     mutationFn: async (file: File) => {
       setIsUploading(true);
       try {
+        // First verify task ownership
+        const { data: task, error: taskError } = await supabase
+          .from('tasks')
+          .select('user_id, assigned_to')
+          .eq('id', taskId)
+          .single();
+
+        if (taskError) throw new Error('Failed to verify task ownership');
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
+        if (task.user_id !== user.id && task.assigned_to !== user.id) {
+          throw new Error('You do not have permission to upload files to this task');
+        }
+
         // Generate a clean filename
         const timestamp = new Date().getTime();
-        const filePath = `${timestamp}-${file.name}`;
+        const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filePath = `${timestamp}-${cleanFileName}`;
 
         console.log('Starting file upload:', {
           taskId,
-          fileName: file.name,
+          fileName: cleanFileName,
           filePath,
           contentType: file.type
         });
@@ -37,7 +54,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
-          throw new Error('You do not have permission to upload files to this task');
+          throw new Error('Failed to upload file');
         }
 
         console.log('File uploaded successfully to storage');
@@ -46,7 +63,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         const { error: dbError } = await supabase.from("task_files").insert([
           {
             task_id: taskId,
-            file_name: file.name,
+            file_name: cleanFileName,
             file_path: filePath,
             content_type: file.type,
           },
