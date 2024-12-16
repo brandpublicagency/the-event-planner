@@ -29,27 +29,27 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     onUpdate: ({ editor }) => {
       if (!documentId || !isAuthenticated) return;
       
-      updateDocument.mutate({
-        content: {
-          type: 'doc',
-          html: editor.getHTML(),
-          text: editor.getText(),
-        }
-      });
+      const content = {
+        type: 'doc',
+        html: editor.getHTML(),
+        text: editor.getText(),
+      };
+
+      updateDocument.mutate({ content });
     },
   });
 
   // Update editor content when document changes
   useEffect(() => {
-    if (document && editor) {
+    if (document && editor && !editor.isDestroyed) {
       // Only update title if document has changed and title is different
       if (document.title && document.title !== title) {
         console.log('Setting title from document:', document.title);
         setTitle(document.title);
       }
-      if (document.content) {
-        const content = document.content as any;
-        editor.commands.setContent(content.html || "");
+      
+      if (document.content?.html && editor.getHTML() !== document.content.html) {
+        editor.commands.setContent(document.content.html);
       }
     }
   }, [document, editor, title]);

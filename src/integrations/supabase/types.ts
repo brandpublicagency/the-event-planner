@@ -223,6 +223,36 @@ export type Database = {
           },
         ]
       }
+      link_previews: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          domain: string
+          image_url: string | null
+          last_fetched: string | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          domain: string
+          image_url?: string | null
+          last_fetched?: string | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          domain?: string
+          image_url?: string | null
+          last_fetched?: string | null
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       menu_options: {
         Row: {
           category: string
