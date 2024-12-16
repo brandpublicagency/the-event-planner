@@ -21,29 +21,8 @@ export function useFileView() {
         throw new Error('Could not generate signed URL for file');
       }
 
-      // Get the file metadata to determine content type
-      const { data: fileData, error: fileError } = await supabase.storage
-        .from("task-files")
-        .list('', {
-          search: filePath,
-          limit: 1
-        });
-
-      if (fileError || !fileData?.length) {
-        console.error('[View] Error getting file metadata:', fileError);
-        throw new Error('Could not get file metadata');
-      }
-
-      const contentType = fileData[0].metadata?.mimetype;
-      console.log('[View] File content type:', contentType);
-
-      // For images, open in new tab. For other files, force download
-      const finalUrl = contentType?.startsWith('image/') 
-        ? signedData.signedUrl
-        : `${signedData.signedUrl}&download=true`;
-
-      console.log('[View] Opening file URL:', finalUrl);
-      window.open(finalUrl, '_blank');
+      console.log('[View] Opening file URL:', signedData.signedUrl);
+      window.open(signedData.signedUrl, '_blank');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
