@@ -3,6 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Document } from "@/types/document";
 
+const TIMEOUT_DURATION = 30000; // 30 seconds
+
+// Utility function to create an abortable fetch with timeout
+const createAbortableQuery = (timeoutMs: number = TIMEOUT_DURATION) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  
+  return {
+    signal: controller.signal,
+    cleanup: () => clearTimeout(timeout)
+  };
+};
+
 export function useDocument(documentId: string | null, isAuthenticated: boolean) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -12,6 +25,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     queryFn: async () => {
       if (!documentId) return null;
       
+      const { signal, cleanup } = createAbortableQuery();
+      
       try {
         const { data, error } = await supabase
           .from("documents")
@@ -19,7 +34,9 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           .eq("id", documentId)
           .is("deleted_at", null)
           .single()
-          .timeout(30000); // Increased timeout to 30 seconds
+          .abortSignal(signal);
+
+        cleanup();
 
         if (error) {
           console.error("Document fetch error:", error);
@@ -28,7 +45,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         if (!data) throw new Error("Document not found");
         return data as Document;
       } catch (error) {
-        if (error instanceof Error && error.message.includes("timeout")) {
+        cleanup();
+        if (error instanceof Error && error.name === "AbortError") {
           throw new Error("Request timed out. Please try again.");
         }
         throw error;
@@ -53,6 +71,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw new Error("Cannot update document: not authenticated");
       }
 
+      const { signal, cleanup } = createAbortableQuery();
+
       try {
         const { error } = await supabase
           .from("documents")
@@ -61,14 +81,17 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
             updated_at: new Date().toISOString(),
           })
           .eq("id", documentId)
-          .timeout(30000); // Increased timeout for updates too
+          .abortSignal(signal);
+
+        cleanup();
 
         if (error) {
           console.error("Document update error:", error);
           throw error;
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes("timeout")) {
+        cleanup();
+        if (error instanceof Error && error.name === "AbortError") {
           throw new Error("Save operation timed out. Please try again.");
         }
         throw error;
