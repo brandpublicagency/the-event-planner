@@ -7,6 +7,7 @@ import { DocumentTitle } from "./DocumentTitle";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
+import type { DocumentContent as DocumentContentType } from "@/types/document";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -29,8 +30,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     onUpdate: ({ editor }) => {
       if (!documentId || !isAuthenticated) return;
       
-      const content = {
-        type: 'doc',
+      const content: DocumentContentType = {
+        type: "doc",
         html: editor.getHTML(),
         text: editor.getText(),
       };
@@ -48,8 +49,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         setTitle(document.title);
       }
       
-      if (document.content?.html && editor.getHTML() !== document.content.html) {
-        editor.commands.setContent(document.content.html);
+      const docContent = document.content as DocumentContentType;
+      if (docContent?.html && editor.getHTML() !== docContent.html) {
+        editor.commands.setContent(docContent.html);
       }
     }
   }, [document, editor, title]);
