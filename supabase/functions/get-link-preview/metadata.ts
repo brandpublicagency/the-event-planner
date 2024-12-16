@@ -1,0 +1,29 @@
+export const getMetaContent = (html: string, pattern: RegExp, fallback = '') => {
+  try {
+    const match = html.match(pattern);
+    return match ? match[1].trim() : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+export const extractMetadata = (html: string, url: string) => {
+  const title = 
+    getMetaContent(html, /<title>(.*?)<\/title>/i) ||
+    getMetaContent(html, /<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+    new URL(url).hostname;
+
+  const description = 
+    getMetaContent(html, /<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i);
+
+  const image = 
+    getMetaContent(html, /<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i);
+
+  const domain = new URL(url).hostname.replace('www.', '');
+
+  return { title, description, image, domain };
+};

@@ -1,24 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { extractMetadata } from "./metadata.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-interface RequestBody {
-  url: string;
-}
+const TIMEOUT_MS = 5000;
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { url } = await req.json() as RequestBody;
-
+    const { url } = await req.json();
     if (!url) {
       throw new Error('URL is required');
     }
@@ -26,7 +22,7 @@ serve(async (req) => {
     console.log('Fetching preview for URL:', url);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
       const response = await fetch(url, {
@@ -43,44 +39,10 @@ serve(async (req) => {
       }
 
       const html = await response.text();
-
-      // Basic metadata extraction with error handling and fallbacks
-      const getMetaContent = (pattern: RegExp, fallback = '') => {
-        try {
-          const match = html.match(pattern);
-          return match ? match[1].trim() : fallback;
-        } catch {
-          return fallback;
-        }
-      };
-
-      // Try multiple meta tags with fallbacks
-      const title = 
-        getMetaContent(/<title>(.*?)<\/title>/i) ||
-        getMetaContent(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
-        getMetaContent(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
-        new URL(url).hostname;
-
-      const description = 
-        getMetaContent(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
-        getMetaContent(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
-        getMetaContent(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i);
-
-      const image = 
-        getMetaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
-        getMetaContent(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i);
-
-      const domain = new URL(url).hostname.replace('www.', '');
-
-      console.log('Successfully extracted preview data:', { title, domain });
+      const metadata = extractMetadata(html, url);
 
       return new Response(
-        JSON.stringify({
-          title: title || domain,
-          description,
-          image,
-          domain,
-        }),
+        JSON.stringify(metadata),
         {
           headers: {
             ...corsHeaders,
@@ -112,12 +74,9 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in get-link-preview:', error);
     return new Response(
-      JSON.stringify({
-        error: error.message,
-        details: 'Failed to generate link preview',
-      }),
-      {
-        status: 400,
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
