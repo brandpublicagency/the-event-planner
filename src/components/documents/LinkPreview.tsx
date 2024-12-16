@@ -12,13 +12,40 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading } = useQuery({
     queryKey: ['link-preview', url],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First try to get from cache
+      const { data: cachedData } = await supabase
         .from('link_previews')
         .select('*')
-        .eq('url', url);
+        .eq('url', url)
+        .single();
 
-      if (error) throw error;
-      return data?.[0] || null;
+      if (cachedData) return cachedData;
+
+      // If not in cache, fetch from Edge Function
+      const response = await fetch('/api/get-link-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch link preview');
+      }
+
+      const preview = await response.json();
+      
+      // Cache the result
+      await supabase
+        .from('link_previews')
+        .upsert({
+          url,
+          title: preview.title,
+          description: preview.description,
+          image_url: preview.image,
+          domain: preview.domain,
+        });
+
+      return preview;
     },
   });
 
@@ -26,7 +53,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
     return (
       <Card className="w-full max-w-[400px] overflow-hidden">
         <Skeleton className="w-full aspect-[1.91/1]" />
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-1.5">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-2/3" />
           <Skeleton className="h-4 w-1/4" />
