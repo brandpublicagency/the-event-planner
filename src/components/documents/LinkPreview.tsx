@@ -15,11 +15,11 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       const { data, error } = await supabase
         .from('link_previews')
         .select('*')
-        .eq('url', url)
-        .single();
+        .eq('url', url);
 
       if (error) throw error;
-      return data;
+      // Return the first preview or null if none exists
+      return data?.[0] || null;
     },
   });
 
@@ -71,9 +71,13 @@ export function LinkPreview({ url }: LinkPreviewProps) {
             
             {/* Title and description */}
             <div className="space-y-1.5">
-              {preview?.title && (
+              {preview?.title ? (
                 <p className="text-sm font-medium line-clamp-2">
                   {preview.title}
+                </p>
+              ) : (
+                <p className="text-sm font-medium line-clamp-2">
+                  {domain}
                 </p>
               )}
               {preview?.description && (
