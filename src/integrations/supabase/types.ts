@@ -300,6 +300,7 @@ export type Database = {
           dessert_price: number | null
           dessert_type: string | null
           event_code: string
+          individual_cake_quantities: Json | null
           individual_cakes: string[] | null
           is_custom: boolean | null
           karoo_meat_selection: string | null
@@ -333,6 +334,7 @@ export type Database = {
           dessert_price?: number | null
           dessert_type?: string | null
           event_code: string
+          individual_cake_quantities?: Json | null
           individual_cakes?: string[] | null
           is_custom?: boolean | null
           karoo_meat_selection?: string | null
@@ -366,6 +368,7 @@ export type Database = {
           dessert_price?: number | null
           dessert_type?: string | null
           event_code?: string
+          individual_cake_quantities?: Json | null
           individual_cakes?: string[] | null
           is_custom?: boolean | null
           karoo_meat_selection?: string | null
