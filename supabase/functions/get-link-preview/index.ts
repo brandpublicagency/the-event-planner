@@ -9,6 +9,11 @@ const corsHeaders = {
 const TIMEOUT_MS = 5000;
 
 serve(async (req) => {
+  console.log('Request received:', {
+    method: req.method,
+    url: req.url
+  });
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,7 +27,10 @@ serve(async (req) => {
     console.log('Fetching preview for URL:', url);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timeout = setTimeout(() => {
+      controller.abort();
+      console.log('Request timed out for URL:', url);
+    }, TIMEOUT_MS);
 
     try {
       const response = await fetch(url, {
@@ -35,11 +43,15 @@ serve(async (req) => {
       clearTimeout(timeout);
 
       if (!response.ok) {
+        console.error('HTTP error:', response.status, response.statusText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const html = await response.text();
+      console.log('Successfully fetched HTML for URL:', url);
+
       const metadata = extractMetadata(html, url);
+      console.log('Extracted metadata:', metadata);
 
       return new Response(
         JSON.stringify(metadata),
@@ -74,7 +86,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in get-link-preview:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'An error occurred while processing the link preview request'
+      }),
       { 
         status: 500,
         headers: {

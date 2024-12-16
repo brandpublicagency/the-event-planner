@@ -8,6 +8,8 @@ export const getMetaContent = (html: string, pattern: RegExp, fallback = '') => 
 };
 
 export const extractMetadata = (html: string, url: string) => {
+  console.log('Extracting metadata for URL:', url);
+  
   const title = 
     getMetaContent(html, /<title>(.*?)<\/title>/i) ||
     getMetaContent(html, /<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
@@ -25,5 +27,6 @@ export const extractMetadata = (html: string, url: string) => {
 
   const domain = new URL(url).hostname.replace('www.', '');
 
+  console.log('Extracted metadata:', { title, domain });
   return { title, description, image, domain };
 };
