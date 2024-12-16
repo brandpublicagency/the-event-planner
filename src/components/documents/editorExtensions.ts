@@ -27,22 +27,24 @@ export const PasteHandler = Node.create({
             try {
               const url = new URL(text);
               if (url.protocol === 'http:' || url.protocol === 'https:') {
-                // Insert both the link and a paragraph node for the preview
+                // Insert both the link and the preview
                 const { tr } = view.state;
                 
-                // Create the link
+                // Insert the URL as a link
                 view.dispatch(
                   tr.replaceSelectionWith(
-                    view.state.schema.text(text)
-                  ).scrollIntoView()
+                    view.state.schema.text(text, [
+                      view.state.schema.marks.link.create({ href: text })
+                    ])
+                  )
                 );
 
-                // Insert the preview placeholder
+                // Insert the preview placeholder on a new line
                 const previewText = `<link-preview url="${text}">`;
-                const pos = tr.selection.to;
+                const pos = view.state.selection.to;
                 view.dispatch(
                   view.state.tr
-                    .insertText('\n' + previewText + '\n', pos)
+                    .insertText('\n\n' + previewText + '\n', pos)
                     .scrollIntoView()
                 );
                 
