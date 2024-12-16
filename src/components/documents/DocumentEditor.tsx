@@ -18,6 +18,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const isAuthenticated = useDocumentAuth();
   const lastSavedContent = useRef<string>("");
   const titleTimeoutRef = useRef<NodeJS.Timeout>();
+  const initialLoadRef = useRef(false);
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
@@ -75,17 +76,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Update title state when document changes
   useEffect(() => {
-    if (!document?.title) return;
-    if (document.title !== title) {
-      setTitle(document.title);
-    }
+    if (!document?.title || initialLoadRef.current) return;
+    
+    initialLoadRef.current = true;
+    setTitle(document.title);
   }, [document?.title]);
 
   // Handle title updates with debounce
   useEffect(() => {
-    if (!documentId || !isAuthenticated || !title || title === document?.title) return;
+    if (!documentId || !isAuthenticated || !title || !initialLoadRef.current) return;
+    if (title === document?.title) return;
 
-    // Clear any existing timeout
     if (titleTimeoutRef.current) {
       clearTimeout(titleTimeoutRef.current);
     }
