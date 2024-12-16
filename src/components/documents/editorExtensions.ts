@@ -6,20 +6,22 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from 'prosemirror-state';
-import { unfurl } from 'unfurl.js';
+import type { EditorView } from 'prosemirror-view';
 
 const lowlight = createLowlight(common);
 
-// Create a custom extension for handling URL pastes with previews
+// Create a custom extension for handling URL pastes
 const PasteUrlHandler = Extension.create({
   name: 'pasteUrlHandler',
 
   addProseMirrorPlugins() {
+    const urlHandlerKey = new PluginKey('pasteUrlHandler');
+    
     return [
       new Plugin({
-        key: new PluginKey('pasteUrlHandler'),
+        key: urlHandlerKey,
         props: {
-          handlePaste: async (view, event) => {
+          handlePaste: (view: EditorView, event: ClipboardEvent) => {
             const text = event.clipboardData?.getData('text/plain');
             if (!text) return false;
 
@@ -35,26 +37,28 @@ const PasteUrlHandler = Extension.create({
                 false
               ).addMark(tr.selection.from, tr.selection.from + text.length, link));
 
-              // Try to fetch preview data asynchronously
-              try {
-                const result = await unfurl(text);
-                if (result.title) {
-                  const previewText = `${result.title}\n${text}`;
-                  const newTr = view.state.tr.replaceWith(
-                    tr.selection.from - text.length,
-                    tr.selection.from,
-                    view.state.schema.text(previewText)
-                  ).addMark(
-                    tr.selection.from - text.length,
-                    tr.selection.from - text.length + previewText.length,
-                    link
-                  );
-                  view.dispatch(newTr);
-                }
-              } catch (error) {
-                console.error('Error fetching link preview:', error);
-              }
-              
+              // Start async preview fetch
+              fetch(`/api/fetch-link-preview?url=${encodeURIComponent(text)}`)
+                .then(response => response.json())
+                .then(preview => {
+                  if (preview.title) {
+                    const previewText = `${preview.title}\n${text}`;
+                    const newTr = view.state.tr.replaceWith(
+                      tr.selection.from - text.length,
+                      tr.selection.from,
+                      view.state.schema.text(previewText)
+                    ).addMark(
+                      tr.selection.from - text.length,
+                      tr.selection.from - text.length + previewText.length,
+                      link
+                    );
+                    view.dispatch(newTr);
+                  }
+                })
+                .catch(error => {
+                  console.error('Error fetching link preview:', error);
+                });
+
               return true;
             } catch {
               // If it's not a URL, let the editor handle it normally

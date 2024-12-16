@@ -27,6 +27,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
+      if (!isAuthenticated) return;
+      
       const lines = editor.getText().split('\n');
       const firstLine = lines[0] || 'Untitled Document';
       const currentContent = editor.getHTML();
@@ -61,7 +63,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
     
-    // Reset the editor content and refs
     editor.commands.clearContent();
     lastSavedContent.current = "";
     contentInitialized.current = false;
