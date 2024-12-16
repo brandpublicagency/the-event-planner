@@ -29,18 +29,22 @@ const queryClient = new QueryClient({
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
     // Set up initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
       setSession(session);
       setIsLoading(false);
+      setAuthInitialized(true);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', session);
       setSession(session);
       setIsLoading(false);
       
@@ -55,7 +59,7 @@ const App = () => {
     };
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !authInitialized) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
