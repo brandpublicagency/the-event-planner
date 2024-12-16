@@ -32,7 +32,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
 
       if (storageError) {
         console.error('Storage deletion error:', storageError);
-        throw storageError;
+        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
       }
 
       console.log('Storage deletion successful');
@@ -45,18 +45,18 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
 
       if (dbError) {
         console.error('Database deletion error:', dbError);
-        throw dbError;
+        throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
       console.log('Database deletion successful');
       return true;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
       toast({
         title: "File deleted",
         description: "File has been deleted successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
       if (onDelete) {
         onDelete();
       }

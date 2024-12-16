@@ -25,7 +25,7 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
         <FileActionButton
           icon={isDeleting ? Loader2 : Trash2}
           disabled={disabled || isDeleting}
-          variant="destructive"
+          variant="ghost"
         />
       </AlertDialogTrigger>
       <AlertDialogContent>
