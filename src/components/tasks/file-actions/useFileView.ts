@@ -9,23 +9,18 @@ export function useFileView() {
   const handleView = async (filePath: string) => {
     try {
       setIsLoading(true);
-      console.log('[View] Starting file view for:', filePath);
+      console.log('[View] Getting public URL for:', filePath);
       
-      const { data, error } = await supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60);
+        .getPublicUrl(filePath);
 
-      if (error) {
-        console.error('[View] Error getting signed URL:', error);
-        throw new Error('Failed to generate file URL');
-      }
-
-      if (!data?.signedUrl) {
+      if (!publicUrl) {
         throw new Error('Could not generate URL for file');
       }
 
       // Simply open the URL in a new tab
-      window.open(data.signedUrl, '_blank');
+      window.open(publicUrl, '_blank');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
