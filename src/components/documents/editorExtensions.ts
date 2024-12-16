@@ -1,5 +1,5 @@
 import { Node } from '@tiptap/core';
-import { Plugin } from 'prosemirror-state';
+import { Plugin, PluginKey } from 'prosemirror-state';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -18,7 +18,7 @@ const PasteHandler = Node.create({
   addProseMirrorPlugins() {
     return [
       new Plugin({
-        key: new Plugin.key('pasteHandler'),
+        key: new PluginKey('pasteHandler'),
         props: {
           handlePaste: (view, event, slice) => {
             console.log('Paste event triggered', { event, slice });
