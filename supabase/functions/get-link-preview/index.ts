@@ -44,25 +44,31 @@ serve(async (req) => {
 
       const html = await response.text();
 
-      // Basic metadata extraction with error handling
-      const getMetaContent = (pattern: RegExp) => {
-        const match = html.match(pattern);
-        return match ? match[1].trim() : '';
+      // Basic metadata extraction with error handling and fallbacks
+      const getMetaContent = (pattern: RegExp, fallback = '') => {
+        try {
+          const match = html.match(pattern);
+          return match ? match[1].trim() : fallback;
+        } catch {
+          return fallback;
+        }
       };
 
-      const title = getMetaContent(/<title>(.*?)<\/title>/i) ||
-                    getMetaContent(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
-                    getMetaContent(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
-                    '';
+      // Try multiple meta tags with fallbacks
+      const title = 
+        getMetaContent(/<title>(.*?)<\/title>/i) ||
+        getMetaContent(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+        getMetaContent(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+        new URL(url).hostname;
 
-      const description = getMetaContent(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
-                         getMetaContent(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
-                         getMetaContent(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i) ||
-                         '';
+      const description = 
+        getMetaContent(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
+        getMetaContent(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+        getMetaContent(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i);
 
-      const image = getMetaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
-                   getMetaContent(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i) ||
-                   '';
+      const image = 
+        getMetaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
+        getMetaContent(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i);
 
       const domain = new URL(url).hostname.replace('www.', '');
 
@@ -85,7 +91,23 @@ serve(async (req) => {
     } catch (fetchError) {
       clearTimeout(timeout);
       console.error('Error fetching URL:', fetchError);
-      throw new Error(`Failed to fetch URL: ${fetchError.message}`);
+      
+      // Return a basic preview with just the domain if fetching fails
+      const domain = new URL(url).hostname.replace('www.', '');
+      return new Response(
+        JSON.stringify({
+          title: domain,
+          description: '',
+          image: '',
+          domain,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
     }
   } catch (error) {
     console.error('Error in get-link-preview:', error);
