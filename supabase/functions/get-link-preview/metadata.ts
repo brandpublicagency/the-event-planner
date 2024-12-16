@@ -11,15 +11,15 @@ export const extractMetadata = (html: string, url: string) => {
   console.log('Extracting metadata for URL:', url);
   
   const title = 
-    getMetaContent(html, /<title[^>]*>(.*?)<\/title>/i) ||
     getMetaContent(html, /<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<title[^>]*>(.*?)<\/title>/i) ||
     new URL(url).hostname;
 
   const description = 
-    getMetaContent(html, /<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
-    getMetaContent(html, /<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i);
+    getMetaContent(html, /<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+    getMetaContent(html, /<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i);
 
   let image = 
     getMetaContent(html, /<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
@@ -37,6 +37,6 @@ export const extractMetadata = (html: string, url: string) => {
 
   const domain = new URL(url).hostname.replace('www.', '');
 
-  console.log('Extracted metadata:', { title, domain });
+  console.log('Extracted metadata:', { title, description, image, domain });
   return { title, description, image, domain };
 };
