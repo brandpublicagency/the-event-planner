@@ -11,17 +11,26 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      const { data: publicUrl } = supabase.storage
+      // Get the public URL for the file
+      const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
-      if (!publicUrl?.publicUrl) {
+      if (!data?.publicUrl) {
         console.error('[View] Error getting public URL');
-        throw new Error('Could not generate public URL for file');
+        throw new Error('Could not generate URL for file');
       }
 
-      console.log('[View] Opening file URL:', publicUrl.publicUrl);
-      window.open(publicUrl.publicUrl, '_blank');
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = data.publicUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Simulate a click to open in a new tab
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
