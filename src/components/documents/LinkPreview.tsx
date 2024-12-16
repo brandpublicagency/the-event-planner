@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Globe, ExternalLink } from "lucide-react";
+import { Globe } from "lucide-react";
 
 interface LinkPreviewProps {
   url: string;
@@ -7,16 +7,23 @@ interface LinkPreviewProps {
 
 export function LinkPreview({ url }: LinkPreviewProps) {
   try {
-    // Extract domain from URL
+    // Extract domain and create a clean title
     const domain = new URL(url).hostname.replace('www.', '');
+    const title = domain.split('.')[0]
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
     
     return (
       <Card className="w-full max-w-[600px] overflow-hidden hover:bg-accent/50 transition-colors">
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-          <div className="flex gap-4 p-4">
-            <div className="flex-1 min-w-0 space-y-2">
-              <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4 p-4">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-base leading-tight truncate mb-1">
+                {title}
+              </h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <img 
                   src={faviconUrl} 
                   alt={`${domain} favicon`}
@@ -26,16 +33,16 @@ export function LinkPreview({ url }: LinkPreviewProps) {
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
-                <Globe className={`h-4 w-4 text-muted-foreground hidden`} />
-                <h3 className="font-medium text-lg leading-tight truncate">{domain}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {url}
-              </p>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Globe className="h-4 w-4 text-muted-foreground hidden" />
                 <span>{domain}</span>
-                <ExternalLink className="h-3 w-3" />
               </div>
+            </div>
+            <div className="flex-shrink-0 w-16 h-16 rounded-sm overflow-hidden bg-muted">
+              <img 
+                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
+                alt=""
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </a>
