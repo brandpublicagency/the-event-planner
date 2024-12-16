@@ -1,13 +1,11 @@
 import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useDebounce } from "@/hooks/useDebounce";
+import { useState, useEffect, useRef } from "react";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentTitle } from "./DocumentTitle";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
-import { useBeforeUnload } from "@/hooks/useBeforeUnload";
 import { useToast } from "@/components/ui/use-toast";
 import type { DocumentContent as DocumentContentType } from "@/types/document";
 
@@ -17,9 +15,7 @@ interface DocumentEditorProps {
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isAuthenticated = useDocumentAuth();
-  const debouncedTitle = useDebounce(title, 1000);
   const lastSavedContent = useRef<string>("");
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
@@ -31,40 +27,39 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
       },
     },
-    onUpdate: ({ editor }) => {
-      if (!documentId || !isAuthenticated) return;
-      
-      const currentContent = editor.getHTML();
-      if (currentContent !== lastSavedContent.current) {
-        setHasUnsavedChanges(true);
-      }
-    },
   });
 
-  const saveDocument = useCallback(async () => {
+  // Save document when unmounting or changing documents
+  useEffect(() => {
     if (!editor || !documentId || !isAuthenticated) return;
 
-    const content: DocumentContentType = {
-      type: "doc",
-      html: editor.getHTML(),
-      text: editor.getText(),
+    const saveDocument = async () => {
+      const currentContent = editor.getHTML();
+      if (currentContent === lastSavedContent.current) return;
+
+      try {
+        const content: DocumentContentType = {
+          type: "doc",
+          html: currentContent,
+          text: editor.getText(),
+        };
+
+        await updateDocument.mutateAsync({ content });
+        lastSavedContent.current = currentContent;
+      } catch (error) {
+        console.error('Error saving document:', error);
+        toast({
+          title: "Error saving document",
+          description: "Failed to save your changes. Please try again.",
+          variant: "destructive",
+        });
+      }
     };
 
-    try {
-      await updateDocument.mutateAsync({ content });
-      lastSavedContent.current = editor.getHTML();
-      setHasUnsavedChanges(false);
-      toast({
-        title: "Document saved",
-        description: "Your changes have been saved successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error saving document",
-        description: "Failed to save your changes. Please try again.",
-        variant: "destructive",
-      });
-    }
+    // Save when unmounting or changing documents
+    return () => {
+      saveDocument();
+    };
   }, [documentId, editor, isAuthenticated, updateDocument, toast]);
 
   // Update editor content when document changes
@@ -80,26 +75,14 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (docContent?.html) {
       editor.commands.setContent(docContent.html, false);
       lastSavedContent.current = docContent.html;
-      setHasUnsavedChanges(false);
     }
   }, [document, editor, title]);
 
   // Update title when it changes
   useEffect(() => {
-    if (!documentId || !isAuthenticated || debouncedTitle === document?.title || debouncedTitle === "") return;
-    updateDocument.mutate({ title: debouncedTitle });
-  }, [debouncedTitle, documentId, document?.title, isAuthenticated, updateDocument]);
-
-  // Handle unsaved changes when navigating away
-  useBeforeUnload(
-    useCallback((e) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-        return e.returnValue;
-      }
-    }, [hasUnsavedChanges])
-  );
+    if (!documentId || !isAuthenticated || title === document?.title || title === "") return;
+    updateDocument.mutate({ title });
+  }, [title, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
     return (
@@ -132,8 +115,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         onTitleChange={setTitle}
         documentId={documentId}
         editor={editor}
-        onSave={saveDocument}
-        hasUnsavedChanges={hasUnsavedChanges}
       />
       <DocumentContent editor={editor} />
     </div>
