@@ -1,11 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
 
 interface RequestBody {
   url: string;
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -13,33 +19,81 @@ serve(async (req) => {
   try {
     const { url } = await req.json() as RequestBody;
 
-    const response = await fetch(url);
-    const html = await response.text();
+    if (!url) {
+      throw new Error('URL is required');
+    }
 
-    // Basic metadata extraction
-    const title = html.match(/<title>(.*?)<\/title>/i)?.[1] || '';
-    const description = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i)?.[1] || '';
-    const ogImage = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1] || '';
-    
-    const domain = new URL(url).hostname.replace('www.', '');
+    console.log('Fetching preview for URL:', url);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+        },
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const html = await response.text();
+
+      // Basic metadata extraction with error handling
+      const getMetaContent = (pattern: RegExp) => {
+        const match = html.match(pattern);
+        return match ? match[1].trim() : '';
+      };
+
+      const title = getMetaContent(/<title>(.*?)<\/title>/i) ||
+                    getMetaContent(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+                    getMetaContent(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
+                    '';
+
+      const description = getMetaContent(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                         getMetaContent(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                         getMetaContent(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                         '';
+
+      const image = getMetaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
+                   getMetaContent(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i) ||
+                   '';
+
+      const domain = new URL(url).hostname.replace('www.', '');
+
+      console.log('Successfully extracted preview data:', { title, domain });
+
+      return new Response(
+        JSON.stringify({
+          title: title || domain,
+          description,
+          image,
+          domain,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      console.error('Error fetching URL:', fetchError);
+      throw new Error(`Failed to fetch URL: ${fetchError.message}`);
+    }
+  } catch (error) {
+    console.error('Error in get-link-preview:', error);
     return new Response(
       JSON.stringify({
-        title,
-        description,
-        image: ogImage,
-        domain,
+        error: error.message,
+        details: 'Failed to generate link preview',
       }),
-      {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
       {
         status: 400,
         headers: {

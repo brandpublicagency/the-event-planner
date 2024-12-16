@@ -18,22 +18,22 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading, isError } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Preview request timed out')), 10000);
-      });
-
       try {
-        const result = await Promise.race([
-          supabase.functions.invoke<PreviewData>("get-link-preview", {
-            body: { url }
-          }),
-          timeoutPromise
-        ]);
+        console.log('Fetching preview for:', url);
+        const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
+          body: { url }
+        });
 
-        // Type assertion to handle the Supabase response
-        const response = result as { data: PreviewData | null, error: any };
-        if (response.error) throw response.error;
-        return response.data;
+        if (error) {
+          console.error("Link preview error:", error);
+          throw error;
+        }
+
+        if (!data) {
+          throw new Error("No preview data returned");
+        }
+
+        return data;
       } catch (error) {
         console.error("Link preview error:", error);
         throw error;
@@ -50,6 +50,9 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
             {url}
           </a>
+          <p className="text-sm text-muted-foreground mt-2">
+            Preview unavailable
+          </p>
         </div>
       </Card>
     );
@@ -77,6 +80,10 @@ export function LinkPreview({ url }: LinkPreviewProps) {
               src={preview.image} 
               alt={preview.title}
               className="object-cover w-full h-full"
+              onError={(e) => {
+                // Remove the image container if loading fails
+                e.currentTarget.parentElement?.remove();
+              }}
             />
           </div>
         )}
