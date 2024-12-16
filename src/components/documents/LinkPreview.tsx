@@ -24,14 +24,11 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-[400px] p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-5 rounded-full" />
-          <Skeleton className="h-4 w-32" />
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
+      <Card className="w-full max-w-[400px] overflow-hidden">
+        <Skeleton className="w-full aspect-[1.91/1]" />
+        <div className="p-4 space-y-2">
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-1/4" />
         </div>
       </Card>
     );
@@ -39,47 +36,29 @@ export function LinkPreview({ url }: LinkPreviewProps) {
 
   try {
     const urlObj = new URL(url);
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
+    const domain = urlObj.hostname.replace('www.', '');
     
     return (
-      <Card className="w-full max-w-[400px] overflow-hidden hover:bg-accent/50 transition-colors">
+      <Card className="w-full max-w-[400px] overflow-hidden group hover:bg-accent/50 transition-colors">
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-          <div className="p-5 space-y-4">
-            {/* URL and favicon */}
-            <div className="flex items-center gap-3">
-              <div className="relative w-5 h-5 flex-shrink-0">
-                <img 
-                  src={faviconUrl} 
-                  alt=""
-                  className="w-full h-full object-contain rounded-sm"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <Globe className="h-5 w-5 text-muted-foreground hidden absolute inset-0" />
-              </div>
-              <p className="text-sm text-muted-foreground truncate flex-1">
-                {url}
-              </p>
-              <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          {preview?.image_url && (
+            <div className="relative w-full aspect-[1.91/1] bg-muted">
+              <img 
+                src={preview.image_url} 
+                alt={preview?.title || domain}
+                className="w-full h-full object-cover"
+              />
             </div>
-            
-            {/* Content */}
-            {(preview?.title || preview?.description) && (
-              <div className="space-y-2 border-t pt-4">
-                {preview?.title && (
-                  <p className="text-sm font-medium line-clamp-2">
-                    {preview.title}
-                  </p>
-                )}
-                {preview?.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {preview.description}
-                  </p>
-                )}
-              </div>
-            )}
+          )}
+          <div className="p-4 space-y-2">
+            <h3 className="font-medium text-base line-clamp-2">
+              {preview?.title || `${domain} | Website`}
+            </h3>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Globe className="h-3.5 w-3.5" />
+              <span className="text-sm">{domain}</span>
+              <ExternalLink className="h-3.5 w-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </div>
         </a>
       </Card>
