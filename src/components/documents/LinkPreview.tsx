@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LinkPreviewProps {
   url: string;
@@ -15,17 +16,27 @@ interface PreviewData {
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
+  const { toast } = useToast();
+
   const { data: preview, isLoading, isError } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
       try {
         console.log('Fetching preview for:', url);
         const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
-          body: { url }
+          body: { url },
+          headers: {
+            'Content-Type': 'application/json',
+          }
         });
 
         if (error) {
           console.error("Link preview error:", error);
+          toast({
+            title: "Error fetching preview",
+            description: "Could not load preview for this link",
+            variant: "destructive",
+          });
           throw error;
         }
 
@@ -36,10 +47,15 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         return data;
       } catch (error) {
         console.error("Link preview error:", error);
+        toast({
+          title: "Error fetching preview",
+          description: "Could not load preview for this link",
+          variant: "destructive",
+        });
         throw error;
       }
     },
-    retry: 1,
+    retry: false, // Don't retry on failure
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
