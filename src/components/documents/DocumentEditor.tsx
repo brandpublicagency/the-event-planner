@@ -22,17 +22,24 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const debouncedTitle = useDebounce(title, 1000);
   const lastSavedContent = useRef<string>("");
   const { toast } = useToast();
-
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
-  const handleUpdate = useCallback(({ editor }) => {
-    if (!documentId || !isAuthenticated) return;
-    
-    const currentContent = editor.getHTML();
-    if (currentContent !== lastSavedContent.current) {
-      setHasUnsavedChanges(true);
-    }
-  }, [documentId, isAuthenticated]);
+  const editor = useEditor({
+    extensions: getEditorExtensions(),
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      if (!documentId || !isAuthenticated) return;
+      
+      const currentContent = editor.getHTML();
+      if (currentContent !== lastSavedContent.current) {
+        setHasUnsavedChanges(true);
+      }
+    },
+  });
 
   const saveDocument = useCallback(async () => {
     if (!editor || !documentId || !isAuthenticated) return;
@@ -59,16 +66,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
     }
   }, [documentId, editor, isAuthenticated, updateDocument, toast]);
-
-  const editor = useEditor({
-    extensions: getEditorExtensions(),
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
-      },
-    },
-    onUpdate: handleUpdate,
-  });
 
   // Update editor content when document changes
   useEffect(() => {
