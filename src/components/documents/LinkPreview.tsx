@@ -1,84 +1,35 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { Globe } from "lucide-react";
 
 interface LinkPreviewProps {
   url: string;
 }
-
-interface PreviewData {
-  title: string;
-  description?: string;
-  image?: string;
-  domain: string;
-}
-
-const QUERY_TIMEOUT = 10000; // 10 seconds
 
 export function LinkPreview({ url }: LinkPreviewProps) {
   const { data: preview, isLoading } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: async () => {
       try {
-        console.log('Fetching preview for:', url);
+        // Extract domain from URL
+        const domain = new URL(url).hostname.replace('www.', '');
         
-        // Create an AbortController for the timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), QUERY_TIMEOUT);
-
-        const { data, error } = await supabase.functions.invoke<PreviewData>("get-link-preview", {
-          body: { url },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (error) {
-          console.error("Link preview error:", error);
-          toast({
-            title: "Preview Error",
-            description: "Could not load preview for this link",
-            variant: "destructive",
-          });
-          return {
-            title: new URL(url).hostname.replace('www.', ''),
-            description: 'Preview unavailable',
-            domain: new URL(url).hostname.replace('www.', ''),
-          };
-        }
-
-        if (!data) {
-          return {
-            title: new URL(url).hostname.replace('www.', ''),
-            description: 'Preview unavailable',
-            domain: new URL(url).hostname.replace('www.', ''),
-          };
-        }
-
-        return data;
+        // Create a basic preview with the available information
+        return {
+          title: domain,
+          description: url,
+          domain: domain,
+        };
       } catch (error) {
         console.error("Link preview error:", error);
-        if (error.name === 'AbortError') {
-          toast({
-            title: "Preview Timeout",
-            description: "The preview took too long to load",
-            variant: "destructive",
-          });
-        }
         return {
-          title: new URL(url).hostname.replace('www.', ''),
+          title: url,
           description: 'Preview unavailable',
-          domain: new URL(url).hostname.replace('www.', ''),
+          domain: 'unknown',
         };
       }
     },
-    retry: 1, // Only retry once
-    retryDelay: 1000, // Wait 1 second before retrying
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
@@ -98,26 +49,14 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   return (
     <Card className="w-full max-w-[600px] overflow-hidden hover:bg-accent/50 transition-colors">
       <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-        {preview.image && (
-          <div className="relative h-[200px] w-full">
-            <img 
-              src={preview.image} 
-              alt={preview.title}
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                // Remove the image container if loading fails
-                e.currentTarget.parentElement?.remove();
-              }}
-            />
-          </div>
-        )}
         <div className="p-4 space-y-2">
-          <h3 className="font-medium text-lg leading-tight">{preview.title}</h3>
-          {preview.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {preview.description}
-            </p>
-          )}
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-medium text-lg leading-tight">{preview.title}</h3>
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {preview.description}
+          </p>
           <p className="text-xs text-muted-foreground">{preview.domain}</p>
         </div>
       </a>
