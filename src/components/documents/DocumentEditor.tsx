@@ -1,6 +1,6 @@
 import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentTitle } from "./DocumentTitle";
@@ -17,11 +17,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
   const isAuthenticated = useDocumentAuth();
   const debouncedTitle = useDebounce(title, 1000);
+  const isLocalUpdate = useRef(false);
 
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
   const handleUpdate = useCallback(({ editor }) => {
-    if (!documentId || !isAuthenticated) return;
+    if (!documentId || !isAuthenticated || isLocalUpdate.current) return;
     
     const content: DocumentContentType = {
       type: "doc",
@@ -53,7 +54,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     
     const docContent = document.content as DocumentContentType;
     if (docContent?.html && editor.getHTML() !== docContent.html) {
+      isLocalUpdate.current = true;
       editor.commands.setContent(docContent.html, false);
+      setTimeout(() => {
+        isLocalUpdate.current = false;
+      }, 10);
     }
   }, [document, editor, title]);
 

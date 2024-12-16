@@ -16,3 +16,14 @@ export interface DocumentContent {
   html: string;
   text: string;
 }
+
+export function isDocumentContent(content: Json | DocumentContent): content is DocumentContent {
+  return (
+    typeof content === 'object' &&
+    content !== null &&
+    'type' in content &&
+    content.type === 'doc' &&
+    'html' in content &&
+    'text' in content
+  );
+}
