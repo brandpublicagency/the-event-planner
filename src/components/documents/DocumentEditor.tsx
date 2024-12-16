@@ -57,12 +57,22 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
+  // Reset state when document changes
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    
+    // Reset the editor content and refs
+    editor.commands.clearContent();
+    lastSavedContent.current = "";
+    contentInitialized.current = false;
+  }, [documentId, editor]);
+
   // Load initial document content
   useEffect(() => {
     if (!editor || !document?.content || editor.isDestroyed || contentInitialized.current) return;
 
     const docContent = document.content as DocumentContentType;
-    if (docContent?.html && docContent.html !== lastSavedContent.current) {
+    if (docContent?.html) {
       editor.commands.setContent(docContent.html);
       lastSavedContent.current = docContent.html;
       contentInitialized.current = true;
