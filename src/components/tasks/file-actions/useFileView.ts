@@ -11,17 +11,39 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      // Get a signed URL that expires in 60 seconds
-      const { data, error } = await supabase.storage
+      // Create a signed URL that expires in 60 seconds
+      const { data: signedData, error: signedError } = await supabase.storage
         .from("task-files")
         .createSignedUrl(filePath, 60);
 
-      if (error || !data?.signedUrl) {
+      if (signedError || !signedData?.signedUrl) {
+        console.error('[View] Error creating signed URL:', signedError);
         throw new Error('Could not generate signed URL for file');
       }
 
-      console.log('[View] Opening file URL:', data.signedUrl);
-      window.open(data.signedUrl, '_blank');
+      // Get the file metadata to determine content type
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from("task-files")
+        .list('', {
+          search: filePath,
+          limit: 1
+        });
+
+      if (fileError || !fileData?.length) {
+        console.error('[View] Error getting file metadata:', fileError);
+        throw new Error('Could not get file metadata');
+      }
+
+      const contentType = fileData[0].metadata?.mimetype;
+      console.log('[View] File content type:', contentType);
+
+      // For images, open in new tab. For other files, force download
+      const finalUrl = contentType?.startsWith('image/') 
+        ? signedData.signedUrl
+        : `${signedData.signedUrl}&download=true`;
+
+      console.log('[View] Opening file URL:', finalUrl);
+      window.open(finalUrl, '_blank');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
