@@ -18,7 +18,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const isAuthenticated = useDocumentAuth();
   const lastSavedContent = useRef<string>("");
   const titleTimeoutRef = useRef<NodeJS.Timeout>();
-  const initialLoadRef = useRef(false);
+  const contentInitialized = useRef(false);
+  const titleInitialized = useRef(false);
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
@@ -31,7 +32,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  // Save document when unmounting or changing documents
+  // Save document content when unmounting or changing documents
   useEffect(() => {
     if (!editor || !documentId || !isAuthenticated) return;
 
@@ -65,26 +66,27 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Load initial document content
   useEffect(() => {
-    if (!editor || !document?.content || editor.isDestroyed) return;
+    if (!editor || !document?.content || editor.isDestroyed || contentInitialized.current) return;
 
     const docContent = document.content as DocumentContentType;
     if (docContent?.html && docContent.html !== lastSavedContent.current) {
       editor.commands.setContent(docContent.html);
       lastSavedContent.current = docContent.html;
+      contentInitialized.current = true;
     }
   }, [document?.content, editor]);
 
-  // Update title state when document changes
+  // Initialize title state
   useEffect(() => {
-    if (!document?.title || initialLoadRef.current) return;
+    if (!document?.title || titleInitialized.current) return;
     
-    initialLoadRef.current = true;
     setTitle(document.title);
+    titleInitialized.current = true;
   }, [document?.title]);
 
   // Handle title updates with debounce
   useEffect(() => {
-    if (!documentId || !isAuthenticated || !title || !initialLoadRef.current) return;
+    if (!documentId || !isAuthenticated || !title || !titleInitialized.current) return;
     if (title === document?.title) return;
 
     if (titleTimeoutRef.current) {
