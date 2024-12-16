@@ -14,12 +14,14 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       try {
         // Extract domain from URL
         const domain = new URL(url).hostname.replace('www.', '');
+        const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         
         // Create a basic preview with the available information
         return {
           title: domain,
           description: url,
           domain: domain,
+          favicon: faviconUrl,
         };
       } catch (error) {
         console.error("Link preview error:", error);
@@ -27,6 +29,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           title: url,
           description: 'Preview unavailable',
           domain: 'unknown',
+          favicon: null,
         };
       }
     },
@@ -51,7 +54,19 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       <a href={url} target="_blank" rel="noopener noreferrer" className="block">
         <div className="p-4 space-y-2">
           <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-muted-foreground" />
+            {preview.favicon ? (
+              <img 
+                src={preview.favicon} 
+                alt={`${preview.domain} favicon`}
+                className="h-4 w-4"
+                onError={(e) => {
+                  // Fallback to Globe icon if favicon fails to load
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+            ) : null}
+            <Globe className={`h-4 w-4 text-muted-foreground ${preview.favicon ? 'hidden' : ''}`} />
             <h3 className="font-medium text-lg leading-tight">{preview.title}</h3>
           </div>
           <p className="text-sm text-muted-foreground line-clamp-2">
