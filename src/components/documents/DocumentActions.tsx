@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, MoreVertical, Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,7 +87,7 @@ export default function DocumentActions({ documentId, title, content }: Document
   });
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
@@ -110,9 +110,10 @@ export default function DocumentActions({ documentId, title, content }: Document
           <Button 
             variant="destructive" 
             size="sm"
+            className="gap-2"
             disabled={deleteDocument.isPending}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4" />
             {deleteDocument.isPending ? 'Deleting...' : 'Delete'}
           </Button>
         </AlertDialogTrigger>
