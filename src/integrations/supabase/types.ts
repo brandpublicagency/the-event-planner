@@ -535,68 +535,6 @@ export type Database = {
         }
         Relationships: []
       }
-      team_members: {
-        Row: {
-          created_at: string
-          email: string | null
-          id: string
-          role: Database["public"]["Enums"]["team_role"]
-          team_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          email?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_members_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      teams: {
-        Row: {
-          company_id: string | null
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       venues: {
         Row: {
           created_at: string
@@ -675,13 +613,6 @@ export type Database = {
           "": unknown
         }
         Returns: undefined
-      }
-      create_company_and_team: {
-        Args: {
-          p_company_name: string
-          p_user_id: string
-        }
-        Returns: Json
       }
       generate_unique_event_code: {
         Args: {
@@ -827,7 +758,7 @@ export type Database = {
       }
     }
     Enums: {
-      team_role: "admin" | "member"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never

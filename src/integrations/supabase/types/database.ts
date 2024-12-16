@@ -1,6 +1,6 @@
 import { Database as DatabaseGenerated } from './generated';
 
-// Remove team-related tables from the type definition
+// Remove team-related tables completely
 export type Database = Omit<
   DatabaseGenerated,
   'companies' | 'teams' | 'team_members'
