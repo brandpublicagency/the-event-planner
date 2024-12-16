@@ -11,7 +11,7 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      // First get the file metadata to check content type
+      // Get the file metadata to check content type
       const { data: fileData, error: fileError } = await supabase.storage
         .from("task-files")
         .list('', {
@@ -24,6 +24,9 @@ export function useFileView() {
         throw new Error('Could not get file metadata');
       }
 
+      console.log('[View] File metadata:', fileData?.[0]);
+
+      // Get the public URL for the file
       const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
@@ -33,21 +36,21 @@ export function useFileView() {
         throw new Error('Could not generate URL for file');
       }
 
+      const mimeType = fileData?.[0]?.metadata?.mimetype;
+      console.log('[View] File mime type:', mimeType);
+
       // For images and PDFs, open in new tab
-      if (fileData?.[0]?.metadata?.mimetype?.startsWith('image/') || 
-          fileData?.[0]?.metadata?.mimetype === 'application/pdf') {
+      if (mimeType?.startsWith('image/') || mimeType === 'application/pdf') {
+        console.log('[View] Opening file in new tab:', data.publicUrl);
         window.open(data.publicUrl, '_blank');
       } else {
         // For other files, trigger download
-        const response = await fetch(data.publicUrl);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        console.log('[View] Downloading file:', data.publicUrl);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = data.publicUrl;
         a.download = filePath.split('/').pop() || 'download';
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }
       
