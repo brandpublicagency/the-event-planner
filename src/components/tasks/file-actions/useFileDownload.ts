@@ -11,18 +11,17 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file URL for:', filePath);
       
-      // Get a direct download URL
-      const { data: { publicUrl }, error } = supabase.storage
+      const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
-      if (error || !publicUrl) {
+      if (!data?.publicUrl) {
         throw new Error('Could not generate download URL');
       }
 
       // Create a temporary link element for downloading
       const link = document.createElement('a');
-      link.href = publicUrl;
+      link.href = data.publicUrl;
       link.download = fileName;
       link.target = '_blank';
       document.body.appendChild(link);
