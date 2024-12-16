@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Task } from "@/contexts/TaskContext";
+import { Task } from "@/contexts/task/taskTypes";
 import { TaskItem } from "./tasks/TaskItem";
 import { EditableTaskCard } from "./tasks/EditableTaskCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, AlertCircle } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TaskListProps {
   tasks: Task[];
@@ -16,13 +17,29 @@ interface TaskListProps {
 export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const { addTask, isLoading } = useTaskContext();
+  const { addTask, isLoading, error } = useTaskContext();
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
-    await addTask(newTaskTitle);
-    setNewTaskTitle("");
+    
+    try {
+      await addTask(newTaskTitle);
+      setNewTaskTitle("");
+    } catch (error) {
+      console.error("Failed to add task:", error);
+    }
   };
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="my-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load tasks. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (isLoading) {
     return (
