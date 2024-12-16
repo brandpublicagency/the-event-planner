@@ -27,6 +27,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     traditionalDessert: '',
     dessertCanapes: [],
     individualCakes: [],
+    individual_cake_quantities: {},
     otherSelections: [],
     otherSelectionsQuantities: {},
     notes: '',
@@ -73,6 +74,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
             traditionalDessert: menuData.traditional_dessert || '',
             dessertCanapes: Array.isArray(menuData.dessert_canapes) ? menuData.dessert_canapes : [],
             individualCakes: Array.isArray(menuData.individual_cakes) ? menuData.individual_cakes : [],
+            individual_cake_quantities: menuData.individual_cake_quantities || {},
             otherSelections: menuData.other_selections || [],
             otherSelectionsQuantities: menuData.other_selections_quantities || {},
             notes: menuData.notes || '',
@@ -130,6 +132,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
         traditional_dessert: menuState.traditionalDessert,
         dessert_canapes: menuState.dessertCanapes,
         individual_cakes: menuState.individualCakes,
+        individual_cake_quantities: menuState.individual_cake_quantities,
         other_selections: menuState.otherSelections,
         other_selections_quantities: menuState.otherSelectionsQuantities,
         notes: menuState.notes,
@@ -138,6 +141,8 @@ export const useMenuState = (eventCode: string, toast: any) => {
         dessert_price: prices.dessertPrice,
         other_total_price: prices.otherTotalPrice
       };
+
+      console.log('Saving menu data:', menuData);
 
       const { error } = await supabase
         .from('menu_selections')
