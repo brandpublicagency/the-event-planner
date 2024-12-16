@@ -78,10 +78,10 @@ export default function DocumentList({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-muted-foreground/60 hover:text-muted-foreground"
+            className="h-5 w-5 text-muted-foreground/40 hover:text-muted-foreground/60"
             onClick={() => deleteDocument.mutate(doc.id)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3 w-3" />
           </Button>
         </div>
       ))}
