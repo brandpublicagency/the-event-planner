@@ -14,7 +14,7 @@ import { FileActionButton } from "./FileActionButton";
 
 interface FileDeleteDialogProps {
   isDeleting: boolean;
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
   disabled?: boolean;
 }
 
