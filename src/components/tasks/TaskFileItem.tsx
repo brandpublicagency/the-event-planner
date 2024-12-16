@@ -52,6 +52,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
       return true;
     },
     onSuccess: () => {
+      // Invalidate the query first to ensure UI updates
       queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
       toast({
         title: "File deleted",
