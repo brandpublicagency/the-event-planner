@@ -1,6 +1,6 @@
 import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentTitle } from "./DocumentTitle";
@@ -20,6 +20,18 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
+  const handleUpdate = useCallback(({ editor }) => {
+    if (!documentId || !isAuthenticated) return;
+    
+    const content: DocumentContentType = {
+      type: "doc",
+      html: editor.getHTML(),
+      text: editor.getText(),
+    };
+
+    updateDocument.mutate({ content });
+  }, [documentId, isAuthenticated, updateDocument]);
+
   const editor = useEditor({
     extensions: getEditorExtensions(),
     editorProps: {
@@ -27,41 +39,28 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none',
       },
     },
-    onUpdate: ({ editor }) => {
-      if (!documentId || !isAuthenticated) return;
-      
-      const content: DocumentContentType = {
-        type: "doc",
-        html: editor.getHTML(),
-        text: editor.getText(),
-      };
-
-      updateDocument.mutate({ content });
-    },
+    onUpdate: handleUpdate,
   });
 
   // Update editor content when document changes
   useEffect(() => {
-    if (document && editor && !editor.isDestroyed) {
-      // Only update title if document has changed and title is different
-      if (document.title && document.title !== title) {
-        console.log('Setting title from document:', document.title);
-        setTitle(document.title);
-      }
-      
-      const docContent = document.content as DocumentContentType;
-      if (docContent?.html && editor.getHTML() !== docContent.html) {
-        editor.commands.setContent(docContent.html);
-      }
+    if (!editor || !document || editor.isDestroyed) return;
+
+    // Only update title if document has changed and title is different
+    if (document.title && document.title !== title) {
+      setTitle(document.title);
+    }
+    
+    const docContent = document.content as DocumentContentType;
+    if (docContent?.html && editor.getHTML() !== docContent.html) {
+      editor.commands.setContent(docContent.html, false);
     }
   }, [document, editor, title]);
 
   // Update title when it changes
   useEffect(() => {
-    if (documentId && isAuthenticated && debouncedTitle !== document?.title && debouncedTitle !== "") {
-      console.log('Updating title to:', debouncedTitle);
-      updateDocument.mutate({ title: debouncedTitle });
-    }
+    if (!documentId || !isAuthenticated || debouncedTitle === document?.title || debouncedTitle === "") return;
+    updateDocument.mutate({ title: debouncedTitle });
   }, [debouncedTitle, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
