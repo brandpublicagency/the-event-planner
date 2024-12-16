@@ -24,23 +24,33 @@ export const PasteHandler = Node.create({
             if (!text) return false;
             
             // Check if the text is a URL
-            if (/^https?:\/\//.test(text.trim())) {
-              // Insert both the link and a paragraph node for the preview
-              const { tr } = view.state;
-              
-              // Create the link
-              this.editor.commands.setLink({ href: text });
-              
-              // Insert a new paragraph with the preview component
-              const previewNode = this.editor.schema.nodes.paragraph.create(
-                null,
-                this.editor.schema.text(`<link-preview url="${text}">`)
-              );
-              
-              tr.insert(tr.selection.to, previewNode);
-              view.dispatch(tr);
-              
-              return true;
+            try {
+              const url = new URL(text);
+              if (url.protocol === 'http:' || url.protocol === 'https:') {
+                // Insert both the link and a paragraph node for the preview
+                const { tr } = view.state;
+                
+                // Create the link
+                view.dispatch(
+                  tr.replaceSelectionWith(
+                    view.state.schema.text(text)
+                  ).scrollIntoView()
+                );
+
+                // Insert the preview placeholder
+                const previewText = `<link-preview url="${text}">`;
+                const pos = tr.selection.to;
+                view.dispatch(
+                  view.state.tr
+                    .insertText('\n' + previewText + '\n', pos)
+                    .scrollIntoView()
+                );
+                
+                return true;
+              }
+            } catch (e) {
+              // Not a valid URL, let the default paste handler take over
+              return false;
             }
             return false;
           },
@@ -52,7 +62,9 @@ export const PasteHandler = Node.create({
 
 // Export all extensions
 export const getEditorExtensions = () => [
-  StarterKit,
+  StarterKit.configure({
+    codeBlock: false, // Disable the default code block to avoid conflicts
+  }),
   Underline,
   Link.configure({
     openOnClick: false,
