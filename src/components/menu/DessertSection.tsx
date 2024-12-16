@@ -25,17 +25,6 @@ const DessertSection = ({
   onDessertCanapesChange,
   onIndividualCakesChange,
 }: DessertSectionProps) => {
-  const [quantities, setQuantities] = React.useState<Record<string, number>>({});
-
-  // Initialize quantities when component mounts or selectedIndividualCakes changes
-  React.useEffect(() => {
-    const newQuantities: Record<string, number> = {};
-    selectedIndividualCakes.forEach(cakeId => {
-      newQuantities[cakeId] = quantities[cakeId] || 1;
-    });
-    setQuantities(newQuantities);
-  }, []);
-
   const handleDessertCanapeToggle = (value: string) => {
     if (selectedDessertCanapes.includes(value)) {
       onDessertCanapesChange(selectedDessertCanapes.filter(canape => canape !== value));
@@ -46,16 +35,14 @@ const DessertSection = ({
 
   const handleQuantityChange = (optionId: string, value: string) => {
     const quantity = parseInt(value) || 0;
-    const newQuantities = { ...quantities, [optionId]: quantity };
-    setQuantities(newQuantities);
+    
+    // If quantity is greater than 0, ensure the cake is in the selected list
+    // If quantity is 0, remove it from the selected list
+    const updatedCakes = quantity > 0
+      ? [...new Set([...selectedIndividualCakes, optionId])]
+      : selectedIndividualCakes.filter(id => id !== optionId);
 
-    if (quantity > 0) {
-      if (!selectedIndividualCakes.includes(optionId)) {
-        onIndividualCakesChange([...selectedIndividualCakes, optionId]);
-      }
-    } else {
-      onIndividualCakesChange(selectedIndividualCakes.filter(id => id !== optionId));
-    }
+    onIndividualCakesChange(updatedCakes);
   };
 
   return (
@@ -127,7 +114,7 @@ const DessertSection = ({
               <Input
                 type="number"
                 min="0"
-                value={quantities[option.value] || 0}
+                value={selectedIndividualCakes.includes(option.value) ? "1" : "0"}
                 onChange={(e) => handleQuantityChange(option.value, e.target.value)}
                 className="w-10 h-7 text-center text-[0.7rem] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-zinc-200"
               />
