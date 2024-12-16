@@ -5,6 +5,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Extension } from '@tiptap/core';
+import { Plugin, PluginKey } from 'prosemirror-state';
 import { unfurl } from 'unfurl.js';
 
 const lowlight = createLowlight(common);
@@ -16,6 +17,7 @@ const PasteUrlHandler = Extension.create({
   addProseMirrorPlugins() {
     return [
       new Plugin({
+        key: new PluginKey('pasteUrlHandler'),
         props: {
           handlePaste: async (view, event) => {
             const text = event.clipboardData?.getData('text/plain');
