@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { FileText, FileCode, Trash2 } from "lucide-react";
+import { FileText, FileCode, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Document } from "@/types/document";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,16 +24,28 @@ export default function DocumentList({
 
   const deleteDocument = useMutation({
     mutationFn: async (documentId: string) => {
-      const { error } = await supabase
-        .from('documents')
-        .update({ 
-          deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', documentId);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Delete operation timed out")), 10000);
+      });
 
-      if (error) throw error;
-      return true;
+      try {
+        const deletePromise = supabase
+          .from('documents')
+          .update({ 
+            deleted_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', documentId);
+
+        const result = await Promise.race([deletePromise, timeoutPromise]);
+        if (result.error) throw result.error;
+        return true;
+      } catch (error) {
+        if (error.message.includes("timed out")) {
+          throw new Error("Delete operation timed out. Please try again.");
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
@@ -80,8 +92,13 @@ export default function DocumentList({
             size="icon"
             className="h-5 w-5 text-muted-foreground/40 hover:text-muted-foreground/60"
             onClick={() => deleteDocument.mutate(doc.id)}
+            disabled={deleteDocument.isPending}
           >
-            <Trash2 className="h-3 w-3" />
+            {deleteDocument.isPending ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Trash2 className="h-3 w-3" />
+            )}
           </Button>
         </div>
       ))}
