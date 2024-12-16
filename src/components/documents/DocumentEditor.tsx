@@ -17,6 +17,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
   const isAuthenticated = useDocumentAuth();
   const lastSavedContent = useRef<string>("");
+  const titleTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
@@ -66,7 +67,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (!editor || !document?.content || editor.isDestroyed) return;
 
     const docContent = document.content as DocumentContentType;
-    if (docContent?.html) {
+    if (docContent?.html && docContent.html !== lastSavedContent.current) {
       editor.commands.setContent(docContent.html);
       lastSavedContent.current = docContent.html;
     }
@@ -75,18 +76,29 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   // Update title state when document changes
   useEffect(() => {
     if (!document?.title) return;
-    setTitle(document.title);
+    if (document.title !== title) {
+      setTitle(document.title);
+    }
   }, [document?.title]);
 
   // Handle title updates with debounce
   useEffect(() => {
     if (!documentId || !isAuthenticated || !title || title === document?.title) return;
-    
-    const timeoutId = setTimeout(() => {
+
+    // Clear any existing timeout
+    if (titleTimeoutRef.current) {
+      clearTimeout(titleTimeoutRef.current);
+    }
+
+    titleTimeoutRef.current = setTimeout(() => {
       updateDocument.mutate({ title });
     }, 500);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      if (titleTimeoutRef.current) {
+        clearTimeout(titleTimeoutRef.current);
+      }
+    };
   }, [title, documentId, document?.title, isAuthenticated, updateDocument]);
 
   if (!documentId) {
