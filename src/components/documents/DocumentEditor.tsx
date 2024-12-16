@@ -7,6 +7,8 @@ import { DocumentTitle } from "./DocumentTitle";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
+import { useBeforeUnload } from "@/hooks/useBeforeUnload";
+import { useToast } from "@/components/ui/use-toast";
 import type { DocumentContent as DocumentContentType } from "@/types/document";
 
 interface DocumentEditorProps {
@@ -15,23 +17,48 @@ interface DocumentEditorProps {
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const [title, setTitle] = useState("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isAuthenticated = useDocumentAuth();
   const debouncedTitle = useDebounce(title, 1000);
-  const isLocalUpdate = useRef(false);
+  const lastSavedContent = useRef<string>("");
+  const { toast } = useToast();
 
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
 
   const handleUpdate = useCallback(({ editor }) => {
-    if (!documentId || !isAuthenticated || isLocalUpdate.current) return;
+    if (!documentId || !isAuthenticated) return;
     
+    const currentContent = editor.getHTML();
+    if (currentContent !== lastSavedContent.current) {
+      setHasUnsavedChanges(true);
+    }
+  }, [documentId, isAuthenticated]);
+
+  const saveDocument = useCallback(async () => {
+    if (!editor || !documentId || !isAuthenticated) return;
+
     const content: DocumentContentType = {
       type: "doc",
       html: editor.getHTML(),
       text: editor.getText(),
     };
 
-    updateDocument.mutate({ content });
-  }, [documentId, isAuthenticated, updateDocument]);
+    try {
+      await updateDocument.mutateAsync({ content });
+      lastSavedContent.current = editor.getHTML();
+      setHasUnsavedChanges(false);
+      toast({
+        title: "Document saved",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving document",
+        description: "Failed to save your changes. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [documentId, editor, isAuthenticated, updateDocument, toast]);
 
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -53,12 +80,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     }
     
     const docContent = document.content as DocumentContentType;
-    if (docContent?.html && editor.getHTML() !== docContent.html) {
-      isLocalUpdate.current = true;
+    if (docContent?.html) {
       editor.commands.setContent(docContent.html, false);
-      setTimeout(() => {
-        isLocalUpdate.current = false;
-      }, 10);
+      lastSavedContent.current = docContent.html;
+      setHasUnsavedChanges(false);
     }
   }, [document, editor, title]);
 
@@ -67,6 +92,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     if (!documentId || !isAuthenticated || debouncedTitle === document?.title || debouncedTitle === "") return;
     updateDocument.mutate({ title: debouncedTitle });
   }, [debouncedTitle, documentId, document?.title, isAuthenticated, updateDocument]);
+
+  // Handle unsaved changes when navigating away
+  useBeforeUnload(
+    useCallback((e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    }, [hasUnsavedChanges])
+  );
 
   if (!documentId) {
     return (
@@ -99,6 +135,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         onTitleChange={setTitle}
         documentId={documentId}
         editor={editor}
+        onSave={saveDocument}
+        hasUnsavedChanges={hasUnsavedChanges}
       />
       <DocumentContent editor={editor} />
     </div>
