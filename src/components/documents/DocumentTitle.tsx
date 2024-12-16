@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { DocumentActions } from "./DocumentActions";
+import DocumentActions from "./DocumentActions";
 import { Editor } from '@tiptap/react';
 
 interface DocumentTitleProps {
@@ -25,7 +25,11 @@ export function DocumentTitle({
           placeholder="Untitled Document"
         />
       </div>
-      <DocumentActions documentId={documentId} title={title} editor={editor} />
+      <DocumentActions 
+        documentId={documentId} 
+        title={title} 
+        content={editor?.getHTML() || ''} 
+      />
     </div>
   );
 }

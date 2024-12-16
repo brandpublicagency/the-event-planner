@@ -29,8 +29,6 @@ interface DocumentActionsProps {
   content: string;
 }
 
-const TIMEOUT_DURATION = 10000; // 10 seconds
-
 export default function DocumentActions({ documentId, title, content }: DocumentActionsProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -59,29 +57,16 @@ export default function DocumentActions({ documentId, title, content }: Document
 
   const deleteDocument = useMutation({
     mutationFn: async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+      const { error } = await supabase
+        .from('documents')
+        .update({ 
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
 
-      try {
-        const { error } = await supabase
-          .from('documents')
-          .update({ 
-            deleted_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', documentId)
-          .abortSignal(controller.signal);
-
-        clearTimeout(timeoutId);
-
-        if (error) throw error;
-        return true;
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          throw new Error('Request timed out. Please try again.');
-        }
-        throw error;
-      }
+      if (error) throw error;
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
@@ -108,7 +93,6 @@ export default function DocumentActions({ documentId, title, content }: Document
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             Export
-            <MoreVertical className="h-4 w-4 ml-2" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
