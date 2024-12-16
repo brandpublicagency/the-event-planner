@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const TIMEOUT_MS = 8000; // Increased to 8 seconds for slower sites
+const TIMEOUT_MS = 8000; // 8 second timeout
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -17,16 +17,24 @@ serve(async (req) => {
   try {
     const { url } = await req.json();
     if (!url) {
-      throw new Error('URL is required');
+      console.log('No URL provided');
+      return new Response(
+        JSON.stringify({
+          title: 'Invalid URL',
+          description: 'No URL provided',
+          domain: 'error',
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      );
     }
 
     console.log('Fetching preview for URL:', url);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      console.log('Request timed out for URL:', url);
-    }, TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
       const response = await fetch(url, {
@@ -42,13 +50,23 @@ serve(async (req) => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.error(`HTTP error! status: ${response.status}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.log(`HTTP error! status: ${response.status} for URL: ${url}`);
+        return new Response(
+          JSON.stringify({
+            title: new URL(url).hostname.replace('www.', ''),
+            description: 'Preview unavailable',
+            domain: new URL(url).hostname.replace('www.', ''),
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
       }
 
       const contentType = response.headers.get('content-type')?.toLowerCase() || '';
       if (!contentType.includes('text/html')) {
-        console.log('Non-HTML content type:', contentType);
+        console.log('Non-HTML content type:', contentType, 'for URL:', url);
         return new Response(
           JSON.stringify({
             title: new URL(url).hostname.replace('www.', ''),
@@ -74,15 +92,14 @@ serve(async (req) => {
       );
     } catch (fetchError) {
       clearTimeout(timeoutId);
-      console.error('Error fetching URL:', fetchError);
+      console.error('Error fetching URL:', url, fetchError);
       
-      // Return a basic preview with just the domain if fetching fails
-      const domain = new URL(url).hostname.replace('www.', '');
+      // Return a basic preview with just the domain
       return new Response(
         JSON.stringify({
-          title: domain,
+          title: new URL(url).hostname.replace('www.', ''),
           description: 'Preview unavailable',
-          domain,
+          domain: new URL(url).hostname.replace('www.', ''),
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -92,17 +109,16 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error('Error in get-link-preview:', error);
-    const domain = error.message.includes('URL') ? 'Invalid URL' : 'Error';
     return new Response(
       JSON.stringify({ 
-        title: domain,
+        title: 'Error',
         description: 'Preview unavailable',
-        domain,
+        domain: 'error',
         error: error.message
       }),
       { 
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
       }
     );
   }
