@@ -11,7 +11,7 @@ export const extractMetadata = (html: string, url: string) => {
   console.log('Extracting metadata for URL:', url);
   
   const title = 
-    getMetaContent(html, /<title>(.*?)<\/title>/i) ||
+    getMetaContent(html, /<title[^>]*>(.*?)<\/title>/i) ||
     getMetaContent(html, /<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i) ||
     new URL(url).hostname;
@@ -21,9 +21,19 @@ export const extractMetadata = (html: string, url: string) => {
     getMetaContent(html, /<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i);
 
-  const image = 
+  let image = 
     getMetaContent(html, /<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i) ||
     getMetaContent(html, /<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i);
+
+  // Ensure image URL is absolute
+  if (image && !image.startsWith('http')) {
+    try {
+      const baseUrl = new URL(url);
+      image = new URL(image, baseUrl.origin).toString();
+    } catch {
+      image = ''; // Clear image if URL parsing fails
+    }
+  }
 
   const domain = new URL(url).hostname.replace('www.', '');
 

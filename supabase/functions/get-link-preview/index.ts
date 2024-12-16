@@ -6,12 +6,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const TIMEOUT_MS = 5000;
+const TIMEOUT_MS = 10000; // Increased timeout to 10 seconds
+const USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+];
 
 serve(async (req) => {
   console.log('Request received:', {
     method: req.method,
-    url: req.url
+    url: req.url,
+    headers: Object.fromEntries(req.headers.entries()),
   });
 
   if (req.method === 'OPTIONS') {
@@ -33,11 +38,19 @@ serve(async (req) => {
     }, TIMEOUT_MS);
 
     try {
+      // Randomly select a user agent
+      const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
+      
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+          'User-Agent': userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
         },
+        redirect: 'follow',
       });
 
       clearTimeout(timeout);
@@ -47,10 +60,11 @@ serve(async (req) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('text/html')) {
+      const contentType = response.headers.get('content-type')?.toLowerCase() || '';
+      console.log('Content-Type:', contentType);
+
+      if (!contentType.includes('text/html')) {
         console.log('Not an HTML page:', contentType);
-        // Return basic info for non-HTML content
         const domain = new URL(url).hostname.replace('www.', '');
         return new Response(
           JSON.stringify({
@@ -58,12 +72,17 @@ serve(async (req) => {
             description: `Content type: ${contentType || 'unknown'}`,
             domain,
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { 
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
         );
       }
 
       const html = await response.text();
-      console.log('Successfully fetched HTML for URL:', url);
+      console.log('Successfully fetched HTML, length:', html.length);
 
       const metadata = extractMetadata(html, url);
       console.log('Extracted metadata:', metadata);
@@ -86,9 +105,9 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           title: domain,
-          description: '',
-          image: '',
+          description: 'Preview unavailable',
           domain,
+          error: fetchError.message,
         }),
         {
           headers: {
