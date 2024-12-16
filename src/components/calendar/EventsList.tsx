@@ -3,7 +3,7 @@ import { CalendarIcon, PlusCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/event";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -78,7 +78,9 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-zinc-500">
-                    <span>{format(new Date(event.event_date || ''), 'h:mm a')}</span>
+                    <span>
+                      {event.start_time ? format(parseISO(`2000-01-01T${event.start_time}`), 'h:mm a') : 'Time not set'}
+                    </span>
                     <span>•</span>
                     <span>{event.pax} Guests</span>
                     {event.venues?.map((venue) => (
