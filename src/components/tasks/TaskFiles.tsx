@@ -42,6 +42,7 @@ export function TaskFiles({ taskId }: { taskId: string }) {
 
       return validFiles.filter((file): file is TaskFile => file !== null);
     },
+    enabled: !!taskId,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: true
