@@ -9,18 +9,25 @@ export function useFileView() {
   const handleView = async (filePath: string) => {
     try {
       setIsLoading(true);
-      console.log('[View] Getting public URL for:', filePath);
+      console.log('[View] Getting file URL for:', filePath);
       
-      const { data: { publicUrl } } = supabase.storage
+      // Get the public URL but we need to transform it
+      const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
-      if (!publicUrl) {
+      if (!data.publicUrl) {
         throw new Error('Could not generate URL for file');
       }
 
-      // Simply open the URL in a new tab
-      window.open(publicUrl, '_blank');
+      // Transform the URL to use the direct download endpoint
+      const downloadUrl = data.publicUrl.replace('/object/public/', '/object/sign/');
+      
+      // Add download=true parameter to force download for non-image files
+      const finalUrl = `${downloadUrl}?download=true`;
+      
+      console.log('[View] Opening file URL:', finalUrl);
+      window.open(finalUrl, '_blank');
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
