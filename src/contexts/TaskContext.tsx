@@ -37,12 +37,12 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const value = {
-    tasks,
+  const value: TaskContextType = {
+    tasks: tasks as Task[],
     isLoading: isLoading || isSessionLoading,
     error,
     addTask: (title: string) => addTaskMutation.mutateAsync(title),
-    updateTask: (id: string, updates: any) =>
+    updateTask: (id: string, updates: TaskUpdate) =>
       updateTaskMutation.mutateAsync({ id, updates }),
     deleteTask: (id: string) => deleteTaskMutation.mutateAsync(id),
     toggleTask,
