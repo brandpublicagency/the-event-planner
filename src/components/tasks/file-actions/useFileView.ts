@@ -20,8 +20,38 @@ export function useFileView() {
         throw new Error('Could not generate URL for file');
       }
 
-      // Open the URL in a new tab
-      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      // Create a new window/tab with the direct URL
+      const win = window.open();
+      if (win) {
+        win.document.write(`
+          <html>
+            <head>
+              <title>File Preview</title>
+              <style>
+                body {
+                  margin: 0;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100vh;
+                  background: #f1f5f9;
+                }
+                img {
+                  max-width: 100%;
+                  max-height: 100vh;
+                  object-fit: contain;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${data.publicUrl}" alt="File preview" />
+            </body>
+          </html>
+        `);
+      } else {
+        // Fallback if popup is blocked
+        window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      }
       
       console.log('[View] File opened successfully');
     } catch (error: any) {
