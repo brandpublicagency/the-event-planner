@@ -19,7 +19,7 @@ export function useFileDownload() {
 
       if (error) {
         console.error('[Download] Error downloading file:', error);
-        throw error;
+        throw new Error('You do not have permission to download this file');
       }
 
       console.log('[Download] File downloaded successfully');

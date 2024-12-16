@@ -33,7 +33,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
 
         if (storageError) {
           console.error('Storage deletion error:', storageError);
-          throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+          throw new Error('You do not have permission to delete this file');
         }
 
         console.log('Storage deletion successful');
@@ -46,7 +46,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
 
         if (dbError) {
           console.error('Database deletion error:', dbError);
-          throw new Error(`Failed to delete file record: ${dbError.message}`);
+          throw new Error('Failed to delete file record');
         }
 
         console.log('Database deletion successful');

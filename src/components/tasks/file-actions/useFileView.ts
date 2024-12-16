@@ -11,18 +11,22 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Starting file view for:', filePath);
       
-      // Get the public URL directly
-      const { data } = supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60);
 
-      if (!data?.publicUrl) {
-        throw new Error('Could not generate public URL for file');
+      if (error) {
+        console.error('[View] Error getting signed URL:', error);
+        throw new Error('You do not have permission to view this file');
+      }
+
+      if (!data?.signedUrl) {
+        throw new Error('Could not generate URL for file');
       }
 
       // Open in new tab
-      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
-      console.log('[View] File opened successfully:', data.publicUrl);
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+      console.log('[View] File opened successfully');
     } catch (error: any) {
       console.error('[View] Error:', error);
       toast({

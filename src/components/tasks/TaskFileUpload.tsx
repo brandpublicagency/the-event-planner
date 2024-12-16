@@ -37,7 +37,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
-          throw uploadError;
+          throw new Error('You do not have permission to upload files to this task');
         }
 
         console.log('File uploaded successfully to storage');
@@ -54,7 +54,7 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
 
         if (dbError) {
           console.error('Database insert error:', dbError);
-          throw dbError;
+          throw new Error('Failed to create file record');
         }
 
         console.log('File record created in database');
