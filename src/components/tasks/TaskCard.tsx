@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
-import { format } from "date-fns";
 import { Task } from "@/contexts/TaskContext";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { TaskStatusBadges } from "./TaskStatusBadges";
 import { TaskActions } from "./TaskActions";
 import { cn } from "@/lib/utils";
+import { TaskCheckbox } from "./card/TaskCheckbox";
+import { TaskTitle } from "./card/TaskTitle";
+import { TaskDueDate } from "./card/TaskDueDate";
 
 interface TaskCardProps {
   task: Task;
@@ -22,32 +22,10 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const updateTaskMutation = useMutation({
-    mutationFn: async (completed: boolean) => {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ completed })
-        .eq("id", task.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
       setIsDeleting(true);
       
-      // First, delete all associated files from storage
       const { data: files, error: filesError } = await supabase
         .from("task_files")
         .select("file_path")
@@ -63,7 +41,6 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         if (storageError) throw storageError;
       }
 
-      // Then delete the file records from the database
       const { error: fileDeleteError } = await supabase
         .from("task_files")
         .delete()
@@ -71,7 +48,6 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
 
       if (fileDeleteError) throw fileDeleteError;
 
-      // Finally delete the task
       const { error: taskDeleteError } = await supabase
         .from("tasks")
         .delete()
@@ -111,35 +87,21 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={(checked) => {
-                updateTaskMutation.mutate(checked as boolean);
-              }}
+            <TaskCheckbox
+              taskId={task.id}
+              completed={task.completed}
               onClick={(e) => e.stopPropagation()}
-              className="transition-colors rounded-[3px]"
             />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <h3 className={cn(
-                    "font-medium text-sm leading-none",
-                    task.completed && "line-through text-muted-foreground"
-                  )}>
-                    {task.title}
-                  </h3>
-                  <span className="text-[0.65rem] text-muted-foreground">
-                    {task.task_code}
-                  </span>
-                </div>
-                {task.due_date && (
-                  <div className="flex items-center gap-1.5 text-[0.65rem] text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    {format(new Date(task.due_date), "dd MMMM yyyy")}
-                  </div>
-                )}
+                <TaskTitle
+                  title={task.title}
+                  taskCode={task.task_code}
+                  completed={task.completed}
+                />
+                <TaskDueDate dueDate={task.due_date} />
               </div>
               <div className="flex items-center gap-2">
                 <TaskStatusBadges 
