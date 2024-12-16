@@ -3,6 +3,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { LinkPreview } from "./LinkPreview";
 import { createRoot } from 'react-dom/client';
 import { useEffect, useRef } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -12,6 +13,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
   if (!editor) return null;
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const queryClient = new QueryClient();
 
   // Use useEffect to handle link preview rendering after content updates
   useEffect(() => {
@@ -27,9 +29,13 @@ export function DocumentContent({ editor }: DocumentContentProps) {
           const previewContainer = document.createElement('div');
           element.replaceWith(previewContainer);
           
-          // Render the LinkPreview component
+          // Render the LinkPreview component with QueryClientProvider
           const root = createRoot(previewContainer);
-          root.render(<LinkPreview url={url} />);
+          root.render(
+            <QueryClientProvider client={queryClient}>
+              <LinkPreview url={url} />
+            </QueryClientProvider>
+          );
         }
       }
     });
