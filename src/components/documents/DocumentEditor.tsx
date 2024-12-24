@@ -1,6 +1,6 @@
 import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
@@ -53,7 +53,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   // Handle debounced content updates
   useEffect(() => {
-    if (!debouncedContent || !documentId) return;
+    if (!debouncedContent || !documentId || !editor) return;
 
     const lines = debouncedContent.text.split('\n');
     const firstLine = lines[0] || 'Untitled Document';
@@ -61,26 +61,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     updateDocument.mutate({ 
       title: firstLine,
       content: debouncedContent 
-    }, {
-      onSuccess: () => {
-        // Only show toast on navigation or explicit save
-        if (!document) {
-          toast({
-            title: "Document saved",
-            description: "Your changes have been saved successfully.",
-          });
-        }
-      },
-      onError: (error) => {
-        console.error('Error saving document:', error);
-        toast({
-          title: "Error saving document",
-          description: "Failed to save your changes. Please try again.",
-          variant: "destructive",
-        });
-      }
     });
-  }, [debouncedContent, documentId, updateDocument]);
+  }, [debouncedContent, documentId, updateDocument, editor]);
 
   // Reset state when document changes
   useEffect(() => {
@@ -89,6 +71,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     editor.commands.clearContent();
     lastSavedContent.current = "";
     contentInitialized.current = false;
+    setPendingContent(null);
   }, [documentId, editor]);
 
   // Load initial document content

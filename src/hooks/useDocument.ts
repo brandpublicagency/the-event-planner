@@ -3,24 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import type { Document } from "@/types/document";
 
-const TIMEOUT_DURATION = 30000; // 30 seconds
-
-// Utility function to create an abortable fetch with timeout
-const createAbortableQuery = (timeoutMs: number = TIMEOUT_DURATION) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort('Query timed out');
-  }, timeoutMs);
-  
-  return {
-    signal: controller.signal,
-    cleanup: () => {
-      clearTimeout(timeoutId);
-      controller.abort('Cleanup');
-    }
-  };
-};
-
 export function useDocument(documentId: string | null, isAuthenticated: boolean) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -30,35 +12,21 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     queryFn: async () => {
       if (!documentId) return null;
       
-      const { signal, cleanup } = createAbortableQuery();
-      
-      try {
-        const { data, error } = await supabase
-          .from("documents")
-          .select("*")
-          .eq("id", documentId)
-          .is("deleted_at", null)
-          .abortSignal(signal)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("id", documentId)
+        .is("deleted_at", null)
+        .maybeSingle();
 
-        if (error) {
-          console.error("Document fetch error:", error);
-          throw error;
-        }
-
-        return data as Document;
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          throw new Error("Request timed out. Please try again.");
-        }
+      if (error) {
+        console.error("Document fetch error:", error);
         throw error;
-      } finally {
-        cleanup();
       }
+
+      return data as Document;
     },
     enabled: !!documentId && isAuthenticated,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     staleTime: 30000, // Cache results for 30 seconds
   });
 
