@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PasswordAuth } from "@/components/auth/PasswordAuth";
+import { MagicLinkAuth } from "@/components/auth/MagicLinkAuth";
+import { ResetPasswordAuth } from "@/components/auth/ResetPasswordAuth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,7 +19,6 @@ const Login = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        // Check if it's a first-time login by checking profile data
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, mobile')
@@ -26,11 +26,9 @@ const Login = () => {
           .single();
 
         if (!profile?.full_name) {
-          // First time login - redirect to profile settings
           navigate('/profile-settings');
           toast.info('Please complete your profile information');
         } else {
-          // Regular login - redirect to home
           navigate('/');
         }
       }
@@ -39,12 +37,8 @@ const Login = () => {
 
     checkSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
-
       if (event === 'SIGNED_IN') {
-        // Check if it's a first-time login
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, mobile')
@@ -65,7 +59,6 @@ const Login = () => {
       }
     });
 
-    // Check for error messages in URL
     const errorMessage = searchParams.get('error_description');
     if (errorMessage) {
       toast.error(decodeURIComponent(errorMessage));
@@ -105,112 +98,24 @@ const Login = () => {
             <TabsTrigger value="forgotten_password">Reset Password</TabsTrigger>
           </TabsList>
           <TabsContent value="sign_in">
-            <Auth
+            <PasswordAuth 
               supabaseClient={supabase}
-              view={view}
-              appearance={{ 
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#000000',
-                      brandAccent: '#666666',
-                    }
-                  }
-                }
-              }}
-              theme="light"
-              showLinks={false}
-              providers={[]}
               redirectTo={`${window.location.origin}/`}
-              {...(email ? { defaultEmail: email } : {})}
-              localization={{
-                variables: {
-                  sign_in: {
-                    email_label: 'Email address',
-                    password_label: 'Password',
-                    email_input_placeholder: 'your.name@warmkaroo.com',
-                    button_label: 'Sign in',
-                    loading_button_label: 'Signing in...',
-                    social_provider_text: 'Sign in with {{provider}}',
-                    link_text: 'Already have an account? Sign in',
-                  },
-                  sign_up: {
-                    email_label: 'Email address',
-                    password_label: 'Create a password',
-                    email_input_placeholder: 'your.name@warmkaroo.com',
-                    button_label: 'Sign up',
-                    loading_button_label: 'Signing up...',
-                    social_provider_text: 'Sign up with {{provider}}',
-                    link_text: 'Don\'t have an account? Sign up',
-                  },
-                }
-              }}
+              defaultEmail={email}
             />
           </TabsContent>
           <TabsContent value="magic_link">
-            <Auth
+            <MagicLinkAuth 
               supabaseClient={supabase}
-              view="magic_link"
-              appearance={{ 
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#000000',
-                      brandAccent: '#666666',
-                    }
-                  }
-                }
-              }}
-              theme="light"
-              showLinks={false}
-              providers={[]}
               redirectTo={`${window.location.origin}/`}
-              {...(email ? { defaultEmail: email } : {})}
-              localization={{
-                variables: {
-                  magic_link: {
-                    button_label: 'Send Magic Link',
-                    loading_button_label: 'Sending Magic Link...',
-                    confirmation_text: 'Check your email for the magic link',
-                    email_input_placeholder: 'your.name@warmkaroo.com'
-                  }
-                }
-              }}
+              defaultEmail={email}
             />
           </TabsContent>
           <TabsContent value="forgotten_password">
-            <Auth
+            <ResetPasswordAuth 
               supabaseClient={supabase}
-              view="forgotten_password"
-              appearance={{ 
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#000000',
-                      brandAccent: '#666666',
-                    }
-                  }
-                }
-              }}
-              theme="light"
-              showLinks={false}
-              providers={[]}
               redirectTo={`${window.location.origin}/`}
-              {...(email ? { defaultEmail: email } : {})}
-              localization={{
-                variables: {
-                  forgotten_password: {
-                    email_label: 'Email address',
-                    button_label: 'Send Reset Instructions',
-                    loading_button_label: 'Sending reset instructions...',
-                    confirmation_text: 'Check your email for the password reset link',
-                    email_input_placeholder: 'your.name@warmkaroo.com'
-                  }
-                }
-              }}
+              defaultEmail={email}
             />
           </TabsContent>
         </Tabs>
