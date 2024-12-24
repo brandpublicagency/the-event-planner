@@ -10,6 +10,7 @@ import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { AppRoutes } from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +21,7 @@ const queryClient = new QueryClient({
       meta: {
         errorHandler: (error: Error) => {
           console.error('Query error:', error);
+          toast.error('An error occurred while fetching data');
         },
       },
     },
@@ -33,17 +35,31 @@ const App = () => {
 
   useEffect(() => {
     // Set up initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
-      setSession(session);
-      setIsLoading(false);
-      setAuthInitialized(true);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Auth initialization error:', error);
+          toast.error('Authentication error occurred');
+          return;
+        }
+        console.log('Initial session:', session);
+        setSession(session);
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
+        toast.error('Failed to initialize authentication');
+      } finally {
+        setIsLoading(false);
+        setAuthInitialized(true);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log('Auth state changed:', session);
       setSession(session);
       setIsLoading(false);
