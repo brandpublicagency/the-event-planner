@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import type { Document } from "@/types/document";
 
 const TIMEOUT_DURATION = 30000; // 30 seconds
@@ -45,10 +45,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           console.error("Document fetch error:", error);
           throw error;
         }
-        
-        if (!data) {
-          throw new Error("Document not found");
-        }
 
         return data as Document;
       } catch (error) {
@@ -79,10 +75,12 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw new Error("Cannot update document: not authenticated");
       }
 
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         throw new Error("User not authenticated");
       }
+
+      console.log("Updating document:", { documentId, updates });
 
       try {
         const { data, error } = await supabase
@@ -100,6 +98,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           throw error;
         }
 
+        console.log("Document updated successfully:", data);
         return data;
       } catch (error) {
         console.error("Save error:", error);
@@ -114,9 +113,14 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         variant: "destructive",
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Document saved successfully:", data);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
+      toast({
+        title: "Success",
+        description: "Document saved successfully",
+      });
     },
   });
 
