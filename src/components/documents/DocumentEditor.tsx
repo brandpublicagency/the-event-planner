@@ -1,12 +1,13 @@
 import { useEditor } from '@tiptap/react';
 import { Loader2 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocument } from "@/hooks/useDocument";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useToast } from "@/components/ui/use-toast";
 import type { DocumentContent as DocumentContentType } from "@/types/document";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -18,6 +19,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const contentInitialized = useRef(false);
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
+  const [pendingContent, setPendingContent] = useState<DocumentContentType | null>(null);
+
+  // Debounce the content updates
+  const debouncedContent = useDebounce(pendingContent, 1000);
 
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -41,24 +46,41 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         text: editor.getText(),
       };
 
-      updateDocument.mutate({ 
-        title: firstLine,
-        content 
-      }, {
-        onSuccess: () => {
-          lastSavedContent.current = currentContent;
-        },
-        onError: (error) => {
-          console.error('Error saving document:', error);
-          toast({
-            title: "Error saving document",
-            description: "Failed to save your changes. Please try again.",
-            variant: "destructive",
-          });
-        }
-      });
+      setPendingContent(content);
+      lastSavedContent.current = currentContent;
     },
   });
+
+  // Handle debounced content updates
+  useEffect(() => {
+    if (!debouncedContent || !documentId) return;
+
+    const lines = debouncedContent.text.split('\n');
+    const firstLine = lines[0] || 'Untitled Document';
+
+    updateDocument.mutate({ 
+      title: firstLine,
+      content: debouncedContent 
+    }, {
+      onSuccess: () => {
+        // Only show toast on navigation or explicit save
+        if (!document) {
+          toast({
+            title: "Document saved",
+            description: "Your changes have been saved successfully.",
+          });
+        }
+      },
+      onError: (error) => {
+        console.error('Error saving document:', error);
+        toast({
+          title: "Error saving document",
+          description: "Failed to save your changes. Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
+  }, [debouncedContent, documentId, updateDocument]);
 
   // Reset state when document changes
   useEffect(() => {

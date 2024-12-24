@@ -80,8 +80,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw new Error("User not authenticated");
       }
 
-      console.log("Updating document:", { documentId, updates });
-
       try {
         const { data, error } = await supabase
           .from("documents")
@@ -98,7 +96,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           throw error;
         }
 
-        console.log("Document updated successfully:", data);
         return data;
       } catch (error) {
         console.error("Save error:", error);
@@ -113,14 +110,9 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         variant: "destructive",
       });
     },
-    onSuccess: (data) => {
-      console.log("Document saved successfully:", data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-      toast({
-        title: "Success",
-        description: "Document saved successfully",
-      });
     },
   });
 
