@@ -18,50 +18,62 @@ const Login = () => {
 
   useEffect(() => {
     // Set up the redirect URL with the full origin
-    setRedirectUrl(`${window.location.origin}/`);
+    const baseUrl = window.location.origin;
+    setRedirectUrl(`${baseUrl}/`);
 
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        // Don't automatically redirect if we're in a password reset flow
-        const type = searchParams.get('type');
-        if (type === 'recovery') {
-          await supabase.auth.signOut(); // Sign out to allow password reset
-          return;
-        }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Don't automatically redirect if we're in a password reset flow
+          const type = searchParams.get('type');
+          if (type === 'recovery') {
+            await supabase.auth.signOut(); // Sign out to allow password reset
+            return;
+          }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, mobile')
-          .eq('id', session.user.id)
-          .single();
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, mobile')
+            .eq('id', session.user.id)
+            .single();
 
-        if (!profile?.full_name) {
-          navigate('/profile-settings');
-          toast.info('Please complete your profile information');
-        } else {
-          navigate('/');
+          if (!profile?.full_name) {
+            navigate('/profile-settings');
+            toast.info('Please complete your profile information');
+          } else {
+            navigate('/');
+          }
         }
+      } catch (error) {
+        console.error('Session check error:', error);
+        toast.error('Error checking authentication status');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
-      if (event === 'SIGNED_IN') {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, mobile')
-          .eq('id', session.user.id)
-          .single();
+      if (event === 'SIGNED_IN' && session) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, mobile')
+            .eq('id', session.user.id)
+            .single();
 
-        if (!profile?.full_name) {
-          navigate('/profile-settings');
-          toast.info('Please complete your profile information');
-        } else {
-          navigate('/');
+          if (!profile?.full_name) {
+            navigate('/profile-settings');
+            toast.info('Please complete your profile information');
+          } else {
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('Profile fetch error:', error);
+          toast.error('Error loading profile');
         }
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');

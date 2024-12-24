@@ -2,6 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface MagicLinkAuthProps {
   supabaseClient: SupabaseClient;
@@ -16,11 +17,17 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail, redirectTo }: Magi
     // Ensure the redirect URL is properly encoded and includes the protocol
     const formatUrl = (url: string) => {
       try {
+        // If URL is relative, prepend the current origin
+        if (!url.startsWith('http')) {
+          url = `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+        }
         const urlObject = new URL(url);
         return urlObject.toString();
-      } catch {
-        // If URL parsing fails, assume it's a relative path and prepend the current origin
-        return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+      } catch (error) {
+        console.error('Error formatting URL:', error);
+        toast.error('Invalid redirect URL configuration');
+        // Fallback to the current origin
+        return window.location.origin;
       }
     };
 
