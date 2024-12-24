@@ -5,12 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
+  const [view, setView] = useState<'sign_in' | 'magic_link'>('sign_in');
 
   useEffect(() => {
     const checkSession = async () => {
@@ -93,36 +95,88 @@ const Login = () => {
           </p>
         </div>
 
-        <Auth
-          supabaseClient={supabase}
-          view="magic_link"
-          appearance={{ 
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#000000',
-                  brandAccent: '#666666',
+        <Tabs defaultValue="sign_in" className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link')}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="sign_in">Password</TabsTrigger>
+            <TabsTrigger value="magic_link">Magic Link</TabsTrigger>
+          </TabsList>
+          <TabsContent value="sign_in">
+            <Auth
+              supabaseClient={supabase}
+              view={view}
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#000000',
+                      brandAccent: '#666666',
+                    }
+                  }
                 }
-              }
-            }
-          }}
-          theme="light"
-          showLinks={false}
-          providers={[]}
-          redirectTo={`${window.location.origin}/`}
-          {...(email ? { defaultEmail: email } : {})}
-          localization={{
-            variables: {
-              magic_link: {
-                button_label: 'Send Magic Link',
-                loading_button_label: 'Sending Magic Link...',
-                confirmation_text: 'Check your email for the magic link',
-                email_input_placeholder: 'your.name@warmkaroo.com'
-              }
-            }
-          }}
-        />
+              }}
+              theme="light"
+              showLinks={false}
+              providers={[]}
+              redirectTo={`${window.location.origin}/`}
+              {...(email ? { defaultEmail: email } : {})}
+              localization={{
+                variables: {
+                  sign_in: {
+                    email_label: 'Email address',
+                    password_label: 'Password',
+                    email_input_placeholder: 'your.name@warmkaroo.com',
+                    button_label: 'Sign in',
+                    loading_button_label: 'Signing in...',
+                    social_provider_text: 'Sign in with {{provider}}',
+                    link_text: 'Already have an account? Sign in',
+                  },
+                  sign_up: {
+                    email_label: 'Email address',
+                    password_label: 'Create a password',
+                    email_input_placeholder: 'your.name@warmkaroo.com',
+                    button_label: 'Sign up',
+                    loading_button_label: 'Signing up...',
+                    social_provider_text: 'Sign up with {{provider}}',
+                    link_text: 'Don\'t have an account? Sign up',
+                  },
+                }
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="magic_link">
+            <Auth
+              supabaseClient={supabase}
+              view="magic_link"
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#000000',
+                      brandAccent: '#666666',
+                    }
+                  }
+                }
+              }}
+              theme="light"
+              showLinks={false}
+              providers={[]}
+              redirectTo={`${window.location.origin}/`}
+              {...(email ? { defaultEmail: email } : {})}
+              localization={{
+                variables: {
+                  magic_link: {
+                    button_label: 'Send Magic Link',
+                    loading_button_label: 'Sending Magic Link...',
+                    confirmation_text: 'Check your email for the magic link',
+                    email_input_placeholder: 'your.name@warmkaroo.com'
+                  }
+                }
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
