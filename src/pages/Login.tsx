@@ -14,8 +14,12 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
   const [view, setView] = useState<'sign_in' | 'magic_link' | 'forgotten_password'>('sign_in');
+  const [redirectUrl, setRedirectUrl] = useState('');
 
   useEffect(() => {
+    // Set up the redirect URL with the full origin
+    setRedirectUrl(`${window.location.origin}/`);
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -45,6 +49,7 @@ const Login = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event);
       if (event === 'SIGNED_IN') {
         const { data: profile } = await supabase
           .from('profiles')
@@ -61,7 +66,6 @@ const Login = () => {
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
       } else if (event === 'PASSWORD_RECOVERY') {
-        // Don't redirect, allow the user to reset their password
         setView('forgotten_password');
         toast.info('Please set your new password');
       }
@@ -108,21 +112,21 @@ const Login = () => {
           <TabsContent value="sign_in">
             <PasswordAuth 
               supabaseClient={supabase}
-              redirectTo={`${window.location.origin}/`}
+              redirectTo={redirectUrl}
               defaultEmail={email}
             />
           </TabsContent>
           <TabsContent value="magic_link">
             <MagicLinkAuth 
               supabaseClient={supabase}
-              redirectTo={`${window.location.origin}/`}
+              redirectTo={redirectUrl}
               defaultEmail={email}
             />
           </TabsContent>
           <TabsContent value="forgotten_password">
             <ResetPasswordAuth 
               supabaseClient={supabase}
-              redirectTo={`${window.location.origin}/`}
+              redirectTo={redirectUrl}
               defaultEmail={email}
             />
           </TabsContent>
