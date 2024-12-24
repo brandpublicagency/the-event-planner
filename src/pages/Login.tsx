@@ -68,22 +68,25 @@ const Login = () => {
       }
 
       if (event === 'SIGNED_IN' && session) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, mobile')
-            .eq('id', session.user.id)
-            .single();
+        // Only redirect if not in password recovery mode
+        if (searchParams.get('type') !== 'recovery') {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, mobile')
+              .eq('id', session.user.id)
+              .single();
 
-          if (!profile?.full_name) {
-            navigate('/profile-settings');
-            toast.info('Please complete your profile information');
-          } else {
-            navigate('/');
+            if (!profile?.full_name) {
+              navigate('/profile-settings');
+              toast.info('Please complete your profile information');
+            } else {
+              navigate('/');
+            }
+          } catch (error) {
+            console.error('Profile fetch error:', error);
+            toast.error('Error loading profile');
           }
-        } catch (error) {
-          console.error('Profile fetch error:', error);
-          toast.error('Error loading profile');
         }
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
