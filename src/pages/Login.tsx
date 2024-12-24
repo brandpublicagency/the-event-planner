@@ -12,7 +12,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
-  const [view, setView] = useState<'sign_in' | 'magic_link'>('sign_in');
+  const [view, setView] = useState<'sign_in' | 'magic_link' | 'forgotten_password'>('sign_in');
 
   useEffect(() => {
     const checkSession = async () => {
@@ -59,6 +59,9 @@ const Login = () => {
         }
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
+      } else if (event === 'PASSWORD_RECOVERY') {
+        toast.success('Password updated successfully');
+        navigate('/');
       }
     });
 
@@ -95,10 +98,11 @@ const Login = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="sign_in" className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link')}>
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="sign_in" className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link' | 'forgotten_password')}>
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="sign_in">Password</TabsTrigger>
             <TabsTrigger value="magic_link">Magic Link</TabsTrigger>
+            <TabsTrigger value="forgotten_password">Reset Password</TabsTrigger>
           </TabsList>
           <TabsContent value="sign_in">
             <Auth
@@ -170,6 +174,39 @@ const Login = () => {
                     button_label: 'Send Magic Link',
                     loading_button_label: 'Sending Magic Link...',
                     confirmation_text: 'Check your email for the magic link',
+                    email_input_placeholder: 'your.name@warmkaroo.com'
+                  }
+                }
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="forgotten_password">
+            <Auth
+              supabaseClient={supabase}
+              view="forgotten_password"
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#000000',
+                      brandAccent: '#666666',
+                    }
+                  }
+                }
+              }}
+              theme="light"
+              showLinks={false}
+              providers={[]}
+              redirectTo={`${window.location.origin}/`}
+              {...(email ? { defaultEmail: email } : {})}
+              localization={{
+                variables: {
+                  forgotten_password: {
+                    email_label: 'Email address',
+                    button_label: 'Send Reset Instructions',
+                    loading_button_label: 'Sending reset instructions...',
+                    confirmation_text: 'Check your email for the password reset link',
                     email_input_placeholder: 'your.name@warmkaroo.com'
                   }
                 }
