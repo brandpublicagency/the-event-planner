@@ -27,7 +27,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated || !documentId) return;
       
       const lines = editor.getText().split('\n');
       const firstLine = lines[0] || 'Untitled Document';
@@ -45,6 +45,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: firstLine,
         content 
       }, {
+        onSuccess: () => {
+          lastSavedContent.current = currentContent;
+        },
         onError: (error) => {
           console.error('Error saving document:', error);
           toast({
@@ -54,8 +57,6 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           });
         }
       });
-      
-      lastSavedContent.current = currentContent;
     },
   });
 

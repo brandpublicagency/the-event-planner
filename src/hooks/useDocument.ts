@@ -39,7 +39,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           .eq("id", documentId)
           .is("deleted_at", null)
           .abortSignal(signal)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Document fetch error:", error);
@@ -94,7 +94,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           .eq("id", documentId)
           .eq("user_id", user.user.id)
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Document update error:", error);
