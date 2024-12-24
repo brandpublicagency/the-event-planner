@@ -614,13 +614,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_company_and_team: {
-        Args: {
-          p_company_name: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
       generate_unique_event_code: {
         Args: {
           base_code: string
@@ -765,7 +758,7 @@ export type Database = {
       }
     }
     Enums: {
-      team_role: "admin" | "member"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never

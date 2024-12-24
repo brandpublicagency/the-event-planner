@@ -23,16 +23,30 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
 
   return (
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-      <FileActionButton
-        icon={Eye}
-        onClick={() => handleView(file.file_path)}
-        disabled={isDisabled}
-      />
-      <FileActionButton
-        icon={Download}
-        onClick={() => handleDownload(file.file_path, file.file_name)}
-        disabled={isDisabled}
-      />
+      {isViewing ? (
+        <FileActionButton
+          icon={Loader2}
+          disabled={true}
+        />
+      ) : (
+        <FileActionButton
+          icon={Eye}
+          onClick={() => handleView(file.file_path)}
+          disabled={isDisabled}
+        />
+      )}
+      {isDownloading ? (
+        <FileActionButton
+          icon={Loader2}
+          disabled={true}
+        />
+      ) : (
+        <FileActionButton
+          icon={Download}
+          onClick={() => handleDownload(file.file_path, file.file_name)}
+          disabled={isDisabled}
+        />
+      )}
       <FileDeleteDialog
         isDeleting={isDeleting}
         onDelete={onDelete}

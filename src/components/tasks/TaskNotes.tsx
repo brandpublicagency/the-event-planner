@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { Separator } from "@/components/ui/separator";
-import { TodoList } from "./TodoList";
 import { useToast } from "@/components/ui/use-toast";
-import { NoteInput } from "./NoteInput";
-import { NoteItem } from "./NoteItem";
+import { NotesSection } from "./notes/NotesSection";
 
 export function TaskNotes({ taskId }: { taskId: string }) {
   const { toast } = useToast();
@@ -76,50 +73,24 @@ export function TaskNotes({ taskId }: { taskId: string }) {
   if (!task) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Notes Section */}
-      <div className="space-y-3">
-        <NoteInput
-          value={newNote}
-          onChange={setNewNote}
-          onSubmit={handleAddNote}
-        />
-
-        <div className="space-y-2">
-          {task.notes?.map((note, index) => (
-            <NoteItem
-              key={index}
-              note={note}
-              isEditing={editingIndex === index}
-              editingText={editingText}
-              onEditingTextChange={setEditingText}
-              onEditSubmit={() => handleEditNote(index)}
-              onEditStart={() => {
-                setEditingIndex(index);
-                setEditingText(note);
-              }}
-              onEditCancel={() => setEditingIndex(null)}
-              onDelete={() => handleRemoveNote(index)}
-            />
-          ))}
-          {(!task.notes || task.notes.length === 0) && (
-            <p className="text-center text-sm text-muted-foreground py-4">
-              No notes added yet
-            </p>
-          )}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Checklist Section */}
-      <div className="space-y-3">
-        <TodoList 
-          todos={task.todos || []}
-          onTodosChange={handleTodosChange}
-          taskId={taskId}
-        />
-      </div>
-    </div>
+    <NotesSection
+      taskId={taskId}
+      notes={task.notes || []}
+      todos={task.todos || []}
+      newNote={newNote}
+      editingIndex={editingIndex}
+      editingText={editingText}
+      onNewNoteChange={setNewNote}
+      onAddNote={handleAddNote}
+      onEditingTextChange={setEditingText}
+      onEditNote={handleEditNote}
+      onEditStart={(index, note) => {
+        setEditingIndex(index);
+        setEditingText(note);
+      }}
+      onEditCancel={() => setEditingIndex(null)}
+      onDeleteNote={handleRemoveNote}
+      onTodosChange={handleTodosChange}
+    />
   );
 }

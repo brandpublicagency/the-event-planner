@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFileUploadProps {
@@ -14,53 +13,64 @@ interface TaskFileUploadProps {
 export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
-      setIsUploading(true);
+      console.log('Starting file upload:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
       try {
-        // Generate a clean filename
-        const timestamp = new Date().getTime();
-        const filePath = `${timestamp}-${file.name}`;
+        setIsUploading(true);
 
-        console.log('Starting file upload:', {
-          taskId,
-          fileName: file.name,
-          filePath,
-          contentType: file.type
-        });
+        // Generate a unique file path
+        const timestamp = Date.now();
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-        // Upload file to storage
+        console.log('Generated file path:', filePath);
+
+        // Upload file to storage with proper content type
         const { error: uploadError } = await supabase.storage
           .from("task-files")
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            contentType: file.type,
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (uploadError) {
           console.error('Storage upload error:', uploadError);
           throw uploadError;
         }
 
-        console.log('File uploaded successfully to storage');
+        console.log('File uploaded to storage successfully');
 
         // Create database record
-        const { error: dbError } = await supabase.from("task_files").insert([
-          {
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .insert({
             task_id: taskId,
             file_name: file.name,
             file_path: filePath,
-            content_type: file.type,
-          },
-        ]);
+            content_type: file.type
+          });
 
         if (dbError) {
           console.error('Database insert error:', dbError);
           throw dbError;
         }
 
-        console.log('File record created in database');
-        return { success: true };
-      } catch (error: any) {
+        console.log('Database record created successfully');
+        return { filePath, fileName: file.name };
+      } catch (error) {
+        console.error('Upload process error:', error);
         throw error;
+      } finally {
+        setIsUploading(false);
       }
     },
     onSuccess: () => {
@@ -68,60 +78,43 @@ export function TaskFileUpload({ taskId, onSuccess }: TaskFileUploadProps) {
         title: "File uploaded",
         description: "Your file has been uploaded successfully.",
       });
+      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       if (onSuccess) {
         onSuccess();
       }
     },
-    onError: (error: any) => {
-      console.error("Upload error:", error);
+    onError: (error: Error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Upload failed",
         description: error.message,
         variant: "destructive",
       });
     },
-    onSettled: () => {
-      setIsUploading(false);
-    },
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     uploadMutation.mutate(file);
+    e.target.value = ''; // Reset input after upload
   };
 
   return (
-    <div>
+    <div className="space-y-2">
       <Input
         type="file"
-        onChange={handleFileUpload}
+        onChange={handleFileChange}
         disabled={isUploading}
-        className="hidden"
-        id="file-upload"
+        className="cursor-pointer"
       />
-      <label htmlFor="file-upload">
-        <Button
-          variant="outline"
-          className="w-full"
-          disabled={isUploading}
-          asChild
-        >
-          <span>
-            {isUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Upload File
-              </>
-            )}
-          </span>
-        </Button>
-      </label>
+      {isUploading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Uploading...</span>
+        </div>
+      )}
     </div>
   );
 }

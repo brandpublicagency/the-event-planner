@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFile {
@@ -19,37 +19,45 @@ interface TaskFileItemProps {
 
 export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
       console.log('Starting file deletion:', file);
       
-      // First delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
+      try {
+        // First delete from storage
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw storageError;
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+          throw storageError;
+        }
+
+        console.log('Storage deletion successful');
+
+        // Then delete from database
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .delete()
+          .eq("id", file.id);
+
+        if (dbError) {
+          console.error('Database deletion error:', dbError);
+          throw dbError;
+        }
+
+        console.log('Database deletion successful');
+        return true;
+      } catch (error: any) {
+        console.error('Delete error:', error);
+        throw error;
       }
-
-      console.log('Storage deletion successful');
-
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error('Database deletion error:', dbError);
-        throw dbError;
-      }
-
-      console.log('Database deletion successful');
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
       toast({
         title: "File deleted",
         description: "File has been deleted successfully.",

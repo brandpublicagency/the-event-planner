@@ -7,27 +7,6 @@ export type { DatabaseFunctions } from './functions';
 export interface Database {
   public: {
     Tables: {
-      companies: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       corporate_details: {
         Row: {
           company_address: string | null
@@ -72,99 +51,38 @@ export interface Database {
           },
         ]
       }
-      document_versions: {
-        Row: {
-          content: Json
-          created_at: string
-          created_by: string
-          document_id: string
-          id: string
-          title: string
-          version_number: number
-        }
-        Insert: {
-          content: Json
-          created_at?: string
-          created_by: string
-          document_id: string
-          id?: string
-          title: string
-          version_number: number
-        }
-        Update: {
-          content?: Json
-          created_at?: string
-          created_by?: string
-          document_id?: string
-          id?: string
-          title?: string
-          version_number?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_versions_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       documents: {
         Row: {
-          category: string | null
           content: Json | null
           created_at: string
           deleted_at: string | null
-          depth: number | null
           id: string
-          parent_id: string | null
-          path: unknown | null
-          tags: string[] | null
           template: boolean | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          category?: string | null
           content?: Json | null
           created_at?: string
           deleted_at?: string | null
-          depth?: number | null
           id?: string
-          parent_id?: string | null
-          path?: unknown
-          tags?: string[] | null
           template?: boolean | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          category?: string | null
           content?: Json | null
           created_at?: string
           deleted_at?: string | null
-          depth?: number | null
           id?: string
-          parent_id?: string | null
-          path?: unknown
-          tags?: string[] | null
           template?: boolean | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "documents_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       event_documents: {
         Row: {
@@ -338,102 +256,39 @@ export interface Database {
       }
       menu_selections: {
         Row: {
-          buffet_meat_selections: string[] | null
-          buffet_salad_selection: string | null
-          buffet_starch_selections: string[] | null
-          buffet_vegetable_selections: string[] | null
           canape_package: string | null
           canape_selections: string[] | null
           created_at: string
           custom_menu_details: string | null
-          dessert_canapes: string[] | null
-          dessert_price: number | null
-          dessert_type: string | null
           event_code: string
-          individual_cakes: string[] | null
           is_custom: boolean | null
-          karoo_meat_selection: string | null
-          karoo_salad_selection: string | null
-          karoo_starch_selection: string[] | null
-          karoo_vegetable_selections: string[] | null
-          main_course_price: number | null
-          main_course_type: string | null
           notes: string | null
-          other_selections: string[] | null
-          other_selections_quantities: Json | null
-          other_total_price: number | null
-          plated_main_selection: string | null
-          plated_salad_selection: string | null
           plated_starter: string | null
-          starter_price: number | null
           starter_type: string | null
-          traditional_dessert: string | null
           updated_at: string
         }
         Insert: {
-          buffet_meat_selections?: string[] | null
-          buffet_salad_selection?: string | null
-          buffet_starch_selections?: string[] | null
-          buffet_vegetable_selections?: string[] | null
           canape_package?: string | null
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
-          dessert_canapes?: string[] | null
-          dessert_price?: number | null
-          dessert_type?: string | null
           event_code: string
-          individual_cakes?: string[] | null
           is_custom?: boolean | null
-          karoo_meat_selection?: string | null
-          karoo_salad_selection?: string | null
-          karoo_starch_selection?: string[] | null
-          karoo_vegetable_selections?: string[] | null
-          main_course_price?: number | null
-          main_course_type?: string | null
           notes?: string | null
-          other_selections?: string[] | null
-          other_selections_quantities?: Json | null
-          other_total_price?: number | null
-          plated_main_selection?: string | null
-          plated_salad_selection?: string | null
           plated_starter?: string | null
-          starter_price?: number | null
           starter_type?: string | null
-          traditional_dessert?: string | null
           updated_at?: string
         }
         Update: {
-          buffet_meat_selections?: string[] | null
-          buffet_salad_selection?: string | null
-          buffet_starch_selections?: string[] | null
-          buffet_vegetable_selections?: string[] | null
           canape_package?: string | null
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
-          dessert_canapes?: string[] | null
-          dessert_price?: number | null
-          dessert_type?: string | null
-          event_code?: string
-          individual_cakes?: string[] | null
+          event_code: string
           is_custom?: boolean | null
-          karoo_meat_selection?: string | null
-          karoo_salad_selection?: string | null
-          karoo_starch_selection?: string[] | null
-          karoo_vegetable_selections?: string[] | null
-          main_course_price?: number | null
-          main_course_type?: string | null
           notes?: string | null
-          other_selections?: string[] | null
-          other_selections_quantities?: Json | null
-          other_total_price?: number | null
-          plated_main_selection?: string | null
-          plated_salad_selection?: string | null
           plated_starter?: string | null
-          starter_price?: number | null
           starter_type?: string | null
-          traditional_dessert?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -443,7 +298,7 @@ export interface Database {
             isOneToOne: true
             referencedRelation: "events"
             referencedColumns: ["event_code"]
-          },
+          }
         ]
       }
       packages: {
@@ -466,24 +321,24 @@ export interface Database {
       }
       pdf_processed_content: {
         Row: {
-          content: string | null
-          created_at: string
           id: string
-          pdf_id: string | null
+          pdf_id: string
+          content: string
+          created_at: string
           updated_at: string
         }
         Insert: {
-          content?: string | null
-          created_at?: string
           id?: string
-          pdf_id?: string | null
+          pdf_id: string
+          content: string
+          created_at?: string
           updated_at?: string
         }
         Update: {
-          content?: string | null
-          created_at?: string
           id?: string
-          pdf_id?: string | null
+          pdf_id?: string
+          content?: string
+          created_at?: string
           updated_at?: string
         }
         Relationships: [
@@ -493,7 +348,7 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "event_documents"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       profiles: {
@@ -523,233 +378,9 @@ export interface Database {
         }
         Relationships: []
       }
-      task_files: {
-        Row: {
-          content_type: string | null
-          created_at: string
-          file_name: string
-          file_path: string
-          id: string
-          task_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          content_type?: string | null
-          created_at?: string
-          file_name: string
-          file_path: string
-          id?: string
-          task_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          content_type?: string | null
-          created_at?: string
-          file_name?: string
-          file_path?: string
-          id?: string
-          task_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "task_files_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      tasks: {
-        Row: {
-          assigned_to: string | null
-          completed: boolean | null
-          created_at: string
-          due_date: string | null
-          id: string
-          notes: string[] | null
-          priority: string | null
-          status: string | null
-          task_code: string | null
-          title: string
-          todos: string[] | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          assigned_to?: string | null
-          completed?: boolean | null
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          notes?: string[] | null
-          priority?: string | null
-          status?: string | null
-          task_code?: string | null
-          title: string
-          todos?: string[] | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          assigned_to?: string | null
-          completed?: boolean | null
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          notes?: string[] | null
-          priority?: string | null
-          status?: string | null
-          task_code?: string | null
-          title?: string
-          todos?: string[] | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      team_members: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["team_role"]
-          team_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["team_role"]
-          team_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_members_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "team_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      teams: {
-        Row: {
-          company_id: string | null
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "teams_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: true
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      venues: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      wedding_details: {
-        Row: {
-          bride_email: string | null
-          bride_mobile: string | null
-          bride_name: string | null
-          created_at: string
-          event_code: string
-          groom_email: string | null
-          groom_mobile: string | null
-          groom_name: string | null
-          updated_at: string
-        }
-        Insert: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at: string
-          event_code: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at: string
-        }
-        Update: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at?: string
-          event_code?: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wedding_details_event_code_fkey"
-            columns: ["event_code"]
-            isOneToOne: true
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          },
-        ]
-      }
     }
     Functions: DatabaseFunctions;
-    Enums: {
-      team_role: "admin" | "member";
-    };
+    Enums: {};
     CompositeTypes: {
       [_ in never]: never;
     };

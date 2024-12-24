@@ -7,34 +7,30 @@ export function useFileDownload() {
   const { toast } = useToast();
 
   const handleDownload = async (filePath: string, fileName: string) => {
-    if (isLoading) return;
-
     try {
       setIsLoading(true);
+      console.log('[Download] Getting file URL for:', filePath);
       
-      const { data: { signedUrl }, error } = await supabase.storage
+      const { data } = supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60);
+        .getPublicUrl(filePath);
 
-      if (error) throw error;
-      
-      const response = await fetch(signedUrl);
-      if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
-      
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
+      if (!data?.publicUrl) {
+        throw new Error('Could not generate download URL');
+      }
+
+      // Create a temporary link element for downloading
+      const link = document.createElement('a');
+      link.href = data.publicUrl;
+      link.download = fileName;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('[Download] File download initiated');
     } catch (error: any) {
+      console.error('[Download] Error:', error);
       toast({
         title: "Error downloading file",
         description: error.message,
@@ -45,5 +41,8 @@ export function useFileDownload() {
     }
   };
 
-  return { handleDownload, isLoading };
+  return {
+    handleDownload,
+    isLoading,
+  };
 }

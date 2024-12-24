@@ -1,4 +1,8 @@
 export interface DatabaseFunctions {
+  generate_unique_event_code: {
+    Args: { base_code: string };
+    Returns: string;
+  };
   create_company_and_team: {
     Args: {
       p_company_name: string;
@@ -16,10 +20,6 @@ export interface DatabaseFunctions {
   _ltree_gist_options: {
     Args: { "": unknown };
     Returns: undefined;
-  };
-  generate_unique_event_code: {
-    Args: { base_code: string };
-    Returns: string;
   };
   lca: {
     Args: { "": unknown[] };

@@ -208,7 +208,7 @@ export interface Database {
           canape_selections?: string[] | null
           created_at?: string
           custom_menu_details?: string | null
-          event_code?: string
+          event_code: string
           is_custom?: boolean | null
           notes?: string | null
           plated_starter?: string | null
@@ -302,68 +302,6 @@ export interface Database {
         }
         Relationships: []
       }
-      venues: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      wedding_details: {
-        Row: {
-          bride_email: string | null
-          bride_mobile: string | null
-          bride_name: string | null
-          created_at: string
-          event_code: string
-          groom_email: string | null
-          groom_mobile: string | null
-          groom_name: string | null
-          updated_at: string
-        }
-        Insert: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at?: string
-          event_code: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at?: string
-        }
-        Update: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at?: string
-          event_code?: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wedding_details_event_code_fkey"
-            columns: ["event_code"]
-            isOneToOne: true
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          }
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -371,9 +309,7 @@ export interface Database {
     Functions: {
       [_ in never]: never
     }
-    Enums: {
-      [_ in never]: never
-    }
+    Enums: {}
     CompositeTypes: {
       [_ in never]: never
     }

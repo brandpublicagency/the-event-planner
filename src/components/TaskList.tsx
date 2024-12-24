@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Task } from "@/contexts/task/taskTypes";
-import { TaskItem } from "./tasks/TaskItem";
-import { EditableTaskCard } from "./tasks/EditableTaskCard";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Plus, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { TaskListHeader } from "./tasks/list/TaskListHeader";
+import { TaskListContent } from "./tasks/list/TaskListContent";
+import { AddTaskInput } from "./tasks/list/AddTaskInput";
 
 interface TaskListProps {
   tasks: Task[];
@@ -30,6 +30,16 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
     }
   };
 
+  // Show loading state while tasks are being fetched
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Show error state if task fetching failed
   if (error) {
     return (
       <Alert variant="destructive" className="my-4">
@@ -41,61 +51,45 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  // Filter tasks after loading is complete
+  const upcomingTasks = tasks?.filter(task => !task.completed) || [];
+  const completedTasks = tasks?.filter(task => task.completed) || [];
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        {tasks?.map((task) => (
-          editingTaskId === task.id ? (
-            <EditableTaskCard
-              key={task.id}
-              task={task}
-              onCancel={() => setEditingTaskId(null)}
-              onSave={() => setEditingTaskId(null)}
-            />
-          ) : (
-            <TaskItem
-              key={task.id}
-              task={task}
-              isSelected={task.id === selectedTaskId}
-              onClick={() => onTaskSelect(task.id)}
-              onEdit={() => setEditingTaskId(task.id)}
-            />
-          )
-        ))}
-        {!isLoading && (!tasks || tasks.length === 0) && (
-          <p className="text-center text-muted-foreground py-8">No tasks</p>
-        )}
-        
-        <div className="flex items-center gap-2 mt-2">
-          <Input
-            placeholder="Add a new task..."
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleAddTask();
-              }
-            }}
-            className="h-9"
+      <Tabs defaultValue="upcoming" className="w-full">
+        <TaskListHeader 
+          upcomingCount={upcomingTasks.length}
+          completedCount={completedTasks.length}
+        />
+        <TabsContent value="upcoming" className="mt-4">
+          <TaskListContent
+            tasks={upcomingTasks}
+            editingTaskId={editingTaskId}
+            selectedTaskId={selectedTaskId}
+            onTaskSelect={onTaskSelect}
+            onEditStart={(id) => setEditingTaskId(id)}
+            onEditCancel={() => setEditingTaskId(null)}
+            onEditSave={() => setEditingTaskId(null)}
           />
-          <Button 
-            size="sm"
-            onClick={handleAddTask}
-            disabled={!newTaskTitle.trim()}
-            className="h-9"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+        </TabsContent>
+        <TabsContent value="completed" className="mt-4">
+          <TaskListContent
+            tasks={completedTasks}
+            editingTaskId={editingTaskId}
+            selectedTaskId={selectedTaskId}
+            onTaskSelect={onTaskSelect}
+            onEditStart={(id) => setEditingTaskId(id)}
+            onEditCancel={() => setEditingTaskId(null)}
+            onEditSave={() => setEditingTaskId(null)}
+          />
+        </TabsContent>
+        <AddTaskInput
+          value={newTaskTitle}
+          onChange={setNewTaskTitle}
+          onSubmit={handleAddTask}
+        />
+      </Tabs>
     </div>
   );
 }
