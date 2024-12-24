@@ -19,6 +19,13 @@ const Login = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        // Don't automatically redirect if we're in a password reset flow
+        const type = searchParams.get('type');
+        if (type === 'recovery') {
+          await supabase.auth.signOut(); // Sign out to allow password reset
+          return;
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, mobile')
@@ -54,8 +61,9 @@ const Login = () => {
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
       } else if (event === 'PASSWORD_RECOVERY') {
-        toast.success('Password updated successfully');
-        navigate('/');
+        // Don't redirect, allow the user to reset their password
+        setView('forgotten_password');
+        toast.info('Please set your new password');
       }
     });
 
@@ -91,7 +99,7 @@ const Login = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="sign_in" className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link' | 'forgotten_password')}>
+        <Tabs defaultValue="sign_in" value={view} className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link' | 'forgotten_password')}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="sign_in">Password</TabsTrigger>
             <TabsTrigger value="magic_link">Magic Link</TabsTrigger>
