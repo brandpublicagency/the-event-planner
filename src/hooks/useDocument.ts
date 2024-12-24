@@ -92,7 +92,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
             updated_at: new Date().toISOString(),
           })
           .eq("id", documentId)
-          .eq("user_id", user.user.id)
           .select()
           .maybeSingle();
 
