@@ -29,7 +29,32 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const { data: tasks = [], isLoading, error } = useTaskQuery(!isSessionLoading && !!session);
+  // Only fetch tasks if we have a session
+  const { data: tasks = [], isLoading, error } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Task fetch error:", error);
+          toast.error("Failed to load tasks");
+          throw error;
+        }
+
+        console.log("Fetched tasks:", data);
+        return data as Task[];
+      } catch (error) {
+        console.error("Task query error:", error);
+        throw error;
+      }
+    },
+    enabled: !!session, // Only run query if session exists
+  });
+
   const { addTaskMutation, updateTaskMutation, deleteTaskMutation } = useTaskMutations();
 
   const toggleTask = async (id: string, completed: boolean) => {

@@ -7,6 +7,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
+import { toast } from "sonner";
 
 interface TaskListProps {
   tasks: Task[];
@@ -25,8 +26,10 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
     try {
       await addTask(newTaskTitle);
       setNewTaskTitle("");
+      toast.success("Task added successfully");
     } catch (error) {
       console.error("Failed to add task:", error);
+      toast.error("Failed to add task. Please try again.");
     }
   };
 
