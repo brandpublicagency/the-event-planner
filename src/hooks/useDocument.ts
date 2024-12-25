@@ -18,7 +18,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       
       const { data, error } = await supabase
         .from("documents")
-        .select()
+        .select("*")
         .eq("id", documentId)
         .is("deleted_at", null)
         .maybeSingle();
@@ -62,13 +62,20 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       // First verify the document exists and is not deleted
       const { data: existingDoc, error: fetchError } = await supabase
         .from("documents")
-        .select()
+        .select("*")
         .eq("id", documentId)
         .is("deleted_at", null)
         .maybeSingle();
 
-      if (fetchError) throw fetchError;
-      if (!existingDoc) throw new Error("Document not found or deleted");
+      if (fetchError) {
+        console.error("Error verifying document:", fetchError);
+        throw fetchError;
+      }
+      
+      if (!existingDoc) {
+        console.error("Document not found or deleted");
+        throw new Error("Document not found or deleted");
+      }
 
       // Then perform the update
       const { data, error } = await supabase
@@ -78,6 +85,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           updated_at: new Date().toISOString(),
         })
         .eq("id", documentId)
+        .is("deleted_at", null)
         .select()
         .single();
 
