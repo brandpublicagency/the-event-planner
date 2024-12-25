@@ -29,12 +29,14 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
           icon={Loader2}
           disabled={true}
           className="animate-spin"
+          variant="ghost"
         />
       ) : (
         <FileActionButton
           icon={Eye}
           onClick={() => handleView(file.file_path)}
           disabled={isDisabled}
+          variant="ghost"
         />
       )}
       {isDownloading ? (
@@ -42,12 +44,14 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
           icon={Loader2}
           disabled={true}
           className="animate-spin"
+          variant="ghost"
         />
       ) : (
         <FileActionButton
           icon={Download}
           onClick={() => handleDownload(file.file_path, file.file_name)}
           disabled={isDisabled}
+          variant="ghost"
         />
       )}
       <FileDeleteDialog

@@ -26,6 +26,7 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
           icon={isDeleting ? Loader2 : Trash2}
           disabled={disabled || isDeleting}
           variant="ghost"
+          className={isDeleting ? "animate-spin" : ""}
         />
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -38,7 +39,10 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete();
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
