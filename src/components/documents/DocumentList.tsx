@@ -25,11 +25,15 @@ export default function DocumentList({ documents, selectedId, onSelect }: Docume
         .eq("id", documentId)
         .is("deleted_at", null)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Delete error:", error);
         throw error;
+      }
+
+      if (!data) {
+        throw new Error("Document not found or already deleted");
       }
       
       console.log("Document deleted successfully");
