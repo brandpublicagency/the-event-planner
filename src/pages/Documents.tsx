@@ -39,14 +39,16 @@ export default function Documents() {
       return data as Document[];
     },
     retry: 1,
-    onError: (error: Error) => {
-      console.error("Query error:", error);
-      toast({
-        title: "Error loading documents",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    meta: {
+      onError: (error: Error) => {
+        console.error("Query error:", error);
+        toast({
+          title: "Error loading documents",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    }
   });
 
   const createDocument = useMutation({
