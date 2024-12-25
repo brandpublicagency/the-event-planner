@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from 'react';
 import { Editor } from '@tiptap/react';
-import { useDocument } from "@/hooks/useDocument";
+import { useDocument } from './useDocument';
 import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { DocumentContent } from "@/types/document";
@@ -35,7 +35,9 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     };
 
     editor.on('update', handleUpdate);
-    return () => editor.off('update', handleUpdate);
+    return () => {
+      editor.off('update', handleUpdate);
+    };
   }, [documentId, editor, isAuthenticated]);
 
   // Handle debounced content updates
