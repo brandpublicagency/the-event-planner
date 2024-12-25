@@ -5,6 +5,7 @@ import { TaskContextType, Task, TaskUpdate } from "./task/taskTypes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export type { Task, TaskUpdate, TaskContextType };
 
@@ -20,6 +21,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
         console.error("Session error:", error);
+        toast.error("Authentication error occurred");
         navigate("/login");
         return null;
       }
