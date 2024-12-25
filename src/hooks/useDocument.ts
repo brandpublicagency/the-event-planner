@@ -18,10 +18,10 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       
       const { data, error } = await supabase
         .from("documents")
-        .select()
+        .select("*")
         .eq("id", documentId)
         .is("deleted_at", null)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Document fetch error:", {
@@ -67,7 +67,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         })
         .eq("id", documentId)
         .select()
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Document update error:", {
