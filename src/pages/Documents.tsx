@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState } from "react";
@@ -20,9 +20,10 @@ export default function Documents() {
     queryFn: async () => {
       console.log("Fetching documents list");
       
-      // First verify auth status
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error("Authentication required");
+      }
 
       const { data, error } = await supabase
         .from("documents")
@@ -32,6 +33,11 @@ export default function Documents() {
 
       if (error) {
         console.error("Error loading documents:", error);
+        toast({
+          title: "Error loading documents",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -39,22 +45,14 @@ export default function Documents() {
       return data as Document[];
     },
     retry: 1,
-    meta: {
-      onError: (error: Error) => {
-        console.error("Query error:", error);
-        toast({
-          title: "Error loading documents",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    }
   });
 
   const createDocument = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error("Authentication required");
+      }
 
       console.log("Creating new document");
       const { data, error } = await supabase
@@ -62,13 +60,18 @@ export default function Documents() {
         .insert({
           title: "Untitled Document",
           content: { type: "doc", html: "", text: "" },
-          user_id: user.id,
+          user_id: session.session.user.id,
         })
         .select()
         .single();
 
       if (error) {
         console.error("Error creating document:", error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
       
@@ -87,7 +90,7 @@ export default function Documents() {
       console.error("Error creating document:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create document",
+        description: error.message,
         variant: "destructive",
       });
     },

@@ -1,9 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { Document } from "@/types/document";
 
 export function useDocument(documentId: string | null, isAuthenticated: boolean) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: document, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
@@ -12,6 +14,11 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       console.log("Fetching document:", documentId);
       
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error("Authentication required");
+      }
+
       const { data, error } = await supabase
         .from("documents")
         .select()
@@ -21,6 +28,11 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       if (error) {
         console.error("Document fetch error:", error);
+        toast({
+          title: "Error loading document",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -44,6 +56,11 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       }
 
       console.log("Updating document:", documentId, updates);
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error("Authentication required");
+      }
 
       // First fetch the current document to ensure it exists and isn't deleted
       const { data: existingDoc, error: fetchError } = await supabase
@@ -71,6 +88,11 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       if (error) {
         console.error("Document update error:", error);
+        toast({
+          title: "Error updating document",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -80,6 +102,18 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
+      toast({
+        title: "Success",
+        description: "Document updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      console.error("Update mutation error:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
