@@ -8,6 +8,7 @@ import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useToast } from "@/components/ui/use-toast";
 import type { DocumentContent as DocumentContentType } from "@/types/document";
 import { useDebounce } from "@/hooks/useDebounce";
+import { isDocumentContent } from "@/types/document";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -82,10 +83,12 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
     console.log("Loading initial document content:", document.content);
 
-    if (typeof document.content === 'object' && document.content !== null && 'html' in document.content) {
+    if (isDocumentContent(document.content)) {
       editor.commands.setContent(document.content.html);
       lastSavedContent.current = document.content.html;
       contentInitialized.current = true;
+    } else {
+      console.warn("Invalid document content format:", document.content);
     }
   }, [document?.content, editor]);
 
