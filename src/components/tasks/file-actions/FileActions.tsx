@@ -10,6 +10,7 @@ interface FileActionsProps {
     task_id: string;
     file_name: string;
     file_path: string;
+    content_type: string;
   };
   onDelete: () => void;
   isDeleting: boolean;
@@ -27,6 +28,7 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
         <FileActionButton
           icon={Loader2}
           disabled={true}
+          className="animate-spin"
         />
       ) : (
         <FileActionButton
@@ -39,6 +41,7 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
         <FileActionButton
           icon={Loader2}
           disabled={true}
+          className="animate-spin"
         />
       ) : (
         <FileActionButton
