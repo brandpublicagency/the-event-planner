@@ -19,11 +19,13 @@ export default function DocumentList({ documents, selectedId, onSelect }: Docume
     mutationFn: async (documentId: string) => {
       console.log("Deleting document:", documentId);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("documents")
         .update({ deleted_at: new Date().toISOString() })
         .eq("id", documentId)
-        .is("deleted_at", null);
+        .is("deleted_at", null)
+        .select()
+        .single();
 
       if (error) {
         console.error("Delete error:", error);
