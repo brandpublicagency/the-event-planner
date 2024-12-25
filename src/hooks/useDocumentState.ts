@@ -12,6 +12,8 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
   const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
   const [pendingContent, setPendingContent] = useState<DocumentContent | null>(null);
+  const [lastToastTime, setLastToastTime] = useState(0);
+  const TOAST_COOLDOWN = 2000; // 2 seconds between toasts
 
   // Debounce the content updates
   const debouncedContent = useDebounce(pendingContent, 1000);
@@ -52,11 +54,20 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
       content: debouncedContent
     });
 
+    const now = Date.now();
+    if (now - lastToastTime >= TOAST_COOLDOWN) {
+      toast({
+        title: "Saving changes...",
+        description: "Your document is being saved",
+      });
+      setLastToastTime(now);
+    }
+
     updateDocument.mutate({ 
       title: firstLine,
       content: debouncedContent 
     });
-  }, [debouncedContent, documentId, updateDocument, editor]);
+  }, [debouncedContent, documentId, updateDocument, editor, toast, lastToastTime]);
 
   // Reset state when document changes
   useEffect(() => {
