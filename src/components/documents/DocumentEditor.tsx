@@ -84,13 +84,24 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     console.log("Loading initial document content:", document.content);
 
     if (isDocumentContent(document.content)) {
-      editor.commands.setContent(document.content.html);
-      lastSavedContent.current = document.content.html;
-      contentInitialized.current = true;
+      try {
+        // Ensure we're passing a valid HTML string
+        const htmlContent = document.content.html || '';
+        editor.commands.setContent(htmlContent);
+        lastSavedContent.current = htmlContent;
+        contentInitialized.current = true;
+      } catch (err) {
+        console.error("Error setting document content:", err);
+        toast({
+          title: "Error loading document",
+          description: "There was an error loading the document content.",
+          variant: "destructive",
+        });
+      }
     } else {
       console.warn("Invalid document content format:", document.content);
     }
-  }, [document?.content, editor]);
+  }, [document?.content, editor, toast]);
 
   if (!documentId) {
     return (
