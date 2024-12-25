@@ -18,6 +18,7 @@ export default function Documents() {
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: async () => {
+      console.log("Fetching documents list");
       const { data, error } = await supabase
         .from("documents")
         .select("*")
@@ -25,13 +26,16 @@ export default function Documents() {
         .order("created_at", { ascending: false });
 
       if (error) {
+        console.error("Error loading documents:", error);
         toast({
           title: "Error loading documents",
           description: error.message,
           variant: "destructive",
         });
-        return [];
+        throw error;
       }
+
+      console.log("Documents fetched successfully:", data);
       return data as Document[];
     },
   });
@@ -41,17 +45,19 @@ export default function Documents() {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("User not authenticated");
 
+      console.log("Creating new document");
       const { data, error } = await supabase
         .from("documents")
         .insert({
           title: "Untitled Document",
-          content: { html: "", text: "" },
+          content: { type: "doc", html: "", text: "" },
           user_id: user.user.id,
         })
         .select()
         .single();
 
       if (error) throw error;
+      console.log("New document created:", data);
       return data as Document;
     },
     onSuccess: (newDoc) => {
@@ -63,9 +69,10 @@ export default function Documents() {
       });
     },
     onError: (error: Error) => {
+      console.error("Error creating document:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to create document",
         variant: "destructive",
       });
     },

@@ -14,12 +14,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         return null;
       }
 
-      // First verify the user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
       console.log("Fetching document:", documentId);
       
       const { data, error } = await supabase
@@ -44,10 +38,10 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         return null;
       }
 
+      console.log("Document fetched successfully:", data);
       return data as Document;
     },
     enabled: !!documentId && isAuthenticated,
-    staleTime: 30000, // Cache results for 30 seconds
   });
 
   const updateDocument = useMutation({
@@ -61,11 +55,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     }) => {
       if (!documentId || !isAuthenticated) {
         throw new Error("Cannot update document: not authenticated");
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("User not authenticated");
       }
 
       console.log("Updating document:", documentId, updates);
@@ -90,6 +79,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw error;
       }
 
+      console.log("Document updated successfully:", data);
       return data;
     },
     onError: (error: Error) => {
@@ -103,6 +93,10 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
+      toast({
+        title: "Document saved",
+        description: "Your changes have been saved successfully.",
+      });
     },
   });
 

@@ -34,10 +34,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     onUpdate: ({ editor }) => {
       if (!isAuthenticated || !documentId) return;
       
-      const lines = editor.getText().split('\n');
-      const firstLine = lines[0] || 'Untitled Document';
       const currentContent = editor.getHTML();
-      
       if (currentContent === lastSavedContent.current) return;
 
       const content: DocumentContentType = {
@@ -57,6 +54,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
     const lines = debouncedContent.text.split('\n');
     const firstLine = lines[0] || 'Untitled Document';
+
+    console.log("Saving document with content:", {
+      title: firstLine,
+      content: debouncedContent
+    });
 
     updateDocument.mutate({ 
       title: firstLine,
@@ -78,10 +80,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   useEffect(() => {
     if (!editor || !document?.content || editor.isDestroyed || contentInitialized.current) return;
 
-    const docContent = document.content as DocumentContentType;
-    if (docContent?.html) {
-      editor.commands.setContent(docContent.html);
-      lastSavedContent.current = docContent.html;
+    console.log("Loading initial document content:", document.content);
+
+    if (typeof document.content === 'object' && document.content !== null && 'html' in document.content) {
+      editor.commands.setContent(document.content.html);
+      lastSavedContent.current = document.content.html;
       contentInitialized.current = true;
     }
   }, [document?.content, editor]);
