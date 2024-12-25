@@ -1,19 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 import { forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface FileActionButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   icon: LucideIcon;
   disabled?: boolean;
   variant?: "ghost" | "destructive";
+  className?: string; // Add this line to include className
 }
 
 export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonProps>(({ 
   onClick, 
   icon: Icon, 
   disabled, 
-  variant = "ghost" 
+  variant = "ghost",
+  className, // Add this to destructured props
 }, ref) => {
   return (
     <Button
@@ -26,7 +29,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
         if (onClick) onClick(e);
       }}
       disabled={disabled}
-      className="h-8 w-8"
+      className={cn("h-8 w-8", className)} // Use cn to merge classes
     >
       <Icon className="h-4 w-4" />
     </Button>
