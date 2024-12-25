@@ -8,26 +8,19 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
   const { data: document, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
-      if (!documentId || !isAuthenticated) {
-        return null;
-      }
+      if (!documentId || !isAuthenticated) return null;
 
       console.log("Fetching document:", documentId);
       
       const { data, error } = await supabase
         .from("documents")
-        .select("*")
+        .select()
         .eq("id", documentId)
         .is("deleted_at", null)
         .maybeSingle();
 
       if (error) {
-        console.error("Document fetch error:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error("Document fetch error:", error);
         throw error;
       }
 
@@ -52,25 +45,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       console.log("Updating document:", documentId, updates);
 
-      // First verify the document exists and is not deleted
-      const { data: existingDoc, error: fetchError } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("id", documentId)
-        .is("deleted_at", null)
-        .maybeSingle();
-
-      if (fetchError) {
-        console.error("Error verifying document:", fetchError);
-        throw fetchError;
-      }
-      
-      if (!existingDoc) {
-        console.error("Document not found or deleted");
-        throw new Error("Document not found or deleted");
-      }
-
-      // Then perform the update
       const { data, error } = await supabase
         .from("documents")
         .update({
@@ -83,12 +57,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         .single();
 
       if (error) {
-        console.error("Document update error:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error("Document update error:", error);
         throw error;
       }
 

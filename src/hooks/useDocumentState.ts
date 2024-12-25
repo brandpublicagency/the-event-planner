@@ -1,83 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
-import { useDebounce } from "@/hooks/useDebounce";
 import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
 
 export function useDocumentState(documentId: string | null, editor: Editor | null, isAuthenticated: boolean) {
-  const lastSavedContent = useRef<string>("");
-  const contentInitialized = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
-  const [pendingContent, setPendingContent] = useState<DocumentContent | null>(null);
-
-  // Debounce the content updates
-  const debouncedContent = useDebounce(pendingContent, 1000);
-
-  // Handle content updates from editor
-  useEffect(() => {
-    if (!editor || !isAuthenticated || !documentId) return;
-    
-    const handleUpdate = ({ editor }: { editor: Editor }) => {
-      const currentContent = editor.getHTML();
-      if (currentContent === lastSavedContent.current) return;
-
-      const content: DocumentContent = {
-        type: "doc",
-        html: currentContent,
-        text: editor.getText(),
-      };
-
-      setPendingContent(content);
-      lastSavedContent.current = currentContent;
-    };
-
-    editor.on('update', handleUpdate);
-    return () => {
-      editor.off('update', handleUpdate);
-    };
-  }, [documentId, editor, isAuthenticated]);
-
-  // Handle debounced content updates
-  useEffect(() => {
-    if (!debouncedContent || !documentId || !editor) return;
-
-    const lines = debouncedContent.text.split('\n');
-    const firstLine = lines[0] || 'Untitled Document';
-
-    console.log("Auto-saving document:", {
-      title: firstLine,
-      content: debouncedContent
-    });
-
-    updateDocument.mutate({ 
-      title: firstLine,
-      content: debouncedContent 
-    });
-  }, [debouncedContent, documentId, updateDocument, editor]);
-
-  // Reset state when document changes
-  useEffect(() => {
-    if (!editor || editor.isDestroyed) return;
-    
-    editor.commands.clearContent();
-    lastSavedContent.current = "";
-    contentInitialized.current = false;
-    setPendingContent(null);
-  }, [documentId, editor]);
 
   // Load initial document content
   useEffect(() => {
-    if (!editor || !document?.content || editor.isDestroyed || contentInitialized.current) return;
+    if (!editor || !document?.content || editor.isDestroyed) return;
 
-    console.log("Loading initial document content:", document.content);
+    console.log("Loading document content:", document.content);
 
     if (isDocumentContent(document.content)) {
       try {
-        const htmlContent = document.content.html || '';
-        editor.commands.setContent(htmlContent);
-        lastSavedContent.current = htmlContent;
-        contentInitialized.current = true;
+        editor.commands.setContent(document.content.html || '');
       } catch (err) {
         console.error("Error setting document content:", err);
       }
@@ -86,10 +25,38 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
   }, [document?.content, editor]);
 
+  const saveDocument = async () => {
+    if (!editor || !documentId) return;
+
+    const currentContent = editor.getHTML();
+    const lines = editor.getText().split('\n');
+    const firstLine = lines[0] || 'Untitled Document';
+
+    const content: DocumentContent = {
+      type: "doc",
+      html: currentContent,
+      text: editor.getText(),
+    };
+
+    setIsSaving(true);
+    try {
+      await updateDocument.mutateAsync({ 
+        title: firstLine,
+        content: content 
+      });
+      console.log("Document saved successfully");
+    } catch (error) {
+      console.error("Error saving document:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return {
     document,
     isLoading,
     error,
-    pendingContent
+    saveDocument,
+    isSaving
   };
 }

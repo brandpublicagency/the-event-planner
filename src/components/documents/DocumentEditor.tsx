@@ -1,5 +1,6 @@
 import { useEditor } from '@tiptap/react';
-import { Loader2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
@@ -21,7 +22,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     },
   });
 
-  const { document, isLoading, error } = useDocumentState(documentId, editor, isAuthenticated);
+  const { document, isLoading, error, saveDocument, isSaving } = useDocumentState(documentId, editor, isAuthenticated);
 
   if (!documentId) {
     return (
@@ -49,6 +50,20 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   return (
     <div className="h-full flex flex-col p-6">
+      <div className="flex justify-end mb-4">
+        <Button 
+          onClick={saveDocument}
+          disabled={isSaving}
+          className="gap-2"
+        >
+          {isSaving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          {isSaving ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
       <DocumentContent editor={editor} />
     </div>
   );
