@@ -26,7 +26,10 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
   }, [document?.content, editor]);
 
   const saveDocument = async () => {
-    if (!editor || !documentId) return;
+    if (!editor || !documentId) {
+      console.log("Cannot save: editor or documentId is missing");
+      return;
+    }
 
     const currentContent = editor.getHTML();
     const lines = editor.getText().split('\n');

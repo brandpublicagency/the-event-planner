@@ -54,7 +54,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         .eq("id", documentId)
         .is("deleted_at", null)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Document update error:", error);
