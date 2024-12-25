@@ -48,15 +48,21 @@ export default function DocumentActions({ documentId, title, content }: Document
     mutationFn: async () => {
       console.log("Deleting document from actions:", documentId);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('documents')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', documentId)
-        .is("deleted_at", null);
+        .is("deleted_at", null)
+        .select()
+        .maybeSingle();
 
       if (error) {
         console.error("Delete error from actions:", error);
         throw error;
+      }
+
+      if (!data) {
+        throw new Error("Document not found or already deleted");
       }
       
       console.log("Document deleted successfully from actions");
