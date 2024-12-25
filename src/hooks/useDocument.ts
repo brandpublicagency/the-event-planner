@@ -45,6 +45,20 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       console.log("Updating document:", documentId, updates);
 
+      // First fetch the current document to ensure it exists and isn't deleted
+      const { data: existingDoc, error: fetchError } = await supabase
+        .from("documents")
+        .select()
+        .eq("id", documentId)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (fetchError || !existingDoc) {
+        console.error("Document fetch error before update:", fetchError);
+        throw fetchError || new Error("Document not found");
+      }
+
+      // Then perform the update
       const { data, error } = await supabase
         .from("documents")
         .update({
@@ -52,7 +66,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
           updated_at: new Date().toISOString(),
         })
         .eq("id", documentId)
-        .is("deleted_at", null)
         .select()
         .maybeSingle();
 
