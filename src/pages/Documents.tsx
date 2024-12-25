@@ -21,7 +21,7 @@ export default function Documents() {
       console.log("Fetching documents list");
       const { data, error } = await supabase
         .from("documents")
-        .select("*")
+        .select()
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
