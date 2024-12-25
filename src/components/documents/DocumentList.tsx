@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import type { Document } from "@/types/document";
 
 interface DocumentListProps {
@@ -14,32 +13,34 @@ interface DocumentListProps {
 
 export default function DocumentList({ documents, selectedId, onSelect }: DocumentListProps) {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const deleteDocument = useMutation({
     mutationFn: async (documentId: string) => {
+      console.log("Deleting document:", documentId);
+      
       const { error } = await supabase
         .from("documents")
         .update({ deleted_at: new Date().toISOString() })
-        .eq("id", documentId);
+        .eq("id", documentId)
+        .is("deleted_at", null);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Delete error:", error);
+        throw error;
+      }
+      
+      console.log("Document deleted successfully");
+      return documentId;
     },
-    onSuccess: () => {
+    onSuccess: (deletedId) => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
-      toast({
-        title: "Document deleted",
-        description: "The document has been moved to trash",
-      });
+      if (selectedId === deletedId) {
+        navigate('/documents');
+      }
     },
-    onError: (error: { message: string }) => {
-      console.error("Delete error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete document",
-        variant: "destructive",
-      });
+    onError: (error: Error) => {
+      console.error("Delete mutation error:", error);
     },
   });
 

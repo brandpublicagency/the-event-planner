@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, Loader2 } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,15 +46,20 @@ export default function DocumentActions({ documentId, title, content }: Document
 
   const deleteDocument = useMutation({
     mutationFn: async () => {
+      console.log("Deleting document from actions:", documentId);
+      
       const { error } = await supabase
         .from('documents')
-        .update({ 
-          deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', documentId);
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', documentId)
+        .is("deleted_at", null);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Delete error from actions:", error);
+        throw error;
+      }
+      
+      console.log("Document deleted successfully from actions");
       return true;
     },
     onSuccess: () => {
@@ -93,7 +98,11 @@ export default function DocumentActions({ documentId, title, content }: Document
             className="gap-2"
             disabled={deleteDocument.isPending}
           >
-            <Trash2 className="h-4 w-4" />
+            {deleteDocument.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
             {deleteDocument.isPending ? 'Deleting...' : 'Delete'}
           </Button>
         </AlertDialogTrigger>
