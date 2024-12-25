@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
-import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
@@ -9,11 +8,8 @@ import { isDocumentContent } from "@/types/document";
 export function useDocumentState(documentId: string | null, editor: Editor | null, isAuthenticated: boolean) {
   const lastSavedContent = useRef<string>("");
   const contentInitialized = useRef(false);
-  const { toast } = useToast();
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
   const [pendingContent, setPendingContent] = useState<DocumentContent | null>(null);
-  const [lastToastTime, setLastToastTime] = useState(0);
-  const TOAST_COOLDOWN = 2000; // 2 seconds between toasts
 
   // Debounce the content updates
   const debouncedContent = useDebounce(pendingContent, 1000);
@@ -49,25 +45,16 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     const lines = debouncedContent.text.split('\n');
     const firstLine = lines[0] || 'Untitled Document';
 
-    console.log("Saving document with content:", {
+    console.log("Auto-saving document:", {
       title: firstLine,
       content: debouncedContent
     });
-
-    const now = Date.now();
-    if (now - lastToastTime >= TOAST_COOLDOWN) {
-      toast({
-        title: "Saving changes...",
-        description: "Your document is being saved",
-      });
-      setLastToastTime(now);
-    }
 
     updateDocument.mutate({ 
       title: firstLine,
       content: debouncedContent 
     });
-  }, [debouncedContent, documentId, updateDocument, editor, toast, lastToastTime]);
+  }, [debouncedContent, documentId, updateDocument, editor]);
 
   // Reset state when document changes
   useEffect(() => {
@@ -93,16 +80,11 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
         contentInitialized.current = true;
       } catch (err) {
         console.error("Error setting document content:", err);
-        toast({
-          title: "Error loading document",
-          description: "There was an error loading the document content.",
-          variant: "destructive",
-        });
       }
     } else {
       console.warn("Invalid document content format:", document.content);
     }
-  }, [document?.content, editor, toast]);
+  }, [document?.content, editor]);
 
   return {
     document,

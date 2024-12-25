@@ -9,7 +9,6 @@ import { Download, Trash2 } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +30,6 @@ interface DocumentActionsProps {
 
 export default function DocumentActions({ documentId, title, content }: DocumentActionsProps) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleExport = async (format: 'pdf' | 'docx') => {
@@ -41,17 +39,8 @@ export default function DocumentActions({ documentId, title, content }: Document
       } else {
         await exportAsDocx(title, content);
       }
-      toast({
-        title: "Export successful",
-        description: `Document exported as ${format.toUpperCase()}`,
-      });
     } catch (error) {
       console.error('Export error:', error);
-      toast({
-        title: "Export failed",
-        description: "Failed to export document. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -70,19 +59,10 @@ export default function DocumentActions({ documentId, title, content }: Document
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
-      toast({
-        title: "Document deleted",
-        description: "The document has been successfully deleted.",
-      });
       navigate('/documents');
     },
     onError: (error: Error) => {
       console.error('Delete error:', error);
-      toast({
-        title: "Delete failed",
-        description: error.message || "Failed to delete document. Please try again.",
-        variant: "destructive",
-      });
     },
   });
 

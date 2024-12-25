@@ -1,10 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import type { Document } from "@/types/document";
 
 export function useDocument(documentId: string | null, isAuthenticated: boolean) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: document, isLoading, error } = useQuery({
@@ -33,12 +31,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw error;
       }
 
-      if (!data) {
-        console.log("No document found with ID:", documentId);
-        return null;
-      }
-
-      console.log("Document fetched successfully:", data);
+      console.log("Document fetch result:", data);
       return data as Document;
     },
     enabled: !!documentId && isAuthenticated,
@@ -102,21 +95,9 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       console.log("Document updated successfully:", data);
       return data;
     },
-    onError: (error: Error) => {
-      console.error("Save error:", error);
-      toast({
-        title: "Error saving document",
-        description: error.message || "Your changes could not be saved. Please try again.",
-        variant: "destructive",
-      });
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-      toast({
-        title: "Document saved",
-        description: "Your changes have been saved successfully.",
-      });
     },
   });
 
