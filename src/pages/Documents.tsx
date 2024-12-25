@@ -15,35 +15,44 @@ export default function Documents() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: documents, isLoading } = useQuery({
+  const { data: documents, isLoading, error } = useQuery({
     queryKey: ["documents"],
     queryFn: async () => {
       console.log("Fetching documents list");
+      
+      // First verify auth status
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       const { data, error } = await supabase
         .from("documents")
-        .select()
+        .select("*")
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error loading documents:", error);
-        toast({
-          title: "Error loading documents",
-          description: error.message,
-          variant: "destructive",
-        });
         throw error;
       }
 
       console.log("Documents fetched successfully:", data);
       return data as Document[];
     },
+    retry: 1,
+    onError: (error: Error) => {
+      console.error("Query error:", error);
+      toast({
+        title: "Error loading documents",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const createDocument = useMutation({
     mutationFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("User not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       console.log("Creating new document");
       const { data, error } = await supabase
@@ -51,12 +60,16 @@ export default function Documents() {
         .insert({
           title: "Untitled Document",
           content: { type: "doc", html: "", text: "" },
-          user_id: user.user.id,
+          user_id: user.id,
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating document:", error);
+        throw error;
+      }
+      
       console.log("New document created:", data);
       return data as Document;
     },
@@ -85,6 +98,17 @@ export default function Documents() {
   const filteredDocuments = documents?.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold mb-2">Error loading documents</h2>
+          <p className="text-muted-foreground">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full">
