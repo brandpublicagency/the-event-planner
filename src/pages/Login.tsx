@@ -45,7 +45,10 @@ const Login = () => {
             navigate('/profile-settings');
             toast.info('Please complete your profile information');
           } else {
-            navigate('/');
+            // Only redirect if not in password recovery mode
+            if (type !== 'recovery') {
+              navigate('/');
+            }
           }
         }
       } catch (error) {
