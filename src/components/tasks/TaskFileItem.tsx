@@ -25,17 +25,27 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
     mutationFn: async () => {
       console.log('Starting file deletion:', file);
       
-      // First delete from storage
-      const { error: storageError } = await supabase.storage
+      // First check if file exists in storage
+      const { data: fileExists } = await supabase.storage
         .from("task-files")
-        .remove([file.file_path]);
+        .list('', {
+          search: file.file_path
+        });
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw storageError;
+      // If file exists in storage, delete it
+      if (fileExists && fileExists.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
+
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+          throw storageError;
+        }
+        console.log('Storage deletion successful');
+      } else {
+        console.log('File not found in storage, proceeding with database cleanup');
       }
-
-      console.log('Storage deletion successful');
 
       // Then delete from database
       const { error: dbError } = await supabase
