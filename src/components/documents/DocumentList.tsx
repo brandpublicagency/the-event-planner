@@ -29,7 +29,7 @@ export default function DocumentList({ documents, selectedId, onSelect }: Docume
 
       if (error) {
         console.error("Delete error:", error);
-        throw error;
+        throw new Error(`Failed to delete document: ${error.message}`);
       }
 
       if (!data) {

@@ -58,7 +58,7 @@ export default function DocumentActions({ documentId, title, content }: Document
 
       if (error) {
         console.error("Delete error from actions:", error);
-        throw error;
+        throw new Error(`Failed to delete document: ${error.message}`);
       }
 
       if (!data) {
