@@ -13,29 +13,25 @@ export function useFileDownload() {
 
       const { data, error } = await supabase.storage
         .from("task-files")
-        .download(filePath);
+        .createSignedUrl(filePath, 60); // 60 seconds expiry for download
 
       if (error) {
         throw error;
       }
 
-      if (!data) {
-        throw new Error('No data received');
+      if (!data?.signedUrl) {
+        throw new Error('Could not generate download URL');
       }
 
-      // Create a blob URL and trigger download
-      const blobUrl = URL.createObjectURL(data);
+      // Create a temporary link to trigger the download
       const link = document.createElement('a');
-      link.href = blobUrl;
+      link.href = data.signedUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       
       // Cleanup
-      setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-      }, 100);
+      document.body.removeChild(link);
 
       console.log('[Download] File downloaded successfully');
       toast({
