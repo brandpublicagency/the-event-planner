@@ -29,14 +29,19 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // Only fetch tasks if we have a session
+  // Only fetch tasks if we have a session and a user ID
   const { data: tasks = [], isLoading, error } = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", session?.user?.id],
     queryFn: async () => {
+      if (!session?.user?.id) {
+        throw new Error("No authenticated user");
+      }
+
       try {
         const { data, error } = await supabase
           .from("tasks")
           .select("*")
+          .eq('user_id', session.user.id)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -52,7 +57,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    enabled: !!session, // Only run query if session exists
+    enabled: !!session?.user?.id, // Only run query if we have a user ID
   });
 
   const { addTaskMutation, updateTaskMutation, deleteTaskMutation } = useTaskMutations();
