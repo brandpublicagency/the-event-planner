@@ -92,11 +92,7 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
         <FileText className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">{file.file_name}</span>
       </div>
-      <FileActions 
-        file={file} 
-        onDelete={() => deleteMutation.mutate()} 
-        isDeleting={deleteMutation.isPending}
-      />
+      <FileActions file={file} />
     </div>
   );
 };
