@@ -10,31 +10,36 @@ export function useFileDelete() {
     mutationFn: async (file: { id: string; task_id: string; file_path: string }) => {
       console.log('[Delete] Starting file deletion:', file);
 
-      // First delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
+      try {
+        // First delete from storage
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
 
-      if (storageError) {
-        console.error('[Delete] Storage deletion error:', storageError);
-        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+        if (storageError) {
+          console.error('[Delete] Storage deletion error:', storageError);
+          throw new Error(`Failed to delete file from storage: ${storageError.message}`);
+        }
+
+        console.log('[Delete] Storage deletion successful');
+
+        // Then delete from database
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .delete()
+          .eq("id", file.id);
+
+        if (dbError) {
+          console.error('[Delete] Database deletion error:', dbError);
+          throw new Error(`Failed to delete file record: ${dbError.message}`);
+        }
+
+        console.log('[Delete] Database deletion successful');
+        return file.task_id;
+      } catch (error) {
+        console.error('[Delete] Error during deletion:', error);
+        throw error;
       }
-
-      console.log('[Delete] Storage deletion successful');
-
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .match({ id: file.id });
-
-      if (dbError) {
-        console.error('[Delete] Database deletion error:', dbError);
-        throw new Error(`Failed to delete file record: ${dbError.message}`);
-      }
-
-      console.log('[Delete] Database deletion successful');
-      return file.task_id;
     },
     onSuccess: (taskId) => {
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
