@@ -84,8 +84,14 @@ export function useFileOperations(): FileOperations {
         .from("task-files")
         .createSignedUrl(filePath, 60); // URL valid for 1 minute
 
-      if (error) throw error;
-      if (!data?.signedUrl) throw new Error('Could not generate download URL');
+      if (error) {
+        console.error('[Download] Signed URL error:', error);
+        throw error;
+      }
+
+      if (!data?.signedUrl) {
+        throw new Error('Could not generate download URL');
+      }
 
       // Create a temporary link to trigger the download
       const link = document.createElement('a');
@@ -97,7 +103,7 @@ export function useFileOperations(): FileOperations {
 
       toast({
         title: "Success",
-        description: "File downloaded successfully",
+        description: "File download started",
       });
     } catch (error: any) {
       console.error('[Download] Error:', error);
@@ -106,7 +112,6 @@ export function useFileOperations(): FileOperations {
         description: error.message,
         variant: "destructive",
       });
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -121,9 +126,16 @@ export function useFileOperations(): FileOperations {
         .from("task-files")
         .createSignedUrl(filePath, 60); // URL valid for 1 minute
 
-      if (error) throw error;
-      if (!data?.signedUrl) throw new Error('Could not generate view URL');
+      if (error) {
+        console.error('[View] Signed URL error:', error);
+        throw error;
+      }
 
+      if (!data?.signedUrl) {
+        throw new Error('Could not generate view URL');
+      }
+
+      console.log('[View] Opening file:', data.signedUrl);
       window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
       console.error('[View] Error:', error);
@@ -132,7 +144,6 @@ export function useFileOperations(): FileOperations {
         description: error.message,
         variant: "destructive",
       });
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -150,8 +161,11 @@ export function useFileOperations(): FileOperations {
         .eq("id", fileId);
 
       if (dbError) {
+        console.error('[Delete] Database deletion error:', dbError);
         throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
+
+      console.log('[Delete] Database record deleted successfully');
 
       // Then delete from storage
       const { error: storageError } = await supabase.storage
@@ -159,8 +173,12 @@ export function useFileOperations(): FileOperations {
         .remove([filePath]);
 
       if (storageError) {
+        console.error('[Delete] Storage deletion error:', storageError);
+        // Don't throw here as the database record is already deleted
         console.warn(`Warning: Failed to delete file from storage: ${storageError.message}`);
       }
+
+      console.log('[Delete] Storage file deleted successfully');
 
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       toast({
