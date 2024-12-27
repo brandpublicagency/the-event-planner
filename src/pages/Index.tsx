@@ -17,12 +17,9 @@ const Index = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const { tasks } = useTaskContext();
 
-  const { data: events = [], refetch } = useQuery({
+  const { data: events = [], refetch, isLoading: isEventsLoading } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-
       // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -33,13 +30,13 @@ const Index = () => {
           *,
           event_venues (
             venues (
+              id,
               name
             )
           )
         `)
-        .eq('created_by', user.id)
         .gte('event_date', today.toISOString().split('T')[0])
-        .is('completed', false)
+        .eq('completed', false)
         .order('event_date', { ascending: true });
 
       if (error) {
@@ -62,47 +59,8 @@ const Index = () => {
         })) || []
       })) || [];
     },
+    retry: 1,
   });
-
-  const handleDelete = async (eventCode: string) => {
-    try {
-      // First delete related records
-      const deleteRelated = async () => {
-        await Promise.all([
-          supabase.from('wedding_details').delete().eq('event_code', eventCode),
-          supabase.from('corporate_details').delete().eq('event_code', eventCode),
-          supabase.from('menu_selections').delete().eq('event_code', eventCode),
-          supabase.from('event_venues').delete().eq('event_code', eventCode),
-          supabase.from('event_documents').delete().eq('event_code', eventCode),
-        ]);
-      };
-
-      await deleteRelated();
-
-      // Then delete the event itself
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('event_code', eventCode);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
-
-      refetch();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const groupedEvents = groupEventsByMonth(events);
 
   // Filter for upcoming tasks
   const upcomingTasks = tasks.filter(task => !task.completed);
@@ -110,6 +68,8 @@ const Index = () => {
   const handleTaskSelect = (id: string) => {
     navigate(`/tasks?selected=${id}`);
   };
+
+  const groupedEvents = groupEventsByMonth(events);
 
   return (
     <div className="flex flex-col h-screen">
@@ -130,11 +90,16 @@ const Index = () => {
             </Button>
           </div>
           <div className="flex-1 overflow-auto">
-            <EventsTable 
-              groupedEvents={groupedEvents}
-              handleDelete={handleDelete}
-              isDashboard={true}
-            />
+            {isEventsLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground">Loading events...</p>
+              </div>
+            ) : (
+              <EventsTable 
+                groupedEvents={groupedEvents}
+                isDashboard={true}
+              />
+            )}
           </div>
         </div>
 

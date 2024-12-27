@@ -8,16 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Events() {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-
       // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -33,34 +32,29 @@ export default function Events() {
             )
           )
         `)
-        .eq('created_by', user.id)
-        .eq('completed', false) // Only get non-completed events
-        .gte('event_date', today.toISOString().split('T')[0]) // Only get future events
+        .eq('completed', false)
+        .gte('event_date', today.toISOString().split('T')[0])
         .order('event_date', { ascending: true });
 
       if (error) {
         console.error('Error fetching events:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch events",
+          variant: "destructive",
+        });
         throw error;
       }
 
       console.log('Fetched events:', data);
 
-      return data.map(event => ({
+      return data?.map(event => ({
         ...event,
         venues: event.event_venues?.map((ev: any) => ev.venues) || []
       }));
     },
+    retry: 1,
   });
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/login');
-      }
-    };
-    checkAuth();
-  }, [navigate]);
 
   // Group events by month and year
   const groupedEvents = events?.reduce((acc: Record<string, Event[]>, event) => {
@@ -72,6 +66,14 @@ export default function Events() {
     acc[monthYear].push(event);
     return acc;
   }, {}) || {};
+
+  if (error) {
+    toast({
+      title: "Error",
+      description: "Failed to load events. Please try again.",
+      variant: "destructive",
+    });
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -86,7 +88,9 @@ export default function Events() {
           </div>
         </div>
         {isLoading ? (
-          <div>Loading...</div>
+          <div className="flex items-center justify-center h-32">
+            <p className="text-sm text-muted-foreground">Loading events...</p>
+          </div>
         ) : (
           <EventsTable groupedEvents={groupedEvents} />
         )}
