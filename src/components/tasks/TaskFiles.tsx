@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { TaskFileUpload } from "./TaskFileUpload";
+import { TaskFileItem } from "./TaskFileItem";
 
 interface TaskFilesProps {
   taskId: string;
@@ -50,17 +52,16 @@ export function TaskFiles({ taskId }: TaskFilesProps) {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold mb-2">Task Files</h2>
-      <ul>
-        {files.map((file) => (
-          <li key={file.id} className="mb-2">
-            <a href={file.file_path} className="text-blue-600 hover:underline">
-              {file.file_name}
-            </a>
-          </li>
+    <div className="space-y-4">
+      <TaskFileUpload taskId={taskId} />
+      <div className="space-y-2">
+        {files?.map((file) => (
+          <TaskFileItem key={file.id} file={file} />
         ))}
-      </ul>
+        {(!files || files.length === 0) && (
+          <p className="text-sm text-muted-foreground">No files uploaded yet</p>
+        )}
+      </div>
     </div>
   );
 }
