@@ -28,7 +28,7 @@ export function useFileOperations(): FileOperations {
       // Generate a unique file path
       const timestamp = Date.now();
       const fileExt = file.name.split('.').pop();
-      const filePath = `${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${taskId}/${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       // Upload file to storage
       const { error: uploadError } = await supabase.storage
@@ -80,17 +80,16 @@ export function useFileOperations(): FileOperations {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
-      const { data } = supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60); // URL valid for 1 minute
 
-      if (!data?.publicUrl) {
-        throw new Error('Could not generate download URL');
-      }
+      if (error) throw error;
+      if (!data?.signedUrl) throw new Error('Could not generate download URL');
 
       // Create a temporary link to trigger the download
       const link = document.createElement('a');
-      link.href = data.publicUrl;
+      link.href = data.signedUrl;
       link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
@@ -118,15 +117,14 @@ export function useFileOperations(): FileOperations {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      const { data } = supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60); // URL valid for 1 minute
 
-      if (!data?.publicUrl) {
-        throw new Error('Could not generate view URL');
-      }
+      if (error) throw error;
+      if (!data?.signedUrl) throw new Error('Could not generate view URL');
 
-      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
       console.error('[View] Error:', error);
       toast({
