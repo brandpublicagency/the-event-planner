@@ -8,7 +8,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export const getNextEvent = async () => {
   try {
     console.log('Fetching next event');
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
     const { data: events, error } = await supabase
       .from('events')
@@ -23,7 +24,7 @@ export const getNextEvent = async () => {
           )
         )
       `)
-      .gte('event_date', today)
+      .gte('event_date', today.toISOString())
       .is('deleted_at', null)
       .is('completed', false)
       .order('event_date', { ascending: true })
@@ -47,20 +48,25 @@ export const getNextEvent = async () => {
       .filter(Boolean)
       .join(', ') || 'No venue specified';
 
+    let clientDetails = '';
+    if (event.wedding_details?.bride_name || event.wedding_details?.groom_name) {
+      clientDetails = `\nClient: Wedding of ${event.wedding_details.bride_name || 'Bride'} & ${event.wedding_details.groom_name || 'Groom'}`;
+    } else if (event.corporate_details?.company_name) {
+      clientDetails = `\nClient: ${event.corporate_details.company_name}`;
+    }
+
     const message = `The next upcoming event is "${event.name}". Here are the details:
 
-- Type: ${event.event_type}
-- Date: ${event.event_date ? format(new Date(event.event_date), 'MMMM d, yyyy') : 'Date not set'}
-- Time: ${event.start_time || 'Not set'}${event.end_time ? ` - ${event.end_time}` : ''}
-- Event Code: ${event.event_code}
-- Status: Upcoming
-- Venue(s): ${venues}
-- Pax: ${event.pax || 'Not specified'}
-${event.menu_selections ? `- Menu Details:
+Type: ${event.event_type}
+Date: ${event.event_date ? format(new Date(event.event_date), 'MMMM d, yyyy') : 'Date not set'}
+Time: ${event.start_time || 'Not set'}${event.end_time ? ` - ${event.end_time}` : ''}
+Venue(s): ${venues}
+Pax: ${event.pax || 'Not specified'}${clientDetails}
+${event.menu_selections ? `\nMenu Details:
    - Custom Menu: ${event.menu_selections.is_custom ? 'Yes' : 'No'}
    - Starter: ${event.menu_selections.starter_type || 'Not selected'}
    - Main Course: ${event.menu_selections.main_course_type || 'Not selected'}
-   - Dessert: ${event.menu_selections.dessert_type || 'Not selected'}` : ''}
+   - Dessert: ${event.menu_selections.dessert_type || 'Not selected'}` : '\nNo menu details available yet'}
 
 Please let me know if you need more information or other assistance.`;
 

@@ -5,8 +5,18 @@ import type { MenuSelections } from "@/types/menuSelections";
 export const prepareEventsContext = (events: Event[] = []) => {
   if (!events?.length) return "";
   
-  // Additional safety check to filter out any deleted events
-  const activeEvents = events.filter(event => !event.deleted_at);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+  
+  // Filter out deleted and past events
+  const activeEvents = events.filter(event => {
+    if (event.deleted_at) return false;
+    if (!event.event_date) return true; // Keep events with no date set
+    const eventDate = new Date(event.event_date);
+    return eventDate >= today;
+  });
+  
+  if (!activeEvents.length) return "No upcoming events found.";
   
   return activeEvents.map(event => {
     const menuSelections = event.menu_selections as MenuSelections;
