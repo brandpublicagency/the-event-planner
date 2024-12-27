@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { MagicLinkAuth } from "@/components/auth/MagicLinkAuth";
+import { PasswordAuth } from "@/components/auth/PasswordAuth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -98,10 +100,25 @@ const Login = () => {
           </p>
         </div>
 
-        <MagicLinkAuth 
-          supabaseClient={supabase}
-          defaultEmail={email}
-        />
+        <Tabs defaultValue="magic-link" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="magic-link">Magic Link</TabsTrigger>
+            <TabsTrigger value="password">Password</TabsTrigger>
+          </TabsList>
+          <TabsContent value="magic-link">
+            <MagicLinkAuth 
+              supabaseClient={supabase}
+              defaultEmail={email}
+            />
+          </TabsContent>
+          <TabsContent value="password">
+            <PasswordAuth 
+              supabaseClient={supabase}
+              defaultEmail={email}
+              redirectTo={window.location.origin}
+            />
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
