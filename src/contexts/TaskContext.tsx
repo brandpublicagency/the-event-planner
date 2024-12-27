@@ -21,8 +21,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         const { data, error } = await supabase
           .from('tasks')
           .select('*')
-          .order('created_at', { ascending: false })
-          .timeout(10000); // 10 second timeout
+          .order('created_at', { ascending: false });
 
         if (error) {
           console.error('Task fetch error:', error);
@@ -51,8 +50,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       .from('tasks')
       .insert([{ title, user_id: session.user.id }])
       .select()
-      .single()
-      .timeout(10000);
+      .single();
 
     if (error) throw error;
     
@@ -64,8 +62,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .update(updates)
-      .eq('id', id)
-      .timeout(10000);
+      .eq('id', id);
 
     if (error) throw error;
     
@@ -76,8 +73,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .delete()
-      .eq('id', id)
-      .timeout(10000);
+      .eq('id', id);
 
     if (error) throw error;
     
@@ -88,8 +84,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .update({ completed })
-      .eq('id', id)
-      .timeout(10000);
+      .eq('id', id);
 
     if (error) throw error;
     

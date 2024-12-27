@@ -24,8 +24,7 @@ export function TaskFiles({ taskId }: { taskId: string }) {
         .from("task_files")
         .select("*")
         .eq("task_id", taskId)
-        .order("created_at", { ascending: false })
-        .timeout(10000); // 10 second timeout
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error('Error fetching files:', error);
