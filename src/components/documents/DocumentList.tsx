@@ -19,24 +19,17 @@ export default function DocumentList({ documents, selectedId, onSelect }: Docume
     mutationFn: async (documentId: string) => {
       console.log("Deleting document:", documentId);
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("documents")
         .update({ deleted_at: new Date().toISOString() })
         .eq("id", documentId)
-        .is("deleted_at", null)
-        .select()
-        .maybeSingle();
+        .is("deleted_at", null);
 
       if (error) {
         console.error("Delete error:", error);
         throw new Error(`Failed to delete document: ${error.message}`);
       }
-
-      if (!data) {
-        throw new Error("Document not found or already deleted");
-      }
       
-      console.log("Document deleted successfully");
       return documentId;
     },
     onSuccess: (deletedId) => {
