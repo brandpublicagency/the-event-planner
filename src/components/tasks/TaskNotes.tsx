@@ -1,96 +1,62 @@
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { useToast } from "@/components/ui/use-toast";
-import { NotesSection } from "./notes/NotesSection";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Trash2 } from "lucide-react";
 
-export function TaskNotes({ taskId }: { taskId: string }) {
-  const { toast } = useToast();
+interface TaskNotesProps {
+  taskId: string;
+  notes?: string[];
+}
+
+export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
   const [newNote, setNewNote] = useState("");
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editingText, setEditingText] = useState("");
-  const { tasks, updateTask } = useTaskContext();
-  const task = tasks.find((t) => t.id === taskId);
+  const { updateTask } = useTaskContext();
 
   const handleAddNote = async () => {
-    if (!newNote.trim() || !task) return;
-    const updatedNotes = [...(task.notes || []), newNote];
-    try {
-      await updateTask(taskId, { notes: updatedNotes });
-      setNewNote("");
-    } catch (error) {
-      toast({
-        title: "Error adding note",
-        description: "Failed to add note. Please try again.",
-        variant: "destructive",
-      });
-    }
+    if (!newNote.trim()) return;
+    
+    const updatedNotes = [...(notes || []), newNote];
+    await updateTask(taskId, { notes: updatedNotes });
+    setNewNote("");
   };
 
   const handleRemoveNote = async (index: number) => {
-    if (!task) return;
-    const updatedNotes = task.notes?.filter((_, i) => i !== index);
-    try {
-      await updateTask(taskId, { notes: updatedNotes });
-    } catch (error) {
-      toast({
-        title: "Error removing note",
-        description: "Failed to remove note. Please try again.",
-        variant: "destructive",
-      });
-    }
+    const updatedNotes = notes.filter((_, i) => i !== index);
+    await updateTask(taskId, { notes: updatedNotes });
   };
-
-  const handleEditNote = async (index: number) => {
-    if (!task || !editingText.trim()) return;
-    const updatedNotes = [...(task.notes || [])];
-    updatedNotes[index] = editingText;
-    try {
-      await updateTask(taskId, { notes: updatedNotes });
-      setEditingIndex(null);
-      setEditingText("");
-    } catch (error) {
-      toast({
-        title: "Error updating note",
-        description: "Failed to update note. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTodosChange = async (todos: string[]) => {
-    if (!task) return;
-    try {
-      await updateTask(taskId, { todos });
-    } catch (error) {
-      toast({
-        title: "Error updating todos",
-        description: "Failed to update todo list. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  if (!task) return null;
 
   return (
-    <NotesSection
-      taskId={taskId}
-      notes={task.notes || []}
-      todos={task.todos || []}
-      newNote={newNote}
-      editingIndex={editingIndex}
-      editingText={editingText}
-      onNewNoteChange={setNewNote}
-      onAddNote={handleAddNote}
-      onEditingTextChange={setEditingText}
-      onEditNote={handleEditNote}
-      onEditStart={(index, note) => {
-        setEditingIndex(index);
-        setEditingText(note);
-      }}
-      onEditCancel={() => setEditingIndex(null)}
-      onDeleteNote={handleRemoveNote}
-      onTodosChange={handleTodosChange}
-    />
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          value={newNote}
+          onChange={(e) => setNewNote(e.target.value)}
+          placeholder="Add a note..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddNote();
+            }
+          }}
+        />
+        <Button onClick={handleAddNote}>Add</Button>
+      </div>
+      
+      <div className="space-y-2">
+        {notes.map((note, index) => (
+          <div key={index} className="flex items-center justify-between gap-2 p-2 bg-accent rounded-md">
+            <span className="text-sm">{note}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => handleRemoveNote(index)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

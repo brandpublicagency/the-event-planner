@@ -44,7 +44,11 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
     const { error } = await supabase
       .from("tasks")
-      .insert([{ title, user_id: session.session.user.id }]);
+      .insert([{ 
+        title, 
+        user_id: session.session.user.id,
+        status: 'todo'
+      }]);
 
     if (error) throw error;
     
