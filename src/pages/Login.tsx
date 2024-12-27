@@ -3,17 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PasswordAuth } from "@/components/auth/PasswordAuth";
 import { MagicLinkAuth } from "@/components/auth/MagicLinkAuth";
-import { ResetPasswordAuth } from "@/components/auth/ResetPasswordAuth";
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
-  const [view, setView] = useState<'sign_in' | 'magic_link' | 'forgotten_password'>('sign_in');
   const [redirectUrl, setRedirectUrl] = useState('');
 
   useEffect(() => {
@@ -25,15 +21,6 @@ const Login = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        // Check if this is a password reset flow
-        const type = searchParams.get('type');
-        if (type === 'recovery') {
-          // Don't redirect, let the user reset their password
-          setView('forgotten_password');
-          setIsLoading(false);
-          return;
-        }
-
         if (session?.user) {
           const { data: profile } = await supabase
             .from('profiles')
@@ -45,10 +32,7 @@ const Login = () => {
             navigate('/profile-settings');
             toast.info('Please complete your profile information');
           } else {
-            // Only redirect if not in password recovery mode
-            if (type !== 'recovery') {
-              navigate('/');
-            }
+            navigate('/');
           }
         }
       } catch (error) {
@@ -64,32 +48,23 @@ const Login = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       
-      if (event === 'PASSWORD_RECOVERY') {
-        setView('forgotten_password');
-        toast.info('Please set your new password');
-        return;
-      }
-
       if (event === 'SIGNED_IN' && session) {
-        // Only redirect if not in password recovery mode
-        if (searchParams.get('type') !== 'recovery') {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('full_name, mobile')
-              .eq('id', session.user.id)
-              .single();
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, mobile')
+            .eq('id', session.user.id)
+            .single();
 
-            if (!profile?.full_name) {
-              navigate('/profile-settings');
-              toast.info('Please complete your profile information');
-            } else {
-              navigate('/');
-            }
-          } catch (error) {
-            console.error('Profile fetch error:', error);
-            toast.error('Error loading profile');
+          if (!profile?.full_name) {
+            navigate('/profile-settings');
+            toast.info('Please complete your profile information');
+          } else {
+            navigate('/');
           }
+        } catch (error) {
+          console.error('Profile fetch error:', error);
+          toast.error('Error loading profile');
         }
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
@@ -128,34 +103,11 @@ const Login = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="sign_in" value={view} className="w-full" onValueChange={(value) => setView(value as 'sign_in' | 'magic_link' | 'forgotten_password')}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="sign_in">Password</TabsTrigger>
-            <TabsTrigger value="magic_link">Magic Link</TabsTrigger>
-            <TabsTrigger value="forgotten_password">Reset Password</TabsTrigger>
-          </TabsList>
-          <TabsContent value="sign_in">
-            <PasswordAuth 
-              supabaseClient={supabase}
-              redirectTo={redirectUrl}
-              defaultEmail={email}
-            />
-          </TabsContent>
-          <TabsContent value="magic_link">
-            <MagicLinkAuth 
-              supabaseClient={supabase}
-              redirectTo={redirectUrl}
-              defaultEmail={email}
-            />
-          </TabsContent>
-          <TabsContent value="forgotten_password">
-            <ResetPasswordAuth 
-              supabaseClient={supabase}
-              redirectTo={redirectUrl}
-              defaultEmail={email}
-            />
-          </TabsContent>
-        </Tabs>
+        <MagicLinkAuth 
+          supabaseClient={supabase}
+          redirectTo={redirectUrl}
+          defaultEmail={email}
+        />
       </Card>
     </div>
   );
