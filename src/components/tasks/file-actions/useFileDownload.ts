@@ -9,7 +9,7 @@ export function useFileDownload() {
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
       setIsLoading(true);
-      console.log('[Download] Getting file URL for:', filePath);
+      console.log('[Download] Getting file for:', filePath);
       
       const { data, error } = await supabase.storage
         .from("task-files")
@@ -37,7 +37,7 @@ export function useFileDownload() {
       // Clean up the blob URL
       URL.revokeObjectURL(url);
 
-      console.log('[Download] File download initiated');
+      console.log('[Download] File download completed');
     } catch (error: any) {
       console.error('[Download] Error:', error);
       toast({

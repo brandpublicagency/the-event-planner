@@ -13,29 +13,19 @@ export function useFileDelete() {
     
     try {
       setIsDeleting(true);
-      console.log('Starting file deletion:', file);
-      
-      // First check if file exists in storage
-      const { data: fileExists } = await supabase.storage
+      console.log('[Delete] Starting file deletion:', file);
+
+      // Delete from storage first
+      const { error: storageError } = await supabase.storage
         .from("task-files")
-        .list('', {
-          search: file.file_path
-        });
+        .remove([file.file_path]);
 
-      // If file exists in storage, delete it
-      if (fileExists && fileExists.length > 0) {
-        const { error: storageError } = await supabase.storage
-          .from("task-files")
-          .remove([file.file_path]);
-
-        if (storageError) {
-          console.error('Storage deletion error:', storageError);
-          throw storageError;
-        }
-        console.log('Storage deletion successful');
-      } else {
-        console.log('File not found in storage, proceeding with database cleanup');
+      if (storageError) {
+        console.error('[Delete] Storage deletion error:', storageError);
+        throw storageError;
       }
+
+      console.log('[Delete] Storage deletion successful');
 
       // Then delete from database
       const { error: dbError } = await supabase
@@ -44,11 +34,11 @@ export function useFileDelete() {
         .eq("id", file.id);
 
       if (dbError) {
-        console.error('Database deletion error:', dbError);
+        console.error('[Delete] Database deletion error:', dbError);
         throw dbError;
       }
 
-      console.log('Database deletion successful');
+      console.log('[Delete] Database deletion successful');
 
       // Invalidate queries to refresh the file list
       await queryClient.invalidateQueries({ 
@@ -60,7 +50,7 @@ export function useFileDelete() {
         description: "File deleted successfully",
       });
     } catch (error: any) {
-      console.error('Delete error:', error);
+      console.error('[Delete] Error:', error);
       toast({
         title: "Error deleting file",
         description: error.message,
@@ -71,5 +61,8 @@ export function useFileDelete() {
     }
   };
 
-  return { handleDelete, isDeleting };
+  return { 
+    handleDelete, 
+    isDeleting 
+  };
 }
