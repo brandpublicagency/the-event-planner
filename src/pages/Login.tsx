@@ -10,13 +10,8 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
-  const [redirectUrl, setRedirectUrl] = useState('');
 
   useEffect(() => {
-    // Set up the redirect URL with the full origin
-    const baseUrl = window.location.origin;
-    setRedirectUrl(`${baseUrl}/`);
-
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -105,7 +100,6 @@ const Login = () => {
 
         <MagicLinkAuth 
           supabaseClient={supabase}
-          redirectTo={redirectUrl}
           defaultEmail={email}
         />
       </Card>

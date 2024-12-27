@@ -7,32 +7,16 @@ import { toast } from "sonner";
 interface MagicLinkAuthProps {
   supabaseClient: SupabaseClient;
   defaultEmail?: string;
-  redirectTo: string;
 }
 
-export const MagicLinkAuth = ({ supabaseClient, defaultEmail, redirectTo }: MagicLinkAuthProps) => {
-  const [formattedRedirectTo, setFormattedRedirectTo] = useState(redirectTo);
+export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthProps) => {
+  const [redirectTo, setRedirectTo] = useState("");
 
   useEffect(() => {
-    // Ensure the redirect URL is properly encoded and includes the protocol
-    const formatUrl = (url: string) => {
-      try {
-        // If URL is relative, prepend the current origin
-        if (!url.startsWith('http')) {
-          url = `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
-        }
-        const urlObject = new URL(url);
-        return urlObject.toString();
-      } catch (error) {
-        console.error('Error formatting URL:', error);
-        toast.error('Invalid redirect URL configuration');
-        // Fallback to the current origin
-        return window.location.origin;
-      }
-    };
-
-    setFormattedRedirectTo(formatUrl(redirectTo));
-  }, [redirectTo]);
+    // Use the current window location as the redirect URL
+    const currentOrigin = window.location.origin;
+    setRedirectTo(currentOrigin);
+  }, []);
 
   return (
     <Auth
@@ -52,7 +36,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail, redirectTo }: Magi
       theme="light"
       showLinks={false}
       providers={[]}
-      redirectTo={formattedRedirectTo}
+      redirectTo={redirectTo}
       {...(defaultEmail ? { defaultEmail } : {})}
       localization={{
         variables: {
