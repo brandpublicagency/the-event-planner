@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useFileDelete() {
@@ -11,19 +11,7 @@ export function useFileDelete() {
       console.log('[Delete] Starting file deletion:', file);
 
       try {
-        // First delete from storage
-        const { error: storageError } = await supabase.storage
-          .from("task-files")
-          .remove([file.file_path]);
-
-        if (storageError) {
-          console.error('[Delete] Storage deletion error:', storageError);
-          throw new Error(`Failed to delete file from storage: ${storageError.message}`);
-        }
-
-        console.log('[Delete] Storage deletion successful');
-
-        // Then delete from database
+        // First delete from database to maintain referential integrity
         const { error: dbError } = await supabase
           .from("task_files")
           .delete()
@@ -35,6 +23,19 @@ export function useFileDelete() {
         }
 
         console.log('[Delete] Database deletion successful');
+
+        // Then delete from storage
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
+
+        if (storageError) {
+          console.error('[Delete] Storage deletion error:', storageError);
+          // Don't throw here as the database record is already deleted
+          console.warn(`Warning: Failed to delete file from storage: ${storageError.message}`);
+        }
+
+        console.log('[Delete] Storage deletion successful');
         return file.task_id;
       } catch (error) {
         console.error('[Delete] Error during deletion:', error);

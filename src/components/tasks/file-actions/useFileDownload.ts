@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export function useFileDownload() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,17 +11,17 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
-      const { data: publicUrl } = supabase.storage
+      const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
 
-      if (!publicUrl?.publicUrl) {
+      if (!data?.publicUrl) {
         throw new Error('Could not generate download URL');
       }
 
       // Create a temporary link to trigger the download
       const link = document.createElement('a');
-      link.href = publicUrl.publicUrl;
+      link.href = data.publicUrl;
       link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
