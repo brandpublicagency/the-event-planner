@@ -3,6 +3,7 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface TaskNotesProps {
   taskId: string;
@@ -16,14 +17,26 @@ export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
     
-    const updatedNotes = [...(notes || []), newNote];
-    await updateTask(taskId, { notes: updatedNotes });
-    setNewNote("");
+    try {
+      const updatedNotes = [...(notes || []), newNote];
+      await updateTask(taskId, { notes: updatedNotes });
+      setNewNote("");
+      toast.success("Note added successfully");
+    } catch (error) {
+      console.error("Error adding note:", error);
+      toast.error("Failed to add note");
+    }
   };
 
   const handleRemoveNote = async (index: number) => {
-    const updatedNotes = notes.filter((_, i) => i !== index);
-    await updateTask(taskId, { notes: updatedNotes });
+    try {
+      const updatedNotes = notes.filter((_, i) => i !== index);
+      await updateTask(taskId, { notes: updatedNotes });
+      toast.success("Note removed successfully");
+    } catch (error) {
+      console.error("Error removing note:", error);
+      toast.error("Failed to remove note");
+    }
   };
 
   return (
@@ -50,19 +63,25 @@ export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
       </div>
       
       <div className="space-y-2">
-        {notes.map((note, index) => (
-          <div key={index} className="flex items-center justify-between gap-2 p-2 bg-accent rounded-md">
-            <span className="text-sm">{note}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleRemoveNote(index)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
+        {Array.isArray(notes) && notes.length > 0 ? (
+          notes.map((note, index) => (
+            <div key={index} className="flex items-center justify-between gap-2 p-2 bg-accent rounded-md">
+              <span className="text-sm">{note}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleRemoveNote(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-2">
+            No notes added yet
+          </p>
+        )}
       </div>
     </div>
   );
