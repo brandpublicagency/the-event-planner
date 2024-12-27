@@ -2,7 +2,6 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 interface MagicLinkAuthProps {
   supabaseClient: SupabaseClient;
