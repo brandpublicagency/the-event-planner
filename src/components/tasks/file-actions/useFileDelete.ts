@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteFile } from "@/utils/fileOperations";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useFileDelete() {
   const { toast } = useToast();
@@ -8,18 +8,36 @@ export function useFileDelete() {
 
   const deleteMutation = useMutation({
     mutationFn: async (file: { id: string; task_id: string; file_path: string }) => {
-      try {
-        await deleteFile(file.file_path, file.id, file.task_id);
-        return file.task_id;
-      } catch (error) {
-        console.error('[Delete] Error:', error);
-        throw error;
+      console.log('[Delete] Starting file deletion:', file);
+
+      // First delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([file.file_path]);
+
+      if (storageError) {
+        console.error('[Delete] Storage deletion error:', storageError);
+        throw storageError;
       }
+
+      console.log('[Delete] Storage deletion successful');
+
+      // Then delete from database
+      const { error: dbError } = await supabase
+        .from("task_files")
+        .delete()
+        .eq("id", file.id);
+
+      if (dbError) {
+        console.error('[Delete] Database deletion error:', dbError);
+        throw dbError;
+      }
+
+      console.log('[Delete] Database deletion successful');
+      return file.task_id;
     },
     onSuccess: (taskId) => {
-      queryClient.invalidateQueries({ 
-        queryKey: ["task-files", taskId] 
-      });
+      queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       toast({
         title: "Success",
         description: "File deleted successfully",

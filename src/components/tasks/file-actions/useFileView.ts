@@ -13,7 +13,7 @@ export function useFileView() {
       
       const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
 
       if (error) {
         console.error('[View] Error getting signed URL:', error);
