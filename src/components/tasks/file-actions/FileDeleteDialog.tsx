@@ -19,12 +19,6 @@ interface FileDeleteDialogProps {
 }
 
 export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteDialogProps) {
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDelete();
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -45,7 +39,10 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
         <AlertDialogFooter>
           <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete

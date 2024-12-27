@@ -20,44 +20,26 @@ export function FileActions({ file }: FileActionsProps) {
   const { handleView, isLoading: isViewing } = useFileView();
   const { handleDelete, isDeleting } = useFileDelete();
 
-  const isDisabled = isDeleting || isDownloading || isViewing;
-
   return (
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-      {isViewing ? (
-        <FileActionButton
-          icon={Loader2}
-          disabled={true}
-          className="animate-spin"
-          variant="ghost"
-        />
-      ) : (
-        <FileActionButton
-          icon={Eye}
-          onClick={() => handleView(file.file_path)}
-          disabled={isDisabled}
-          variant="ghost"
-        />
-      )}
-      {isDownloading ? (
-        <FileActionButton
-          icon={Loader2}
-          disabled={true}
-          className="animate-spin"
-          variant="ghost"
-        />
-      ) : (
-        <FileActionButton
-          icon={Download}
-          onClick={() => handleDownload(file.file_path, file.file_name)}
-          disabled={isDisabled}
-          variant="ghost"
-        />
-      )}
+      <FileActionButton
+        icon={isViewing ? Loader2 : Eye}
+        onClick={() => handleView(file.file_path)}
+        disabled={isViewing || isDownloading || isDeleting}
+        className={isViewing ? "animate-spin" : ""}
+        variant="ghost"
+      />
+      <FileActionButton
+        icon={isDownloading ? Loader2 : Download}
+        onClick={() => handleDownload(file.file_path, file.file_name)}
+        disabled={isViewing || isDownloading || isDeleting}
+        className={isDownloading ? "animate-spin" : ""}
+        variant="ghost"
+      />
       <FileDeleteDialog
         isDeleting={isDeleting}
         onDelete={() => handleDelete(file)}
-        disabled={isDisabled}
+        disabled={isViewing || isDownloading || isDeleting}
       />
     </div>
   );
