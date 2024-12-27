@@ -2,15 +2,17 @@ import { createContext, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Task } from "./task/taskTypes";
+import { Task, TaskUpdate } from "./task/taskTypes";
 
 interface TaskContextType {
   tasks: Task[] | undefined;
   isLoading: boolean;
   error: Error | null;
+  addTask: (title: string) => Promise<void>;
   createTask: (newTask: Partial<Task>) => void;
   updateTask: (task: Partial<Task> & { id: string }) => void;
   deleteTask: (id: string) => void;
+  toggleTask: (id: string, completed: boolean) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -45,6 +47,21 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
+  const addTask = async (title: string) => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      throw new Error("Authentication required");
+    }
+
+    const { error } = await supabase
+      .from("tasks")
+      .insert([{ title, user_id: session.session.user.id }]);
+
+    if (error) throw error;
+    
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  };
+
   const createTask = useMutation({
     mutationFn: async (newTask: Partial<Task>) => {
       const { data: session } = await supabase.auth.getSession();
@@ -54,7 +71,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
       const { data, error } = await supabase
         .from("tasks")
-        .insert([{ ...newTask, user_id: session.session.user.id }])
+        .insert({ ...newTask, user_id: session.session.user.id })
         .select()
         .single();
 
@@ -144,12 +161,26 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
+  const toggleTask = async (id: string, completed: boolean) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed })
+      .eq("id", id);
+
+    if (error) throw error;
+    
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  };
+
   const value = {
     tasks,
     isLoading,
+    error,
+    addTask,
     createTask: createTask.mutate,
     updateTask: updateTask.mutate,
     deleteTask: deleteTask.mutate,
+    toggleTask,
   };
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
