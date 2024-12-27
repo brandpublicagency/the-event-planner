@@ -9,8 +9,8 @@ export function useFileDownload() {
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
       setIsLoading(true);
-      console.log('[Download] Getting file for:', filePath);
-      
+      console.log('[Download] Getting file:', filePath);
+
       const { data, error } = await supabase.storage
         .from("task-files")
         .download(filePath);
@@ -20,24 +20,24 @@ export function useFileDownload() {
       }
 
       if (!data) {
-        throw new Error('Could not download file');
+        throw new Error('No data received');
       }
 
-      // Create a blob URL for the file
-      const url = URL.createObjectURL(data);
-
-      // Create a temporary link element for downloading
+      // Create a blob URL and trigger download
+      const blobUrl = URL.createObjectURL(data);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = blobUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
 
-      // Clean up the blob URL
-      URL.revokeObjectURL(url);
-
-      console.log('[Download] File download completed');
+      console.log('[Download] File downloaded successfully');
+      toast({
+        title: "Success",
+        description: "File downloaded successfully",
+      });
     } catch (error: any) {
       console.error('[Download] Error:', error);
       toast({

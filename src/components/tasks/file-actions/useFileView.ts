@@ -11,7 +11,6 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      // Use getPublicUrl instead of createSignedUrl to avoid token expiration
       const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
@@ -21,7 +20,7 @@ export function useFileView() {
       }
 
       console.log('[View] Opening file:', data.publicUrl);
-      window.open(data.publicUrl, '_blank');
+      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
       
     } catch (error: any) {
       console.error('[View] Error:', error);
