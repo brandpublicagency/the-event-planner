@@ -1,79 +1,66 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import { TaskFileUpload } from "./TaskFileUpload";
-import { TaskFileItem } from "./TaskFileItem";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
-interface TaskFile {
-  id: string;
-  task_id: string;
-  file_name: string;
-  file_path: string;
-  content_type: string;
+interface TaskFilesProps {
+  taskId: string;
 }
 
-export function TaskFiles({ taskId }: { taskId: string }) {
-  const { data: files = [], isLoading, error, refetch } = useQuery({
+export function TaskFiles({ taskId }: TaskFilesProps) {
+  const { data: files, isLoading, error } = useQuery({
     queryKey: ["task-files", taskId],
     queryFn: async () => {
-      console.log('Fetching files for task:', taskId);
+      console.log("Fetching files for task:", taskId);
       
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error("Authentication required");
+      }
+
       const { data, error } = await supabase
         .from("task_files")
-        .select("*")
-        .eq("task_id", taskId)
-        .order("created_at", { ascending: false });
+        .select()
+        .eq("task_id", taskId);
 
       if (error) {
-        console.error('Error fetching files:', error);
+        console.error("Error fetching task files:", error);
         throw error;
       }
 
-      console.log('Files fetched:', data);
-      return data as TaskFile[];
+      return data;
     },
-    enabled: !!taskId,
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
-    refetchOnWindowFocus: false
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load files. Please try again later.
-        </AlertDescription>
-      </Alert>
-    );
-  }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-destructive p-4">
+        Error loading files: {error.message}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <TaskFileUpload taskId={taskId} onSuccess={refetch} />
-      <div className="space-y-2">
+    <div className="p-4">
+      <h2 className="text-lg font-semibold mb-2">Task Files</h2>
+      <ul>
         {files.map((file) => (
-          <TaskFileItem key={file.id} file={file} onDelete={refetch} />
+          <li key={file.id} className="mb-2">
+            <a href={file.file_path} className="text-blue-600 hover:underline">
+              {file.file_name}
+            </a>
+          </li>
         ))}
-        {files.length === 0 && (
-          <p className="text-center text-sm text-muted-foreground py-4">
-            No files uploaded yet
-          </p>
-        )}
-      </div>
+      </ul>
     </div>
   );
 }
