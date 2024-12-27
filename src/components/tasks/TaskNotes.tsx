@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
 interface TaskNotesProps {
   taskId: string;
@@ -39,7 +39,14 @@ export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
             }
           }}
         />
-        <Button onClick={handleAddNote}>Add</Button>
+        <Button 
+          onClick={handleAddNote}
+          disabled={!newNote.trim()}
+          size="icon"
+          className="h-8 w-8 rounded-full"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
       
       <div className="space-y-2">
