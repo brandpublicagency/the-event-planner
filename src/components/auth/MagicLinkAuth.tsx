@@ -11,12 +11,45 @@ interface MagicLinkAuthProps {
 
 export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthProps) => {
   const [redirectTo, setRedirectTo] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Use the current window location as the redirect URL
     const currentOrigin = window.location.origin;
     setRedirectTo(currentOrigin);
   }, []);
+
+  const handleSignIn = async (email: string) => {
+    if (isSubmitting) return;
+    
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectTo,
+        },
+      });
+      
+      if (error) {
+        if (error.message.includes('rate_limit')) {
+          toast.error('Please wait a moment before requesting another magic link');
+        } else {
+          toast.error('Error sending magic link. Please try again.');
+        }
+        console.error('Auth error:', error);
+      } else {
+        toast.success('Check your email for the magic link');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast.error('Error sending magic link. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+      // Add a delay before allowing another submission
+      setTimeout(() => setIsSubmitting(false), 15000); // 15 seconds delay
+    }
+  };
 
   return (
     <Auth
@@ -49,30 +82,8 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
           }
         }
       }}
-      onSubmit={async (formData) => {
-        try {
-          const { error } = await supabaseClient.auth.signInWithOtp({
-            email: formData.email,
-            options: {
-              emailRedirectTo: redirectTo,
-            },
-          });
-          
-          if (error) {
-            if (error.message.includes('rate_limit')) {
-              toast.error('Please wait a moment before requesting another magic link');
-            } else {
-              toast.error('Error sending magic link. Please try again.');
-            }
-            console.error('Auth error:', error);
-          } else {
-            toast.success('Check your email for the magic link');
-          }
-        } catch (error) {
-          console.error('Auth error:', error);
-          toast.error('Error sending magic link. Please try again.');
-        }
-      }}
+      magicLink
+      onlyThirdPartyProviders={false}
     />
   );
 };
