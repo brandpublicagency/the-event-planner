@@ -18,6 +18,7 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
+      enabled: false, // Disable automatic fetching by default
       meta: {
         errorHandler: (error: Error) => {
           console.error('Query error:', error);
@@ -45,6 +46,16 @@ const App = () => {
         }
         console.log('Initial session:', session);
         setSession(session);
+        
+        // Enable queries only after authentication is confirmed
+        if (session) {
+          queryClient.setDefaultOptions({
+            queries: {
+              ...queryClient.getDefaultOptions().queries,
+              enabled: true,
+            },
+          });
+        }
       } catch (error) {
         console.error('Auth initialization failed:', error);
         toast.error('Failed to initialize authentication');
@@ -64,9 +75,23 @@ const App = () => {
       setSession(session);
       setIsLoading(false);
       
-      if (!session) {
-        // Clear query cache when user logs out
+      if (session) {
+        // Enable queries when user logs in
+        queryClient.setDefaultOptions({
+          queries: {
+            ...queryClient.getDefaultOptions().queries,
+            enabled: true,
+          },
+        });
+      } else {
+        // Clear query cache and disable queries when user logs out
         queryClient.clear();
+        queryClient.setDefaultOptions({
+          queries: {
+            ...queryClient.getDefaultOptions().queries,
+            enabled: false,
+          },
+        });
       }
     });
 
