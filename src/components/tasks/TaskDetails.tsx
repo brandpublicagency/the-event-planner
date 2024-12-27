@@ -65,21 +65,21 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6 pb-8">
           <section>
-            <TodoList 
-              todos={task.todos || []}
-              onTodosChange={handleTodosChange}
-              taskId={taskId}
-            />
-          </section>
-
-          <Separator />
-          
-          <section>
             <div className="flex items-center gap-2 mb-4 text-sm font-medium">
               <CheckSquare className="h-4 w-4" />
               Notes
             </div>
             <TaskNotes taskId={taskId} />
+          </section>
+
+          <Separator />
+
+          <section>
+            <TodoList 
+              todos={task.todos || []}
+              onTodosChange={handleTodosChange}
+              taskId={taskId}
+            />
           </section>
           
           <Separator />
