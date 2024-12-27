@@ -5,10 +5,7 @@ export const useChatContext = () => {
   return useQuery({
     queryKey: ['chat-context'],
     queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
-
-      // Fetch all events with their complete details, excluding deleted ones and past events
+      // Fetch ALL events with their complete details, only excluding hard-deleted ones
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -21,10 +18,17 @@ export const useChatContext = () => {
               name
             )
           ),
-          menu_selections (*)
+          menu_selections (*),
+          tasks (
+            id,
+            title,
+            completed,
+            due_date,
+            priority,
+            status
+          )
         `)
-        .is('deleted_at', null)  // Explicitly filter out deleted events
-        .gte('event_date', today.toISOString()) // Only get future events
+        .is('deleted_at', null)  // Only exclude hard-deleted events
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;
@@ -35,14 +39,23 @@ export const useChatContext = () => {
 
       if (pdfError) throw pdfError;
 
+      // Fetch all tasks to provide complete context
+      const { data: tasks, error: tasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('due_date', { ascending: true });
+
+      if (tasksError) throw tasksError;
+
       return {
         events: events || [],
-        pdfContent: pdfContent || []
+        pdfContent: pdfContent || [],
+        tasks: tasks || []
       };
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2, // Retry failed requests twice
-    refetchOnWindowFocus: false, // Prevent refetching on window focus
-    refetchInterval: false // Disable automatic refetching
+    retry: 2,
+    refetchOnWindowFocus: false,
+    refetchInterval: false
   });
 };
