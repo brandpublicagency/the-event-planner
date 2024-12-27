@@ -2,19 +2,12 @@ import { createContext, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-}
+import { Task } from "./task/taskTypes";
 
 interface TaskContextType {
   tasks: Task[] | undefined;
   isLoading: boolean;
+  error: Error | null;
   createTask: (newTask: Partial<Task>) => void;
   updateTask: (task: Partial<Task> & { id: string }) => void;
   deleteTask: (id: string) => void;
@@ -26,7 +19,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: tasks, isLoading } = useQuery({
+  const { data: tasks, isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       console.log("Fetching tasks");
@@ -162,10 +155,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 }
 
-export function useTask() {
+export function useTaskContext() {
   const context = useContext(TaskContext);
   if (context === undefined) {
-    throw new Error("useTask must be used within a TaskProvider");
+    throw new Error("useTaskContext must be used within a TaskProvider");
   }
   return context;
 }
