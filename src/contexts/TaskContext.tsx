@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Task, TaskContextType, TaskUpdate } from "./task/taskTypes";
+import { Task, TaskUpdate, TaskContextType } from "./task/taskTypes";
 import { toast } from "sonner";
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -22,7 +22,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Task fetch error:', error);
+        throw error;
+      }
+
       return data as Task[];
     },
     enabled: true,
