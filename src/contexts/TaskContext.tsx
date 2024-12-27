@@ -21,7 +21,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         const { data, error } = await supabase
           .from('tasks')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .timeout(10000); // 10 second timeout
 
         if (error) {
           console.error('Task fetch error:', error);
@@ -37,8 +38,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: true,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
@@ -50,7 +51,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       .from('tasks')
       .insert([{ title, user_id: session.user.id }])
       .select()
-      .single();
+      .single()
+      .timeout(10000);
 
     if (error) throw error;
     
@@ -62,7 +64,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .update(updates)
-      .eq('id', id);
+      .eq('id', id)
+      .timeout(10000);
 
     if (error) throw error;
     
@@ -73,7 +76,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .timeout(10000);
 
     if (error) throw error;
     
@@ -84,7 +88,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase
       .from('tasks')
       .update({ completed })
-      .eq('id', id);
+      .eq('id', id)
+      .timeout(10000);
 
     if (error) throw error;
     

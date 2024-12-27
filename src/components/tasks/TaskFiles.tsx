@@ -20,28 +20,24 @@ export function TaskFiles({ taskId }: { taskId: string }) {
     queryFn: async () => {
       console.log('Fetching files for task:', taskId);
       
-      try {
-        const { data, error } = await supabase
-          .from("task_files")
-          .select("*")
-          .eq("task_id", taskId)
-          .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("task_files")
+        .select("*")
+        .eq("task_id", taskId)
+        .order("created_at", { ascending: false })
+        .timeout(10000); // 10 second timeout
 
-        if (error) {
-          console.error('Error fetching files:', error);
-          throw error;
-        }
-
-        console.log('Files fetched:', data);
-        return data as TaskFile[];
-      } catch (error: any) {
-        console.error('Task files query error:', error);
-        throw new Error(`Failed to fetch files: ${error.message}`);
+      if (error) {
+        console.error('Error fetching files:', error);
+        throw error;
       }
+
+      console.log('Files fetched:', data);
+      return data as TaskFile[];
     },
     enabled: !!taskId,
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
     refetchOnWindowFocus: false
