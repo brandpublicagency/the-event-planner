@@ -4,23 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TaskNotesProps {
   taskId: string;
-  notes?: string[];
 }
 
-export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
+export function TaskNotes({ taskId }: TaskNotesProps) {
   const [newNote, setNewNote] = useState("");
-  const { updateTask } = useTaskContext();
+  const { tasks, updateTask } = useTaskContext();
+  const queryClient = useQueryClient();
+  
+  // Get the current task's notes
+  const currentTask = tasks.find(task => task.id === taskId);
+  const notes = currentTask?.notes || [];
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
     
     try {
-      const updatedNotes = [...(notes || []), newNote];
+      const updatedNotes = [...notes, newNote];
       await updateTask(taskId, { notes: updatedNotes });
       setNewNote("");
+      // Invalidate the tasks query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Note added successfully");
     } catch (error) {
       console.error("Error adding note:", error);
@@ -32,6 +39,8 @@ export function TaskNotes({ taskId, notes = [] }: TaskNotesProps) {
     try {
       const updatedNotes = notes.filter((_, i) => i !== index);
       await updateTask(taskId, { notes: updatedNotes });
+      // Invalidate the tasks query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Note removed successfully");
     } catch (error) {
       console.error("Error removing note:", error);
