@@ -11,6 +11,12 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+      
       const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
@@ -28,6 +34,7 @@ export function useFileView() {
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }

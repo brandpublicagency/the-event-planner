@@ -11,6 +11,12 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
       const { data } = supabase.storage
         .from("task-files")
         .getPublicUrl(filePath);
@@ -37,6 +43,7 @@ export function useFileDownload() {
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }

@@ -13,6 +13,12 @@ export function useFileDelete() {
       setIsLoading(true);
       console.log('[Delete] Starting file deletion:', { filePath, fileId, taskId });
 
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
       // First delete from storage
       const { error: storageError } = await supabase.storage
         .from("task-files")
@@ -50,6 +56,7 @@ export function useFileDelete() {
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }

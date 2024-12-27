@@ -17,6 +17,12 @@ export function useFileUpload() {
         size: file.size
       });
 
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
       const timestamp = Date.now();
       const fileExt = file.name.split('.').pop();
       const filePath = `${taskId}/${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -54,6 +60,7 @@ export function useFileUpload() {
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }
