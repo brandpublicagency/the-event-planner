@@ -14,22 +14,32 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ['tasks'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('No session');
 
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
+        const { data, error } = await supabase
+          .from('tasks')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Task fetch error:', error);
+        if (error) {
+          console.error('Task fetch error:', error);
+          throw error;
+        }
+
+        return data as Task[];
+      } catch (error) {
+        console.error('Task query error:', error);
         throw error;
       }
-
-      return data as Task[];
     },
     enabled: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const addTask = async (title: string): Promise<Task> => {
