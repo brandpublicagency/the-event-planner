@@ -13,7 +13,9 @@ export function useFileView() {
       
       const { data } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 3600, {
+          download: false,
+        });
 
       if (!data?.signedUrl) {
         throw new Error('Could not generate URL for file');

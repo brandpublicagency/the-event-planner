@@ -11,21 +11,32 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file URL for:', filePath);
       
-      const { data } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .download(filePath);
 
-      if (!data?.signedUrl) {
-        throw new Error('Could not generate download URL');
+      if (error) {
+        throw error;
       }
+
+      if (!data) {
+        throw new Error('Could not download file');
+      }
+
+      // Create a blob URL for the file
+      const blob = new Blob([data], { type: data.type });
+      const url = window.URL.createObjectURL(blob);
 
       // Create a temporary link element for downloading
       const link = document.createElement('a');
-      link.href = data.signedUrl;
+      link.href = url;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // Clean up the blob URL
+      window.URL.revokeObjectURL(url);
 
       console.log('[Download] File download initiated');
     } catch (error: any) {
