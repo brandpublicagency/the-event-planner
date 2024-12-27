@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
+export type { Task, TaskUpdate };
+
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
 
@@ -26,7 +28,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: true,
   });
 
-  const addTask = async (title: string) => {
+  const addTask = async (title: string): Promise<Task> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No session');
 
