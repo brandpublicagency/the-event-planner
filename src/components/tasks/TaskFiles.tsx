@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { TaskFileUpload } from "./TaskFileUpload";
 import { TaskFileItem } from "./TaskFileItem";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface TaskFile {
   id: string;
@@ -13,30 +15,48 @@ interface TaskFile {
 }
 
 export function TaskFiles({ taskId }: { taskId: string }) {
-  const { data: files = [], isLoading, refetch } = useQuery({
+  const { data: files = [], isLoading, error, refetch } = useQuery({
     queryKey: ["task-files", taskId],
     queryFn: async () => {
       console.log('Fetching files for task:', taskId);
       
-      const { data, error } = await supabase
-        .from("task_files")
-        .select("*")
-        .eq("task_id", taskId)
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("task_files")
+          .select("*")
+          .eq("task_id", taskId)
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Error fetching files:', error);
-        throw error;
+        if (error) {
+          console.error('Error fetching files:', error);
+          throw error;
+        }
+
+        console.log('Files fetched:', data);
+        return data as TaskFile[];
+      } catch (error: any) {
+        console.error('Task files query error:', error);
+        throw new Error(`Failed to fetch files: ${error.message}`);
       }
-
-      console.log('Files fetched:', data);
-      return data as TaskFile[];
     },
     enabled: !!taskId,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
+    refetchOnWindowFocus: false
   });
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load files. Please try again later.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (isLoading) {
     return (

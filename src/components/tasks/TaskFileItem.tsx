@@ -25,41 +25,46 @@ export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
     mutationFn: async () => {
       console.log('Starting file deletion:', file);
       
-      // First check if file exists in storage
-      const { data: fileExists } = await supabase.storage
-        .from("task-files")
-        .list('', {
-          search: file.file_path
-        });
-
-      // If file exists in storage, delete it
-      if (fileExists && fileExists.length > 0) {
-        const { error: storageError } = await supabase.storage
+      try {
+        // First check if file exists in storage
+        const { data: fileExists } = await supabase.storage
           .from("task-files")
-          .remove([file.file_path]);
+          .list('', {
+            search: file.file_path
+          });
 
-        if (storageError) {
-          console.error('Storage deletion error:', storageError);
-          throw storageError;
+        // If file exists in storage, delete it
+        if (fileExists && fileExists.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from("task-files")
+            .remove([file.file_path]);
+
+          if (storageError) {
+            console.error('Storage deletion error:', storageError);
+            throw storageError;
+          }
+          console.log('Storage deletion successful');
+        } else {
+          console.log('File not found in storage, proceeding with database cleanup');
         }
-        console.log('Storage deletion successful');
-      } else {
-        console.log('File not found in storage, proceeding with database cleanup');
+
+        // Then delete from database
+        const { error: dbError } = await supabase
+          .from("task_files")
+          .delete()
+          .eq("id", file.id);
+
+        if (dbError) {
+          console.error('Database deletion error:', dbError);
+          throw dbError;
+        }
+
+        console.log('Database deletion successful');
+        return true;
+      } catch (error: any) {
+        console.error('Delete mutation error:', error);
+        throw new Error(`Failed to delete file: ${error.message}`);
       }
-
-      // Then delete from database
-      const { error: dbError } = await supabase
-        .from("task_files")
-        .delete()
-        .eq("id", file.id);
-
-      if (dbError) {
-        console.error('Database deletion error:', dbError);
-        throw dbError;
-      }
-
-      console.log('Database deletion successful');
-      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
