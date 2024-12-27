@@ -10,7 +10,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: tasks, isLoading, error } = useQuery({
+  const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       console.log("Fetching tasks");
@@ -22,12 +22,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
       const { data, error } = await supabase
         .from("tasks")
-        .select()
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching tasks:", error);
-        throw error;
+        throw new Error(error.message);
+      }
+
+      if (!data) {
+        return [];
       }
 
       return data as Task[];
@@ -50,7 +54,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         status: 'todo'
       }]);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error adding task:", error);
+      throw error;
+    }
     
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
@@ -61,7 +68,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       .update(updates)
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error updating task:", error);
+      throw error;
+    }
     
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
@@ -72,7 +82,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       .delete()
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error deleting task:", error);
+      throw error;
+    }
     
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
@@ -83,7 +96,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       .update({ completed })
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error toggling task:", error);
+      throw error;
+    }
     
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
