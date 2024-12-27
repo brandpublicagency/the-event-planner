@@ -11,9 +11,13 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      const { data } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 60);
+        .createSignedUrl(filePath, 3600); // Increased to 1 hour
+
+      if (error) {
+        throw error;
+      }
 
       if (!data?.signedUrl) {
         throw new Error('Could not generate view URL');
