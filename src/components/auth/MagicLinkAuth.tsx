@@ -2,6 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface MagicLinkAuthProps {
   supabaseClient: SupabaseClient;
@@ -47,6 +48,14 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
             email_input_label: 'Email address'
           }
         }
+      }}
+      onError={(error) => {
+        if (error.message.includes('rate_limit')) {
+          toast.error('Please wait a moment before requesting another magic link');
+        } else {
+          toast.error('Error sending magic link. Please try again.');
+        }
+        console.error('Auth error:', error);
       }}
     />
   );
