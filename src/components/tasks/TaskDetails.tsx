@@ -2,10 +2,11 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { X, Paperclip, CheckSquare } from "lucide-react";
+import { X, Paperclip, CheckSquare, ListChecks } from "lucide-react";
 import { format } from "date-fns";
 import { TaskFiles } from "./TaskFiles";
 import { TaskNotes } from "./TaskNotes";
+import { TodoList } from "./TodoList";
 
 interface TaskDetailsProps {
   taskId: string;
@@ -13,7 +14,7 @@ interface TaskDetailsProps {
 }
 
 export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
-  const { tasks } = useTaskContext();
+  const { tasks, updateTask } = useTaskContext();
   const task = tasks.find((t) => t.id === taskId);
 
   if (!task) return null;
@@ -22,6 +23,10 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     high: "bg-red-100 text-red-800",
     medium: "bg-yellow-100 text-yellow-800",
     low: "bg-green-100 text-green-800",
+  };
+
+  const handleTodosChange = (todos: string[]) => {
+    updateTask(taskId, { todos });
   };
 
   return (
@@ -59,6 +64,20 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
       
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6 pb-8">
+          <section>
+            <div className="flex items-center gap-2 mb-4 text-sm font-medium">
+              <ListChecks className="h-4 w-4" />
+              Checklist
+            </div>
+            <TodoList 
+              todos={task.todos || []}
+              onTodosChange={handleTodosChange}
+              taskId={taskId}
+            />
+          </section>
+
+          <Separator />
+          
           <section>
             <div className="flex items-center gap-2 mb-4 text-sm font-medium">
               <CheckSquare className="h-4 w-4" />
