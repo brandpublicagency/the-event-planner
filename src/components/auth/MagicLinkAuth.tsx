@@ -49,13 +49,29 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
           }
         }
       }}
-      onError={(error) => {
-        if (error.message.includes('rate_limit')) {
-          toast.error('Please wait a moment before requesting another magic link');
-        } else {
+      onSubmit={async (formData) => {
+        try {
+          const { error } = await supabaseClient.auth.signInWithOtp({
+            email: formData.email,
+            options: {
+              emailRedirectTo: redirectTo,
+            },
+          });
+          
+          if (error) {
+            if (error.message.includes('rate_limit')) {
+              toast.error('Please wait a moment before requesting another magic link');
+            } else {
+              toast.error('Error sending magic link. Please try again.');
+            }
+            console.error('Auth error:', error);
+          } else {
+            toast.success('Check your email for the magic link');
+          }
+        } catch (error) {
+          console.error('Auth error:', error);
           toast.error('Error sending magic link. Please try again.');
         }
-        console.error('Auth error:', error);
       }}
     />
   );
