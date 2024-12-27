@@ -17,7 +17,7 @@ export function useFileDelete() {
 
       if (storageError) {
         console.error('[Delete] Storage deletion error:', storageError);
-        throw storageError;
+        throw new Error(`Failed to delete file from storage: ${storageError.message}`);
       }
 
       console.log('[Delete] Storage deletion successful');
@@ -26,11 +26,11 @@ export function useFileDelete() {
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
-        .eq("id", file.id);
+        .match({ id: file.id });
 
       if (dbError) {
         console.error('[Delete] Database deletion error:', dbError);
-        throw dbError;
+        throw new Error(`Failed to delete file record: ${dbError.message}`);
       }
 
       console.log('[Delete] Database deletion successful');
