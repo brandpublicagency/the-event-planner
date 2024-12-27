@@ -5,7 +5,10 @@ import type { MenuSelections } from "@/types/menuSelections";
 export const prepareEventsContext = (events: Event[] = []) => {
   if (!events?.length) return "";
   
-  return events.map(event => {
+  // Additional safety check to filter out any deleted events
+  const activeEvents = events.filter(event => !event.deleted_at);
+  
+  return activeEvents.map(event => {
     const menuSelections = event.menu_selections as MenuSelections;
     const venues = event.event_venues?.map((ev: any) => ev.venues?.name).filter(Boolean);
     

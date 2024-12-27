@@ -5,7 +5,7 @@ export const useChatContext = () => {
   return useQuery({
     queryKey: ['chat-context'],
     queryFn: async () => {
-      // Fetch all events with their complete details
+      // Fetch all events with their complete details, excluding deleted ones
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -20,6 +20,7 @@ export const useChatContext = () => {
           ),
           menu_selections (*)
         `)
+        .is('deleted_at', null)  // Explicitly filter out deleted events
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;
