@@ -7,13 +7,22 @@ export function useFileDownload() {
   const { toast } = useToast();
 
   const handleDownload = async (filePath: string, fileName: string) => {
+    const timeoutDuration = 15000; // 15 seconds timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Download request timed out')), timeoutDuration);
+    });
+
     try {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
-      const { data, error } = await supabase.storage
-        .from("task-files")
-        .download(filePath);
+      // Race between the download operation and timeout
+      const { data, error } = await Promise.race([
+        supabase.storage
+          .from("task-files")
+          .download(filePath),
+        timeoutPromise
+      ]) as { data: Blob | null; error: Error | null };
 
       if (error) {
         throw error;
@@ -30,8 +39,12 @@ export function useFileDownload() {
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 100);
 
       console.log('[Download] File downloaded successfully');
       toast({
