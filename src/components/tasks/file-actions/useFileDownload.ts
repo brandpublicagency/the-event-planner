@@ -11,22 +11,18 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
-      const { data, error } = await supabase.storage
+      const { data: publicUrl } = supabase.storage
         .from("task-files")
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .getPublicUrl(filePath);
 
-      if (error) {
-        throw new Error(`Failed to generate download URL: ${error.message}`);
-      }
-
-      if (!data?.signedUrl) {
+      if (!publicUrl?.publicUrl) {
         throw new Error('Could not generate download URL');
       }
 
       // Create a temporary link to trigger the download
       const link = document.createElement('a');
-      link.href = data.signedUrl;
-      link.setAttribute('download', fileName); // Force download with original filename
+      link.href = publicUrl.publicUrl;
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
