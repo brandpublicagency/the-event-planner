@@ -11,25 +11,16 @@ export function useFileView() {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
       
-      const { data: fileData } = await supabase.storage
+      const { data } = await supabase.storage
         .from("task-files")
-        .download(filePath);
+        .createSignedUrl(filePath, 60);
 
-      if (!fileData) {
-        throw new Error('Could not download file');
+      if (!data?.signedUrl) {
+        throw new Error('Could not generate view URL');
       }
 
-      // Create a blob URL for the file
-      const blob = new Blob([fileData], { type: 'application/octet-stream' });
-      const url = window.URL.createObjectURL(blob);
-      
-      console.log('[View] Opening file:', url);
-      window.open(url, '_blank', 'noopener,noreferrer');
-      
-      // Clean up the blob URL after a delay
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 1000);
+      console.log('[View] Opening file:', data.signedUrl);
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
       
     } catch (error: any) {
       console.error('[View] Error:', error);
