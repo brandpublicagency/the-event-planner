@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { checkFileExists } from "@/utils/fileOperations";
 
 export function useFileDelete() {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -15,17 +16,28 @@ export function useFileDelete() {
       setIsDeleting(true);
       console.log('Starting file deletion:', file);
       
-      // Delete from storage first
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([file.file_path]);
-
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        throw storageError;
+      // First check if file exists in storage
+      const { exists, error: checkError } = await checkFileExists(file.file_path);
+      
+      if (checkError) {
+        console.error('Error checking file existence:', checkError);
+        throw checkError;
       }
 
-      console.log('Storage deletion successful');
+      // If file exists in storage, delete it
+      if (exists) {
+        const { error: storageError } = await supabase.storage
+          .from("task-files")
+          .remove([file.file_path]);
+
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+          throw storageError;
+        }
+        console.log('Storage deletion successful');
+      } else {
+        console.log('File not found in storage, proceeding with database cleanup');
+      }
 
       // Then delete from database
       const { error: dbError } = await supabase

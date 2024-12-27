@@ -3,6 +3,7 @@ import { FileActionButton } from "./FileActionButton";
 import { FileDeleteDialog } from "./FileDeleteDialog";
 import { useFileDownload } from "./useFileDownload";
 import { useFileView } from "./useFileView";
+import { useFileDelete } from "./useFileDelete";
 
 interface FileActionsProps {
   file: {
@@ -12,13 +13,12 @@ interface FileActionsProps {
     file_path: string;
     content_type: string;
   };
-  onDelete: () => void;
-  isDeleting: boolean;
 }
 
-export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
+export function FileActions({ file }: FileActionsProps) {
   const { handleDownload, isLoading: isDownloading } = useFileDownload();
   const { handleView, isLoading: isViewing } = useFileView();
+  const { handleDelete, isDeleting } = useFileDelete();
 
   const isDisabled = isDeleting || isDownloading || isViewing;
 
@@ -56,7 +56,7 @@ export function FileActions({ file, onDelete, isDeleting }: FileActionsProps) {
       )}
       <FileDeleteDialog
         isDeleting={isDeleting}
-        onDelete={onDelete}
+        onDelete={() => handleDelete(file)}
         disabled={isDisabled}
       />
     </div>
