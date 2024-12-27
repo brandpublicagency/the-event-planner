@@ -24,8 +24,7 @@ export function useFileDownload() {
       }
 
       // Create a blob URL for the file
-      const blob = new Blob([data], { type: data.type });
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(data);
 
       // Create a temporary link element for downloading
       const link = document.createElement('a');
@@ -36,7 +35,7 @@ export function useFileDownload() {
       document.body.removeChild(link);
 
       // Clean up the blob URL
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
 
       console.log('[Download] File download initiated');
     } catch (error: any) {

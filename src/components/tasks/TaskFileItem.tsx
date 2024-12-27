@@ -1,8 +1,5 @@
 import { FileText } from "lucide-react";
 import { FileActions } from "./file-actions/FileActions";
-import { useToast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface TaskFile {
   id: string;
@@ -14,78 +11,9 @@ interface TaskFile {
 
 interface TaskFileItemProps {
   file: TaskFile;
-  onDelete?: () => void;
 }
 
-export const TaskFileItem = ({ file, onDelete }: TaskFileItemProps) => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      console.log('Starting file deletion:', file);
-      
-      try {
-        // First check if file exists in storage
-        const { data: fileExists } = await supabase.storage
-          .from("task-files")
-          .list('', {
-            search: file.file_path
-          });
-
-        // If file exists in storage, delete it
-        if (fileExists && fileExists.length > 0) {
-          const { error: storageError } = await supabase.storage
-            .from("task-files")
-            .remove([file.file_path]);
-
-          if (storageError) {
-            console.error('Storage deletion error:', storageError);
-            throw storageError;
-          }
-          console.log('Storage deletion successful');
-        } else {
-          console.log('File not found in storage, proceeding with database cleanup');
-        }
-
-        // Then delete from database
-        const { error: dbError } = await supabase
-          .from("task_files")
-          .delete()
-          .eq("id", file.id);
-
-        if (dbError) {
-          console.error('Database deletion error:', dbError);
-          throw dbError;
-        }
-
-        console.log('Database deletion successful');
-        return true;
-      } catch (error: any) {
-        console.error('Delete mutation error:', error);
-        throw new Error(`Failed to delete file: ${error.message}`);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task-files", file.task_id] });
-      toast({
-        title: "File deleted",
-        description: "File has been deleted successfully.",
-      });
-      if (onDelete) {
-        onDelete();
-      }
-    },
-    onError: (error: any) => {
-      console.error("Delete error:", error);
-      toast({
-        title: "Error deleting file",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
+export const TaskFileItem = ({ file }: TaskFileItemProps) => {
   return (
     <div className="flex items-center justify-between p-2 rounded-lg border bg-card">
       <div className="flex items-center gap-2">
