@@ -18,15 +18,7 @@ export const useChatContext = () => {
               name
             )
           ),
-          menu_selections (*),
-          tasks (
-            id,
-            title,
-            completed,
-            due_date,
-            priority,
-            status
-          )
+          menu_selections (*)
         `)
         .is('deleted_at', null)  // Only exclude hard-deleted events
         .order('event_date', { ascending: true });
