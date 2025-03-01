@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -17,20 +18,32 @@ export function useFileDownload() {
         throw new Error('Authentication required');
       }
 
-      const { data } = supabase.storage
+      // Download the file directly
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
-
-      if (!data?.publicUrl) {
-        throw new Error('Could not generate download URL');
+        .download(filePath);
+        
+      if (error) {
+        throw error;
       }
-
+      
+      if (!data) {
+        throw new Error('Could not retrieve file');
+      }
+      
+      // Create a blob URL from the file content
+      const blobUrl = URL.createObjectURL(data);
+      
+      // Create a download link and trigger click
       const link = document.createElement('a');
-      link.href = data.publicUrl;
-      link.setAttribute('download', fileName);
+      link.href = blobUrl;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up the blob URL after a delay
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
       toast({
         title: "Success",

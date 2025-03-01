@@ -16,8 +16,35 @@ interface FileActionsProps {
 }
 
 export function FileActions({ file }: FileActionsProps) {
-  const { downloadFile, viewFile, deleteFile, isLoading } = useFileOperations();
+  const { downloadFile, viewFile, deleteFile } = useFileOperations();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleView = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      setIsLoading(true);
+      await viewFile(file.file_path);
+    } catch (error) {
+      console.error("Error viewing file:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      setIsLoading(true);
+      await downloadFile(file.file_path, file.file_name);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -36,14 +63,14 @@ export function FileActions({ file }: FileActionsProps) {
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       <FileActionButton
         icon={isLoading ? Loader2 : Eye}
-        onClick={() => viewFile(file.file_path)}
+        onClick={handleView}
         disabled={isLoading || isDeleting}
         className={isLoading ? "animate-spin" : ""}
         variant="ghost"
       />
       <FileActionButton
         icon={isLoading ? Loader2 : Download}
-        onClick={() => downloadFile(file.file_path, file.file_name)}
+        onClick={handleDownload}
         disabled={isLoading || isDeleting}
         className={isLoading ? "animate-spin" : ""}
         variant="ghost"

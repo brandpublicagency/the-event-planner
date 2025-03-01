@@ -57,6 +57,8 @@ export function useFileDelete() {
         title: "Success",
         description: "File deleted successfully",
       });
+      
+      return true;
     } catch (error: any) {
       console.error('[Delete] Error:', error);
       toast({

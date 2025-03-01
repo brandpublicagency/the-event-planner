@@ -19,16 +19,18 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
   variant = "ghost",
   className, 
 }, ref) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClick) onClick(e);
+  };
+
   return (
     <Button
       ref={ref}
       variant={variant}
       size="icon"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (onClick) onClick(e);
-      }}
+      onClick={handleClick}
       disabled={disabled}
       className={cn("h-8 w-8", className)}
     >

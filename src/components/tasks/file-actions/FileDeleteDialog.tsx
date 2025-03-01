@@ -12,16 +12,31 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Trash2 } from "lucide-react";
 import { FileActionButton } from "./FileActionButton";
+import { useState } from "react";
 
 interface FileDeleteDialogProps {
   isDeleting: boolean;
-  onDelete: () => void;
+  onDelete: () => Promise<void>;
   disabled?: boolean;
 }
 
 export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteDialogProps) {
+  const [open, setOpen] = useState(false);
+  
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await onDelete();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error in handleDelete:", error);
+    }
+  };
+  
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
         <FileActionButton
           icon={isDeleting ? Loader2 : Trash2}
@@ -30,7 +45,7 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
           className={isDeleting ? "animate-spin" : ""}
         />
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete File</AlertDialogTitle>
           <AlertDialogDescription>
@@ -40,10 +55,7 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
         <AlertDialogFooter>
           <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
+            onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete

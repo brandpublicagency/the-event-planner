@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -17,16 +18,29 @@ export function useFileView() {
         throw new Error('Authentication required');
       }
       
-      const { data } = supabase.storage
+      // Download the file content directly for viewing in a new tab
+      const { data, error } = await supabase.storage
         .from("task-files")
-        .getPublicUrl(filePath);
-
-      if (!data?.publicUrl) {
-        throw new Error('Could not generate view URL');
+        .download(filePath);
+        
+      if (error) {
+        throw error;
       }
-
-      console.log('[View] Opening file:', data.publicUrl);
-      window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
+      
+      if (!data) {
+        throw new Error('Could not retrieve file');
+      }
+      
+      // Create a blob URL from the file content
+      const blobUrl = URL.createObjectURL(data);
+      
+      // Open in a new tab
+      window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      
+      // Clean up the blob URL after a delay
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      
+      console.log('[View] File opened successfully');
     } catch (error: any) {
       console.error('[View] Error:', error);
       toast({
