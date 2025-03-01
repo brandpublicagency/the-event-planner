@@ -1,3 +1,9 @@
+
+-- Create storage bucket for task files if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('task-files', 'task-files', true)
+ON CONFLICT (id) DO NOTHING;
+
 -- Update bucket policies
 CREATE POLICY "Users can upload files to their tasks"
 ON storage.objects FOR INSERT TO authenticated
