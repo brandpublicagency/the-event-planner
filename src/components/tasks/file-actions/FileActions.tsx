@@ -1,5 +1,5 @@
 
-import { Eye, Download, Loader2 } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { FileActionButton } from "./FileActionButton";
 import { FileDeleteDialog } from "./FileDeleteDialog";
 import { useFileOperations } from "@/hooks/useFileOperations";
@@ -16,10 +16,9 @@ interface FileActionsProps {
 }
 
 export function FileActions({ file }: FileActionsProps) {
-  const { downloadFile, viewFile, deleteFile } = useFileOperations();
+  const { viewFile, deleteFile } = useFileOperations();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isViewLoading, setIsViewLoading] = useState(false);
-  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
 
   const handleView = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -31,19 +30,6 @@ export function FileActions({ file }: FileActionsProps) {
       console.error("Error viewing file:", error);
     } finally {
       setIsViewLoading(false);
-    }
-  };
-
-  const handleDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      setIsDownloadLoading(true);
-      await downloadFile(file.file_path, file.file_name, file.content_type);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-    } finally {
-      setIsDownloadLoading(false);
     }
   };
 
@@ -65,21 +51,14 @@ export function FileActions({ file }: FileActionsProps) {
       <FileActionButton
         icon={isViewLoading ? Loader2 : Eye}
         onClick={handleView}
-        disabled={isViewLoading || isDownloadLoading || isDeleting}
+        disabled={isViewLoading || isDeleting}
         className={isViewLoading ? "animate-spin" : ""}
-        variant="ghost"
-      />
-      <FileActionButton
-        icon={isDownloadLoading ? Loader2 : Download}
-        onClick={handleDownload}
-        disabled={isViewLoading || isDownloadLoading || isDeleting}
-        className={isDownloadLoading ? "animate-spin" : ""}
         variant="ghost"
       />
       <FileDeleteDialog
         isDeleting={isDeleting}
         onDelete={handleDelete}
-        disabled={isViewLoading || isDownloadLoading || isDeleting}
+        disabled={isViewLoading || isDeleting}
       />
     </div>
   );
