@@ -29,52 +29,58 @@ export function useFileView() {
           // Open in a modal or in-app viewer for images
           const img = new Image();
           img.src = signedURL.signedUrl;
+          img.style.maxWidth = '90%';
+          img.style.maxHeight = '90%';
+          img.style.objectFit = 'contain';
+          
+          // Create a simple modal to display the image
+          const modal = document.createElement('div');
+          modal.style.position = 'fixed';
+          modal.style.top = '0';
+          modal.style.left = '0';
+          modal.style.width = '100%';
+          modal.style.height = '100%';
+          modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+          modal.style.display = 'flex';
+          modal.style.justifyContent = 'center';
+          modal.style.alignItems = 'center';
+          modal.style.zIndex = '9999';
+          
+          // Add close button
+          const closeBtn = document.createElement('button');
+          closeBtn.textContent = 'Close';
+          closeBtn.style.position = 'absolute';
+          closeBtn.style.top = '20px';
+          closeBtn.style.right = '20px';
+          closeBtn.style.padding = '8px 16px';
+          closeBtn.style.backgroundColor = '#fff';
+          closeBtn.style.border = 'none';
+          closeBtn.style.borderRadius = '4px';
+          closeBtn.style.cursor = 'pointer';
+          closeBtn.onclick = () => document.body.removeChild(modal);
+          
+          // Add the image to the modal
+          const imgContainer = document.createElement('div');
+          imgContainer.style.maxWidth = '90%';
+          imgContainer.style.maxHeight = '90%';
+          imgContainer.style.overflow = 'auto';
+          
+          // Add the modal to the DOM before adding the image
+          document.body.appendChild(modal);
+          modal.appendChild(imgContainer);
+          modal.appendChild(closeBtn);
+          
+          // Set up image loading and error handling
           img.onload = () => {
-            // Create a simple modal to display the image
-            const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            modal.style.width = '100%';
-            modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            modal.style.display = 'flex';
-            modal.style.justifyContent = 'center';
-            modal.style.alignItems = 'center';
-            modal.style.zIndex = '9999';
-            
-            // Add close button
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = 'Close';
-            closeBtn.style.position = 'absolute';
-            closeBtn.style.top = '20px';
-            closeBtn.style.right = '20px';
-            closeBtn.style.padding = '8px 16px';
-            closeBtn.style.backgroundColor = '#fff';
-            closeBtn.style.border = 'none';
-            closeBtn.style.borderRadius = '4px';
-            closeBtn.style.cursor = 'pointer';
-            closeBtn.onclick = () => document.body.removeChild(modal);
-            
-            // Add the image to the modal
-            const imgContainer = document.createElement('div');
-            imgContainer.style.maxWidth = '90%';
-            imgContainer.style.maxHeight = '90%';
-            imgContainer.style.overflow = 'auto';
             imgContainer.appendChild(img);
-            
-            modal.appendChild(imgContainer);
-            modal.appendChild(closeBtn);
-            document.body.appendChild(modal);
           };
           
           img.onerror = () => {
-            console.error('Failed to load image from signed URL');
-            toast({
-              title: "Error",
-              description: "Failed to load image. Try again later.",
-              variant: "destructive",
-            });
+            console.error('Failed to load image from signed URL:', signedURL.signedUrl);
+            document.body.removeChild(modal);
+            
+            // Attempt fallback method
+            attemptFallbackImageLoad(filePath, contentType);
           };
           
           return;
@@ -84,10 +90,30 @@ export function useFileView() {
           console.log('[View] File opened via signed URL');
           return;
         }
+      } else if (signedError) {
+        console.error('[View] Signed URL error:', signedError);
       }
       
-      // If signed URL fails, fall back to manual blob handling
-      console.log('[View] Signed URL failed, using download method');
+      // If we get here, either it's not an image or signed URL failed
+      // Fall back to download method
+      attemptFallbackImageLoad(filePath, contentType);
+      
+    } catch (error: any) {
+      console.error('[View] Error:', error);
+      toast({
+        title: "Error viewing file",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Helper function for fallback image loading
+  const attemptFallbackImageLoad = async (filePath: string, contentType: string) => {
+    try {
+      console.log('[View] Using fallback download method');
       const { data, error } = await supabase.storage
         .from("task-files")
         .download(filePath);
@@ -103,6 +129,7 @@ export function useFileView() {
       // For images, manually handle display in a viewer
       if (contentType.startsWith('image/')) {
         const reader = new FileReader();
+        
         reader.onload = (e) => {
           const dataUrl = e.target?.result as string;
           
@@ -139,9 +166,19 @@ export function useFileView() {
           img.style.maxHeight = '90%';
           img.style.objectFit = 'contain';
           
+          // Add to DOM
+          document.body.appendChild(modal);
           modal.appendChild(img);
           modal.appendChild(closeBtn);
-          document.body.appendChild(modal);
+        };
+        
+        reader.onerror = () => {
+          console.error('FileReader error when loading image data');
+          toast({
+            title: "Error",
+            description: "Failed to load image. Try again later.",
+            variant: "destructive",
+          });
         };
         
         reader.readAsDataURL(data);
@@ -158,17 +195,14 @@ export function useFileView() {
       // Clean up the blob URL after a delay
       setTimeout(() => URL.revokeObjectURL(blobUrl), 30000); // 30-second timeout
       
-      console.log('[View] File opened successfully');
+      console.log('[View] File opened successfully via fallback method');
     } catch (error: any) {
-      console.error('[View] Error:', error);
+      console.error('[View] Fallback method error:', error);
       toast({
-        title: "Error viewing file",
-        description: error.message,
+        title: "Error",
+        description: "Failed to load image. Try again later.",
         variant: "destructive",
       });
-      throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
