@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -125,8 +126,8 @@ const EventDetails = () => {
   const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
 
   return (
-    <div className="flex-1 p-6 print:p-0 print:m-0">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 print:p-0">
+    <div className="flex-1 p-6">
+      <div className="max-w-4xl mx-auto">
         <div className="print:hidden">
           <EventHeader 
             eventCode={event.event_code} 
@@ -135,12 +136,14 @@ const EventDetails = () => {
             onCustomMenuToggle={setIsCustomMenu}
           />
         </div>
-        <div className="print-container bg-white rounded-lg border border-zinc-100 print:border-0 print:shadow-none">
+        
+        <div className="print-container bg-white rounded-lg border border-zinc-100">
           <div className="print-header">
             <h1 className="hidden print:block text-2xl font-semibold mb-2">Menu Selection</h1>
             {event.name && <h2 className="hidden print:block text-xl text-zinc-500">{event.name}</h2>}
           </div>
-          <div className="pl-0 pr-6 mb-6 print:hidden">
+          
+          <div className="print:block">
             <EventInfo 
               event={event}
               formattedDate={formattedDate}
@@ -148,7 +151,8 @@ const EventDetails = () => {
               venueNames={venueNames}
             />
           </div>
-          <div className="px-6 pb-8 print:p-0">
+          
+          <div className="px-6 pb-8">
             <WeddingMenuPlanner 
               eventCode={event.event_code} 
               eventName={event.name}
