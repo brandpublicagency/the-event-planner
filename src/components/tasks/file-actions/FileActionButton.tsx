@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 import { forwardRef } from "react";
@@ -8,7 +9,7 @@ interface FileActionButtonProps {
   icon: LucideIcon;
   disabled?: boolean;
   variant?: "ghost" | "destructive";
-  className?: string; // Add this line to include className
+  className?: string;
 }
 
 export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonProps>(({ 
@@ -16,7 +17,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
   icon: Icon, 
   disabled, 
   variant = "ghost",
-  className, // Add this to destructured props
+  className, 
 }, ref) => {
   return (
     <Button
@@ -29,7 +30,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
         if (onClick) onClick(e);
       }}
       disabled={disabled}
-      className={cn("h-8 w-8", className)} // Use cn to merge classes
+      className={cn("h-8 w-8", className)}
     >
       <Icon className="h-4 w-4" />
     </Button>

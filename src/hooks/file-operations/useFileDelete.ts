@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,19 +20,7 @@ export function useFileDelete() {
         throw new Error('Authentication required');
       }
 
-      // First delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("task-files")
-        .remove([filePath]);
-
-      if (storageError) {
-        console.error('[Delete] Storage deletion error:', storageError);
-        throw storageError;
-      }
-
-      console.log('[Delete] Storage deletion successful');
-
-      // Then delete from database
+      // Delete from database first to maintain referential integrity
       const { error: dbError } = await supabase
         .from("task_files")
         .delete()
@@ -43,6 +32,25 @@ export function useFileDelete() {
       }
 
       console.log('[Delete] Database deletion successful');
+
+      // Then delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("task-files")
+        .remove([filePath]);
+
+      if (storageError) {
+        console.error('[Delete] Storage deletion error:', storageError);
+        // Don't throw here as the database record is already deleted
+        toast({
+          title: "Warning",
+          description: `File record deleted but error removing file: ${storageError.message}`,
+          variant: "destructive",
+        });
+      } else {
+        console.log('[Delete] Storage deletion successful');
+      }
+
+      // Always invalidate queries regardless of storage deletion success
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       
       toast({

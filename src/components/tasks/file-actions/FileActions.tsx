@@ -22,7 +22,9 @@ export function FileActions({ file }: FileActionsProps) {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
+      console.log("Starting delete operation for file:", file);
       await deleteFile(file.file_path, file.id, file.task_id);
+      console.log("Delete operation completed successfully");
     } catch (error) {
       console.error("Error deleting file:", error);
     } finally {
