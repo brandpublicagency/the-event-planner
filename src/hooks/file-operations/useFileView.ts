@@ -7,7 +7,7 @@ export function useFileView() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const viewFile = async (filePath: string) => {
+  const viewFile = async (filePath: string, contentType: string) => {
     try {
       setIsLoading(true);
       console.log('[View] Getting file URL for:', filePath);
@@ -31,8 +31,11 @@ export function useFileView() {
         throw new Error('Could not retrieve file');
       }
       
-      // Create a blob URL from the file content
-      const blobUrl = URL.createObjectURL(data);
+      // Create a blob with the correct content type
+      const blob = new Blob([data], { type: contentType });
+      
+      // Create a blob URL from the file content with proper content type
+      const blobUrl = URL.createObjectURL(blob);
       
       // Open in a new tab
       window.open(blobUrl, '_blank', 'noopener,noreferrer');

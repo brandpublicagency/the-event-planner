@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +22,14 @@ interface FileDeleteDialogProps {
 export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteDialogProps) {
   const [open, setOpen] = useState(false);
   
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled && !isDeleting) {
+      setOpen(true);
+    }
+  };
+  
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -32,12 +39,13 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
       setOpen(false);
     } catch (error) {
       console.error("Error in handleDelete:", error);
+      // Keep dialog open on error
     }
   };
   
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+      <AlertDialogTrigger asChild onClick={handleTriggerClick}>
         <FileActionButton
           icon={isDeleting ? Loader2 : Trash2}
           disabled={disabled || isDeleting}
@@ -57,8 +65,16 @@ export function FileDeleteDialog({ isDeleting, onDelete, disabled }: FileDeleteD
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isDeleting}
           >
-            Delete
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

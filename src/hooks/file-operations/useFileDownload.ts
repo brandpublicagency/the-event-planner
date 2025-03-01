@@ -7,7 +7,7 @@ export function useFileDownload() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const downloadFile = async (filePath: string, fileName: string) => {
+  const downloadFile = async (filePath: string, fileName: string, contentType: string) => {
     try {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
@@ -31,8 +31,11 @@ export function useFileDownload() {
         throw new Error('Could not retrieve file');
       }
       
+      // Create a blob with the correct content type
+      const blob = new Blob([data], { type: contentType });
+      
       // Create a blob URL from the file content
-      const blobUrl = URL.createObjectURL(data);
+      const blobUrl = URL.createObjectURL(blob);
       
       // Create a download link and trigger click
       const link = document.createElement('a');

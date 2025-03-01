@@ -18,18 +18,19 @@ interface FileActionsProps {
 export function FileActions({ file }: FileActionsProps) {
   const { downloadFile, viewFile, deleteFile } = useFileOperations();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isViewLoading, setIsViewLoading] = useState(false);
+  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
 
   const handleView = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      setIsLoading(true);
-      await viewFile(file.file_path);
+      setIsViewLoading(true);
+      await viewFile(file.file_path, file.content_type);
     } catch (error) {
       console.error("Error viewing file:", error);
     } finally {
-      setIsLoading(false);
+      setIsViewLoading(false);
     }
   };
 
@@ -37,12 +38,12 @@ export function FileActions({ file }: FileActionsProps) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      setIsLoading(true);
-      await downloadFile(file.file_path, file.file_name);
+      setIsDownloadLoading(true);
+      await downloadFile(file.file_path, file.file_name, file.content_type);
     } catch (error) {
       console.error("Error downloading file:", error);
     } finally {
-      setIsLoading(false);
+      setIsDownloadLoading(false);
     }
   };
 
@@ -62,23 +63,23 @@ export function FileActions({ file }: FileActionsProps) {
   return (
     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       <FileActionButton
-        icon={isLoading ? Loader2 : Eye}
+        icon={isViewLoading ? Loader2 : Eye}
         onClick={handleView}
-        disabled={isLoading || isDeleting}
-        className={isLoading ? "animate-spin" : ""}
+        disabled={isViewLoading || isDownloadLoading || isDeleting}
+        className={isViewLoading ? "animate-spin" : ""}
         variant="ghost"
       />
       <FileActionButton
-        icon={isLoading ? Loader2 : Download}
+        icon={isDownloadLoading ? Loader2 : Download}
         onClick={handleDownload}
-        disabled={isLoading || isDeleting}
-        className={isLoading ? "animate-spin" : ""}
+        disabled={isViewLoading || isDownloadLoading || isDeleting}
+        className={isDownloadLoading ? "animate-spin" : ""}
         variant="ghost"
       />
       <FileDeleteDialog
         isDeleting={isDeleting}
         onDelete={handleDelete}
-        disabled={isLoading || isDeleting}
+        disabled={isViewLoading || isDownloadLoading || isDeleting}
       />
     </div>
   );
