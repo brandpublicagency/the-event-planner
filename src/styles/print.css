@@ -1,7 +1,7 @@
 
 @media print {
   @page {
-    margin: 2cm;
+    margin: 15mm;
     size: A4;
   }
 
