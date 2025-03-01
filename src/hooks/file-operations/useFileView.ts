@@ -10,7 +10,7 @@ export function useFileView() {
   const viewFile = async (filePath: string, contentType: string) => {
     try {
       setIsLoading(true);
-      console.log('[View] Getting file URL for:', filePath);
+      console.log('[View] Getting file URL for:', filePath, 'Content-Type:', contentType);
       
       // First check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
@@ -18,7 +18,27 @@ export function useFileView() {
         throw new Error('Authentication required');
       }
       
-      // Download the file content directly for viewing in a new tab
+      // For publicly viewable files like images, PDFs, etc.
+      // Get a public URL directly instead of downloading first
+      if (/^image\/|application\/pdf|text\//.test(contentType)) {
+        // Create a signed URL with a longer expiry
+        const { data: signedURL, error: signedError } = await supabase.storage
+          .from("task-files")
+          .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
+          
+        if (signedError) {
+          console.error('[View] Signed URL error:', signedError);
+          // Fall back to download method
+        } else if (signedURL) {
+          // Open the signed URL in a new tab
+          window.open(signedURL.signedUrl, '_blank', 'noopener,noreferrer');
+          console.log('[View] File opened via signed URL');
+          return;
+        }
+      }
+      
+      // Fall back to download method for other file types or if signed URL fails
+      console.log('[View] Using download method for viewing');
       const { data, error } = await supabase.storage
         .from("task-files")
         .download(filePath);
@@ -32,16 +52,22 @@ export function useFileView() {
       }
       
       // Create a blob with the correct content type
-      const blob = new Blob([data], { type: contentType });
+      const blob = new Blob([data], { type: contentType || 'application/octet-stream' });
       
       // Create a blob URL from the file content with proper content type
       const blobUrl = URL.createObjectURL(blob);
       
-      // Open in a new tab
-      window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      // Create a hidden anchor element for better browser compatibility
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       
       // Clean up the blob URL after a delay
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000); // Increased timeout
       
       console.log('[View] File opened successfully');
     } catch (error: any) {

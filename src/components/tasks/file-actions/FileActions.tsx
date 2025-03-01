@@ -25,6 +25,8 @@ export function FileActions({ file }: FileActionsProps) {
     e.stopPropagation();
     try {
       setIsViewLoading(true);
+      // Log content type to help with debugging
+      console.log("Viewing file with content type:", file.content_type);
       await viewFile(file.file_path, file.content_type);
     } catch (error) {
       console.error("Error viewing file:", error);
