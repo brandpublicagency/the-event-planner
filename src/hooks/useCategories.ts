@@ -9,14 +9,18 @@ import {
 import { useToast } from './use-toast';
 import type { Category } from '@/types/category';
 import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useCategories() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
+  // First check if user is authenticated
   const { 
     data: categories = [],
     isLoading: isLoadingCategories,
+    isError,
+    error,
     refetch
   } = useQuery({
     queryKey: ['categories'],
@@ -26,25 +30,44 @@ export function useCategories() {
   // Initialize predefined categories if none exist
   useEffect(() => {
     const initializeCategories = async () => {
-      if (categories.length === 0 && !isLoadingCategories) {
-        try {
+      try {
+        // First check if user is authenticated
+        const { data: session } = await supabase.auth.getSession();
+        if (!session?.session) {
+          console.log('User not authenticated, skipping category initialization');
+          return;
+        }
+
+        if (categories.length === 0 && !isLoadingCategories) {
           console.log('No categories found, initializing predefined categories');
           await insertPredefinedCategories();
           // Refetch categories after initialization
           refetch();
-        } catch (error) {
-          console.error('Error initializing categories:', error);
-          toast({
-            title: "Error initializing categories",
-            description: "Could not create default categories. Please try again.",
-            variant: "destructive",
-          });
         }
+      } catch (error) {
+        console.error('Error initializing categories:', error);
+        toast({
+          title: "Error initializing categories",
+          description: "Could not create default categories. Please try again.",
+          variant: "destructive",
+        });
       }
     };
     
     initializeCategories();
   }, [categories.length, isLoadingCategories, refetch, toast]);
+
+  // If there was an error fetching categories, show a toast
+  useEffect(() => {
+    if (isError && error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Error loading categories",
+        description: "Failed to load document categories. Please refresh the page.",
+        variant: "destructive",
+      });
+    }
+  }, [isError, error, toast]);
 
   return {
     categories,

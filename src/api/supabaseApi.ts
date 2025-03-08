@@ -102,24 +102,33 @@ export const updateDocumentCategories = async (documentId: string, categoryIds: 
 // Helper function to add the predefined categories
 export const insertPredefinedCategories = async () => {
   try {
+    // Check if user is authenticated first
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      console.log('User not authenticated, skipping category creation');
+      return [];
+    }
+
+    const userId = session.session.user.id;
+    console.log('Creating categories for user:', userId);
+    
     const categories = [
-      { name: 'Weddings & Events', color: '#F97316' },
-      { name: 'Marketing & Advertising', color: '#8B5CF6' },
-      { name: 'Event Menus', color: '#10B981' },
-      { name: 'Staff', color: '#EC4899' },
-      { name: 'Finances', color: '#EF4444' },
-      { name: 'Admin', color: '#6366F1' }
+      { name: 'Weddings & Events', color: '#F97316', user_id: userId },
+      { name: 'Marketing & Advertising', color: '#8B5CF6', user_id: userId },
+      { name: 'Event Menus', color: '#10B981', user_id: userId },
+      { name: 'Staff', color: '#EC4899', user_id: userId },
+      { name: 'Finances', color: '#EF4444', user_id: userId },
+      { name: 'Admin', color: '#6366F1', user_id: userId }
     ];
     
-    // Since we don't have a unique constraint on name, we need to:
-    // 1. First check if categories exist
+    // First check if categories exist
     const { data: existingCategories, error: fetchError } = await supabase
       .from('document_categories')
       .select('name');
     
     if (fetchError) throw fetchError;
     
-    // 2. Only insert categories that don't exist yet
+    // Only insert categories that don't exist yet
     const existingNames = existingCategories.map(cat => cat.name);
     const newCategories = categories.filter(cat => !existingNames.includes(cat.name));
     
