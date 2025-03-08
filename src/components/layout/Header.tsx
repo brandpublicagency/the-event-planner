@@ -94,12 +94,7 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Subtitle area - only shown if subtitle exists and no children */}
-        {subtitle && !children && (
-          <div className="px-6 py-2">
-            <p className="text-sm text-zinc-500">{subtitle}</p>
-          </div>
-        )}
+        {/* Subtitle area has been completely removed */}
         
         {/* Action button section - removed the div with padding */}
         {actionButton && (
