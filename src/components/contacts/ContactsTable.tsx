@@ -9,9 +9,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Edit, Search } from "lucide-react";
+import { Edit, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Contact } from "@/types/contact";
 import { formatDate } from "@/utils/formatDate";
 
@@ -19,10 +29,17 @@ interface ContactsTableProps {
   contacts: Contact[];
   isLoading: boolean;
   onEditContact: (contact: Contact) => void;
+  onDeleteContact: (contact: Contact) => void;
 }
 
-const ContactsTable = ({ contacts, isLoading, onEditContact }: ContactsTableProps) => {
+const ContactsTable = ({ 
+  contacts, 
+  isLoading, 
+  onEditContact, 
+  onDeleteContact 
+}: ContactsTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
 
   const filteredContacts = contacts.filter(
     (contact) =>
@@ -31,6 +48,17 @@ const ContactsTable = ({ contacts, isLoading, onEditContact }: ContactsTableProp
       contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.phone.includes(searchTerm)
   );
+
+  const handleDeleteClick = (contact: Contact) => {
+    setContactToDelete(contact);
+  };
+
+  const handleConfirmDelete = () => {
+    if (contactToDelete) {
+      onDeleteContact(contactToDelete);
+      setContactToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -62,7 +90,7 @@ const ContactsTable = ({ contacts, isLoading, onEditContact }: ContactsTableProp
               <TableHead>Phone</TableHead>
               <TableHead>Last Event Date</TableHead>
               <TableHead>Venue</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -82,13 +110,22 @@ const ContactsTable = ({ contacts, isLoading, onEditContact }: ContactsTableProp
                   <TableCell>{contact.eventDate ? formatDate(contact.eventDate) : "-"}</TableCell>
                   <TableCell>{contact.venue}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEditContact(contact)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEditContact(contact)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(contact)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -100,6 +137,26 @@ const ContactsTable = ({ contacts, isLoading, onEditContact }: ContactsTableProp
       <div className="text-sm text-muted-foreground">
         {filteredContacts.length} contacts found
       </div>
+
+      <AlertDialog open={!!contactToDelete} onOpenChange={(open) => !open && setContactToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Contact</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {contactToDelete?.name}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={handleConfirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContactsTable from "@/components/contacts/ContactsTable";
 import ContactEditDrawer from "@/components/contacts/ContactEditDrawer";
 import type { Contact } from "@/types/contact";
+import { deleteContact } from "@/services/contactService";
 
 const Contacts = () => {
   const { toast } = useToast();
@@ -139,6 +139,24 @@ const Contacts = () => {
     setIsEditDrawerOpen(true);
   };
 
+  const handleDeleteContact = async (contact: Contact) => {
+    try {
+      await deleteContact(contact);
+      refetch();
+      toast({
+        title: "Success",
+        description: `Contact ${contact.name} has been deleted`,
+      });
+    } catch (error: any) {
+      console.error('Error deleting contact:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete contact",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleUpdateSuccess = () => {
     refetch();
     setIsEditDrawerOpen(false);
@@ -171,7 +189,8 @@ const Contacts = () => {
             <ContactsTable 
               contacts={filteredContacts} 
               isLoading={isLoading} 
-              onEditContact={handleEditContact} 
+              onEditContact={handleEditContact}
+              onDeleteContact={handleDeleteContact}
             />
           </TabsContent>
           
@@ -179,7 +198,8 @@ const Contacts = () => {
             <ContactsTable 
               contacts={filteredContacts} 
               isLoading={isLoading} 
-              onEditContact={handleEditContact} 
+              onEditContact={handleEditContact}
+              onDeleteContact={handleDeleteContact}
             />
           </TabsContent>
           
@@ -187,7 +207,8 @@ const Contacts = () => {
             <ContactsTable 
               contacts={filteredContacts} 
               isLoading={isLoading} 
-              onEditContact={handleEditContact} 
+              onEditContact={handleEditContact}
+              onDeleteContact={handleDeleteContact}
             />
           </TabsContent>
         </Tabs>
