@@ -46,20 +46,31 @@ export const fetchCategories = async () => {
 
 export const getDocumentCategories = async (documentId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('document_category_mappings')
-      .select(`
-        category_id,
-        document_categories (
-          id,
-          name,
-          color
-        )
-      `)
-      .eq('document_id', documentId);
+    // Since we don't have a mapping table yet, we'll use metadata in the documents table
+    // We'll get all categories and filter the ones that belong to this document
+    const { data: document, error: documentError } = await supabase
+      .from('documents')
+      .select('category_ids')
+      .eq('id', documentId)
+      .maybeSingle();
     
-    if (error) throw error;
-    return data.map(item => item.document_categories);
+    if (documentError) throw documentError;
+    
+    const categoryIds = document?.category_ids || [];
+    
+    if (categoryIds.length === 0) {
+      return [];
+    }
+    
+    // Fetch the actual category objects
+    const { data: categories, error: categoriesError } = await supabase
+      .from('document_categories')
+      .select('*')
+      .in('id', categoryIds);
+    
+    if (categoriesError) throw categoriesError;
+    
+    return categories || [];
   } catch (error) {
     console.error('Error fetching document categories:', error);
     throw error;
@@ -70,27 +81,13 @@ export const updateDocumentCategories = async (documentId: string, categoryIds: 
   try {
     console.log('Updating document categories:', documentId, categoryIds);
     
-    // First delete all existing mappings for this document
-    const { error: deleteError } = await supabase
-      .from('document_category_mappings')
-      .delete()
-      .eq('document_id', documentId);
+    // Update the document with the category IDs
+    const { error: updateError } = await supabase
+      .from('documents')
+      .update({ category_ids: categoryIds })
+      .eq('id', documentId);
     
-    if (deleteError) throw deleteError;
-    
-    // Then insert new mappings if there are any categories
-    if (categoryIds.length > 0) {
-      const mappings = categoryIds.map(categoryId => ({
-        document_id: documentId,
-        category_id: categoryId
-      }));
-      
-      const { error: insertError } = await supabase
-        .from('document_category_mappings')
-        .insert(mappings);
-      
-      if (insertError) throw insertError;
-    }
+    if (updateError) throw updateError;
     
     return true;
   } catch (error) {

@@ -1,3 +1,4 @@
+
 import { Json } from "@/integrations/supabase/types/json";
 
 export interface Document {
@@ -9,6 +10,7 @@ export interface Document {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  category_ids?: string[]; // Add this field for category IDs
 }
 
 export interface DocumentContent {

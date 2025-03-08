@@ -74,19 +74,16 @@ const ContactsPage = () => {
           <ContactsTabs 
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            contacts={filteredContacts}
+            isLoading={isLoading}
+            onEditContact={handleEditContact}
+            onDeleteContact={handleDeleteContact}
           />
         </div>
       </PageHeader>
       
       <div className="p-6">
-        <ContactsTabs 
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          contacts={filteredContacts}
-          isLoading={isLoading}
-          onEditContact={handleEditContact}
-          onDeleteContact={handleDeleteContact}
-        />
+        {/* Remove duplicate ContactsTabs component here since we already have it in the PageHeader */}
       </div>
 
       {isEditDrawerOpen && (

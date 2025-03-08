@@ -18,49 +18,21 @@ export default function DocumentList({ documents, selectedId, onSelect, category
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetch all document-category mappings in a single query
-  const { data: documentCategories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ['document-categories-mappings'],
+  // Fetch all categories to use for filtering
+  const { data: allCategories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['document-categories'],
     queryFn: async () => {
-      if (documents.length === 0) return {};
-      
       const { data, error } = await supabase
-        .from('document_category_mappings')
-        .select(`
-          document_id,
-          category_id,
-          document_categories (
-            id,
-            name
-          )
-        `)
-        .in('document_id', documents.map(doc => doc.id));
+        .from('document_categories')
+        .select('*');
       
       if (error) {
-        console.error("Error fetching document categories:", error);
-        return {};
+        console.error("Error fetching categories:", error);
+        return [];
       }
       
-      // Group categories by document ID
-      const categoriesByDocument: Record<string, Category[]> = {};
-      
-      data.forEach(mapping => {
-        if (!categoriesByDocument[mapping.document_id]) {
-          categoriesByDocument[mapping.document_id] = [];
-        }
-        
-        const category: Category = {
-          id: mapping.document_categories.id,
-          name: mapping.document_categories.name,
-          color: '' // We don't need color anymore, but keeping the field for type compatibility
-        };
-        
-        categoriesByDocument[mapping.document_id].push(category);
-      });
-      
-      return categoriesByDocument;
-    },
-    enabled: documents.length > 0,
+      return data;
+    }
   });
 
   const deleteDocument = useMutation({
@@ -94,8 +66,8 @@ export default function DocumentList({ documents, selectedId, onSelect, category
   // Filter documents by category if a filter is active
   const filteredDocuments = categoryFilter
     ? documents.filter(doc => 
-        documentCategories && 
-        documentCategories[doc.id]?.some(cat => cat.id === categoryFilter)
+        doc.category_ids && 
+        doc.category_ids.includes(categoryFilter)
       )
     : documents;
 
