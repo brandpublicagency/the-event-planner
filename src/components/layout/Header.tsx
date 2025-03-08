@@ -62,42 +62,32 @@ export const Header = ({
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
-      <div className="flex flex-col">
-        {/* Top section with user controls and page title */}
-        <div className="flex h-16 items-center px-6">
-          <div className="flex gap-4 items-center">
-            <MobileMenuToggle onClick={handleToggleMobileMenu} />
-            
-            {showBackButton && (
-              <BackButton path={backButtonPath} />
-            )}
-            
-            {/* Page title now in the top bar */}
-            {finalPageTitle && (
-              <h1 className="text-lg font-semibold tracking-tight text-zinc-900">{finalPageTitle}</h1>
-            )}
-          </div>
-
-          {/* Center area for custom content like search */}
-          {children && (
-            <div className="flex-1 flex items-center justify-center md:justify-start px-4 md:px-6">
-              {children}
-            </div>
+      <div className="flex items-center h-16 px-6">
+        <div className="flex gap-4 items-center">
+          <MobileMenuToggle onClick={handleToggleMobileMenu} />
+          
+          {showBackButton && (
+            <BackButton path={backButtonPath} />
           )}
-
-          <div className="ml-auto flex items-center gap-4">
-            <SearchBar />
-            <NotificationButton />
-            <UserMenu />
-          </div>
+          
+          {/* Page title now in the top bar */}
+          {finalPageTitle && (
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-900">{finalPageTitle}</h1>
+          )}
         </div>
-        
-        {/* Secondary action area - removed border-t */}
-        {secondaryAction && (
-          <div className="flex justify-end px-6 py-2">
-            {secondaryAction}
+
+        {/* Center area for custom content like search */}
+        {children && (
+          <div className="flex-1 flex items-center justify-center md:justify-start px-4 md:px-6">
+            {children}
           </div>
         )}
+
+        <div className="ml-auto flex items-center gap-4">
+          <SearchBar />
+          <NotificationButton />
+          <UserMenu />
+        </div>
       </div>
     </header>
   );

@@ -110,19 +110,10 @@ const Calendar = () => {
     .map(event => event.event_date ? new Date(event.event_date) : null)
     .filter(Boolean) as Date[];
 
-  const secondaryAction = (
-    <CalendarFilters
-      venues={venues}
-      selectedVenue={selectedVenue}
-      setSelectedVenue={setSelectedVenue}
-    />
-  );
-
   return (
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
-        secondaryAction={secondaryAction}
       >
         {isProfileLoading ? (
           <Skeleton className="h-24 w-full" />
@@ -132,6 +123,14 @@ const Calendar = () => {
       </Header>
       
       <div className="flex-1 p-6">
+        <div className="flex justify-end mb-4">
+          <CalendarFilters
+            venues={venues}
+            selectedVenue={selectedVenue}
+            setSelectedVenue={setSelectedVenue}
+          />
+        </div>
+        
         <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
           <Card className="p-6 bg-white border border-zinc-200 transition-colors">
             <CalendarComponent
