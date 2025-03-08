@@ -33,8 +33,6 @@ export const EventCard = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const location = useLocation();
-  const isPassedEventsPage = location.pathname === "/passed-events";
-  const isEventsPage = location.pathname === "/events";
 
   const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
     e.stopPropagation();
@@ -63,49 +61,47 @@ export const EventCard = ({
               >
                 {event.name}
               </button>
-              {!isPassedEventsPage && !isEventsPage && (
-                <div className="flex items-center gap-1">
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/events/${event.event_code}/edit`);
-                    }}
-                    className="p-0.5 text-zinc-400 hover:text-zinc-700"
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </button>
-                  {handleDelete && !isPassedEventsPage && !isEventsPage && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-0.5 text-zinc-400 hover:text-zinc-700"
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/events/${event.event_code}/edit`);
+                  }}
+                  className="p-0.5 text-zinc-400 hover:text-zinc-700"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+                {handleDelete && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-0.5 text-zinc-400 hover:text-zinc-700"
+                      >
+                        <Trash className="h-3 w-3" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this event? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(event.event_code)}
+                          className="bg-red-600 hover:bg-red-700"
                         >
-                          <Trash className="h-3 w-3" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this event? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(event.event_code)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                </div>
-              )}
-              {!isDashboard && !isPassedEventsPage && (
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+              {!isDashboard && (
                 <button
                   onClick={(e) => copyEventCode(e, event.event_code)}
                   className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
@@ -126,7 +122,7 @@ export const EventCard = ({
               </span>
             </div>
           </div>
-          {!isDashboard && handleDelete && !isPassedEventsPage && !isEventsPage && (
+          {!isDashboard && handleDelete && (
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"

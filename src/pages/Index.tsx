@@ -11,6 +11,7 @@ import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
+import { deleteEvent } from "@/services/eventService";
 
 const Index = () => {
   const { toast } = useToast();
@@ -97,6 +98,22 @@ const Index = () => {
               <EventsTable 
                 groupedEvents={groupedEvents}
                 isDashboard={true}
+                handleDelete={async (eventCode: string) => {
+                  try {
+                    await deleteEvent(eventCode);
+                    toast({
+                      title: "Event deleted",
+                      description: "Event has been deleted successfully",
+                    });
+                    refetch();
+                  } catch (error: any) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error",
+                      description: error.message || "Failed to delete event",
+                    });
+                  }
+                }}
               />
             )}
           </div>
