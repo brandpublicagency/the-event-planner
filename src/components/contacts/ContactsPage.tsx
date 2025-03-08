@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import ContactsTabs from "./ContactsTabs";
-import { PageHeader } from "@/components/PageHeader";
 import ContactEditDrawer from "./ContactEditDrawer";
 import { useContactsQuery } from "./hooks/useContactsQuery";
 import type { Contact } from "@/types/contact";
 import { deleteContact } from "@/services/contactService";
 import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ContactsPage = () => {
   const { toast } = useToast();
@@ -57,33 +57,28 @@ const ContactsPage = () => {
       ? contacts.filter(c => c.contactType.startsWith('wedding')) 
       : contacts.filter(c => c.contactType === 'corporate');
 
-  const actionButton = {
-    label: "Add Contact",
-    icon: <Plus className="h-4 w-4" />,
-    onClick: handleAddContact
-  };
-
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Contact Management"
-        pageTitle="Contacts"
-        actionButton={actionButton}
-      >
-        <div className="pt-4">
-          <ContactsTabs 
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            contacts={filteredContacts}
-            isLoading={isLoading}
-            onEditContact={handleEditContact}
-            onDeleteContact={handleDeleteContact}
-          />
-        </div>
-      </PageHeader>
-      
       <div className="p-6">
-        {/* Remove duplicate ContactsTabs component here since we already have it in the PageHeader */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold">Contacts</h1>
+          <Button 
+            onClick={handleAddContact} 
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Contact
+          </Button>
+        </div>
+        
+        <ContactsTabs 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          contacts={filteredContacts}
+          isLoading={isLoading}
+          onEditContact={handleEditContact}
+          onDeleteContact={handleDeleteContact}
+        />
       </div>
 
       {isEditDrawerOpen && (
