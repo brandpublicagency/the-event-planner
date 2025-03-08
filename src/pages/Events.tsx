@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -81,7 +80,7 @@ export default function Events() {
       
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-medium">Event List</h2>
+          <div></div>
           <Button 
             onClick={() => navigate('/events/new')}
             className="flex items-center gap-2"
