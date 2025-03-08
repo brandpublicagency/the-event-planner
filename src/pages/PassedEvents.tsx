@@ -81,7 +81,6 @@ const PassedEvents = () => {
   return (
     <div className="flex flex-col h-full">
       <Header
-        pageTitle="Passed Events"
         showBackButton
         backButtonPath="/events"
       >

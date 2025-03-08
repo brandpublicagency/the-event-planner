@@ -105,17 +105,16 @@ export const Header = ({
           </div>
         )}
         
-        {/* Action button section */}
+        {/* Action button section - removed the div with padding */}
         {actionButton && (
-          <div className="px-6 py-2 flex justify-end">
-            <Button 
-              onClick={actionButton.onClick}
-              variant={actionButton.variant || "default"}
-            >
-              {actionButton.icon}
-              <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
-            </Button>
-          </div>
+          <Button 
+            onClick={actionButton.onClick}
+            variant={actionButton.variant || "default"}
+            className="m-6"
+          >
+            {actionButton.icon}
+            <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
+          </Button>
         )}
 
         {/* Secondary action area */}
