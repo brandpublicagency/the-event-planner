@@ -1,10 +1,8 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { CategoryBadge } from "./CategoryBadge";
 import type { Document } from "@/types/document";
 import type { Category } from "@/types/category";
 
@@ -32,8 +30,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
           category_id,
           document_categories (
             id,
-            name,
-            color
+            name
           )
         `)
         .in('document_id', documents.map(doc => doc.id));
@@ -54,13 +51,12 @@ export default function DocumentList({ documents, selectedId, onSelect, category
         const category: Category = {
           id: mapping.document_categories.id,
           name: mapping.document_categories.name,
-          color: mapping.document_categories.color
+          color: '' // We don't need color anymore, but keeping the field for type compatibility
         };
         
         categoriesByDocument[mapping.document_id].push(category);
       });
       
-      console.log("Document categories mapping:", categoriesByDocument);
       return categoriesByDocument;
     },
     enabled: documents.length > 0,

@@ -36,13 +36,13 @@ export function CategorySelector({ selectedCategories, onChange }: CategorySelec
           <Tag className="h-4 w-4" />
           <span>Categories</span>
           {selectedCategories.length > 0 && (
-            <span className="bg-zinc-100 text-zinc-900 rounded-full px-2 py-0.5 text-xs">
+            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
               {selectedCategories.length}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-3" align="end">
+      <PopoverContent className="w-72 p-3" align="end">
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-sm font-medium">Document Categories</h4>
         </div>
@@ -72,7 +72,7 @@ export function CategorySelector({ selectedCategories, onChange }: CategorySelec
         
         {selectedCategories.length > 0 && (
           <div className="mt-3 border-t pt-3">
-            <h4 className="text-xs font-medium mb-1 text-muted-foreground">Selected Categories:</h4>
+            <h4 className="text-xs font-medium mb-1 text-muted-foreground">Selected:</h4>
             <div className="flex flex-wrap">
               {selectedCategories.map(category => (
                 <CategoryBadge

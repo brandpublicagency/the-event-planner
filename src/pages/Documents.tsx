@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Plus, Filter, X } from "lucide-react";
@@ -10,7 +9,7 @@ import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
-import { CategoryBadge } from "@/components/documents/CategoryBadge";
+import { Badge } from "@/components/ui/badge";
 import type { Document } from "@/types/document";
 
 export default function Documents() {
@@ -53,7 +52,6 @@ export default function Documents() {
     retry: 1,
   });
 
-  // Clear selected document id if the document is not available after filtering
   useEffect(() => {
     if (documents && selectedDocId) {
       const selectedDocExists = documents.some(doc => doc.id === selectedDocId);
@@ -163,13 +161,7 @@ export default function Documents() {
                 <SelectItem value="all">All Documents</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
-                    <div className="flex items-center">
-                      <div 
-                        className="w-2 h-2 rounded-full mr-2" 
-                        style={{ backgroundColor: category.color || '#888' }}
-                      ></div>
-                      {category.name}
-                    </div>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -190,12 +182,17 @@ export default function Documents() {
           {categoryFilter && categories.find(c => c.id === categoryFilter) && (
             <div className="flex items-center">
               <span className="text-sm text-muted-foreground mr-2">Filtered by:</span>
-              <CategoryBadge 
-                category={categories.find(c => c.id === categoryFilter)!}
-                selected={true}
-                showClose={true}
-                onRemove={handleClearFilter}
-              />
+              <Badge variant="outline" className="bg-muted text-muted-foreground font-normal">
+                {categories.find(c => c.id === categoryFilter)?.name}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-4 w-4 ml-1 p-0" 
+                  onClick={handleClearFilter}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
             </div>
           )}
           

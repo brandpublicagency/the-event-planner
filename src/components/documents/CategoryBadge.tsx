@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 import type { Category } from '@/types/category';
 
 interface CategoryBadgeProps {
@@ -20,11 +21,10 @@ export function CategoryBadge({
   onRemove,
   className = ""
 }: CategoryBadgeProps) {
-  const style = {
-    backgroundColor: selected ? category.color || '#e5e7eb' : 'transparent',
-    borderColor: category.color || '#e5e7eb',
-    color: selected ? 'white' : (category.color || '#4b5563'),
-  };
+  // Use monochromatic styling regardless of category color
+  const style = selected 
+    ? { backgroundColor: '#e5e7eb', color: '#374151' } 
+    : { backgroundColor: 'transparent', borderColor: '#e5e7eb', color: '#6b7280' };
 
   return (
     <Badge 
@@ -41,13 +41,13 @@ export function CategoryBadge({
       {category.name}
       {showClose && (
         <span 
-          className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+          className="ml-1.5 hover:bg-muted rounded-full p-0.5 flex items-center"
           onClick={(e) => {
             e.stopPropagation();
             if (onRemove) onRemove();
           }}
         >
-          &times;
+          <X className="h-3 w-3" />
         </span>
       )}
     </Badge>
