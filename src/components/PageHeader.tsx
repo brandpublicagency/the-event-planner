@@ -60,8 +60,8 @@ export function PageHeader({
         )}
       </div>
       
-      {/* Main header */}
-      <div className="main-header px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
+      {/* Main header - removed shadow-sm class */}
+      <div className="main-header px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
           <h2 className="page-title text-2xl font-bold tracking-tight text-zinc-900">{pageTitle}</h2>
           {subtitle && <p className="page-subtitle text-sm mt-1 text-zinc-500">{subtitle}</p>}
