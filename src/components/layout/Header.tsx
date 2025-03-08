@@ -55,11 +55,7 @@ export const Header = ({
     return 'Eventify';
   };
 
-  // Determine if we need to show a subtitle for the dashboard
-  const dashboardSubtitle = location.pathname === '/' && !subtitle 
-    ? 'Your upcoming events and tasks' 
-    : subtitle;
-
+  // Removed dashboard subtitle logic
   const finalPageTitle = pageTitle || getDefaultPageTitle();
   
   const handleToggleMobileMenu = () => {
@@ -99,9 +95,9 @@ export const Header = ({
         </div>
         
         {/* Subtitle area - only shown if subtitle exists and no children */}
-        {dashboardSubtitle && !children && (
+        {subtitle && !children && (
           <div className="px-6 py-2">
-            <p className="text-sm text-zinc-500">{dashboardSubtitle}</p>
+            <p className="text-sm text-zinc-500">{subtitle}</p>
           </div>
         )}
         
