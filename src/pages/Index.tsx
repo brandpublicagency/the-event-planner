@@ -81,7 +81,7 @@ const Index = () => {
         <ChatBox />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 md:p-8 flex-1 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 md:p-8 overflow-auto">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Events</h3>
@@ -89,7 +89,7 @@ const Index = () => {
               New Event
             </Button>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="overflow-auto">
             {isEventsLoading ? (
               <div className="flex items-center justify-center h-full">
                 <p className="text-sm text-muted-foreground">Loading events...</p>
@@ -126,7 +126,7 @@ const Index = () => {
               New Task
             </Button>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="overflow-auto">
             <TaskList 
               tasks={upcomingTasks}
               onTaskSelect={handleTaskSelect}

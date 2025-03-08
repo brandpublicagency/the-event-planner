@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
@@ -40,29 +39,28 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   if (isDashboard) {
     return (
-      <ScrollArea className="h-[400px]">
-        <div className="space-y-4">
-          {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
-            <EventMonthGroup
-              key={monthYear}
-              monthYear={monthYear}
-              events={monthEvents}
-              isDashboard={true}
-            />
-          ))}
-          {Object.keys(filteredGroupedEvents).length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No upcoming events
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+      <div className="space-y-4">
+        {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
+          <EventMonthGroup
+            key={monthYear}
+            monthYear={monthYear}
+            events={monthEvents}
+            handleDelete={handleDelete}
+            isDashboard={true}
+          />
+        ))}
+        {Object.keys(filteredGroupedEvents).length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            No upcoming events
+          </div>
+        )}
+      </div>
     );
   }
 
   return (
     <ScrollArea className={cn(
-      isDashboard ? "h-[400px]" : "h-[calc(100vh-12rem)]",
+      isDashboard ? "h-auto" : "h-[calc(100vh-12rem)]",
       className
     )}>
       <div className="space-y-4">
