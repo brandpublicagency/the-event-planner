@@ -9,6 +9,7 @@ import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
 import { CategorySelector } from "@/components/documents/CategorySelector";
+import { PageHeader } from "@/components/PageHeader";
 import type { Document } from "@/types/document";
 
 export default function Documents() {
@@ -127,64 +128,62 @@ export default function Documents() {
     );
   }
 
+  const actionButton = {
+    label: "New Document",
+    icon: <Plus className="h-4 w-4" />,
+    onClick: handleNewDocument,
+  };
+
   return (
-    <div className="flex h-full">
-      <div className="w-64 border-r bg-white p-4 flex flex-col h-full">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Search documents..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-9"
-            />
-            <Button size="sm" className="h-9">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-          
+    <div className="flex flex-col h-full">
+      <PageHeader
+        contextTitle="Document Management"
+        pageTitle="Documents"
+        actionButton={actionButton}
+      >
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Search documents..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-9"
+          />
+          <Button size="sm" className="h-9">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="mt-4">
           <CategorySelector 
             selectedCategory={categoryFilter}
             onChange={setCategoryFilter}
             includeAllOption={true}
             placeholder="Filter by category"
           />
-          
-          <div className="flex gap-2">
-            <Button 
-              className="flex-1" 
-              size="sm"
-              onClick={handleNewDocument}
-              disabled={createDocument.isPending}
-            >
-              {createDocument.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Plus className="h-4 w-4 mr-2" />
-              )}
-              New Document
-            </Button>
+        </div>
+      </PageHeader>
+      
+      <div className="flex flex-1 h-0 overflow-hidden">
+        <div className="w-64 border-r bg-white p-4 flex flex-col h-full overflow-hidden">
+          <div className="mt-4 flex-1 overflow-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <DocumentList
+                documents={filteredDocuments}
+                selectedId={selectedDocId}
+                onSelect={setSelectedDocId}
+                categoryFilter={categoryFilter}
+              />
+            )}
           </div>
         </div>
-        
-        <div className="mt-4 flex-1 overflow-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <DocumentList
-              documents={filteredDocuments}
-              selectedId={selectedDocId}
-              onSelect={setSelectedDocId}
-              categoryFilter={categoryFilter}
-            />
-          )}
-        </div>
-      </div>
 
-      <div className="flex-1 h-full overflow-auto">
-        <DocumentEditor documentId={selectedDocId} />
+        <div className="flex-1 h-full overflow-auto">
+          <DocumentEditor documentId={selectedDocId} />
+        </div>
       </div>
     </div>
   );

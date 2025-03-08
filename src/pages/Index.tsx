@@ -1,6 +1,4 @@
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,6 +10,9 @@ import { TaskList } from "@/components/TaskList";
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
+import { PageHeader } from "@/components/PageHeader";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
@@ -72,20 +73,21 @@ const Index = () => {
   const groupedEvents = groupEventsByMonth(events);
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex items-center justify-between p-4 md:p-8">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-      </div>
-
-      <div className="w-full px-4 md:px-8">
+    <div className="flex flex-col h-full">
+      <PageHeader
+        contextTitle="Event Management"
+        pageTitle="Dashboard"
+        subtitle="Your upcoming events and tasks"
+      >
         <ChatBox />
-      </div>
+      </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 md:p-8 overflow-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Events</h3>
             <Button onClick={() => navigate('/events/new')} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
               New Event
             </Button>
           </div>
@@ -123,6 +125,7 @@ const Index = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Upcoming Tasks</h3>
             <Button onClick={() => navigate('/tasks')} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
               New Task
             </Button>
           </div>

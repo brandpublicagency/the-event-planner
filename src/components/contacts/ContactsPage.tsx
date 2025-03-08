@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import ContactsTabs from "./ContactsTabs";
-import ContactsHeader from "./ContactsHeader";
+import { PageHeader } from "@/components/PageHeader";
 import ContactEditDrawer from "./ContactEditDrawer";
 import { useContactsQuery } from "./hooks/useContactsQuery";
 import type { Contact } from "@/types/contact";
 import { deleteContact } from "@/services/contactService";
+import { Plus } from "lucide-react";
 
 const ContactsPage = () => {
   const { toast } = useToast();
@@ -15,6 +16,11 @@ const ContactsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   const { data: contacts = [], isLoading, refetch } = useContactsQuery();
+
+  const handleAddContact = () => {
+    setSelectedContact(null);
+    setIsEditDrawerOpen(true);
+  };
 
   const handleEditContact = (contact: Contact) => {
     setSelectedContact(contact);
@@ -51,11 +57,21 @@ const ContactsPage = () => {
       ? contacts.filter(c => c.contactType.startsWith('wedding')) 
       : contacts.filter(c => c.contactType === 'corporate');
 
+  const actionButton = {
+    label: "Add Contact",
+    icon: <Plus className="h-4 w-4" />,
+    onClick: handleAddContact
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <ContactsHeader />
+      <PageHeader
+        contextTitle="Contact Management"
+        pageTitle="Contacts"
+        actionButton={actionButton}
+      />
       
-      <div className="p-4 md:p-8 pt-0">
+      <div className="p-6">
         <ContactsTabs 
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -66,7 +82,7 @@ const ContactsPage = () => {
         />
       </div>
 
-      {selectedContact && (
+      {isEditDrawerOpen && (
         <ContactEditDrawer
           contact={selectedContact}
           isOpen={isEditDrawerOpen}
@@ -76,6 +92,6 @@ const ContactsPage = () => {
       )}
     </div>
   );
-};
+}
 
 export default ContactsPage;

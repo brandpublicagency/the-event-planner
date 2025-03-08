@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -11,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/PageHeader";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -108,31 +110,29 @@ const Calendar = () => {
     .map(event => event.event_date ? new Date(event.event_date) : null)
     .filter(Boolean) as Date[];
 
+  const secondaryAction = (
+    <CalendarFilters
+      venues={venues}
+      selectedVenue={selectedVenue}
+      setSelectedVenue={setSelectedVenue}
+    />
+  );
+
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-zinc-50/50">
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="h-6 w-6 text-zinc-900" />
-            <h2 className="text-2xl font-semibold text-zinc-900">
-              {date ? format(date, "MMMM d, yyyy") : "Calendar"}
-            </h2>
-          </div>
-          <CalendarFilters
-            venues={venues}
-            selectedVenue={selectedVenue}
-            setSelectedVenue={setSelectedVenue}
-          />
-        </div>
-        
+    <div className="flex flex-col h-full">
+      <PageHeader
+        contextTitle="Calendar View"
+        pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
+        secondaryAction={secondaryAction}
+      >
         {isProfileLoading ? (
-          <div className="w-full">
-            <Skeleton className="h-24 w-full" />
-          </div>
+          <Skeleton className="h-24 w-full" />
         ) : (
           <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
         )}
-
+      </PageHeader>
+      
+      <div className="flex-1 p-6">
         <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
           <Card className="p-6 bg-white border border-zinc-200 transition-colors">
             <CalendarComponent

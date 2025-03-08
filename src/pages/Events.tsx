@@ -4,13 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
-import Header from "@/components/Header";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteEvent } from "@/services/eventService";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -75,18 +74,21 @@ export default function Events() {
     });
   }
 
+  const actionButton = {
+    label: "Add Event",
+    icon: <Plus className="h-4 w-4" />,
+    onClick: () => navigate('/events/new')
+  };
+
   return (
-    <div className="flex h-full flex-col">
-      <Header />
-      <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Events</h2>
-          <div className="flex items-center space-x-2">
-            <Button onClick={() => navigate('/events/new')}>
-              <Plus className="mr-2 h-4 w-4" /> Add Event
-            </Button>
-          </div>
-        </div>
+    <div className="flex flex-col h-full">
+      <PageHeader
+        contextTitle="Event Management"
+        pageTitle="Events"
+        actionButton={actionButton}
+      />
+      
+      <div className="flex-1 p-6">
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">Loading events...</p>

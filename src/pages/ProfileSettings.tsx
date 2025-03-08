@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Header from "@/components/Header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileSection from "@/components/profile/ProfileSection";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/PageHeader";
 
 // Define a type for the profile data
 interface ProfileFormData {
@@ -127,15 +127,13 @@ const ProfileSettings = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <Header />
-      <div className="flex-1 space-y-8 overflow-hidden p-8">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Profile Settings</h2>
-          <p className="text-muted-foreground">
-            Manage your profile information
-          </p>
-        </div>
-
+      <PageHeader
+        contextTitle="User Settings"
+        pageTitle="Profile Settings"
+        subtitle="Manage your profile information"
+      />
+      
+      <div className="flex-1 p-6 overflow-hidden">
         <ScrollArea className="h-full">
           <ProfileSection
             profile={profile}

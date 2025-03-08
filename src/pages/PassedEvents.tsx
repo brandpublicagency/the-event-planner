@@ -1,6 +1,4 @@
 
-import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
 import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
+import { PageHeader } from "@/components/PageHeader";
+import { Search } from "lucide-react";
 
 const PassedEvents = () => {
   const { toast } = useToast();
@@ -79,13 +79,12 @@ const PassedEvents = () => {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Passed Events</h2>
-        <p className="text-muted-foreground">View and manage completed events</p>
-      </div>
-      
-      <div className="flex items-center space-x-2">
+    <div className="flex flex-col h-full">
+      <PageHeader
+        contextTitle="Event Management"
+        pageTitle="Passed Events"
+        subtitle="View and manage completed events"
+      >
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input 
@@ -95,37 +94,39 @@ const PassedEvents = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+      </PageHeader>
+      
+      <div className="flex-1 p-6">
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-[200px] w-full rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <EventsTable 
+            groupedEvents={filteredEvents}
+            handleDelete={async (eventCode: string) => {
+              try {
+                await deleteEvent(eventCode);
+
+                toast({
+                  title: "Success",
+                  description: "Event deleted successfully",
+                });
+
+                refetch();
+              } catch (error: any) {
+                toast({
+                  title: "Error",
+                  description: error.message || "Failed to delete event",
+                  variant: "destructive",
+                });
+              }
+            }}
+          />
+        )}
       </div>
-
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-[200px] w-full rounded-lg" />
-          ))}
-        </div>
-      ) : (
-        <EventsTable 
-          groupedEvents={filteredEvents}
-          handleDelete={async (eventCode: string) => {
-            try {
-              await deleteEvent(eventCode);
-
-              toast({
-                title: "Success",
-                description: "Event deleted successfully",
-              });
-
-              refetch();
-            } catch (error: any) {
-              toast({
-                title: "Error",
-                description: error.message || "Failed to delete event",
-                variant: "destructive",
-              });
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
