@@ -55,29 +55,13 @@ export const Header = ({
     return 'Eventify';
   };
 
-  // Get default context title based on current route
-  const getDefaultContextTitle = () => {
-    const path = location.pathname;
-    
-    if (path === '/') return 'Event Management';
-    if (path === '/events' || path.includes('/events/')) return 'Event Management';
-    if (path === '/passed-events') return 'Event Management';
-    if (path === '/calendar') return 'Event Management';
-    if (path === '/tasks' || path.includes('/tasks/')) return 'Task Management';
-    if (path === '/contacts') return 'Contact Management';
-    if (path === '/documents') return 'Document Management';
-    
-    return undefined;
-  };
-
-  const finalPageTitle = pageTitle || getDefaultPageTitle();
-  const finalContextTitle = contextTitle || getDefaultContextTitle();
-  
   // Determine if we need to show a subtitle for the dashboard
   const dashboardSubtitle = location.pathname === '/' && !subtitle 
     ? 'Your upcoming events and tasks' 
     : subtitle;
 
+  const finalPageTitle = pageTitle || getDefaultPageTitle();
+  
   const handleToggleMobileMenu = () => {
     document.documentElement.classList.toggle('sidebar-open');
   };
@@ -90,12 +74,8 @@ export const Header = ({
           <div className="flex gap-4 items-center">
             <MobileMenuToggle onClick={handleToggleMobileMenu} />
             
-            {showBackButton ? (
+            {showBackButton && (
               <BackButton path={backButtonPath} />
-            ) : (
-              finalContextTitle && (
-                <span className="hidden md:inline-block text-sm font-medium text-zinc-500">{finalContextTitle}</span>
-              )
             )}
           </div>
 
@@ -110,7 +90,6 @@ export const Header = ({
         <HeaderActions 
           pageTitle={finalPageTitle} 
           subtitle={dashboardSubtitle}
-          contextTitle={finalContextTitle}  
           actionButton={actionButton} 
         />
         
