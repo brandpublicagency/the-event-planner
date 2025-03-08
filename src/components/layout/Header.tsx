@@ -92,9 +92,9 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Secondary action area */}
+        {/* Secondary action area - removed border-t */}
         {secondaryAction && (
-          <div className="flex justify-end px-6 py-2 border-t border-zinc-100">
+          <div className="flex justify-end px-6 py-2">
             {secondaryAction}
           </div>
         )}
