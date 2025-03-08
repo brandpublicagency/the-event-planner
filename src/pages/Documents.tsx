@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Tag, Search } from "lucide-react";
@@ -115,12 +114,10 @@ export default function Documents() {
     createDocument.mutate();
   };
 
-  // Filter documents by search query
   const searchFilteredDocuments = documents?.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  // Apply category filter on top of search filter if needed
   const filteredDocuments = categoryFilter && categoryFilter !== 'all'
     ? searchFilteredDocuments.filter(doc => 
         doc.category_ids && 
@@ -147,25 +144,7 @@ export default function Documents() {
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Documents">
-        <div className="flex-1 flex items-center justify-between gap-4 ml-6">
-          <div className="flex items-center gap-4 max-w-md w-full">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search documents..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 pl-9 pr-4 w-full"
-              />
-            </div>
-            <CategorySelector 
-              selectedCategory={categoryFilter}
-              onChange={setCategoryFilter}
-              includeAllOption={true}
-              placeholder="Filter by category"
-            />
-          </div>
-          
+        <div className="flex-1 flex items-center justify-end gap-4 ml-6">
           {!isLoading && filteredDocuments.length > 0 && (
             <div className="hidden md:flex items-center gap-2">
               <Badge variant="outline" className="bg-white">
@@ -215,6 +194,26 @@ export default function Documents() {
                 categoryFilter={categoryFilter}
               />
             )}
+          </div>
+          
+          <div className="p-3 border-t bg-gray-50">
+            <div className="flex flex-col gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 pl-9 pr-4 w-full"
+                />
+              </div>
+              <CategorySelector 
+                selectedCategory={categoryFilter}
+                onChange={setCategoryFilter}
+                includeAllOption={true}
+                placeholder="Filter by category"
+              />
+            </div>
           </div>
         </Card>
 
