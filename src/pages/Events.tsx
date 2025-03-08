@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -8,7 +9,7 @@ import { format } from "date-fns";
 import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteEvent } from "@/services/eventService";
-import { PageHeader } from "@/components/PageHeader";
+import { Header } from "@/components/layout/Header";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -75,8 +76,7 @@ export default function Events() {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Event Management"
+      <Header
         pageTitle="Events"
         actionButton={{
           label: "Add Event",

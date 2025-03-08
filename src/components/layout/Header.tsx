@@ -7,7 +7,8 @@ import { SearchBar } from "./SearchBar";
 import { NotificationButton } from "./NotificationButton";
 import { BackButton } from "./BackButton";
 import { MobileMenuToggle } from "./MobileMenuToggle";
-import { HeaderActions } from "./HeaderActions";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface ActionButtonProps {
   label: string;
@@ -94,9 +95,7 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Subtitle area has been completely removed */}
-        
-        {/* Action button section - removed the div with padding */}
+        {/* Action button section */}
         {actionButton && (
           <Button 
             onClick={actionButton.onClick}
@@ -118,7 +117,3 @@ export const Header = ({
     </header>
   );
 };
-
-// Missing import for Button and cn
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";

@@ -1,9 +1,9 @@
 
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { useSearchParams } from "react-router-dom";
-import { PageHeader } from "@/components/PageHeader";
-import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 const Tasks = () => {
   const [searchParams] = useSearchParams();
@@ -12,10 +12,8 @@ const Tasks = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Task Management"
+      <Header
         pageTitle="Tasks"
-        subtitle="Manage and track your team's tasks efficiently"
         actionButton={{
           label: "New Task",
           icon: <Plus className="h-4 w-4" />,

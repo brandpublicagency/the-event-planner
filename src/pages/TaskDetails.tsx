@@ -1,9 +1,11 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/layout/Header";
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -39,35 +41,42 @@ const TaskDetails = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">{task.title}</h1>
-          <div className="flex items-center gap-3 mt-2">
-            {task.priority && (
-              <Badge variant="secondary">{task.priority}</Badge>
-            )}
-            {task.due_date && (
-              <span className="text-sm text-muted-foreground">
-                Due {format(new Date(task.due_date), "PPP")}
-              </span>
+    <div className="flex flex-col h-full">
+      <Header 
+        pageTitle={task.title}
+        showBackButton
+        backButtonPath="/tasks"
+      />
+      
+      <div className="p-6 max-w-4xl mx-auto w-full">
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center gap-3 mt-2">
+              {task.priority && (
+                <Badge variant="secondary">{task.priority}</Badge>
+              )}
+              {task.due_date && (
+                <span className="text-sm text-muted-foreground">
+                  Due {format(new Date(task.due_date), "PPP")}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-medium">Notes</h2>
+            {task.notes && task.notes.length > 0 ? (
+              <div className="space-y-2">
+                {task.notes.map((note, index) => (
+                  <div key={index} className="p-3 bg-muted rounded-lg">
+                    {note}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No notes added yet</p>
             )}
           </div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-lg font-medium">Notes</h2>
-          {task.notes && task.notes.length > 0 ? (
-            <div className="space-y-2">
-              {task.notes.map((note, index) => (
-                <div key={index} className="p-3 bg-muted rounded-lg">
-                  {note}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">No notes added yet</p>
-          )}
         </div>
       </div>
     </div>
