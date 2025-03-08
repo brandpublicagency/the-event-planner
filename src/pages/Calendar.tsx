@@ -5,7 +5,6 @@ import { useState } from "react";
 import { format } from "date-fns";
 import CalendarFilters from "@/components/calendar/CalendarFilters";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { EventsList } from "@/components/calendar/EventsList";
 import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
@@ -113,13 +112,7 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
-      >
-        {isProfileLoading ? (
-          <Skeleton className="h-10 w-full" />
-        ) : (
-          <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
-        )}
-      </Header>
+      />
       
       <div className="flex-1 p-6">
         <div className="flex justify-end mb-4">
