@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const corsHeaders = {
@@ -63,14 +64,26 @@ serve(async (req) => {
     const image = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
                  html.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
 
+    const siteName = html.match(/<meta[^>]*property="og:site_name"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+    
+    const favicon = html.match(/<link[^>]*rel="icon"[^>]*href="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                  html.match(/<link[^>]*rel="shortcut icon"[^>]*href="([^"]*)"[^>]*>/i)?.[1]?.trim();
+
     const domain = new URL(url).hostname;
+
+    // Normalize relative URLs for favicon and image
+    const baseUrl = new URL(url).origin;
+    const normalizedImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`) : null;
+    const normalizedFavicon = favicon ? (favicon.startsWith('http') ? favicon : `${baseUrl}${favicon.startsWith('/') ? '' : '/'}${favicon}`) : `${baseUrl}/favicon.ico`;
 
     const preview = {
       url,
       title: title || domain,
       description,
-      image_url: image,
+      image_url: normalizedImage,
       domain,
+      site_name: siteName || domain,
+      favicon: normalizedFavicon
     };
 
     console.log('Generated preview:', preview);

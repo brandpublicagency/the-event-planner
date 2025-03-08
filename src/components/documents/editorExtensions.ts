@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -9,6 +10,13 @@ import { Plugin, PluginKey } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 
 const lowlight = createLowlight(common);
+
+interface LinkPreviewData {
+  url: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+}
 
 // Create a custom extension for handling URL pastes
 const PasteUrlHandler = Extension.create({
@@ -29,6 +37,11 @@ const PasteUrlHandler = Extension.create({
             try {
               const url = new URL(text);
               
+              // Only handle HTTP/HTTPS URLs
+              if (!url.protocol.startsWith('http')) {
+                return false;
+              }
+              
               // Insert the link immediately
               const { tr } = view.state;
               const link = view.state.schema.marks.link.create({ href: text });
@@ -38,18 +51,29 @@ const PasteUrlHandler = Extension.create({
               ).addMark(tr.selection.from, tr.selection.from + text.length, link));
 
               // Start async preview fetch
-              fetch(`/api/fetch-link-preview?url=${encodeURIComponent(text)}`)
-                .then(response => response.json())
+              fetch('/api/fetch-link-preview', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: text }),
+              })
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error('Failed to fetch preview');
+                  }
+                  return response.json();
+                })
                 .then(preview => {
                   if (preview.title) {
-                    const previewText = `${preview.title}\n${text}`;
+                    // Replace the URL with the title as link text
                     const newTr = view.state.tr.replaceWith(
                       tr.selection.from - text.length,
                       tr.selection.from,
-                      view.state.schema.text(previewText)
+                      view.state.schema.text(preview.title)
                     ).addMark(
                       tr.selection.from - text.length,
-                      tr.selection.from - text.length + previewText.length,
+                      tr.selection.from - text.length + preview.title.length,
                       link
                     );
                     view.dispatch(newTr);
