@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -128,7 +127,6 @@ const ProfileSettings = () => {
   return (
     <div className="flex h-full flex-col">
       <Header
-        contextTitle="User Settings"
         pageTitle="Profile Settings"
       />
       

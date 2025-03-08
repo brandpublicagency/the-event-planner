@@ -61,7 +61,7 @@ const ContactsPage = () => {
     <div className="flex flex-col h-full">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Contacts</h1>
+          <div></div>
           <Button 
             onClick={handleAddContact} 
             className="flex items-center gap-2"
