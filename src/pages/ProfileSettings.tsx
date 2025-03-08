@@ -8,12 +8,19 @@ import ProfileSection from "@/components/profile/ProfileSection";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
+// Define a type for the profile data
+interface ProfileFormData {
+  full_name: string;
+  surname: string;
+  mobile: string;
+}
+
 const ProfileSettings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<ProfileFormData>({
     full_name: "",
     surname: "",
     mobile: "",
@@ -67,9 +74,9 @@ const ProfileSettings = () => {
     },
   });
 
-  // Create a mutation to update the profile
+  // Create a mutation to update the profile with proper typing
   const updateProfileMutation = useMutation({
-    mutationFn: async (updatedProfile) => {
+    mutationFn: async (updatedProfile: ProfileFormData) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user found');
 
@@ -99,7 +106,7 @@ const ProfileSettings = () => {
     }
   });
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = () => {
     updateProfileMutation.mutate(editForm);
   };
 
