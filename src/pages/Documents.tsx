@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryBadge } from "@/components/documents/CategoryBadge";
@@ -52,6 +52,16 @@ export default function Documents() {
     },
     retry: 1,
   });
+
+  // Clear selected document id if the document is not available after filtering
+  useEffect(() => {
+    if (documents && selectedDocId) {
+      const selectedDocExists = documents.some(doc => doc.id === selectedDocId);
+      if (!selectedDocExists) {
+        setSelectedDocId(null);
+      }
+    }
+  }, [documents, selectedDocId]);
 
   const createDocument = useMutation({
     mutationFn: async () => {

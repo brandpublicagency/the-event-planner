@@ -20,7 +20,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
   const queryClient = useQueryClient();
 
   // Fetch all document-category mappings in a single query
-  const { data: documentCategories } = useQuery({
+  const { data: documentCategories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ['document-categories-mappings'],
     queryFn: async () => {
       if (documents.length === 0) return {};
@@ -60,6 +60,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
         categoriesByDocument[mapping.document_id].push(category);
       });
       
+      console.log("Document categories mapping:", categoriesByDocument);
       return categoriesByDocument;
     },
     enabled: documents.length > 0,
@@ -94,7 +95,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
   });
 
   // Filter documents by category if a filter is active
-  const filteredDocuments = categoryFilter && categoryFilter !== "all"
+  const filteredDocuments = categoryFilter
     ? documents.filter(doc => 
         documentCategories && 
         documentCategories[doc.id]?.some(cat => cat.id === categoryFilter)
@@ -103,51 +104,59 @@ export default function DocumentList({ documents, selectedId, onSelect, category
 
   return (
     <div className="space-y-1">
-      {filteredDocuments.map((doc) => (
-        <div
-          key={doc.id}
-          className={`flex flex-col justify-between group px-2 py-1 rounded-md cursor-pointer ${
-            selectedId === doc.id ? "bg-accent" : "hover:bg-accent/50"
-          }`}
-          onClick={() => onSelect(doc.id)}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (window.confirm("Are you sure you want to delete this document?")) {
-                  deleteDocument.mutate(doc.id);
-                }
-              }}
-              disabled={deleteDocument.isPending}
-            >
-              <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
-            </Button>
-          </div>
-          
-          {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
-            <div className="flex flex-wrap mt-1">
-              {documentCategories[doc.id].slice(0, 2).map(category => (
-                <CategoryBadge 
-                  key={category.id} 
-                  category={category}
-                  selected={true}
-                  className="text-xs py-0 px-2 h-5"
-                />
-              ))}
-              {documentCategories[doc.id].length > 2 && (
-                <span className="text-xs text-muted-foreground ml-1 mt-0.5">
-                  +{documentCategories[doc.id].length - 2} more
-                </span>
-              )}
-            </div>
-          )}
+      {isLoadingCategories ? (
+        <div className="text-sm text-muted-foreground text-center py-2">Loading...</div>
+      ) : filteredDocuments.length === 0 ? (
+        <div className="text-sm text-muted-foreground text-center py-2">
+          {categoryFilter ? "No documents match the selected category" : "No documents found"}
         </div>
-      ))}
+      ) : (
+        filteredDocuments.map((doc) => (
+          <div
+            key={doc.id}
+            className={`flex flex-col justify-between group px-2 py-1 rounded-md cursor-pointer ${
+              selectedId === doc.id ? "bg-accent" : "hover:bg-accent/50"
+            }`}
+            onClick={() => onSelect(doc.id)}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm("Are you sure you want to delete this document?")) {
+                    deleteDocument.mutate(doc.id);
+                  }
+                }}
+                disabled={deleteDocument.isPending}
+              >
+                <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
+              </Button>
+            </div>
+            
+            {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
+              <div className="flex flex-wrap mt-1">
+                {documentCategories[doc.id].slice(0, 2).map(category => (
+                  <CategoryBadge 
+                    key={category.id} 
+                    category={category}
+                    selected={true}
+                    className="text-xs py-0 px-2 h-5"
+                  />
+                ))}
+                {documentCategories[doc.id].length > 2 && (
+                  <span className="text-xs text-muted-foreground ml-1 mt-0.5">
+                    +{documentCategories[doc.id].length - 2} more
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 }
