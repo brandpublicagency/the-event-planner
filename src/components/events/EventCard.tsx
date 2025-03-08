@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Trash, Copy, Pencil } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Trash, Copy, Pencil } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
@@ -74,7 +73,7 @@ export const EventCard = ({
                   >
                     <Pencil className="h-3 w-3" />
                   </button>
-                  {handleDelete && (
+                  {handleDelete && !isPassedEventsPage && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <button

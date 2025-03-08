@@ -20,7 +20,6 @@ const Index = () => {
   const { data: events = [], refetch, isLoading: isEventsLoading } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
-      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -62,7 +61,6 @@ const Index = () => {
     retry: 1,
   });
 
-  // Filter for upcoming tasks
   const upcomingTasks = tasks.filter(task => !task.completed);
 
   const handleTaskSelect = (id: string) => {

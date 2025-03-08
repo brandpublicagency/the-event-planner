@@ -37,21 +37,18 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
         "divide-y",
         isDashboard && "grid grid-cols-1 gap-2 p-2 divide-y-0"
       )}>
-        {events.map((event) => (
-          isDashboard ? (
-            <DashboardEventItem 
+        {isDashboard ? (
+          events.map((event) => <DashboardEventItem key={event.event_code} event={event} />)
+        ) : (
+          events.map((event) => (
+            <EventCard 
               key={event.event_code} 
               event={event} 
-            />
-          ) : (
-            <EventCard
-              key={event.event_code}
-              event={event}
               handleDelete={handleDelete}
               isDashboard={isDashboard}
             />
-          )
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

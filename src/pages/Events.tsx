@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
+import { deleteEvent } from "@/services/eventService";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ export default function Events() {
   const { data: events, isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -56,7 +56,6 @@ export default function Events() {
     retry: 1,
   });
 
-  // Group events by month and year
   const groupedEvents = events?.reduce((acc: Record<string, Event[]>, event) => {
     if (!event.event_date) return acc;
     const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
@@ -92,7 +91,25 @@ export default function Events() {
             <p className="text-sm text-muted-foreground">Loading events...</p>
           </div>
         ) : (
-          <EventsTable groupedEvents={groupedEvents} />
+          <EventsTable 
+            groupedEvents={groupedEvents} 
+            handleDelete={async (eventCode: string) => {
+              try {
+                await deleteEvent(eventCode);
+                toast({
+                  title: "Event deleted",
+                  description: "Event has been deleted successfully",
+                });
+                refetch();
+              } catch (error: any) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: error.message || "Failed to delete event",
+                });
+              }
+            }}
+          />
         )}
       </div>
     </div>
