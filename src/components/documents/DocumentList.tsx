@@ -33,8 +33,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
           document_categories (
             id,
             name,
-            color,
-            created_at
+            color
           )
         `)
         .in('document_id', documents.map(doc => doc.id));
@@ -52,12 +51,10 @@ export default function DocumentList({ documents, selectedId, onSelect, category
           categoriesByDocument[mapping.document_id] = [];
         }
         
-        // Ensure we have a complete Category object with all required fields
         const category: Category = {
           id: mapping.document_categories.id,
           name: mapping.document_categories.name,
-          color: mapping.document_categories.color,
-          created_at: mapping.document_categories.created_at
+          color: mapping.document_categories.color
         };
         
         categoriesByDocument[mapping.document_id].push(category);
@@ -97,7 +94,7 @@ export default function DocumentList({ documents, selectedId, onSelect, category
   });
 
   // Filter documents by category if a filter is active
-  const filteredDocuments = categoryFilter 
+  const filteredDocuments = categoryFilter && categoryFilter !== "all"
     ? documents.filter(doc => 
         documentCategories && 
         documentCategories[doc.id]?.some(cat => cat.id === categoryFilter)

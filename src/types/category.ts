@@ -2,9 +2,7 @@
 export interface Category {
   id: string;
   name: string;
-  color: string | null;
-  created_at: string;
-  user_id?: string;
+  color: string;
 }
 
 export interface DocumentCategoryMapping {

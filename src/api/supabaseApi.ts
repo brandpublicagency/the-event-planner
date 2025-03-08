@@ -37,62 +37,6 @@ export const fetchCategories = async () => {
   }
 };
 
-export const createCategory = async (name: string, color?: string) => {
-  try {
-    // Get the current user's ID
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('User not authenticated');
-    
-    const { data, error } = await supabase
-      .from('document_categories')
-      .insert({ 
-        name, 
-        color,
-        user_id: session.user.id
-      })
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error creating category:', error);
-    throw error;
-  }
-};
-
-export const updateCategory = async (id: string, updates: { name?: string, color?: string }) => {
-  try {
-    const { data, error } = await supabase
-      .from('document_categories')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error updating category:', error);
-    throw error;
-  }
-};
-
-export const deleteCategory = async (id: string) => {
-  try {
-    const { error } = await supabase
-      .from('document_categories')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Error deleting category:', error);
-    throw error;
-  }
-};
-
 export const getDocumentCategories = async (documentId: string) => {
   try {
     const { data, error } = await supabase

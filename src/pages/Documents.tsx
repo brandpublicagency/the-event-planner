@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
-import { CategoryManager } from "@/components/documents/CategoryManager";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
@@ -143,7 +142,7 @@ export default function Documents() {
           </div>
           
           <div className="flex items-center gap-2">
-            <Select value={categoryFilter || ""} onValueChange={(value) => setCategoryFilter(value || null)}>
+            <Select value={categoryFilter || "all"} onValueChange={(value) => setCategoryFilter(value === "all" ? null : value)}>
               <SelectTrigger className="h-9 flex-1">
                 <div className="flex items-center">
                   <Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
@@ -204,7 +203,6 @@ export default function Documents() {
               )}
               New Document
             </Button>
-            <CategoryManager />
           </div>
         </div>
         
