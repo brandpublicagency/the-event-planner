@@ -88,15 +88,13 @@ const ContactsTable = ({
               <TableHead>Company</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
-              <TableHead>Last Event Date</TableHead>
-              <TableHead>Venue</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredContacts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                   No contacts found
                 </TableCell>
               </TableRow>
@@ -107,8 +105,6 @@ const ContactsTable = ({
                   <TableCell>{contact.company || "-"}</TableCell>
                   <TableCell>{contact.email || "-"}</TableCell>
                   <TableCell>{contact.phone || "-"}</TableCell>
-                  <TableCell>{contact.eventDate ? formatDate(contact.eventDate) : "-"}</TableCell>
-                  <TableCell>{contact.venue}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button

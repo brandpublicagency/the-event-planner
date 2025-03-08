@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { updateContact } from "@/services/contactService";
 import type { Contact } from "@/types/contact";
 import OffCanvasDrawer from "@/components/ui/off-canvas-drawer";
+import { formatDate } from "@/utils/formatDate";
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -75,6 +76,24 @@ const ContactEditDrawer = ({
       onClose={onClose} 
       title={`Edit Contact: ${contact.name}`}
     >
+      <div className="mb-6 p-4 bg-gray-50 rounded-md">
+        <h3 className="text-sm font-medium text-gray-500 mb-2">Event Information</h3>
+        <div className="grid gap-2">
+          <div className="flex justify-between">
+            <span className="text-sm font-medium">Event:</span>
+            <span className="text-sm">{contact.eventName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm font-medium">Date:</span>
+            <span className="text-sm">{contact.eventDate ? formatDate(contact.eventDate) : 'Not specified'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm font-medium">Venue:</span>
+            <span className="text-sm">{contact.venue || 'Not specified'}</span>
+          </div>
+        </div>
+      </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
