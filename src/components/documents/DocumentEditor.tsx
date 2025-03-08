@@ -10,9 +10,11 @@ import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { Category } from "@/types/category";
+
 interface DocumentEditorProps {
   documentId: string | null;
 }
+
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
@@ -42,21 +44,17 @@ export default function DocumentEditor({
     updateDocumentCategories
   } = useDocumentCategories(documentId);
 
-  // Update selected categories when document categories load or change
   useEffect(() => {
     if (!documentCategories || !categories || categories.length === 0) return;
     const selected = documentCategories.map(docCat => {
-      // Find the full category object including color
       const fullCategory = categories.find(c => c.id === docCat.id);
       return fullCategory || docCat;
     });
     setSelectedCategories(selected);
   }, [documentCategories, categories]);
-  const handleSave = async () => {
-    // First save the document content
-    await saveDocument();
 
-    // Then update categories if we have a document ID
+  const handleSave = async () => {
+    await saveDocument();
     if (documentId) {
       updateDocumentCategories({
         documentId,
@@ -65,29 +63,25 @@ export default function DocumentEditor({
     }
   };
 
-  // Handler for category selection in document editor
   const handleCategoryChange = (categoryId: string | null) => {
     if (!categoryId || !categories) return;
 
-    // Find the category
     const category = categories.find(c => c.id === categoryId);
     if (!category) return;
 
-    // Check if this category is already selected
     const isAlreadySelected = selectedCategories.some(c => c.id === category.id);
 
-    // Toggle the category
     if (isAlreadySelected) {
-      // Remove it
       setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
     } else {
-      // Add it
       setSelectedCategories([...selectedCategories, category]);
     }
   };
+
   const removeCategory = (categoryId: string) => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
+
   if (!documentId) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-md">
@@ -98,16 +92,19 @@ export default function DocumentEditor({
         </div>
       </div>;
   }
+
   if (!isAuthenticated || isLoading) {
     return <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>;
   }
+
   if (error || !document) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">
         {error ? `Error: ${error.message}` : "Document not found"}
       </div>;
   }
+
   return <div className="h-full flex flex-col p-6">
       <div className="flex justify-between items-center mb-5">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -116,7 +113,7 @@ export default function DocumentEditor({
           </div>
           
           {selectedCategories.length > 0 && <div className="flex flex-wrap gap-2">
-              {selectedCategories.map(category => <Badge key={category.id} variant="outline" className="flex items-center gap-1 bg-white">
+              {selectedCategories.map(category => <Badge key={category.id} variant="outline" className="flex items-center gap-1">
                   <span>{category.name}</span>
                   <Button variant="ghost" size="icon" className="h-4 w-4 p-0 ml-1 hover:bg-transparent" onClick={() => removeCategory(category.id)}>
                     <X className="h-3 w-3" />
@@ -129,7 +126,7 @@ export default function DocumentEditor({
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <div className="rounded-lg border overflow-hidden flex-1 bg-white">
+      <div className="rounded-lg border overflow-hidden flex-1">
         <DocumentContent editor={editor} />
       </div>
     </div>;
