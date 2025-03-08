@@ -103,7 +103,28 @@ export const Header = ({
     return 'Eventify';
   };
 
+  // Get default context title based on current route
+  const getDefaultContextTitle = () => {
+    const path = location.pathname;
+    
+    if (path === '/') return 'Event Management';
+    if (path === '/events' || path.includes('/events/')) return 'Event Management';
+    if (path === '/passed-events') return 'Event Management';
+    if (path === '/calendar') return 'Event Management';
+    if (path === '/tasks' || path.includes('/tasks/')) return 'Task Management';
+    if (path === '/contacts') return 'Contact Management';
+    if (path === '/documents') return 'Document Management';
+    
+    return undefined;
+  };
+
   const finalPageTitle = pageTitle || getDefaultPageTitle();
+  const finalContextTitle = contextTitle || getDefaultContextTitle();
+  
+  // Determine if we need to show a subtitle for the dashboard
+  const dashboardSubtitle = location.pathname === '/' && !subtitle 
+    ? 'Your upcoming events and tasks' 
+    : subtitle;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
@@ -132,8 +153,8 @@ export const Header = ({
                 <span className="text-sm font-medium">Back</span>
               </Button>
             ) : (
-              contextTitle && (
-                <span className="text-sm font-medium text-zinc-500">{contextTitle}</span>
+              finalContextTitle && (
+                <span className="text-sm font-medium text-zinc-500">{finalContextTitle}</span>
               )
             )}
           </div>
@@ -218,7 +239,7 @@ export const Header = ({
           <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               {finalPageTitle && <h1 className="text-2xl font-bold tracking-tight text-zinc-900">{finalPageTitle}</h1>}
-              {subtitle && <p className="text-sm mt-1 text-zinc-500">{subtitle}</p>}
+              {dashboardSubtitle && <p className="text-sm mt-1 text-zinc-500">{dashboardSubtitle}</p>}
             </div>
             
             {actionButton && (
@@ -235,7 +256,7 @@ export const Header = ({
         )}
         
         {/* Additional content like tabs, filters, etc. */}
-        {children && <div className="px-6 pb-3 border-t border-zinc-100">{children}</div>}
+        {children && <div className="px-6 pb-3">{children}</div>}
 
         {/* Secondary action area */}
         {secondaryAction && (

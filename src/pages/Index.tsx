@@ -12,7 +12,6 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { Header } from "@/components/layout/Header";
 
 const Index = () => {
   const { toast } = useToast();
@@ -74,16 +73,9 @@ const Index = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Using the unified Header component */}
-      <Header
-        contextTitle="Event Management"
-        pageTitle="Dashboard"
-        subtitle="Your upcoming events and tasks"
-      >
-        <div className="pt-4">
-          <ChatBox />
-        </div>
-      </Header>
+      <div className="pt-4 px-6">
+        <ChatBox />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
         <div className="flex flex-col h-full bg-white p-6 rounded-lg border border-zinc-200 shadow-sm">
