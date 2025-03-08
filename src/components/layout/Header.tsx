@@ -76,12 +76,8 @@ export const Header = ({
           )}
         </div>
 
-        {/* Center area for custom content like search */}
-        {children && (
-          <div className="flex-1 flex items-center justify-center md:justify-start px-4 md:px-6">
-            {children}
-          </div>
-        )}
+        {/* Directly render children without the wrapping div */}
+        {children}
 
         <div className="ml-auto flex items-center gap-4">
           <SearchBar />

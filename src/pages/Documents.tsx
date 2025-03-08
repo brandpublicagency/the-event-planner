@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Plus } from "lucide-react";
@@ -140,19 +139,13 @@ export default function Documents() {
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Documents">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 ml-6">
           <Input
             placeholder="Search documents..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-9"
+            className="h-9 w-64"
           />
-          <Button size="sm" className="h-9">
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="mt-4">
           <CategorySelector 
             selectedCategory={categoryFilter}
             onChange={setCategoryFilter}
