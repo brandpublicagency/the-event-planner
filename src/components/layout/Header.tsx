@@ -92,19 +92,6 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Action button section */}
-        {actionButton && (
-          <div className="px-6 py-4">
-            <Button 
-              onClick={actionButton.onClick}
-              variant={actionButton.variant || "default"}
-            >
-              {actionButton.icon}
-              <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
-            </Button>
-          </div>
-        )}
-
         {/* Secondary action area */}
         {secondaryAction && (
           <div className="flex justify-end px-6 py-2 border-t border-zinc-100">

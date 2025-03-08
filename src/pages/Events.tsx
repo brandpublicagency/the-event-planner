@@ -10,6 +10,7 @@ import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -76,16 +77,20 @@ export default function Events() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header 
-        pageTitle="Events" 
-        actionButton={{
-          label: "Add Event",
-          icon: <Plus className="h-4 w-4" />,
-          onClick: () => navigate('/events/new')
-        }}
-      />
+      <Header pageTitle="Events" />
       
       <div className="flex-1 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-medium">Event List</h2>
+          <Button 
+            onClick={() => navigate('/events/new')}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Event
+          </Button>
+        </div>
+        
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">Loading events...</p>
