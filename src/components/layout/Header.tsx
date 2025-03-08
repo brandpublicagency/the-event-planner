@@ -1,14 +1,13 @@
 
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Menu, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { SearchBar } from "./SearchBar";
 import { NotificationButton } from "./NotificationButton";
 import { BackButton } from "./BackButton";
-import { PageTitle } from "./PageTitle";
+import { MobileMenuToggle } from "./MobileMenuToggle";
+import { HeaderActions } from "./HeaderActions";
 
 export interface ActionButtonProps {
   label: string;
@@ -79,21 +78,17 @@ export const Header = ({
     ? 'Your upcoming events and tasks' 
     : subtitle;
 
+  const handleToggleMobileMenu = () => {
+    document.documentElement.classList.toggle('sidebar-open');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
       <div className="flex flex-col">
         {/* Top section with user controls */}
         <div className="flex h-16 items-center justify-between px-6">
           <div className="flex gap-4 items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => document.documentElement.classList.toggle('sidebar-open')}
-            >
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
+            <MobileMenuToggle onClick={handleToggleMobileMenu} />
             
             {showBackButton ? (
               <BackButton path={backButtonPath} />
@@ -111,23 +106,12 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Page title section if provided */}
-        {(finalPageTitle || actionButton) && (
-          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <PageTitle title={finalPageTitle} subtitle={dashboardSubtitle} />
-            
-            {actionButton && (
-              <Button 
-                onClick={actionButton.onClick}
-                variant={actionButton.variant || "default"}
-                className="self-start sm:self-center"
-              >
-                {actionButton.icon}
-                <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
-              </Button>
-            )}
-          </div>
-        )}
+        {/* Page title and action button section */}
+        <HeaderActions 
+          pageTitle={finalPageTitle} 
+          subtitle={dashboardSubtitle} 
+          actionButton={actionButton} 
+        />
         
         {/* Additional content like tabs, filters, etc. */}
         {children && <div className="px-6 pb-3">{children}</div>}
