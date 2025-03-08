@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Printer } from "lucide-react";
@@ -15,7 +16,7 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between mb-6 print:hidden">
+    <div className="sticky top-16 z-20 bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden">
       <Button 
         variant="outline" 
         size="sm"
@@ -47,9 +48,10 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
           onClick={onPrint} 
           variant="outline" 
           size="sm"
-          className="rounded-full bg-white"
+          className="rounded-full bg-white flex items-center gap-2"
         >
           <Printer className="h-4 w-4" />
+          <span className="hidden sm:inline">Print</span>
         </Button>
       </div>
     </div>

@@ -31,6 +31,13 @@
   body {
     @apply bg-background text-foreground antialiased text-[0.875rem];
   }
+
+  /* Mobile sidebar toggle */
+  @media (max-width: 768px) {
+    .sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+  }
 }
 
 @layer components {
@@ -104,7 +111,7 @@
   @apply bg-yellow-200;
 }
 
-/* Keep existing styles */
+/* RDP Styles */
 .rdp {
   @apply p-0 w-full max-w-[400px] mx-auto;
 }

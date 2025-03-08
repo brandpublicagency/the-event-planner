@@ -38,7 +38,7 @@ export function PageHeader({
   const navigate = useNavigate();
 
   return (
-    <div className={cn("page-header sticky top-0 z-10 bg-white", className)}>
+    <div className={cn("page-header bg-white", className)}>
       {/* Context header */}
       <div className="context-header border-b border-zinc-200 py-3 px-6 flex items-center justify-between bg-zinc-50/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">

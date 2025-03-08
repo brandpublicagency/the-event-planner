@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Sidebar from "@/components/Sidebar";
 import { useState, ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { Header } from "@/components/layout/Header";
 
 export const RootLayout = ({ children }: { children: ReactNode }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -35,7 +36,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50">
       <div
-        className={`transition-all duration-300 ease-in-out z-20 ${
+        className={`transition-all duration-300 ease-in-out z-30 ${
           isCollapsed ? "w-[70px]" : "w-64"
         } bg-white border-r border-zinc-200 shadow-sm`}
       >
@@ -43,8 +44,11 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
           <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </ScrollArea>
       </div>
-      <main className="flex-1 overflow-auto bg-zinc-50 relative">
-        {children}
+      <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col">
+        <Header />
+        <div className="flex-1 overflow-auto">
+          {children}
+        </div>
       </main>
     </div>
   );
