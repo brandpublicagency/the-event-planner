@@ -1,8 +1,9 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import EventsTable from "@/components/EventsTable";
+import EventsTable from "@/components/events/EventsTable";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -15,7 +16,7 @@ export default function Events() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: events, isLoading, error } = useQuery({
+  const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const today = new Date();

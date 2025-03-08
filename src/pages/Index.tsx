@@ -1,10 +1,11 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import EventsTable from "@/components/EventsTable";
+import EventsTable from "@/components/events/EventsTable";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
