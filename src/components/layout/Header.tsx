@@ -69,15 +69,27 @@ export const Header = ({
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
       <div className="flex flex-col">
-        {/* Top section with user controls */}
-        <div className="flex h-16 items-center justify-between px-6">
+        {/* Top section with user controls and page title */}
+        <div className="flex h-16 items-center px-6">
           <div className="flex gap-4 items-center">
             <MobileMenuToggle onClick={handleToggleMobileMenu} />
             
             {showBackButton && (
               <BackButton path={backButtonPath} />
             )}
+            
+            {/* Page title now in the top bar */}
+            {finalPageTitle && (
+              <h1 className="text-lg font-semibold tracking-tight text-zinc-900">{finalPageTitle}</h1>
+            )}
           </div>
+
+          {/* Center area for custom content like search */}
+          {children && (
+            <div className="flex-1 flex items-center justify-center md:justify-start px-4 md:px-6">
+              {children}
+            </div>
+          )}
 
           <div className="ml-auto flex items-center gap-4">
             <SearchBar />
@@ -86,15 +98,25 @@ export const Header = ({
           </div>
         </div>
         
-        {/* Page title and action button section */}
-        <HeaderActions 
-          pageTitle={finalPageTitle} 
-          subtitle={dashboardSubtitle}
-          actionButton={actionButton} 
-        />
+        {/* Subtitle area - only shown if subtitle exists and no children */}
+        {dashboardSubtitle && !children && (
+          <div className="px-6 py-2">
+            <p className="text-sm text-zinc-500">{dashboardSubtitle}</p>
+          </div>
+        )}
         
-        {/* Additional content like tabs, filters, etc. */}
-        {children && <div className="px-6 pb-3">{children}</div>}
+        {/* Action button section */}
+        {actionButton && (
+          <div className="px-6 py-2 flex justify-end">
+            <Button 
+              onClick={actionButton.onClick}
+              variant={actionButton.variant || "default"}
+            >
+              {actionButton.icon}
+              <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
+            </Button>
+          </div>
+        )}
 
         {/* Secondary action area */}
         {secondaryAction && (
@@ -106,3 +128,7 @@ export const Header = ({
     </header>
   );
 };
+
+// Missing import for Button and cn
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";

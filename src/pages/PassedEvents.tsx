@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
 import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
-import { PageHeader } from "@/components/PageHeader";
+import { Header } from "@/components/layout/Header";
 import { Search } from "lucide-react";
 
 const PassedEvents = () => {
@@ -80,14 +80,12 @@ const PassedEvents = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Event Management"
+      <Header
         pageTitle="Passed Events"
-        subtitle="View and manage completed events"
         showBackButton
         backButtonPath="/events"
       >
-        <div className="relative flex-1 mt-4">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
           <Input 
             placeholder="Search passed events..." 
@@ -96,7 +94,7 @@ const PassedEvents = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </PageHeader>
+      </Header>
       
       <div className="flex-1 p-6">
         {isLoading ? (
