@@ -12,6 +12,7 @@ export const updateContact = async (contact: Contact, updates: ContactUpdate): P
         contact_email: updates.email,
         contact_mobile: updates.phone,
         company_name: updates.company,
+        company_address: updates.address,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);

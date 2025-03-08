@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,7 @@ const Contacts = () => {
               name,
               event_type,
               event_date,
+              client_address,
               event_venues(
                 venues(
                   id,
@@ -47,6 +49,7 @@ const Contacts = () => {
               name,
               event_type,
               event_date,
+              client_address,
               event_venues(
                 venues(
                   id,
@@ -68,6 +71,7 @@ const Contacts = () => {
               email: weddingDetail.bride_email || '',
               phone: weddingDetail.bride_mobile || '',
               company: null,
+              address: weddingDetail.events.client_address || null,
               contactType: 'wedding-bride',
               eventCode: weddingDetail.event_code,
               eventName: weddingDetail.events.name,
@@ -84,6 +88,7 @@ const Contacts = () => {
               email: weddingDetail.groom_email || '',
               phone: weddingDetail.groom_mobile || '',
               company: null,
+              address: weddingDetail.events.client_address || null,
               contactType: 'wedding-groom',
               eventCode: weddingDetail.event_code,
               eventName: weddingDetail.events.name,
@@ -100,6 +105,7 @@ const Contacts = () => {
           email: corporateDetail.contact_email || '',
           phone: corporateDetail.contact_mobile || '',
           company: corporateDetail.company_name || 'Not specified',
+          address: corporateDetail.company_address || corporateDetail.events.client_address || null,
           contactType: 'corporate',
           eventCode: corporateDetail.event_code,
           eventName: corporateDetail.events.name,

@@ -22,6 +22,7 @@ const contactFormSchema = z.object({
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
   company: z.string().optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal(""))
 });
 
 interface ContactEditDrawerProps {
@@ -46,6 +47,7 @@ const ContactEditDrawer = ({
       email: contact.email || "",
       phone: contact.phone || "",
       company: contact.company || "",
+      address: contact.address || ""
     },
   });
 
@@ -125,6 +127,20 @@ const ContactEditDrawer = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Phone</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

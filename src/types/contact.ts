@@ -11,6 +11,7 @@ export interface Contact {
   eventName: string;
   eventDate: string | null;
   venue: string;
+  address: string | null;
   originalData: any; // The original wedding_details or corporate_details record
 }
 
@@ -19,4 +20,5 @@ export interface ContactUpdate {
   email?: string;
   phone?: string;
   company?: string;
+  address?: string;
 }
