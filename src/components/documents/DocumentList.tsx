@@ -120,7 +120,22 @@ export default function DocumentList({ documents, selectedId, onSelect, category
             onClick={() => onSelect(doc.id)}
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
+              <div className="flex items-center flex-1 overflow-hidden">
+                <span className="text-sm truncate">{doc.title || "Untitled"}</span>
+                
+                {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
+                  <div className="flex ml-2 text-xs text-muted-foreground truncate">
+                    <span className="mx-1">•</span>
+                    {documentCategories[doc.id].slice(0, 1).map(category => (
+                      <span key={category.id} className="truncate">{category.name}</span>
+                    ))}
+                    {documentCategories[doc.id].length > 1 && (
+                      <span className="ml-1">+{documentCategories[doc.id].length - 1}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+              
               <Button
                 variant="ghost"
                 size="icon"
@@ -136,24 +151,6 @@ export default function DocumentList({ documents, selectedId, onSelect, category
                 <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
               </Button>
             </div>
-            
-            {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
-              <div className="flex flex-wrap mt-1">
-                {documentCategories[doc.id].slice(0, 2).map(category => (
-                  <CategoryBadge 
-                    key={category.id} 
-                    category={category}
-                    selected={true}
-                    className="text-xs py-0 px-2 h-5"
-                  />
-                ))}
-                {documentCategories[doc.id].length > 2 && (
-                  <span className="text-xs text-muted-foreground ml-1 mt-0.5">
-                    +{documentCategories[doc.id].length - 2} more
-                  </span>
-                )}
-              </div>
-            )}
           </div>
         ))
       )}
