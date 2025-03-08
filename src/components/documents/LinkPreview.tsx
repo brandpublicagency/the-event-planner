@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, Link, X } from "lucide-react";
+import { ExternalLink, Link, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchLinkPreview } from "@/api/supabaseApi";
 
 interface LinkMetadata {
   url: string;
@@ -17,50 +18,67 @@ interface LinkMetadata {
 interface LinkPreviewProps {
   url: string;
   onRemove?: () => void;
+  onRetry?: () => void;
+  initialLoading?: boolean;
 }
 
-const LinkPreview = ({ url, onRemove }: LinkPreviewProps) => {
-  const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
-  const [loading, setLoading] = useState(true);
+// Cache for storing link preview data
+const previewCache: Record<string, LinkMetadata> = {};
+
+const LinkPreview = ({ url, onRemove, onRetry, initialLoading = false }: LinkPreviewProps) => {
+  const [metadata, setMetadata] = useState<LinkMetadata | null>(
+    previewCache[url] || null
+  );
+  const [loading, setLoading] = useState(initialLoading || !previewCache[url]);
   const [error, setError] = useState<Error | null>(null);
   const [imageError, setImageError] = useState(false);
   const [faviconError, setFaviconError] = useState(false);
 
   useEffect(() => {
-    const fetchLinkPreview = async () => {
+    let isMounted = true;
+    
+    const fetchMetadata = async () => {
+      // If we already have cached data and we're not explicitly retrying
+      if (previewCache[url] && !initialLoading) {
+        setMetadata(previewCache[url]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const response = await fetch('/api/fetch-link-preview', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url }),
-        });
+        setError(null);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch link preview');
-        }
-        
-        const data = await response.json();
+        const data = await fetchLinkPreview(url);
         console.log('Link preview data:', data);
-        setMetadata(data);
+        
+        if (isMounted) {
+          setMetadata(data);
+          setLoading(false);
+          // Cache the result
+          previewCache[url] = data;
+        }
       } catch (err) {
         console.error('Error fetching link preview:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error('Unknown error'));
+          setLoading(false);
+        }
       }
     };
     
     if (url) {
-      fetchLinkPreview();
+      fetchMetadata();
     }
-  }, [url]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [url, initialLoading]);
 
   if (loading) {
     return (
-      <div className="border rounded-md p-4 my-2 flex space-x-4">
+      <div className="border rounded-md p-4 my-2 flex space-x-4 animate-pulse">
         <Skeleton className="h-24 w-24 rounded" />
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-3/4" />
@@ -83,16 +101,30 @@ const LinkPreview = ({ url, onRemove }: LinkPreviewProps) => {
         >
           {url}
         </a>
-        {onRemove && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-6 w-6 p-0 rounded-full" 
-            onClick={onRemove}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {onRetry && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full" 
+              onClick={onRetry}
+              title="Retry loading preview"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          )}
+          {onRemove && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full" 
+              onClick={onRemove}
+              title="Remove preview"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -113,6 +145,7 @@ const LinkPreview = ({ url, onRemove }: LinkPreviewProps) => {
                 alt={metadata.title}
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}
+                loading="lazy"
               />
             </div>
           )}
@@ -124,6 +157,7 @@ const LinkPreview = ({ url, onRemove }: LinkPreviewProps) => {
                   alt=""
                   className="w-4 h-4"
                   onError={() => setFaviconError(true)}
+                  loading="lazy"
                 />
               )}
               <span>{metadata.domain}</span>
@@ -146,6 +180,7 @@ const LinkPreview = ({ url, onRemove }: LinkPreviewProps) => {
             e.stopPropagation();
             onRemove();
           }}
+          aria-label="Remove link preview"
         >
           <X className="h-4 w-4" />
         </Button>
