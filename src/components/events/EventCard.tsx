@@ -1,10 +1,12 @@
 
-import React from "react";
-import { Pencil, Trash, Copy } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Calendar, Trash, Copy, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
+import { cn } from "@/lib/utils";
 import { getVenueNames } from "@/utils/venueUtils";
 import {
   AlertDialog,
@@ -17,7 +19,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
 
 interface EventCardProps {
   event: Event;
@@ -25,15 +26,18 @@ interface EventCardProps {
   isDashboard?: boolean;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({
+export const EventCard = ({
   event,
   handleDelete,
   isDashboard = false,
-}) => {
+}: EventCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
+  const isPassedEventsPage = location.pathname === "/passed-events";
 
-  const copyEventCode = (eventCode: string) => {
+  const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(eventCode);
     toast({
       title: "Copied",
@@ -42,7 +46,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
 
   return (
-    <div className={cn(
+    <div key={event.event_code} className={cn(
       "group",
       isDashboard && "border rounded-lg"
     )}>
@@ -59,49 +63,51 @@ export const EventCard: React.FC<EventCardProps> = ({
               >
                 {event.name}
               </button>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/events/${event.event_code}/edit`);
-                  }}
-                  className="p-0.5 text-zinc-400 hover:text-zinc-700"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-                {handleDelete && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-0.5 text-zinc-400 hover:text-zinc-700"
-                      >
-                        <Trash className="h-3 w-3" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this event? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(event.event_code)}
-                          className="bg-red-600 hover:bg-red-700"
+              {!isPassedEventsPage && (
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/events/${event.event_code}/edit`);
+                    }}
+                    className="p-0.5 text-zinc-400 hover:text-zinc-700"
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                  {handleDelete && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-0.5 text-zinc-400 hover:text-zinc-700"
                         >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
-              {!isDashboard && (
+                          <Trash className="h-3 w-3" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this event? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(event.event_code)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
+              )}
+              {!isDashboard && !isPassedEventsPage && (
                 <button
-                  onClick={() => copyEventCode(event.event_code)}
+                  onClick={(e) => copyEventCode(e, event.event_code)}
                   className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
                 >
                   {event.event_code}
@@ -120,21 +126,25 @@ export const EventCard: React.FC<EventCardProps> = ({
               </span>
             </div>
           </div>
-          {!isDashboard && handleDelete && (
+          {!isDashboard && handleDelete && !isPassedEventsPage && (
             <div className="flex items-center gap-1">
-              <button
-                className="p-2 text-zinc-600 hover:text-zinc-900"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate(`/events/${event.event_code}/edit`)}
+                className="text-zinc-600 hover:text-white hover:bg-zinc-900"
               >
-                <Edit className="h-4 w-4" />
-              </button>
+                <Pencil className="h-4 w-4" />
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button
-                    className="p-2 text-zinc-600 hover:text-zinc-900"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-zinc-600 hover:text-white hover:bg-zinc-900"
                   >
                     <Trash className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
