@@ -1,9 +1,10 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Clock, File } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
 import type { Document } from "@/types/document";
 
 interface DocumentListProps {
@@ -57,20 +58,21 @@ export default function DocumentList({ documents, selectedId, onSelect, category
         documents.map((doc) => (
           <div
             key={doc.id}
-            className={`flex flex-col justify-between group px-2 py-1 rounded-md cursor-pointer ${
-              selectedId === doc.id ? "bg-accent" : "hover:bg-accent/50"
+            className={`flex flex-col group px-3 py-2 rounded-md cursor-pointer transition-colors ${
+              selectedId === doc.id ? "bg-accent text-accent-foreground" : "hover:bg-accent/50"
             }`}
             onClick={() => onSelect(doc.id)}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center flex-1 overflow-hidden">
-                <span className="text-sm truncate">{doc.title || "Untitled"}</span>
+              <div className="flex items-center flex-1 overflow-hidden gap-2">
+                <File className="h-3.5 w-3.5 text-muted-foreground/70 flex-shrink-0" />
+                <span className="text-sm font-medium truncate">{doc.title || "Untitled"}</span>
               </div>
               
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm("Are you sure you want to delete this document?")) {
@@ -79,9 +81,16 @@ export default function DocumentList({ documents, selectedId, onSelect, category
                 }}
                 disabled={deleteDocument.isPending}
               >
-                <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-destructive transition-colors" />
               </Button>
             </div>
+            
+            {doc.created_at && (
+              <div className="flex items-center mt-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3 mr-1" />
+                <span>{formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}</span>
+              </div>
+            )}
           </div>
         ))
       )}

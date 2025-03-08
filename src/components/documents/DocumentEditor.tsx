@@ -1,6 +1,6 @@
 
 import { useEditor } from '@tiptap/react';
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { DocumentContent } from "./DocumentContent";
@@ -9,6 +9,7 @@ import { useDocumentState } from "@/hooks/useDocumentState";
 import { CategorySelector } from "./CategorySelector";
 import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import type { Category } from "@/types/category";
 
 interface DocumentEditorProps {
@@ -83,10 +84,19 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     }
   };
 
+  const removeCategory = (categoryId: string) => {
+    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
+  };
+
   if (!documentId) {
     return (
-      <div className="h-full flex items-center justify-center text-muted-foreground">
-        Select a document to edit
+      <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+        <div className="max-w-md">
+          <h3 className="text-lg font-medium mb-2">No document selected</h3>
+          <p className="text-muted-foreground mb-4">
+            Select a document from the list or create a new one to start editing.
+          </p>
+        </div>
       </div>
     );
   }
@@ -109,20 +119,40 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   return (
     <div className="h-full flex flex-col p-6">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          {!isLoadingDocumentCategories && (
-            <CategorySelector 
-              selectedCategory={selectedCategories.length > 0 ? selectedCategories[0].id : null}
-              onChange={handleCategoryChange}
-              placeholder="Assign category"
-            />
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          <div className="w-full md:w-64">
+            {!isLoadingDocumentCategories && (
+              <CategorySelector 
+                selectedCategory={null}
+                onChange={handleCategoryChange}
+                placeholder="Add category"
+              />
+            )}
+          </div>
+          
+          {selectedCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedCategories.map(category => (
+                <Badge key={category.id} variant="outline" className="flex items-center gap-1 bg-white">
+                  <span>{category.name}</span>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-4 w-4 p-0 ml-1 hover:bg-transparent" 
+                    onClick={() => removeCategory(category.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
           )}
         </div>
         <Button 
           onClick={handleSave}
           disabled={isSaving}
-          className="gap-2"
+          className="gap-2 shadow-sm"
         >
           {isSaving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -132,7 +162,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <DocumentContent editor={editor} />
+      <div className="rounded-lg border overflow-hidden bg-white flex-1">
+        <DocumentContent editor={editor} />
+      </div>
     </div>
   );
 }

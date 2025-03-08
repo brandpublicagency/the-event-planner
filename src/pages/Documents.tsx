@@ -1,6 +1,7 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Search, Plus } from "lucide-react";
+import { Loader2, Plus, Tag, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +10,8 @@ import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
 import { CategorySelector } from "@/components/documents/CategorySelector";
 import { Header } from "@/components/layout/Header";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Document } from "@/types/document";
 
 export default function Documents() {
@@ -125,13 +128,18 @@ export default function Documents() {
       )
     : searchFilteredDocuments;
 
+  const totalDocuments = documents?.length || 0;
+  const filteredCount = filteredDocuments.length;
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <h2 className="text-lg font-semibold mb-2">Error loading documents</h2>
-          <p className="text-muted-foreground">{error.message}</p>
-        </div>
+        <Card className="w-full max-w-md p-6">
+          <div className="text-center">
+            <h2 className="text-lg font-semibold mb-2">Error loading documents</h2>
+            <p className="text-muted-foreground">{error.message}</p>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -139,39 +147,65 @@ export default function Documents() {
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Documents">
-        <div className="flex items-center gap-4 ml-6">
-          <Input
-            placeholder="Search documents..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-9 w-64"
-          />
-          <CategorySelector 
-            selectedCategory={categoryFilter}
-            onChange={setCategoryFilter}
-            includeAllOption={true}
-            placeholder="Filter by category"
-          />
+        <div className="flex-1 flex items-center justify-between gap-4 ml-6">
+          <div className="flex items-center gap-4 max-w-md w-full">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search documents..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 pl-9 pr-4 w-full"
+              />
+            </div>
+            <CategorySelector 
+              selectedCategory={categoryFilter}
+              onChange={setCategoryFilter}
+              includeAllOption={true}
+              placeholder="Filter by category"
+            />
+          </div>
+          
+          {!isLoading && filteredDocuments.length > 0 && (
+            <div className="hidden md:flex items-center gap-2">
+              <Badge variant="outline" className="bg-white">
+                {filteredCount} {filteredCount === 1 ? 'document' : 'documents'}
+                {filteredCount !== totalDocuments && ` (filtered from ${totalDocuments})`}
+              </Badge>
+            </div>
+          )}
         </div>
       </Header>
       
       <div className="flex flex-1 h-0 overflow-hidden">
-        <div className="w-64 border-r bg-white p-4 flex flex-col h-full overflow-hidden">
-          <div className="flex justify-end mb-4">
+        <Card className="w-72 border-r rounded-none border-l-0 border-t-0 border-b-0 bg-white p-0 flex flex-col h-full overflow-hidden">
+          <div className="p-4 border-b">
             <Button 
               onClick={handleNewDocument} 
-              size="sm"
-              className="flex items-center gap-1"
+              className="w-full flex items-center gap-1 shadow-sm"
+              disabled={createDocument.isPending}
             >
-              <Plus className="h-4 w-4" />
-              New
+              {createDocument.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              New Document
             </Button>
           </div>
           
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto p-3">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredDocuments.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+                <Tag className="h-10 w-10 text-muted-foreground/40 mb-2" />
+                <p className="text-sm text-muted-foreground mb-1">No documents found</p>
+                <p className="text-xs text-muted-foreground/60">
+                  {searchQuery ? "Try a different search term" : "Create your first document to get started"}
+                </p>
               </div>
             ) : (
               <DocumentList
@@ -182,9 +216,9 @@ export default function Documents() {
               />
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="flex-1 h-full overflow-auto">
+        <div className="flex-1 h-full overflow-auto bg-gray-50">
           <DocumentEditor documentId={selectedDocId} />
         </div>
       </div>
