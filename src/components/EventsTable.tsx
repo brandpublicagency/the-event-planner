@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, Edit, Trash, Copy, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
@@ -36,6 +36,8 @@ export const EventsTable = ({
 }: EventsTableProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
+  const isPassedEventsPage = location.pathname === "/passed-events";
 
   const copyEventCode = (eventCode: string) => {
     navigator.clipboard.writeText(eventCode);
@@ -156,7 +158,7 @@ export const EventsTable = ({
                             >
                               <Pencil className="h-3 w-3" />
                             </button>
-                            {handleDelete && (
+                            {handleDelete && !isPassedEventsPage && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <button
@@ -186,7 +188,7 @@ export const EventsTable = ({
                               </AlertDialog>
                             )}
                           </div>
-                          {!isDashboard && (
+                          {!isDashboard && !isPassedEventsPage && (
                             <button
                               onClick={() => copyEventCode(event.event_code)}
                               className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
@@ -207,7 +209,7 @@ export const EventsTable = ({
                           </span>
                         </div>
                       </div>
-                      {!isDashboard && handleDelete && (
+                      {!isDashboard && handleDelete && !isPassedEventsPage && (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
