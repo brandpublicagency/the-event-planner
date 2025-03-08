@@ -1,25 +1,22 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import ContactsTable from "@/components/contacts/ContactsTable";
-import ContactEditModal from "@/components/contacts/ContactEditModal";
+import ContactEditDrawer from "@/components/contacts/ContactEditDrawer";
 import type { Contact } from "@/types/contact";
 
 const Contacts = () => {
   const { toast } = useToast();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
 
   const { data: contacts = [], isLoading, refetch } = useQuery({
     queryKey: ['contacts'],
     queryFn: async () => {
       try {
-        // Fetch wedding contacts
         const { data: weddingContacts, error: weddingError } = await supabase
           .from('wedding_details')
           .select(`
@@ -41,7 +38,6 @@ const Contacts = () => {
 
         if (weddingError) throw weddingError;
 
-        // Fetch corporate contacts
         const { data: corporateContacts, error: corporateError } = await supabase
           .from('corporate_details')
           .select(`
@@ -63,10 +59,8 @@ const Contacts = () => {
 
         if (corporateError) throw corporateError;
 
-        // Process wedding contacts
         const processedWeddingContacts: Contact[] = [];
         weddingContacts?.forEach(weddingDetail => {
-          // Add bride as contact if details exist
           if (weddingDetail.bride_name) {
             processedWeddingContacts.push({
               id: `bride-${weddingDetail.event_code}`,
@@ -83,7 +77,6 @@ const Contacts = () => {
             });
           }
 
-          // Add groom as contact if details exist
           if (weddingDetail.groom_name) {
             processedWeddingContacts.push({
               id: `groom-${weddingDetail.event_code}`,
@@ -101,7 +94,6 @@ const Contacts = () => {
           }
         });
 
-        // Process corporate contacts
         const processedCorporateContacts: Contact[] = corporateContacts?.map(corporateDetail => ({
           id: `corporate-${corporateDetail.event_code}`,
           name: corporateDetail.contact_person || 'Not specified',
@@ -116,10 +108,8 @@ const Contacts = () => {
           originalData: corporateDetail
         })) || [];
 
-        // Combine all contacts
         const allContacts = [...processedWeddingContacts, ...processedCorporateContacts];
         
-        // Sort by most recent event date
         return allContacts.sort((a, b) => {
           if (!a.eventDate && !b.eventDate) return 0;
           if (!a.eventDate) return 1;
@@ -140,17 +130,13 @@ const Contacts = () => {
 
   const handleEditContact = (contact: Contact) => {
     setSelectedContact(contact);
-    setIsEditModalOpen(true);
+    setIsEditDrawerOpen(true);
   };
 
   const handleUpdateSuccess = () => {
     refetch();
-    setIsEditModalOpen(false);
+    setIsEditDrawerOpen(false);
     setSelectedContact(null);
-    toast({
-      title: "Success",
-      description: "Contact updated successfully",
-    });
   };
 
   const filteredContacts = activeTab === "all" 
@@ -202,10 +188,10 @@ const Contacts = () => {
       </div>
 
       {selectedContact && (
-        <ContactEditModal
+        <ContactEditDrawer
           contact={selectedContact}
-          isOpen={isEditModalOpen}
-          onOpenChange={setIsEditModalOpen}
+          isOpen={isEditDrawerOpen}
+          onClose={() => setIsEditDrawerOpen(false)}
           onUpdateSuccess={handleUpdateSuccess}
         />
       )}
