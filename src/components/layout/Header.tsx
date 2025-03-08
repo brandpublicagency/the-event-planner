@@ -94,7 +94,7 @@ export const Header = ({
               <BackButton path={backButtonPath} />
             ) : (
               finalContextTitle && (
-                <span className="text-sm font-medium text-zinc-500">{finalContextTitle}</span>
+                <span className="hidden md:inline-block text-sm font-medium text-zinc-500">{finalContextTitle}</span>
               )
             )}
           </div>
@@ -109,7 +109,8 @@ export const Header = ({
         {/* Page title and action button section */}
         <HeaderActions 
           pageTitle={finalPageTitle} 
-          subtitle={dashboardSubtitle} 
+          subtitle={dashboardSubtitle}
+          contextTitle={finalContextTitle}  
           actionButton={actionButton} 
         />
         

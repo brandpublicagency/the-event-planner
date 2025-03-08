@@ -11,7 +11,7 @@ export const PageTitle = ({ title, subtitle }: PageTitleProps) => {
   
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">{title}</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-zinc-900">{title}</h1>
       {subtitle && <p className="text-sm mt-1 text-zinc-500">{subtitle}</p>}
     </div>
   );
