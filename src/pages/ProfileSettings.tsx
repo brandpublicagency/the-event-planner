@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Header from "@/components/Header";
@@ -50,6 +51,15 @@ const ProfileSettings = () => {
 
       if (profileError) {
         throw profileError;
+      }
+      
+      // Initialize edit form with profile data
+      if (profileData) {
+        setEditForm({
+          full_name: profileData.full_name || "",
+          surname: profileData.surname || "",
+          mobile: profileData.mobile || "",
+        });
       }
 
       return profileData;

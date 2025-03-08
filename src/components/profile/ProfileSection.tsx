@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Save, Edit } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSectionProps {
   profile: {
@@ -32,6 +34,23 @@ const ProfileSection = ({
   handleEdit,
   handleSave,
 }: ProfileSectionProps) => {
+  // Use the email from the profile if available, otherwise we'll fetch it from the session
+  const [userEmail, setUserEmail] = useState(profile?.email || "");
+  
+  useEffect(() => {
+    // If profile doesn't have an email, get it from the session
+    if (!profile?.email) {
+      const getSessionEmail = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+        }
+      };
+      
+      getSessionEmail();
+    }
+  }, [profile?.email]);
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -55,7 +74,7 @@ const ProfileSection = ({
             <label className="text-sm font-medium text-muted-foreground">Email</label>
             <div className="flex items-center space-x-2 p-2 bg-muted rounded-md mt-1">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{profile?.email || 'Not set'}</span>
+              <span>{userEmail || 'Not set'}</span>
             </div>
           </div>
 
