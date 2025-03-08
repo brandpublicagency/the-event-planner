@@ -111,19 +111,30 @@ export const insertPredefinedCategories = async () => {
       { name: 'Admin', color: '#6366F1' }
     ];
     
-    const { data, error } = await supabase
+    // Since we don't have a unique constraint on name, we need to:
+    // 1. First check if categories exist
+    const { data: existingCategories, error: fetchError } = await supabase
       .from('document_categories')
-      .upsert(
-        categories.map(cat => ({
-          name: cat.name,
-          color: cat.color
-        })),
-        { onConflict: 'name' }
-      );
+      .select('name');
     
-    if (error) throw error;
-    console.log('Predefined categories added:', data);
-    return data;
+    if (fetchError) throw fetchError;
+    
+    // 2. Only insert categories that don't exist yet
+    const existingNames = existingCategories.map(cat => cat.name);
+    const newCategories = categories.filter(cat => !existingNames.includes(cat.name));
+    
+    if (newCategories.length > 0) {
+      const { data, error } = await supabase
+        .from('document_categories')
+        .insert(newCategories);
+      
+      if (error) throw error;
+      console.log('Predefined categories added:', newCategories.length);
+      return data;
+    } else {
+      console.log('All predefined categories already exist');
+      return [];
+    }
   } catch (error) {
     console.error('Error inserting predefined categories:', error);
     throw error;

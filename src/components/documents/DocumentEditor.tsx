@@ -36,14 +36,18 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     updateDocumentCategories 
   } = useDocumentCategories(documentId);
 
-  // Update selected categories when document categories load
+  // Update selected categories when document categories load or change
   useEffect(() => {
-    if (documentCategories && categories) {
-      const selected = documentCategories.map(docCat => {
-        // Find the full category object including color
-        const fullCategory = categories.find(c => c.id === docCat.id);
-        return fullCategory || docCat;
-      });
+    if (!documentCategories || !categories || categories.length === 0) return;
+    
+    const selected = documentCategories.map(docCat => {
+      // Find the full category object including color
+      const fullCategory = categories.find(c => c.id === docCat.id);
+      return fullCategory || docCat;
+    });
+    
+    // Use JSON stringify comparison to prevent unnecessary state updates
+    if (JSON.stringify(selected) !== JSON.stringify(selectedCategories)) {
       setSelectedCategories(selected);
     }
   }, [documentCategories, categories]);
