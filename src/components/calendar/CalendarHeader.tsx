@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +11,7 @@ interface CalendarHeaderProps {
 export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) => {
   if (isLoading) {
     return (
-      <Card className="p-6 bg-white border border-zinc-200">
+      <Card className="p-6 bg-white">
         <div className="flex items-center space-x-4">
           <div className="p-2 bg-zinc-100 rounded-[1rem]">
             <CalendarDays className="h-5 w-5 text-zinc-400" />
@@ -22,7 +23,7 @@ export const CalendarHeader = ({ profileName, isLoading }: CalendarHeaderProps) 
   }
 
   return (
-    <Card className="p-6 bg-white border border-zinc-200">
+    <Card className="p-6 bg-white">
       <div className="flex items-center space-x-4">
         <div className="p-2 bg-zinc-100 rounded-[1rem]">
           <CalendarDays className="h-5 w-5 text-zinc-900" />
