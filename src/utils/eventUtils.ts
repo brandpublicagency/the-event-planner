@@ -25,13 +25,55 @@ export const groupEventsByMonth = (events: Event[]) => {
 };
 
 export const deleteEvent = async (eventCode: string) => {
-  const { error } = await supabase
-    .from('events')
-    .delete()
-    .eq('event_code', eventCode);
+  try {
+    const { error: menuError } = await supabase
+      .from('menu_selections')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (menuError) {
+      console.error('Error deleting menu selections:', menuError);
+      throw menuError;
+    }
+    
+    const { error: weddingError } = await supabase
+      .from('wedding_details')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (weddingError) {
+      console.error('Error deleting wedding details:', weddingError);
+    }
+    
+    const { error: corporateError } = await supabase
+      .from('corporate_details')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (corporateError) {
+      console.error('Error deleting corporate details:', corporateError);
+    }
+    
+    const { error: venuesError } = await supabase
+      .from('event_venues')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (venuesError) {
+      console.error('Error deleting event venues:', venuesError);
+    }
+    
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('event_code', eventCode);
 
-  if (error) {
-    throw new Error("Failed to delete event");
+    if (error) {
+      throw new Error("Failed to delete event");
+    }
+  } catch (error: any) {
+    console.error('Delete event error:', error);
+    throw error;
   }
 };
 

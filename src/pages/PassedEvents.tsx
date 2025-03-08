@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
-import { groupEventsByMonth } from "@/utils/eventUtils";
+import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
 
 const PassedEvents = () => {
   const { toast } = useToast();
@@ -107,12 +108,7 @@ const PassedEvents = () => {
           groupedEvents={filteredEvents}
           handleDelete={async (eventCode: string) => {
             try {
-              const { error } = await supabase
-                .from('events')
-                .delete()
-                .eq('event_code', eventCode);
-
-              if (error) throw error;
+              await deleteEvent(eventCode);
 
               toast({
                 title: "Success",
