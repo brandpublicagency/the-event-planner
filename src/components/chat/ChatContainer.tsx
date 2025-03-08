@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
@@ -49,7 +50,7 @@ const ChatContainer = () => {
   };
 
   return (
-    <div className="relative h-[450px]">
+    <div className="relative h-[300px]">
       <div 
         className="absolute inset-0"
         style={{
