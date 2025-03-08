@@ -16,7 +16,7 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
   const navigate = useNavigate();
 
   return (
-    <div className="sticky top-16 z-20 bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden">
+    <div className="bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden">
       <Button 
         variant="outline" 
         size="sm"
