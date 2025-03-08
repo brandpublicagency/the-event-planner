@@ -2,10 +2,13 @@
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Tasks = () => {
   const [searchParams] = useSearchParams();
   const selectedTaskId = searchParams.get("selected");
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col h-full">
@@ -13,6 +16,11 @@ const Tasks = () => {
         contextTitle="Task Management"
         pageTitle="Tasks"
         subtitle="Manage and track your team's tasks efficiently"
+        actionButton={{
+          label: "New Task",
+          icon: <Plus className="h-4 w-4" />,
+          onClick: () => navigate("/tasks/new")
+        }}
       />
       
       <div className="flex-1 p-6">

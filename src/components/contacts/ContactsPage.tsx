@@ -69,7 +69,14 @@ const ContactsPage = () => {
         contextTitle="Contact Management"
         pageTitle="Contacts"
         actionButton={actionButton}
-      />
+      >
+        <div className="pt-4">
+          <ContactsTabs 
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </div>
+      </PageHeader>
       
       <div className="p-6">
         <ContactsTabs 

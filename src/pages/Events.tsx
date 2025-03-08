@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -74,18 +73,16 @@ export default function Events() {
     });
   }
 
-  const actionButton = {
-    label: "Add Event",
-    icon: <Plus className="h-4 w-4" />,
-    onClick: () => navigate('/events/new')
-  };
-
   return (
     <div className="flex flex-col h-full">
       <PageHeader
         contextTitle="Event Management"
         pageTitle="Events"
-        actionButton={actionButton}
+        actionButton={{
+          label: "Add Event",
+          icon: <Plus className="h-4 w-4" />,
+          onClick: () => navigate('/events/new')
+        }}
       />
       
       <div className="flex-1 p-6">
