@@ -33,7 +33,8 @@ export default function DocumentList({ documents, selectedId, onSelect, category
           document_categories (
             id,
             name,
-            color
+            color,
+            created_at
           )
         `)
         .in('document_id', documents.map(doc => doc.id));
@@ -50,7 +51,16 @@ export default function DocumentList({ documents, selectedId, onSelect, category
         if (!categoriesByDocument[mapping.document_id]) {
           categoriesByDocument[mapping.document_id] = [];
         }
-        categoriesByDocument[mapping.document_id].push(mapping.document_categories);
+        
+        // Ensure we have a complete Category object with all required fields
+        const category: Category = {
+          id: mapping.document_categories.id,
+          name: mapping.document_categories.name,
+          color: mapping.document_categories.color,
+          created_at: mapping.document_categories.created_at
+        };
+        
+        categoriesByDocument[mapping.document_id].push(category);
       });
       
       return categoriesByDocument;
