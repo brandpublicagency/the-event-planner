@@ -2,10 +2,9 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Document } from "@/types/document";
-import type { Category } from "@/types/category";
 
 interface DocumentListProps {
   documents: Document[];
@@ -17,23 +16,6 @@ interface DocumentListProps {
 export default function DocumentList({ documents, selectedId, onSelect, categoryFilter }: DocumentListProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // Fetch all categories to use for filtering
-  const { data: allCategories = [], isLoading: isLoadingCategories } = useQuery({
-    queryKey: ['document-categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('document_categories')
-        .select('*');
-      
-      if (error) {
-        console.error("Error fetching categories:", error);
-        return [];
-      }
-      
-      return data;
-    }
-  });
 
   const deleteDocument = useMutation({
     mutationFn: async (documentId: string) => {
@@ -63,24 +45,16 @@ export default function DocumentList({ documents, selectedId, onSelect, category
     },
   });
 
-  // Filter documents by category if a filter is active
-  const filteredDocuments = categoryFilter
-    ? documents.filter(doc => 
-        doc.category_ids && 
-        doc.category_ids.includes(categoryFilter)
-      )
-    : documents;
-
   return (
     <div className="space-y-1">
-      {isLoadingCategories ? (
-        <div className="text-sm text-muted-foreground text-center py-2">Loading...</div>
-      ) : filteredDocuments.length === 0 ? (
+      {documents.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-2">
-          {categoryFilter ? "No documents match the selected category" : "No documents found"}
+          {categoryFilter && categoryFilter !== 'all' 
+            ? "No documents match the selected category" 
+            : "No documents found"}
         </div>
       ) : (
-        filteredDocuments.map((doc) => (
+        documents.map((doc) => (
           <div
             key={doc.id}
             className={`flex flex-col justify-between group px-2 py-1 rounded-md cursor-pointer ${

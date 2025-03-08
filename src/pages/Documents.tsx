@@ -113,9 +113,18 @@ export default function Documents() {
     createDocument.mutate();
   };
 
-  const filteredDocuments = documents?.filter(doc =>
+  // Filter documents by search query
+  const searchFilteredDocuments = documents?.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  // Apply category filter on top of search filter if needed
+  const filteredDocuments = categoryFilter && categoryFilter !== 'all'
+    ? searchFilteredDocuments.filter(doc => 
+        doc.category_ids && 
+        doc.category_ids.includes(categoryFilter)
+      )
+    : searchFilteredDocuments;
 
   if (error) {
     return (
@@ -130,14 +139,7 @@ export default function Documents() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header
-        pageTitle="Documents"
-        actionButton={{
-          label: "New Document",
-          icon: <Plus className="h-4 w-4" />,
-          onClick: handleNewDocument,
-        }}
-      >
+      <Header pageTitle="Documents">
         <div className="flex items-center gap-2">
           <Input
             placeholder="Search documents..."
@@ -162,7 +164,18 @@ export default function Documents() {
       
       <div className="flex flex-1 h-0 overflow-hidden">
         <div className="w-64 border-r bg-white p-4 flex flex-col h-full overflow-hidden">
-          <div className="mt-4 flex-1 overflow-auto">
+          <div className="flex justify-end mb-4">
+            <Button 
+              onClick={handleNewDocument} 
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              New
+            </Button>
+          </div>
+          
+          <div className="flex-1 overflow-auto">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

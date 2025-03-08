@@ -46,10 +46,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       return fullCategory || docCat;
     });
     
-    // Use JSON stringify comparison to prevent unnecessary state updates
-    if (JSON.stringify(selected) !== JSON.stringify(selectedCategories)) {
-      setSelectedCategories(selected);
-    }
+    setSelectedCategories(selected);
   }, [documentCategories, categories]);
 
   const handleSave = async () => {

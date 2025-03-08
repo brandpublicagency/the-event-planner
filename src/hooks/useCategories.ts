@@ -1,105 +1,85 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  fetchCategories, 
-  getDocumentCategories,
-  updateDocumentCategories,
-  insertPredefinedCategories
-} from '@/api/supabaseApi';
-import { useToast } from './use-toast';
-import type { Category } from '@/types/category';
-import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { fetchCategories, getDocumentCategories, updateDocumentCategories, insertPredefinedCategories } from "@/api/supabaseApi";
+import { useEffect } from "react";
+import type { Category } from "@/types/category";
 
+// Hook for managing all categories
 export function useCategories() {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
-  
-  // First check if user is authenticated
-  const { 
-    data: categories = [],
-    isLoading: isLoadingCategories,
-    isError,
-    error,
-    refetch
-  } = useQuery({
-    queryKey: ['categories'],
-    queryFn: fetchCategories,
-  });
+  const queryClient = useQueryClient();
 
-  // Initialize predefined categories if none exist
+  // Try to insert predefined categories on first load
   useEffect(() => {
-    const initializeCategories = async () => {
+    const createPredefinedCategories = async () => {
       try {
-        // First check if user is authenticated
-        const { data: session } = await supabase.auth.getSession();
-        if (!session?.session) {
-          console.log('User not authenticated, skipping category initialization');
-          return;
-        }
-
-        if (categories.length === 0 && !isLoadingCategories) {
-          console.log('No categories found, initializing predefined categories');
-          await insertPredefinedCategories();
-          // Refetch categories after initialization
-          refetch();
-        }
+        await insertPredefinedCategories();
       } catch (error) {
-        console.error('Error initializing categories:', error);
-        toast({
-          title: "Error initializing categories",
-          description: "Could not create default categories. Please try again.",
-          variant: "destructive",
-        });
+        console.error("Error creating predefined categories:", error);
       }
     };
     
-    initializeCategories();
-  }, [categories.length, isLoadingCategories, refetch, toast]);
+    createPredefinedCategories();
+  }, []);
 
-  // If there was an error fetching categories, show a toast
-  useEffect(() => {
-    if (isError && error) {
-      console.error('Error fetching categories:', error);
-      toast({
-        title: "Error loading categories",
-        description: "Failed to load document categories. Please refresh the page.",
-        variant: "destructive",
-      });
-    }
-  }, [isError, error, toast]);
+  const { data: categories = [], isLoading: isLoadingCategories, error } = useQuery({
+    queryKey: ['document-categories'],
+    queryFn: async () => {
+      try {
+        return await fetchCategories();
+      } catch (error: any) {
+        toast({
+          title: "Error loading categories",
+          description: error.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  return {
-    categories,
-    isLoadingCategories
-  };
+  if (error) {
+    console.error("Error in useCategories hook:", error);
+  }
+
+  return { categories, isLoadingCategories };
 }
 
+// Hook for managing document-specific categories
 export function useDocumentCategories(documentId: string | null) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { 
-    data: documentCategories = [],
-    isLoading: isLoadingDocumentCategories
-  } = useQuery({
-    queryKey: ['documentCategories', documentId],
-    queryFn: () => documentId ? getDocumentCategories(documentId) : Promise.resolve([]),
-    enabled: !!documentId
+  const { data: documentCategories = [], isLoading: isLoadingDocumentCategories } = useQuery({
+    queryKey: ['document-categories', documentId],
+    queryFn: async () => {
+      if (!documentId) return [];
+      try {
+        return await getDocumentCategories(documentId);
+      } catch (error: any) {
+        console.error("Error fetching document categories:", error);
+        return [];
+      }
+    },
+    enabled: !!documentId,
   });
 
   const updateDocumentCategoriesMutation = useMutation({
-    mutationFn: (params: { documentId: string, categoryIds: string[] }) => 
-      updateDocumentCategories(params.documentId, params.categoryIds),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['documentCategories', variables.documentId] });
+    mutationFn: async ({ documentId, categoryIds }: { documentId: string, categoryIds: string[] }) => {
+      return await updateDocumentCategories(documentId, categoryIds);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['document-categories', documentId] });
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       toast({
-        title: "Categories updated",
-        description: "Document categories have been updated."
+        title: "Success",
+        description: "Document categories updated",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error updating categories",
         description: error.message,
@@ -111,6 +91,6 @@ export function useDocumentCategories(documentId: string | null) {
   return {
     documentCategories,
     isLoadingDocumentCategories,
-    updateDocumentCategories: updateDocumentCategoriesMutation.mutate,
+    updateDocumentCategories: updateDocumentCategoriesMutation.mutate
   };
 }
