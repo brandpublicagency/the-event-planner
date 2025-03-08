@@ -1,92 +1,43 @@
 
 import React from 'react';
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CategoryBadge } from "./CategoryBadge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { Tag } from "lucide-react";
 import type { Category } from '@/types/category';
 
 interface CategorySelectorProps {
-  selectedCategories: Category[];
-  onChange: (categories: Category[]) => void;
+  selectedCategory: string | null;
+  onChange: (categoryId: string | null) => void;
 }
 
-export function CategorySelector({ selectedCategories, onChange }: CategorySelectorProps) {
+export function CategorySelector({ selectedCategory, onChange }: CategorySelectorProps) {
   const { categories, isLoadingCategories } = useCategories();
 
-  const handleSelectCategory = (category: Category) => {
-    const isSelected = selectedCategories.some(c => c.id === category.id);
-    
-    if (isSelected) {
-      onChange(selectedCategories.filter(c => c.id !== category.id));
-    } else {
-      onChange([...selectedCategories, category]);
-    }
-  };
-
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="gap-2"
-        >
-          <Tag className="h-4 w-4" />
-          <span>Categories</span>
-          {selectedCategories.length > 0 && (
-            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-              {selectedCategories.length}
-            </span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-72 p-3" align="end">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-medium">Document Categories</h4>
+    <Select 
+      value={selectedCategory || "all"}
+      onValueChange={(value) => onChange(value === "all" ? null : value)}
+    >
+      <SelectTrigger className="w-full h-9">
+        <div className="flex items-center">
+          <Tag className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+          <SelectValue placeholder="Filter by category" />
         </div>
-        
-        <div className="max-h-48 overflow-y-auto mb-2">
-          {isLoadingCategories ? (
-            <div className="text-center py-2 text-sm text-muted-foreground">
-              Loading categories...
-            </div>
-          ) : categories.length === 0 ? (
-            <div className="text-center py-2 text-sm text-muted-foreground">
-              No categories found.
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-1">
-              {categories.map(category => (
-                <CategoryBadge
-                  key={category.id}
-                  category={category}
-                  selected={selectedCategories.some(c => c.id === category.id)}
-                  onClick={() => handleSelectCategory(category)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {selectedCategories.length > 0 && (
-          <div className="mt-3 border-t pt-3">
-            <h4 className="text-xs font-medium mb-1 text-muted-foreground">Selected:</h4>
-            <div className="flex flex-wrap">
-              {selectedCategories.map(category => (
-                <CategoryBadge
-                  key={category.id}
-                  category={category}
-                  selected={true}
-                  showClose={true}
-                  onRemove={() => handleSelectCategory(category)}
-                />
-              ))}
-            </div>
-          </div>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Documents</SelectItem>
+        {isLoadingCategories ? (
+          <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+        ) : categories.length === 0 ? (
+          <SelectItem value="none" disabled>No categories found</SelectItem>
+        ) : (
+          categories.map(category => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))
         )}
-      </PopoverContent>
-    </Popover>
+      </SelectContent>
+    </Select>
   );
 }

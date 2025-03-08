@@ -1,15 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Search, Plus, Filter, X } from "lucide-react";
+import { Loader2, Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCategories } from "@/hooks/useCategories";
-import { Badge } from "@/components/ui/badge";
+import { CategorySelector } from "@/components/documents/CategorySelector";
 import type { Document } from "@/types/document";
 
 export default function Documents() {
@@ -18,7 +16,6 @@ export default function Documents() {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { categories, isLoadingCategories } = useCategories();
 
   const { data: documents, isLoading, error } = useQuery({
     queryKey: ["documents"],
@@ -118,10 +115,6 @@ export default function Documents() {
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const handleClearFilter = () => {
-    setCategoryFilter(null);
-  };
-
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -149,52 +142,10 @@ export default function Documents() {
             </Button>
           </div>
           
-          <div className="flex items-center gap-2">
-            <Select value={categoryFilter || "all"} onValueChange={(value) => setCategoryFilter(value === "all" ? null : value)}>
-              <SelectTrigger className="h-9 flex-1">
-                <div className="flex items-center">
-                  <Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Filter by category" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Documents</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            {categoryFilter && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-9 w-9 flex-shrink-0" 
-                onClick={handleClearFilter}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          {categoryFilter && categories.find(c => c.id === categoryFilter) && (
-            <div className="flex items-center">
-              <span className="text-sm text-muted-foreground mr-2">Filtered by:</span>
-              <Badge variant="outline" className="bg-muted text-muted-foreground font-normal">
-                {categories.find(c => c.id === categoryFilter)?.name}
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-4 w-4 ml-1 p-0" 
-                  onClick={handleClearFilter}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            </div>
-          )}
+          <CategorySelector 
+            selectedCategory={categoryFilter}
+            onChange={setCategoryFilter}
+          />
           
           <div className="flex gap-2">
             <Button 
