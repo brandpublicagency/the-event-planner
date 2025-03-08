@@ -3,7 +3,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Sidebar from "@/components/Sidebar";
 import { useState, ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
 
 export const RootLayout = ({ children }: { children: ReactNode }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -33,23 +32,6 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
     }
   }, [location.pathname]);
 
-  // Determine appropriate context and page title based on route
-  const getPageInfo = () => {
-    const path = location.pathname;
-    
-    if (path === '/') {
-      return {
-        contextTitle: 'Event Management',
-        pageTitle: 'Dashboard',
-        subtitle: 'Your upcoming events and tasks'
-      };
-    }
-    
-    return {};
-  };
-
-  const pageInfo = getPageInfo();
-
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50">
       <div
@@ -62,11 +44,6 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
         </ScrollArea>
       </div>
       <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col">
-        <Header 
-          contextTitle={pageInfo.contextTitle} 
-          pageTitle={pageInfo.pageTitle}
-          subtitle={pageInfo.subtitle}
-        />
         <div className="flex-1 overflow-auto">
           {children}
         </div>
