@@ -10,7 +10,7 @@ export interface Document {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  category_ids?: string[]; // Add this field for category IDs
+  category_ids?: string[]; // Use this field for category IDs
 }
 
 export interface DocumentContent {

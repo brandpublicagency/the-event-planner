@@ -46,8 +46,7 @@ export const fetchCategories = async () => {
 
 export const getDocumentCategories = async (documentId: string) => {
   try {
-    // Since we don't have a mapping table yet, we'll use metadata in the documents table
-    // We'll get all categories and filter the ones that belong to this document
+    // Get the document with its category_ids
     const { data: document, error: documentError } = await supabase
       .from('documents')
       .select('category_ids')

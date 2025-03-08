@@ -77,8 +77,45 @@ export type Database = {
         }
         Relationships: []
       }
+      document_category_mappings: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          document_id: string | null
+          id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_category_mappings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_category_mappings_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
+          category_ids: string[] | null
           content: Json | null
           created_at: string
           deleted_at: string | null
@@ -89,6 +126,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category_ids?: string[] | null
           content?: Json | null
           created_at?: string
           deleted_at?: string | null
@@ -99,6 +137,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category_ids?: string[] | null
           content?: Json | null
           created_at?: string
           deleted_at?: string | null
