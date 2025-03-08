@@ -61,46 +61,6 @@ export const EventCard = ({
               >
                 {event.name}
               </button>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/events/${event.event_code}/edit`);
-                  }}
-                  className="p-0.5 text-zinc-400 hover:text-zinc-700"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-                {handleDelete && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-0.5 text-zinc-400 hover:text-zinc-700"
-                      >
-                        <Trash className="h-3 w-3" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this event? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(event.event_code)}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
               {!isDashboard && (
                 <button
                   onClick={(e) => copyEventCode(e, event.event_code)}
@@ -122,16 +82,19 @@ export const EventCard = ({
               </span>
             </div>
           </div>
-          {!isDashboard && handleDelete && (
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/events/${event.event_code}/edit`)}
-                className="text-zinc-600 hover:text-white hover:bg-zinc-900"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/events/${event.event_code}/edit`);
+              }}
+              className="text-zinc-600 hover:text-white hover:bg-zinc-900"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            {handleDelete && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -160,8 +123,8 @@ export const EventCard = ({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
