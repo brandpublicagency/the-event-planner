@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
@@ -124,8 +125,8 @@ export function DocumentContent({ editor }: DocumentContentProps) {
   return (
     <>
       <EditorToolbar editor={editor} />
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 min-h-[300px]">
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="bg-white rounded-lg border p-4 min-h-[300px] mb-4 flex-1">
           <EditorContent 
             editor={editor} 
             className="min-h-[300px]"
@@ -133,7 +134,7 @@ export function DocumentContent({ editor }: DocumentContentProps) {
         </div>
         
         {activeLinks.length > 0 && (
-          <div className="border-t p-4">
+          <div className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium text-muted-foreground">
                 Link Previews ({activeLinks.length})

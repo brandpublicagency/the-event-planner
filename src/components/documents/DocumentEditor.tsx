@@ -28,6 +28,7 @@ export default function DocumentEditor({
       }
     }
   });
+
   const {
     document,
     isLoading,
@@ -126,7 +127,7 @@ export default function DocumentEditor({
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <div className="rounded-lg border overflow-hidden flex-1">
+      <div className="rounded-lg overflow-hidden flex-1">
         <DocumentContent editor={editor} />
       </div>
     </div>;
