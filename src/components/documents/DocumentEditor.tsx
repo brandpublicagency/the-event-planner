@@ -66,7 +66,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   };
 
   // Handler for category selection in document editor
-  const handleCategoriesChange = (categoryId: string | null) => {
+  const handleCategoryChange = (categoryId: string | null) => {
     if (!categoryId || !categories) return;
     
     // Find the category
@@ -117,7 +117,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           {!isLoadingDocumentCategories && (
             <CategorySelector 
               selectedCategory={selectedCategories.length > 0 ? selectedCategories[0].id : null}
-              onChange={handleCategoriesChange}
+              onChange={handleCategoryChange}
+              placeholder="Assign category"
             />
           )}
         </div>

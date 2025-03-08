@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Plus } from "lucide-react";
@@ -145,6 +146,8 @@ export default function Documents() {
           <CategorySelector 
             selectedCategory={categoryFilter}
             onChange={setCategoryFilter}
+            includeAllOption={true}
+            placeholder="Filter by category"
           />
           
           <div className="flex gap-2">
