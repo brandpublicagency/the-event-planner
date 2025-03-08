@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -118,18 +119,6 @@ export default function DocumentList({ documents, selectedId, onSelect, category
             <div className="flex items-center justify-between">
               <div className="flex items-center flex-1 overflow-hidden">
                 <span className="text-sm truncate">{doc.title || "Untitled"}</span>
-                
-                {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
-                  <div className="flex ml-2 text-xs text-muted-foreground truncate">
-                    <span className="mx-1">•</span>
-                    {documentCategories[doc.id].slice(0, 1).map(category => (
-                      <span key={category.id} className="truncate">{category.name}</span>
-                    ))}
-                    {documentCategories[doc.id].length > 1 && (
-                      <span className="ml-1">+{documentCategories[doc.id].length - 1}</span>
-                    )}
-                  </div>
-                )}
               </div>
               
               <Button

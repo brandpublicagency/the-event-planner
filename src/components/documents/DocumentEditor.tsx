@@ -65,12 +65,25 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     }
   };
 
-  // Handler for category filter changes - this is a simplified version
-  // that just filters to a single category for documents list
-  const handleCategoryFilter = (categoryId: string | null) => {
-    // This function is just for the filter in the document list
-    // We would implement filtering logic here if needed
-    console.log("Category filter changed:", categoryId);
+  // Handler for category selection in document editor
+  const handleCategoriesChange = (categoryId: string | null) => {
+    if (!categoryId || !categories) return;
+    
+    // Find the category
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
+    
+    // Check if this category is already selected
+    const isAlreadySelected = selectedCategories.some(c => c.id === category.id);
+    
+    // Toggle the category
+    if (isAlreadySelected) {
+      // Remove it
+      setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+    } else {
+      // Add it
+      setSelectedCategories([...selectedCategories, category]);
+    }
   };
 
   if (!documentId) {
@@ -103,8 +116,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         <div>
           {!isLoadingDocumentCategories && (
             <CategorySelector 
-              selectedCategory={null}
-              onChange={handleCategoryFilter}
+              selectedCategory={selectedCategories.length > 0 ? selectedCategories[0].id : null}
+              onChange={handleCategoriesChange}
             />
           )}
         </div>

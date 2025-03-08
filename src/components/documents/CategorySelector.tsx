@@ -3,7 +3,6 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { Tag } from "lucide-react";
-import type { Category } from '@/types/category';
 
 interface CategorySelectorProps {
   selectedCategory: string | null;
@@ -15,17 +14,16 @@ export function CategorySelector({ selectedCategory, onChange }: CategorySelecto
 
   return (
     <Select 
-      value={selectedCategory || "all"}
-      onValueChange={(value) => onChange(value === "all" ? null : value)}
+      value={selectedCategory || ""}
+      onValueChange={(value) => onChange(value || null)}
     >
       <SelectTrigger className="w-full h-9">
         <div className="flex items-center">
           <Tag className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-          <SelectValue placeholder="Filter by category" />
+          <SelectValue placeholder="Select category" />
         </div>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Documents</SelectItem>
         {isLoadingCategories ? (
           <SelectItem value="loading" disabled>Loading categories...</SelectItem>
         ) : categories.length === 0 ? (
