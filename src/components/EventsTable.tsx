@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Edit, Trash, Copy } from "lucide-react";
+import { Calendar, Edit, Trash, Copy, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -145,6 +146,46 @@ export const EventsTable = ({
                           >
                             {event.name}
                           </button>
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/events/${event.event_code}/edit`);
+                              }}
+                              className="p-0.5 text-zinc-400 hover:text-zinc-700"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </button>
+                            {handleDelete && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-0.5 text-zinc-400 hover:text-zinc-700"
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this event? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDelete(event.event_code)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
                           {!isDashboard && (
                             <button
                               onClick={() => copyEventCode(event.event_code)}
