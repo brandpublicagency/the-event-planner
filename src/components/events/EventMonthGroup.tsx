@@ -35,10 +35,16 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
       
       <div className={cn(
         "divide-y",
-        isDashboard && "grid grid-cols-1 gap-2 p-2 divide-y-0"
+        isDashboard && "grid grid-cols-1 divide-y"
       )}>
         {isDashboard ? (
-          events.map((event) => <DashboardEventItem key={event.event_code} event={event} />)
+          events.map((event) => (
+            <DashboardEventItem 
+              key={event.event_code} 
+              event={event}
+              handleDelete={handleDelete}
+            />
+          ))
         ) : (
           events.map((event) => (
             <EventCard 
@@ -53,3 +59,4 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
     </div>
   );
 };
+
