@@ -151,7 +151,7 @@ export default function Documents() {
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Documents</SelectItem>
+                <SelectItem value="all">All Documents</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
                     <div className="flex items-center">
