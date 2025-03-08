@@ -76,8 +76,8 @@ export default function Events() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header
-        pageTitle="Events"
+      <Header 
+        pageTitle="Events" 
         actionButton={{
           label: "Add Event",
           icon: <Plus className="h-4 w-4" />,
