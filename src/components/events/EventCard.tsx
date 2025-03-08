@@ -34,6 +34,7 @@ export const EventCard = ({
   const { toast } = useToast();
   const location = useLocation();
   const isPassedEventsPage = location.pathname === "/passed-events";
+  const isEventsPage = location.pathname === "/events";
 
   const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
     e.stopPropagation();
@@ -62,7 +63,7 @@ export const EventCard = ({
               >
                 {event.name}
               </button>
-              {!isPassedEventsPage && (
+              {!isPassedEventsPage && !isEventsPage && (
                 <div className="flex items-center gap-1">
                   <button 
                     onClick={(e) => {
@@ -73,7 +74,7 @@ export const EventCard = ({
                   >
                     <Pencil className="h-3 w-3" />
                   </button>
-                  {handleDelete && !isPassedEventsPage && (
+                  {handleDelete && !isPassedEventsPage && !isEventsPage && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <button
@@ -125,7 +126,7 @@ export const EventCard = ({
               </span>
             </div>
           </div>
-          {!isDashboard && handleDelete && !isPassedEventsPage && (
+          {!isDashboard && handleDelete && !isPassedEventsPage && !isEventsPage && (
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
