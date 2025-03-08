@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,10 @@ import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentState } from "@/hooks/useDocumentState";
+import { CategorySelector } from "./CategorySelector";
+import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
+import { useEffect, useState } from "react";
+import type { Category } from "@/types/category";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -12,6 +17,7 @@ interface DocumentEditorProps {
 
 export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const isAuthenticated = useDocumentAuth();
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   
   const editor = useEditor({
     extensions: getEditorExtensions(),
@@ -23,6 +29,37 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   });
 
   const { document, isLoading, error, saveDocument, isSaving } = useDocumentState(documentId, editor, isAuthenticated);
+  const { categories } = useCategories();
+  const { 
+    documentCategories, 
+    isLoadingDocumentCategories,
+    updateDocumentCategories 
+  } = useDocumentCategories(documentId);
+
+  // Update selected categories when document categories load
+  useEffect(() => {
+    if (documentCategories && categories) {
+      const selected = documentCategories.map(docCat => {
+        // Find the full category object including color
+        const fullCategory = categories.find(c => c.id === docCat.id);
+        return fullCategory || docCat;
+      });
+      setSelectedCategories(selected);
+    }
+  }, [documentCategories, categories]);
+
+  const handleSave = async () => {
+    // First save the document content
+    await saveDocument();
+    
+    // Then update categories if we have a document ID
+    if (documentId) {
+      updateDocumentCategories({
+        documentId, 
+        categoryIds: selectedCategories.map(c => c.id)
+      });
+    }
+  };
 
   if (!documentId) {
     return (
@@ -50,9 +87,17 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
 
   return (
     <div className="h-full flex flex-col p-6">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          {!isLoadingDocumentCategories && (
+            <CategorySelector 
+              selectedCategories={selectedCategories}
+              onChange={setSelectedCategories}
+            />
+          )}
+        </div>
         <Button 
-          onClick={saveDocument}
+          onClick={handleSave}
           disabled={isSaving}
           className="gap-2"
         >

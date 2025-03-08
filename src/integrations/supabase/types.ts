@@ -53,6 +53,63 @@ export type Database = {
           },
         ]
       }
+      document_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      document_category_mappings: {
+        Row: {
+          category_id: string
+          created_at: string
+          document_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          document_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          document_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_category_mappings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_category_mappings_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           content: Json | null

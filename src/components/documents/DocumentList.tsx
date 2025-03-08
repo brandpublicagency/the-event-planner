@@ -1,19 +1,62 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CategoryBadge } from "./CategoryBadge";
 import type { Document } from "@/types/document";
+import type { Category } from "@/types/category";
 
 interface DocumentListProps {
   documents: Document[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  categoryFilter?: string | null;
 }
 
-export default function DocumentList({ documents, selectedId, onSelect }: DocumentListProps) {
+export default function DocumentList({ documents, selectedId, onSelect, categoryFilter }: DocumentListProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  // Fetch all document-category mappings in a single query
+  const { data: documentCategories } = useQuery({
+    queryKey: ['document-categories-mappings'],
+    queryFn: async () => {
+      if (documents.length === 0) return {};
+      
+      const { data, error } = await supabase
+        .from('document_category_mappings')
+        .select(`
+          document_id,
+          category_id,
+          document_categories (
+            id,
+            name,
+            color
+          )
+        `)
+        .in('document_id', documents.map(doc => doc.id));
+      
+      if (error) {
+        console.error("Error fetching document categories:", error);
+        return {};
+      }
+      
+      // Group categories by document ID
+      const categoriesByDocument: Record<string, Category[]> = {};
+      
+      data.forEach(mapping => {
+        if (!categoriesByDocument[mapping.document_id]) {
+          categoriesByDocument[mapping.document_id] = [];
+        }
+        categoriesByDocument[mapping.document_id].push(mapping.document_categories);
+      });
+      
+      return categoriesByDocument;
+    },
+    enabled: documents.length > 0,
+  });
 
   const deleteDocument = useMutation({
     mutationFn: async (documentId: string) => {
@@ -43,31 +86,59 @@ export default function DocumentList({ documents, selectedId, onSelect }: Docume
     },
   });
 
+  // Filter documents by category if a filter is active
+  const filteredDocuments = categoryFilter 
+    ? documents.filter(doc => 
+        documentCategories && 
+        documentCategories[doc.id]?.some(cat => cat.id === categoryFilter)
+      )
+    : documents;
+
   return (
     <div className="space-y-1">
-      {documents.map((doc) => (
+      {filteredDocuments.map((doc) => (
         <div
           key={doc.id}
-          className={`flex items-center justify-between group px-2 py-1 rounded-md cursor-pointer ${
+          className={`flex flex-col justify-between group px-2 py-1 rounded-md cursor-pointer ${
             selectedId === doc.id ? "bg-accent" : "hover:bg-accent/50"
           }`}
           onClick={() => onSelect(doc.id)}
         >
-          <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.confirm("Are you sure you want to delete this document?")) {
-                deleteDocument.mutate(doc.id);
-              }
-            }}
-            disabled={deleteDocument.isPending}
-          >
-            <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
-          </Button>
+          <div className="flex items-center justify-between">
+            <span className="text-sm truncate flex-1">{doc.title || "Untitled"}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Are you sure you want to delete this document?")) {
+                  deleteDocument.mutate(doc.id);
+                }
+              }}
+              disabled={deleteDocument.isPending}
+            >
+              <Trash2 className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground/60" />
+            </Button>
+          </div>
+          
+          {documentCategories && documentCategories[doc.id] && documentCategories[doc.id].length > 0 && (
+            <div className="flex flex-wrap mt-1">
+              {documentCategories[doc.id].slice(0, 2).map(category => (
+                <CategoryBadge 
+                  key={category.id} 
+                  category={category}
+                  selected={true}
+                  className="text-xs py-0 px-2 h-5"
+                />
+              ))}
+              {documentCategories[doc.id].length > 2 && (
+                <span className="text-xs text-muted-foreground ml-1 mt-0.5">
+                  +{documentCategories[doc.id].length - 2} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>
