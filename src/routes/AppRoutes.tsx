@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
@@ -14,6 +15,7 @@ import Tasks from "@/pages/Tasks";
 import TaskDetails from "@/pages/TaskDetails";
 import Login from "@/pages/Login";
 import Documents from "@/pages/Documents";
+import Contacts from "@/pages/Contacts";
 import ProfileSettings from "@/pages/ProfileSettings";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -156,6 +158,16 @@ export const AppRoutes = () => {
           <PrivateRoute>
             <RootLayout>
               <TaskDetails />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/contacts"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Contacts />
             </RootLayout>
           </PrivateRoute>
         }

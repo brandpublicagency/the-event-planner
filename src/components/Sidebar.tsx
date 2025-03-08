@@ -1,5 +1,6 @@
+
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Archive, Wallet, ListTodo } from "lucide-react";
+import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -28,6 +29,8 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         return 'bg-gradient-to-b from-rose-50/50 via-pink-50/50 to-rose-100/50';
       case '/tasks':
         return 'bg-gradient-to-b from-amber-50/50 via-yellow-50/50 to-amber-100/50';
+      case '/contacts':
+        return 'bg-gradient-to-b from-orange-50/50 via-orange-50/50 to-orange-100/50';
       case '/documents':
         return 'bg-gradient-to-b from-cyan-50/50 via-sky-50/50 to-cyan-100/50';
       default:
@@ -59,6 +62,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       label: "To-do list",
       badge: taskCount > 0 ? taskCount : undefined
     },
+    { icon: Users, path: "/contacts", label: "Contacts" },
     { icon: FileText, path: "/documents", label: "Documents" },
   ];
 
