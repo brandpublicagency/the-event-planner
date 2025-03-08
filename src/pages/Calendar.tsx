@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -116,7 +115,7 @@ const Calendar = () => {
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
       >
         {isProfileLoading ? (
-          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-10 w-full" />
         ) : (
           <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
         )}
