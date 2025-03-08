@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Header from "@/components/Header";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileSection from "@/components/profile/ProfileSection";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 const ProfileSettings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     full_name: "",
@@ -66,6 +67,42 @@ const ProfileSettings = () => {
     },
   });
 
+  // Create a mutation to update the profile
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updatedProfile) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No authenticated user found');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('id', user.id);
+
+      if (error) throw error;
+      return true;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the profile query to update the UI
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      setIsEditing(false);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to update profile: ${error.message}`,
+      });
+    }
+  });
+
+  const handleSaveProfile = async () => {
+    updateProfileMutation.mutate(editForm);
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -99,29 +136,7 @@ const ProfileSettings = () => {
             editForm={editForm}
             setEditForm={setEditForm}
             handleEdit={() => setIsEditing(true)}
-            handleSave={async () => {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (!user) return;
-
-              const { error } = await supabase
-                .from('profiles')
-                .update(editForm)
-                .eq('id', user.id);
-
-              if (!error) {
-                setIsEditing(false);
-                toast({
-                  title: "Profile updated",
-                  description: "Your profile has been successfully updated.",
-                });
-              } else {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Failed to update profile. Please try again.",
-                });
-              }
-            }}
+            handleSave={handleSaveProfile}
           />
         </ScrollArea>
       </div>
