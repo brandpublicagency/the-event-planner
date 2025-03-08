@@ -44,9 +44,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
         </ScrollArea>
       </div>
       <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col">
-        <div className="flex-1 overflow-auto">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );

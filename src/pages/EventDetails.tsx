@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
+import { Header } from "@/components/layout/Header";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -68,55 +69,60 @@ const EventDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 space-y-6 p-6 md:p-8">
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-64" />
+      <div className="flex flex-col h-full">
+        <Header showBackButton backButtonPath="/events" />
+        <div className="flex-1 space-y-6 p-6 md:p-8">
+          <Skeleton className="h-[200px] w-full rounded-lg" />
+          <Skeleton className="h-[400px] w-full rounded-lg" />
         </div>
-        <Skeleton className="h-[200px] w-full rounded-lg" />
-        <Skeleton className="h-[400px] w-full rounded-lg" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex-1 p-8">
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-red-700 mb-2">Error Loading Event</h2>
-            <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'Failed to load event details'}</p>
-            <Button 
-              onClick={() => navigate('/events')} 
-              variant="outline" 
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Events
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col h-full">
+        <Header showBackButton backButtonPath="/events" />
+        <div className="flex-1 p-8">
+          <Card className="border-red-200 bg-red-50/50">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-red-700 mb-2">Error Loading Event</h2>
+              <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'Failed to load event details'}</p>
+              <Button 
+                onClick={() => navigate('/events')} 
+                variant="outline" 
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Events
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="flex-1 p-8">
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-yellow-700 mb-2">Event Not Found</h2>
-            <p className="text-yellow-600 mb-4">The event you're looking for doesn't exist or has been deleted.</p>
-            <Button 
-              onClick={() => navigate('/events')} 
-              variant="outline" 
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Events
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col h-full">
+        <Header showBackButton backButtonPath="/events" />
+        <div className="flex-1 p-8">
+          <Card className="border-yellow-200 bg-yellow-50/50">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-yellow-700 mb-2">Event Not Found</h2>
+              <p className="text-yellow-600 mb-4">The event you're looking for doesn't exist or has been deleted.</p>
+              <Button 
+                onClick={() => navigate('/events')} 
+                variant="outline" 
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Events
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -126,39 +132,47 @@ const EventDetails = () => {
   const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
 
   return (
-    <div className="flex-1 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="print:hidden">
-          <EventHeader 
-            eventCode={event.event_code} 
-            onPrint={handlePrint} 
-            isCustomMenu={isCustomMenu}
-            onCustomMenuToggle={setIsCustomMenu}
-          />
-        </div>
-        
-        <div className="print-container bg-white rounded-lg border border-zinc-100">
-          <div className="print-header">
-            <h1 className="hidden print:block text-2xl font-semibold mb-2">Menu Selection</h1>
-            {event.name && <h2 className="hidden print:block text-xl text-zinc-500">{event.name}</h2>}
-          </div>
-          
-          <div className="print:block">
-            <EventInfo 
-              event={event}
-              formattedDate={formattedDate}
-              formattedTime={formattedTime}
-              venueNames={venueNames}
-            />
-          </div>
-          
-          <div className="px-6 pb-8">
-            <WeddingMenuPlanner 
+    <div className="flex flex-col h-full">
+      <Header 
+        pageTitle={event.name}
+        showBackButton 
+        backButtonPath="/events" 
+      />
+      
+      <div className="flex-1 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="print:hidden">
+            <EventHeader 
               eventCode={event.event_code} 
-              eventName={event.name}
+              onPrint={handlePrint} 
               isCustomMenu={isCustomMenu}
               onCustomMenuToggle={setIsCustomMenu}
             />
+          </div>
+          
+          <div className="print-container bg-white rounded-lg border border-zinc-100">
+            <div className="print-header">
+              <h1 className="hidden print:block text-2xl font-semibold mb-2">Menu Selection</h1>
+              {event.name && <h2 className="hidden print:block text-xl text-zinc-500">{event.name}</h2>}
+            </div>
+            
+            <div className="print:block">
+              <EventInfo 
+                event={event}
+                formattedDate={formattedDate}
+                formattedTime={formattedTime}
+                venueNames={venueNames}
+              />
+            </div>
+            
+            <div className="px-6 pb-8">
+              <WeddingMenuPlanner 
+                eventCode={event.event_code} 
+                eventName={event.name}
+                isCustomMenu={isCustomMenu}
+                onCustomMenuToggle={setIsCustomMenu}
+              />
+            </div>
           </div>
         </div>
       </div>

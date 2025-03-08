@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ProfileSection from "@/components/profile/ProfileSection";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { PageHeader } from "@/components/PageHeader";
+import { Header } from "@/components/layout/Header";
 
 // Define a type for the profile data
 interface ProfileFormData {
@@ -127,10 +127,9 @@ const ProfileSettings = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader
+      <Header
         contextTitle="User Settings"
         pageTitle="Profile Settings"
-        subtitle="Manage your profile information"
       />
       
       <div className="flex-1 p-6 overflow-hidden">

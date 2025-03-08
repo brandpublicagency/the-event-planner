@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/PageHeader";
+import { Header } from "@/components/layout/Header";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -120,8 +120,7 @@ const Calendar = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Calendar View"
+      <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
         secondaryAction={secondaryAction}
       >
@@ -130,7 +129,7 @@ const Calendar = () => {
         ) : (
           <CalendarHeader profileName={profile?.full_name} isLoading={isProfileLoading} />
         )}
-      </PageHeader>
+      </Header>
       
       <div className="flex-1 p-6">
         <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">

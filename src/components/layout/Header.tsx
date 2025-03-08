@@ -20,7 +20,6 @@ export interface ActionButtonProps {
 export interface HeaderProps {
   contextTitle?: string;
   pageTitle?: string;
-  subtitle?: string;
   actionButton?: ActionButtonProps;
   secondaryAction?: React.ReactNode;
   children?: React.ReactNode;
@@ -31,7 +30,6 @@ export interface HeaderProps {
 export const Header = ({
   contextTitle,
   pageTitle,
-  subtitle,
   actionButton,
   secondaryAction,
   children,
@@ -56,7 +54,6 @@ export const Header = ({
     return 'Eventify';
   };
 
-  // Removed dashboard subtitle logic
   const finalPageTitle = pageTitle || getDefaultPageTitle();
   
   const handleToggleMobileMenu = () => {
@@ -97,14 +94,15 @@ export const Header = ({
         
         {/* Action button section */}
         {actionButton && (
-          <Button 
-            onClick={actionButton.onClick}
-            variant={actionButton.variant || "default"}
-            className="m-6"
-          >
-            {actionButton.icon}
-            <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
-          </Button>
+          <div className="px-6 py-4">
+            <Button 
+              onClick={actionButton.onClick}
+              variant={actionButton.variant || "default"}
+            >
+              {actionButton.icon}
+              <span className={cn(actionButton.icon ? "ml-2" : "")}>{actionButton.label}</span>
+            </Button>
+          </div>
         )}
 
         {/* Secondary action area */}

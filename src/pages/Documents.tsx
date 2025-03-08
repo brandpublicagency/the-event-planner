@@ -9,7 +9,7 @@ import DocumentList from "@/components/documents/DocumentList";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
 import { CategorySelector } from "@/components/documents/CategorySelector";
-import { PageHeader } from "@/components/PageHeader";
+import { Header } from "@/components/layout/Header";
 import type { Document } from "@/types/document";
 
 export default function Documents() {
@@ -128,18 +128,15 @@ export default function Documents() {
     );
   }
 
-  const actionButton = {
-    label: "New Document",
-    icon: <Plus className="h-4 w-4" />,
-    onClick: handleNewDocument,
-  };
-
   return (
     <div className="flex flex-col h-full">
-      <PageHeader
-        contextTitle="Document Management"
+      <Header
         pageTitle="Documents"
-        actionButton={actionButton}
+        actionButton={{
+          label: "New Document",
+          icon: <Plus className="h-4 w-4" />,
+          onClick: handleNewDocument,
+        }}
       >
         <div className="flex items-center gap-2">
           <Input
@@ -161,7 +158,7 @@ export default function Documents() {
             placeholder="Filter by category"
           />
         </div>
-      </PageHeader>
+      </Header>
       
       <div className="flex flex-1 h-0 overflow-hidden">
         <div className="w-64 border-r bg-white p-4 flex flex-col h-full overflow-hidden">

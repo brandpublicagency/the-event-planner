@@ -12,6 +12,7 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 const Index = () => {
   const { toast } = useToast();
@@ -73,6 +74,8 @@ const Index = () => {
 
   return (
     <div className="flex flex-col h-full">
+      <Header pageTitle="Dashboard" />
+      
       <div className="pt-4 px-6">
         <ChatBox />
       </div>
