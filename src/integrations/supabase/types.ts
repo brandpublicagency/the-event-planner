@@ -77,42 +77,6 @@ export type Database = {
         }
         Relationships: []
       }
-      document_category_mappings: {
-        Row: {
-          category_id: string | null
-          created_at: string
-          document_id: string | null
-          id: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string
-          document_id?: string | null
-          id?: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string
-          document_id?: string | null
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_category_mappings_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "document_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "document_category_mappings_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       documents: {
         Row: {
           category_ids: string[] | null
@@ -307,13 +271,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "events_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "packages"
-            referencedColumns: ["id"]
-          },
         ]
       }
       menu_options: {
@@ -461,24 +418,6 @@ export type Database = {
             referencedColumns: ["event_code"]
           },
         ]
-      }
-      packages: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
       }
       pdf_processed_content: {
         Row: {

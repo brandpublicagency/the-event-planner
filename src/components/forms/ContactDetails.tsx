@@ -1,5 +1,5 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormData } from "@/types/eventForm";
@@ -20,7 +20,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           name="primary_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? 'Bride Name' : 'Contact Person'}</FormLabel>
               <FormControl>
                 <Input placeholder={isWedding ? "Bride's full name" : "Contact person's name"} {...field} />
               </FormControl>
@@ -35,7 +34,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             name="secondary_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Groom Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Groom's full name" {...field} />
                 </FormControl>
@@ -52,9 +50,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           name="primary_email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? 'Bride Email' : 'Contact Email'}</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Email address" {...field} />
+                <Input type="email" placeholder={isWedding ? "Bride's email address" : "Contact email address"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,9 +64,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             name="secondary_email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Groom Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Email address" {...field} />
+                  <Input type="email" placeholder="Groom's email address" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -84,9 +80,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           name="primary_phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? 'Bride Mobile' : 'Contact Mobile'}</FormLabel>
               <FormControl>
-                <Input placeholder="Mobile number" {...field} />
+                <Input placeholder={isWedding ? "Bride's mobile number" : "Contact mobile number"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -99,9 +94,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             name="secondary_phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Groom Mobile</FormLabel>
                 <FormControl>
-                  <Input placeholder="Mobile number" {...field} />
+                  <Input placeholder="Groom's mobile number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,7 +112,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="company"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Company name" {...field} />
                   </FormControl>
@@ -132,7 +125,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="vat_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT Number</FormLabel>
                   <FormControl>
                     <Input placeholder="VAT number" {...field} />
                   </FormControl>
@@ -149,7 +141,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Address</FormLabel>
             <FormControl>
               <Input placeholder="Full address" {...field} />
             </FormControl>
