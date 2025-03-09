@@ -20,11 +20,11 @@ export type WhatsAppResponse =
 
 const DEFAULT_TIMEOUT = 15000; // 15 seconds default timeout
 
-export const withTimeout = async (
-  promise: Promise<WhatsAppResponse>,
+export const withTimeout = async <T>(
+  promise: Promise<T>,
   operationName: string,
   timeout = DEFAULT_TIMEOUT
-): Promise<WhatsAppResponse> => {
+): Promise<T> => {
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`Operation ${operationName} timed out after ${timeout}ms`));

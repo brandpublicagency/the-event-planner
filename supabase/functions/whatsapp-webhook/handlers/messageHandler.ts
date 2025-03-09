@@ -1,6 +1,6 @@
 
 import { handleListSelection } from './listHandler.ts';
-import { getNextEvent } from './eventHandler.ts';
+import { getNextEvent } from './event/index.ts';
 import { getNextTask } from './taskHandler.ts';
 import { handleAIQuestion } from './questionHandler.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';

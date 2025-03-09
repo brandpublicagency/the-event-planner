@@ -1,6 +1,11 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { handleMessage } from './handlers/messageHandler.ts';
-import { getEventDetails, getUpcomingEventsList, getCalendarView } from './handlers/eventHandler.ts';
+import { 
+  getEventDetails, 
+  getUpcomingEventsList, 
+  getCalendarView 
+} from './handlers/event/index.ts';
 import { getTaskDetails } from './handlers/taskHandler.ts';
 import { getWelcomeMessage, getHelpMessage } from './handlers/welcomeHandler.ts';
 import { handleAIQuestion } from './handlers/questionHandler.ts';
