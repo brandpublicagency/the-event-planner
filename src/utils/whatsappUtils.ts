@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
@@ -61,9 +62,17 @@ export const handleMessage = async (message: WhatsAppMessage) => {
       if (messageText.includes('next event')) {
         try {
           console.log('Fetching next event data');
-          const { data: nextEvent, error } = await supabase
+          const { data: events, error } = await supabase
             .from('events')
-            .select('*')
+            .select(`
+              *,
+              menu_selections (*),
+              event_venues (
+                venues (
+                  name
+                )
+              )
+            `)
             .gte('event_date', new Date().toISOString())
             .is('deleted_at', null)
             .is('completed', false)
@@ -75,20 +84,27 @@ export const handleMessage = async (message: WhatsAppMessage) => {
             throw error;
           }
 
-          if (!nextEvent?.length) {
+          if (!events?.length) {
             return {
               type: 'text',
               message: "No upcoming events found."
             };
           }
 
-          const event = nextEvent[0];
+          const event = events[0];
           console.log('Found next event:', event);
           
           // Format the response
           let venueInfo = '';
           if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
             venueInfo = ` at ${event.venues.join(', ')}`;
+          } else if (event.event_venues && Array.isArray(event.event_venues)) {
+            const venueNames = event.event_venues
+              .map((v: any) => v.venues?.name)
+              .filter(Boolean);
+            if (venueNames.length > 0) {
+              venueInfo = ` at ${venueNames.join(', ')}`;
+            }
           }
           
           let paxInfo = '';
@@ -128,14 +144,15 @@ export const handleMessage = async (message: WhatsAppMessage) => {
       if (messageText.includes('help')) {
         return {
           type: 'text',
-          message: "Here are some things you can ask me about:\n\n• 'events' - See upcoming events\n• 'next event' - Details about the next event\n• 'tasks' or 'todo' - View your pending tasks\n• 'menus' - See menu details for upcoming events\n• 'help' - Show this help message"
+          message: "Here are some things you can ask me about:\n\n• 'events' - See upcoming events\n• 'next event' - Details about the next event\n• 'tasks' or 'todo' - View your pending tasks\n• 'menus' - See menu details for upcoming events\n• 'help' - Show this help message\n\nYou can also ask me questions in natural language, like 'What events do we have next week?' or 'Can you update the guest count for EVENT-001 to 50?'"
         };
       }
 
-      // Default response
+      // Default behavior - route to AI
+      console.log('Routing message to AI assistant');
       return {
         type: 'text',
-        message: "I can help you with managing events and tasks. Try asking about upcoming events, your next event, to-do list, or menus. Type 'help' for more options."
+        message: "I'm checking on that for you. Give me one moment..."
       };
     }
 
@@ -158,7 +175,14 @@ async function handleUpcomingEvents() {
     console.log('Fetching upcoming events');
     const { data: events, error } = await supabase
       .from('events')
-      .select('*')
+      .select(`
+        *,
+        event_venues (
+          venues (
+            name
+          )
+        )
+      `)
       .gte('event_date', new Date().toISOString())
       .is('deleted_at', null)
       .order('event_date', { ascending: true })
@@ -175,9 +199,17 @@ async function handleUpcomingEvents() {
 
     const eventsList = events
       .map(event => {
+        // Get venue info - handle both direct venues array and event_venues relation
         let venueInfo = '';
         if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
           venueInfo = ` at ${event.venues.join(', ')}`;
+        } else if (event.event_venues && Array.isArray(event.event_venues)) {
+          const venueNames = event.event_venues
+            .map((v: any) => v.venues?.name)
+            .filter(Boolean);
+          if (venueNames.length > 0) {
+            venueInfo = ` at ${venueNames.join(', ')}`;
+          }
         }
         
         return `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')} - ${event.name} (${event.event_type})${venueInfo}`;
@@ -244,7 +276,10 @@ async function handleMenus() {
     console.log('Fetching menu information');
     const { data: events, error } = await supabase
       .from('events')
-      .select('*')
+      .select(`
+        *,
+        menu_selections (*)
+      `)
       .gte('event_date', new Date().toISOString())
       .is('deleted_at', null)
       .order('event_date', { ascending: true })
@@ -259,14 +294,9 @@ async function handleMenus() {
       };
     }
 
-    const { data: menuSelections } = await supabase
-      .from('menu_selections')
-      .select('*')
-      .in('event_code', events.map(e => e.event_code));
-
     const menusList = events
       .map(event => {
-        const eventMenu = menuSelections?.find(m => m.event_code === event.event_code);
+        const eventMenu = event.menu_selections;
         const menuType = eventMenu ? 
           (eventMenu.is_custom ? 'Custom Menu' : `${eventMenu.main_course_type || 'Menu'} menu`) : 
           'No menu selected';

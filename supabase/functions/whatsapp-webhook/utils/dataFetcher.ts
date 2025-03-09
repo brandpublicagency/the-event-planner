@@ -10,14 +10,23 @@ export const fetchEvents = async () => {
   console.log('Fetching events data');
   
   try {
-    // Use a simpler query to avoid relationship errors
+    // Use withTimeout to ensure the query doesn't hang indefinitely
     const { data: events, error } = await withTimeout(
       supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          menu_selections (*),
+          event_venues (
+            venues (
+              name
+            )
+          )
+        `)
         .is('deleted_at', null)
         .order('event_date', { ascending: true }),
-      'Events query'
+      'Events query',
+      10000 // 10 second timeout
     );
 
     if (error) {
@@ -25,21 +34,7 @@ export const fetchEvents = async () => {
       throw error;
     }
 
-    // Fetch menu selections separately to enrich the events
-    const { data: menuSelections } = await supabase
-      .from('menu_selections')
-      .select('*');
-
-    // Enrich events with menu data if available
-    const enrichedEvents = events?.map(event => {
-      const eventMenu = menuSelections?.find(ms => ms.event_code === event.event_code);
-      return {
-        ...event,
-        menu_selections: eventMenu || null
-      };
-    });
-
-    return enrichedEvents || [];
+    return events || [];
   } catch (error) {
     console.error('Error in fetchEvents:', error);
     return [];
@@ -52,7 +47,8 @@ export const fetchContacts = async () => {
   try {
     const { data: contacts, error } = await withTimeout(
       supabase.from('profiles').select('*'),
-      'Contacts query'
+      'Contacts query',
+      5000 // 5 second timeout
     );
 
     if (error) {
@@ -73,7 +69,8 @@ export const fetchDocuments = async () => {
   try {
     const { data: documents, error } = await withTimeout(
       supabase.from('documents').select('*').is('deleted_at', null),
-      'Documents query'
+      'Documents query',
+      5000 // 5 second timeout
     );
 
     if (error) {
@@ -94,7 +91,8 @@ export const fetchTasks = async () => {
   try {
     const { data: tasks, error } = await withTimeout(
       supabase.from('tasks').select('*'),
-      'Tasks query'
+      'Tasks query',
+      5000 // 5 second timeout
     );
 
     if (error) {
@@ -115,24 +113,21 @@ export const fetchEventById = async (eventCode: string) => {
   try {
     const { data: event, error } = await supabase
       .from('events')
-      .select('*')
+      .select(`
+        *,
+        menu_selections (*),
+        event_venues (
+          venues (
+            name
+          )
+        )
+      `)
       .eq('event_code', eventCode)
       .single();
 
     if (error) {
       console.error(`Error fetching event ${eventCode}:`, error);
       throw error;
-    }
-
-    // Fetch menu information separately
-    const { data: menuData } = await supabase
-      .from('menu_selections')
-      .select('*')
-      .eq('event_code', eventCode)
-      .single();
-
-    if (menuData) {
-      return { ...event, menu_selections: menuData };
     }
 
     return event;

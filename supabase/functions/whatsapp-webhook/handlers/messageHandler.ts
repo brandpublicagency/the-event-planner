@@ -5,6 +5,7 @@ import { getNextTask } from './taskHandler.ts';
 import { handleAIQuestion } from './questionHandler.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout } from '../utils/timeoutUtils.ts';
+import { fetchEvents } from '../utils/dataFetcher.ts';
 
 export const handleMessage = async (message: any) => {
   try {
@@ -20,14 +21,16 @@ export const handleMessage = async (message: any) => {
       if (message.interactive.list_reply) {
         return await withTimeout(
           handleListSelection(message.interactive.list_reply.id),
-          'List selection'
+          'List selection',
+          15000
         );
       }
 
       if (message.interactive.button_reply) {
         return await withTimeout(
           handleListSelection(message.interactive.button_reply.id),
-          'Button selection'
+          'Button selection',
+          15000
         );
       }
 
@@ -43,10 +46,11 @@ export const handleMessage = async (message: any) => {
       console.log('Processing text message:', messageText);
 
       // Handle specific commands
-      if (['hi', 'hello', 'hey'].includes(messageText)) {
+      if (['hi', 'hello', 'hey', 'hallo'].includes(messageText)) {
         return await withTimeout(
           getWelcomeMessage(),
-          'Welcome message'
+          'Welcome message',
+          5000
         );
       }
 
@@ -55,21 +59,37 @@ export const handleMessage = async (message: any) => {
       }
 
       // Handle specific queries with timeout
-      if (messageText === 'next event') {
-        return await withTimeout(getNextEvent(), 'Next event query');
+      if (messageText.includes('next event') || messageText === 'next event') {
+        return await withTimeout(
+          getNextEvent(), 
+          'Next event query',
+          10000
+        );
       }
 
-      if (messageText === 'next task') {
+      if (messageText.includes('next task') || messageText === 'next task') {
         return await withTimeout(
           getNextTask(message.from),
-          'Next task query'
+          'Next task query',
+          10000
         );
+      }
+
+      if (messageText.includes('events') || messageText.includes('upcoming events')) {
+        try {
+          // Fetch some events to check if DB access is working
+          const events = await fetchEvents();
+          console.log(`Found ${events.length} events in database`);
+        } catch (error) {
+          console.error('Database connection test failed:', error);
+        }
       }
 
       // For all other messages, use AI to generate a response
       return await withTimeout(
         handleAIQuestion(message.text.body),
-        'AI question handling'
+        'AI question handling',
+        30000 // 30 second timeout - AI processing takes longer
       );
     }
 
