@@ -8,12 +8,10 @@ import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
-
 const Sidebar = ({
   className,
   isCollapsed,
@@ -24,7 +22,6 @@ const Sidebar = ({
   } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
@@ -45,7 +42,6 @@ const Sidebar = ({
         return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
     }
   };
-
   const {
     data: taskCount = 0
   } = useQuery({
@@ -62,46 +58,36 @@ const Sidebar = ({
       return count || 0;
     }
   });
-
-  const mainNavItems = [
-    {
-      icon: LayoutGrid,
-      path: "/",
-      label: "Dashboard"
-    },
-    {
-      icon: FileText,
-      path: "/events",
-      label: "Events"
-    },
-    {
-      icon: Archive,
-      path: "/passed-events",
-      label: "Passed Events"
-    },
-    {
-      icon: Wallet,
-      path: "/calendar",
-      label: "Calendar"
-    },
-    {
-      icon: ListTodo,
-      path: "/tasks",
-      label: "To-do list",
-      badge: taskCount > 0 ? taskCount : undefined
-    },
-    {
-      icon: Users,
-      path: "/contacts",
-      label: "Contacts"
-    },
-    {
-      icon: FileText,
-      path: "/documents",
-      label: "Documents"
-    }
-  ];
-
+  const mainNavItems = [{
+    icon: LayoutGrid,
+    path: "/",
+    label: "Dashboard"
+  }, {
+    icon: FileText,
+    path: "/events",
+    label: "Events"
+  }, {
+    icon: Archive,
+    path: "/passed-events",
+    label: "Passed Events"
+  }, {
+    icon: Wallet,
+    path: "/calendar",
+    label: "Calendar"
+  }, {
+    icon: ListTodo,
+    path: "/tasks",
+    label: "To-do list",
+    badge: taskCount > 0 ? taskCount : undefined
+  }, {
+    icon: Users,
+    path: "/contacts",
+    label: "Contacts"
+  }, {
+    icon: FileText,
+    path: "/documents",
+    label: "Documents"
+  }];
   return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
@@ -121,7 +107,7 @@ const Sidebar = ({
           </div>
         </div>
         
-        <div className={cn("p-3 border-t bg-gray-50", isCollapsed && "flex flex-col items-center space-y-2")}>
+        <div className="">
           <div className="flex flex-col gap-2">
             <Button variant="outline" size={isCollapsed ? "icon" : "default"} onClick={() => navigate('/events/new')} className={cn("w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50", isCollapsed && "px-2")}>
               <Plus className="h-4 w-4" />
@@ -142,5 +128,4 @@ const Sidebar = ({
       </div>
     </div>;
 };
-
 export default Sidebar;
