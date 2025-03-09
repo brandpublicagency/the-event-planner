@@ -3,18 +3,15 @@ import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
-import CalendarFilters from "@/components/calendar/CalendarFilters";
 import { supabase } from "@/integrations/supabase/client";
 import { EventsList } from "@/components/calendar/EventsList";
 import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Header } from "@/components/layout/Header";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedVenue, setSelectedVenue] = useState<string | undefined>();
   const { toast } = useToast();
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
@@ -34,20 +31,8 @@ const Calendar = () => {
     },
   });
 
-  const { data: venues } = useQuery({
-    queryKey: ['venues'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('venues')
-        .select('*')
-        .order('name');
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: events = [], isLoading: isEventsLoading, error: eventsError } = useQuery({
-    queryKey: ['events', date?.getMonth(), date?.getFullYear(), selectedVenue],
+    queryKey: ['events', date?.getMonth(), date?.getFullYear()],
     queryFn: async () => {
       if (!date) return [];
 
@@ -68,10 +53,6 @@ const Calendar = () => {
         .gte('event_date', startOfMonth.toISOString())
         .lte('event_date', endOfMonth.toISOString())
         .order('event_date');
-
-      if (selectedVenue && selectedVenue !== 'all') {
-        query = query.eq('event_venues.venue_id', selectedVenue);
-      }
 
       const { data, error } = await query;
 
@@ -115,14 +96,6 @@ const Calendar = () => {
       />
       
       <div className="flex-1 p-6">
-        <div className="flex justify-end mb-4">
-          <CalendarFilters
-            venues={venues}
-            selectedVenue={selectedVenue}
-            setSelectedVenue={setSelectedVenue}
-          />
-        </div>
-        
         <div className="grid gap-6 lg:grid-cols-[420px,1fr] transition-all">
           <Card className="p-6 bg-white border border-zinc-200 transition-colors">
             <CalendarComponent
