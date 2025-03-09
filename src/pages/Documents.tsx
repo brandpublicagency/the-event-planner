@@ -9,7 +9,6 @@ import DocumentEditor from "@/components/documents/DocumentEditor";
 import { useState, useEffect } from "react";
 import { CategorySelector } from "@/components/documents/CategorySelector";
 import { Header } from "@/components/layout/Header";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Document } from "@/types/document";
 
@@ -145,14 +144,6 @@ export default function Documents() {
     <div className="flex flex-col h-full">
       <Header pageTitle="Documents">
         <div className="flex-1 flex items-center justify-end gap-4 ml-6">
-          {!isLoading && filteredDocuments.length > 0 && (
-            <div className="hidden md:flex items-center gap-2">
-              <Badge variant="outline" className="bg-white">
-                {filteredCount} {filteredCount === 1 ? 'document' : 'documents'}
-                {filteredCount !== totalDocuments && ` (filtered from ${totalDocuments})`}
-              </Badge>
-            </div>
-          )}
         </div>
       </Header>
       
