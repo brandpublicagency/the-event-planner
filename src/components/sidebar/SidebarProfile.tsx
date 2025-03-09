@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SidebarProfileProps {
   isCollapsed: boolean;
@@ -34,9 +35,12 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
       "py-4 flex items-center",
       isCollapsed ? "justify-center px-0" : "px-4 gap-3"
     )}>
-      <div className={cn(
-        "w-10 h-10 rounded-full bg-[#0A0F1D] flex-shrink-0 cursor-pointer"
-      )} />
+      <Avatar className={cn(
+        "w-10 h-10 flex-shrink-0 cursor-pointer"
+      )}>
+        <AvatarImage src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" alt="Warm Karoo Logo" />
+        <AvatarFallback className="bg-[#0A0F1D]">WK</AvatarFallback>
+      </Avatar>
       {!isCollapsed && (
         <div className="flex-1 overflow-hidden">
           {isLoading ? (
