@@ -101,7 +101,7 @@ export default function DocumentEditor({
           
           {selectedCategories.length > 0 && <div className="flex flex-wrap gap-2">
               {selectedCategories.map(category => <Badge key={category.id} variant="outline" className="flex items-center gap-1">
-                  <span className="font-light text-xs">{category.name}</span>
+                  <span className="font-light text-xs text-gray-500">{category.name}</span>
                   <Button variant="ghost" size="icon" className="h-4 w-4 p-0 ml-1 hover:bg-transparent" onClick={() => removeCategory(category.id)}>
                     <X className="h-3 w-3" />
                   </Button>
