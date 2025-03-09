@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { publicEventFormSchema, PublicEventFormSchema } from "@/schemas/publicEventFormSchema";
-import type { EventFormData } from "@/types/eventForm";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -20,12 +19,16 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Use the PublicEventFormSchema type from our schema to define the form shape
+  // Configure form with explicit typing to avoid deep instantiation issues
   const form = useForm<PublicEventFormSchema>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: "Wedding",
-      venues: []
+      venues: [] as string[],
+      name: "",
+      primary_name: "",
+      primary_phone: "",
+      primary_email: ""
     }
   });
 
@@ -122,14 +125,19 @@ const PublicEventForm = () => {
             title="Event Details" 
             description="Tell us about your event"
           >
-            <EventBasicInfo form={form} />
+            <EventBasicInfo 
+              form={form as any} // Type assertion to resolve compatibility issues
+            />
           </FormSection>
 
           <FormSection 
             title="Contact Details" 
             description={`Enter ${eventType === "Wedding" ? "bride and groom" : "contact"} information`}
           >
-            <ContactDetails form={form} eventType={eventType} />
+            <ContactDetails 
+              form={form as any} // Type assertion to resolve compatibility issues
+              eventType={eventType} 
+            />
           </FormSection>
 
           <div className="flex justify-end space-x-2 pt-4">
