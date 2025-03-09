@@ -8,7 +8,7 @@ export const prepareEventsContext = (events: Event[] = []) => {
   // Don't filter events - let OpenAI handle temporal logic
   return events.map(event => {
     const menuSelections = event.menu_selections as MenuSelections;
-    const venues = event.event_venues?.map((ev: any) => ev.venues?.name).filter(Boolean);
+    const venues = event.venues || [];
     const today = new Date();
     const eventDate = event.event_date ? new Date(event.event_date) : null;
     const status = event.completed ? 'Completed' : 

@@ -18,15 +18,7 @@ const PassedEvents = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
-        .select(`
-          *,
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          )
-        `)
+        .select(`*`)
         .eq('completed', true)
         .order('event_date', { ascending: false });
 
@@ -39,13 +31,7 @@ const PassedEvents = () => {
         throw error;
       }
 
-      return data?.map(event => ({
-        ...event,
-        venues: event.event_venues?.map(ev => ({
-          id: ev.venues?.id,
-          name: ev.venues?.name
-        })) || []
-      })) as Event[];
+      return data as Event[];
     },
   });
 

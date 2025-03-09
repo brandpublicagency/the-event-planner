@@ -28,15 +28,7 @@ const Index = () => {
 
       const { data, error } = await supabase
         .from('events')
-        .select(`
-          *,
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          )
-        `)
+        .select(`*`)
         .gte('event_date', today.toISOString().split('T')[0])
         .eq('completed', false)
         .order('event_date', { ascending: true });
@@ -52,14 +44,7 @@ const Index = () => {
       }
 
       console.log('Fetched dashboard events:', data);
-
-      return data?.map(event => ({
-        ...event,
-        venues: event.event_venues?.map((ev: any) => ({
-          id: ev.venues?.id,
-          name: ev.venues?.name
-        })) || []
-      })) || [];
+      return data || [];
     },
     retry: 1,
   });

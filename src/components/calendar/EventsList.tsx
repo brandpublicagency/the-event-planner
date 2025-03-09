@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CalendarIcon, PlusCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,9 +85,9 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                     <span>•</span>
                     <span>{event.pax} Guests</span>
                     {event.venues?.map((venue) => (
-                      <React.Fragment key={venue.id}>
+                      <React.Fragment key={venue}>
                         <span>•</span>
-                        <span className="text-zinc-600">{venue.name}</span>
+                        <span className="text-zinc-600">{venue}</span>
                       </React.Fragment>
                     ))}
                   </div>

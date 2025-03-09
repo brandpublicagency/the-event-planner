@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -41,15 +42,7 @@ const Calendar = () => {
 
       let query = supabase
         .from('events')
-        .select(`
-          *,
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          )
-        `)
+        .select(`*`)
         .gte('event_date', startOfMonth.toISOString())
         .lte('event_date', endOfMonth.toISOString())
         .order('event_date');
@@ -65,10 +58,7 @@ const Calendar = () => {
         throw error;
       }
 
-      return data?.map(event => ({
-        ...event,
-        venues: event.event_venues?.map((ev: any) => ev.venues) || [],
-      })) || [];
+      return data || [];
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });

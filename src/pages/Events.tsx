@@ -22,15 +22,7 @@ export default function Events() {
 
       const { data, error } = await supabase
         .from('events')
-        .select(`
-          *,
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          )
-        `)
+        .select(`*`)
         .eq('completed', false)
         .gte('event_date', today.toISOString().split('T')[0])
         .order('event_date', { ascending: true });
@@ -46,11 +38,7 @@ export default function Events() {
       }
 
       console.log('Fetched events:', data);
-
-      return data?.map(event => ({
-        ...event,
-        venues: event.event_venues?.map((ev: any) => ev.venues) || []
-      }));
+      return data || [];
     },
     retry: 1,
   });

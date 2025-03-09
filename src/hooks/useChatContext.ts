@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,12 +13,6 @@ export const useChatContext = () => {
           *,
           wedding_details (*),
           corporate_details (*),
-          event_venues (
-            venues (
-              id,
-              name
-            )
-          ),
           menu_selections (*)
         `)
         .is('deleted_at', null)  // Only exclude hard-deleted events
