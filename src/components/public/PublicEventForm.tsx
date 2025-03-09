@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,8 +18,6 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Fix for TS2589: Type instantiation is excessively deep and possibly infinite
-  // Use a properly typed form with explicit typing
   const form = useForm<PublicEventFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
@@ -31,16 +28,16 @@ const PublicEventForm = () => {
       primary_name: "",
       primary_phone: "",
       primary_email: "",
-      description: undefined,
+      description: "",
       start_time: null,
       end_time: null,
       pax: null,
-      secondary_name: undefined,
-      secondary_phone: undefined,
-      secondary_email: undefined,
-      address: undefined,
-      company: undefined,
-      vat_number: undefined
+      secondary_name: "",
+      secondary_phone: "",
+      secondary_email: "",
+      address: "",
+      company: "",
+      vat_number: ""
     }
   });
 
@@ -138,7 +135,7 @@ const PublicEventForm = () => {
             description="Tell us about your event"
           >
             <EventBasicInfo 
-              form={form as any}
+              form={form}
             />
           </FormSection>
 
@@ -147,7 +144,7 @@ const PublicEventForm = () => {
             description={`Enter ${eventType === "Wedding" ? "bride and groom" : "contact"} information`}
           >
             <ContactDetails 
-              form={form as any}
+              form={form}
               eventType={eventType} 
             />
           </FormSection>

@@ -4,15 +4,15 @@ import * as z from "zod";
 // Define event type enum explicitly
 const EventTypeEnum = z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]);
 
-// Define the schema first
+// Define the schema first, without any recursive or circular references
 export const publicEventFormSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
   event_type: EventTypeEnum,
   event_date: z.string().min(1, "Event date is required"),
-  start_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 21:00)").nullable().optional(),
-  end_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 22:00)").nullable().optional(),
-  pax: z.number().min(1, "Number of guests must be at least 1").nullable().optional(),
+  start_time: z.string().nullable().optional(),
+  end_time: z.string().nullable().optional(),
+  pax: z.number().nullable().optional(),
   venues: z.array(z.string()).min(1, "Please select at least one venue"),
   
   // Contact fields
