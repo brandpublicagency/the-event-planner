@@ -41,7 +41,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
       >
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
-      <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col">
+      <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col transition-all duration-300 ease-in-out">
         {children}
       </main>
     </div>
