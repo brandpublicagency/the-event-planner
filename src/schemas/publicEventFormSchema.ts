@@ -1,10 +1,13 @@
 
 import * as z from "zod";
 
+// Define event type enum explicitly to avoid circular references
+const EventTypeEnum = z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]);
+
 export const publicEventFormSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
-  event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]),
+  event_type: EventTypeEnum,
   event_date: z.string().min(1, "Event date is required"),
   start_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 21:00)").optional(),
   end_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 22:00)").optional(),

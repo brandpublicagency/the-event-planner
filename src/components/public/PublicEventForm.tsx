@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,12 +19,11 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Fix for the type instantiation error - use explicit typing for form
   const form = useForm<EventFormData>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: 'Wedding' as const,
-      venues: []
+      venues: [] as string[]
     }
   });
 
@@ -42,7 +40,6 @@ const PublicEventForm = () => {
     setErrorMessage(null);
     
     try {
-      // Get the system admin user to create the event
       const { data: adminUsers, error: adminError } = await supabase
         .from('profiles')
         .select('id')
@@ -55,7 +52,6 @@ const PublicEventForm = () => {
       
       const eventCode = generateEventCode();
       
-      // Prepare the event data
       const eventData = {
         event_code: eventCode,
         name: data.name,
@@ -69,7 +65,6 @@ const PublicEventForm = () => {
         completed: false,
         venues: data.venues || [],
         
-        // Contact fields
         primary_name: data.primary_name || null,
         primary_phone: data.primary_phone || null,
         primary_email: data.primary_email || null,
@@ -80,7 +75,6 @@ const PublicEventForm = () => {
         company: data.company || null,
         vat_number: data.vat_number || null,
         
-        // Flag this as coming from the public form
         public_submission: true
       };
 
