@@ -28,12 +28,20 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
   }, [email]);
 
   const validateEmail = (email: string): boolean => {
-    if (!email) {
+    if (!email || email.trim() === "") {
       setErrorMessage("Email is required");
       return false;
     }
 
-    if (!email.endsWith('@warmkaroo.com')) {
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Please enter a valid email address");
+      return false;
+    }
+
+    // Check for warmkaroo.com domain
+    if (!email.toLowerCase().endsWith('@warmkaroo.com')) {
       setErrorMessage("Only @warmkaroo.com email addresses are allowed");
       return false;
     }
