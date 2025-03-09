@@ -1,5 +1,4 @@
 
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/events/EventsTable";
@@ -9,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
 import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
 import { Header } from "@/components/layout/Header";
-import { Search } from "lucide-react";
 
 const PassedEvents = () => {
   const { toast } = useToast();
@@ -83,17 +81,8 @@ const PassedEvents = () => {
       <Header
         showBackButton
         backButtonPath="/events"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-          <Input 
-            placeholder="Search passed events..." 
-            className="pl-10 bg-white border-zinc-200 rounded-full" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </Header>
+        pageTitle="Passed Events"
+      />
       
       <div className="flex-1 p-6">
         {isLoading ? (
