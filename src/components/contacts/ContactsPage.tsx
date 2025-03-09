@@ -6,8 +6,6 @@ import ContactEditDrawer from "./ContactEditDrawer";
 import { useContactsQuery } from "./hooks/useContactsQuery";
 import type { Contact } from "@/types/contact";
 import { deleteContact } from "@/services/contactService";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const ContactsPage = () => {
   const { toast } = useToast();
@@ -16,11 +14,6 @@ const ContactsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   const { data: contacts = [], isLoading, refetch } = useContactsQuery();
-
-  const handleAddContact = () => {
-    setSelectedContact(null);
-    setIsEditDrawerOpen(true);
-  };
 
   const handleEditContact = (contact: Contact) => {
     setSelectedContact(contact);
@@ -62,13 +55,7 @@ const ContactsPage = () => {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div></div>
-          <Button 
-            onClick={handleAddContact} 
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Contact
-          </Button>
+          {/* Add Contact button removed */}
         </div>
         
         <ContactsTabs 
