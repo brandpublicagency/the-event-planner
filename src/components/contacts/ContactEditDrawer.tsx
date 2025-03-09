@@ -16,7 +16,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { updateContact } from "@/services/contactService";
 import type { Contact } from "@/types/contact";
 import OffCanvasDrawer from "@/components/ui/off-canvas-drawer";
-import { formatDate } from "@/utils/formatDate";
 import { Link } from "react-router-dom";
 
 // Enhanced schema to include all possible contact fields
@@ -82,6 +81,25 @@ const ContactEditDrawer = ({
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          {/* Action Buttons - Moved to top */}
+          <div className="flex justify-start space-x-2 pb-6">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="w-24"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={form.formState.isSubmitting}
+              className="w-32"
+            >
+              {form.formState.isSubmitting ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+          
           {/* Personal Information */}
           <div className="pb-4 mb-5">
             <h3 className="text-sm font-medium text-gray-500 mb-4">Personal Information</h3>
@@ -178,47 +196,16 @@ const ContactEditDrawer = ({
             </div>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex justify-start space-x-2 pb-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-              className="w-24"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={form.formState.isSubmitting}
-              className="w-32"
-            >
-              {form.formState.isSubmitting ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
-          
-          {/* Events Booked Section - Updated */}
+          {/* Events Booked Section */}
           <div className="pt-4 border-t">
-            <h3 className="text-sm font-medium uppercase tracking-wide mb-3">Events Booked</h3>
+            <h3 className="text-sm font-medium uppercase tracking-wide mb-3">EVENTS BOOKED</h3>
             <div className="flex flex-col gap-1">
-              {contact.originalData && contact.originalData.related_events ? (
-                contact.originalData.related_events.map((eventCode: string, index: number) => (
-                  <Link 
-                    key={`${eventCode}-${index}`}
-                    to={`/passed-events?event=${eventCode}`}
-                    className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
-                  >
-                    {contact.company || contact.name} {contact.originalData.event_types?.[index] || 'Event'}
-                  </Link>
-                ))
-              ) : (
-                <Link 
-                  to={`/passed-events?event=${contact.eventCode}`}
-                  className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
-                >
-                  {contact.company || contact.name} {contact.originalData?.event_type || 'Event'}
-                </Link>
-              )}
+              <Link 
+                to={`/passed-events?event=${contact.eventCode}`}
+                className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
+              >
+                {contact.company || contact.name} {contact.originalData?.event_type || 'Event'}
+              </Link>
             </div>
           </div>
         </form>

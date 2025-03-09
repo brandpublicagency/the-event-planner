@@ -29,9 +29,7 @@ export const useContactsQuery = () => {
             company,
             address,
             vat_number,
-            venues,
-            related_events,
-            event_types
+            venues
           `)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false });
