@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -62,7 +61,6 @@ const EditEvent = () => {
         start_time: formatTime(event.start_time),
         end_time: formatTime(event.end_time),
         pax: event.pax || undefined,
-        client_address: event.client_address || '',
         venues: venues,
         
         // All contact fields
@@ -72,7 +70,7 @@ const EditEvent = () => {
         secondary_name: event.secondary_name || '',
         secondary_email: event.secondary_email || '',
         secondary_phone: event.secondary_phone || '',
-        address: event.address || event.client_address || '',
+        address: event.address || '',
         company: event.company || '',
         vat_number: event.vat_number || '',
         
@@ -106,7 +104,6 @@ const EditEvent = () => {
         description: data.description || '',
         event_date: data.event_date || null,
         pax: data.pax || null,
-        client_address: data.client_address || null,
       };
       
       await updateEvent(id, updateData);

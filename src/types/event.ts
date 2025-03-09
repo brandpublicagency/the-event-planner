@@ -9,7 +9,6 @@ export interface Event {
   start_time: string | null;
   end_time: string | null;
   pax: number | null;
-  client_address: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
@@ -38,7 +37,6 @@ export interface EventCreate {
   start_time?: string | null;
   end_time?: string | null;
   pax?: number | null;
-  client_address?: string | null;
   created_by?: string | null;
   completed?: boolean;
   venues?: string[] | null;

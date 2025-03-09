@@ -10,7 +10,6 @@ interface EventUpdateData {
   start_time?: string | null;
   end_time?: string | null;
   pax: number | null;
-  client_address: string | null;
   venues?: string[];
   completed?: boolean;
   
@@ -91,9 +90,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       if (!data.vat_number && data.company_vat) data.vat_number = data.company_vat;
     }
     
-    // If address is not provided but client_address is, use client_address
-    if (!data.address && data.client_address) data.address = data.client_address;
-    // Also use company_address for Corporate events if available
+    // If address is not provided but company_address is, use company_address
     if (!data.address && data.company_address) data.address = data.company_address;
 
     // Update main event details
@@ -107,7 +104,6 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         start_time: data.start_time || null,
         end_time: data.end_time || null,
         pax: data.pax || null,
-        client_address: data.client_address || null,
         venues: data.venues || null,
         completed: data.completed !== undefined ? data.completed : undefined,
         // Contact fields
