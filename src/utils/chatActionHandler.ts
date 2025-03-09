@@ -1,4 +1,3 @@
-
 import { updateMenuSelection } from "@/services/menuService";
 import { sendEmail } from "@/services/email";
 import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
@@ -30,6 +29,33 @@ export const handleChatAction = async (
         if (action.updates.event_code && action.updates.updates) {
           console.log('Detected nested updates structure, fixing...');
           updatesToApply = action.updates.updates;
+        }
+
+        // Handle venue updates - ensure it's an array
+        if (updatesToApply.venues !== undefined) {
+          if (typeof updatesToApply.venues === 'string') {
+            console.log('Converting venue string to array:', updatesToApply.venues);
+            // If a single venue is provided as a string, convert to array
+            updatesToApply.venues = [updatesToApply.venues];
+          } else if (!Array.isArray(updatesToApply.venues)) {
+            throw new Error("Venues must be provided as a string or an array of strings");
+          }
+          
+          // Validate venue values
+          const allowedVenues = [
+            "The Kitchen", "The Gallery", "The Grand Hall", 
+            "Package 1", "Package 2", "Package 3"
+          ];
+          
+          const invalidVenues = updatesToApply.venues.filter(
+            (v: string) => !allowedVenues.includes(v)
+          );
+          
+          if (invalidVenues.length > 0) {
+            throw new Error(
+              `Invalid venue(s): ${invalidVenues.join(', ')}. Valid options are: ${allowedVenues.join(', ')}`
+            );
+          }
         }
 
         // Handle date updates with better validation
@@ -116,6 +142,9 @@ export const handleChatAction = async (
         if (updatesToApply.client_address && !updatesToApply.address) {
           updatesToApply.address = updatesToApply.client_address;
         }
+
+        // Log the final updates being applied
+        console.log('Final updates to apply:', updatesToApply);
 
         // Make the actual update call
         const updatedEvent = await updateEvent(action.event_code, updatesToApply);

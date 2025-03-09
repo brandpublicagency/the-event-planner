@@ -29,6 +29,17 @@ export const useActionHandler = () => {
         console.log('Detected nested updates structure in ActionHandler, fixing...');
         pendingAction.updates = pendingAction.updates.updates;
       }
+
+      // Special handling for venues to ensure it's an array
+      if (pendingAction.action === "update_event" && 
+          pendingAction.updates && 
+          pendingAction.updates.venues && 
+          !Array.isArray(pendingAction.updates.venues)) {
+        console.log('Converting venues to array in ActionHandler:', pendingAction.updates.venues);
+        if (typeof pendingAction.updates.venues === 'string') {
+          pendingAction.updates.venues = [pendingAction.updates.venues];
+        }
+      }
       
       await handleChatAction(
         pendingAction,

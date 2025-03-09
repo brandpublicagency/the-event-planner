@@ -103,6 +103,16 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
       if (functionCall.name === 'update_event') {
         try {
           const args = JSON.parse(functionCall.arguments || '{}');
+          console.log('Update event arguments:', args);
+          
+          // Handle venue specifically - make sure it's an array
+          if (args.updates && args.updates.venues && !Array.isArray(args.updates.venues)) {
+            if (typeof args.updates.venues === 'string') {
+              args.updates.venues = [args.updates.venues];
+              console.log('Converted venues string to array:', args.updates.venues);
+            }
+          }
+          
           // Properly format the response without nesting updates inside updates
           return `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${JSON.stringify(args.updates)}}`;
         } catch (error) {
