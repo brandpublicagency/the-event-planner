@@ -3,6 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EventFormData } from "@/types/eventForm";
+import { useEffect } from "react";
 
 // These values MUST match exactly what's expected in the database trigger
 const VENUE_OPTIONS = [
@@ -21,6 +22,11 @@ interface VenueSelectProps {
 export const VenueSelect = ({ form }: VenueSelectProps) => {
   const venues = form.watch("venues") || [];
   
+  useEffect(() => {
+    // Log when component mounts or venues change
+    console.log("VenueSelect component venues:", venues);
+  }, [venues]);
+  
   const handleVenueChange = (venue: string, checked: boolean) => {
     const currentVenues = [...venues];
     
@@ -31,6 +37,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
       currentVenues.splice(index, 1);
     }
     
+    console.log(`Updated venue selection: ${venue} to ${checked}, new venues:`, currentVenues);
     form.setValue("venues", currentVenues, { shouldValidate: true });
   };
 

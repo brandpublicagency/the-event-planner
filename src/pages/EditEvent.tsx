@@ -51,7 +51,9 @@ const EditEvent = () => {
         return time.slice(0, 5); // Take only HH:mm part
       };
 
-      console.log("Loading form data with venues:", event.venues);
+      // Make sure venues is always an array
+      const venues = Array.isArray(event.venues) ? event.venues : [];
+      console.log("Initial venues from database:", venues);
 
       // Reset form with event data
       form.reset({
@@ -63,7 +65,7 @@ const EditEvent = () => {
         end_time: formatTime(event.end_time),
         pax: event.pax || undefined,
         client_address: event.client_address || '',
-        venues: event.venues || [],
+        venues: venues,
         // Wedding details
         bride_name: event.wedding_details?.bride_name || '',
         bride_email: event.wedding_details?.bride_email || '',

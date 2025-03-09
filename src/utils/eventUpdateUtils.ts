@@ -28,14 +28,33 @@ interface EventUpdateData {
   company_address?: string;
 }
 
+// These values MUST match exactly what's expected in the database trigger
+const ALLOWED_VENUES = [
+  "The Kitchen",
+  "The Gallery",
+  "The Grand Hall",
+  "Package 1",
+  "Package 2",
+  "Package 3"
+];
+
 export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
   try {
-    // Validate that venues are in the allowed list
-    const allowedVenues = ["The Kitchen", "The Gallery", "The Grand Hall", "Package 1", "Package 2", "Package 3"];
+    console.log("Updating event with venues:", data.venues);
     
+    // Validate that venues are in the allowed list
     if (data.venues && data.venues.length > 0) {
-      const allValid = data.venues.every(venue => allowedVenues.includes(venue));
-      if (!allValid) {
+      // Filter out any invalid venues
+      const validVenues = data.venues.filter(venue => ALLOWED_VENUES.includes(venue));
+      
+      if (validVenues.length !== data.venues.length) {
+        console.warn("Some venues were filtered out because they were not in the allowed list");
+        // Replace data.venues with only the valid ones
+        data.venues = validVenues;
+      }
+      
+      if (validVenues.length === 0) {
+        console.error("No valid venues provided");
         throw new Error("Invalid venue value. Allowed values are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, Package 3");
       }
     }
@@ -56,7 +75,10 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       })
       .eq('event_code', eventCode);
 
-    if (eventError) throw eventError;
+    if (eventError) {
+      console.error("Event update error:", eventError);
+      throw eventError;
+    }
 
     // Update event type specific details
     if (data.event_type === 'Wedding') {

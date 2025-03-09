@@ -1,3 +1,4 @@
+
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { UseFormReturn } from "react-hook-form";
@@ -8,14 +9,14 @@ interface CompanyDetailsProps {
   form: UseFormReturn<any>;
   onSubmit?: (data: any) => Promise<void>;
   showSubmit?: boolean;
-  isEditing?: boolean; // Add this prop
+  isEditing?: boolean;
 }
 
 const CompanyDetails = ({ 
   form, 
   onSubmit, 
   showSubmit,
-  isEditing: externalIsEditing // Receive external editing state
+  isEditing: externalIsEditing
 }: CompanyDetailsProps) => {
   const [internalIsEditing, setInternalIsEditing] = useState(false);
   
@@ -30,7 +31,15 @@ const CompanyDetails = ({
     if (!onSubmit) return;
     
     try {
-      await onSubmit(data);
+      // Preserve venues field from form.getValues() to ensure it's included in submission
+      const formValues = form.getValues();
+      const dataWithVenues = {
+        ...data,
+        venues: formValues.venues || []
+      };
+      
+      console.log("Submitting company details with venues:", dataWithVenues.venues);
+      await onSubmit(dataWithVenues);
       setInternalIsEditing(false);
     } catch (error) {
       console.error('Error submitting form:', error);
