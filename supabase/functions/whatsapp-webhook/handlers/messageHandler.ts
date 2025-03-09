@@ -1,7 +1,7 @@
 
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './event/index.ts';
-import { getNextTask } from './taskHandler.ts';
+import { getNextTask } from './task/index.ts';
 import { handleAIQuestion } from './questionHandler.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout } from '../utils/timeoutUtils.ts';

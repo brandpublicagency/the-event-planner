@@ -6,7 +6,7 @@ import {
   getUpcomingEventsList, 
   getCalendarView 
 } from './handlers/event/index.ts';
-import { getTaskDetails } from './handlers/taskHandler.ts';
+import { getTaskDetails, getNextTask } from './handlers/task/index.ts';
 import { getWelcomeMessage, getHelpMessage } from './handlers/welcomeHandler.ts';
 import { handleAIQuestion } from './handlers/questionHandler.ts';
 
