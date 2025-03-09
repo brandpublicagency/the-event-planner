@@ -1,3 +1,4 @@
+
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { UseFormReturn } from "react-hook-form";
@@ -14,6 +15,8 @@ interface EditEventFormProps {
 }
 
 const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
+  const eventType = form.watch('event_type');
+  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -24,7 +27,7 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
           <EventBasicInfo form={form} />
         </FormSection>
 
-        {form.watch('event_type') === "Wedding" ? (
+        {eventType === "Wedding" ? (
           <div className="grid gap-6 md:grid-cols-2">
             <FormSection 
               title="Bride Details" 

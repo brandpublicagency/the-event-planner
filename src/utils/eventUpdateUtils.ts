@@ -73,7 +73,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         });
 
       if (weddingError) throw weddingError;
-    } else {
+    } else if (data.event_type === 'Corporate Event' || data.event_type === 'Other') {
       const { error: corporateError } = await supabase
         .from('corporate_details')
         .upsert({

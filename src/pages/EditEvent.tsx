@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -46,35 +47,37 @@ const EditEvent = () => {
 
       // Format times to HH:mm format if they exist
       const formatTime = (time: string | null) => {
-        if (!time) return null;
+        if (!time) return undefined;
         return time.slice(0, 5); // Take only HH:mm part
       };
+
+      console.log("Loading form data with venues:", event.venues);
 
       // Reset form with event data
       form.reset({
         name: event.name,
         description: event.description || '',
         event_type: eventType,
-        event_date: event.event_date || null,
+        event_date: event.event_date || undefined,
         start_time: formatTime(event.start_time),
         end_time: formatTime(event.end_time),
-        pax: event.pax || null,
-        client_address: event.client_address || null,
+        pax: event.pax || undefined,
+        client_address: event.client_address || '',
         venues: event.venues || [],
         // Wedding details
-        bride_name: event.wedding_details?.bride_name || null,
-        bride_email: event.wedding_details?.bride_email || null,
-        bride_mobile: event.wedding_details?.bride_mobile || null,
-        groom_name: event.wedding_details?.groom_name || null,
-        groom_email: event.wedding_details?.groom_email || null,
-        groom_mobile: event.wedding_details?.groom_mobile || null,
+        bride_name: event.wedding_details?.bride_name || '',
+        bride_email: event.wedding_details?.bride_email || '',
+        bride_mobile: event.wedding_details?.bride_mobile || '',
+        groom_name: event.wedding_details?.groom_name || '',
+        groom_email: event.wedding_details?.groom_email || '',
+        groom_mobile: event.wedding_details?.groom_mobile || '',
         // Corporate details
-        company_name: event.corporate_details?.company_name || null,
-        contact_person: event.corporate_details?.contact_person || null,
-        contact_email: event.corporate_details?.contact_email || null,
-        contact_mobile: event.corporate_details?.contact_mobile || null,
-        company_vat: event.corporate_details?.company_vat || null,
-        company_address: event.corporate_details?.company_address || null,
+        company_name: event.corporate_details?.company_name || '',
+        contact_person: event.corporate_details?.contact_person || '',
+        contact_email: event.corporate_details?.contact_email || '',
+        contact_mobile: event.corporate_details?.contact_mobile || '',
+        company_vat: event.corporate_details?.company_vat || '',
+        company_address: event.corporate_details?.company_address || '',
       });
     }
   }, [event, form]);
@@ -82,6 +85,8 @@ const EditEvent = () => {
   const onSubmit = async (data: EventFormData) => {
     try {
       if (!id) throw new Error('Event ID is required');
+      
+      console.log("Submitting form with venues:", data.venues);
       
       // Transform the form data to match EventUpdateData requirements
       const updateData = {
