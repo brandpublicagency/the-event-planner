@@ -105,18 +105,27 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
           const args = JSON.parse(functionCall.arguments || '{}');
           console.log('Update event arguments:', args);
           
+          // Ensure we don't have nested updates
+          const eventCode = args.event_code;
+          
+          // Ensure updates is flat and correctly formatted
+          let updates = args.updates;
+          
           // Handle venue specifically - make sure it's an array
-          if (args.updates && args.updates.venues && !Array.isArray(args.updates.venues)) {
-            if (typeof args.updates.venues === 'string') {
-              args.updates.venues = [args.updates.venues];
-              console.log('Converted venues string to array:', args.updates.venues);
+          if (updates && updates.venues) {
+            if (!Array.isArray(updates.venues)) {
+              if (typeof updates.venues === 'string') {
+                updates.venues = [updates.venues];
+                console.log('Converted venues string to array:', updates.venues);
+              }
             }
           }
           
-          // Properly format the response without nesting updates inside updates
-          return `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${JSON.stringify(args.updates)}}`;
+          // Return a properly formatted action string
+          return `I'll update the event ${eventCode} with the following changes: ${JSON.stringify(updates)}.\n\n{"action":"update_event","event_code":"${eventCode}","updates":${JSON.stringify(updates)}}`;
         } catch (error) {
           console.error('Error parsing function arguments:', error);
+          return `I encountered an error while trying to update the event. Please try again with more specific instructions.`;
         }
       }
       
@@ -126,6 +135,7 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
           return `I'll update the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(args.menu_updates)}}`;
         } catch (error) {
           console.error('Error parsing function arguments:', error);
+          return `I encountered an error while trying to update the menu. Please try again with more specific instructions.`;
         }
       }
     }

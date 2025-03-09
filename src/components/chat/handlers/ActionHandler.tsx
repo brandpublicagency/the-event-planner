@@ -1,4 +1,3 @@
-
 import { handleChatAction } from "@/utils/chatActionHandler";
 import { PendingAction } from "@/types/chat";
 import { useChatState } from "@/hooks/useChatState";
@@ -21,23 +20,28 @@ export const useActionHandler = () => {
     try {
       console.log('Executing action:', pendingAction);
       
-      // Fix nested updates structure if needed
-      if (pendingAction.action === "update_event" && 
-          pendingAction.updates && 
-          pendingAction.updates.event_code && 
-          pendingAction.updates.updates) {
-        console.log('Detected nested updates structure in ActionHandler, fixing...');
-        pendingAction.updates = pendingAction.updates.updates;
-      }
-
-      // Special handling for venues to ensure it's an array
-      if (pendingAction.action === "update_event" && 
-          pendingAction.updates && 
-          pendingAction.updates.venues && 
-          !Array.isArray(pendingAction.updates.venues)) {
-        console.log('Converting venues to array in ActionHandler:', pendingAction.updates.venues);
-        if (typeof pendingAction.updates.venues === 'string') {
-          pendingAction.updates.venues = [pendingAction.updates.venues];
+      // Fix nested updates structure - ensure we have a clean updates object
+      if (pendingAction.action === "update_event" && pendingAction.updates) {
+        // First, make a clean copy of the updates
+        const cleanUpdates = { ...pendingAction.updates };
+        
+        // Check if we have a nested structure and fix it
+        if (cleanUpdates.event_code && cleanUpdates.updates) {
+          console.log('Detected nested updates structure in ActionHandler, fixing...');
+          pendingAction.updates = { ...cleanUpdates.updates };
+          // Keep the event_code at the top level where it belongs
+          pendingAction.event_code = cleanUpdates.event_code;
+        }
+        
+        // Special handling for venues to ensure it's an array
+        if (pendingAction.updates.venues) {
+          console.log('Processing venues in ActionHandler:', pendingAction.updates.venues);
+          if (!Array.isArray(pendingAction.updates.venues)) {
+            if (typeof pendingAction.updates.venues === 'string') {
+              pendingAction.updates.venues = [pendingAction.updates.venues];
+              console.log('Converted venues to array:', pendingAction.updates.venues);
+            }
+          }
         }
       }
       

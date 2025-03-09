@@ -54,6 +54,10 @@ UPDATING VENUES:
 When a user asks to change a venue, ALWAYS format the venues as an ARRAY, even if there's only one venue.
 Example: {"venues": ["The Gallery"]} NOT {"venues": "The Gallery"}
 
+DATA STRUCTURE FOR VENUES:
+When updating venues, you must always provide them in this format: "venues": ["The Gallery"]
+Never use the format "venues": "The Gallery" as this will cause errors.
+
 ALWAYS USE THIS EXACT FORMAT FOR UPDATES:
 When a user asks you to update an event (e.g., "Change the pax for event ABC123 to 50"):
 1. Respond with: "I'll update [field] for [event name] to [new value]."
@@ -64,7 +68,13 @@ Example of CORRECT update format:
 {"action":"update_event","event_code":"ABC123","updates":{"pax":50}}
 
 Example of INCORRECT update format (DO NOT USE):
-{"action":"update_event","event_code":"ABC123","updates":{"updates":{"pax":50}}}`;
+{"action":"update_event","event_code":"ABC123","updates":{"updates":{"pax":50}}}
+
+Example of CORRECT venue update:
+{"action":"update_event","event_code":"ABC123","updates":{"venues":["The Gallery"]}}
+
+Example of INCORRECT venue update (DO NOT USE):
+{"action":"update_event","event_code":"ABC123","updates":{"venues":"The Gallery"}}`;
 
   return systemMessage;
 }

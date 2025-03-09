@@ -25,10 +25,12 @@ export const handleChatAction = async (
         console.log('Updating event with code:', action.event_code, 'Updates:', action.updates);
 
         // Fix nested updates structure if it exists
-        let updatesToApply = action.updates;
-        if (action.updates.event_code && action.updates.updates) {
+        let updatesToApply = { ...action.updates };
+        
+        // Check for nested updates object (remove this nesting)
+        if (updatesToApply.event_code && updatesToApply.updates) {
           console.log('Detected nested updates structure, fixing...');
-          updatesToApply = action.updates.updates;
+          updatesToApply = { ...updatesToApply.updates };
         }
 
         // Handle venue updates - ensure it's an array
@@ -89,16 +91,6 @@ export const handleChatAction = async (
             } else {
               throw new Error("Invalid guest count format. Please provide a number.");
             }
-          }
-        }
-
-        // Handle venues updates - ensure it's an array
-        if (updatesToApply.venues !== undefined) {
-          if (typeof updatesToApply.venues === 'string') {
-            // If a single venue is provided as a string, convert to array
-            updatesToApply.venues = [updatesToApply.venues];
-          } else if (!Array.isArray(updatesToApply.venues)) {
-            throw new Error("Venues must be provided as a string or an array of strings");
           }
         }
 

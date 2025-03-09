@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
@@ -11,9 +10,12 @@ interface WhatsAppMessage {
 }
 
 export const handleMessage = async (message: WhatsAppMessage) => {
+  console.log('Processing WhatsApp message:', message);
+  
   try {
     if (message.type === 'text') {
       const messageText = message.text?.body.toLowerCase().trim() || '';
+      console.log('Processing text message:', messageText);
 
       // Handle greetings
       if (['hi', 'hello', 'hey', 'hallo'].includes(messageText)) {
@@ -58,6 +60,7 @@ export const handleMessage = async (message: WhatsAppMessage) => {
       // Handle next event query specifically
       if (messageText.includes('next event')) {
         try {
+          console.log('Fetching next event data');
           const { data: nextEvent, error } = await supabase
             .from('events')
             .select('*')
@@ -80,9 +83,22 @@ export const handleMessage = async (message: WhatsAppMessage) => {
           }
 
           const event = nextEvent[0];
+          console.log('Found next event:', event);
+          
+          // Format the response
+          let venueInfo = '';
+          if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
+            venueInfo = ` at ${event.venues.join(', ')}`;
+          }
+          
+          let paxInfo = '';
+          if (event.pax) {
+            paxInfo = ` for ${event.pax} guests`;
+          }
+          
           return {
             type: 'text',
-            message: `The next event is "${event.name}" on ${format(new Date(event.event_date), 'MMMM d, yyyy')}. It's a ${event.event_type} event${event.pax ? ` for ${event.pax} guests` : ''}.`
+            message: `The next event is "${event.name}" on ${format(new Date(event.event_date), 'MMMM d, yyyy')}. It's a ${event.event_type} event${venueInfo}${paxInfo}.`
           };
         } catch (error) {
           console.error('Error in next event handler:', error);
@@ -95,130 +111,17 @@ export const handleMessage = async (message: WhatsAppMessage) => {
 
       // Handle upcoming events query
       if (messageText.includes('upcoming events') || messageText.includes('events')) {
-        try {
-          const { data: events, error } = await supabase
-            .from('events')
-            .select('*')
-            .gte('event_date', new Date().toISOString())
-            .is('deleted_at', null)
-            .order('event_date', { ascending: true })
-            .limit(5);
-
-          if (error) throw error;
-
-          if (!events?.length) {
-            return {
-              type: 'text',
-              message: "No upcoming events found."
-            };
-          }
-
-          const eventsList = events
-            .map(event => `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')} - ${event.name} (${event.event_type})`)
-            .join('\n');
-
-          return {
-            type: 'text',
-            message: `Upcoming Events:\n\n${eventsList}`
-          };
-        } catch (error) {
-          console.error('Error in upcoming events handler:', error);
-          return {
-            type: 'text',
-            message: "Sorry, I couldn't retrieve your upcoming events. Please try again later."
-          };
-        }
+        return await handleUpcomingEvents();
       }
 
       // Handle tasks query
       if (messageText.includes('tasks') || messageText.includes('todo') || messageText.includes('to-do')) {
-        try {
-          const { data: tasks, error } = await supabase
-            .from('tasks')
-            .select('*')
-            .eq('completed', false)
-            .order('due_date', { ascending: true })
-            .limit(5);
-
-          if (error) throw error;
-
-          if (!tasks?.length) {
-            return {
-              type: 'text',
-              message: "No pending tasks found."
-            };
-          }
-
-          const tasksList = tasks
-            .map(task => {
-              const dueDate = task.due_date ? 
-                ` (Due: ${format(new Date(task.due_date), 'dd MMM yyyy')})` :
-                ' (No due date)';
-              
-              return `📋 ${task.title}${dueDate} - ${task.status.toUpperCase()}`;
-            })
-            .join('\n');
-
-          return {
-            type: 'text',
-            message: `Your Pending Tasks:\n\n${tasksList}`
-          };
-        } catch (error) {
-          console.error('Error in tasks handler:', error);
-          return {
-            type: 'text',
-            message: "Sorry, I couldn't retrieve your tasks. Please try again later."
-          };
-        }
+        return await handleTasks();
       }
 
       // Handle menu query
       if (messageText.includes('menu') || messageText.includes('menus')) {
-        try {
-          const { data: events, error } = await supabase
-            .from('events')
-            .select('*')
-            .gte('event_date', new Date().toISOString())
-            .is('deleted_at', null)
-            .order('event_date', { ascending: true })
-            .limit(3);
-
-          if (error) throw error;
-
-          if (!events?.length) {
-            return {
-              type: 'text',
-              message: "No upcoming events with menus found."
-            };
-          }
-
-          const { data: menuSelections } = await supabase
-            .from('menu_selections')
-            .select('*')
-            .in('event_code', events.map(e => e.event_code));
-
-          const menusList = events
-            .map(event => {
-              const eventMenu = menuSelections?.find(m => m.event_code === event.event_code);
-              const menuType = eventMenu ? 
-                (eventMenu.is_custom ? 'Custom Menu' : `${eventMenu.main_course_type || 'Menu'} menu`) : 
-                'No menu selected';
-              
-              return `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')} - ${event.name}\n🍽️ ${menuType}`;
-            })
-            .join('\n\n');
-
-          return {
-            type: 'text',
-            message: `Upcoming Event Menus:\n\n${menusList}`
-          };
-        } catch (error) {
-          console.error('Error in menus handler:', error);
-          return {
-            type: 'text',
-            message: "Sorry, I couldn't retrieve menu information. Please try again later."
-          };
-        }
+        return await handleMenus();
       }
 
       // Help command
@@ -248,3 +151,139 @@ export const handleMessage = async (message: WhatsAppMessage) => {
     };
   }
 };
+
+// Helper functions to handle specific queries
+async function handleUpcomingEvents() {
+  try {
+    console.log('Fetching upcoming events');
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', new Date().toISOString())
+      .is('deleted_at', null)
+      .order('event_date', { ascending: true })
+      .limit(5);
+
+    if (error) throw error;
+
+    if (!events?.length) {
+      return {
+        type: 'text',
+        message: "No upcoming events found."
+      };
+    }
+
+    const eventsList = events
+      .map(event => {
+        let venueInfo = '';
+        if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
+          venueInfo = ` at ${event.venues.join(', ')}`;
+        }
+        
+        return `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')} - ${event.name} (${event.event_type})${venueInfo}`;
+      })
+      .join('\n');
+
+    return {
+      type: 'text',
+      message: `Upcoming Events:\n\n${eventsList}`
+    };
+  } catch (error) {
+    console.error('Error in upcoming events handler:', error);
+    return {
+      type: 'text',
+      message: "Sorry, I couldn't retrieve your upcoming events. Please try again later."
+    };
+  }
+}
+
+async function handleTasks() {
+  try {
+    console.log('Fetching tasks');
+    const { data: tasks, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('completed', false)
+      .order('due_date', { ascending: true })
+      .limit(5);
+
+    if (error) throw error;
+
+    if (!tasks?.length) {
+      return {
+        type: 'text',
+        message: "No pending tasks found."
+      };
+    }
+
+    const tasksList = tasks
+      .map(task => {
+        const dueDate = task.due_date ? 
+          ` (Due: ${format(new Date(task.due_date), 'dd MMM yyyy')})` :
+          ' (No due date)';
+        
+        return `📋 ${task.title}${dueDate} - ${task.status.toUpperCase()}`;
+      })
+      .join('\n');
+
+    return {
+      type: 'text',
+      message: `Your Pending Tasks:\n\n${tasksList}`
+    };
+  } catch (error) {
+    console.error('Error in tasks handler:', error);
+    return {
+      type: 'text',
+      message: "Sorry, I couldn't retrieve your tasks. Please try again later."
+    };
+  }
+}
+
+async function handleMenus() {
+  try {
+    console.log('Fetching menu information');
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', new Date().toISOString())
+      .is('deleted_at', null)
+      .order('event_date', { ascending: true })
+      .limit(3);
+
+    if (error) throw error;
+
+    if (!events?.length) {
+      return {
+        type: 'text',
+        message: "No upcoming events with menus found."
+      };
+    }
+
+    const { data: menuSelections } = await supabase
+      .from('menu_selections')
+      .select('*')
+      .in('event_code', events.map(e => e.event_code));
+
+    const menusList = events
+      .map(event => {
+        const eventMenu = menuSelections?.find(m => m.event_code === event.event_code);
+        const menuType = eventMenu ? 
+          (eventMenu.is_custom ? 'Custom Menu' : `${eventMenu.main_course_type || 'Menu'} menu`) : 
+          'No menu selected';
+        
+        return `📅 ${format(new Date(event.event_date), 'dd MMM yyyy')} - ${event.name}\n🍽️ ${menuType}`;
+      })
+      .join('\n\n');
+
+    return {
+      type: 'text',
+      message: `Upcoming Event Menus:\n\n${menusList}`
+    };
+  } catch (error) {
+    console.error('Error in menus handler:', error);
+    return {
+      type: 'text',
+      message: "Sorry, I couldn't retrieve menu information. Please try again later."
+    };
+  }
+}
