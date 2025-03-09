@@ -26,6 +26,29 @@ export interface Event {
   address: string | null;
   company: string | null;
   vat_number: string | null;
+  
+  // Additional properties from joins that might be present
+  event_venues?: {
+    venues?: {
+      name: string;
+    };
+  }[];
+  
+  menu_selections?: {
+    is_custom: boolean | null;
+    starter_type: string | null;
+    main_course_type: string | null;
+    dessert_type: string | null;
+  };
+  
+  wedding_details?: {
+    bride_name: string | null;
+    groom_name: string | null;
+  };
+  
+  corporate_details?: {
+    company_name: string | null;
+  };
 }
 
 export interface EventCreate {

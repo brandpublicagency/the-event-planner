@@ -1,4 +1,3 @@
-
 import { Event } from "@/types/event";
 import { Task } from "@/contexts/task/taskTypes";
 import { format } from "date-fns";
@@ -8,7 +7,7 @@ export function formatEventForContext(event: Event) {
   const venues = event.venues ? event.venues.join(', ') : 
                 (event.event_venues && Array.isArray(event.event_venues)) ? 
                   event.event_venues
-                    .map((v: any) => v.venues?.name)
+                    .map((v) => v.venues?.name)
                     .filter(Boolean)
                     .join(', ') : 
                   'No venue specified';
