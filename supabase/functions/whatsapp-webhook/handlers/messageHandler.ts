@@ -1,7 +1,9 @@
+
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './eventHandler.ts';
 import { getNextTask } from './taskHandler.ts';
 import { handleAIQuestion } from './questionHandler.ts';
+import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout } from '../utils/timeoutUtils.ts';
 
 export const handleMessage = async (message: any) => {
@@ -42,50 +44,14 @@ export const handleMessage = async (message: any) => {
 
       // Handle specific commands
       if (['hi', 'hello', 'hey'].includes(messageText)) {
-        return {
-          type: 'interactive',
-          interactive: {
-            type: 'list',
-            header: {
-              type: 'text',
-              text: 'Welcome! How can I help?'
-            },
-            body: {
-              text: 'Please select an option:'
-            },
-            action: {
-              button: 'View Options',
-              sections: [{
-                title: 'Event Management',
-                rows: [
-                  { 
-                    id: 'upcoming_events', 
-                    title: 'Upcoming Events',
-                    description: 'View all upcoming events'
-                  },
-                  { 
-                    id: 'todo_list', 
-                    title: 'Your To-do List',
-                    description: 'View your pending tasks'
-                  }
-                ]
-              }]
-            }
-          }
-        };
+        return await withTimeout(
+          getWelcomeMessage(),
+          'Welcome message'
+        );
       }
 
       if (messageText === 'help') {
-        return {
-          type: 'text',
-          message: `Available commands:
-• Send 'hi' or 'hello' for main menu
-• 'next event' for upcoming event
-• 'next task' for next task
-• Select from the list menu for more options
-• Ask any question about events or tasks
-• 'help' to see this message`
-        };
+        return getHelpMessage();
       }
 
       // Handle specific queries with timeout
