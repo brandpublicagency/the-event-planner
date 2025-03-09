@@ -2,7 +2,7 @@
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './event/index.ts';
 import { getNextTask, getTodoList } from './task/index.ts';
-import { handleAIQuestion } from './questionHandler.ts';
+import { handleAIQuestion } from './question/index.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout, handleTimeoutError, WhatsAppResponse } from '../utils/timeoutUtils.ts';
 import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher.ts';
