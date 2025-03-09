@@ -4,7 +4,7 @@ import * as z from "zod";
 export const eventFormSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
-  event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Other"]),
+  event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]),
   event_date: z.string().optional(),
   start_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 21:00)").optional(),
   end_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 22:00)").optional(),

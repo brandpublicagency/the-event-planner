@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
@@ -29,6 +30,7 @@ export const EventTypeSelect = ({ form }: EventTypeSelectProps) => {
               <SelectItem value="Corporate Event">Corporate Event</SelectItem>
               <SelectItem value="Celebration">Celebration</SelectItem>
               <SelectItem value="Conference">Conference</SelectItem>
+              <SelectItem value="Private Event">Private Event</SelectItem>
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>

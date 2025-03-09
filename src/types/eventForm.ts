@@ -2,7 +2,7 @@
 export interface EventFormData {
   name: string;
   description?: string;
-  event_type: 'Wedding' | 'Corporate Event' | 'Celebration' | 'Conference' | 'Other';
+  event_type: 'Wedding' | 'Corporate Event' | 'Celebration' | 'Conference' | 'Private Event' | 'Other';
   event_date?: string;
   start_time?: string;
   end_time?: string;
