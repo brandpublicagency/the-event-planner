@@ -93,8 +93,9 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
       return data as Document;
     },
     onSuccess: (newDoc) => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      console.log("Document created successfully, selecting document ID:", newDoc.id);
       setSelectedDocId(newDoc.id);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast({
         title: "Success",
         description: "New document created",
@@ -112,10 +113,11 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   // Create a new document automatically when autoCreateDocument is true
   useEffect(() => {
-    if (autoCreateDocument && !createDocument.isPending && !selectedDocId) {
+    if (autoCreateDocument && !createDocument.isPending && !selectedDocId && !isLoading) {
+      console.log("Auto-creating document");
       handleNewDocument();
     }
-  }, [autoCreateDocument]);
+  }, [autoCreateDocument, createDocument.isPending, selectedDocId, isLoading]);
 
   const handleNewDocument = () => {
     createDocument.mutate();
