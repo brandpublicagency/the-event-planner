@@ -156,9 +156,10 @@ export const ChatMessageHandler = ({
 
       console.log('Received response from WhatsApp handler:', response);
 
-      if (response.type === 'text') {
+      // Check the type of response and handle accordingly
+      if (response.type === 'text' && 'message' in response) {
         addSystemMessage(response.message);
-      } else if (response.type === 'interactive') {
+      } else if (response.type === 'interactive' && 'interactive' in response) {
         const message = response.interactive.body.text;
         addSystemMessage(message);
         
@@ -174,6 +175,9 @@ export const ChatMessageHandler = ({
           
           addSystemMessage(`Available options:\n${listOptions}`);
         }
+      } else {
+        // Handle any other unexpected response format
+        addSystemMessage("I received a response but couldn't format it properly. Please try a different query.");
       }
     } catch (error) {
       console.error('Error in WhatsApp fallback:', error);

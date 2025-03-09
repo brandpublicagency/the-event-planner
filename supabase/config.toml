@@ -4,5 +4,3 @@ project_id = "gqkhnmlytbvklkyktcwt"
 [functions.whatsapp-webhook]
 verify_jwt = false
 
-[auth]
-disable_signup = false

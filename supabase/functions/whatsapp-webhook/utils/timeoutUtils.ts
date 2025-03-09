@@ -1,12 +1,31 @@
 
+// Define the WhatsAppResponse type to match the one in messageHandler.ts
+export type WhatsAppResponse = 
+  | { type: 'text'; message: string; }
+  | { 
+      type: 'interactive'; 
+      interactive: {
+        type: string;
+        header?: { type: string; text: string; };
+        body: { text: string; };
+        action?: {
+          button?: string;
+          sections?: {
+            title: string;
+            rows: { id: string; title: string; description: string; }[];
+          }[];
+        };
+      };
+    };
+
 const DEFAULT_TIMEOUT = 15000; // 15 seconds default timeout
 
 export const withTimeout = async (
-  promise: Promise<any>,
+  promise: Promise<WhatsAppResponse>,
   operationName: string,
   timeout = DEFAULT_TIMEOUT
-) => {
-  const timeoutPromise = new Promise((_, reject) => {
+): Promise<WhatsAppResponse> => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`Operation ${operationName} timed out after ${timeout}ms`));
     }, timeout);
@@ -21,7 +40,7 @@ export const withTimeout = async (
   }
 };
 
-export const handleTimeoutError = (error: any) => {
+export const handleTimeoutError = (error: any): WhatsAppResponse => {
   const isTimeout = error.message && error.message.includes('timed out');
   
   if (isTimeout) {

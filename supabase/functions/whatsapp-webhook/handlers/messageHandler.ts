@@ -7,7 +7,26 @@ import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout } from '../utils/timeoutUtils.ts';
 import { fetchEvents } from '../utils/dataFetcher.ts';
 
-export const handleMessage = async (message: any) => {
+// Define a clear response type for better TypeScript support
+export type WhatsAppResponse = 
+  | { type: 'text'; message: string; }
+  | { 
+      type: 'interactive'; 
+      interactive: {
+        type: string;
+        header?: { type: string; text: string; };
+        body: { text: string; };
+        action?: {
+          button?: string;
+          sections?: {
+            title: string;
+            rows: { id: string; title: string; description: string; }[];
+          }[];
+        };
+      };
+    };
+
+export const handleMessage = async (message: any): Promise<WhatsAppResponse> => {
   try {
     console.log('Processing incoming message:', JSON.stringify(message, null, 2));
 
