@@ -1,5 +1,6 @@
 
 import { Event } from "@/types/event";
+import { Task } from "@/contexts/task/taskTypes";
 
 export function formatEventForContext(event: Event) {
   const formattedEvent = {
@@ -46,4 +47,59 @@ export function formatEventForContext(event: Event) {
     ...contactInfo,
     ...addressInfo
   };
+}
+
+// Add the missing functions
+export function prepareEventsContext(events: Event[]) {
+  if (!events || events.length === 0) {
+    return "No events found.";
+  }
+  
+  return events.map(event => {
+    const formattedEvent = formatEventForContext(event);
+    return `Event: ${JSON.stringify(formattedEvent, null, 2)}`;
+  }).join('\n\n');
+}
+
+export function prepareTasksContext(tasks: Task[]) {
+  if (!tasks || tasks.length === 0) {
+    return "No tasks found.";
+  }
+  
+  return tasks.map(task => {
+    return `Task: ${JSON.stringify({
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      due_date: task.due_date,
+      completed: task.completed,
+      assigned_to: task.assigned_to,
+      notes: task.notes,
+      todos: task.todos
+    }, null, 2)}`;
+  }).join('\n\n');
+}
+
+export function getSystemMessage(eventsContext: string, pdfContent?: string, tasksContext?: string) {
+  let systemMessage = `You are an AI assistant for an event planning company.
+
+Current Date: ${new Date().toISOString().split('T')[0]}
+
+Here is the context about the events:
+${eventsContext}`;
+
+  if (tasksContext) {
+    systemMessage += `\n\nHere is the context about tasks:
+${tasksContext}`;
+  }
+
+  if (pdfContent) {
+    systemMessage += `\n\nHere is additional information from documents:
+${pdfContent}`;
+  }
+
+  systemMessage += `\n\nRespond in a helpful, friendly, and professional manner. For dates, use DD/MM/YYYY format. If you don't know something, say so.`;
+
+  return systemMessage;
 }

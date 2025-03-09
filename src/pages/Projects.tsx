@@ -18,6 +18,8 @@ interface Project {
   company?: string;
   venue?: string;
   updated?: string;
+  progress?: number;
+  teamSize?: number;
 }
 
 const Projects = () => {
@@ -69,7 +71,9 @@ const Projects = () => {
             venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : undefined,
             updated: event.updated_at 
               ? formatDistanceToNow(new Date(event.updated_at), { addSuffix: true })
-              : undefined
+              : undefined,
+            progress: Math.floor(Math.random() * 100), // Placeholder for demo purposes
+            teamSize: Math.floor(Math.random() * 5) + 1 // Placeholder for demo purposes
           };
         });
         
@@ -129,7 +133,12 @@ const Projects = () => {
           {projects.map(project => (
             <ProjectCard
               key={project.id}
-              project={project}
+              name={project.name}
+              description={project.client || ''}
+              progress={project.progress || 0}
+              teamSize={project.teamSize || 0}
+              event_date={project.date}
+              event_code={project.id}
               onClick={() => handleProjectClick(project.id)}
             />
           ))}
