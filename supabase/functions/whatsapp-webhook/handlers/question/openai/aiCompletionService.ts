@@ -13,7 +13,7 @@ export async function generateAICompletion(question: string, systemMessage: stri
   
   return await withTimeout(
     openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using the same model as web interface
+      model: "gpt-3.5-turbo", // Updated to use a more reliable model
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: question }

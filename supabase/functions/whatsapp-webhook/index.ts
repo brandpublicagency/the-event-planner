@@ -88,9 +88,11 @@ serve(async (req) => {
       }
 
       // Send the response to WhatsApp
-      await sendWhatsAppMessage(message.from, response);
-      console.log('Message sent successfully');
+      const result = await sendWhatsAppMessage(message.from, response);
+      console.log('Message send result:', JSON.stringify(result, null, 2));
 
+      // Even if the message fails to send to WhatsApp, we should return success to the webhook
+      // to prevent retries that might not help
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

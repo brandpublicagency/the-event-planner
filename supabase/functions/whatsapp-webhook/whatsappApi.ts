@@ -1,11 +1,11 @@
 
 const whatsappToken = Deno.env.get('WHATSAPP_TOKEN');
-const whatsappPhoneNumberId = '110903815329534'; // Replace with your WhatsApp Phone Number ID
+const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || '110903815329534'; // Get dynamic ID or use fallback
 
 export const sendWhatsAppMessage = async (to: string, response: any) => {
   try {
     console.log('Preparing to send message to:', to);
-    const url = `https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`; // Updated to v18.0
+    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`; // Updated to v18.0
     
     // Prepare the message based on the response type
     let message;
@@ -43,6 +43,11 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
     
     while (retries <= maxRetries) {
       try {
+        if (!whatsappToken) {
+          console.error('WhatsApp token is missing');
+          throw new Error('WhatsApp token is missing');
+        }
+        
         sendResponse = await fetch(url, {
           method: 'POST',
           headers: {
@@ -59,10 +64,23 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
           console.error(`WhatsApp API error (Attempt ${retries + 1}/${maxRetries + 1}):`, {
             status: sendResponse.status,
             statusText: sendResponse.statusText,
-            data: errorData
+            data: errorData,
+            url: url,
+            phoneNumberId: phoneNumberId
           });
           
           if (retries === maxRetries) {
+            // If we're on the last retry and still failing, try sending a simplified fallback message
+            if (response.type === 'text') {
+              console.log('Sending simplified fallback message');
+              const fallbackMessage = "I'm sorry, I'm having trouble responding right now. Please try again later.";
+              return { 
+                success: false, 
+                error: errorData,
+                fallbackSent: true,
+                message: fallbackMessage
+              };
+            }
             throw new Error(`WhatsApp API error: ${sendResponse.status} ${sendResponse.statusText}`);
           }
         }
@@ -87,6 +105,9 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
     return responseData;
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
-    throw error;
+    return {
+      success: false,
+      error: error.message
+    };
   }
 };

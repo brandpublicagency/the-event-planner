@@ -13,7 +13,14 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
     console.log('Processing incoming message:', JSON.stringify(message, null, 2));
 
     // First, check database connection
-    await checkDatabaseConnection();
+    const dbConnected = await checkDatabaseConnection();
+    if (!dbConnected) {
+      console.error('Database connection check failed');
+      return {
+        type: 'text',
+        message: "I'm having trouble connecting to our database right now. Please try again in a few moments."
+      };
+    }
 
     // Handle interactive messages (list or button selections)
     if (message.interactive) {
@@ -22,20 +29,28 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         data: JSON.stringify(message.interactive, null, 2)
       });
       
-      if (message.interactive.list_reply) {
-        return await withTimeout(
-          handleListSelection(message.interactive.list_reply.id),
-          'List selection',
-          15000
-        );
-      }
+      try {
+        if (message.interactive.list_reply) {
+          return await withTimeout(
+            handleListSelection(message.interactive.list_reply.id),
+            'List selection',
+            15000
+          );
+        }
 
-      if (message.interactive.button_reply) {
-        return await withTimeout(
-          handleListSelection(message.interactive.button_reply.id),
-          'Button selection',
-          15000
-        );
+        if (message.interactive.button_reply) {
+          return await withTimeout(
+            handleListSelection(message.interactive.button_reply.id),
+            'Button selection',
+            15000
+          );
+        }
+      } catch (error) {
+        console.error('Error handling interactive message:', error);
+        return {
+          type: 'text',
+          message: "I couldn't process that selection due to a technical issue. Please try again or type 'help' for available commands."
+        };
       }
 
       return {
@@ -51,11 +66,19 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
 
       // Handle specific commands
       if (['hi', 'hello', 'hey', 'hallo', 'howdy', 'greetings'].includes(messageText)) {
-        return await withTimeout(
-          getWelcomeMessage(),
-          'Welcome message',
-          5000
-        );
+        try {
+          return await withTimeout(
+            getWelcomeMessage(),
+            'Welcome message',
+            5000
+          );
+        } catch (error) {
+          console.error('Error getting welcome message:', error);
+          return {
+            type: 'text',
+            message: "Hello! I'm your event assistant. How can I help you today?"
+          };
+        }
       }
 
       if (messageText === 'help' || messageText === 'commands') {
@@ -71,27 +94,51 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
 
       // Handle specific queries with timeout
       if (messageText.includes('next event') || messageText === 'next event') {
-        return await withTimeout(
-          getNextEvent(), 
-          'Next event query',
-          10000
-        );
+        try {
+          return await withTimeout(
+            getNextEvent(), 
+            'Next event query',
+            10000
+          );
+        } catch (error) {
+          console.error('Error getting next event:', error);
+          return {
+            type: 'text',
+            message: "I'm having trouble retrieving your next event. Please try again shortly."
+          };
+        }
       }
 
       if (messageText.includes('next task') || messageText === 'next task') {
-        return await withTimeout(
-          getNextTask(message.from),
-          'Next task query',
-          10000
-        );
+        try {
+          return await withTimeout(
+            getNextTask(message.from),
+            'Next task query',
+            10000
+          );
+        } catch (error) {
+          console.error('Error getting next task:', error);
+          return {
+            type: 'text',
+            message: "I couldn't retrieve your next task. Please try again shortly."
+          };
+        }
       }
 
       if (messageText.includes('tasks') || messageText.includes('todo') || messageText === 'tasks') {
-        return await withTimeout(
-          getTodoList(),
-          'Tasks query',
-          10000
-        );
+        try {
+          return await withTimeout(
+            getTodoList(),
+            'Tasks query',
+            10000
+          );
+        } catch (error) {
+          console.error('Error getting todo list:', error);
+          return {
+            type: 'text',
+            message: "I ran into an issue retrieving your tasks. Please try again shortly."
+          };
+        }
       }
 
       if (messageText.includes('events') || messageText.includes('upcoming events')) {
@@ -116,11 +163,19 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
       }
 
       // For all other messages, use AI to generate a response
-      return await withTimeout(
-        handleAIQuestion(message.text.body),
-        'AI question handling',
-        30000 // 30 second timeout - AI processing takes longer
-      );
+      try {
+        return await withTimeout(
+          handleAIQuestion(message.text.body),
+          'AI question handling',
+          30000 // 30 second timeout - AI processing takes longer
+        );
+      } catch (error) {
+        console.error('Error handling AI question:', error);
+        return {
+          type: 'text',
+          message: "I'm having difficulty processing your question. Please try asking in a different way or try one of our basic commands like 'events' or 'tasks'."
+        };
+      }
     }
 
     console.error('Invalid message format:', JSON.stringify(message, null, 2));
