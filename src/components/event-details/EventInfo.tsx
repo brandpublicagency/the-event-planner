@@ -2,25 +2,38 @@
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
+import { getVenueNames } from "@/utils/venueUtils";
 
 interface EventInfoProps {
   event: Event;
   formattedDate: string;
   formattedTime: string;
-  venueNames: string;
 }
 
-export const EventInfo = ({ event, formattedDate, formattedTime, venueNames }: EventInfoProps) => {
+export const EventInfo = ({ event, formattedDate }: EventInfoProps) => {
+  // Format the time in 24-hour format (HH:MM)
+  const formatTimeDisplay = (timeString: string | null) => {
+    if (!timeString) return '';
+    return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
+  };
+
+  const startTime = formatTimeDisplay(event.start_time);
+  const endTime = formatTimeDisplay(event.end_time);
+  const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
+  
+  // Get venue names using the utility function
+  const venueNames = getVenueNames(event);
+  
   return (
     <div className="mb-8 event-info-container">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900">{event.name}</h1>
-        <span className="text-sm text-zinc-500">{event.event_code}</span>
+      <div className="flex items-center">
+        <h1 className="text-xl font-bold tracking-tight text-zinc-900">{event.name} {event.event_code}</h1>
       </div>
       <div className="text-sm font-semibold text-zinc-600">
-        {formattedDate}, {event.start_time ? `${format(parseISO(`2000-01-01T${event.start_time}`), 'HH:mm')}${event.end_time ? ` - ${format(parseISO(`2000-01-01T${event.end_time}`), 'HH:mm')}` : ''}` : 'Time not set'} / {event.pax || 0} Guests / {event.event_type} / <span className="font-bold">{venueNames}</span>
+        {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
       </div>
       <div className="print:hidden">
+        {/* Additional contact information hidden from print view */}
         {event.primary_name && (
           <div className="text-sm text-zinc-600">
             Primary Contact: {event.primary_name} {event.primary_email ? `(${event.primary_email})` : ''} {event.primary_phone ? `- ${event.primary_phone}` : ''}

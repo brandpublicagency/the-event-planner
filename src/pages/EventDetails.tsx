@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,26 +13,19 @@ import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
+
 const EventDetails = () => {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
-  const {
-    data: event,
-    isLoading,
-    error
-  } = useQuery({
+  
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
-        const {
-          data,
-          error
-        } = await supabase.from('events').select('*').eq('event_code', id).maybeSingle();
+        const { data, error } = await supabase.from('events').select('*').eq('event_code', id).maybeSingle();
         clearTimeout(timeoutId);
         if (error) throw error;
         if (!data) throw new Error('Event not found');
@@ -47,9 +41,11 @@ const EventDetails = () => {
     retry: 1,
     retryDelay: 1000
   });
+
   const handlePrint = () => {
     window.print();
   };
+
   if (isLoading) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -59,6 +55,7 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+
   if (error) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -76,6 +73,7 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+
   if (!event) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -93,11 +91,11 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
-  const formattedTime = event.start_time && event.end_time ? `${event.start_time.slice(0, 5)} - ${event.end_time.slice(0, 5)}` : '';
-  const venueNames = event.venues && event.venues.length > 0 ? event.venues.join(' + ') : 'No venues';
+  
   return <div className="flex flex-col h-full">
-      <Header pageTitle={event.name} showBackButton backButtonPath="/events" />
+      <Header pageTitle={`${event.name} ${event.event_code}`} showBackButton backButtonPath="/events" />
       
       <div className="flex-1 p-6 bg-gray-100">
         <div className="max-w-4xl mx-auto">
@@ -111,7 +109,7 @@ const EventDetails = () => {
               {event.name && <h2 className="text-xl text-zinc-500">{event.name}</h2>}
             </div>
             
-            <EventInfo event={event} formattedDate={formattedDate} formattedTime={formattedTime} venueNames={venueNames} />
+            <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
             
             <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} isCustomMenu={isCustomMenu} onCustomMenuToggle={setIsCustomMenu} />
           </div>
@@ -119,4 +117,5 @@ const EventDetails = () => {
       </div>
     </div>;
 };
+
 export default EventDetails;
