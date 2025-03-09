@@ -22,7 +22,7 @@ const PassedEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
-        .or(`completed.eq.true,event_date.lt.${today.toISOString().split('T')[0]}`)
+        .or(`completed.eq.true,and(event_date.lt.${today.toISOString().split('T')[0]},completed.eq.false)`)
         .order('event_date', { ascending: false });
 
       if (error) {
@@ -34,10 +34,11 @@ const PassedEvents = () => {
         throw error;
       }
 
+      console.log('Fetched passed events:', data);
       return data as Event[];
     },
-    refetchOnWindowFocus: true, // This will refetch data when window gets focus
-    refetchOnMount: true, // This will refetch when component mounts
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   const groupedEvents = groupEventsByMonth(events);
