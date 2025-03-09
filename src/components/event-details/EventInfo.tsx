@@ -3,6 +3,7 @@ import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
+import { cn } from "@/lib/utils";
 
 interface EventInfoProps {
   event: Event;
@@ -27,7 +28,9 @@ export const EventInfo = ({ event, formattedDate }: EventInfoProps) => {
   return (
     <div className="mb-8 event-info-container">
       <div className="flex items-center">
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900">{event.name} {event.event_code}</h1>
+        <h1 className="text-xl font-bold tracking-tight text-zinc-900">
+          {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
+        </h1>
       </div>
       <div className="text-sm font-semibold text-zinc-600">
         {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
