@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -13,19 +12,26 @@ import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
-
 const EventDetails = () => {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const navigate = useNavigate();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
-  
-  const { data: event, isLoading, error } = useQuery({
+  const {
+    data: event,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
-        const { data, error } = await supabase.from('events').select('*').eq('event_code', id).maybeSingle();
+        const {
+          data,
+          error
+        } = await supabase.from('events').select('*').eq('event_code', id).maybeSingle();
         clearTimeout(timeoutId);
         if (error) throw error;
         if (!data) throw new Error('Event not found');
@@ -41,11 +47,9 @@ const EventDetails = () => {
     retry: 1,
     retryDelay: 1000
   });
-
   const handlePrint = () => {
     window.print();
   };
-
   if (isLoading) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -55,7 +59,6 @@ const EventDetails = () => {
         </div>
       </div>;
   }
-
   if (error) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -73,7 +76,6 @@ const EventDetails = () => {
         </div>
       </div>;
   }
-
   if (!event) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -91,9 +93,7 @@ const EventDetails = () => {
         </div>
       </div>;
   }
-
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
-  
   return <div className="flex flex-col h-full">
       <Header pageTitle={`${event.name} ${event.event_code}`} showBackButton backButtonPath="/events" />
       
@@ -105,7 +105,7 @@ const EventDetails = () => {
           
           <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
             <div className="print-header">
-              <h1 className="text-base font-normal uppercase mb-2">MENU SELECTION</h1>
+              <h1 className="uppercase mb-2 text-lg font-medium text-gray-400">MENU SELECTION</h1>
             </div>
             
             <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
@@ -116,5 +116,4 @@ const EventDetails = () => {
       </div>
     </div>;
 };
-
 export default EventDetails;
