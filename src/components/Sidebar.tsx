@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -8,10 +9,12 @@ import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
+
 const Sidebar = ({
   className,
   isCollapsed,
@@ -22,6 +25,7 @@ const Sidebar = ({
   } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
+  
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
@@ -42,6 +46,7 @@ const Sidebar = ({
         return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
     }
   };
+
   const {
     data: taskCount = 0
   } = useQuery({
@@ -58,6 +63,7 @@ const Sidebar = ({
       return count || 0;
     }
   });
+
   const mainNavItems = [{
     icon: LayoutGrid,
     path: "/",
@@ -88,6 +94,7 @@ const Sidebar = ({
     path: "/documents",
     label: "Documents"
   }];
+
   return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
@@ -107,25 +114,44 @@ const Sidebar = ({
           </div>
         </div>
         
-        <div className="">
-          <div className="flex flex-col gap-2">
-            <Button variant="outline" size={isCollapsed ? "icon" : "default"} onClick={() => navigate('/events/new')} className={cn("w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50", isCollapsed && "px-2")}>
-              <Plus className="h-4 w-4" />
-              {!isCollapsed && <span>New Event</span>}
-            </Button>
+        <div className="mt-auto px-3 pb-3">
+          <div className="flex flex-col gap-2.5">
+            <button 
+              onClick={() => navigate('/events/new')} 
+              className={cn(
+                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
+                isCollapsed ? "justify-center" : "gap-2"
+              )}
+            >
+              <Plus className="h-4 w-4 flex-shrink-0" />
+              {!isCollapsed && <span>ADD EVENT</span>}
+            </button>
             
-            <Button variant="outline" size={isCollapsed ? "icon" : "default"} onClick={() => navigate('/tasks/new')} className={cn("w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50", isCollapsed && "px-2")}>
-              <CheckSquare className="h-4 w-4" />
-              {!isCollapsed && <span>New Task</span>}
-            </Button>
+            <button 
+              onClick={() => navigate('/tasks/new')} 
+              className={cn(
+                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
+                isCollapsed ? "justify-center" : "gap-2"
+              )}
+            >
+              <CheckSquare className="h-4 w-4 flex-shrink-0" />
+              {!isCollapsed && <span>ADD TASK</span>}
+            </button>
             
-            <Button variant="outline" size={isCollapsed ? "icon" : "default"} onClick={() => navigate('/documents')} className={cn("w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50", isCollapsed && "px-2")}>
-              <FilePlus className="h-4 w-4" />
-              {!isCollapsed && <span>New Document</span>}
-            </Button>
+            <button 
+              onClick={() => navigate('/documents')} 
+              className={cn(
+                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
+                isCollapsed ? "justify-center" : "gap-2"
+              )}
+            >
+              <FilePlus className="h-4 w-4 flex-shrink-0" />
+              {!isCollapsed && <span>ADD DOCUMENT</span>}
+            </button>
           </div>
         </div>
       </div>
     </div>;
 };
+
 export default Sidebar;
