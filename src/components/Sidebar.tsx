@@ -92,8 +92,8 @@ const Sidebar = ({
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
         
-        <div className="flex-1 px-4 py-8 overflow-y-auto overflow-x-hidden">
-          <div className="space-y-8">
+        <div className="5flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] my-[5px] py-[5px]">
+          <div className="space-y-8 my-0 mx-[5px] px-0">
             <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} sectionTitle="MAIN" />
             
             <button onClick={() => setIsCollapsed(!isCollapsed)} className={cn("flex items-center w-full text-gray-400 hover:text-gray-700 text-sm mt-2 px-3", isCollapsed && "justify-center")}>
