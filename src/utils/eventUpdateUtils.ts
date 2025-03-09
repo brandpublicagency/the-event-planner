@@ -30,6 +30,16 @@ interface EventUpdateData {
 
 export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
   try {
+    // Validate that venues are in the allowed list
+    const allowedVenues = ["The Kitchen", "The Gallery", "The Grand Hall", "Package 1", "Package 2", "Package 3"];
+    
+    if (data.venues && data.venues.length > 0) {
+      const allValid = data.venues.every(venue => allowedVenues.includes(venue));
+      if (!allValid) {
+        throw new Error("Invalid venue value. Allowed values are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, Package 3");
+      }
+    }
+
     // Update main event details
     const { error: eventError } = await supabase
       .from('events')

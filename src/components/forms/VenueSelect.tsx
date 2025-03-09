@@ -4,6 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Checkbox } from "@/components/ui/checkbox";
 import { EventFormData } from "@/types/eventForm";
 
+// These values MUST match exactly what's expected in the database trigger
 const VENUE_OPTIONS = [
   "The Kitchen",
   "The Gallery",
