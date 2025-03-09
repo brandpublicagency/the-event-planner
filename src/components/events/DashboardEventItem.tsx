@@ -2,11 +2,12 @@
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users } from "lucide-react";
+import { MapPin, Calendar, Users, Copy, Check } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DashboardEventItemProps {
   event: Event;
@@ -15,7 +16,29 @@ interface DashboardEventItemProps {
 
 export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, handleDelete }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const venueStr = getVenueNames(event);
+  
+  const copyEventCode = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking the badge
+    navigator.clipboard.writeText(event.event_code)
+      .then(() => {
+        toast({
+          title: "Copied to clipboard",
+          description: `Event code ${event.event_code} copied to clipboard`,
+          duration: 3000,
+        });
+      })
+      .catch(err => {
+        console.error('Could not copy text: ', err);
+        toast({
+          variant: "destructive",
+          title: "Failed to copy",
+          description: "Could not copy event code to clipboard",
+          duration: 3000,
+        });
+      });
+  };
   
   return (
     <div className="w-full hover:bg-zinc-50 transition-colors rounded-md overflow-hidden">
@@ -32,8 +55,13 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
                 : "text-zinc-900"
             )}>
               {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'} - {event.name}
-              <Badge variant="outline" className="ml-2 text-xs font-normal">
+              <Badge 
+                variant="outline" 
+                className="ml-2 text-xs font-normal text-[10px] cursor-pointer hover:bg-zinc-100"
+                onClick={copyEventCode}
+              >
                 {event.event_code}
+                <Copy className="ml-1 h-2.5 w-2.5 opacity-70" />
               </Badge>
             </span>
           </div>
