@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
+import { CalendarX } from "lucide-react";
 
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
@@ -51,8 +52,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           />
         ))}
         {Object.keys(filteredGroupedEvents).length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            No upcoming events
+          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+            <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
+            <p>No upcoming events</p>
           </div>
         )}
       </div>
@@ -66,8 +68,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     )}>
       <div className="space-y-4">
         {Object.keys(groupedEvents).length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No events found
+          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+            <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
+            <p>No events found</p>
           </div>
         ) : (
           Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (

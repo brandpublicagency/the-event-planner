@@ -21,15 +21,15 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
   isDashboard = false,
 }) => {
   return (
-    <div className="rounded-xl border bg-white">
+    <div className="rounded-xl border bg-white overflow-hidden">
       <div className={cn(
-        "flex items-center gap-2 p-3 border-b",
+        "flex items-center gap-2 p-3 border-b bg-gray-50",
         isDashboard && "p-2"
       )}>
         <Calendar className="h-4 w-4 text-muted-foreground" />
         <h3 className="font-medium">{monthYear}</h3>
         <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
-          {events.length} {isDashboard ? '' : 'events'}
+          {events.length} {events.length === 1 ? 'event' : 'events'}
         </Badge>
       </div>
       
@@ -59,4 +59,3 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
     </div>
   );
 };
-

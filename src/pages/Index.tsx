@@ -7,47 +7,59 @@ import EventsTable from "@/components/events/EventsTable";
 import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { Card } from "@/components/ui/card";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const { tasks } = useTaskContext();
+  const { tasks, isLoading: isTasksLoading } = useTaskContext();
 
-  const { data: events = [], refetch, isLoading: isEventsLoading } = useQuery({
+  const { data: events = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const { data, error } = await supabase
-        .from('events')
-        .select(`*`)
-        .gte('event_date', today.toISOString().split('T')[0])
-        .eq('completed', false)
-        .order('event_date', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select(`*`)
+          .gte('event_date', today.toISOString().split('T')[0])
+          .eq('completed', false)
+          .order('event_date', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching events:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch events",
-          variant: "destructive",
-        });
+        if (error) {
+          console.error('Error fetching events:', error);
+          throw error;
+        }
+
+        console.log('Fetched dashboard events:', data);
+        return data || [];
+      } catch (error) {
+        console.error('Dashboard events fetch error:', error);
         throw error;
       }
-
-      console.log('Fetched dashboard events:', data);
-      return data || [];
     },
     retry: 1,
   });
+
+  // Effect to handle any errors
+  useEffect(() => {
+    if (eventsError) {
+      toast({
+        title: "Error loading events",
+        description: "There was a problem loading upcoming events.",
+        variant: "destructive",
+      });
+    }
+  }, [eventsError, toast]);
 
   const upcomingTasks = tasks.filter(task => !task.completed);
 
@@ -66,7 +78,7 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
-        <div className="flex flex-col h-full">
+        <Card className="flex flex-col h-full p-4 overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-zinc-900">Upcoming Events</h3>
             <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full">
@@ -74,10 +86,14 @@ const Index = () => {
               New Event
             </Button>
           </div>
-          <div className="overflow-auto">
+          <div className="flex-1 overflow-auto">
             {isEventsLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-sm text-muted-foreground">Loading events...</p>
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : Object.keys(groupedEvents).length === 0 ? (
+              <div className="flex items-center justify-center h-40 text-muted-foreground">
+                No upcoming events found
               </div>
             ) : (
               <EventsTable 
@@ -102,9 +118,9 @@ const Index = () => {
               />
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="flex flex-col h-full">
+        <Card className="flex flex-col h-full p-4 overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-zinc-900">Upcoming Tasks</h3>
             <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full">
@@ -112,14 +128,24 @@ const Index = () => {
               New Task
             </Button>
           </div>
-          <div className="overflow-auto">
-            <TaskList 
-              tasks={upcomingTasks}
-              onTaskSelect={handleTaskSelect}
-              selectedTaskId={selectedTaskId}
-            />
+          <div className="flex-1 overflow-auto">
+            {isTasksLoading ? (
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : upcomingTasks.length === 0 ? (
+              <div className="flex items-center justify-center h-40 text-muted-foreground">
+                No upcoming tasks found
+              </div>
+            ) : (
+              <TaskList 
+                tasks={upcomingTasks}
+                onTaskSelect={handleTaskSelect}
+                selectedTaskId={selectedTaskId}
+              />
+            )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
