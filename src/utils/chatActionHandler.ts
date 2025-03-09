@@ -45,6 +45,28 @@ export const handleChatAction = async (
           }
         }
 
+        // Handle pax updates - convert to number if it's a string
+        if (action.updates.pax !== undefined) {
+          if (typeof action.updates.pax === 'string') {
+            const paxNum = parseInt(action.updates.pax);
+            if (!isNaN(paxNum)) {
+              action.updates.pax = paxNum;
+            } else {
+              throw new Error("Invalid guest count format. Please provide a number.");
+            }
+          }
+        }
+
+        // Handle venues updates - ensure it's an array
+        if (action.updates.venues !== undefined) {
+          if (typeof action.updates.venues === 'string') {
+            // If a single venue is provided as a string, convert to array
+            action.updates.venues = [action.updates.venues];
+          } else if (!Array.isArray(action.updates.venues)) {
+            throw new Error("Venues must be provided as a string or an array of strings");
+          }
+        }
+
         // Map contact fields from legacy names if provided
         if (action.updates.bride_name && !action.updates.primary_name) {
           action.updates.primary_name = action.updates.bride_name;
@@ -101,7 +123,39 @@ export const handleChatAction = async (
         if (!action.event_code || !action.menu_updates) {
           throw new Error("Missing required fields for menu update");
         }
+        
+        // Format menu data for better handling
+        if (action.menu_updates.is_custom !== undefined && typeof action.menu_updates.is_custom === 'string') {
+          action.menu_updates.is_custom = action.menu_updates.is_custom.toLowerCase() === 'true';
+        }
+
+        // Handle array fields
+        const arrayFields = [
+          'buffet_meat_selections', 
+          'buffet_vegetable_selections',
+          'buffet_starch_selections',
+          'karoo_starch_selection',
+          'karoo_vegetable_selections',
+          'canape_selections',
+          'dessert_canapes',
+          'individual_cakes',
+          'other_selections'
+        ];
+        
+        arrayFields.forEach(field => {
+          if (action.menu_updates[field] !== undefined) {
+            if (typeof action.menu_updates[field] === 'string') {
+              // If a single item is provided as a string, convert to array
+              action.menu_updates[field] = [action.menu_updates[field]];
+            } else if (!Array.isArray(action.menu_updates[field])) {
+              console.warn(`Invalid ${field} format, expected array or string`);
+              delete action.menu_updates[field]; // Remove invalid data
+            }
+          }
+        });
+        
         await updateMenuSelection(action.event_code, action.menu_updates);
+        await queryClient.invalidateQueries({ queryKey: ['events', action.event_code] });
         await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         onSuccess("Menu updated successfully!");
         break;
