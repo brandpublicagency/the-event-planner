@@ -20,44 +20,17 @@ export const useChatContext = () => {
         throw eventsError;
       }
 
-      // Now fetch wedding details separately and merge later
-      const { data: weddingDetails, error: weddingError } = await supabase
-        .from('wedding_details')
-        .select('*');
-
-      if (weddingError && weddingError.code !== 'PGRST116') {
-        console.error('Error fetching wedding details:', weddingError);
-        // Don't throw if the table doesn't exist (PGRST116 error)
-      }
-
-      // Fetch corporate details separately
-      const { data: corporateDetails, error: corporateError } = await supabase
-        .from('corporate_details')
-        .select('*');
-
-      if (corporateError && corporateError.code !== 'PGRST116') {
-        console.error('Error fetching corporate details:', corporateError);
-        // Don't throw if the table doesn't exist
-      }
-
       // Fetch menu selections separately
       const { data: menuSelections, error: menuError } = await supabase
         .from('menu_selections')
         .select('*');
 
-      if (menuError && menuError.code !== 'PGRST116') {
+      if (menuError) {
         console.error('Error fetching menu selections:', menuError);
-        // Don't throw if the table doesn't exist
-      }
-
-      // Fetch event venues separately
-      const { data: eventVenues, error: venuesError } = await supabase
-        .from('event_venues')
-        .select('*, venues(name)');
-
-      if (venuesError && venuesError.code !== 'PGRST116') {
-        console.error('Error fetching event venues:', venuesError);
-        // Don't throw if the table doesn't exist
+        // Only throw if it's not a table not found error
+        if (menuError.code !== 'PGRST116') {
+          throw menuError;
+        }
       }
 
       // Fetch contacts data
@@ -107,17 +80,22 @@ export const useChatContext = () => {
         console.warn('PDF content not available:', error);
       }
 
-      // Enrich events with related data
+      // Enrich events with related data if needed
       const enrichedEvents = events?.map(event => {
-        // Type safe way to add related data to the event
-        const eventCode = event.event_code;
+        // Find related menu selection for this event
+        const eventMenuSelection = menuSelections?.find(ms => 
+          ms.event_code === event.event_code
+        ) || null;
+        
+        // Find event related tasks
+        const eventTasks = tasks?.filter(task => 
+          task.task_code === event.event_code
+        ) || [];
+        
         return {
           ...event,
-          wedding_details: weddingDetails?.find(wd => wd.event_code === eventCode) || null,
-          corporate_details: corporateDetails?.find(cd => cd.event_code === eventCode) || null,
-          menu_selections: menuSelections?.find(ms => ms.event_code === eventCode) || null,
-          event_venues: eventVenues?.filter(ev => ev.event_code === eventCode) || [],
-          tasks: tasks?.filter(task => task.event_code === eventCode) || []
+          menu_selections: eventMenuSelection,
+          tasks: eventTasks
         };
       });
       
