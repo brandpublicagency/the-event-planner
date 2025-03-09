@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
@@ -25,7 +26,7 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
   }, [document?.content, editor]);
 
-  const saveDocument = async () => {
+  const saveDocument = async ({ showToast = true } = {}) => {
     if (!editor || !documentId) {
       console.log("Cannot save: editor or documentId is missing");
       return;
@@ -45,7 +46,8 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     try {
       await updateDocument.mutateAsync({ 
         title: firstLine,
-        content: content 
+        content: content,
+        showToast 
       });
       console.log("Document saved successfully");
     } catch (error) {

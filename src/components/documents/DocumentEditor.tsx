@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,15 +50,23 @@ export default function DocumentEditor({
     });
     setSelectedCategories(selected);
   }, [documentCategories, categories]);
+
   const handleSave = async () => {
-    await saveDocument();
+    // First save document content
+    await saveDocument({
+      showToast: false // Don't show toast for document save
+    });
+    
+    // Then update categories if we have a document ID
     if (documentId) {
-      updateDocumentCategories({
+      await updateDocumentCategories({
         documentId,
-        categoryIds: selectedCategories.map(c => c.id)
+        categoryIds: selectedCategories.map(c => c.id),
+        showSuccessToast: true // Only show toast after everything is saved
       });
     }
   };
+
   const handleCategoryChange = (categoryId: string | null) => {
     if (!categoryId || !categories) return;
     const category = categories.find(c => c.id === categoryId);

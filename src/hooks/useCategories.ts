@@ -68,16 +68,27 @@ export function useDocumentCategories(documentId: string | null) {
   });
 
   const updateDocumentCategoriesMutation = useMutation({
-    mutationFn: async ({ documentId, categoryIds }: { documentId: string, categoryIds: string[] }) => {
+    mutationFn: async ({ 
+      documentId, 
+      categoryIds, 
+      showSuccessToast = true 
+    }: { 
+      documentId: string, 
+      categoryIds: string[],
+      showSuccessToast?: boolean
+    }) => {
       return await updateDocumentCategories(documentId, categoryIds);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['document-categories', documentId] });
       queryClient.invalidateQueries({ queryKey: ['documents'] });
-      toast({
-        title: "Success",
-        description: "Document categories updated",
-      });
+      
+      if (variables.showSuccessToast) {
+        toast({
+          title: "Success",
+          description: "Document saved",
+        });
+      }
     },
     onError: (error: any) => {
       toast({

@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -50,12 +51,15 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         html: string;
         text: string;
       };
+      showToast?: boolean;
     }) => {
+      const { showToast = true, ...documentUpdates } = updates;
+      
       if (!documentId || !isAuthenticated) {
         throw new Error("Cannot update document: not authenticated");
       }
 
-      console.log("Updating document:", documentId, updates);
+      console.log("Updating document:", documentId, documentUpdates);
 
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session) {
@@ -79,7 +83,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       const { data, error } = await supabase
         .from("documents")
         .update({
-          ...updates,
+          ...documentUpdates,
           updated_at: new Date().toISOString(),
         })
         .eq("id", documentId)
@@ -99,13 +103,16 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       console.log("Document updated successfully:", data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-      toast({
-        title: "Success",
-        description: "Document updated successfully",
-      });
+      
+      if (variables.showToast) {
+        toast({
+          title: "Success",
+          description: "Document updated successfully",
+        });
+      }
     },
     onError: (error: Error) => {
       console.error("Update mutation error:", error);
