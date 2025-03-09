@@ -234,7 +234,7 @@ export type Database = {
           pax: number | null
           start_time: string | null
           updated_at: string
-          venues: string | null
+          venues: string[] | null
         }
         Insert: {
           client_address?: string | null
@@ -252,7 +252,7 @@ export type Database = {
           pax?: number | null
           start_time?: string | null
           updated_at?: string
-          venues?: string | null
+          venues?: string[] | null
         }
         Update: {
           client_address?: string | null
@@ -270,7 +270,7 @@ export type Database = {
           pax?: number | null
           start_time?: string | null
           updated_at?: string
-          venues?: string | null
+          venues?: string[] | null
         }
         Relationships: [
           {

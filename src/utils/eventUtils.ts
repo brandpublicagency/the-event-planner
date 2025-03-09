@@ -13,13 +13,7 @@ export const groupEventsByMonth = (events: Event[]) => {
       groups[monthYear] = [];
     }
     
-    groups[monthYear].push({
-      ...event,
-      venues: event.event_venues?.map(ev => ({
-        name: ev.venues?.name,
-        id: ev.venues?.id
-      })) || []
-    });
+    groups[monthYear].push(event);
     return groups;
   }, {});
 };
@@ -52,15 +46,6 @@ export const deleteEvent = async (eventCode: string) => {
     
     if (corporateError) {
       console.error('Error deleting corporate details:', corporateError);
-    }
-    
-    const { error: venuesError } = await supabase
-      .from('event_venues')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (venuesError) {
-      console.error('Error deleting event venues:', venuesError);
     }
     
     const { error } = await supabase

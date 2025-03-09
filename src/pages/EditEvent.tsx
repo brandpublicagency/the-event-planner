@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -26,13 +27,6 @@ const EditEvent = () => {
         .from('events')
         .select(`
           *,
-          event_venues (
-            venue_id,
-            venues (
-              id,
-              name
-            )
-          ),
           wedding_details (*),
           corporate_details (*)
         `)
@@ -48,14 +42,6 @@ const EditEvent = () => {
 
   React.useEffect(() => {
     if (event) {
-      // Transform venues data for the form
-      const venuesData = event.event_venues?.reduce((acc: Record<string, boolean>, ev: any) => {
-        if (ev.venues?.id) {
-          acc[ev.venues.id] = true;
-        }
-        return acc;
-      }, {});
-
       // Ensure event_type is one of the allowed values
       const eventType = event.event_type as EventFormData['event_type'];
 
@@ -76,7 +62,7 @@ const EditEvent = () => {
         pax: event.pax || null,
         package_id: event.package_id || null,
         client_address: event.client_address || null,
-        venues: venuesData || {},
+        venues: event.venues || [],
         // Wedding details
         bride_name: event.wedding_details?.bride_name || null,
         bride_email: event.wedding_details?.bride_email || null,

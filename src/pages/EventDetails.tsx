@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,43 +13,35 @@ import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
+
 const EventDetails = () => {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
-  const {
-    data: event,
-    isLoading,
-    error
-  } = useQuery({
+  
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       try {
-        const {
-          data,
-          error
-        } = await supabase.from('events').select(`
+        const { data, error } = await supabase
+          .from('events')
+          .select(`
             *,
-            event_venues!inner(
-              venues(
-                id,
-                name
-              )
-            )`).eq('event_code', id).maybeSingle();
+            wedding_details (*),
+            corporate_details (*)
+          `)
+          .eq('event_code', id)
+          .maybeSingle();
+        
         clearTimeout(timeoutId);
+        
         if (error) throw error;
         if (!data) throw new Error('Event not found');
-        return {
-          ...data,
-          venues: data.event_venues?.map(ev => ({
-            id: ev.venues?.id,
-            name: ev.venues?.name
-          })) || []
-        } as Event;
+        
+        return data as Event;
       } catch (err: any) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
@@ -60,20 +53,26 @@ const EventDetails = () => {
     retry: 1,
     retryDelay: 1000
   });
+
   const handlePrint = () => {
     window.print();
   };
+
   if (isLoading) {
-    return <div className="flex flex-col h-full">
+    return (
+      <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
         <div className="flex-1 space-y-6 p-6 md:p-8">
           <Skeleton className="h-[200px] w-full rounded-lg" />
           <Skeleton className="h-[400px] w-full rounded-lg" />
         </div>
-      </div>;
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="flex flex-col h-full">
+    return (
+      <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
         <div className="flex-1 p-8">
           <Card className="border-red-200 bg-red-50/50">
@@ -87,10 +86,13 @@ const EventDetails = () => {
             </CardContent>
           </Card>
         </div>
-      </div>;
+      </div>
+    );
   }
+
   if (!event) {
-    return <div className="flex flex-col h-full">
+    return (
+      <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
         <div className="flex-1 p-8">
           <Card className="border-yellow-200 bg-yellow-50/50">
@@ -104,12 +106,16 @@ const EventDetails = () => {
             </CardContent>
           </Card>
         </div>
-      </div>;
+      </div>
+    );
   }
+
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   const formattedTime = event.start_time && event.end_time ? `${event.start_time.slice(0, 5)} - ${event.end_time.slice(0, 5)}` : '';
-  const venueNames = event.venues?.map(venue => venue.name).join(' + ') || 'No venues';
-  return <div className="flex flex-col h-full">
+  const venueNames = event.venues && event.venues.length > 0 ? event.venues.join(' + ') : 'No venues';
+
+  return (
+    <div className="flex flex-col h-full">
       <Header pageTitle={event.name} showBackButton backButtonPath="/events" />
       
       <div className="flex-1 p-6">
@@ -134,6 +140,8 @@ const EventDetails = () => {
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default EventDetails;

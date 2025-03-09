@@ -1,3 +1,4 @@
+
 import * as z from "zod";
 
 export const eventFormSchema = z.object({
@@ -10,7 +11,7 @@ export const eventFormSchema = z.object({
   pax: z.number().min(1, "Number of guests must be at least 1").optional(),
   package_id: z.string().optional(),
   client_address: z.string().optional(),
-  venues: z.record(z.string(), z.boolean()),
+  venues: z.array(z.string()),
   // Wedding specific fields
   bride_name: z.string().optional(),
   bride_email: z.string().email().optional(),

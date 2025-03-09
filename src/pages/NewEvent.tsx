@@ -29,7 +29,7 @@ const NewEvent = () => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       event_type: 'Wedding',
-      venues: {}
+      venues: []
     }
   });
 
@@ -64,28 +64,11 @@ const NewEvent = () => {
         package_id: data.package_id || null,
         client_address: data.client_address || null,
         created_by: user.id,
-        completed: false
+        completed: false,
+        venues: data.venues
       };
 
       await createEvent(eventData, user.id);
-
-      const selectedVenues = Object.entries(data.venues || {})
-        .filter(([_, selected]) => selected)
-        .map(([venueId]) => ({
-          event_code: eventCode,
-          venue_id: venueId,
-        }));
-
-      if (selectedVenues.length > 0) {
-        const { error: venueError } = await supabase
-          .from('event_venues')
-          .upsert(selectedVenues, {
-            onConflict: 'event_code,venue_id',
-            ignoreDuplicates: true
-          });
-
-        if (venueError) throw venueError;
-      }
 
       if (data.event_type === 'Wedding') {
         const { error: weddingError } = await supabase
@@ -117,7 +100,6 @@ const NewEvent = () => {
         if (corporateError) throw corporateError;
       }
 
-      // Invalidate and refetch events queries
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 

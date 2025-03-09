@@ -1,3 +1,4 @@
+
 export interface Event {
   // Database fields
   event_code: string;
@@ -15,20 +16,9 @@ export interface Event {
   created_by: string | null;
   completed: boolean;
   deleted_at: string | null;
+  venues: string[] | null;
   
   // Related tables
-  venues?: {
-    id?: string;
-    name: string;
-  }[];
-  
-  event_venues?: {
-    venues: {
-      id?: string;
-      name: string;
-    };
-  }[];
-  
   wedding_details?: {
     bride_name: string | null;
     bride_email: string | null;
@@ -71,4 +61,5 @@ export interface EventCreate {
   client_address?: string | null;
   created_by?: string | null;
   completed?: boolean;
+  venues?: string[] | null;
 }

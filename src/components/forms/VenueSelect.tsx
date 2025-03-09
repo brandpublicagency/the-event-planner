@@ -1,29 +1,36 @@
+
+import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UseFormReturn } from "react-hook-form";
+import { EventFormData } from "@/types/eventForm";
 
-interface VenueSelectProps {
-  form: UseFormReturn<any>;
-}
-
-// Updated venue list with proper UUIDs
-const mockVenues = [
-  { id: "123e4567-e89b-12d3-a456-426614174001", name: "The Gallery" },
-  { id: "123e4567-e89b-12d3-a456-426614174002", name: "The Kitchen" },
-  { id: "123e4567-e89b-12d3-a456-426614174003", name: "The Grand Hall" },
-  { id: "123e4567-e89b-12d3-a456-426614174004", name: "The Lawn" },
-  { id: "123e4567-e89b-12d3-a456-426614174005", name: "Accommodation" }
+const VENUE_OPTIONS = [
+  "The Kitchen",
+  "The Gallery",
+  "The Grand Hall",
+  "Package 1",
+  "Package 2",
+  "Package 3"
 ];
 
-export const VenueSelect = ({ form }: VenueSelectProps) => {
-  const selectedVenues = form.watch('venues') || {};
+interface VenueSelectProps {
+  form: UseFormReturn<EventFormData>;
+}
 
-  const onVenueChange = (venueId: string, checked: boolean) => {
-    const currentVenues = form.getValues('venues') || {};
-    form.setValue('venues', {
-      ...currentVenues,
-      [venueId]: checked
-    });
+export const VenueSelect = ({ form }: VenueSelectProps) => {
+  const venues = form.watch("venues") || [];
+  
+  const handleVenueChange = (venue: string, checked: boolean) => {
+    const currentVenues = [...venues];
+    
+    if (checked && !currentVenues.includes(venue)) {
+      currentVenues.push(venue);
+    } else if (!checked && currentVenues.includes(venue)) {
+      const index = currentVenues.indexOf(venue);
+      currentVenues.splice(index, 1);
+    }
+    
+    form.setValue("venues", currentVenues, { shouldValidate: true });
   };
 
   return (
@@ -32,23 +39,26 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
       name="venues"
       render={() => (
         <FormItem>
-          <FormLabel>Select Venues</FormLabel>
-          <FormControl>
-            <div className="flex flex-wrap gap-4">
-              {mockVenues?.map((venue) => (
-                <label
-                  key={venue.id}
-                  className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm shadow-sm cursor-pointer hover:bg-zinc-50"
+          <FormLabel>Venues</FormLabel>
+          <div className="space-y-2">
+            {VENUE_OPTIONS.map((venue) => (
+              <div key={venue} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`venue-${venue}`}
+                  checked={venues.includes(venue)}
+                  onCheckedChange={(checked) => {
+                    handleVenueChange(venue, checked as boolean);
+                  }}
+                />
+                <label 
+                  htmlFor={`venue-${venue}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  <Checkbox
-                    checked={selectedVenues[venue.id] || false}
-                    onCheckedChange={(checked) => onVenueChange(venue.id, checked as boolean)}
-                  />
-                  <span>{venue.name}</span>
+                  {venue}
                 </label>
-              ))}
-            </div>
-          </FormControl>
+              </div>
+            ))}
+          </div>
           <FormMessage />
         </FormItem>
       )}

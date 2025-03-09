@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/react-query";
 
@@ -5,13 +6,13 @@ interface EventUpdateData {
   name: string;
   description: string;
   event_type: string;
-  event_date: string | null;  // Changed to allow null
+  event_date: string | null;
   start_time?: string | null;
   end_time?: string | null;
-  pax: number | null;  // Changed to allow null
-  package_id: string | null;  // Changed to allow null
-  client_address: string | null;  // Changed to allow null
-  venues?: Record<string, boolean>;
+  pax: number | null;
+  package_id: string | null;
+  client_address: string | null;
+  venues?: string[];
   // Wedding specific fields
   bride_name?: string;
   bride_email?: string;
@@ -43,34 +44,11 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         pax: data.pax || null,
         package_id: data.package_id || null,
         client_address: data.client_address || null,
+        venues: data.venues || null,
       })
       .eq('event_code', eventCode);
 
     if (eventError) throw eventError;
-
-    if (data.venues && Object.keys(data.venues).length > 0) {
-      // Delete existing venue relationships
-      await supabase
-        .from('event_venues')
-        .delete()
-        .eq('event_code', eventCode);
-
-      // Insert new venue relationships
-      const selectedVenues = Object.entries(data.venues)
-        .filter(([venueId, selected]) => selected && venueId)
-        .map(([venueId]) => ({
-          event_code: eventCode,
-          venue_id: venueId,
-        }));
-
-      if (selectedVenues.length > 0) {
-        const { error: venueError } = await supabase
-          .from('event_venues')
-          .insert(selectedVenues);
-
-        if (venueError) throw venueError;
-      }
-    }
 
     // Update event type specific details
     if (data.event_type === 'Wedding') {

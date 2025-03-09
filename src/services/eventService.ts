@@ -4,7 +4,7 @@ import type { Event, EventCreate } from "@/types/event";
 
 export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
   // Remove related fields that aren't in the events table
-  const { venues, event_venues, wedding_details, corporate_details, menu_selections, ...eventUpdates } = updates;
+  const { wedding_details, corporate_details, menu_selections, ...eventUpdates } = updates;
 
   const { data, error } = await supabase
     .from('events')
@@ -52,14 +52,6 @@ export const deleteEvent = async (eventCode: string) => {
     .eq('event_code', eventCode);
   
   if (corporateError) throw corporateError;
-  
-  // Delete event_venues associations
-  const { error: venuesError } = await supabase
-    .from('event_venues')
-    .delete()
-    .eq('event_code', eventCode);
-  
-  if (venuesError) throw venuesError;
   
   // Finally delete the event itself
   const { error } = await supabase
