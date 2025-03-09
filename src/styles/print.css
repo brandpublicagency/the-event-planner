@@ -45,15 +45,21 @@
   }
 
   .print-header h1 {
-    font-size: 16px !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
     margin-bottom: 0.25rem !important;
-    font-weight: bold !important;
   }
 
   .print-header h2 {
     font-size: 14px !important;
     color: black !important;
     margin-bottom: 0.25rem !important;
+  }
+
+  /* Event info styles */
+  .event-info-container h1 {
+    font-size: 16px !important;
+    font-weight: 400 !important;
   }
 
   /* Ensure form elements are visible */

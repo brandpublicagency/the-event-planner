@@ -28,7 +28,7 @@ export const EventInfo = ({ event, formattedDate }: EventInfoProps) => {
   return (
     <div className="mb-8 event-info-container">
       <div className="flex items-center">
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-base font-normal tracking-tight text-zinc-900">
           {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
         </h1>
       </div>
