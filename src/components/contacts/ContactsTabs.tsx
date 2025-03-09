@@ -65,7 +65,7 @@ const ContactsTabs = ({
       
       <TabsContent value="wedding-bride" className="mt-0">
         <ContactsTable 
-          contacts={filteredContacts.filter(c => c.contactType === 'wedding')} 
+          contacts={filteredContacts.filter(c => c.contactType === 'wedding-bride')} 
           isLoading={isLoading} 
           onEditContact={onEditContact}
           onDeleteContact={onDeleteContact}

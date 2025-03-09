@@ -106,21 +106,23 @@ const Sidebar = ({
 
   return (
     <div className={cn(
-      "relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", 
-      isCollapsed ? "w-[80px]" : "w-[280px]", 
+      "relative h-full transition-all duration-500 ease-in-out will-change-[width]", 
+      isCollapsed ? "w-[70px]" : "w-64", 
       !isCollapsed && getGradientByPath(), 
       isCollapsed && "bg-[#1A1F2C]", 
       className
     )}>
       {isCollapsed ? (
-        <div className="flex flex-col h-full justify-between py-4">
-          <SidebarProfile isCollapsed={isCollapsed} />
+        <div className="flex flex-col h-full">
+          <div className="py-4">
+            <SidebarProfile isCollapsed={isCollapsed} />
+          </div>
           
-          <div className="flex-1 flex flex-col justify-center items-center">
+          <div className="flex-1 flex items-center justify-center">
             <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
           </div>
           
-          <div className="px-0 flex flex-col items-center gap-4">
+          <div className="py-4 flex flex-col items-center gap-4">
             <button 
               onClick={() => navigate('/events/new')} 
               className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md"

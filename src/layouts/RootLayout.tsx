@@ -35,7 +35,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50">
       <div
-        className={`transition-all duration-300 ease-in-out z-30 ${
+        className={`flex-shrink-0 transition-all duration-300 ease-in-out z-30 ${
           isCollapsed ? "w-[70px]" : "w-64"
         } bg-white border-r border-zinc-200 shadow-sm`}
       >
