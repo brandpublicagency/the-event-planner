@@ -16,12 +16,12 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden">
+    <div className="border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden print:bg-white">
       <Button 
         variant="outline" 
         size="sm"
         onClick={() => navigate('/events')}
-        className="flex items-center gap-2 rounded-full bg-white"
+        className="flex items-center gap-2 rounded-full"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Events
@@ -39,7 +39,7 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
           variant="outline" 
           size="sm"
           onClick={() => navigate(`/events/${eventCode}/edit`)}
-          className="flex items-center gap-2 rounded-full bg-white"
+          className="flex items-center gap-2 rounded-full"
         >
           <Edit className="h-4 w-4" />
           Edit Details
@@ -48,7 +48,7 @@ export const EventHeader = ({ eventCode, onPrint, isCustomMenu, onCustomMenuTogg
           onClick={onPrint} 
           variant="outline" 
           size="sm"
-          className="rounded-full bg-white flex items-center gap-2"
+          className="rounded-full flex items-center gap-2"
         >
           <Printer className="h-4 w-4" />
           <span className="hidden sm:inline">Print</span>
