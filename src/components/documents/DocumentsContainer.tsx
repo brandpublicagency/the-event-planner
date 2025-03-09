@@ -17,6 +17,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [documentCreated, setDocumentCreated] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -100,6 +101,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
         title: "Success",
         description: "New document created",
       });
+      setDocumentCreated(true);
     },
     onError: (error: Error) => {
       console.error("Error creating document:", error);
@@ -113,11 +115,11 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   // Create a new document automatically when autoCreateDocument is true
   useEffect(() => {
-    if (autoCreateDocument && !createDocument.isPending && !selectedDocId && !isLoading) {
+    if (autoCreateDocument && !documentCreated && !createDocument.isPending && !isLoading) {
       console.log("Auto-creating document");
       handleNewDocument();
     }
-  }, [autoCreateDocument, createDocument.isPending, selectedDocId, isLoading]);
+  }, [autoCreateDocument, documentCreated, createDocument.isPending, isLoading]);
 
   const handleNewDocument = () => {
     createDocument.mutate();

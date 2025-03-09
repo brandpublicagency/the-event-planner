@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -7,8 +6,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -95,6 +92,13 @@ const Sidebar = ({
     label: "Documents"
   }];
 
+  const handleAddDocument = () => {
+    if (location.pathname === '/documents' && location.search.includes('newDocument=true')) {
+      return;
+    }
+    navigate('/documents?newDocument=true');
+  };
+
   return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
@@ -139,7 +143,7 @@ const Sidebar = ({
             </button>
             
             <button 
-              onClick={() => navigate('/documents?newDocument=true')} 
+              onClick={handleAddDocument} 
               className={cn(
                 "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
                 isCollapsed ? "justify-center" : "gap-2"
