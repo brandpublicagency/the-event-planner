@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { publicEventFormSchema, PublicEventFormValues } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema, type PublicEventFormValues } from "@/schemas/publicEventFormSchema";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -22,16 +22,24 @@ const PublicEventForm = () => {
   const form = useForm<PublicEventFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
-      event_type: "Wedding",
+      event_type: "Wedding" as const,
       venues: [],
       name: "",
       event_date: format(new Date(), 'yyyy-MM-dd'),
       primary_name: "",
       primary_phone: "",
       primary_email: "",
+      // Explicitly set optional fields to proper values
+      description: undefined,
       start_time: null,
       end_time: null,
-      pax: null
+      pax: null,
+      secondary_name: undefined,
+      secondary_phone: undefined,
+      secondary_email: undefined,
+      address: undefined,
+      company: undefined,
+      vat_number: undefined
     }
   });
 
@@ -129,7 +137,7 @@ const PublicEventForm = () => {
             description="Tell us about your event"
           >
             <EventBasicInfo 
-              form={form as any}
+              form={form}
             />
           </FormSection>
 
@@ -138,7 +146,7 @@ const PublicEventForm = () => {
             description={`Enter ${eventType === "Wedding" ? "bride and groom" : "contact"} information`}
           >
             <ContactDetails 
-              form={form as any}
+              form={form}
               eventType={eventType} 
             />
           </FormSection>

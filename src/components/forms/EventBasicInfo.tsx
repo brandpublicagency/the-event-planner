@@ -6,7 +6,7 @@ import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
-import { EventFormData } from "@/types/eventForm";
+import { PublicEventFormValues } from "@/schemas/publicEventFormSchema";
 
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];
@@ -21,7 +21,7 @@ const startTimeOptions = generateTimeOptions(6, 20);
 const endTimeOptions = generateTimeOptions(9, 23);
 
 interface EventBasicInfoProps {
-  form: UseFormReturn<EventFormData>;
+  form: UseFormReturn<any>;
 }
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
@@ -54,8 +54,8 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <Input 
                   type="number" 
                   className="bg-white"
-                  {...field} 
-                  onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  value={field.value || ''}
+                  onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                 />
               </FormControl>
               <FormMessage />
