@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare } from "lucide-react";
+import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -79,7 +79,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       )}
     >
       <div className="flex flex-col h-full">
-        <SidebarProfile isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        <SidebarProfile isCollapsed={isCollapsed} />
         
         <div className="flex-1 px-4 py-8 overflow-y-auto overflow-x-hidden">
           <div className="space-y-8">
@@ -88,10 +88,26 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               items={mainNavItems} 
               sectionTitle="MAIN" 
             />
+            
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                "flex items-center w-full text-gray-400 hover:text-gray-700 text-sm mt-2 px-3",
+                isCollapsed && "justify-center"
+              )}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <>
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  <span>Expand menu</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
         
-        {/* Action buttons at bottom of sidebar */}
         <div className={cn(
           "p-3 border-t bg-gray-50",
           isCollapsed && "flex flex-col items-center space-y-2"

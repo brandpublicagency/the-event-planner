@@ -1,14 +1,13 @@
+
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SidebarProfileProps {
   isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-const SidebarProfile = ({ isCollapsed, setIsCollapsed }: SidebarProfileProps) => {
+const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
   const { data: userInfo } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
@@ -43,21 +42,6 @@ const SidebarProfile = ({ isCollapsed, setIsCollapsed }: SidebarProfileProps) =>
           <div className="text-xs text-gray-400">{userInfo?.email}</div>
         </div>
       )}
-      <button 
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className={cn(
-          "flex items-center justify-center w-8 h-8 rounded-full",
-          isCollapsed 
-            ? "bg-[#0A0F1D] text-gray-400 hover:text-white hover:bg-[#2A2F3C]" 
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-        )}
-      >
-        {isCollapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
-        )}
-      </button>
     </div>
   );
 };
