@@ -1,3 +1,4 @@
+
 import { useTaskContext } from "@/contexts/TaskContext";
 import { TaskList } from "../TaskList";
 import { TaskDetails } from "./TaskDetails";
@@ -37,8 +38,7 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
       </div>
       {selectedTaskId && (
         <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-semibold mb-3">Task Details</h2>
-          <div className="h-[calc(100%-2rem)] bg-background border rounded-lg overflow-hidden">
+          <div className="h-full bg-background border rounded-lg overflow-hidden">
             <TaskDetails taskId={selectedTaskId} onClose={() => setSelectedTaskId(null)} />
           </div>
         </div>
