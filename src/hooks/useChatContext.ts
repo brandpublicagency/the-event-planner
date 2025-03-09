@@ -27,6 +27,7 @@ export const useChatContext = () => {
 
       if (weddingError && weddingError.code !== 'PGRST116') {
         console.error('Error fetching wedding details:', weddingError);
+        // Don't throw if the table doesn't exist (PGRST116 error)
       }
 
       // Fetch corporate details separately
@@ -36,6 +37,7 @@ export const useChatContext = () => {
 
       if (corporateError && corporateError.code !== 'PGRST116') {
         console.error('Error fetching corporate details:', corporateError);
+        // Don't throw if the table doesn't exist
       }
 
       // Fetch menu selections separately
@@ -45,6 +47,7 @@ export const useChatContext = () => {
 
       if (menuError && menuError.code !== 'PGRST116') {
         console.error('Error fetching menu selections:', menuError);
+        // Don't throw if the table doesn't exist
       }
 
       // Fetch event venues separately
@@ -54,6 +57,7 @@ export const useChatContext = () => {
 
       if (venuesError && venuesError.code !== 'PGRST116') {
         console.error('Error fetching event venues:', venuesError);
+        // Don't throw if the table doesn't exist
       }
 
       // Fetch contacts data
@@ -105,13 +109,15 @@ export const useChatContext = () => {
 
       // Enrich events with related data
       const enrichedEvents = events?.map(event => {
+        // Type safe way to add related data to the event
+        const eventCode = event.event_code;
         return {
           ...event,
-          wedding_details: weddingDetails?.find(wd => wd.event_code === event.event_code) || null,
-          corporate_details: corporateDetails?.find(cd => cd.event_code === event.event_code) || null,
-          menu_selections: menuSelections?.find(ms => ms.event_code === event.event_code) || null,
-          event_venues: eventVenues?.filter(ev => ev.event_code === event.event_code) || [],
-          tasks: tasks?.filter(task => task.event_code === event.event_code) || []
+          wedding_details: weddingDetails?.find(wd => wd.event_code === eventCode) || null,
+          corporate_details: corporateDetails?.find(cd => cd.event_code === eventCode) || null,
+          menu_selections: menuSelections?.find(ms => ms.event_code === eventCode) || null,
+          event_venues: eventVenues?.filter(ev => ev.event_code === eventCode) || [],
+          tasks: tasks?.filter(task => task.event_code === eventCode) || []
         };
       });
       

@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleMessage } from './handlers/messageHandler.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
-import { corsHeaders } from './_shared/cors.ts';
+import { corsHeaders } from '../_shared/cors.ts';
 
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
 
