@@ -10,11 +10,9 @@ import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { Category } from "@/types/category";
-
 interface DocumentEditorProps {
   documentId: string | null;
 }
-
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
@@ -28,7 +26,6 @@ export default function DocumentEditor({
       }
     }
   });
-
   const {
     document,
     isLoading,
@@ -44,7 +41,6 @@ export default function DocumentEditor({
     isLoadingDocumentCategories,
     updateDocumentCategories
   } = useDocumentCategories(documentId);
-
   useEffect(() => {
     if (!documentCategories || !categories || categories.length === 0) return;
     const selected = documentCategories.map(docCat => {
@@ -53,7 +49,6 @@ export default function DocumentEditor({
     });
     setSelectedCategories(selected);
   }, [documentCategories, categories]);
-
   const handleSave = async () => {
     await saveDocument();
     if (documentId) {
@@ -63,26 +58,20 @@ export default function DocumentEditor({
       });
     }
   };
-
   const handleCategoryChange = (categoryId: string | null) => {
     if (!categoryId || !categories) return;
-
     const category = categories.find(c => c.id === categoryId);
     if (!category) return;
-
     const isAlreadySelected = selectedCategories.some(c => c.id === category.id);
-
     if (isAlreadySelected) {
       setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
     } else {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
-
   const removeCategory = (categoryId: string) => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
-
   if (!documentId) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-md">
@@ -93,19 +82,16 @@ export default function DocumentEditor({
         </div>
       </div>;
   }
-
   if (!isAuthenticated || isLoading) {
     return <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>;
   }
-
   if (error || !document) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">
         {error ? `Error: ${error.message}` : "Document not found"}
       </div>;
   }
-
   return <div className="h-full flex flex-col p-6">
       <div className="flex justify-between items-center mb-5">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -115,7 +101,7 @@ export default function DocumentEditor({
           
           {selectedCategories.length > 0 && <div className="flex flex-wrap gap-2">
               {selectedCategories.map(category => <Badge key={category.id} variant="outline" className="flex items-center gap-1">
-                  <span>{category.name}</span>
+                  <span className="font-light text-xs">{category.name}</span>
                   <Button variant="ghost" size="icon" className="h-4 w-4 p-0 ml-1 hover:bg-transparent" onClick={() => removeCategory(category.id)}>
                     <X className="h-3 w-3" />
                   </Button>
