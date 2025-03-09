@@ -20,10 +20,11 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
+  // Fix for the type instantiation error - use explicit typing for form
   const form = useForm<EventFormData>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
-      event_type: 'Wedding',
+      event_type: 'Wedding' as const,
       venues: []
     }
   });
