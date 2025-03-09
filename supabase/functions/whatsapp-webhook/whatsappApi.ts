@@ -1,10 +1,11 @@
 
 const whatsappToken = Deno.env.get('WHATSAPP_TOKEN');
-const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || '110903815329534'; // Get dynamic ID or use fallback
 
-export const sendWhatsAppMessage = async (to: string, response: any) => {
+export const sendWhatsAppMessage = async (to: string, response: any, phoneNumberId: string) => {
   try {
     console.log('Preparing to send message to:', to);
+    console.log('Using phone number ID:', phoneNumberId);
+    
     const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
     
     // Prepare the message based on the response type

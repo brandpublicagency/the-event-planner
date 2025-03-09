@@ -64,6 +64,19 @@ serve(async (req) => {
         });
       }
       
+      // Extract the phone number ID from the metadata
+      const phoneNumberId = value.metadata?.phone_number_id;
+      
+      if (!phoneNumberId) {
+        console.error('Missing phone_number_id in metadata');
+        return new Response(JSON.stringify({ status: 'error', message: 'Missing phone_number_id' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        });
+      }
+      
+      console.log('Using phone number ID from webhook:', phoneNumberId);
+      
       const messages = value.messages;
       if (!messages?.length) {
         console.log('No messages in webhook payload - likely a status update');
@@ -88,7 +101,7 @@ serve(async (req) => {
       
       // First send a confirmation message that we received their message
       try {
-        await sendWhatsAppMessage(message.from, response);
+        await sendWhatsAppMessage(message.from, response, phoneNumberId);
         console.log('Confirmation message sent successfully');
       } catch (confirmError) {
         console.error('Error sending confirmation message:', confirmError);
@@ -116,7 +129,7 @@ serve(async (req) => {
       }
 
       // Send the response to WhatsApp
-      const result = await sendWhatsAppMessage(message.from, response);
+      const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
       console.log('Message send result:', JSON.stringify(result, null, 2));
 
       // Even if the message fails to send to WhatsApp, we should return success to the webhook
