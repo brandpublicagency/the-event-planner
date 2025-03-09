@@ -1,3 +1,4 @@
+
 const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
 const PHONE_NUMBER_ID = '494335320427022';
 

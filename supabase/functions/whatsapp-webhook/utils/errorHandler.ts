@@ -1,3 +1,4 @@
+
 export const handleError = (error: any, context: string) => {
   console.error(`Error in ${context}:`, {
     message: error.message,
