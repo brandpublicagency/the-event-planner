@@ -32,29 +32,6 @@ export const EventInfo = ({ event, formattedDate }: EventInfoProps) => {
       <div className="text-sm font-semibold text-zinc-600">
         {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
       </div>
-      <div className="print:hidden">
-        {/* Additional contact information hidden from print view */}
-        {event.primary_name && (
-          <div className="text-sm text-zinc-600">
-            Primary Contact: {event.primary_name} {event.primary_email ? `(${event.primary_email})` : ''} {event.primary_phone ? `- ${event.primary_phone}` : ''}
-          </div>
-        )}
-        {event.secondary_name && (
-          <div className="text-sm text-zinc-600">
-            Secondary Contact: {event.secondary_name} {event.secondary_email ? `(${event.secondary_email})` : ''} {event.secondary_phone ? `- ${event.secondary_phone}` : ''}
-          </div>
-        )}
-        {event.company && (
-          <div className="text-sm text-zinc-600">
-            Company: {event.company} {event.vat_number ? `(VAT: ${event.vat_number})` : ''}
-          </div>
-        )}
-        {event.address && (
-          <div className="text-sm text-zinc-600">
-            Address: {event.address}
-          </div>
-        )}
-      </div>
     </div>
   );
 };
