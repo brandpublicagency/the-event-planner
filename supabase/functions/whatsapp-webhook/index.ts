@@ -79,12 +79,40 @@ serve(async (req) => {
       }
 
       console.log('Processing message from:', message.from);
-      const response = await handleMessage(message);
-      console.log('Generated response:', JSON.stringify(response, null, 2));
+      
+      // Generate a simple test response first
+      let response = {
+        type: 'text',
+        message: "I've received your message! Processing it now..."
+      };
+      
+      // First send a confirmation message that we received their message
+      try {
+        await sendWhatsAppMessage(message.from, response);
+        console.log('Confirmation message sent successfully');
+      } catch (confirmError) {
+        console.error('Error sending confirmation message:', confirmError);
+        // Continue processing even if confirmation fails
+      }
+      
+      try {
+        // Now process the message normally
+        response = await handleMessage(message);
+        console.log('Generated response:', JSON.stringify(response, null, 2));
+      } catch (processError) {
+        console.error('Error in message processing:', processError);
+        response = {
+          type: 'text',
+          message: "I'm sorry, but I encountered an error while processing your message. Please try again later."
+        };
+      }
 
       if (!response) {
         console.error('No response generated from handleMessage');
-        throw new Error('No response generated');
+        response = {
+          type: 'text',
+          message: "I apologize, but I wasn't able to generate a response. Please try again."
+        };
       }
 
       // Send the response to WhatsApp

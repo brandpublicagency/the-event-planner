@@ -13,12 +13,20 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
     console.log('Processing incoming message:', JSON.stringify(message, null, 2));
 
     // First, check database connection
-    const dbConnected = await checkDatabaseConnection();
-    if (!dbConnected) {
-      console.error('Database connection check failed');
+    try {
+      const dbConnected = await checkDatabaseConnection();
+      if (!dbConnected) {
+        console.error('Database connection check failed');
+        return {
+          type: 'text',
+          message: "I'm having trouble connecting to our database right now. Please try again in a few moments."
+        };
+      }
+    } catch (dbError) {
+      console.error('Error checking database connection:', dbError);
       return {
         type: 'text',
-        message: "I'm having trouble connecting to our database right now. Please try again in a few moments."
+        message: "I'm experiencing some technical difficulties. Please try again shortly."
       };
     }
 
@@ -153,6 +161,12 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
               message: "I don't see any events in the system yet. Would you like to create one?"
             };
           }
+          
+          // Return a simple text response here as a fallback
+          return {
+            type: 'text',
+            message: `You have ${events.length} events in the system. You can ask about a specific event or say "next event" to see your upcoming event.`
+          };
         } catch (error) {
           console.error('Database connection test failed:', error);
           return {
@@ -170,6 +184,14 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
           30000 // 30 second timeout - AI processing takes longer
         );
       } catch (error) {
+        if (error.message?.includes('timeout')) {
+          console.error('AI question handling timed out:', error);
+          return {
+            type: 'text',
+            message: "It's taking me longer than expected to process your question. Could you please try asking in a simpler way or using one of our basic commands like 'events' or 'help'?"
+          };
+        }
+        
         console.error('Error handling AI question:', error);
         return {
           type: 'text',

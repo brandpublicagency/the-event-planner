@@ -11,21 +11,26 @@ const openai = new OpenAI({
 export async function generateAICompletion(question: string, systemMessage: string) {
   console.log('Generating AI completion with system message length:', systemMessage.length);
   
-  return await withTimeout(
-    openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Updated to use a more reliable model
-      messages: [
-        { role: "system", content: systemMessage },
-        { role: "user", content: question }
-      ],
-      temperature: 0.5,
-      max_tokens: 800,
-      function_call: "auto",
-      functions: getFunctionDefinitions()
-    }),
-    "OpenAI completion",
-    25000
-  );
+  try {
+    return await withTimeout(
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo", // Using a stable model 
+        messages: [
+          { role: "system", content: systemMessage },
+          { role: "user", content: question }
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+        function_call: "auto",
+        functions: getFunctionDefinitions()
+      }),
+      "OpenAI completion",
+      25000 // 25 second timeout
+    );
+  } catch (error) {
+    console.error('Error generating AI completion:', error);
+    throw error;
+  }
 }
 
 // Helper function to get function definitions for OpenAI

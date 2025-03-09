@@ -5,7 +5,7 @@ const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || '1109038153295
 export const sendWhatsAppMessage = async (to: string, response: any) => {
   try {
     console.log('Preparing to send message to:', to);
-    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`; // Updated to v18.0
+    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
     
     // Prepare the message based on the response type
     let message;
@@ -37,7 +37,7 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
     console.log('Sending WhatsApp message payload:', JSON.stringify(message, null, 2));
     
     // Add a retry mechanism
-    const maxRetries = 2;
+    const maxRetries = 3;
     let retries = 0;
     let sendResponse;
     
@@ -57,14 +57,17 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
           body: JSON.stringify(message)
         });
         
+        const responseText = await sendResponse.text();
+        
         if (sendResponse.ok) {
-          break;
+          const responseData = JSON.parse(responseText);
+          console.log('Message sent successfully:', responseData);
+          return responseData;
         } else {
-          const errorData = await sendResponse.text();
           console.error(`WhatsApp API error (Attempt ${retries + 1}/${maxRetries + 1}):`, {
             status: sendResponse.status,
             statusText: sendResponse.statusText,
-            data: errorData,
+            data: responseText,
             url: url,
             phoneNumberId: phoneNumberId
           });
@@ -74,13 +77,40 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
             if (response.type === 'text') {
               console.log('Sending simplified fallback message');
               const fallbackMessage = "I'm sorry, I'm having trouble responding right now. Please try again later.";
-              return { 
-                success: false, 
-                error: errorData,
-                fallbackSent: true,
-                message: fallbackMessage
-              };
+              
+              try {
+                const fallbackResponse = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${whatsappToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    recipient_type: 'individual',
+                    to,
+                    type: 'text',
+                    text: {
+                      preview_url: false,
+                      body: fallbackMessage
+                    }
+                  })
+                });
+                
+                if (fallbackResponse.ok) {
+                  console.log('Fallback message sent successfully');
+                  return { 
+                    success: false, 
+                    error: responseText,
+                    fallbackSent: true,
+                    message: fallbackMessage
+                  };
+                }
+              } catch (fallbackError) {
+                console.error('Error sending fallback message:', fallbackError);
+              }
             }
+            
             throw new Error(`WhatsApp API error: ${sendResponse.status} ${sendResponse.statusText}`);
           }
         }
@@ -96,13 +126,7 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
       await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
     }
     
-    if (!sendResponse || !sendResponse.ok) {
-      throw new Error('Failed to send message after multiple attempts');
-    }
-    
-    const responseData = await sendResponse.json();
-    console.log('Message sent successfully:', responseData);
-    return responseData;
+    throw new Error('Failed to send message after multiple attempts');
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
     return {
