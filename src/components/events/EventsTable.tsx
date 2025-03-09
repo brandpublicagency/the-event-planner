@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
@@ -64,15 +65,21 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       className
     )}>
       <div className="space-y-4">
-        {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
-          <EventMonthGroup
-            key={monthYear}
-            monthYear={monthYear}
-            events={monthEvents}
-            handleDelete={handleDelete}
-            isDashboard={isDashboard}
-          />
-        ))}
+        {Object.keys(groupedEvents).length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No events found
+          </div>
+        ) : (
+          Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
+            <EventMonthGroup
+              key={monthYear}
+              monthYear={monthYear}
+              events={monthEvents}
+              handleDelete={handleDelete}
+              isDashboard={isDashboard}
+            />
+          ))
+        )}
       </div>
     </ScrollArea>
   );

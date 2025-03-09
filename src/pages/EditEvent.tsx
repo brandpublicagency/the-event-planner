@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,14 @@ const EditEvent = () => {
 
       if (eventError) throw eventError;
       if (!eventData) throw new Error('Event not found');
+      
+      console.log("Fetched event data:", eventData);
       return eventData;
     },
     enabled: !!id,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (event) {
       // Ensure event_type is one of the allowed values
       const eventType = event.event_type as EventFormData['event_type'];
@@ -52,7 +54,7 @@ const EditEvent = () => {
       };
 
       // Make sure venues is always an array
-      const venues = Array.isArray(event.venues) ? event.venues : [];
+      const venues = Array.isArray(event.venues) ? event.venues : (event.venues ? [event.venues] : []);
       console.log("Initial venues from database:", venues);
 
       // Reset form with event data
@@ -104,13 +106,23 @@ const EditEvent = () => {
       // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['events', id] });
+      await queryClient.invalidateQueries({ queryKey: ['passed-events'] });
+      await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 
       toast({
         title: "Success",
         description: "Event updated successfully",
       });
 
-      navigate('/events');
+      // Determine whether to navigate back to events or passed events
+      const today = new Date();
+      const eventDate = data.event_date ? new Date(data.event_date) : null;
+      
+      if (eventDate && eventDate >= today && !event?.completed) {
+        navigate('/events');
+      } else {
+        navigate('/passed-events');
+      }
     } catch (error: any) {
       console.error('Update error:', error);
       toast({
@@ -145,10 +157,19 @@ const EditEvent = () => {
         <Button 
           variant="ghost" 
           className="h-8 px-2 lg:px-3"
-          onClick={() => navigate("/events")}
+          onClick={() => {
+            const today = new Date();
+            const eventDate = event?.event_date ? new Date(event.event_date) : null;
+            
+            if (eventDate && eventDate >= today && !event.completed) {
+              navigate("/events");
+            } else {
+              navigate("/passed-events");
+            }
+          }}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Events
+          Back
         </Button>
 
         <div>
@@ -160,7 +181,16 @@ const EditEvent = () => {
         <EditEventForm 
           form={form} 
           onSubmit={onSubmit}
-          onCancel={() => navigate('/events')}
+          onCancel={() => {
+            const today = new Date();
+            const eventDate = event?.event_date ? new Date(event.event_date) : null;
+            
+            if (eventDate && eventDate >= today && !event.completed) {
+              navigate("/events");
+            } else {
+              navigate("/passed-events");
+            }
+          }}
         />
       </div>
     </div>

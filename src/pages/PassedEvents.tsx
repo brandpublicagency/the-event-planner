@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/events/EventsTable";
 import { useQuery } from "@tanstack/react-query";
@@ -16,10 +16,13 @@ const PassedEvents = () => {
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['passed-events'],
     queryFn: async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
-        .eq('completed', true)
+        .or(`completed.eq.true,event_date.lt.${today.toISOString().split('T')[0]}`)
         .order('event_date', { ascending: false });
 
       if (error) {
@@ -33,6 +36,8 @@ const PassedEvents = () => {
 
       return data as Event[];
     },
+    refetchOnWindowFocus: true, // This will refetch data when window gets focus
+    refetchOnMount: true, // This will refetch when component mounts
   });
 
   const groupedEvents = groupEventsByMonth(events);

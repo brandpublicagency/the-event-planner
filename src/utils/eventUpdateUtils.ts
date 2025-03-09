@@ -12,6 +12,7 @@ interface EventUpdateData {
   pax: number | null;
   client_address: string | null;
   venues?: string[];
+  completed?: boolean;
   // Wedding specific fields
   bride_name?: string;
   bride_email?: string;
@@ -72,6 +73,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         pax: data.pax || null,
         client_address: data.client_address || null,
         venues: data.venues || null,
+        completed: data.completed !== undefined ? data.completed : undefined,
       })
       .eq('event_code', eventCode);
 
@@ -114,6 +116,8 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
     // Invalidate queries
     await queryClient.invalidateQueries({ queryKey: ['events'] });
     await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+    await queryClient.invalidateQueries({ queryKey: ['passed-events'] });
+    await queryClient.invalidateQueries({ queryKey: ['events', eventCode] });
 
     return { success: true };
   } catch (error: any) {

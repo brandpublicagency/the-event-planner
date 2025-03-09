@@ -40,6 +40,8 @@ export default function Events() {
       console.log('Fetched events:', data);
       return data || [];
     },
+    refetchOnWindowFocus: true, // This will refetch data when window gets focus
+    refetchOnMount: true, // This will refetch when component mounts
     retry: 1,
   });
 
