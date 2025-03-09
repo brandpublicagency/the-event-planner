@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -94,40 +93,49 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         
         {/* Action buttons at bottom of sidebar */}
         <div className={cn(
-          "p-4 mt-auto",
-          isCollapsed ? "flex flex-col items-center space-y-3" : "space-y-3"
+          "p-3 border-t bg-gray-50",
+          isCollapsed && "flex flex-col items-center space-y-2"
         )}>
-          <Separator className={cn("mb-3", isCollapsed ? "w-10" : "w-full")} />
-          
-          <Button
-            variant="outline"
-            size={isCollapsed ? "icon" : "default"}
-            onClick={() => navigate('/events/new')}
-            className="w-full"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {!isCollapsed && <span>Add Event</span>}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size={isCollapsed ? "icon" : "default"}
-            onClick={() => navigate('/tasks/new')}
-            className="w-full"
-          >
-            <CheckSquare className="h-4 w-4 mr-2" />
-            {!isCollapsed && <span>Add Task</span>}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size={isCollapsed ? "icon" : "default"}
-            onClick={() => navigate('/documents')}
-            className="w-full"
-          >
-            <FilePlus className="h-4 w-4 mr-2" />
-            {!isCollapsed && <span>Add Document</span>}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size={isCollapsed ? "icon" : "default"}
+              onClick={() => navigate('/events/new')}
+              className={cn(
+                "w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50",
+                isCollapsed && "px-2"
+              )}
+            >
+              <Plus className="h-4 w-4" />
+              {!isCollapsed && <span>New Event</span>}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size={isCollapsed ? "icon" : "default"}
+              onClick={() => navigate('/tasks/new')}
+              className={cn(
+                "w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50",
+                isCollapsed && "px-2"
+              )}
+            >
+              <CheckSquare className="h-4 w-4" />
+              {!isCollapsed && <span>New Task</span>}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size={isCollapsed ? "icon" : "default"}
+              onClick={() => navigate('/documents')}
+              className={cn(
+                "w-full h-9 px-4 flex items-center gap-1.5 bg-white border-zinc-200 shadow-sm hover:bg-gray-50",
+                isCollapsed && "px-2"
+              )}
+            >
+              <FilePlus className="h-4 w-4" />
+              {!isCollapsed && <span>New Document</span>}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
