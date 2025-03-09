@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { publicEventFormSchema, type PublicEventFormValues } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -13,13 +13,34 @@ import FormSection from "@/components/forms/FormSection";
 import { createEvent } from "@/utils/eventUtils";
 import { useNavigate } from "react-router-dom";
 
+// Define a simple type for form values to avoid circular references
+type SimpleFormValues = {
+  name: string;
+  description?: string;
+  event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
+  event_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  pax: number | null;
+  venues: string[];
+  primary_name: string;
+  primary_phone: string;
+  primary_email: string;
+  secondary_name?: string;
+  secondary_phone?: string;
+  secondary_email?: string;
+  address?: string;
+  company?: string;
+  vat_number?: string;
+}
+
 const PublicEventForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  const form = useForm<PublicEventFormValues>({
+  const form = useForm<SimpleFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: "Wedding",
@@ -50,7 +71,7 @@ const PublicEventForm = () => {
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
-  const onSubmit = async (data: PublicEventFormValues) => {
+  const onSubmit = async (data: SimpleFormValues) => {
     setIsSubmitting(true);
     setErrorMessage(null);
     

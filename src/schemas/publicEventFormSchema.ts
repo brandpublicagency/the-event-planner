@@ -4,6 +4,7 @@ import * as z from "zod";
 // Define event type enum explicitly
 const EventTypeEnum = z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]);
 
+// Define the schema
 export const publicEventFormSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().optional(),
@@ -25,6 +26,3 @@ export const publicEventFormSchema = z.object({
   company: z.string().optional(),
   vat_number: z.string().optional(),
 });
-
-// Export the type separately to avoid circular references
-export type PublicEventFormValues = z.infer<typeof publicEventFormSchema>;
