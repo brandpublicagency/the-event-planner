@@ -34,7 +34,7 @@ const OffCanvasDrawer: React.FC<OffCanvasDrawerProps> = ({
       {/* Overlay */}
       <div 
         className={cn(
-          "fixed inset-0 bg-black/30 z-[60] transition-opacity duration-300",
+          "fixed inset-0 bg-black/30 z-[60] transition-opacity duration-300 ease-in-out",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={onClose}
@@ -43,7 +43,7 @@ const OffCanvasDrawer: React.FC<OffCanvasDrawerProps> = ({
       {/* Drawer */}
       <div 
         className={cn(
-          "fixed inset-y-0 right-0 w-[30rem] max-w-[90vw] bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-[70]",
+          "fixed inset-y-0 right-0 w-[30rem] max-w-[90vw] bg-white shadow-lg transform transition-all duration-300 ease-in-out will-change-transform z-[70]",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
