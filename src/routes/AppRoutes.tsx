@@ -17,6 +17,7 @@ import Login from "@/pages/Login";
 import Documents from "@/pages/Documents";
 import Contacts from "@/pages/Contacts";
 import ProfileSettings from "@/pages/ProfileSettings";
+import PublicEventFormPage from "@/pages/PublicEventFormPage";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -72,6 +73,10 @@ export const AppRoutes = () => {
         path="/login"
         element={session ? <Navigate to="/" replace /> : <Login />}
       />
+      {/* Public routes that don't require authentication */}
+      <Route path="/public/event-form" element={<PublicEventFormPage />} />
+      
+      {/* Private routes that require authentication */}
       <Route
         path="/"
         element={
