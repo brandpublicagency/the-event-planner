@@ -6,6 +6,7 @@ import { getSystemMessage } from '../utils/systemMessageUtils.ts';
 import { handleTimeoutError } from '../utils/timeoutUtils.ts';
 import { fetchEvents, fetchContacts, fetchDocuments, fetchTasks } from '../utils/dataFetcher.ts';
 import { formatEventsContext, formatContactsContext, formatDocumentsContext, formatTasksContext } from '../utils/contextFormatter.ts';
+import { handleError } from '../utils/errorHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -24,6 +25,15 @@ export const handleAIQuestion = async (question: string) => {
     const contacts = await fetchContacts();
     const documents = await fetchDocuments();
     const tasks = await fetchTasks();
+    
+    console.log(`Context data loaded: events=${events.length}, contacts=${contacts.length}, documents=${documents.length}, tasks=${tasks.length}`);
+    
+    if (events.length === 0) {
+      return {
+        type: 'text',
+        message: "Currently, there are no events found in the system. If you need assistance with creating an event or anything else, feel free to ask."
+      };
+    }
     
     // Format the context data for each entity type
     const eventsContext = formatEventsContext(events);
@@ -169,7 +179,7 @@ export const handleAIQuestion = async (question: string) => {
             .from('menu_selections')
             .select('*')
             .eq('event_code', args.event_code)
-            .single();
+            .maybeSingle();
           
           if (existingMenu) {
             // Update existing menu

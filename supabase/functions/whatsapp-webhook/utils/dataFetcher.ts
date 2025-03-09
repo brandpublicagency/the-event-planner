@@ -115,7 +115,7 @@ export const fetchEventById = async (eventCode: string) => {
         )
       `)
       .eq('event_code', eventCode)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(`Error fetching event ${eventCode}:`, error);
@@ -137,7 +137,7 @@ export const fetchTaskById = async (taskId: string) => {
       .from('tasks')
       .select('*')
       .eq('id', taskId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(`Error fetching task ${taskId}:`, error);

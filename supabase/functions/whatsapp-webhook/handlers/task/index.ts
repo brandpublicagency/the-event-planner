@@ -26,7 +26,7 @@ export const fetchTaskById = async (taskId: string): Promise<any> => {
       .from('tasks')
       .select('*')
       .eq('id', taskId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(`Error fetching task ${taskId}:`, error);

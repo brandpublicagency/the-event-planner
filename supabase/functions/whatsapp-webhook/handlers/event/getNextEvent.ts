@@ -2,6 +2,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
+import { handleError } from '../../utils/errorHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -25,17 +26,18 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
 
     if (error) {
       console.error('Error fetching next event:', error);
-      throw error;
+      return handleError(error, 'getNextEvent');
     }
 
     if (!events?.length) {
       return {
         type: 'text',
-        message: "No upcoming events found."
+        message: "No upcoming events found. Would you like to create a new event?"
       };
     }
 
     const event = events[0];
+    console.log('Found next event:', event);
     
     // Get venue information separately if needed
     let venues = "No venue information";
@@ -50,6 +52,8 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
           .map((v: any) => v.venues?.name)
           .filter(Boolean)
           .join(', ');
+      } else if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
+        venues = event.venues.join(', ');
       }
     } catch (venueError) {
       console.error('Error fetching venues:', venueError);
@@ -63,7 +67,7 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
           .from('wedding_details')
           .select('*')
           .eq('event_code', event.event_code)
-          .single();
+          .maybeSingle();
           
         if (weddingData) {
           clientDetails = `\nClient: Wedding of ${weddingData.bride_name || 'Bride'} & ${weddingData.groom_name || 'Groom'}`;
@@ -73,7 +77,7 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
           .from('corporate_details')
           .select('*')
           .eq('event_code', event.event_code)
-          .single();
+          .maybeSingle();
           
         if (corporateData) {
           clientDetails = `\nClient: ${corporateData.company_name}`;
@@ -90,7 +94,7 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
         .from('menu_selections')
         .select('*')
         .eq('event_code', event.event_code)
-        .single();
+        .maybeSingle();
         
       if (menuData) {
         menuDetails = `\nMenu Details:
@@ -120,9 +124,6 @@ Please let me know if you need more information or other assistance.`;
     };
   } catch (error) {
     console.error('Error in getNextEvent:', error);
-    return {
-      type: 'text',
-      message: "I encountered an error fetching the next event. Please try again later."
-    };
+    return handleError(error, 'getNextEvent');
   }
 };

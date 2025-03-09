@@ -1,65 +1,64 @@
 
-const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
-const PHONE_NUMBER_ID = '494335320427022';
+const whatsappToken = Deno.env.get('WHATSAPP_TOKEN');
+const whatsappPhoneNumberId = '110903815329534'; // Replace with your WhatsApp Phone Number ID
 
-export async function sendWhatsAppMessage(to: string, messageData: { type: 'text' | 'interactive', message?: string, interactive?: any }) {
-  const url = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
-  
+export const sendWhatsAppMessage = async (to: string, response: any) => {
   try {
-    console.log('Preparing WhatsApp message:', {
-      to,
-      type: messageData.type,
-      hasInteractive: !!messageData.interactive,
-      hasMessage: !!messageData.message,
-      messageData: JSON.stringify(messageData, null, 2)
-    });
+    console.log('Sending message to:', to);
+    const url = `https://graph.facebook.com/v17.0/${whatsappPhoneNumberId}/messages`;
     
-    const messageBody = {
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to,
-      type: messageData.type,
-      ...(messageData.type === 'interactive' 
-        ? { interactive: messageData.interactive }
-        : { text: { preview_url: false, body: messageData.message || 'No message content' } }
-      )
-    };
-
-    console.log('WhatsApp API request:', JSON.stringify(messageBody, null, 2));
-
-    const response = await fetch(url, {
+    // Prepare the message based on the response type
+    let message;
+    
+    if (response.type === 'text') {
+      message = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'text',
+        text: {
+          preview_url: false,
+          body: response.message
+        }
+      };
+    } else if (response.type === 'interactive' && response.interactive) {
+      message = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'interactive',
+        interactive: response.interactive
+      };
+    } else {
+      throw new Error('Unsupported message format');
+    }
+    
+    console.log('Sending WhatsApp message payload:', JSON.stringify(message, null, 2));
+    
+    const sendResponse = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${whatsappToken}`,
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(messageBody),
+      body: JSON.stringify(message)
     });
-
-    if (!response.ok) {
-      const responseData = await response.json();
-      console.error('WhatsApp API error response:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData
+    
+    if (!sendResponse.ok) {
+      const errorData = await sendResponse.text();
+      console.error('WhatsApp API error:', {
+        status: sendResponse.status,
+        statusText: sendResponse.statusText,
+        data: errorData
       });
-      throw new Error(`WhatsApp API error: ${response.status} - ${JSON.stringify(responseData)}`);
+      throw new Error(`WhatsApp API error: ${sendResponse.status} ${sendResponse.statusText}`);
     }
-
-    const responseData = await response.json();
-    console.log('WhatsApp API success response:', {
-      status: response.status,
-      data: responseData
-    });
-
+    
+    const responseData = await sendResponse.json();
+    console.log('Message sent successfully:', responseData);
     return responseData;
   } catch (error) {
-    console.error('WhatsApp message error:', {
-      error: error.message,
-      stack: error.stack,
-      to,
-      messageType: messageData.type
-    });
+    console.error('Error sending WhatsApp message:', error);
     throw error;
   }
-}
+};
