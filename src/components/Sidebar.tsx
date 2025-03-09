@@ -159,13 +159,6 @@ const Sidebar = ({
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
             <div className="space-y-6 my-2 mx-[5px] px-0">
               <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
-              
-              <div className="px-3">
-                <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex items-center w-full text-gray-400 hover:text-gray-700 text-xs">
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  <span className="font-normal px-[5px] text-gray-400">COLLAPSE MENU</span>
-                </button>
-              </div>
             </div>
           </div>
           
@@ -193,6 +186,14 @@ const Sidebar = ({
               >
                 <FilePlus className="h-4 w-4 flex-shrink-0" />
                 <span>ADD DOCUMENT</span>
+              </button>
+              
+              <button 
+                onClick={() => setIsCollapsed(!isCollapsed)} 
+                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 mt-2"
+              >
+                <ChevronLeft className="h-4 w-4 flex-shrink-0" />
+                <span>COLLAPSE MENU</span>
               </button>
             </div>
           </div>
