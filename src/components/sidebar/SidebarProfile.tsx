@@ -35,12 +35,18 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
       "py-4 flex items-center",
       isCollapsed ? "justify-center px-0" : "px-4 gap-3"
     )}>
-      <Avatar className={cn(
-        "w-10 h-10 flex-shrink-0 cursor-pointer"
-      )}>
-        <AvatarImage src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" alt="Warm Karoo Logo" />
-        <AvatarFallback className="bg-[#0A0F1D]">WK</AvatarFallback>
-      </Avatar>
+      <a 
+        href="https://www.warmkaroo.com" 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        <Avatar className={cn(
+          "w-10 h-10 flex-shrink-0 cursor-pointer"
+        )}>
+          <AvatarImage src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" alt="Warm Karoo Logo" />
+          <AvatarFallback className="bg-[#0A0F1D]">WK</AvatarFallback>
+        </Avatar>
+      </a>
       {!isCollapsed && (
         <div className="flex-1 overflow-hidden">
           {isLoading ? (
