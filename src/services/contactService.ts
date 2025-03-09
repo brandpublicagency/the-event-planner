@@ -3,29 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Contact, ContactUpdate } from "@/types/contact";
 
 export const updateContact = async (contact: Contact, updates: ContactUpdate): Promise<void> => {
-  // Based on the contact type, update the appropriate record
-  if (contact.contactType === 'corporate') {
+  // Based on the contact type, update the appropriate fields in the events table
+  if (contact.contactType === 'corporate' || contact.contactType === 'wedding-bride') {
+    // Primary contact (either corporate contact or bride)
     const { error } = await supabase
-      .from('corporate_details')
+      .from('events')
       .update({
-        contact_person: updates.name,
-        contact_email: updates.email,
-        contact_mobile: updates.phone,
-        company_name: updates.company,
-        company_address: updates.address,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
-  } 
-  else if (contact.contactType === 'wedding-bride') {
-    const { error } = await supabase
-      .from('wedding_details')
-      .update({
-        bride_name: updates.name,
-        bride_email: updates.email,
-        bride_mobile: updates.phone,
+        primary_name: updates.name,
+        primary_email: updates.email,
+        primary_phone: updates.phone,
+        company: updates.company,
+        address: updates.address,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);
@@ -33,12 +21,13 @@ export const updateContact = async (contact: Contact, updates: ContactUpdate): P
     if (error) throw new Error(error.message);
   } 
   else if (contact.contactType === 'wedding-groom') {
+    // Secondary contact (groom)
     const { error } = await supabase
-      .from('wedding_details')
+      .from('events')
       .update({
-        groom_name: updates.name,
-        groom_email: updates.email,
-        groom_mobile: updates.phone,
+        secondary_name: updates.name,
+        secondary_email: updates.email,
+        secondary_phone: updates.phone,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);
@@ -49,26 +38,14 @@ export const updateContact = async (contact: Contact, updates: ContactUpdate): P
 
 export const deleteContact = async (contact: Contact): Promise<void> => {
   // Based on the contact type, update the appropriate record to clear the contact
-  if (contact.contactType === 'corporate') {
+  if (contact.contactType === 'corporate' || contact.contactType === 'wedding-bride') {
+    // Primary contact (either corporate contact or bride)
     const { error } = await supabase
-      .from('corporate_details')
+      .from('events')
       .update({
-        contact_person: null,
-        contact_email: null,
-        contact_mobile: null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
-  } 
-  else if (contact.contactType === 'wedding-bride') {
-    const { error } = await supabase
-      .from('wedding_details')
-      .update({
-        bride_name: null,
-        bride_email: null,
-        bride_mobile: null,
+        primary_name: null,
+        primary_email: null,
+        primary_phone: null,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);
@@ -76,12 +53,13 @@ export const deleteContact = async (contact: Contact): Promise<void> => {
     if (error) throw new Error(error.message);
   } 
   else if (contact.contactType === 'wedding-groom') {
+    // Secondary contact (groom)
     const { error } = await supabase
-      .from('wedding_details')
+      .from('events')
       .update({
-        groom_name: null,
-        groom_email: null,
-        groom_mobile: null,
+        secondary_name: null,
+        secondary_email: null,
+        secondary_phone: null,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);

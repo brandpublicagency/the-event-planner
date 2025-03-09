@@ -11,105 +11,73 @@ export const useContactsQuery = () => {
     queryKey: ['contacts'],
     queryFn: async () => {
       try {
-        const { data: weddingContacts, error: weddingError } = await supabase
-          .from('wedding_details')
+        // Fetch all events with contact information
+        const { data: events, error: eventsError } = await supabase
+          .from('events')
           .select(`
-            *,
-            events!inner(
-              event_code,
-              name,
-              event_type,
-              event_date,
-              client_address,
-              event_venues(
-                venues(
-                  id,
-                  name
-                )
-              )
-            )
+            event_code,
+            name,
+            event_type,
+            event_date,
+            client_address,
+            primary_name,
+            primary_email,
+            primary_phone,
+            secondary_name,
+            secondary_email,
+            secondary_phone,
+            company,
+            address,
+            vat_number,
+            venues
           `)
+          .is('deleted_at', null)
           .order('updated_at', { ascending: false });
 
-        if (weddingError) throw weddingError;
-
-        const { data: corporateContacts, error: corporateError } = await supabase
-          .from('corporate_details')
-          .select(`
-            *,
-            events!inner(
-              event_code,
-              name,
-              event_type,
-              event_date,
-              client_address,
-              event_venues(
-                venues(
-                  id,
-                  name
-                )
-              )
-            )
-          `)
-          .order('updated_at', { ascending: false });
-
-        if (corporateError) throw corporateError;
-
-        const processedWeddingContacts: Contact[] = [];
-        weddingContacts?.forEach(weddingDetail => {
-          if (weddingDetail.bride_name) {
-            processedWeddingContacts.push({
-              id: `bride-${weddingDetail.event_code}`,
-              name: weddingDetail.bride_name,
-              email: weddingDetail.bride_email || '',
-              phone: weddingDetail.bride_mobile || '',
-              company: null,
-              address: weddingDetail.events.client_address || null,
-              contactType: 'wedding-bride',
-              eventCode: weddingDetail.event_code,
-              eventName: weddingDetail.events.name,
-              eventDate: weddingDetail.events.event_date,
-              venue: weddingDetail.events.event_venues?.[0]?.venues?.name || 'Not specified',
-              originalData: weddingDetail
+        if (eventsError) throw eventsError;
+        
+        const processedContacts: Contact[] = [];
+        
+        events?.forEach(event => {
+          // Add primary contact if it exists
+          if (event.primary_name) {
+            processedContacts.push({
+              id: `primary-${event.event_code}`,
+              name: event.primary_name,
+              email: event.primary_email || '',
+              phone: event.primary_phone || '',
+              company: event.company || null,
+              address: event.address || event.client_address || null,
+              contactType: event.event_type === 'Wedding' ? 'wedding-bride' : 'corporate',
+              eventCode: event.event_code,
+              eventName: event.name,
+              eventDate: event.event_date,
+              venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
+              originalData: event
             });
           }
 
-          if (weddingDetail.groom_name) {
-            processedWeddingContacts.push({
-              id: `groom-${weddingDetail.event_code}`,
-              name: weddingDetail.groom_name,
-              email: weddingDetail.groom_email || '',
-              phone: weddingDetail.groom_mobile || '',
-              company: null,
-              address: weddingDetail.events.client_address || null,
-              contactType: 'wedding-groom',
-              eventCode: weddingDetail.event_code,
-              eventName: weddingDetail.events.name,
-              eventDate: weddingDetail.events.event_date,
-              venue: weddingDetail.events.event_venues?.[0]?.venues?.name || 'Not specified',
-              originalData: weddingDetail
+          // Add secondary contact if it exists (usually for wedding events)
+          if (event.secondary_name) {
+            processedContacts.push({
+              id: `secondary-${event.event_code}`,
+              name: event.secondary_name,
+              email: event.secondary_email || '',
+              phone: event.secondary_phone || '',
+              company: event.company || null,
+              address: event.address || event.client_address || null,
+              contactType: 'wedding-groom', // Assuming secondary is always the groom in weddings
+              eventCode: event.event_code,
+              eventName: event.name,
+              eventDate: event.event_date,
+              venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
+              originalData: event
             });
           }
         });
 
-        const processedCorporateContacts: Contact[] = corporateContacts?.map(corporateDetail => ({
-          id: `corporate-${corporateDetail.event_code}`,
-          name: corporateDetail.contact_person || 'Not specified',
-          email: corporateDetail.contact_email || '',
-          phone: corporateDetail.contact_mobile || '',
-          company: corporateDetail.company_name || 'Not specified',
-          address: corporateDetail.company_address || corporateDetail.events.client_address || null,
-          contactType: 'corporate',
-          eventCode: corporateDetail.event_code,
-          eventName: corporateDetail.events.name,
-          eventDate: corporateDetail.events.event_date,
-          venue: corporateDetail.events.event_venues?.[0]?.venues?.name || 'Not specified',
-          originalData: corporateDetail
-        })) || [];
-
-        const allContacts = [...processedWeddingContacts, ...processedCorporateContacts];
-        
-        return allContacts.sort((a, b) => {
+        // Sort by date (newest first)
+        return processedContacts.sort((a, b) => {
           if (!a.eventDate && !b.eventDate) return 0;
           if (!a.eventDate) return 1;
           if (!b.eventDate) return -1;

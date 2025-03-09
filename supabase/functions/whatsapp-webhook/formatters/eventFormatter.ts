@@ -1,3 +1,4 @@
+
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 
 interface Event {
@@ -8,11 +9,16 @@ interface Event {
   pax?: number;
   start_time?: string;
   end_time?: string;
-  event_venues?: Array<{
-    venues?: {
-      name?: string;
-    };
-  }>;
+  venues?: string[];
+  primary_name?: string;
+  primary_email?: string;
+  primary_phone?: string;
+  secondary_name?: string;
+  secondary_email?: string;
+  secondary_phone?: string;
+  company?: string;
+  address?: string;
+  client_address?: string;
   menu_selections?: {
     is_custom: boolean;
     starter_type?: string;
@@ -27,15 +33,46 @@ export const formatEventDetails = (event: Event): string => {
   const time = event.start_time 
     ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}`
     : 'Time TBC';
-  const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
+  const venue = event.venues && event.venues.length > 0 
+    ? event.venues.join(', ') 
+    : 'Venue TBC';
 
-  return `${event.name}
+  let eventDetails = `${event.name}
 Type: ${event.event_type}
 Date: ${date}
 Time: ${time}
 Venue: ${venue}
 Guests: ${event.pax || 'TBC'}
 Event Code: ${event.event_code}`;
+
+  // Add contact information based on event type
+  if (event.event_type === 'Wedding') {
+    if (event.primary_name) {
+      eventDetails += `\nBride: ${event.primary_name}`;
+      if (event.primary_phone) eventDetails += ` (${event.primary_phone})`;
+    }
+    
+    if (event.secondary_name) {
+      eventDetails += `\nGroom: ${event.secondary_name}`;
+      if (event.secondary_phone) eventDetails += ` (${event.secondary_phone})`;
+    }
+  } else {
+    if (event.company) {
+      eventDetails += `\nCompany: ${event.company}`;
+    }
+    
+    if (event.primary_name) {
+      eventDetails += `\nContact: ${event.primary_name}`;
+      if (event.primary_phone) eventDetails += ` (${event.primary_phone})`;
+    }
+  }
+  
+  // Add address if available
+  if (event.address || event.client_address) {
+    eventDetails += `\nAddress: ${event.address || event.client_address}`;
+  }
+
+  return eventDetails;
 };
 
 export const formatEventMenu = (event: Event): string => {

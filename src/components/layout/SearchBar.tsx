@@ -43,32 +43,35 @@ export const SearchBar = () => {
           
         if (eventsError) throw eventsError;
         
-        // Fetch contacts (from wedding and corporate details)
-        const { data: weddingContacts, error: weddingError } = await supabase
-          .from('wedding_details')
-          .select(`
-            event_code,
-            bride_name,
-            groom_name,
-            events!inner(name)
-          `)
-          .or(`bride_name.ilike.%${searchQuery}%,groom_name.ilike.%${searchQuery}%`)
+        // Fetch contacts by primary name (bride or corporate contact)
+        const { data: primaryContacts, error: primaryError } = await supabase
+          .from('events')
+          .select('event_code, name, primary_name')
+          .ilike('primary_name', `%${searchQuery}%`)
+          .is('deleted_at', null)
           .limit(3);
           
-        if (weddingError) throw weddingError;
+        if (primaryError) throw primaryError;
         
-        const { data: corporateContacts, error: corporateError } = await supabase
-          .from('corporate_details')
-          .select(`
-            event_code,
-            contact_person,
-            company_name,
-            events!inner(name)
-          `)
-          .or(`contact_person.ilike.%${searchQuery}%,company_name.ilike.%${searchQuery}%`)
+        // Fetch contacts by secondary name (groom)
+        const { data: secondaryContacts, error: secondaryError } = await supabase
+          .from('events')
+          .select('event_code, name, secondary_name')
+          .ilike('secondary_name', `%${searchQuery}%`)
+          .is('deleted_at', null)
           .limit(3);
           
-        if (corporateError) throw corporateError;
+        if (secondaryError) throw secondaryError;
+        
+        // Fetch contacts by company name
+        const { data: companyContacts, error: companyError } = await supabase
+          .from('events')
+          .select('event_code, name, company')
+          .ilike('company', `%${searchQuery}%`)
+          .is('deleted_at', null)
+          .limit(3);
+          
+        if (companyError) throw companyError;
         
         // Fetch documents
         const { data: documents, error: documentsError } = await supabase
@@ -97,35 +100,23 @@ export const SearchBar = () => {
           type: 'event' as const
         })) || [];
         
-        const formattedWeddingContacts = weddingContacts?.flatMap(contact => {
-          const results: SearchResult[] = [];
-          
-          if (contact.bride_name && contact.bride_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-            results.push({
-              id: `bride-${contact.event_code}`,
-              title: `${contact.bride_name} (${contact.events.name})`,
-              path: `/contacts`,
-              type: 'contact'
-            });
-          }
-          
-          if (contact.groom_name && contact.groom_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-            results.push({
-              id: `groom-${contact.event_code}`,
-              title: `${contact.groom_name} (${contact.events.name})`,
-              path: `/contacts`,
-              type: 'contact'
-            });
-          }
-          
-          return results;
-        }) || [];
+        const formattedPrimaryContacts = primaryContacts?.map(contact => ({
+          id: `primary-${contact.event_code}`,
+          title: `${contact.primary_name} (${contact.name})`,
+          path: `/contacts`,
+          type: 'contact' as const
+        })) || [];
         
-        const formattedCorporateContacts = corporateContacts?.map(contact => ({
-          id: `corporate-${contact.event_code}`,
-          title: contact.company_name 
-            ? `${contact.contact_person} - ${contact.company_name}`
-            : contact.contact_person,
+        const formattedSecondaryContacts = secondaryContacts?.map(contact => ({
+          id: `secondary-${contact.event_code}`,
+          title: `${contact.secondary_name} (${contact.name})`,
+          path: `/contacts`,
+          type: 'contact' as const
+        })) || [];
+        
+        const formattedCompanyContacts = companyContacts?.map(contact => ({
+          id: `company-${contact.event_code}`,
+          title: `${contact.company} (${contact.name})`,
           path: `/contacts`,
           type: 'contact' as const
         })) || [];
@@ -147,8 +138,9 @@ export const SearchBar = () => {
         // Combine all results
         const combinedResults = [
           ...formattedEvents, 
-          ...formattedWeddingContacts,
-          ...formattedCorporateContacts, 
+          ...formattedPrimaryContacts,
+          ...formattedSecondaryContacts,
+          ...formattedCompanyContacts,
           ...formattedDocuments, 
           ...formattedTasks
         ];

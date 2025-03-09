@@ -14,7 +14,7 @@ interface EventUpdateData {
   venues?: string[];
   completed?: boolean;
   
-  // New unified contact fields
+  // Contact fields
   primary_name?: string;
   primary_phone?: string;
   primary_email?: string;
@@ -110,7 +110,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         client_address: data.client_address || null,
         venues: data.venues || null,
         completed: data.completed !== undefined ? data.completed : undefined,
-        // New contact fields
+        // Contact fields
         primary_name: data.primary_name || null,
         primary_phone: data.primary_phone || null,
         primary_email: data.primary_email || null,
@@ -128,42 +128,12 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       throw eventError;
     }
 
-    // For backward compatibility, also update the related tables if needed
-    if (data.event_type === 'Wedding') {
-      const { error: weddingError } = await supabase
-        .from('wedding_details')
-        .upsert({
-          event_code: eventCode,
-          bride_name: data.bride_name || data.primary_name || null,
-          bride_email: data.bride_email || data.primary_email || null,
-          bride_mobile: data.bride_mobile || data.primary_phone || null,
-          groom_name: data.groom_name || data.secondary_name || null,
-          groom_email: data.groom_email || data.secondary_email || null,
-          groom_mobile: data.groom_mobile || data.secondary_phone || null,
-        });
-
-      if (weddingError) throw weddingError;
-    } else if (data.event_type === 'Corporate Event' || data.event_type === 'Other') {
-      const { error: corporateError } = await supabase
-        .from('corporate_details')
-        .upsert({
-          event_code: eventCode,
-          company_name: data.company_name || data.company || null,
-          contact_person: data.contact_person || data.primary_name || null,
-          contact_email: data.contact_email || data.primary_email || null,
-          contact_mobile: data.contact_mobile || data.primary_phone || null,
-          company_vat: data.company_vat || data.vat_number || null,
-          company_address: data.company_address || data.address || null,
-        });
-
-      if (corporateError) throw corporateError;
-    }
-
     // Invalidate queries
     await queryClient.invalidateQueries({ queryKey: ['events'] });
     await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
     await queryClient.invalidateQueries({ queryKey: ['passed-events'] });
     await queryClient.invalidateQueries({ queryKey: ['events', eventCode] });
+    await queryClient.invalidateQueries({ queryKey: ['contacts'] });
 
     return { success: true };
   } catch (error: any) {

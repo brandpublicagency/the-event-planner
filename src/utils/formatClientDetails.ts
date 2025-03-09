@@ -1,19 +1,24 @@
+
 import type { Event } from "@/types/event";
 
-export const formatClientDetails = (event: Event) => {
-  if (event.wedding_details) {
-    return `Bride: ${event.wedding_details.bride_name || 'Not specified'}
-Bride Contact: ${event.wedding_details.bride_email || 'Not specified'} / ${event.wedding_details.bride_mobile || 'Not specified'}
-Groom: ${event.wedding_details.groom_name || 'Not specified'}
-Groom Contact: ${event.wedding_details.groom_email || 'Not specified'} / ${event.wedding_details.groom_mobile || 'Not specified'}`;
+export const formatClientDetails = (event: Event): string => {
+  if (event.event_type === 'Wedding') {
+    // For wedding events, show bride and groom details
+    let details = `${event.primary_name || 'Bride not specified'}`;
+    if (event.primary_email) details += ` (${event.primary_email})`;
+    if (event.primary_phone) details += ` - ${event.primary_phone}`;
+    details += ` & ${event.secondary_name || 'Groom not specified'}`;
+    if (event.secondary_email) details += ` (${event.secondary_email})`;
+    
+    return details;
+  } else {
+    // For corporate or other events
+    let details = `${event.company || 'Company not specified'}`;
+    if (event.primary_name) details += ` - ${event.primary_name}`;
+    if (event.primary_email) details += ` (${event.primary_email})`;
+    if (event.primary_phone) details += ` - ${event.primary_phone}`;
+    if (event.vat_number) details += ` - VAT: ${event.vat_number}`;
+    
+    return details;
   }
-  
-  if (event.corporate_details) {
-    return `Company: ${event.corporate_details.company_name || 'Not specified'}
-Contact Person: ${event.corporate_details.contact_person || 'Not specified'}
-Contact: ${event.corporate_details.contact_email || 'Not specified'} / ${event.corporate_details.contact_mobile || 'Not specified'}
-VAT: ${event.corporate_details.company_vat || 'Not specified'}`;
-  }
-
-  return 'No client details available';
 };

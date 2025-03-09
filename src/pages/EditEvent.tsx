@@ -25,11 +25,7 @@ const EditEvent = () => {
       
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          wedding_details (*),
-          corporate_details (*)
-        `)
+        .select('*')
         .eq('event_code', id)
         .single();
 
@@ -69,32 +65,31 @@ const EditEvent = () => {
         client_address: event.client_address || '',
         venues: venues,
         
-        // Use new fields if available, otherwise fall back to the legacy data
-        primary_name: event.primary_name || event.wedding_details?.bride_name || event.corporate_details?.contact_person || '',
-        primary_email: event.primary_email || event.wedding_details?.bride_email || event.corporate_details?.contact_email || '',
-        primary_phone: event.primary_phone || event.wedding_details?.bride_mobile || event.corporate_details?.contact_mobile || '',
-        secondary_name: event.secondary_name || event.wedding_details?.groom_name || '',
-        secondary_email: event.secondary_email || event.wedding_details?.groom_email || '',
-        secondary_phone: event.secondary_phone || event.wedding_details?.groom_mobile || '',
-        address: event.address || event.client_address || event.corporate_details?.company_address || '',
-        company: event.company || event.corporate_details?.company_name || '',
-        vat_number: event.vat_number || event.corporate_details?.company_vat || '',
+        // All contact fields
+        primary_name: event.primary_name || '',
+        primary_email: event.primary_email || '',
+        primary_phone: event.primary_phone || '',
+        secondary_name: event.secondary_name || '',
+        secondary_email: event.secondary_email || '',
+        secondary_phone: event.secondary_phone || '',
+        address: event.address || event.client_address || '',
+        company: event.company || '',
+        vat_number: event.vat_number || '',
         
         // Legacy fields (for backward compatibility)
-        // Wedding details
-        bride_name: event.wedding_details?.bride_name || '',
-        bride_email: event.wedding_details?.bride_email || '',
-        bride_mobile: event.wedding_details?.bride_mobile || '',
-        groom_name: event.wedding_details?.groom_name || '',
-        groom_email: event.wedding_details?.groom_email || '',
-        groom_mobile: event.wedding_details?.groom_mobile || '',
-        // Corporate details
-        company_name: event.corporate_details?.company_name || '',
-        contact_person: event.corporate_details?.contact_person || '',
-        contact_email: event.corporate_details?.contact_email || '',
-        contact_mobile: event.corporate_details?.contact_mobile || '',
-        company_vat: event.corporate_details?.company_vat || '',
-        company_address: event.corporate_details?.company_address || '',
+        // These fields can be set to empty strings as they're no longer used
+        bride_name: '',
+        bride_email: '',
+        bride_mobile: '',
+        groom_name: '',
+        groom_email: '',
+        groom_mobile: '',
+        company_name: '',
+        contact_person: '',
+        contact_email: '',
+        contact_mobile: '',
+        company_vat: '',
+        company_address: '',
       });
     }
   }, [event, form]);
