@@ -12,7 +12,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
       <h3 className="text-sm font-medium uppercase tracking-wide mb-3">EVENTS BOOKED</h3>
       <div className="flex flex-col gap-1">
         <Link 
-          to={`/passed-events?event=${contact.eventCode}`}
+          to={`/events/${contact.eventCode}`}
           className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
         >
           {contact.company || contact.name} {contact.originalData?.event_type || 'Event'}
