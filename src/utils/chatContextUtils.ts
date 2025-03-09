@@ -1,4 +1,3 @@
-
 import { Event } from "@/types/event";
 import { Task } from "@/contexts/task/taskTypes";
 
@@ -39,7 +38,7 @@ export function formatEventForContext(event: Event) {
 
   // Add address
   const addressInfo = {
-    address: event.address || event.client_address,
+    address: event.address,
   };
 
   return {
@@ -49,7 +48,6 @@ export function formatEventForContext(event: Event) {
   };
 }
 
-// Add the missing functions
 export function prepareEventsContext(events: Event[]) {
   if (!events || events.length === 0) {
     return "No events found.";

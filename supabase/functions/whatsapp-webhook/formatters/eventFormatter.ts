@@ -18,7 +18,6 @@ interface Event {
   secondary_phone?: string;
   company?: string;
   address?: string;
-  client_address?: string;
   menu_selections?: {
     is_custom: boolean;
     starter_type?: string;
@@ -68,8 +67,8 @@ Event Code: ${event.event_code}`;
   }
   
   // Add address if available
-  if (event.address || event.client_address) {
-    eventDetails += `\nAddress: ${event.address || event.client_address}`;
+  if (event.address) {
+    eventDetails += `\nAddress: ${event.address}`;
   }
 
   return eventDetails;
