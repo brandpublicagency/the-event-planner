@@ -6,10 +6,10 @@ import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
-import { Spinner } from "../ui/spinner"; 
+import { Spinner } from "@/components/ui/spinner"; 
 import EventBasicInfo from "../forms/EventBasicInfo";
-import EventTypeSelect from "../forms/EventTypeSelect";
-import EventDateSelect from "../forms/EventDateSelect";
+import { EventTypeSelect } from "../forms/EventTypeSelect";
+import { EventDateSelect } from "../forms/EventDateSelect";
 import { VenueSelect } from "../forms/VenueSelect";
 import ContactDetails from "../forms/ContactDetails";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,9 @@ interface PublicEventFormValues {
   end_time?: string;
   pax?: number;
   venues?: string[];
+  primary_name: string;
+  primary_email: string;
+  primary_phone: string;
   [key: string]: any; // Allow for additional fields
 }
 
@@ -108,7 +111,7 @@ export default function PublicEventForm() {
         <EventTypeSelect form={form} />
         <EventDateSelect form={form} />
         <VenueSelect form={form} />
-        <ContactDetails form={form} />
+        <ContactDetails form={form} eventType={form.watch("event_type")} />
 
         <div className="pt-4">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
