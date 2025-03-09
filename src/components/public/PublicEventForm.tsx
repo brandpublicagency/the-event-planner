@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { publicEventFormSchema, PublicEventFormSchema } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -12,6 +12,10 @@ import ContactDetails from "@/components/forms/ContactDetails";
 import FormSection from "@/components/forms/FormSection";
 import { createEvent } from "@/utils/eventUtils";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+
+// Define the type directly from the schema to avoid circular references
+type FormValues = z.infer<typeof publicEventFormSchema>;
 
 const PublicEventForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,8 +23,8 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Configure form with explicit typing to avoid deep instantiation issues
-  const form = useForm<PublicEventFormSchema>({
+  // Use direct z.infer type instead of imported type to avoid deep instantiation
+  const form = useForm<FormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: "Wedding",
@@ -40,7 +44,7 @@ const PublicEventForm = () => {
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
-  const onSubmit = async (data: PublicEventFormSchema) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     setErrorMessage(null);
     
