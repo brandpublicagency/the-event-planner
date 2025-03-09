@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -119,7 +120,7 @@ const EventDetails = () => {
             <EventHeader eventCode={event.event_code} onPrint={handlePrint} isCustomMenu={isCustomMenu} onCustomMenuToggle={setIsCustomMenu} />
           </div>
           
-          <div className="print-container bg-white rounded-lg border border-zinc-100">
+          <div className="print-container bg-white rounded-lg border border-zinc-100 p-5">
             <div className="print-header">
               <h1 className="hidden print:block text-2xl font-semibold mb-2">Menu Selection</h1>
               {event.name && <h2 className="hidden print:block text-xl text-zinc-500">{event.name}</h2>}
@@ -129,7 +130,7 @@ const EventDetails = () => {
               <EventInfo event={event} formattedDate={formattedDate} formattedTime={formattedTime} venueNames={venueNames} />
             </div>
             
-            <div className="pb-8 px-[25px]">
+            <div className="pb-8">
               <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} isCustomMenu={isCustomMenu} onCustomMenuToggle={setIsCustomMenu} />
             </div>
           </div>

@@ -63,4 +63,30 @@
     -webkit-print-color-adjust: exact !important;
     appearance: none !important;
   }
+
+  /* Fix layout for print */
+  .print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Improve print readability */
+  .print-container h3, 
+  .print-container h4 {
+    color: black !important;
+    font-weight: bold !important;
+  }
+  
+  .print-container .text-zinc-500,
+  .print-container .text-zinc-600,
+  .print-container .text-zinc-700,
+  .print-container .text-muted-foreground {
+    color: #333 !important;
+  }
+  
+  /* Ensure backgrounds are printed */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
