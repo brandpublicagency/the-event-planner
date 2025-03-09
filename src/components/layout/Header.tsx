@@ -76,7 +76,7 @@ export const Header = ({
           )}
         </div>
 
-        {/* Directly render children without the wrapping div */}
+        {/* Children content */}
         {children}
 
         <div className="ml-auto flex items-center gap-4">
