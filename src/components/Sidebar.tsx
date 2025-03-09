@@ -6,21 +6,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
-
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
-
 const Sidebar = ({
   className,
   isCollapsed,
   setIsCollapsed
 }: SidebarProps) => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
@@ -41,59 +40,52 @@ const Sidebar = ({
         return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
     }
   };
-
-  const { data: taskCount = 0 } = useQuery({
+  const {
+    data: taskCount = 0
+  } = useQuery({
     queryKey: ['taskCount'],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from('tasks')
-        .select('*', { count: 'exact', head: true })
-        .eq('completed', false);
-      
+      const {
+        count,
+        error
+      } = await supabase.from('tasks').select('*', {
+        count: 'exact',
+        head: true
+      }).eq('completed', false);
       if (error) throw error;
       return count || 0;
     }
   });
-
-  const mainNavItems = [
-    {
-      icon: LayoutGrid,
-      path: "/",
-      label: "Dashboard"
-    },
-    {
-      icon: FileText,
-      path: "/events",
-      label: "Events"
-    },
-    {
-      icon: Archive,
-      path: "/passed-events",
-      label: "Passed Events"
-    },
-    {
-      icon: Wallet,
-      path: "/calendar",
-      label: "Calendar"
-    },
-    {
-      icon: ListTodo,
-      path: "/tasks",
-      label: "To-do list",
-      badge: taskCount > 0 ? taskCount : undefined
-    },
-    {
-      icon: Users,
-      path: "/contacts",
-      label: "Contacts"
-    },
-    {
-      icon: FileText,
-      path: "/documents",
-      label: "Documents"
-    }
-  ];
-
+  const mainNavItems = [{
+    icon: LayoutGrid,
+    path: "/",
+    label: "Dashboard"
+  }, {
+    icon: FileText,
+    path: "/events",
+    label: "Events"
+  }, {
+    icon: Archive,
+    path: "/passed-events",
+    label: "Passed Events"
+  }, {
+    icon: Wallet,
+    path: "/calendar",
+    label: "Calendar"
+  }, {
+    icon: ListTodo,
+    path: "/tasks",
+    label: "To-do list",
+    badge: taskCount > 0 ? taskCount : undefined
+  }, {
+    icon: Users,
+    path: "/contacts",
+    label: "Contacts"
+  }, {
+    icon: FileText,
+    path: "/documents",
+    label: "Documents"
+  }];
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
       if (location.search.includes('newDocument=true')) {
@@ -107,17 +99,8 @@ const Sidebar = ({
       navigate('/documents?newDocument=true');
     }
   };
-
-  return (
-    <div className={cn(
-      "relative h-full transition-all duration-300 ease-in-out will-change-[width]", 
-      isCollapsed ? "w-[70px]" : "w-64", 
-      !isCollapsed && getGradientByPath(), 
-      isCollapsed && "bg-[#1A1F2C]", 
-      className
-    )}>
-      {isCollapsed ? (
-        <div className="flex flex-col h-full">
+  return <div className={cn("relative h-full transition-all duration-300 ease-in-out will-change-[width]", isCollapsed ? "w-[70px]" : "w-64", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
+      {isCollapsed ? <div className="flex flex-col h-full">
           <div className="py-4">
             <SidebarProfile isCollapsed={isCollapsed} />
           </div>
@@ -127,37 +110,23 @@ const Sidebar = ({
           </div>
           
           <div className="py-4 flex flex-col items-center gap-4">
-            <button 
-              onClick={() => navigate('/events/new')} 
-              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200"
-            >
+            <button onClick={() => navigate('/events/new')} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <Plus className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button 
-              onClick={() => navigate('/tasks?newTask=true')} 
-              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200"
-            >
+            <button onClick={() => navigate('/tasks?newTask=true')} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <CheckSquare className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button 
-              onClick={handleAddDocument} 
-              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200"
-            >
+            <button onClick={handleAddDocument} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <FilePlus className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button 
-              onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md mt-4 transition-colors duration-200"
-            >
+            <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md mt-4 transition-colors duration-200">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col h-full">
+        </div> : <div className="flex flex-col h-full">
           <SidebarProfile isCollapsed={isCollapsed} />
           
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
@@ -168,43 +137,28 @@ const Sidebar = ({
           
           <div className="mt-auto px-3 pb-3">
             <div className="flex flex-col gap-2.5">
-              <button 
-                onClick={() => navigate('/events/new')} 
-                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200"
-              >
+              <button onClick={() => navigate('/events/new')} className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200">
                 <Plus className="h-4 w-4 flex-shrink-0" />
                 <span>ADD EVENT</span>
               </button>
               
-              <button 
-                onClick={() => navigate('/tasks?newTask=true')} 
-                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200"
-              >
+              <button onClick={() => navigate('/tasks?newTask=true')} className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200">
                 <CheckSquare className="h-4 w-4 flex-shrink-0" />
                 <span>ADD TASK</span>
               </button>
               
-              <button 
-                onClick={handleAddDocument} 
-                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200"
-              >
+              <button onClick={handleAddDocument} className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 transition-colors duration-200">
                 <FilePlus className="h-4 w-4 flex-shrink-0" />
                 <span>ADD DOCUMENT</span>
               </button>
               
-              <button 
-                onClick={() => setIsCollapsed(!isCollapsed)} 
-                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2 mt-2 transition-colors duration-200"
-              >
+              <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex items-center text-sm h-9 px-2 rounded-md gap-2 mt-2 transition-colors duration-200 text-zinc-400">
                 <ChevronLeft className="h-4 w-4 flex-shrink-0" />
                 <span className="font-medium text-xs">COLLAPSE MENU</span>
               </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default Sidebar;
