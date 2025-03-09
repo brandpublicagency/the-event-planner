@@ -21,9 +21,11 @@ const Index = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const { tasks, isLoading: isTasksLoading } = useTaskContext();
 
+  // Modified to match the Events page query logic
   const { data: events = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
+      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -31,8 +33,9 @@ const Index = () => {
         const { data, error } = await supabase
           .from('events')
           .select(`*`)
-          .gte('event_date', today.toISOString().split('T')[0])
           .eq('completed', false)
+          .is('deleted_at', null)
+          .gt('event_date', today.toISOString().split('T')[0]) // Changed from gte to gt to exclude today's events that have already passed
           .order('event_date', { ascending: true });
 
         if (error) {
