@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema, PublicEventFormSchema } from "@/schemas/publicEventFormSchema";
 import type { EventFormData } from "@/types/eventForm";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,11 +20,12 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  const form = useForm<EventFormData>({
+  // Use the PublicEventFormSchema type from our schema to define the form shape
+  const form = useForm<PublicEventFormSchema>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
-      event_type: 'Wedding' as const,
-      venues: [] as string[]
+      event_type: "Wedding",
+      venues: []
     }
   });
 
@@ -35,7 +37,7 @@ const PublicEventForm = () => {
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
-  const onSubmit = async (data: EventFormData) => {
+  const onSubmit = async (data: PublicEventFormSchema) => {
     setIsSubmitting(true);
     setErrorMessage(null);
     
