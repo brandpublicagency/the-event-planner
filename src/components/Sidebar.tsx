@@ -93,10 +93,15 @@ const Sidebar = ({
   }];
 
   const handleAddDocument = () => {
-    if (location.pathname === '/documents' && location.search.includes('newDocument=true')) {
-      return;
+    if (location.pathname === '/documents') {
+      if (location.search.includes('newDocument=true')) {
+        console.log('Already on documents page with newDocument=true parameter');
+        return;
+      }
+      navigate('/documents?newDocument=true', { replace: true });
+    } else {
+      navigate('/documents?newDocument=true');
     }
-    navigate('/documents?newDocument=true');
   };
 
   return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>

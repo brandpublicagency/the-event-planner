@@ -62,6 +62,20 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     }
   }, [documents, selectedDocId]);
 
+  // Reset documentCreated state when navigating away from the documents page
+  useEffect(() => {
+    return () => {
+      setDocumentCreated(false);
+    };
+  }, []);
+
+  // Set documentCreated flag to false when autoCreateDocument changes to false
+  useEffect(() => {
+    if (!autoCreateDocument) {
+      setDocumentCreated(false);
+    }
+  }, [autoCreateDocument]);
+
   const createDocument = useMutation({
     mutationFn: async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -157,7 +171,10 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
         />
 
         <div className="flex-1 h-full overflow-auto bg-gray-50">
-          <DocumentEditor documentId={selectedDocId} />
+          <DocumentEditor 
+            documentId={selectedDocId} 
+            key={selectedDocId} // Add key to force re-mounting when selectedDocId changes
+          />
         </div>
       </div>
     </div>
