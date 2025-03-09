@@ -47,7 +47,7 @@ export const useChatContext = () => {
       // Fetch all documents metadata
       const { data: documents, error: docsError } = await supabase
         .from('documents')
-        .select('*, document_categories(*)')
+        .select('*')
         .is('deleted_at', null)
         .order('updated_at', { ascending: false });
 
@@ -80,7 +80,7 @@ export const useChatContext = () => {
         console.warn('PDF content not available:', error);
       }
 
-      // Enrich events with related data if needed
+      // Enrich events with related data (menu selections and tasks)
       const enrichedEvents = events?.map(event => {
         // Find related menu selection for this event
         const eventMenuSelection = menuSelections?.find(ms => 
