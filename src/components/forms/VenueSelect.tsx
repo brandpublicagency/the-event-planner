@@ -2,7 +2,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EventFormData } from "@/types/eventForm";
 import { useEffect } from "react";
 
 // These values MUST match exactly what's expected in the database trigger
@@ -16,7 +15,7 @@ const VENUE_OPTIONS = [
 ];
 
 interface VenueSelectProps {
-  form: UseFormReturn<EventFormData>;
+  form: UseFormReturn<any>;
 }
 
 export const VenueSelect = ({ form }: VenueSelectProps) => {

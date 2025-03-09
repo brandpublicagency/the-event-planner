@@ -2,11 +2,10 @@
 import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { EventFormData } from "@/types/eventForm";
 
 interface ContactDetailsProps {
-  form: UseFormReturn<EventFormData>;
-  eventType: EventFormData['event_type'];
+  form: UseFormReturn<any>;
+  eventType: string;
 }
 
 const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {

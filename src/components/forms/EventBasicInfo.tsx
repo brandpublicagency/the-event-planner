@@ -6,7 +6,6 @@ import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
-import { type PublicEventFormValues } from "@/schemas/publicEventFormSchema";
 
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];
@@ -21,7 +20,7 @@ const startTimeOptions = generateTimeOptions(6, 20);
 const endTimeOptions = generateTimeOptions(9, 23);
 
 interface EventBasicInfoProps {
-  form: UseFormReturn<PublicEventFormValues>;
+  form: UseFormReturn<any>;
 }
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
