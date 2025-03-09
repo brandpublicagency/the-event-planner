@@ -6,7 +6,6 @@ import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
-import { PublicEventFormValues } from "@/schemas/publicEventFormSchema";
 
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];

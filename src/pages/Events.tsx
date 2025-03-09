@@ -17,6 +17,7 @@ export default function Events() {
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
+      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -24,6 +25,7 @@ export default function Events() {
         .from('events')
         .select(`*`)
         .eq('completed', false)
+        .is('deleted_at', null)
         .gte('event_date', today.toISOString().split('T')[0])
         .order('event_date', { ascending: true });
 
@@ -40,8 +42,8 @@ export default function Events() {
       console.log('Fetched events:', data);
       return data || [];
     },
-    refetchOnWindowFocus: true, // This will refetch data when window gets focus
-    refetchOnMount: true, // This will refetch when component mounts
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     retry: 1,
   });
 

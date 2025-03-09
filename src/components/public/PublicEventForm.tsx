@@ -29,7 +29,7 @@ const PublicEventForm = () => {
       primary_name: "",
       primary_phone: "",
       primary_email: "",
-      // Explicitly set optional fields to proper values
+      // Explicitly set optional fields
       description: undefined,
       start_time: null,
       end_time: null,
@@ -137,7 +137,7 @@ const PublicEventForm = () => {
             description="Tell us about your event"
           >
             <EventBasicInfo 
-              form={form}
+              form={form as any}
             />
           </FormSection>
 
@@ -146,7 +146,7 @@ const PublicEventForm = () => {
             description={`Enter ${eventType === "Wedding" ? "bride and groom" : "contact"} information`}
           >
             <ContactDetails 
-              form={form}
+              form={form as any}
               eventType={eventType} 
             />
           </FormSection>

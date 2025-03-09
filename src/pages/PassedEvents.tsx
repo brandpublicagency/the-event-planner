@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/events/EventsTable";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,8 @@ const PassedEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
-        .or(`completed.eq.true,and(event_date.lt.${today.toISOString().split('T')[0]},completed.eq.false)`)
+        .is('deleted_at', null)
+        .or(`completed.eq.true,event_date.lt.${today.toISOString().split('T')[0]}`)
         .order('event_date', { ascending: false });
 
       if (error) {
