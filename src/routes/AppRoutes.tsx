@@ -1,77 +1,198 @@
 
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-  createRoutesFromElements,
-  Routes,
-  BrowserRouter,
-  Navigate,
-  Outlet
-} from "react-router-dom"
-import Login from "@/pages/Login"
-import Events from "@/pages/Events";
-import NewEvent from "@/pages/NewEvent";
-import EventDetails from "@/pages/EventDetails";
-import Documents from "@/pages/Documents";
-import BookingForm from "@/pages/BookingForm";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { RootLayout } from "@/layouts/RootLayout";
+import Index from "@/pages/Index";
+import Events from "@/pages/Events";
+import PassedEvents from "@/pages/PassedEvents";
+import Calendar from "@/pages/Calendar";
+import NewEvent from "@/pages/NewEvent";
+import EditEvent from "@/pages/EditEvent";
+import EventDetails from "@/pages/EventDetails";
+import Tasks from "@/pages/Tasks";
+import TaskDetails from "@/pages/TaskDetails";
+import Login from "@/pages/Login";
+import Documents from "@/pages/Documents";
+import Contacts from "@/pages/Contacts";
+import ProfileSettings from "@/pages/ProfileSettings";
 
-const AppRoutes = () => {
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setIsLoading(false);
+      setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setIsLoading(false);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // If the session is still loading, render a loading indicator
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  // Define a simple component for the protected route using Outlet instead
-  const ProtectedRoute = () => {
-    if (!session && !isLoading) {
-      // Redirect to the login page if not authenticated
-      return <Navigate to="/login" replace />;
-    }
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
 
-    return <Outlet />;
-  };
+  return children;
+};
+
+export const AppRoutes = () => {
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <Routes>
-      {/* Public routes that don't require authentication */}
-      <Route path="/booking" element={<BookingForm />} />
-      <Route path="/login" element={<Login />} />
-      
-      {/* Protected routes requiring authentication */}
-      <Route path="/" element={<ProtectedRoute />}>
-        <Route path="/" element={<Events />} /> {/* Using Events as home page for now */}
-        <Route path="/events" element={<Events />} />
-        <Route path="/events/new" element={<NewEvent />} />
-        <Route path="/events/:eventCode" element={<EventDetails />} />
-        <Route path="/documents" element={<Documents />} />
-      </Route>
+      <Route
+        path="/login"
+        element={session ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Index />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Events />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/passed-events"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <PassedEvents />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/events/new"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <NewEvent />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/events/:id"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <EventDetails />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/events/:id/edit"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <EditEvent />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Calendar />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/tasks"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Tasks />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/tasks/:id"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <TaskDetails />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/contacts"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Contacts />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/documents"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <Documents />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile-settings"
+        element={
+          <PrivateRoute>
+            <RootLayout>
+              <ProfileSettings />
+            </RootLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
-
-export default AppRoutes;
