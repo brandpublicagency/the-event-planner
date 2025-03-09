@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -106,7 +105,6 @@ const EventDetails = () => {
           <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
             <div className="print-header">
               <h1 className="text-2xl font-semibold mb-2">Menu Selection</h1>
-              {event.name && <h2 className="text-xl text-zinc-500">{event.name}</h2>}
             </div>
             
             <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
