@@ -40,6 +40,7 @@ const NewEvent = () => {
   };
 
   const onSubmit = async (data: EventFormData) => {
+    console.log('Submitting form with venues:', data.venues);
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,7 +65,7 @@ const NewEvent = () => {
         client_address: data.client_address || null,
         created_by: user.id,
         completed: false,
-        venues: data.venues,
+        venues: data.venues || [],
         
         // Contact fields
         primary_name: data.primary_name || null,
@@ -82,6 +83,7 @@ const NewEvent = () => {
 
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+      await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
 
       toast({
         title: "Success",

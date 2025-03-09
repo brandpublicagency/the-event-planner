@@ -15,30 +15,34 @@ export const updateEvent = async (eventCode: string, updates: Partial<Event>) =>
 };
 
 export const createEvent = async (eventData: EventCreate) => {
+  console.log('Creating event with data:', eventData);
+  
   const { data, error } = await supabase
     .from('events')
     .insert(eventData)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating event:', error);
+    throw error;
+  }
+  
+  console.log('Event created successfully:', data);
   return data;
 };
 
 export const deleteEvent = async (eventCode: string) => {
-  // Delete menu_selections first (child table)
-  const { error: menuError } = await supabase
-    .from('menu_selections')
-    .delete()
-    .eq('event_code', eventCode);
-  
-  if (menuError) throw menuError;
-  
-  // Finally delete the event itself
-  const { error } = await supabase
+  // First soft delete by setting deleted_at
+  const { error: softDeleteError } = await supabase
     .from('events')
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq('event_code', eventCode);
   
-  if (error) throw error;
+  if (softDeleteError) {
+    console.error('Error soft deleting event:', softDeleteError);
+    throw softDeleteError;
+  }
+  
+  return true;
 };

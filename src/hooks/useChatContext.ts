@@ -23,14 +23,15 @@ export const useChatContext = () => {
       // Fetch menu selections separately
       const { data: menuSelections, error: menuError } = await supabase
         .from('menu_selections')
-        .select('*');
+        .select('*')
+        .catchError('PGRST116', () => {
+          console.log('Menu selections table may not exist yet');
+          return { data: [] };
+        });
 
-      if (menuError) {
+      if (menuError && menuError.code !== 'PGRST116') {
         console.error('Error fetching menu selections:', menuError);
-        // Only throw if it's not a table not found error
-        if (menuError.code !== 'PGRST116') {
-          throw menuError;
-        }
+        throw menuError;
       }
 
       // Fetch contacts data
@@ -75,6 +76,8 @@ export const useChatContext = () => {
 
         if (!pdfError) {
           pdfContent = pdf || [];
+        } else {
+          console.warn('PDF content unavailable:', pdfError);
         }
       } catch (error) {
         console.warn('PDF content not available:', error);

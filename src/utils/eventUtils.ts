@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
+import { createEvent as createEventService } from "@/services/eventService";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
@@ -21,24 +21,34 @@ export const groupEventsByMonth = (events: Event[]) => {
 
 export const deleteEvent = async (eventCode: string) => {
   try {
-    const { error: menuError } = await supabase
+    const { count, error: countError } = await supabase
       .from('menu_selections')
-      .delete()
+      .select('*', { count: 'exact', head: true })
       .eq('event_code', eventCode);
     
-    if (menuError) {
-      console.error('Error deleting menu selections:', menuError);
-      throw menuError;
+    if (!countError && count && count > 0) {
+      const { error: menuError } = await supabase
+        .from('menu_selections')
+        .delete()
+        .eq('event_code', eventCode);
+      
+      if (menuError) {
+        console.error('Error deleting menu selections:', menuError);
+        throw menuError;
+      }
     }
     
     const { error } = await supabase
       .from('events')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('event_code', eventCode);
 
     if (error) {
+      console.error('Error deleting event:', error);
       throw new Error("Failed to delete event");
     }
+    
+    return true;
   } catch (error: any) {
     console.error('Delete event error:', error);
     throw error;
@@ -46,36 +56,57 @@ export const deleteEvent = async (eventCode: string) => {
 };
 
 export const createEvent = async (data: EventCreate, userId: string) => {
-  const eventData = {
-    ...data,
-    completed: false
-  };
+  try {
+    console.log('Creating event with data:', data);
+    
+    const eventData = {
+      ...data,
+      completed: false
+    };
 
-  const { data: eventResponse, error } = await supabase
-    .from('events')
-    .insert(eventData)
-    .select()
-    .single();
+    const createdEvent = await createEventService(eventData);
+    
+    if (!createdEvent) {
+      throw new Error("Failed to create event");
+    }
 
-  if (error || !eventResponse) {
-    throw new Error("Failed to create event");
+    return createdEvent.event_code;
+  } catch (error: any) {
+    console.error('Error creating event:', error);
+    throw error;
   }
-
-  return eventResponse.event_code;
 };
 
 export const ensureUserProfile = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
 
-  if (!data || error) {
-    throw new Error("User profile not found");
+    if (error) {
+      console.error('Error checking profile:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.log('Creating new profile for user:', userId);
+      const { error: createError } = await supabase
+        .from('profiles')
+        .insert({ id: userId });
+        
+      if (createError) {
+        console.error('Error creating profile:', createError);
+        throw createError;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error ensuring user profile:', error);
+    throw error;
   }
-
-  return data;
 };
 
 export const checkEventStatus = async (eventCode: string): Promise<boolean | null> => {
