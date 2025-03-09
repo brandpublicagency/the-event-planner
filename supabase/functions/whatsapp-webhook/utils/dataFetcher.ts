@@ -11,29 +11,26 @@ export const fetchEvents = async () => {
   
   try {
     // Use withTimeout to ensure the query doesn't hang indefinitely
-    const { data: events, error } = await withTimeout(
-      supabase
-        .from('events')
-        .select(`
-          *,
-          menu_selections (*),
-          event_venues (
-            venues (
-              name
-            )
+    const { data: events, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        menu_selections (*),
+        event_venues (
+          venues (
+            name
           )
-        `)
-        .is('deleted_at', null)
-        .order('event_date', { ascending: true }),
-      'Events query',
-      10000 // 10 second timeout
-    );
+        )
+      `)
+      .is('deleted_at', null)
+      .order('event_date', { ascending: true });
 
     if (error) {
       console.error('Error fetching events:', error);
       throw error;
     }
 
+    console.log(`Successfully fetched ${events?.length || 0} events`);
     return events || [];
   } catch (error) {
     console.error('Error in fetchEvents:', error);
@@ -45,17 +42,15 @@ export const fetchContacts = async () => {
   console.log('Fetching contacts data');
   
   try {
-    const { data: contacts, error } = await withTimeout(
-      supabase.from('profiles').select('*'),
-      'Contacts query',
-      5000 // 5 second timeout
-    );
-
+    const { data: contacts, error } = await supabase
+      .from('profiles')
+      .select('*');
+    
     if (error) {
       console.error('Error fetching contacts:', error);
       throw error;
     }
-
+    
     return contacts || [];
   } catch (error) {
     console.error('Error in fetchContacts:', error);
@@ -67,17 +62,16 @@ export const fetchDocuments = async () => {
   console.log('Fetching documents data');
   
   try {
-    const { data: documents, error } = await withTimeout(
-      supabase.from('documents').select('*').is('deleted_at', null),
-      'Documents query',
-      5000 // 5 second timeout
-    );
-
+    const { data: documents, error } = await supabase
+      .from('documents')
+      .select('*')
+      .is('deleted_at', null);
+    
     if (error) {
       console.error('Error fetching documents:', error);
       throw error;
     }
-
+    
     return documents || [];
   } catch (error) {
     console.error('Error in fetchDocuments:', error);
@@ -89,17 +83,15 @@ export const fetchTasks = async () => {
   console.log('Fetching tasks data');
   
   try {
-    const { data: tasks, error } = await withTimeout(
-      supabase.from('tasks').select('*'),
-      'Tasks query',
-      5000 // 5 second timeout
-    );
-
+    const { data: tasks, error } = await supabase
+      .from('tasks')
+      .select('*');
+    
     if (error) {
       console.error('Error fetching tasks:', error);
       throw error;
     }
-
+    
     return tasks || [];
   } catch (error) {
     console.error('Error in fetchTasks:', error);
