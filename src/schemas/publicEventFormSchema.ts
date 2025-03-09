@@ -1,7 +1,7 @@
 
 import * as z from "zod";
 
-// Define event type enum explicitly to avoid circular references
+// Define event type enum explicitly
 const EventTypeEnum = z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]);
 
 // Define the type separately and directly first
@@ -10,9 +10,9 @@ export type PublicEventFormValues = {
   description?: string;
   event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
   event_date: string;
-  start_time?: string;
-  end_time?: string;
-  pax?: number;
+  start_time?: string | null;
+  end_time?: string | null;
+  pax?: number | null;
   venues: string[];
   primary_name: string;
   primary_phone: string;
