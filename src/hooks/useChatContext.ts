@@ -20,18 +20,21 @@ export const useChatContext = () => {
         throw eventsError;
       }
 
-      // Fetch menu selections separately
-      const { data: menuSelections, error: menuError } = await supabase
-        .from('menu_selections')
-        .select('*')
-        .catchError('PGRST116', () => {
-          console.log('Menu selections table may not exist yet');
-          return { data: [] };
-        });
+      // Fetch menu selections separately - handle case where table might not exist yet
+      let menuSelections = [];
+      try {
+        const { data, error } = await supabase
+          .from('menu_selections')
+          .select('*');
 
-      if (menuError && menuError.code !== 'PGRST116') {
-        console.error('Error fetching menu selections:', menuError);
-        throw menuError;
+        if (error) {
+          console.log('Menu selections table may not exist yet or other error:', error);
+        } else {
+          menuSelections = data || [];
+        }
+      } catch (error) {
+        console.log('Error fetching menu selections:', error);
+        // Don't throw here, just continue with empty array
       }
 
       // Fetch contacts data
