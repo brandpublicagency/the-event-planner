@@ -6,6 +6,7 @@ import CustomMenuSection from './CustomMenuSection';
 import MainCourseSection from './MainCourseSection';
 import DessertSection from './DessertSection';
 import OtherOptionsSection from './OtherOptionsSection';
+import { Separator } from '@/components/ui/separator';
 
 interface MenuContentProps {
   menuState: any;
@@ -34,6 +35,7 @@ const MenuContent = ({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 -mt-5">
+      <Separator className="h-[0.5px] bg-zinc-200 mb-6 mt-1" />
       <div className="space-y-4">
         <div>
           <h3 className="font-semibold text-base mb-1.5 text-zinc-900">Arrival & Starter</h3>
@@ -91,7 +93,6 @@ const MenuContent = ({
             platedSaladSelection={menuState.platedSaladSelection}
             onMainCourseChange={(value) => {
               onMenuStateChange('mainCourseType', value);
-              // Reset all main course related selections
               onMenuStateChange('buffetMeatSelections', []);
               onMenuStateChange('buffetVegetableSelections', []);
               onMenuStateChange('buffetStarchSelections', []);
@@ -157,7 +158,6 @@ const MenuContent = ({
               };
               onMenuStateChange('otherSelectionsQuantities', newQuantities);
               
-              // Update otherSelections based on quantities
               const newOtherSelections = Object.entries(newQuantities)
                 .filter(([_, qty]) => (qty as number) > 0)
                 .map(([id]) => id);
