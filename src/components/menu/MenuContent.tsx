@@ -1,3 +1,4 @@
+
 import React from 'react';
 import StarterTypeSelect from './StarterTypeSelect';
 import CanapeSection from './CanapeSection';
@@ -34,12 +35,12 @@ const MenuContent = ({
   }
 
   return (
-    <div className="space-y-6 print:space-y-8">
+    <div className="space-y-6 print:space-y-2">
       <Separator className="h-[0.5px] bg-zinc-200 mb-6 mt-1 print:hidden" />
       
-      <div className="space-y-4 print:break-inside-avoid">
+      <div className="space-y-4 menu-section">
         <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900">Arrival & Starter</h3>
+          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Arrival & Starter</h3>
           <StarterTypeSelect 
             selectedStarterType={menuState.selectedStarterType} 
             onStarterTypeChange={value => {
@@ -52,7 +53,7 @@ const MenuContent = ({
         </div>
 
         {menuState.selectedStarterType === 'canapes' && (
-          <div className="print:mt-4">
+          <div>
             <CanapeSection 
               selectedCanapePackage={menuState.selectedCanapePackage} 
               selectedCanapes={menuState.selectedCanapes} 
@@ -66,7 +67,7 @@ const MenuContent = ({
         )}
 
         {menuState.selectedStarterType === 'plated' && (
-          <div className="print:mt-4">
+          <div>
             <PlatedStarterSection 
               selectedPlatedStarter={menuState.selectedPlatedStarter} 
               onPlatedStarterChange={value => {
@@ -77,9 +78,9 @@ const MenuContent = ({
         )}
       </div>
 
-      <div className="space-y-4 print:break-inside-avoid">
+      <div className="space-y-4 menu-section">
         <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900">Main Course</h3>
+          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Main Course</h3>
           <MainCourseSection 
             selectedMainCourse={menuState.mainCourseType} 
             buffetMeatSelections={menuState.buffetMeatSelections} 
@@ -119,9 +120,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-4 print:break-inside-avoid">
+      <div className="space-y-4 menu-section">
         <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900">Dessert</h3>
+          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Dessert</h3>
           <DessertSection 
             selectedDessert={menuState.dessertType} 
             selectedTraditionalDessert={menuState.traditionalDessert} 
@@ -147,9 +148,9 @@ const MenuContent = ({
         </div>
       </div>
 
-      <div className="space-y-4 print:break-inside-avoid">
+      <div className="space-y-4 menu-section">
         <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900">Additional Options</h3>
+          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Additional Options</h3>
           <OtherOptionsSection 
             quantities={menuState.otherSelectionsQuantities || {}} 
             onQuantityChange={(optionId, quantity) => {

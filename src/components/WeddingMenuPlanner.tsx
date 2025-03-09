@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
@@ -70,11 +71,13 @@ const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuTo
           onCanapeSelection={handleCanapeSelection}
           saveMenuSelections={saveMenuSelections}
         />
-        <Separator className="my-4" />
-        <NotesSection 
-          notes={menuState.notes}
-          onChange={(value) => handleMenuStateChange('notes', value)}
-        />
+        <Separator className="my-4 separator" />
+        <div className="notes-section">
+          <NotesSection 
+            notes={menuState.notes}
+            onChange={(value) => handleMenuStateChange('notes', value)}
+          />
+        </div>
         <div className="flex justify-end print:hidden">
           <Button onClick={saveMenuSelections}>
             Save Menu
