@@ -7,7 +7,7 @@ import {
   prepareContactsContext,
   prepareDocumentsContext,
   getSystemMessage 
-} from "@/utils/chatContextUtils";
+} from "@/utils/chat"; // Updated import path
 import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
