@@ -28,7 +28,10 @@ const PublicEventForm = () => {
       event_date: format(new Date(), 'yyyy-MM-dd'),
       primary_name: "",
       primary_phone: "",
-      primary_email: ""
+      primary_email: "",
+      start_time: null,
+      end_time: null,
+      pax: null
     }
   });
 
