@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -62,7 +63,6 @@ const NewEvent = () => {
         start_time: data.start_time || null,
         end_time: data.end_time || null,
         pax: data.pax || null,
-        client_address: data.client_address || null,
         created_by: user.id,
         completed: false,
         venues: data.venues || [],
@@ -74,7 +74,7 @@ const NewEvent = () => {
         secondary_name: data.secondary_name || null,
         secondary_phone: data.secondary_phone || null,
         secondary_email: data.secondary_email || null,
-        address: data.address || data.client_address || null,
+        address: data.address || null,
         company: data.company || null,
         vat_number: data.vat_number || null
       };

@@ -17,9 +17,12 @@ export const updateEvent = async (eventCode: string, updates: Partial<Event>) =>
 export const createEvent = async (eventData: EventCreate) => {
   console.log('Creating event with data:', eventData);
   
+  // Remove client_address field if it exists in the data as it's not in the schema
+  const { client_address, ...validEventData } = eventData;
+  
   const { data, error } = await supabase
     .from('events')
-    .insert(eventData)
+    .insert(validEventData)
     .select()
     .single();
 

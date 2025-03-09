@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 import { createEvent as createEventService } from "@/services/eventService";
@@ -59,8 +60,11 @@ export const createEvent = async (data: EventCreate, userId: string) => {
   try {
     console.log('Creating event with data:', data);
     
+    // Remove client_address field if it exists
+    const { client_address, ...cleanedData } = data;
+    
     const eventData = {
-      ...data,
+      ...cleanedData,
       completed: false
     };
 

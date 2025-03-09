@@ -63,6 +63,7 @@ export interface EventCreate {
   created_by?: string | null;
   completed?: boolean;
   venues?: string[] | null;
+  client_address?: string | null; // Keep for backward compatibility with form
   
   // Contact fields
   primary_name?: string | null;
