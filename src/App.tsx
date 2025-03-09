@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { TaskProvider } from "@/contexts/TaskContext";
-import { AppRoutes } from "./routes/AppRoutes";
+import AppRoutes from "./routes/AppRoutes";
 import { AppProviders } from "./providers/AppProviders";
 import { toast } from "sonner";
 
