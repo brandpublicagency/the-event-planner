@@ -51,8 +51,8 @@ export const formatEventDetails = (event: Event): string => {
   }
   
   // Address
-  if (event.address || event.client_address) {
-    details += `Address: ${event.address || event.client_address}\n`;
+  if (event.address) {
+    details += `Address: ${event.address}\n`;
   }
   
   return details;
