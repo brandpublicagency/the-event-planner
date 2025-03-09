@@ -83,7 +83,7 @@ const ContactEditDrawer = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {/* Personal Information */}
-          <div className="border-b pb-4 mb-5">
+          <div className="pb-4 mb-5">
             <h3 className="text-sm font-medium text-gray-500 mb-4">Personal Information</h3>
             <div className="space-y-4">
               <FormField
@@ -131,7 +131,7 @@ const ContactEditDrawer = ({
           </div>
           
           {/* Business Information */}
-          <div className="border-b pb-4 mb-5">
+          <div className="pb-4 mb-5">
             <h3 className="text-sm font-medium text-gray-500 mb-4">Business Information</h3>
             <div className="space-y-4">
               <FormField
@@ -178,54 +178,47 @@ const ContactEditDrawer = ({
             </div>
           </div>
           
-          {/* Action Buttons - Moved above Previous Events section */}
-          <div className="flex justify-end space-x-2 border-b pb-4 mb-5">
+          {/* Action Buttons */}
+          <div className="flex justify-start space-x-2 pb-6">
             <Button 
               type="button" 
               variant="outline" 
               onClick={onClose}
+              className="w-24"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={form.formState.isSubmitting}
+              className="w-32"
             >
               {form.formState.isSubmitting ? "Saving..." : "Save changes"}
             </Button>
           </div>
           
-          {/* Previous Events Information */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-md">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Previous Events</h3>
-            <div className="grid gap-2">
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Event:</span>
+          {/* Events Booked Section - Updated */}
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-medium uppercase tracking-wide mb-3">Events Booked</h3>
+            <div className="flex flex-col gap-1">
+              {contact.originalData && contact.originalData.related_events ? (
+                contact.originalData.related_events.map((eventCode: string, index: number) => (
+                  <Link 
+                    key={`${eventCode}-${index}`}
+                    to={`/passed-events?event=${eventCode}`}
+                    className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
+                  >
+                    {contact.company || contact.name} {contact.originalData.event_types?.[index] || 'Event'}
+                  </Link>
+                ))
+              ) : (
                 <Link 
                   to={`/passed-events?event=${contact.eventCode}`}
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
                 >
-                  {contact.eventName}
+                  {contact.company || contact.name} {contact.originalData?.event_type || 'Event'}
                 </Link>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Date:</span>
-                <span className="text-sm">{contact.eventDate ? formatDate(contact.eventDate) : 'Not specified'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Venue:</span>
-                <span className="text-sm">{contact.venue || 'Not specified'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Contact Type:</span>
-                <span className="text-sm">{
-                  contact.contactType === 'corporate' 
-                    ? 'Corporate Contact' 
-                    : contact.contactType === 'wedding-bride' 
-                      ? 'Bride' 
-                      : 'Groom'
-                }</span>
-              </div>
+              )}
             </div>
           </div>
         </form>

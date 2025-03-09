@@ -13,7 +13,7 @@ export interface Contact {
   eventDate: string | null;
   venue: string;
   address: string | null;
-  originalData: any; // The original event record
+  originalData: any; // The original event record with additional fields like related_events and event_types
 }
 
 export interface ContactUpdate {
