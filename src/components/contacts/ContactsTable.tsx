@@ -30,24 +30,28 @@ interface ContactsTableProps {
   isLoading: boolean;
   onEditContact: (contact: Contact) => void;
   onDeleteContact: (contact: Contact) => void;
+  hideSearch?: boolean;
 }
 
 const ContactsTable = ({ 
   contacts, 
   isLoading, 
   onEditContact, 
-  onDeleteContact 
+  onDeleteContact,
+  hideSearch = false
 }: ContactsTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
 
-  const filteredContacts = contacts.filter(
-    (contact) =>
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.phone.includes(searchTerm)
-  );
+  const filteredContacts = !hideSearch 
+    ? contacts.filter(
+        (contact) =>
+          contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          contact.phone.includes(searchTerm)
+      )
+    : contacts;
 
   const handleDeleteClick = (contact: Contact) => {
     setContactToDelete(contact);
@@ -70,15 +74,17 @@ const ContactsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search contacts..."
-          className="pl-8"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      {!hideSearch && (
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search contacts..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      )}
 
       <ScrollArea className="h-[calc(100vh-16rem)]">
         <Table>

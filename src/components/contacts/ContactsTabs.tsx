@@ -1,7 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContactsTable from "./ContactsTable";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import type { Contact } from "@/types/contact";
 
 interface ContactsTabsProps {
@@ -21,6 +23,16 @@ const ContactsTabs = ({
   onEditContact,
   onDeleteContact
 }: ContactsTabsProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.phone.includes(searchTerm)
+  );
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex items-center justify-between mb-4">
@@ -29,32 +41,45 @@ const ContactsTabs = ({
           <TabsTrigger value="wedding">Wedding Contacts</TabsTrigger>
           <TabsTrigger value="corporate">Corporate Contacts</TabsTrigger>
         </TabsList>
+        
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search contacts..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <TabsContent value="all" className="mt-0">
         <ContactsTable 
-          contacts={contacts} 
+          contacts={filteredContacts} 
           isLoading={isLoading} 
           onEditContact={onEditContact}
           onDeleteContact={onDeleteContact}
+          hideSearch={true}
         />
       </TabsContent>
       
       <TabsContent value="wedding" className="mt-0">
         <ContactsTable 
-          contacts={contacts} 
+          contacts={filteredContacts.filter(c => c.contactType === 'wedding')} 
           isLoading={isLoading} 
           onEditContact={onEditContact}
           onDeleteContact={onDeleteContact}
+          hideSearch={true}
         />
       </TabsContent>
       
       <TabsContent value="corporate" className="mt-0">
         <ContactsTable 
-          contacts={contacts} 
+          contacts={filteredContacts.filter(c => c.contactType === 'corporate')} 
           isLoading={isLoading} 
           onEditContact={onEditContact}
           onDeleteContact={onDeleteContact}
+          hideSearch={true}
         />
       </TabsContent>
     </Tabs>
