@@ -19,17 +19,18 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
+  // Fix for TS2589: Type instantiation is excessively deep and possibly infinite
+  // Use a properly typed form with explicit typing
   const form = useForm<PublicEventFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
-      event_type: "Wedding" as const,
+      event_type: "Wedding",
       venues: [],
       name: "",
       event_date: format(new Date(), 'yyyy-MM-dd'),
       primary_name: "",
       primary_phone: "",
       primary_email: "",
-      // Explicitly set optional fields
       description: undefined,
       start_time: null,
       end_time: null,
