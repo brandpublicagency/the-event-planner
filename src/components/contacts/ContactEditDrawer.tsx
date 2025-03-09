@@ -17,6 +17,7 @@ import { updateContact } from "@/services/contactService";
 import type { Contact } from "@/types/contact";
 import OffCanvasDrawer from "@/components/ui/off-canvas-drawer";
 import { formatDate } from "@/utils/formatDate";
+import { Link } from "react-router-dom";
 
 // Enhanced schema to include all possible contact fields
 const contactFormSchema = z.object({
@@ -177,13 +178,35 @@ const ContactEditDrawer = ({
             </div>
           </div>
           
-          {/* Event Information (Read-only) */}
+          {/* Action Buttons - Moved above Previous Events section */}
+          <div className="flex justify-end space-x-2 border-b pb-4 mb-5">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+          
+          {/* Previous Events Information */}
           <div className="mb-6 p-4 bg-gray-50 rounded-md">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Event Information</h3>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Previous Events</h3>
             <div className="grid gap-2">
               <div className="flex justify-between">
                 <span className="text-sm font-medium">Event:</span>
-                <span className="text-sm">{contact.eventName}</span>
+                <Link 
+                  to={`/passed-events?event=${contact.eventCode}`}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {contact.eventName}
+                </Link>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium">Date:</span>
@@ -204,22 +227,6 @@ const ContactEditDrawer = ({
                 }</span>
               </div>
             </div>
-          </div>
-          
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Saving..." : "Save changes"}
-            </Button>
           </div>
         </form>
       </Form>
