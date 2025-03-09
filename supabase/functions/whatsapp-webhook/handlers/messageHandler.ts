@@ -5,7 +5,7 @@ import { getNextTask, getTodoList } from './task/index.ts';
 import { handleAIQuestion } from './question/index.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout, handleTimeoutError, WhatsAppResponse } from '../utils/timeoutUtils.ts';
-import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher.ts';
+import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher/index.ts';
 import { handleError } from '../utils/errorHandler.ts';
 
 export const handleMessage = async (message: any): Promise<WhatsAppResponse> => {

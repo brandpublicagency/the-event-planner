@@ -4,7 +4,13 @@ import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { getSystemMessage } from '../../utils/systemMessageUtils.ts';
 import { handleTimeoutError, withTimeout, WhatsAppResponse } from '../../utils/timeoutUtils.ts';
-import { fetchEvents, fetchContacts, fetchDocuments, fetchTasks, checkDatabaseConnection } from '../../utils/dataFetcher.ts';
+import { 
+  fetchEvents, 
+  fetchContacts, 
+  fetchDocuments, 
+  fetchTasks, 
+  checkDatabaseConnection 
+} from '../../utils/dataFetcher/index.ts';
 import { formatEventsContext, formatContactsContext, formatDocumentsContext, formatTasksContext } from '../../utils/contextFormatter.ts';
 import { handleError } from '../../utils/errorHandler.ts';
 
