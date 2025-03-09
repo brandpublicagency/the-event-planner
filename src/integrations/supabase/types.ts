@@ -110,7 +110,6 @@ export type Database = {
       events: {
         Row: {
           address: string | null
-          client_address: string | null
           company: string | null
           completed: boolean | null
           created_at: string
@@ -137,7 +136,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          client_address?: string | null
           company?: string | null
           completed?: boolean | null
           created_at?: string
@@ -164,7 +162,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          client_address?: string | null
           company?: string | null
           completed?: boolean | null
           created_at?: string
