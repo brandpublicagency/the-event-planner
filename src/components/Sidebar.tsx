@@ -8,10 +8,12 @@ import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
+
 const Sidebar = ({
   className,
   isCollapsed,
@@ -22,6 +24,7 @@ const Sidebar = ({
   } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
+  
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
@@ -42,6 +45,7 @@ const Sidebar = ({
         return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
     }
   };
+
   const {
     data: taskCount = 0
   } = useQuery({
@@ -58,50 +62,62 @@ const Sidebar = ({
       return count || 0;
     }
   });
-  const mainNavItems = [{
-    icon: LayoutGrid,
-    path: "/",
-    label: "Dashboard"
-  }, {
-    icon: FileText,
-    path: "/events",
-    label: "Events"
-  }, {
-    icon: Archive,
-    path: "/passed-events",
-    label: "Passed Events"
-  }, {
-    icon: Wallet,
-    path: "/calendar",
-    label: "Calendar"
-  }, {
-    icon: ListTodo,
-    path: "/tasks",
-    label: "To-do list",
-    badge: taskCount > 0 ? taskCount : undefined
-  }, {
-    icon: Users,
-    path: "/contacts",
-    label: "Contacts"
-  }, {
-    icon: FileText,
-    path: "/documents",
-    label: "Documents"
-  }];
+
+  const mainNavItems = [
+    {
+      icon: LayoutGrid,
+      path: "/",
+      label: "Dashboard"
+    },
+    {
+      icon: FileText,
+      path: "/events",
+      label: "Events"
+    },
+    {
+      icon: Archive,
+      path: "/passed-events",
+      label: "Passed Events"
+    },
+    {
+      icon: Wallet,
+      path: "/calendar",
+      label: "Calendar"
+    },
+    {
+      icon: ListTodo,
+      path: "/tasks",
+      label: "To-do list",
+      badge: taskCount > 0 ? taskCount : undefined
+    },
+    {
+      icon: Users,
+      path: "/contacts",
+      label: "Contacts"
+    },
+    {
+      icon: FileText,
+      path: "/documents",
+      label: "Documents"
+    }
+  ];
+
   return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
         
-        <div className="5flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] my-[5px] py-[5px]">
-          <div className="space-y-8 my-0 mx-[5px] px-0">
-            <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} sectionTitle="MAIN" />
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
+          <div className="space-y-6 my-2 mx-[5px] px-0">
+            <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
             
-            <button onClick={() => setIsCollapsed(!isCollapsed)} className={cn("flex items-center w-full text-gray-400 hover:text-gray-700 text-sm mt-2 px-3", isCollapsed && "justify-center")}>
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  <span className="font-normal text-xs px-[5px] text-gray-400">COLLAPSE MENU</span>
-                </>}
-            </button>
+            <div className="px-3">
+              <button onClick={() => setIsCollapsed(!isCollapsed)} className={cn("flex items-center w-full text-gray-400 hover:text-gray-700 text-xs", isCollapsed && "justify-center")}>
+                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <>
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    <span className="font-normal px-[5px] text-gray-400">COLLAPSE MENU</span>
+                  </>}
+              </button>
+            </div>
           </div>
         </div>
         
@@ -126,4 +142,5 @@ const Sidebar = ({
       </div>
     </div>;
 };
+
 export default Sidebar;

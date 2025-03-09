@@ -1,17 +1,21 @@
+
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+
 interface NavItem {
   icon: React.ElementType;
   path: string;
   label: string;
   badge?: number;
 }
+
 interface SidebarNavigationProps {
   isCollapsed: boolean;
   items: NavItem[];
-  sectionTitle: string;
+  sectionTitle?: string; // Made optional
 }
+
 const SidebarNavigation = ({
   isCollapsed,
   items,
@@ -19,9 +23,11 @@ const SidebarNavigation = ({
 }: SidebarNavigationProps) => {
   const location = useLocation();
   return <div className="px-0">
-      <div className={cn("text-xs font-medium mb-4", isCollapsed ? "text-gray-600 text-center" : "text-gray-400")}>
-        {sectionTitle}
-      </div>
+      {sectionTitle && (
+        <div className={cn("text-xs font-medium mb-4", isCollapsed ? "text-gray-600 text-center" : "text-gray-400")}>
+          {sectionTitle}
+        </div>
+      )}
       <nav className="space-y-2">
         {items.map(item => {
         const Icon = item.icon;
@@ -37,4 +43,5 @@ const SidebarNavigation = ({
       </nav>
     </div>;
 };
+
 export default SidebarNavigation;
