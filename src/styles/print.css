@@ -25,10 +25,13 @@
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   /* Hide specific elements even inside print container */
-  .print-container .print\:hidden {
+  .print-container .print\:hidden,
+  .print-container button {
     display: none !important;
     visibility: hidden !important;
   }
@@ -46,28 +49,13 @@
 
   .print-header h2 {
     font-size: 18px !important;
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  /* Force show dropdown content */
-  [data-radix-popper-content-wrapper] {
-    display: block !important;
-    position: static !important;
-    transform: none !important;
+    color: #333 !important;
   }
 
   /* Ensure form elements are visible */
   input, select, textarea {
-    border: 1px solid hsl(var(--border)) !important;
+    border: 1px solid #ddd !important;
     background: white !important;
-    -webkit-print-color-adjust: exact !important;
-    appearance: none !important;
-  }
-
-  /* Fix layout for print */
-  .print-container {
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
   /* Improve print readability */
@@ -75,8 +63,10 @@
   .print-container h4 {
     color: black !important;
     font-weight: bold !important;
+    break-after: avoid !important;
   }
   
+  /* Force text colors for better printing */
   .print-container .text-zinc-500,
   .print-container .text-zinc-600,
   .print-container .text-zinc-700,
@@ -84,9 +74,32 @@
     color: #333 !important;
   }
   
+  /* Fix section breaks */
+  .print-container .space-y-6 {
+    margin-bottom: 1rem !important;
+  }
+
   /* Ensure backgrounds are printed */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Remove unnecessary padding and borders */
+  .print-container .border,
+  .print-container .border-zinc-100 {
+    border: none !important;
+  }
+
+  .print-container .p-5,
+  .print-container .p-6 {
+    padding: 0 !important;
+  }
+
+  /* Fix menu sections */
+  .print-container h3.font-semibold {
+    font-size: 16px !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
 }
