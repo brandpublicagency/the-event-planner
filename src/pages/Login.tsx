@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -12,6 +13,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -65,12 +67,17 @@ const Login = () => {
         }
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
+      } else if (event === 'USER_UPDATED') {
+        toast.success('Authentication successful');
       }
     });
 
+    // Check for error messages in URL params
     const errorMessage = searchParams.get('error_description');
     if (errorMessage) {
-      toast.error(decodeURIComponent(errorMessage));
+      const decodedError = decodeURIComponent(errorMessage);
+      setAuthError(decodedError);
+      toast.error(decodedError);
     }
 
     return () => {
@@ -98,6 +105,11 @@ const Login = () => {
               ? 'Create your account to join the team' 
               : 'Sign in with your @warmkaroo.com email'}
           </p>
+          {authError && (
+            <div className="mt-2 p-2 bg-red-50 text-red-600 rounded-md text-sm">
+              {authError}
+            </div>
+          )}
         </div>
 
         <Tabs defaultValue="magic-link" className="w-full">

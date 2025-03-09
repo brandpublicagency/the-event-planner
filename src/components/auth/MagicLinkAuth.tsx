@@ -1,3 +1,4 @@
+
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -12,6 +13,7 @@ interface MagicLinkAuthProps {
 export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthProps) => {
   const [redirectTo, setRedirectTo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState(defaultEmail || "");
 
   useEffect(() => {
     // Use the current window location as the redirect URL
@@ -19,8 +21,14 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
     setRedirectTo(currentOrigin);
   }, []);
 
-  const handleSignIn = async (email: string) => {
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (isSubmitting) return;
+    
+    if (!email.endsWith('@warmkaroo.com')) {
+      toast.error('Only @warmkaroo.com email addresses are allowed');
+      return;
+    }
     
     try {
       setIsSubmitting(true);
@@ -34,10 +42,13 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
       if (error) {
         if (error.message.includes('rate_limit')) {
           toast.error('Please wait a moment before requesting another magic link');
+        } else if (error.message.includes('Database error')) {
+          toast.error('Authentication error. Please contact your administrator.');
+          console.error('Auth error:', error);
         } else {
-          toast.error('Error sending magic link. Please try again.');
+          toast.error(`Error sending magic link: ${error.message}`);
+          console.error('Auth error:', error);
         }
-        console.error('Auth error:', error);
       } else {
         toast.success('Check your email for the magic link');
       }
@@ -52,38 +63,33 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
   };
 
   return (
-    <Auth
-      supabaseClient={supabaseClient}
-      view="magic_link"
-      appearance={{ 
-        theme: ThemeSupa,
-        variables: {
-          default: {
-            colors: {
-              brand: '#000000',
-              brandAccent: '#666666',
-            }
-          }
-        }
-      }}
-      theme="light"
-      showLinks={false}
-      providers={[]}
-      redirectTo={redirectTo}
-      {...(defaultEmail ? { defaultEmail } : {})}
-      localization={{
-        variables: {
-          magic_link: {
-            button_label: 'Send Magic Link',
-            loading_button_label: 'Sending Magic Link...',
-            confirmation_text: 'Check your email for the magic link',
-            email_input_placeholder: 'youremail@warmkaroo.com',
-            email_input_label: 'Email address'
-          }
-        }
-      }}
-      magicLink
-      onlyThirdPartyProviders={false}
-    />
+    <div className="space-y-4">
+      <form onSubmit={handleSignIn} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="youremail@warmkaroo.com"
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-2 px-4 bg-black hover:bg-gray-800 text-white rounded-md transition-colors disabled:opacity-50"
+        >
+          {isSubmitting ? 'Sending Magic Link...' : 'Send Magic Link'}
+        </button>
+      </form>
+      <p className="text-sm text-center text-gray-500">
+        {isSubmitting ? 'Processing...' : 'Check your email for the magic link after submitting'}
+      </p>
+    </div>
   );
 };
