@@ -14,8 +14,26 @@ import { createEvent } from "@/utils/eventUtils";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-// Define the type directly from the schema to avoid circular references
-type FormValues = z.infer<typeof publicEventFormSchema>;
+// Define a simpler type for form values without referencing the schema directly
+type FormValues = {
+  name: string;
+  description?: string;
+  event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
+  event_date?: string;
+  start_time?: string;
+  end_time?: string;
+  pax?: number;
+  venues: string[];
+  primary_name: string;
+  primary_phone: string;
+  primary_email: string;
+  secondary_name?: string;
+  secondary_phone?: string;
+  secondary_email?: string;
+  address?: string;
+  company?: string;
+  vat_number?: string;
+};
 
 const PublicEventForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +41,7 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Use direct z.infer type instead of imported type to avoid deep instantiation
+  // Use the manually defined FormValues type
   const form = useForm<FormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
