@@ -10,7 +10,6 @@ interface EventUpdateData {
   start_time?: string | null;
   end_time?: string | null;
   pax: number | null;
-  package_id: string | null;
   client_address: string | null;
   venues?: string[];
   // Wedding specific fields
@@ -42,7 +41,6 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         start_time: data.start_time || null,
         end_time: data.end_time || null,
         pax: data.pax || null,
-        package_id: data.package_id || null,
         client_address: data.client_address || null,
         venues: data.venues || null,
       })

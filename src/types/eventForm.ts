@@ -7,7 +7,6 @@ export interface EventFormData {
   start_time?: string;
   end_time?: string;
   pax?: number;
-  package_id?: string;
   client_address?: string;
   venues: string[];
   // Wedding specific fields

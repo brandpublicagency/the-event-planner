@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -5,11 +6,6 @@ import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
 import { VenueSelect } from "./VenueSelect";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { EventFormData } from "@/types/eventForm";
 
 const generateTimeOptions = (start: number, end: number) => {
@@ -29,27 +25,6 @@ interface EventBasicInfoProps {
 }
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
-  const { toast } = useToast();
-
-  const { data: packages, error: packagesError, isLoading } = useQuery({
-    queryKey: ['packages'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('packages')
-        .select('*');
-      
-      if (error) {
-        toast({
-          title: "Error fetching packages",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
-      return data || [];
-    },
-  });
-
   return (
     <div className="space-y-6">
       <EventTypeSelect form={form} />
@@ -148,40 +123,6 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           </div>
         </div>
       </div>
-
-      {packagesError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load packages. Please try refreshing the page.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <FormField
-        control={form.control}
-        name="package_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Package</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ""}>
-              <FormControl>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder={isLoading ? "Loading packages..." : "Select package"} />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {packages?.map((pkg) => (
-                  <SelectItem key={pkg.id} value={pkg.id}>
-                    {pkg.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
 
       <VenueSelect form={form} />
     </div>

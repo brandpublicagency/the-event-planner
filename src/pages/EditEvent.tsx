@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -60,7 +59,6 @@ const EditEvent = () => {
         start_time: formatTime(event.start_time),
         end_time: formatTime(event.end_time),
         pax: event.pax || null,
-        package_id: event.package_id || null,
         client_address: event.client_address || null,
         venues: event.venues || [],
         // Wedding details
@@ -91,7 +89,6 @@ const EditEvent = () => {
         description: data.description || '',
         event_date: data.event_date || null,
         pax: data.pax || null,
-        package_id: data.package_id || null,
         client_address: data.client_address || null,
       };
       

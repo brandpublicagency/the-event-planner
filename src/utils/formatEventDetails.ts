@@ -1,33 +1,30 @@
-import { format } from "date-fns";
+
 import type { Event } from "@/types/event";
+import { format } from "date-fns";
 
 export const formatEventDetails = (event: Event) => {
-  const venues = event.event_venues
-    ?.map(ev => ev.venues?.name)
-    .filter(Boolean)
-    .join(' + ') || 'No venue specified';
-  
-  const formattedDate = event.event_date 
-    ? format(new Date(event.event_date), 'dd MMMM yyyy')
-    : 'Date not set';
+  const venuesText = event.venues && event.venues.length > 0
+    ? `Venues: ${event.venues.join(', ')}`
+    : 'No venues specified';
 
-  const formattedTime = event.start_time 
-    ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}`
-    : 'Time not set';
+  let details = `Event: ${event.name}
+Type: ${event.event_type}
+Date: ${event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date not set'}
+Time: ${event.start_time || 'Time not set'} - ${event.end_time || ''}
+Guests: ${event.pax || 'Not specified'}
+${venuesText}
+`;
 
-  let clientDetails = '';
-  if (event.wedding_details) {
-    clientDetails = `Wedding of ${event.wedding_details.bride_name || 'Bride'} & ${event.wedding_details.groom_name || 'Groom'}`;
+  if (event.event_type === 'Wedding' && event.wedding_details) {
+    details += `\nBride: ${event.wedding_details.bride_name || 'Not specified'}
+Bride Contact: ${event.wedding_details.bride_email || ''} ${event.wedding_details.bride_mobile || ''}
+Groom: ${event.wedding_details.groom_name || 'Not specified'}
+Groom Contact: ${event.wedding_details.groom_email || ''} ${event.wedding_details.groom_mobile || ''}`;
   } else if (event.corporate_details) {
-    clientDetails = `Corporate event for ${event.corporate_details.company_name || 'Unknown Company'}`;
+    details += `\nCompany: ${event.corporate_details.company_name || 'Not specified'}
+Contact Person: ${event.corporate_details.contact_person || 'Not specified'}
+Contact Details: ${event.corporate_details.contact_email || ''} ${event.corporate_details.contact_mobile || ''}`;
   }
 
-  return `Event: ${event.name}
-Type: ${event.event_type}
-Date: ${formattedDate}
-Time: ${formattedTime}
-Venue: ${venues}
-Details: ${clientDetails}
-Event Code: ${event.event_code}
-Status: ${event.completed ? 'Completed' : 'Active'}`;
+  return details;
 };
