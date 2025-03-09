@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,14 +18,13 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Use the explicit type imported from the schema file
   const form = useForm<PublicEventFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: "Wedding",
       venues: [],
       name: "",
-      event_date: "", // Add this to match the required property
+      event_date: format(new Date(), 'yyyy-MM-dd'),
       primary_name: "",
       primary_phone: "",
       primary_email: ""
@@ -127,7 +125,7 @@ const PublicEventForm = () => {
             description="Tell us about your event"
           >
             <EventBasicInfo 
-              form={form as any} // Type assertion to resolve compatibility issues
+              form={form as any}
             />
           </FormSection>
 
@@ -136,7 +134,7 @@ const PublicEventForm = () => {
             description={`Enter ${eventType === "Wedding" ? "bride and groom" : "contact"} information`}
           >
             <ContactDetails 
-              form={form as any} // Type assertion to resolve compatibility issues
+              form={form as any}
               eventType={eventType} 
             />
           </FormSection>
