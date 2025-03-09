@@ -69,7 +69,7 @@ export default function Events() {
     <div className="flex flex-col h-full">
       <Header pageTitle="Events" />
       
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 flex flex-col">
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">Loading events...</p>
@@ -93,6 +93,7 @@ export default function Events() {
                 });
               }
             }}
+            className="flex-1"
           />
         )}
       </div>

@@ -63,10 +63,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   return (
     <ScrollArea className={cn(
-      isDashboard ? "h-auto" : "h-[calc(100vh-12rem)]",
+      isDashboard ? "h-auto" : "h-full",
       className
     )}>
-      <div className="space-y-4">
+      <div className="space-y-4 pb-4">
         {Object.keys(groupedEvents).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
