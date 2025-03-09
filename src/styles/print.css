@@ -45,8 +45,9 @@
   }
 
   .print-header h1 {
-    font-size: 14px !important;
-    font-weight: 300 !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
     margin-bottom: 0.25rem !important;
   }
 
@@ -58,8 +59,8 @@
 
   /* Event info styles */
   .event-info-container h1 {
-    font-size: 16px !important;
-    font-weight: 400 !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
   }
 
   /* Ensure form elements are visible */

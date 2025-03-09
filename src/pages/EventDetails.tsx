@@ -105,7 +105,7 @@ const EventDetails = () => {
           
           <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
             <div className="print-header">
-              <h1 className="text-sm font-light mb-2">Menu Selection</h1>
+              <h1 className="text-base font-normal uppercase mb-2">MENU SELECTION</h1>
             </div>
             
             <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
