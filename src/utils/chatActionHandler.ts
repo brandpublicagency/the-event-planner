@@ -25,22 +25,29 @@ export const handleChatAction = async (
 
         console.log('Updating event with code:', action.event_code, 'Updates:', action.updates);
 
+        // Fix nested updates structure if it exists
+        let updatesToApply = action.updates;
+        if (action.updates.event_code && action.updates.updates) {
+          console.log('Detected nested updates structure, fixing...');
+          updatesToApply = action.updates.updates;
+        }
+
         // Handle date updates with better validation
-        if (action.updates.event_date && typeof action.updates.event_date === 'string') {
+        if (updatesToApply.event_date && typeof updatesToApply.event_date === 'string') {
           let parsedDate;
           try {
             // Try parsing various date formats
-            parsedDate = parse(action.updates.event_date, 'yyyy-MM-dd', new Date());
+            parsedDate = parse(updatesToApply.event_date, 'yyyy-MM-dd', new Date());
             if (!isValid(parsedDate)) {
-              parsedDate = parse(action.updates.event_date, 'dd MMMM yyyy', new Date());
+              parsedDate = parse(updatesToApply.event_date, 'dd MMMM yyyy', new Date());
             }
             if (!isValid(parsedDate)) {
-              parsedDate = parse(action.updates.event_date, 'dd/MM/yyyy', new Date());
+              parsedDate = parse(updatesToApply.event_date, 'dd/MM/yyyy', new Date());
             }
             if (!isValid(parsedDate)) {
               throw new Error("Invalid date format");
             }
-            action.updates.event_date = format(parsedDate, 'yyyy-MM-dd');
+            updatesToApply.event_date = format(parsedDate, 'yyyy-MM-dd');
           } catch (error) {
             console.error('Date parsing error:', error);
             throw new Error("Invalid date format. Please use the format 'YYYY-MM-DD' or 'DD Month YYYY'");
@@ -48,11 +55,11 @@ export const handleChatAction = async (
         }
 
         // Handle pax updates - convert to number if it's a string
-        if (action.updates.pax !== undefined) {
-          if (typeof action.updates.pax === 'string') {
-            const paxNum = parseInt(action.updates.pax);
+        if (updatesToApply.pax !== undefined) {
+          if (typeof updatesToApply.pax === 'string') {
+            const paxNum = parseInt(updatesToApply.pax);
             if (!isNaN(paxNum)) {
-              action.updates.pax = paxNum;
+              updatesToApply.pax = paxNum;
             } else {
               throw new Error("Invalid guest count format. Please provide a number.");
             }
@@ -60,58 +67,58 @@ export const handleChatAction = async (
         }
 
         // Handle venues updates - ensure it's an array
-        if (action.updates.venues !== undefined) {
-          if (typeof action.updates.venues === 'string') {
+        if (updatesToApply.venues !== undefined) {
+          if (typeof updatesToApply.venues === 'string') {
             // If a single venue is provided as a string, convert to array
-            action.updates.venues = [action.updates.venues];
-          } else if (!Array.isArray(action.updates.venues)) {
+            updatesToApply.venues = [updatesToApply.venues];
+          } else if (!Array.isArray(updatesToApply.venues)) {
             throw new Error("Venues must be provided as a string or an array of strings");
           }
         }
 
         // Map contact fields from legacy names if provided
-        if (action.updates.bride_name && !action.updates.primary_name) {
-          action.updates.primary_name = action.updates.bride_name;
+        if (updatesToApply.bride_name && !updatesToApply.primary_name) {
+          updatesToApply.primary_name = updatesToApply.bride_name;
         }
-        if (action.updates.bride_email && !action.updates.primary_email) {
-          action.updates.primary_email = action.updates.bride_email;
+        if (updatesToApply.bride_email && !updatesToApply.primary_email) {
+          updatesToApply.primary_email = updatesToApply.bride_email;
         }
-        if (action.updates.bride_mobile && !action.updates.primary_phone) {
-          action.updates.primary_phone = action.updates.bride_mobile;
+        if (updatesToApply.bride_mobile && !updatesToApply.primary_phone) {
+          updatesToApply.primary_phone = updatesToApply.bride_mobile;
         }
-        if (action.updates.groom_name && !action.updates.secondary_name) {
-          action.updates.secondary_name = action.updates.groom_name;
+        if (updatesToApply.groom_name && !updatesToApply.secondary_name) {
+          updatesToApply.secondary_name = updatesToApply.groom_name;
         }
-        if (action.updates.groom_email && !action.updates.secondary_email) {
-          action.updates.secondary_email = action.updates.groom_email;
+        if (updatesToApply.groom_email && !updatesToApply.secondary_email) {
+          updatesToApply.secondary_email = updatesToApply.groom_email;
         }
-        if (action.updates.groom_mobile && !action.updates.secondary_phone) {
-          action.updates.secondary_phone = action.updates.groom_mobile;
+        if (updatesToApply.groom_mobile && !updatesToApply.secondary_phone) {
+          updatesToApply.secondary_phone = updatesToApply.groom_mobile;
         }
-        if (action.updates.contact_person && !action.updates.primary_name) {
-          action.updates.primary_name = action.updates.contact_person;
+        if (updatesToApply.contact_person && !updatesToApply.primary_name) {
+          updatesToApply.primary_name = updatesToApply.contact_person;
         }
-        if (action.updates.contact_email && !action.updates.primary_email) {
-          action.updates.primary_email = action.updates.contact_email;
+        if (updatesToApply.contact_email && !updatesToApply.primary_email) {
+          updatesToApply.primary_email = updatesToApply.contact_email;
         }
-        if (action.updates.contact_mobile && !action.updates.primary_phone) {
-          action.updates.primary_phone = action.updates.contact_mobile;
+        if (updatesToApply.contact_mobile && !updatesToApply.primary_phone) {
+          updatesToApply.primary_phone = updatesToApply.contact_mobile;
         }
-        if (action.updates.company_name && !action.updates.company) {
-          action.updates.company = action.updates.company_name;
+        if (updatesToApply.company_name && !updatesToApply.company) {
+          updatesToApply.company = updatesToApply.company_name;
         }
-        if (action.updates.company_vat && !action.updates.vat_number) {
-          action.updates.vat_number = action.updates.company_vat;
+        if (updatesToApply.company_vat && !updatesToApply.vat_number) {
+          updatesToApply.vat_number = updatesToApply.company_vat;
         }
-        if (action.updates.company_address && !action.updates.address) {
-          action.updates.address = action.updates.company_address;
+        if (updatesToApply.company_address && !updatesToApply.address) {
+          updatesToApply.address = updatesToApply.company_address;
         }
-        if (action.updates.client_address && !action.updates.address) {
-          action.updates.address = action.updates.client_address;
+        if (updatesToApply.client_address && !updatesToApply.address) {
+          updatesToApply.address = updatesToApply.client_address;
         }
 
         // Make the actual update call
-        const updatedEvent = await updateEvent(action.event_code, action.updates);
+        const updatedEvent = await updateEvent(action.event_code, updatesToApply);
         console.log('Event updated successfully:', updatedEvent);
         
         // Invalidate relevant queries

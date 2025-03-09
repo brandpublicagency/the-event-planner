@@ -53,8 +53,14 @@ IMPORTANT INSTRUCTIONS:
 ALWAYS USE THIS EXACT FORMAT FOR UPDATES:
 When a user asks you to update an event (e.g., "Change the pax for event ABC123 to 50"):
 1. Respond with: "I'll update [field] for [event name] to [new value]."
-2. Then ALWAYS create a "update_event" action with "event_code" and the specific fields to update.
-Example action for updating pax: {"action":"update_event","event_code":"ABC123","updates":{"pax":50}}`;
+2. Then ALWAYS call the "update_event" function with proper parameters.
+3. The update parameters must be directly in the "updates" object, NOT nested inside another "updates" object.
+
+Example of CORRECT update format:
+{"action":"update_event","event_code":"ABC123","updates":{"pax":50}}
+
+Example of INCORRECT update format (DO NOT USE):
+{"action":"update_event","event_code":"ABC123","updates":{"updates":{"pax":50}}}`;
 
   return systemMessage;
 }

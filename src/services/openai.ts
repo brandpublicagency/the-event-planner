@@ -103,7 +103,8 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
       if (functionCall.name === 'update_event') {
         try {
           const args = JSON.parse(functionCall.arguments || '{}');
-          return `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${functionCall.arguments}}`;
+          // Properly format the response without nesting updates inside updates
+          return `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${JSON.stringify(args.updates)}}`;
         } catch (error) {
           console.error('Error parsing function arguments:', error);
         }

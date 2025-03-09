@@ -20,6 +20,16 @@ export const useActionHandler = () => {
 
     try {
       console.log('Executing action:', pendingAction);
+      
+      // Fix nested updates structure if needed
+      if (pendingAction.action === "update_event" && 
+          pendingAction.updates && 
+          pendingAction.updates.event_code && 
+          pendingAction.updates.updates) {
+        console.log('Detected nested updates structure in ActionHandler, fixing...');
+        pendingAction.updates = pendingAction.updates.updates;
+      }
+      
       await handleChatAction(
         pendingAction,
         (message) => {
