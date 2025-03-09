@@ -9,7 +9,11 @@ import DocumentEditor from "@/components/documents/DocumentEditor";
 import { Card } from "@/components/ui/card";
 import type { Document } from "@/types/document";
 
-export function DocumentsContainer() {
+interface DocumentsContainerProps {
+  autoCreateDocument?: boolean;
+}
+
+export function DocumentsContainer({ autoCreateDocument = false }: DocumentsContainerProps) {
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
@@ -105,6 +109,13 @@ export function DocumentsContainer() {
       });
     },
   });
+
+  // Create a new document automatically when autoCreateDocument is true
+  useEffect(() => {
+    if (autoCreateDocument && !createDocument.isPending && !selectedDocId) {
+      handleNewDocument();
+    }
+  }, [autoCreateDocument]);
 
   const handleNewDocument = () => {
     createDocument.mutate();

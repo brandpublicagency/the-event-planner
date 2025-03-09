@@ -139,7 +139,7 @@ const Sidebar = ({
             </button>
             
             <button 
-              onClick={() => navigate('/documents')} 
+              onClick={() => navigate('/documents?newDocument=true')} 
               className={cn(
                 "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
                 isCollapsed ? "justify-center" : "gap-2"
