@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
@@ -13,12 +14,23 @@ interface TaskListProps {
   tasks: Task[];
   onTaskSelect: (id: string) => void;
   selectedTaskId: string | null;
+  focusNewTaskInput?: boolean;
 }
 
-export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps) {
+export function TaskList({ tasks, onTaskSelect, selectedTaskId, focusNewTaskInput = false }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const { addTask, isLoading, error } = useTaskContext();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Focus the input when focusNewTaskInput is true
+    if (focusNewTaskInput && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [focusNewTaskInput]);
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
@@ -91,6 +103,7 @@ export function TaskList({ tasks, onTaskSelect, selectedTaskId }: TaskListProps)
           value={newTaskTitle}
           onChange={setNewTaskTitle}
           onSubmit={handleAddTask}
+          inputRef={inputRef}
         />
       </Tabs>
     </div>

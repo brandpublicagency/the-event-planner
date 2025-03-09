@@ -1,14 +1,17 @@
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { RefObject } from "react";
 
 interface AddTaskInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  inputRef?: RefObject<HTMLInputElement>;
 }
 
-export function AddTaskInput({ value, onChange, onSubmit }: AddTaskInputProps) {
+export function AddTaskInput({ value, onChange, onSubmit, inputRef }: AddTaskInputProps) {
   return (
     <div className="flex items-center gap-2 mt-2">
       <Input
@@ -21,6 +24,7 @@ export function AddTaskInput({ value, onChange, onSubmit }: AddTaskInputProps) {
           }
         }}
         className="h-9"
+        ref={inputRef}
       />
       <Button 
         size="sm"

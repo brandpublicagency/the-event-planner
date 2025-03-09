@@ -2,14 +2,15 @@
 import { useTaskContext } from "@/contexts/TaskContext";
 import { TaskList } from "../TaskList";
 import { TaskDetails } from "./TaskDetails";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 
 interface TaskBoardProps {
   initialSelectedTaskId?: string | null;
+  showNewTaskInput?: boolean;
 }
 
-export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
+export function TaskBoard({ initialSelectedTaskId, showNewTaskInput = false }: TaskBoardProps) {
   const { tasks, isLoading, error } = useTaskContext();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialSelectedTaskId || null);
 
@@ -33,7 +34,8 @@ export function TaskBoard({ initialSelectedTaskId }: TaskBoardProps) {
         <TaskList 
           tasks={tasks}
           onTaskSelect={(id) => setSelectedTaskId(id)} 
-          selectedTaskId={selectedTaskId} 
+          selectedTaskId={selectedTaskId}
+          focusNewTaskInput={showNewTaskInput}
         />
       </div>
       {selectedTaskId && (
