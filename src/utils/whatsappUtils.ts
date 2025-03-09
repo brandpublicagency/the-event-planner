@@ -50,6 +50,36 @@ export const handleMessage = async (message: WhatsAppMessage) => {
         };
       }
 
+      // Handle next event query specifically
+      if (messageText.includes('next event')) {
+        const { data: nextEvent, error } = await supabase
+          .from('events')
+          .select('*')
+          .gte('event_date', new Date().toISOString())
+          .is('deleted_at', null)
+          .is('completed', false)
+          .order('event_date', { ascending: true })
+          .limit(1);
+
+        if (error) {
+          console.error('Error fetching next event:', error);
+          throw error;
+        }
+
+        if (!nextEvent?.length) {
+          return {
+            type: 'text',
+            message: "No upcoming events found."
+          };
+        }
+
+        const event = nextEvent[0];
+        return {
+          type: 'text',
+          message: `The next event is "${event.name}" on ${format(new Date(event.event_date), 'MMMM d, yyyy')}. It's a ${event.event_type} event${event.pax ? ` for ${event.pax} guests` : ''}.`
+        };
+      }
+
       // Handle upcoming events query
       if (messageText.includes('upcoming events')) {
         const { data: events, error } = await supabase
@@ -119,6 +149,9 @@ export const handleMessage = async (message: WhatsAppMessage) => {
     };
   } catch (error) {
     console.error('Error handling message:', error);
-    throw error;
+    return {
+      type: 'text',
+      message: "I encountered an error processing your request. Please try again later."
+    };
   }
 };

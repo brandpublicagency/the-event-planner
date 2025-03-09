@@ -7,7 +7,7 @@ import {
   prepareContactsContext,
   prepareDocumentsContext,
   getSystemMessage 
-} from "@/utils/chat"; // Updated import path
+} from "@/utils/chat";
 import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
@@ -43,16 +43,25 @@ export const ChatMessageHandler = ({
   const { tasks } = useTaskContext();
   const { handlePendingAction } = useActionHandler();
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [dataReady, setDataReady] = useState(false);
 
-  // When contextData changes, log it to help debugging
+  // When contextData changes, check if it's ready to use
   useEffect(() => {
     if (contextData) {
+      const hasEvents = contextData.events && Array.isArray(contextData.events) && contextData.events.length > 0;
+      const hasContacts = contextData.contacts && Array.isArray(contextData.contacts);
+      const hasDocuments = contextData.documents && Array.isArray(contextData.documents);
+      
+      // Check if we have at least some minimal data to work with
+      setDataReady(hasEvents || hasContacts || hasDocuments);
+      
       console.log('Context data loaded:', {
         events: contextData.events?.length || 0,
         contacts: contextData.contacts?.length || 0,
         documents: contextData.documents?.length || 0,
         tasks: contextData.tasks?.length || 0,
-        pdfContent: contextData.pdfContent ? 'Available' : 'Not available'
+        pdfContent: contextData.pdfContent ? 'Available' : 'Not available',
+        dataReady: hasEvents || hasContacts || hasDocuments
       });
     }
   }, [contextData]);
@@ -73,10 +82,16 @@ export const ChatMessageHandler = ({
       clearInput();
       setIsLoading(true);
 
-      // Check if context data is available
-      if (!contextData) {
-        console.warn('Context data not available yet, using fallback response');
-        addSystemMessage("I'm still loading the event data. Please try again in a moment.");
+      // Check if we should use fallback immediately
+      const useWhatsAppFallback = !aiEnabled || !contextData || !dataReady;
+      
+      if (useWhatsAppFallback) {
+        console.log('Using WhatsApp fallback directly due to:', {
+          aiEnabled,
+          contextDataAvailable: !!contextData,
+          dataReady
+        });
+        await handleWhatsAppFallback();
         setIsLoading(false);
         return;
       }
@@ -103,43 +118,29 @@ export const ChatMessageHandler = ({
         tasksContext
       );
 
-      if (aiEnabled) {
-        // Try to get a response from OpenAI
-        const messages: ChatCompletionMessageParam[] = [
-          { role: "system", content: systemMessage } as const,
-          ...chatMessages.map(msg => ({
-            role: msg.isUser ? "user" as const : "assistant" as const,
-            content: msg.text
-          })),
-          { role: "user" as const, content: inputValue }
-        ];
+      // Try to get a response from OpenAI
+      const messages: ChatCompletionMessageParam[] = [
+        { role: "system", content: systemMessage } as const,
+        ...chatMessages.map(msg => ({
+          role: msg.isUser ? "user" as const : "assistant" as const,
+          content: msg.text
+        })),
+        { role: "user" as const, content: inputValue }
+      ];
 
-        console.log('Sending chat request with full context');
-        const aiResponse = await getChatCompletion(messages);
-        
-        if (aiResponse) {
-          console.log('Received AI response:', aiResponse.substring(0, 100) + '...');
-          addSystemMessage(aiResponse);
-        } else {
-          console.warn('No AI response received, falling back to WhatsApp handler');
-          await handleWhatsAppFallback();
-        }
+      console.log('Sending chat request with full context');
+      const aiResponse = await getChatCompletion(messages);
+      
+      if (aiResponse) {
+        console.log('Received AI response:', aiResponse.substring(0, 100) + '...');
+        addSystemMessage(aiResponse);
       } else {
-        // Use WhatsApp handler directly
+        console.warn('No AI response received, falling back to WhatsApp handler');
         await handleWhatsAppFallback();
       }
     } catch (error: any) {
       console.error('Error in chat completion:', error);
-      
-      const errorMessage = "I apologize, but I encountered an error. Please try again.";
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-
-      addSystemMessage(errorMessage);
+      await handleWhatsAppFallback();
     } finally {
       setIsLoading(false);
     }

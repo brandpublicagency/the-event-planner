@@ -249,19 +249,10 @@ export const getNextEvent = async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
+    // Simplified query to avoid relationship issues
     const { data: events, error } = await supabase
       .from('events')
-      .select(`
-        *,
-        wedding_details (*),
-        corporate_details (*),
-        menu_selections (*),
-        event_venues (
-          venues (
-            name
-          )
-        )
-      `)
+      .select('*')
       .gte('event_date', today.toISOString())
       .is('deleted_at', null)
       .is('completed', false)
@@ -281,16 +272,71 @@ export const getNextEvent = async () => {
     }
 
     const event = events[0];
-    const venues = event.event_venues
-      ?.map((v: any) => v.venues?.name)
-      .filter(Boolean)
-      .join(', ') || 'No venue specified';
+    
+    // Get venue information separately if needed
+    let venues = "No venue information";
+    try {
+      const { data: venueData } = await supabase
+        .from('event_venues')
+        .select('venues(name)')
+        .eq('event_code', event.event_code);
+        
+      if (venueData && venueData.length > 0) {
+        venues = venueData
+          .map((v: any) => v.venues?.name)
+          .filter(Boolean)
+          .join(', ');
+      }
+    } catch (venueError) {
+      console.error('Error fetching venues:', venueError);
+    }
 
+    // Get client details separately
     let clientDetails = '';
-    if (event.wedding_details?.bride_name || event.wedding_details?.groom_name) {
-      clientDetails = `\nClient: Wedding of ${event.wedding_details.bride_name || 'Bride'} & ${event.wedding_details.groom_name || 'Groom'}`;
-    } else if (event.corporate_details?.company_name) {
-      clientDetails = `\nClient: ${event.corporate_details.company_name}`;
+    try {
+      if (event.event_type?.toLowerCase() === 'wedding') {
+        const { data: weddingData } = await supabase
+          .from('wedding_details')
+          .select('*')
+          .eq('event_code', event.event_code)
+          .single();
+          
+        if (weddingData) {
+          clientDetails = `\nClient: Wedding of ${weddingData.bride_name || 'Bride'} & ${weddingData.groom_name || 'Groom'}`;
+        }
+      } else if (event.event_type?.toLowerCase().includes('corporate')) {
+        const { data: corporateData } = await supabase
+          .from('corporate_details')
+          .select('*')
+          .eq('event_code', event.event_code)
+          .single();
+          
+        if (corporateData) {
+          clientDetails = `\nClient: ${corporateData.company_name}`;
+        }
+      }
+    } catch (clientError) {
+      console.error('Error fetching client details:', clientError);
+    }
+
+    // Get menu details separately
+    let menuDetails = '\nNo menu details available yet';
+    try {
+      const { data: menuData } = await supabase
+        .from('menu_selections')
+        .select('*')
+        .eq('event_code', event.event_code)
+        .single();
+        
+      if (menuData) {
+        menuDetails = `\nMenu Details:
+   - Custom Menu: ${menuData.is_custom ? 'Yes' : 'No'}
+   - Starter: ${menuData.starter_type || 'Not selected'}
+   - Main Course: ${menuData.main_course_type || 'Not selected'}
+   - Dessert: ${menuData.dessert_type || 'Not selected'}`;
+      }
+    } catch (menuError) {
+      console.error('Error fetching menu details:', menuError);
     }
 
     const message = `The next upcoming event is "${event.name}". Here are the details:
@@ -300,11 +346,7 @@ Date: ${event.event_date ? format(new Date(event.event_date), 'MMMM d, yyyy') : 
 Time: ${event.start_time || 'Not set'}${event.end_time ? ` - ${event.end_time}` : ''}
 Venue(s): ${venues}
 Pax: ${event.pax || 'Not specified'}${clientDetails}
-${event.menu_selections ? `\nMenu Details:
-   - Custom Menu: ${event.menu_selections.is_custom ? 'Yes' : 'No'}
-   - Starter: ${event.menu_selections.starter_type || 'Not selected'}
-   - Main Course: ${event.menu_selections.main_course_type || 'Not selected'}
-   - Dessert: ${event.menu_selections.dessert_type || 'Not selected'}` : '\nNo menu details available yet'}
+${menuDetails}
 
 Please let me know if you need more information or other assistance.`;
 
