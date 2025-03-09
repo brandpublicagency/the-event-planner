@@ -23,6 +23,8 @@ export const handleChatAction = async (
           throw new Error("Missing required fields for event update");
         }
 
+        console.log('Updating event with code:', action.event_code, 'Updates:', action.updates);
+
         // Handle date updates with better validation
         if (action.updates.event_date && typeof action.updates.event_date === 'string') {
           let parsedDate;
@@ -108,7 +110,9 @@ export const handleChatAction = async (
           action.updates.address = action.updates.client_address;
         }
 
-        await updateEvent(action.event_code, action.updates);
+        // Make the actual update call
+        const updatedEvent = await updateEvent(action.event_code, action.updates);
+        console.log('Event updated successfully:', updatedEvent);
         
         // Invalidate relevant queries
         await queryClient.invalidateQueries({ queryKey: ['events'] });

@@ -1,3 +1,4 @@
+
 import { handleChatAction } from "@/utils/chatActionHandler";
 import { PendingAction } from "@/types/chat";
 import { useChatState } from "@/hooks/useChatState";
@@ -18,26 +19,32 @@ export const useActionHandler = () => {
     }
 
     try {
+      console.log('Executing action:', pendingAction);
       await handleChatAction(
         pendingAction,
         (message) => {
           addSystemMessage(message);
           setPendingAction(null);
+          
+          // Invalidate queries to refresh UI data
+          console.log('Action completed, invalidating queries');
           queryClient.invalidateQueries();
         },
         (error) => {
           console.error('Error executing action:', error);
-          addSystemMessage("Sorry, I encountered an error while executing the action.");
+          addSystemMessage("Sorry, I encountered an error while executing the action: " + error.message);
           toast({
             title: "Error",
             description: error.message || "Failed to execute the requested action",
             variant: "destructive",
           });
+          setPendingAction(null);
         }
       );
     } catch (error) {
       console.error('Error in action handler:', error);
       addSystemMessage("An error occurred while processing your request.");
+      setPendingAction(null);
     }
   };
 
