@@ -1,16 +1,20 @@
+
 import { Calendar, Users } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import OpenAI from "openai";
-import type { Event } from "@/types/event";
 
-type ProjectCardProps = Event & {
-  onClick?: () => void;
-  // Add UI specific props
+// Create a dedicated props interface instead of extending Event
+interface ProjectCardProps {
+  name: string;
+  description: string;
   progress?: number;
   teamSize?: number;
-};
+  event_date?: string;
+  event_code: string;
+  onClick?: () => void;
+}
 
 const openai = import.meta.env.VITE_OPENAI_API_KEY 
   ? new OpenAI({
