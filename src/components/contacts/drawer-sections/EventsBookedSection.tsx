@@ -38,7 +38,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
       case "Today":
         return "default";
       case "Upcoming":
-        return "success";
+        return "secondary"; // Changed from "success" to "secondary" to match valid variants
       default:
         return "outline";
     }
