@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -52,7 +51,7 @@ const NewEvent = () => {
       
       const eventCode = generateEventCode();
       
-      // Prepare the event data with new contact fields
+      // Prepare the event data
       const eventData = {
         event_code: eventCode,
         name: data.name,
@@ -67,7 +66,7 @@ const NewEvent = () => {
         completed: false,
         venues: data.venues,
         
-        // New contact fields
+        // Contact fields
         primary_name: data.primary_name || null,
         primary_phone: data.primary_phone || null,
         primary_email: data.primary_email || null,
@@ -80,37 +79,6 @@ const NewEvent = () => {
       };
 
       await createEvent(eventData, user.id);
-
-      // For backward compatibility, also create the related table entries
-      if (data.event_type === 'Wedding') {
-        const { error: weddingError } = await supabase
-          .from('wedding_details')
-          .insert({
-            event_code: eventCode,
-            bride_name: data.primary_name || data.bride_name || null,
-            bride_email: data.primary_email || data.bride_email || null,
-            bride_mobile: data.primary_phone || data.bride_mobile || null,
-            groom_name: data.secondary_name || data.groom_name || null,
-            groom_email: data.secondary_email || data.groom_email || null,
-            groom_mobile: data.secondary_phone || data.groom_mobile || null,
-          });
-
-        if (weddingError) throw weddingError;
-      } else {
-        const { error: corporateError } = await supabase
-          .from('corporate_details')
-          .insert({
-            event_code: eventCode,
-            company_name: data.company || data.company_name || null,
-            contact_person: data.primary_name || data.contact_person || null,
-            contact_email: data.primary_email || data.contact_email || null,
-            contact_mobile: data.primary_phone || data.contact_mobile || null,
-            company_vat: data.vat_number || data.company_vat || null,
-            company_address: data.address || data.company_address || null,
-          });
-
-        if (corporateError) throw corporateError;
-      }
 
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });

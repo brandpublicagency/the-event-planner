@@ -3,12 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 
 export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
-  // Remove related fields that aren't in the events table
-  const { wedding_details, corporate_details, menu_selections, ...eventUpdates } = updates;
-
   const { data, error } = await supabase
     .from('events')
-    .update(eventUpdates)
+    .update(updates)
     .eq('event_code', eventCode)
     .select()
     .single();
@@ -36,22 +33,6 @@ export const deleteEvent = async (eventCode: string) => {
     .eq('event_code', eventCode);
   
   if (menuError) throw menuError;
-  
-  // Delete wedding_details if exists
-  const { error: weddingError } = await supabase
-    .from('wedding_details')
-    .delete()
-    .eq('event_code', eventCode);
-  
-  if (weddingError) throw weddingError;
-  
-  // Delete corporate_details if exists
-  const { error: corporateError } = await supabase
-    .from('corporate_details')
-    .delete()
-    .eq('event_code', eventCode);
-  
-  if (corporateError) throw corporateError;
   
   // Finally delete the event itself
   const { error } = await supabase

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -28,11 +27,7 @@ const EventDetails = () => {
       try {
         const { data, error } = await supabase
           .from('events')
-          .select(`
-            *,
-            wedding_details (*),
-            corporate_details (*)
-          `)
+          .select('*')
           .eq('event_code', id)
           .maybeSingle();
         

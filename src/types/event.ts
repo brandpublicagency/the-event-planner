@@ -17,7 +17,7 @@ export interface Event {
   deleted_at: string | null;
   venues: string[] | null;
   
-  // New contact fields
+  // Contact fields
   primary_name: string | null;
   primary_phone: string | null;
   primary_email: string | null;
@@ -27,35 +27,6 @@ export interface Event {
   address: string | null;
   company: string | null;
   vat_number: string | null;
-  
-  // Related tables (kept for backward compatibility)
-  wedding_details?: {
-    bride_name: string | null;
-    bride_email: string | null;
-    bride_mobile: string | null;
-    groom_name: string | null;
-    groom_email: string | null;
-    groom_mobile: string | null;
-  };
-  
-  corporate_details?: {
-    company_name: string | null;
-    contact_person: string | null;
-    contact_email: string | null;
-    contact_mobile: string | null;
-    company_vat: string | null;
-    company_address: string | null;
-  };
-  
-  menu_selections?: {
-    is_custom: boolean | null;
-    custom_menu_details: string | null;
-    starter_type: string | null;
-    canape_package: string | null;
-    canape_selections: string[] | null;
-    plated_starter: string | null;
-    notes: string | null;
-  };
 }
 
 export interface EventCreate {
@@ -72,7 +43,7 @@ export interface EventCreate {
   completed?: boolean;
   venues?: string[] | null;
   
-  // New contact fields
+  // Contact fields
   primary_name?: string | null;
   primary_phone?: string | null;
   primary_email?: string | null;

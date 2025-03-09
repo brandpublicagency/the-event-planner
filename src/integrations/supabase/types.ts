@@ -9,50 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      corporate_details: {
-        Row: {
-          company_address: string | null
-          company_name: string | null
-          company_vat: string | null
-          contact_email: string | null
-          contact_mobile: string | null
-          contact_person: string | null
-          created_at: string
-          event_code: string
-          updated_at: string
-        }
-        Insert: {
-          company_address?: string | null
-          company_name?: string | null
-          company_vat?: string | null
-          contact_email?: string | null
-          contact_mobile?: string | null
-          contact_person?: string | null
-          created_at?: string
-          event_code: string
-          updated_at?: string
-        }
-        Update: {
-          company_address?: string | null
-          company_name?: string | null
-          company_vat?: string | null
-          contact_email?: string | null
-          contact_mobile?: string | null
-          contact_person?: string | null
-          created_at?: string
-          event_code?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "corporate_details_event_code_fkey"
-            columns: ["event_code"]
-            isOneToOne: true
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          },
-        ]
-      }
       document_categories: {
         Row: {
           color: string | null
@@ -148,36 +104,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["event_code"]
-          },
-        ]
-      }
-      event_venues: {
-        Row: {
-          event_code: string
-          venue_id: string
-        }
-        Insert: {
-          event_code: string
-          venue_id: string
-        }
-        Update: {
-          event_code?: string
-          venue_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_venues_event_code_fkey"
-            columns: ["event_code"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          },
-          {
-            foreignKeyName: "event_venues_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -566,68 +492,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      venues: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      wedding_details: {
-        Row: {
-          bride_email: string | null
-          bride_mobile: string | null
-          bride_name: string | null
-          created_at: string
-          event_code: string
-          groom_email: string | null
-          groom_mobile: string | null
-          groom_name: string | null
-          updated_at: string
-        }
-        Insert: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at?: string
-          event_code: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at?: string
-        }
-        Update: {
-          bride_email?: string | null
-          bride_mobile?: string | null
-          bride_name?: string | null
-          created_at?: string
-          event_code?: string
-          groom_email?: string | null
-          groom_mobile?: string | null
-          groom_name?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wedding_details_event_code_fkey"
-            columns: ["event_code"]
-            isOneToOne: true
-            referencedRelation: "events"
-            referencedColumns: ["event_code"]
-          },
-        ]
       }
     }
     Views: {

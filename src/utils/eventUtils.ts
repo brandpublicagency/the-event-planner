@@ -31,24 +31,6 @@ export const deleteEvent = async (eventCode: string) => {
       throw menuError;
     }
     
-    const { error: weddingError } = await supabase
-      .from('wedding_details')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (weddingError) {
-      console.error('Error deleting wedding details:', weddingError);
-    }
-    
-    const { error: corporateError } = await supabase
-      .from('corporate_details')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (corporateError) {
-      console.error('Error deleting corporate details:', corporateError);
-    }
-    
     const { error } = await supabase
       .from('events')
       .delete()
