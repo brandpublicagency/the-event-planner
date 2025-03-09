@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Printer } from "lucide-react";
@@ -16,7 +17,7 @@ export const EventHeader = ({
   onCustomMenuToggle
 }: EventHeaderProps) => {
   const navigate = useNavigate();
-  return <div className="border-b border-zinc-200 flex items-center justify-between print:hidden print:bg-white px-0 py-[20px]">
+  return <div className="flex items-center justify-between print:hidden print:bg-white px-0 py-[20px]">
       <Button variant="outline" size="sm" onClick={() => navigate('/events')} className="flex items-center gap-2 rounded-full">
         <ArrowLeft className="h-4 w-4" />
         Back to Events
