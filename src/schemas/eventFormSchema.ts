@@ -11,17 +11,30 @@ export const eventFormSchema = z.object({
   pax: z.number().min(1, "Number of guests must be at least 1").optional(),
   client_address: z.string().optional(),
   venues: z.array(z.string()),
+  
+  // New unified contact fields
+  primary_name: z.string().optional(),
+  primary_phone: z.string().optional(),
+  primary_email: z.string().email("Invalid email format").optional(),
+  secondary_name: z.string().optional(),
+  secondary_phone: z.string().optional(),
+  secondary_email: z.string().email("Invalid email format").optional(),
+  address: z.string().optional(),
+  company: z.string().optional(),
+  vat_number: z.string().optional(),
+  
+  // Legacy fields (kept for backward compatibility)
   // Wedding specific fields
   bride_name: z.string().optional(),
-  bride_email: z.string().email().optional(),
+  bride_email: z.string().email("Invalid email format").optional(),
   bride_mobile: z.string().optional(),
   groom_name: z.string().optional(),
-  groom_email: z.string().email().optional(),
+  groom_email: z.string().email("Invalid email format").optional(),
   groom_mobile: z.string().optional(),
   // Corporate specific fields
   company_name: z.string().optional(),
   contact_person: z.string().optional(),
-  contact_email: z.string().email().optional(),
+  contact_email: z.string().email("Invalid email format").optional(),
   contact_mobile: z.string().optional(),
   company_vat: z.string().optional(),
   company_address: z.string().optional(),

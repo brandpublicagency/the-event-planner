@@ -219,7 +219,9 @@ export type Database = {
       }
       events: {
         Row: {
+          address: string | null
           client_address: string | null
+          company: string | null
           completed: boolean | null
           created_at: string
           created_by: string | null
@@ -232,12 +234,21 @@ export type Database = {
           name: string
           package_id: string | null
           pax: number | null
+          primary_email: string | null
+          primary_name: string | null
+          primary_phone: string | null
+          secondary_email: string | null
+          secondary_name: string | null
+          secondary_phone: string | null
           start_time: string | null
           updated_at: string
+          vat_number: string | null
           venues: string[] | null
         }
         Insert: {
+          address?: string | null
           client_address?: string | null
+          company?: string | null
           completed?: boolean | null
           created_at?: string
           created_by?: string | null
@@ -250,12 +261,21 @@ export type Database = {
           name: string
           package_id?: string | null
           pax?: number | null
+          primary_email?: string | null
+          primary_name?: string | null
+          primary_phone?: string | null
+          secondary_email?: string | null
+          secondary_name?: string | null
+          secondary_phone?: string | null
           start_time?: string | null
           updated_at?: string
+          vat_number?: string | null
           venues?: string[] | null
         }
         Update: {
+          address?: string | null
           client_address?: string | null
+          company?: string | null
           completed?: boolean | null
           created_at?: string
           created_by?: string | null
@@ -268,8 +288,15 @@ export type Database = {
           name?: string
           package_id?: string | null
           pax?: number | null
+          primary_email?: string | null
+          primary_name?: string | null
+          primary_phone?: string | null
+          secondary_email?: string | null
+          secondary_name?: string | null
+          secondary_phone?: string | null
           start_time?: string | null
           updated_at?: string
+          vat_number?: string | null
           venues?: string[] | null
         }
         Relationships: [

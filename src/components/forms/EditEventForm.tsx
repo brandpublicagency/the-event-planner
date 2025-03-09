@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { UseFormReturn } from "react-hook-form";
 import FormSection from "./FormSection";
 import EventBasicInfo from "./EventBasicInfo";
-import BrideDetails from "./BrideDetails";
-import GroomDetails from "./GroomDetails";
-import CompanyDetails from "./CompanyDetails";
+import ContactDetails from "./ContactDetails";
 
 interface EditEventFormProps {
   form: UseFormReturn<any>;
@@ -27,30 +25,12 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
           <EventBasicInfo form={form} />
         </FormSection>
 
-        {eventType === "Wedding" ? (
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormSection 
-              title="Bride Details" 
-              description="Update the bride's contact information."
-            >
-              <BrideDetails form={form} />
-            </FormSection>
-
-            <FormSection 
-              title="Groom Details" 
-              description="Update the groom's contact information."
-            >
-              <GroomDetails form={form} />
-            </FormSection>
-          </div>
-        ) : (
-          <FormSection 
-            title="Company Details" 
-            description="Update the company's information."
-          >
-            <CompanyDetails form={form} isEditing={true} />
-          </FormSection>
-        )}
+        <FormSection 
+          title="Contact Details" 
+          description={`Update the ${eventType === "Wedding" ? "bride and groom" : "contact"} information.`}
+        >
+          <ContactDetails form={form} eventType={eventType} />
+        </FormSection>
 
         <div className="flex justify-end space-x-4">
           <Button 

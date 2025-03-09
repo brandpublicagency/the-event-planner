@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/toast";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import EditEventForm from "@/components/forms/EditEventForm";
@@ -68,6 +68,19 @@ const EditEvent = () => {
         pax: event.pax || undefined,
         client_address: event.client_address || '',
         venues: venues,
+        
+        // Use new fields if available, otherwise fall back to the legacy data
+        primary_name: event.primary_name || event.wedding_details?.bride_name || event.corporate_details?.contact_person || '',
+        primary_email: event.primary_email || event.wedding_details?.bride_email || event.corporate_details?.contact_email || '',
+        primary_phone: event.primary_phone || event.wedding_details?.bride_mobile || event.corporate_details?.contact_mobile || '',
+        secondary_name: event.secondary_name || event.wedding_details?.groom_name || '',
+        secondary_email: event.secondary_email || event.wedding_details?.groom_email || '',
+        secondary_phone: event.secondary_phone || event.wedding_details?.groom_mobile || '',
+        address: event.address || event.client_address || event.corporate_details?.company_address || '',
+        company: event.company || event.corporate_details?.company_name || '',
+        vat_number: event.vat_number || event.corporate_details?.company_vat || '',
+        
+        // Legacy fields (for backward compatibility)
         // Wedding details
         bride_name: event.wedding_details?.bride_name || '',
         bride_email: event.wedding_details?.bride_email || '',

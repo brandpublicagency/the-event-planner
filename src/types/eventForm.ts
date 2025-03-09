@@ -9,6 +9,19 @@ export interface EventFormData {
   pax?: number;
   client_address?: string;
   venues: string[];
+  
+  // New unified contact fields
+  primary_name?: string;
+  primary_phone?: string;
+  primary_email?: string;
+  secondary_name?: string;
+  secondary_phone?: string;
+  secondary_email?: string;
+  address?: string;
+  company?: string;
+  vat_number?: string;
+  
+  // Legacy fields (kept for backward compatibility)
   // Wedding specific fields
   bride_name?: string;
   bride_email?: string;

@@ -17,7 +17,18 @@ export interface Event {
   deleted_at: string | null;
   venues: string[] | null;
   
-  // Related tables
+  // New contact fields
+  primary_name: string | null;
+  primary_phone: string | null;
+  primary_email: string | null;
+  secondary_name: string | null;
+  secondary_phone: string | null;
+  secondary_email: string | null;
+  address: string | null;
+  company: string | null;
+  vat_number: string | null;
+  
+  // Related tables (kept for backward compatibility)
   wedding_details?: {
     bride_name: string | null;
     bride_email: string | null;
@@ -60,4 +71,15 @@ export interface EventCreate {
   created_by?: string | null;
   completed?: boolean;
   venues?: string[] | null;
+  
+  // New contact fields
+  primary_name?: string | null;
+  primary_phone?: string | null;
+  primary_email?: string | null;
+  secondary_name?: string | null;
+  secondary_phone?: string | null;
+  secondary_email?: string | null;
+  address?: string | null;
+  company?: string | null;
+  vat_number?: string | null;
 }

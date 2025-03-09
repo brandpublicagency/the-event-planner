@@ -1,3 +1,4 @@
+
 import { updateMenuSelection } from "@/services/menuService";
 import { sendEmail } from "@/services/email";
 import { updateEvent, createEvent, deleteEvent } from "@/services/eventService";
@@ -37,6 +38,47 @@ export const handleChatAction = async (
             console.error('Date parsing error:', error);
             throw new Error("Invalid date format. Please use the format 'YYYY-MM-DD' or 'DD Month YYYY'");
           }
+        }
+
+        // Map contact fields from legacy names if provided
+        if (action.updates.bride_name && !action.updates.primary_name) {
+          action.updates.primary_name = action.updates.bride_name;
+        }
+        if (action.updates.bride_email && !action.updates.primary_email) {
+          action.updates.primary_email = action.updates.bride_email;
+        }
+        if (action.updates.bride_mobile && !action.updates.primary_phone) {
+          action.updates.primary_phone = action.updates.bride_mobile;
+        }
+        if (action.updates.groom_name && !action.updates.secondary_name) {
+          action.updates.secondary_name = action.updates.groom_name;
+        }
+        if (action.updates.groom_email && !action.updates.secondary_email) {
+          action.updates.secondary_email = action.updates.groom_email;
+        }
+        if (action.updates.groom_mobile && !action.updates.secondary_phone) {
+          action.updates.secondary_phone = action.updates.groom_mobile;
+        }
+        if (action.updates.contact_person && !action.updates.primary_name) {
+          action.updates.primary_name = action.updates.contact_person;
+        }
+        if (action.updates.contact_email && !action.updates.primary_email) {
+          action.updates.primary_email = action.updates.contact_email;
+        }
+        if (action.updates.contact_mobile && !action.updates.primary_phone) {
+          action.updates.primary_phone = action.updates.contact_mobile;
+        }
+        if (action.updates.company_name && !action.updates.company) {
+          action.updates.company = action.updates.company_name;
+        }
+        if (action.updates.company_vat && !action.updates.vat_number) {
+          action.updates.vat_number = action.updates.company_vat;
+        }
+        if (action.updates.company_address && !action.updates.address) {
+          action.updates.address = action.updates.company_address;
+        }
+        if (action.updates.client_address && !action.updates.address) {
+          action.updates.address = action.updates.client_address;
         }
 
         await updateEvent(action.event_code, action.updates);

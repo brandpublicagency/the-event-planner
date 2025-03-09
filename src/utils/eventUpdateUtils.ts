@@ -13,6 +13,19 @@ interface EventUpdateData {
   client_address: string | null;
   venues?: string[];
   completed?: boolean;
+  
+  // New unified contact fields
+  primary_name?: string;
+  primary_phone?: string;
+  primary_email?: string;
+  secondary_name?: string;
+  secondary_phone?: string;
+  secondary_email?: string;
+  address?: string;
+  company?: string;
+  vat_number?: string;
+  
+  // Legacy fields (kept for backward compatibility)
   // Wedding specific fields
   bride_name?: string;
   bride_email?: string;
@@ -60,6 +73,29 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       }
     }
 
+    // Map contact information from legacy fields to new fields if not provided directly
+    if (data.event_type === 'Wedding') {
+      // For Wedding events, map bride/groom details to primary/secondary contacts if not set
+      if (!data.primary_name && data.bride_name) data.primary_name = data.bride_name;
+      if (!data.primary_email && data.bride_email) data.primary_email = data.bride_email;
+      if (!data.primary_phone && data.bride_mobile) data.primary_phone = data.bride_mobile;
+      if (!data.secondary_name && data.groom_name) data.secondary_name = data.groom_name;
+      if (!data.secondary_email && data.groom_email) data.secondary_email = data.groom_email;
+      if (!data.secondary_phone && data.groom_mobile) data.secondary_phone = data.groom_mobile;
+    } else {
+      // For Corporate or Other events, map company details to primary contact if not set
+      if (!data.primary_name && data.contact_person) data.primary_name = data.contact_person;
+      if (!data.primary_email && data.contact_email) data.primary_email = data.contact_email;
+      if (!data.primary_phone && data.contact_mobile) data.primary_phone = data.contact_mobile;
+      if (!data.company && data.company_name) data.company = data.company_name;
+      if (!data.vat_number && data.company_vat) data.vat_number = data.company_vat;
+    }
+    
+    // If address is not provided but client_address is, use client_address
+    if (!data.address && data.client_address) data.address = data.client_address;
+    // Also use company_address for Corporate events if available
+    if (!data.address && data.company_address) data.address = data.company_address;
+
     // Update main event details
     const { error: eventError } = await supabase
       .from('events')
@@ -74,6 +110,16 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         client_address: data.client_address || null,
         venues: data.venues || null,
         completed: data.completed !== undefined ? data.completed : undefined,
+        // New contact fields
+        primary_name: data.primary_name || null,
+        primary_phone: data.primary_phone || null,
+        primary_email: data.primary_email || null,
+        secondary_name: data.secondary_name || null,
+        secondary_phone: data.secondary_phone || null,
+        secondary_email: data.secondary_email || null,
+        address: data.address || null,
+        company: data.company || null,
+        vat_number: data.vat_number || null,
       })
       .eq('event_code', eventCode);
 
@@ -82,18 +128,18 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       throw eventError;
     }
 
-    // Update event type specific details
+    // For backward compatibility, also update the related tables if needed
     if (data.event_type === 'Wedding') {
       const { error: weddingError } = await supabase
         .from('wedding_details')
         .upsert({
           event_code: eventCode,
-          bride_name: data.bride_name || null,
-          bride_email: data.bride_email || null,
-          bride_mobile: data.bride_mobile || null,
-          groom_name: data.groom_name || null,
-          groom_email: data.groom_email || null,
-          groom_mobile: data.groom_mobile || null,
+          bride_name: data.bride_name || data.primary_name || null,
+          bride_email: data.bride_email || data.primary_email || null,
+          bride_mobile: data.bride_mobile || data.primary_phone || null,
+          groom_name: data.groom_name || data.secondary_name || null,
+          groom_email: data.groom_email || data.secondary_email || null,
+          groom_mobile: data.groom_mobile || data.secondary_phone || null,
         });
 
       if (weddingError) throw weddingError;
@@ -102,12 +148,12 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         .from('corporate_details')
         .upsert({
           event_code: eventCode,
-          company_name: data.company_name || null,
-          contact_person: data.contact_person || null,
-          contact_email: data.contact_email || null,
-          contact_mobile: data.contact_mobile || null,
-          company_vat: data.company_vat || null,
-          company_address: data.company_address || null,
+          company_name: data.company_name || data.company || null,
+          contact_person: data.contact_person || data.primary_name || null,
+          contact_email: data.contact_email || data.primary_email || null,
+          contact_mobile: data.contact_mobile || data.primary_phone || null,
+          company_vat: data.company_vat || data.vat_number || null,
+          company_address: data.company_address || data.address || null,
         });
 
       if (corporateError) throw corporateError;

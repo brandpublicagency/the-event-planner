@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -5,9 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
-import BrideDetails from "@/components/forms/BrideDetails";
-import GroomDetails from "@/components/forms/GroomDetails";
-import CompanyDetails from "@/components/forms/CompanyDetails";
+import ContactDetails from "@/components/forms/ContactDetails";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
@@ -52,6 +51,8 @@ const NewEvent = () => {
       await ensureUserProfile(user.id);
       
       const eventCode = generateEventCode();
+      
+      // Prepare the event data with new contact fields
       const eventData = {
         event_code: eventCode,
         name: data.name,
@@ -64,22 +65,34 @@ const NewEvent = () => {
         client_address: data.client_address || null,
         created_by: user.id,
         completed: false,
-        venues: data.venues
+        venues: data.venues,
+        
+        // New contact fields
+        primary_name: data.primary_name || null,
+        primary_phone: data.primary_phone || null,
+        primary_email: data.primary_email || null,
+        secondary_name: data.secondary_name || null,
+        secondary_phone: data.secondary_phone || null,
+        secondary_email: data.secondary_email || null,
+        address: data.address || data.client_address || null,
+        company: data.company || null,
+        vat_number: data.vat_number || null
       };
 
       await createEvent(eventData, user.id);
 
+      // For backward compatibility, also create the related table entries
       if (data.event_type === 'Wedding') {
         const { error: weddingError } = await supabase
           .from('wedding_details')
           .insert({
             event_code: eventCode,
-            bride_name: data.bride_name,
-            bride_email: data.bride_email,
-            bride_mobile: data.bride_mobile,
-            groom_name: data.groom_name,
-            groom_email: data.groom_email,
-            groom_mobile: data.groom_mobile,
+            bride_name: data.primary_name || data.bride_name || null,
+            bride_email: data.primary_email || data.bride_email || null,
+            bride_mobile: data.primary_phone || data.bride_mobile || null,
+            groom_name: data.secondary_name || data.groom_name || null,
+            groom_email: data.secondary_email || data.groom_email || null,
+            groom_mobile: data.secondary_phone || data.groom_mobile || null,
           });
 
         if (weddingError) throw weddingError;
@@ -88,12 +101,12 @@ const NewEvent = () => {
           .from('corporate_details')
           .insert({
             event_code: eventCode,
-            company_name: data.company_name,
-            contact_person: data.contact_person,
-            contact_email: data.contact_email,
-            contact_mobile: data.contact_mobile,
-            company_vat: data.company_vat,
-            company_address: data.company_address,
+            company_name: data.company || data.company_name || null,
+            contact_person: data.primary_name || data.contact_person || null,
+            contact_email: data.primary_email || data.contact_email || null,
+            contact_mobile: data.primary_phone || data.contact_mobile || null,
+            company_vat: data.vat_number || data.company_vat || null,
+            company_address: data.address || data.company_address || null,
           });
 
         if (corporateError) throw corporateError;
@@ -148,30 +161,12 @@ const NewEvent = () => {
               <EventBasicInfo form={form} />
             </FormSection>
 
-            {eventType === "Wedding" ? (
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormSection 
-                  title="Bride Details" 
-                  description="Enter the bride's contact information."
-                >
-                  <BrideDetails form={form} />
-                </FormSection>
-
-                <FormSection 
-                  title="Groom Details" 
-                  description="Enter the groom's contact information."
-                >
-                  <GroomDetails form={form} />
-                </FormSection>
-              </div>
-            ) : (
-              <FormSection 
-                title="Company Details" 
-                description="Enter the company's information."
-              >
-                <CompanyDetails form={form} />
-              </FormSection>
-            )}
+            <FormSection 
+              title="Contact Details" 
+              description={`Enter the ${eventType === "Wedding" ? "bride and groom" : "contact"} information.`}
+            >
+              <ContactDetails form={form} eventType={eventType} />
+            </FormSection>
 
             <EventFormActions 
               isSubmitting={isSubmitting}
