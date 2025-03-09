@@ -14,6 +14,7 @@ export const updateContact = async (contact: Contact, updates: ContactUpdate): P
         primary_phone: updates.phone,
         company: updates.company,
         address: updates.address,
+        vat_number: updates.vat_number,
         updated_at: new Date().toISOString()
       })
       .eq('event_code', contact.eventCode);

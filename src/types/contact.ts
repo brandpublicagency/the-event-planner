@@ -6,13 +6,14 @@ export interface Contact {
   email: string;
   phone: string;
   company: string | null;
+  vat_number?: string | null;
   contactType: 'wedding-bride' | 'wedding-groom' | 'corporate';
   eventCode: string;
   eventName: string;
   eventDate: string | null;
   venue: string;
   address: string | null;
-  originalData: any; // The original wedding_details or corporate_details record
+  originalData: any; // The original event record
 }
 
 export interface ContactUpdate {
@@ -21,4 +22,5 @@ export interface ContactUpdate {
   phone?: string;
   company?: string;
   address?: string;
+  vat_number?: string;
 }

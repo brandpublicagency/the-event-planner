@@ -47,6 +47,7 @@ export const useContactsQuery = () => {
               email: event.primary_email || '',
               phone: event.primary_phone || '',
               company: event.company || null,
+              vat_number: event.vat_number || null,
               address: event.address || event.client_address || null,
               contactType: event.event_type === 'Wedding' ? 'wedding-bride' : 'corporate',
               eventCode: event.event_code,
@@ -65,6 +66,7 @@ export const useContactsQuery = () => {
               email: event.secondary_email || '',
               phone: event.secondary_phone || '',
               company: event.company || null,
+              vat_number: event.vat_number || null,
               address: event.address || event.client_address || null,
               contactType: 'wedding-groom', // Assuming secondary is always the groom in weddings
               eventCode: event.event_code,
