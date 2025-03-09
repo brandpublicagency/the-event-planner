@@ -80,13 +80,59 @@ export function prepareTasksContext(tasks: Task[]) {
   }).join('\n\n');
 }
 
-export function getSystemMessage(eventsContext: string, pdfContent?: string, tasksContext?: string) {
-  let systemMessage = `You are an AI assistant for an event planning company.
+export function prepareContactsContext(contacts: any[]) {
+  if (!contacts || contacts.length === 0) {
+    return "No contacts found.";
+  }
+  
+  return contacts.map(contact => {
+    return `Contact: ${JSON.stringify({
+      id: contact.id,
+      name: contact.full_name,
+      email: contact.email,
+      phone: contact.mobile,
+      surname: contact.surname
+    }, null, 2)}`;
+  }).join('\n\n');
+}
+
+export function prepareDocumentsContext(documents: any[]) {
+  if (!documents || documents.length === 0) {
+    return "No documents found.";
+  }
+  
+  return documents.map(doc => {
+    return `Document: ${JSON.stringify({
+      id: doc.id,
+      title: doc.title,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+      categories: doc.document_categories ? 
+        doc.document_categories.map((cat: any) => cat.name).join(', ') : 
+        'No categories'
+    }, null, 2)}`;
+  }).join('\n\n');
+}
+
+export function getSystemMessage(
+  eventsContext: string, 
+  contactsContext: string,
+  documentsContext: string,
+  pdfContent?: string, 
+  tasksContext?: string
+) {
+  let systemMessage = `You are an AI assistant for Warm Karoo, an event planning company.
 
 Current Date: ${new Date().toISOString().split('T')[0]}
 
 Here is the context about the events:
-${eventsContext}`;
+${eventsContext}
+
+Here is the context about contacts:
+${contactsContext}
+
+Here is the context about documents:
+${documentsContext}`;
 
   if (tasksContext) {
     systemMessage += `\n\nHere is the context about tasks:
@@ -98,7 +144,10 @@ ${tasksContext}`;
 ${pdfContent}`;
   }
 
-  systemMessage += `\n\nRespond in a helpful, friendly, and professional manner. For dates, use DD/MM/YYYY format. If you don't know something, say so.`;
+  systemMessage += `\n\nRespond in a helpful, friendly, and professional manner. For dates, use DD/MM/YYYY format. 
+You have complete access to all system data including events, tasks, contacts, and documents.
+You can help users find information, as well as suggest actions they can take like updating events, creating tasks, or sending messages.
+You represent Warm Karoo, so maintain a professional tone at all times. If you don't know something, say so.`;
 
   return systemMessage;
 }

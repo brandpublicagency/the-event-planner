@@ -1,7 +1,13 @@
 
 import { useChatState } from "@/hooks/useChatState";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { prepareEventsContext, prepareTasksContext, getSystemMessage } from "@/utils/chatContextUtils";
+import { 
+  prepareEventsContext, 
+  prepareTasksContext, 
+  prepareContactsContext,
+  prepareDocumentsContext,
+  getSystemMessage 
+} from "@/utils/chatContextUtils";
 import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
@@ -52,10 +58,19 @@ export const ChatMessageHandler = ({
       clearInput();
       setIsLoading(true);
 
-      // Prepare context for the AI
+      // Prepare comprehensive context for the AI
       const eventsContext = contextData?.events ? prepareEventsContext(contextData.events) : "";
+      const contactsContext = contextData?.contacts ? prepareContactsContext(contextData.contacts) : "";
+      const documentsContext = contextData?.documents ? prepareDocumentsContext(contextData.documents) : "";
       const tasksContext = tasks ? prepareTasksContext(tasks) : "";
-      const systemMessage = getSystemMessage(eventsContext, contextData?.pdfContent, tasksContext);
+      
+      const systemMessage = getSystemMessage(
+        eventsContext, 
+        contactsContext,
+        documentsContext,
+        contextData?.pdfContent, 
+        tasksContext
+      );
 
       // First try to get a natural language response
       const messages: ChatCompletionMessageParam[] = [
@@ -67,6 +82,7 @@ export const ChatMessageHandler = ({
         { role: "user" as const, content: inputValue }
       ];
 
+      console.log('Sending chat request with full context');
       const aiResponse = await getChatCompletion(messages);
       
       if (aiResponse) {
@@ -78,7 +94,7 @@ export const ChatMessageHandler = ({
           text: { body: inputValue }
         });
 
-        console.log('Received response:', response);
+        console.log('Received response from WhatsApp handler:', response);
 
         if (response.type === 'text') {
           addSystemMessage(response.message);

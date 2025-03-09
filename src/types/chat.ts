@@ -17,6 +17,8 @@ export interface PendingAction {
   event_data?: Record<string, any>;
   task_data?: Record<string, any>;
   task_id?: string;
+  document_id?: string;
+  contact_id?: string;
 }
 
 export type ChatRole = "system" | "user" | "assistant";

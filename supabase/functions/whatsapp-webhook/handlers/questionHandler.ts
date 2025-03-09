@@ -40,21 +40,53 @@ export const handleAIQuestion = async (question: string) => {
           status
         )
       `)
-      .gte('event_date', today)
       .is('deleted_at', null)
-      .is('completed', false)
       .order('event_date', { ascending: true });
 
-    const { data: events, error } = await withTimeout(
+    const { data: events, error: eventsError } = await withTimeout(
       eventsQuery,
       'Events query'
     );
 
-    if (error) {
-      console.error('Error fetching events:', error);
-      throw error;
+    if (eventsError) {
+      console.error('Error fetching events:', eventsError);
+      throw eventsError;
     }
 
+    // Fetch contacts data
+    const { data: contacts, error: contactsError } = await withTimeout(
+      supabase.from('profiles').select('*'),
+      'Contacts query'
+    );
+
+    if (contactsError) {
+      console.error('Error fetching contacts:', contactsError);
+      throw contactsError;
+    }
+
+    // Fetch documents data
+    const { data: documents, error: documentsError } = await withTimeout(
+      supabase.from('documents').select('*, document_categories(*)').is('deleted_at', null),
+      'Documents query'
+    );
+
+    if (documentsError) {
+      console.error('Error fetching documents:', documentsError);
+      throw documentsError;
+    }
+
+    // Fetch tasks data
+    const { data: tasks, error: tasksError } = await withTimeout(
+      supabase.from('tasks').select('*'),
+      'Tasks query'
+    );
+
+    if (tasksError) {
+      console.error('Error fetching tasks:', tasksError);
+      throw tasksError;
+    }
+
+    // Format events context
     const eventsContext = events?.map(event => {
       const venues = event.event_venues
         ?.map((v: any) => v.venues?.name)
@@ -83,30 +115,64 @@ Details: ${clientDetails}
 ${menuInfo}
 Pax: ${event.pax || 'Not specified'}
 Event Code: ${event.event_code}`;
-    }).join('\n\n') || 'No upcoming events found.';
+    }).join('\n\n') || 'No events found.';
 
-    // Use GPT-3.5-turbo for faster responses
+    // Format contacts context
+    const contactsContext = contacts?.map(contact => {
+      return `Contact: ${contact.full_name || 'Unknown Name'}
+Email: ${contact.email || 'No email'}
+Phone: ${contact.mobile || 'No phone'}`;
+    }).join('\n\n') || 'No contacts found.';
+
+    // Format documents context
+    const documentsContext = documents?.map(doc => {
+      return `Document: ${doc.title || 'Untitled'}
+ID: ${doc.id}
+Created: ${doc.created_at ? format(new Date(doc.created_at), 'MMMM d, yyyy') : 'Unknown date'}
+Categories: ${doc.document_categories?.map((cat: any) => cat.name).join(', ') || 'None'}`;
+    }).join('\n\n') || 'No documents found.';
+
+    // Format tasks context
+    const tasksContext = tasks?.map(task => {
+      return `Task: ${task.title}
+Status: ${task.status}
+Priority: ${task.priority || 'None'}
+Due Date: ${task.due_date ? format(new Date(task.due_date), 'MMMM d, yyyy') : 'No due date'}
+${task.notes ? `Notes: ${task.notes.join(', ')}` : 'No notes'}`;
+    }).join('\n\n') || 'No tasks found.';
+
+    // Use GPT model with complete context
     const completion = await withTimeout(
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: `You are a helpful event planning assistant. Answer questions about these events:
+            content: `You are a helpful assistant for Warm Karoo, an event planning company. Answer questions with information from this context:
 
+EVENTS:
 ${eventsContext}
 
-Answer naturally and conversationally. Keep responses concise but informative.
-If you're not sure about something, say so.
-If asked about an event that doesn't exist, let them know.
-Always maintain a professional and helpful tone.`
+CONTACTS:
+${contactsContext}
+
+DOCUMENTS:
+${documentsContext}
+
+TASKS:
+${tasksContext}
+
+Current date: ${format(new Date(), 'MMMM d, yyyy')}
+
+You have full access to all data in the Warm Karoo system. Be professional, helpful and friendly.
+If you don't have enough information to answer accurately, say so and suggest what the user can do instead.`
           },
           {
             role: "user",
             content: question
           }
         ],
-        max_tokens: 300,
+        max_tokens: 800,
         temperature: 0.7
       }),
       'AI completion'

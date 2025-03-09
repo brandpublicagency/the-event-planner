@@ -15,6 +15,8 @@ export const handleChatAction = async (
   onError: (error: Error) => void
 ) => {
   try {
+    console.log('Handling chat action:', action.action, action);
+    
     switch (action.action) {
       case "update_event":
         if (!action.event_code || !action.updates) {
@@ -29,6 +31,9 @@ export const handleChatAction = async (
             parsedDate = parse(action.updates.event_date, 'yyyy-MM-dd', new Date());
             if (!isValid(parsedDate)) {
               parsedDate = parse(action.updates.event_date, 'dd MMMM yyyy', new Date());
+            }
+            if (!isValid(parsedDate)) {
+              parsedDate = parse(action.updates.event_date, 'dd/MM/yyyy', new Date());
             }
             if (!isValid(parsedDate)) {
               throw new Error("Invalid date format");
@@ -87,6 +92,7 @@ export const handleChatAction = async (
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
         await queryClient.invalidateQueries({ queryKey: ['events', action.event_code] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         
         onSuccess(`Event ${action.event_code} has been updated successfully! The changes have been applied.`);
         break;
@@ -96,6 +102,7 @@ export const handleChatAction = async (
           throw new Error("Missing required fields for menu update");
         }
         await updateMenuSelection(action.event_code, action.menu_updates);
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         onSuccess("Menu updated successfully!");
         break;
 
@@ -117,6 +124,7 @@ export const handleChatAction = async (
         // Invalidate events queries after creation
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         
         onSuccess("Event created successfully!");
         break;
@@ -130,6 +138,7 @@ export const handleChatAction = async (
         // Invalidate events queries after deletion
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         
         onSuccess("Event deleted successfully!");
         break;
@@ -138,10 +147,17 @@ export const handleChatAction = async (
         if (!action.task_data) {
           throw new Error("Missing task data");
         }
+        
+        // Ensure the task has a title
+        if (!action.task_data.title) {
+          throw new Error("Task must have a title");
+        }
+        
         await createTask(action.task_data);
         
         // Invalidate tasks queries
         await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         
         onSuccess("Task created successfully!");
         break;
@@ -165,6 +181,7 @@ export const handleChatAction = async (
         
         await updateTask(action.task_id, action.updates);
         await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         onSuccess("Task updated successfully!");
         break;
 
@@ -176,14 +193,52 @@ export const handleChatAction = async (
         
         // Invalidate tasks queries
         await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
         
         onSuccess("Task deleted successfully!");
         break;
 
+      case "update_document":
+        if (!action.document_id || !action.updates) {
+          throw new Error("Missing required fields for document update");
+        }
+        
+        const { error: docUpdateError } = await supabase
+          .from('documents')
+          .update(action.updates)
+          .eq('id', action.document_id);
+        
+        if (docUpdateError) throw docUpdateError;
+        
+        await queryClient.invalidateQueries({ queryKey: ['documents'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
+        
+        onSuccess("Document updated successfully!");
+        break;
+        
+      case "update_contact":
+        if (!action.contact_id || !action.updates) {
+          throw new Error("Missing required fields for contact update");
+        }
+        
+        const { error: contactUpdateError } = await supabase
+          .from('profiles')
+          .update(action.updates)
+          .eq('id', action.contact_id);
+        
+        if (contactUpdateError) throw contactUpdateError;
+        
+        await queryClient.invalidateQueries({ queryKey: ['profiles'] });
+        await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
+        
+        onSuccess("Contact updated successfully!");
+        break;
+
       default:
-        throw new Error("Unknown action type");
+        throw new Error(`Unknown action type: ${action.action}`);
     }
   } catch (error) {
+    console.error('Error handling chat action:', error);
     onError(error as Error);
   }
 };

@@ -8,14 +8,27 @@ const openai = new OpenAI({
 });
 
 export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
-  const completion = await openai.chat.completions.create({
-    messages,
-    model: "gpt-4",
-    temperature: 0.7,
-    max_tokens: 500,
-    presence_penalty: 0.6,
-    frequency_penalty: 0.2
-  });
+  console.log(`Sending request to OpenAI with ${messages.length} messages`);
+  
+  try {
+    const completion = await openai.chat.completions.create({
+      messages,
+      model: "gpt-4o-mini", // Using more capable model
+      temperature: 0.7,
+      max_tokens: 1000,    // Increased token limit for more detailed responses
+      presence_penalty: 0.6,
+      frequency_penalty: 0.2
+    });
 
-  return completion.choices[0]?.message?.content || null;
+    console.log('OpenAI response received', {
+      usage: completion.usage,
+      model: completion.model,
+      finishReason: completion.choices[0]?.finish_reason
+    });
+
+    return completion.choices[0]?.message?.content || null;
+  } catch (error) {
+    console.error('Error getting chat completion:', error);
+    throw error;
+  }
 };
