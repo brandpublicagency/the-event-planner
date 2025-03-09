@@ -2,13 +2,14 @@
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SidebarProfileProps {
   isCollapsed: boolean;
 }
 
 const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
-  const { data: userInfo } = useQuery({
+  const { data: userInfo, isLoading } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -22,7 +23,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
       return {
         email: user.email,
-        name: profile?.full_name || 'User',
+        name: profile?.full_name || '',
         surname: profile?.surname || ''
       };
     },
@@ -37,11 +38,20 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
         "w-10 h-10 rounded-full bg-[#0A0F1D] flex-shrink-0 cursor-pointer"
       )} />
       {!isCollapsed && (
-        <div className="flex-1">
-          <div className="text-sm font-medium">
-            {userInfo?.name} {userInfo?.surname}
-          </div>
-          <div className="text-xs text-gray-400">{userInfo?.email}</div>
+        <div className="flex-1 overflow-hidden">
+          {isLoading ? (
+            <>
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-3 w-20" />
+            </>
+          ) : (
+            <>
+              <div className="text-sm font-medium truncate">
+                {userInfo?.name} {userInfo?.surname}
+              </div>
+              <div className="text-xs text-gray-400 truncate">{userInfo?.email || ''}</div>
+            </>
+          )}
         </div>
       )}
     </div>
