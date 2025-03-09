@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Save, Edit, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileSectionProps {
   profile: {
@@ -40,6 +41,8 @@ const ProfileSection = ({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [hasPassword, setHasPassword] = useState(true);
+  const { toast } = useToast();
   
   useEffect(() => {
     // If profile doesn't have an email, get it from the session
@@ -53,6 +56,26 @@ const ProfileSection = ({
       
       getSessionEmail();
     }
+
+    // Check if user has a password set
+    const checkAuthMethod = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // This is a simplistic check. If the user has logged in with a magic link,
+        // they will not have a password set initially.
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (user && user.app_metadata) {
+          // If the user has only used magic links, they won't have a password
+          const providers = user.app_metadata.providers as string[] || [];
+          
+          // If only provider is email and user hasn't set password yet
+          setHasPassword(!(providers.length === 1 && providers[0] === 'email' && !user.user_metadata?.has_set_password));
+        }
+      }
+    };
+    
+    checkAuthMethod();
   }, [profile?.email]);
 
   const handlePasswordUpdate = async () => {
@@ -73,12 +96,32 @@ const ProfileSection = ({
 
       if (error) throw error;
       
+      // Mark that user has set a password
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { has_set_password: true }
+      });
+      
+      if (updateError) {
+        console.error("Error updating user metadata:", updateError);
+      }
+      
       // Clear password fields and error on success
       setPassword("");
       setConfirmPassword("");
       setPasswordError("");
+      setHasPassword(true);
+      
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully updated.",
+      });
     } catch (error: any) {
       setPasswordError(error.message || "Error updating password");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Error updating password",
+      });
     }
   };
 
@@ -159,7 +202,9 @@ const ProfileSection = ({
         </div>
 
         <div className="pt-4 border-t">
-          <h3 className="text-lg font-semibold mb-4">Password Settings</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            {!hasPassword ? 'Set Password' : 'Password Settings'}
+          </h3>
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Lock className="h-4 w-4 text-muted-foreground" />
@@ -167,7 +212,7 @@ const ProfileSection = ({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="New password"
+                placeholder={!hasPassword ? "Set a new password" : "New password"}
                 className="flex-1"
               />
             </div>
@@ -178,7 +223,7 @@ const ProfileSection = ({
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
+                placeholder="Confirm password"
                 className="flex-1"
               />
             </div>
@@ -192,8 +237,14 @@ const ProfileSection = ({
               className="w-full"
               disabled={!password || !confirmPassword}
             >
-              Update Password
+              {!hasPassword ? 'Set Password' : 'Update Password'}
             </Button>
+            
+            {!hasPassword && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Setting a password will allow you to login with your email and password in the future.
+              </p>
+            )}
           </div>
         </div>
       </div>
