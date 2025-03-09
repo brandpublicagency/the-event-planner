@@ -33,6 +33,12 @@ export const fetchTaskById = async (taskId: string): Promise<any> => {
       throw error;
     }
 
+    if (!task) {
+      console.log(`No task found with ID ${taskId}`);
+    } else {
+      console.log(`Successfully retrieved task ${taskId}`);
+    }
+
     return task;
   } catch (error) {
     console.error(`Error in fetchTaskById for ${taskId}:`, error);

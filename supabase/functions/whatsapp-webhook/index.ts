@@ -26,22 +26,47 @@ serve(async (req) => {
       console.log('Webhook verification:', { mode, token, challenge });
 
       if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+        console.log('Webhook verified successfully');
         return new Response(challenge, { headers: corsHeaders });
       }
+      console.error('Failed webhook verification:', { mode, token });
       return new Response('Forbidden', { status: 403, headers: corsHeaders });
     }
 
     if (req.method === 'POST') {
       const body = await req.json();
-      console.log('Webhook body received:', JSON.stringify(body, null, 2));
+      console.log('Webhook payload received:', JSON.stringify(body, null, 2));
       
       const entry = body.entry?.[0];
-      const changes = entry?.changes?.[0];
-      const value = changes?.value;
-      const messages = value?.messages;
+      if (!entry) {
+        console.error('Invalid webhook format: missing entry');
+        return new Response(JSON.stringify({ status: 'error', message: 'Invalid webhook format' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        });
+      }
 
+      const changes = entry.changes?.[0];
+      if (!changes) {
+        console.error('Invalid webhook format: missing changes');
+        return new Response(JSON.stringify({ status: 'error', message: 'Invalid webhook format' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        });
+      }
+
+      const value = changes.value;
+      if (!value) {
+        console.error('Invalid webhook format: missing value');
+        return new Response(JSON.stringify({ status: 'error', message: 'Invalid webhook format' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        });
+      }
+      
+      const messages = value.messages;
       if (!messages?.length) {
-        console.log('No messages in webhook payload');
+        console.log('No messages in webhook payload - likely a status update');
         return new Response(JSON.stringify({ status: 'no messages' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -62,6 +87,7 @@ serve(async (req) => {
         throw new Error('No response generated');
       }
 
+      // Send the response to WhatsApp
       await sendWhatsAppMessage(message.from, response);
       console.log('Message sent successfully');
 

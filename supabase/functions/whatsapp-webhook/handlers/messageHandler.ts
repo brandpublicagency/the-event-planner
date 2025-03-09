@@ -1,16 +1,19 @@
 
 import { handleListSelection } from './listHandler.ts';
 import { getNextEvent } from './event/index.ts';
-import { getNextTask } from './task/index.ts';
+import { getNextTask, getTodoList } from './task/index.ts';
 import { handleAIQuestion } from './questionHandler.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
-import { withTimeout, WhatsAppResponse } from '../utils/timeoutUtils.ts';
-import { fetchEvents } from '../utils/dataFetcher.ts';
+import { withTimeout, handleTimeoutError, WhatsAppResponse } from '../utils/timeoutUtils.ts';
+import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher.ts';
 import { handleError } from '../utils/errorHandler.ts';
 
 export const handleMessage = async (message: any): Promise<WhatsAppResponse> => {
   try {
     console.log('Processing incoming message:', JSON.stringify(message, null, 2));
+
+    // First, check database connection
+    await checkDatabaseConnection();
 
     // Handle interactive messages (list or button selections)
     if (message.interactive) {
@@ -47,7 +50,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
       console.log('Processing text message:', messageText);
 
       // Handle specific commands
-      if (['hi', 'hello', 'hey', 'hallo'].includes(messageText)) {
+      if (['hi', 'hello', 'hey', 'hallo', 'howdy', 'greetings'].includes(messageText)) {
         return await withTimeout(
           getWelcomeMessage(),
           'Welcome message',
@@ -55,8 +58,15 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         );
       }
 
-      if (messageText === 'help') {
+      if (messageText === 'help' || messageText === 'commands') {
         return getHelpMessage();
+      }
+
+      if (messageText === 'test') {
+        return {
+          type: 'text',
+          message: "I'm working correctly! You can ask me about events, tasks, or type 'help' for more commands."
+        };
       }
 
       // Handle specific queries with timeout
@@ -76,13 +86,32 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         );
       }
 
+      if (messageText.includes('tasks') || messageText.includes('todo') || messageText === 'tasks') {
+        return await withTimeout(
+          getTodoList(),
+          'Tasks query',
+          10000
+        );
+      }
+
       if (messageText.includes('events') || messageText.includes('upcoming events')) {
         try {
           // Fetch some events to check if DB access is working
           const events = await fetchEvents();
           console.log(`Found ${events.length} events in database`);
+          
+          if (events.length === 0) {
+            return {
+              type: 'text',
+              message: "I don't see any events in the system yet. Would you like to create one?"
+            };
+          }
         } catch (error) {
           console.error('Database connection test failed:', error);
+          return {
+            type: 'text',
+            message: "I'm having trouble accessing the event database right now. Please try again in a moment."
+          };
         }
       }
 
@@ -100,7 +129,10 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
       message: "I couldn't understand that message. Please try again or type 'help' for available commands."
     };
   } catch (error) {
-    console.error('Error in handleMessage:', error);
+    console.error('Error in handleMessage:', {
+      message: error.message,
+      stack: error.stack
+    });
     return handleError(error, 'handleMessage');
   }
 };

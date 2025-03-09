@@ -4,8 +4,8 @@ const whatsappPhoneNumberId = '110903815329534'; // Replace with your WhatsApp P
 
 export const sendWhatsAppMessage = async (to: string, response: any) => {
   try {
-    console.log('Sending message to:', to);
-    const url = `https://graph.facebook.com/v17.0/${whatsappPhoneNumberId}/messages`;
+    console.log('Preparing to send message to:', to);
+    const url = `https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`; // Updated to v18.0
     
     // Prepare the message based on the response type
     let message;
@@ -30,28 +30,56 @@ export const sendWhatsAppMessage = async (to: string, response: any) => {
         interactive: response.interactive
       };
     } else {
+      console.error('Unsupported message format:', response);
       throw new Error('Unsupported message format');
     }
     
     console.log('Sending WhatsApp message payload:', JSON.stringify(message, null, 2));
     
-    const sendResponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${whatsappToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(message)
-    });
+    // Add a retry mechanism
+    const maxRetries = 2;
+    let retries = 0;
+    let sendResponse;
     
-    if (!sendResponse.ok) {
-      const errorData = await sendResponse.text();
-      console.error('WhatsApp API error:', {
-        status: sendResponse.status,
-        statusText: sendResponse.statusText,
-        data: errorData
-      });
-      throw new Error(`WhatsApp API error: ${sendResponse.status} ${sendResponse.statusText}`);
+    while (retries <= maxRetries) {
+      try {
+        sendResponse = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${whatsappToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(message)
+        });
+        
+        if (sendResponse.ok) {
+          break;
+        } else {
+          const errorData = await sendResponse.text();
+          console.error(`WhatsApp API error (Attempt ${retries + 1}/${maxRetries + 1}):`, {
+            status: sendResponse.status,
+            statusText: sendResponse.statusText,
+            data: errorData
+          });
+          
+          if (retries === maxRetries) {
+            throw new Error(`WhatsApp API error: ${sendResponse.status} ${sendResponse.statusText}`);
+          }
+        }
+      } catch (error) {
+        console.error(`Network error on attempt ${retries + 1}/${maxRetries + 1}:`, error);
+        if (retries === maxRetries) {
+          throw error;
+        }
+      }
+      
+      retries++;
+      // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+    }
+    
+    if (!sendResponse || !sendResponse.ok) {
+      throw new Error('Failed to send message after multiple attempts');
     }
     
     const responseData = await sendResponse.json();
