@@ -104,63 +104,100 @@ const Sidebar = ({
     }
   };
 
-  return <div className={cn("relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", isCollapsed ? "w-[80px]" : "w-[280px]", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
-      <div className="flex flex-col h-full">
-        <SidebarProfile isCollapsed={isCollapsed} />
-        
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
-          <div className="space-y-6 my-2 mx-[5px] px-0">
+  return (
+    <div className={cn(
+      "relative flex flex-col h-screen transition-all duration-500 ease-in-out will-change-[width]", 
+      isCollapsed ? "w-[80px]" : "w-[280px]", 
+      !isCollapsed && getGradientByPath(), 
+      isCollapsed && "bg-[#1A1F2C]", 
+      className
+    )}>
+      {isCollapsed ? (
+        <div className="flex flex-col h-full justify-between py-4">
+          <SidebarProfile isCollapsed={isCollapsed} />
+          
+          <div className="flex-1 flex flex-col justify-center items-center">
             <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
-            
-            <div className="px-3">
-              <button onClick={() => setIsCollapsed(!isCollapsed)} className={cn("flex items-center w-full text-gray-400 hover:text-gray-700 text-xs", isCollapsed && "justify-center")}>
-                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <>
-                    <ChevronLeft className="h-4 w-4 mr-2" />
-                    <span className="font-normal px-[5px] text-gray-400">COLLAPSE MENU</span>
-                  </>}
-              </button>
-            </div>
           </div>
-        </div>
-        
-        <div className="mt-auto px-3 pb-3">
-          <div className="flex flex-col gap-2.5">
+          
+          <div className="px-0 flex flex-col items-center gap-4">
             <button 
               onClick={() => navigate('/events/new')} 
-              className={cn(
-                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
-                isCollapsed ? "justify-center" : "gap-2"
-              )}
+              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md"
             >
               <Plus className="h-4 w-4 flex-shrink-0" />
-              {!isCollapsed && <span>ADD EVENT</span>}
             </button>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className={cn(
-                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
-                isCollapsed ? "justify-center" : "gap-2"
-              )}
+              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md"
             >
               <CheckSquare className="h-4 w-4 flex-shrink-0" />
-              {!isCollapsed && <span>ADD TASK</span>}
             </button>
             
             <button 
               onClick={handleAddDocument} 
-              className={cn(
-                "flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md",
-                isCollapsed ? "justify-center" : "gap-2"
-              )}
+              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md"
             >
               <FilePlus className="h-4 w-4 flex-shrink-0" />
-              {!isCollapsed && <span>ADD DOCUMENT</span>}
+            </button>
+            
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)} 
+              className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md mt-4"
+            >
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
-      </div>
-    </div>;
+      ) : (
+        <div className="flex flex-col h-full">
+          <SidebarProfile isCollapsed={isCollapsed} />
+          
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
+            <div className="space-y-6 my-2 mx-[5px] px-0">
+              <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
+              
+              <div className="px-3">
+                <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex items-center w-full text-gray-400 hover:text-gray-700 text-xs">
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  <span className="font-normal px-[5px] text-gray-400">COLLAPSE MENU</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-auto px-3 pb-3">
+            <div className="flex flex-col gap-2.5">
+              <button 
+                onClick={() => navigate('/events/new')} 
+                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2"
+              >
+                <Plus className="h-4 w-4 flex-shrink-0" />
+                <span>ADD EVENT</span>
+              </button>
+              
+              <button 
+                onClick={() => navigate('/tasks?newTask=true')} 
+                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2"
+              >
+                <CheckSquare className="h-4 w-4 flex-shrink-0" />
+                <span>ADD TASK</span>
+              </button>
+              
+              <button 
+                onClick={handleAddDocument} 
+                className="flex items-center text-gray-600 hover:text-gray-900 text-sm h-9 px-2 rounded-md gap-2"
+              >
+                <FilePlus className="h-4 w-4 flex-shrink-0" />
+                <span>ADD DOCUMENT</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Sidebar;

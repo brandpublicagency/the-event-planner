@@ -29,10 +29,12 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
   });
 
   return (
-    <div className="px-4 py-4 flex items-center gap-3">
+    <div className={cn(
+      "py-4 flex items-center",
+      isCollapsed ? "justify-center px-0" : "px-4 gap-3"
+    )}>
       <div className={cn(
-        "w-10 h-10 rounded-full bg-[#0A0F1D] flex-shrink-0 cursor-pointer",
-        isCollapsed ? "mx-auto" : ""
+        "w-10 h-10 rounded-full bg-[#0A0F1D] flex-shrink-0 cursor-pointer"
       )} />
       {!isCollapsed && (
         <div className="flex-1">

@@ -38,7 +38,7 @@ const ContactsTabs = ({
       <div className="flex items-center justify-between mb-4">
         <TabsList>
           <TabsTrigger value="all">All Contacts</TabsTrigger>
-          <TabsTrigger value="wedding">Wedding Contacts</TabsTrigger>
+          <TabsTrigger value="wedding-bride">Wedding Contacts</TabsTrigger>
           <TabsTrigger value="corporate">Corporate Contacts</TabsTrigger>
         </TabsList>
         
@@ -63,7 +63,7 @@ const ContactsTabs = ({
         />
       </TabsContent>
       
-      <TabsContent value="wedding" className="mt-0">
+      <TabsContent value="wedding-bride" className="mt-0">
         <ContactsTable 
           contacts={filteredContacts.filter(c => c.contactType === 'wedding')} 
           isLoading={isLoading} 

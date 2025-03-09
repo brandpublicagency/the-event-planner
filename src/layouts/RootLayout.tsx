@@ -39,9 +39,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
           isCollapsed ? "w-[70px]" : "w-64"
         } bg-white border-r border-zinc-200 shadow-sm`}
       >
-        <ScrollArea className="h-full">
-          <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-        </ScrollArea>
+        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
       <main className="flex-1 overflow-auto bg-zinc-50 relative flex flex-col">
         {children}
