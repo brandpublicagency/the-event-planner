@@ -1,15 +1,14 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
-import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -79,17 +78,6 @@ export default function Events() {
       <Header pageTitle="Events" />
       
       <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
-          <Button 
-            onClick={() => navigate('/events/new')}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Event
-          </Button>
-        </div>
-        
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">Loading events...</p>

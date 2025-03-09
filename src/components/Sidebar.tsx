@@ -1,12 +1,14 @@
 
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users } from "lucide-react";
+import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -16,6 +18,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const getGradientByPath = () => {
     switch (location.pathname) {
@@ -79,7 +82,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         
-        <div className="flex-1 px-4 py-8 overflow-hidden">
+        <div className="flex-1 px-4 py-8 overflow-y-auto overflow-x-hidden">
           <div className="space-y-8">
             <SidebarNavigation 
               isCollapsed={isCollapsed} 
@@ -87,6 +90,44 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
               sectionTitle="MAIN" 
             />
           </div>
+        </div>
+        
+        {/* Action buttons at bottom of sidebar */}
+        <div className={cn(
+          "p-4 mt-auto",
+          isCollapsed ? "flex flex-col items-center space-y-3" : "space-y-3"
+        )}>
+          <Separator className={cn("mb-3", isCollapsed ? "w-10" : "w-full")} />
+          
+          <Button
+            variant="outline"
+            size={isCollapsed ? "icon" : "default"}
+            onClick={() => navigate('/events/new')}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {!isCollapsed && <span>Add Event</span>}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size={isCollapsed ? "icon" : "default"}
+            onClick={() => navigate('/tasks/new')}
+            className="w-full"
+          >
+            <CheckSquare className="h-4 w-4 mr-2" />
+            {!isCollapsed && <span>Add Task</span>}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size={isCollapsed ? "icon" : "default"}
+            onClick={() => navigate('/documents')}
+            className="w-full"
+          >
+            <FilePlus className="h-4 w-4 mr-2" />
+            {!isCollapsed && <span>Add Document</span>}
+          </Button>
         </div>
       </div>
     </div>
