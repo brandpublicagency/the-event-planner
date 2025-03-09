@@ -25,3 +25,24 @@ export const publicEventFormSchema = z.object({
   company: z.string().optional(),
   vat_number: z.string().optional(),
 });
+
+// Export the type separately to avoid circular references
+export type PublicEventFormValues = {
+  name: string;
+  description?: string;
+  event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
+  event_date: string;
+  start_time?: string;
+  end_time?: string;
+  pax?: number;
+  venues: string[];
+  primary_name: string;
+  primary_phone: string;
+  primary_email: string;
+  secondary_name?: string;
+  secondary_phone?: string;
+  secondary_email?: string;
+  address?: string;
+  company?: string;
+  vat_number?: string;
+};

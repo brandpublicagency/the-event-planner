@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema, PublicEventFormValues } from "@/schemas/publicEventFormSchema";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
@@ -12,28 +12,6 @@ import ContactDetails from "@/components/forms/ContactDetails";
 import FormSection from "@/components/forms/FormSection";
 import { createEvent } from "@/utils/eventUtils";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod";
-
-// Define a simpler type for form values without referencing the schema directly
-type FormValues = {
-  name: string;
-  description?: string;
-  event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
-  event_date?: string;
-  start_time?: string;
-  end_time?: string;
-  pax?: number;
-  venues: string[];
-  primary_name: string;
-  primary_phone: string;
-  primary_email: string;
-  secondary_name?: string;
-  secondary_phone?: string;
-  secondary_email?: string;
-  address?: string;
-  company?: string;
-  vat_number?: string;
-};
 
 const PublicEventForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,13 +19,14 @@ const PublicEventForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Use the manually defined FormValues type
-  const form = useForm<FormValues>({
+  // Use the explicit type imported from the schema file
+  const form = useForm<PublicEventFormValues>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       event_type: "Wedding",
-      venues: [] as string[],
+      venues: [],
       name: "",
+      event_date: "", // Add this to match the required property
       primary_name: "",
       primary_phone: "",
       primary_email: ""
@@ -62,7 +41,7 @@ const PublicEventForm = () => {
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: PublicEventFormValues) => {
     setIsSubmitting(true);
     setErrorMessage(null);
     
