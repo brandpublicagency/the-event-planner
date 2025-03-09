@@ -66,7 +66,7 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
-        <div className="flex flex-col h-full bg-white p-6 rounded-lg border border-zinc-200 shadow-sm">
+        <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-zinc-900">Upcoming Events</h3>
             <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full">
@@ -104,7 +104,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex flex-col h-full bg-white p-6 rounded-lg border border-zinc-200 shadow-sm">
+        <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-zinc-900">Upcoming Tasks</h3>
             <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full">
