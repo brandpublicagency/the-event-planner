@@ -1,3 +1,4 @@
+
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 export interface ChatMessage {
