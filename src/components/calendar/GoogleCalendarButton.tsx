@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, Check, ExternalLink } from "lucide-react";
@@ -28,9 +29,20 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
         title: "Cal.com Calendar Connection",
         description: "Please complete the connection in the new browser tab. You may need to allow pop-ups.",
       });
-      
-      // Note: In a production app, you would implement a webhook callback from Cal.com
-      // to confirm the connection was successful. For now, we'll keep the UI simple.
+
+      // Simulate successful connection after 5 seconds
+      // In a production app, this would be replaced with a webhook callback
+      setTimeout(() => {
+        // Update URL with success parameter to trigger the effect in the Calendar component
+        const url = new URL(window.location.href);
+        url.searchParams.set('cal_success', 'true');
+        window.history.pushState({}, '', url);
+        
+        // Dispatch an event to notify the Calendar component
+        window.dispatchEvent(new Event('popstate'));
+        
+        setIsConnecting(false);
+      }, 5000);
     } catch (error) {
       console.error('Error connecting to Cal.com:', error);
       toast({
@@ -38,7 +50,6 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
         title: "Calendar Connection Failed",
         description: "Could not open Cal.com. Please try again later.",
       });
-    } finally {
       setIsConnecting(false);
     }
   };

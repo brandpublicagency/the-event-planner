@@ -35,19 +35,54 @@ serve(async (req) => {
       )
     }
     
-    // In a production app, you would validate the connection with Cal.com
-    // For now, we'll just return success if the API key is set
-    
-    return new Response(
-      JSON.stringify({ 
-        connected: true,
-        message: 'Connected to Cal.com' 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      },
-    )
+    // Validate the Cal.com API key by making a simple request to Cal.com API
+    try {
+      const calComResponse = await fetch('https://api.cal.com/v1/event-types', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CAL_COM_API_KEY}`
+        }
+      });
+      
+      if (calComResponse.ok) {
+        console.log('Cal.com API key is valid');
+        return new Response(
+          JSON.stringify({ 
+            connected: true,
+            message: 'Connected to Cal.com' 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      } else {
+        console.log('Cal.com API key is invalid');
+        return new Response(
+          JSON.stringify({ 
+            connected: false,
+            message: 'Invalid Cal.com API key' 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
+    } catch (apiError) {
+      console.error('Error validating Cal.com API key:', apiError);
+      return new Response(
+        JSON.stringify({ 
+          connected: false,
+          message: 'Error validating Cal.com API key' 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
+    }
     
   } catch (error) {
     console.error('Error checking calendar connection:', error)

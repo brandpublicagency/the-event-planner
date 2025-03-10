@@ -1,6 +1,5 @@
-
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
@@ -20,9 +19,37 @@ const Calendar = () => {
   const [calendarConnected, setCalendarConnected] = useState(false);
   const queryClient = useQueryClient();
 
-  // For demonstration purposes only - in a real app, this would check Cal.com connection status
   useEffect(() => {
-    // Check URL parameters for Cal.com OAuth response
+    const checkCalendarConnection = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_APP_URL || 'https://www.warmkaroo.app'}/functions/v1/check-calendar-connection`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            }
+          }
+        );
+        
+        const data = await response.json();
+        console.log('Cal.com connection status:', data);
+        
+        if (data.connected) {
+          setCalendarConnected(true);
+          toast({
+            title: "Calendar Connected",
+            description: "Successfully connected to Cal.com Calendar!",
+          });
+        }
+      } catch (error) {
+        console.error('Error checking Cal.com connection:', error);
+      }
+    };
+    
+    checkCalendarConnection();
+    
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('cal_success');
     
@@ -33,7 +60,6 @@ const Calendar = () => {
         description: "Successfully connected to Cal.com Calendar!",
       });
       
-      // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [toast]);
