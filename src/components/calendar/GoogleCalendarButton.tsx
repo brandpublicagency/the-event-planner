@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, Check, ExternalLink } from "lucide-react";
@@ -18,35 +17,26 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
 
-  const connectToGoogleCalendar = async () => {
+  const connectToCalCom = async () => {
     setIsConnecting(true);
     try {
-      console.log("Initiating Google Calendar connection");
-      const { data, error } = await supabase.functions.invoke('calendar-auth');
+      // Open Cal.com in a new window
+      const calComURL = `https://app.cal.com/integrations/google-calendar/add`;
+      window.open(calComURL, '_blank', 'noopener,noreferrer');
       
-      if (error) {
-        console.error("Error connecting to Google Calendar:", error);
-        throw error;
-      }
+      toast({
+        title: "Cal.com Calendar Connection",
+        description: "Please complete the connection in the new browser tab. You may need to allow pop-ups.",
+      });
       
-      if (data?.url) {
-        console.log("Redirecting to Google OAuth:", data.url);
-        // Open in a new tab to avoid interrupting the current session
-        window.open(data.url, '_blank', 'noopener,noreferrer');
-        
-        toast({
-          title: "Google Calendar Authorization",
-          description: "Please complete the authorization in the new browser tab. You may need to allow pop-ups.",
-        });
-      } else {
-        throw new Error('No authorization URL returned');
-      }
+      // Note: In a production app, you would implement a webhook callback from Cal.com
+      // to confirm the connection was successful. For now, we'll keep the UI simple.
     } catch (error) {
-      console.error('Error connecting to Google Calendar:', error);
+      console.error('Error connecting to Cal.com:', error);
       toast({
         variant: "destructive",
         title: "Calendar Connection Failed",
-        description: "Could not connect to Google Calendar. Please try again later.",
+        description: "Could not open Cal.com. Please try again later.",
       });
     } finally {
       setIsConnecting(false);
@@ -61,7 +51,7 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
         disabled
       >
         <Check className="h-4 w-4" />
-        Connected to Google Calendar
+        Connected to Cal.com
       </Button>
     );
   }
@@ -70,11 +60,11 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
     <Button 
       variant="outline" 
       className={`gap-2 ${className}`}
-      onClick={connectToGoogleCalendar}
+      onClick={connectToCalCom}
       disabled={isConnecting}
     >
       <CalendarIcon className="h-4 w-4" />
-      {isConnecting ? "Connecting..." : "Connect Google Calendar"}
+      {isConnecting ? "Connecting..." : "Connect with Cal.com"}
     </Button>
   );
 };
