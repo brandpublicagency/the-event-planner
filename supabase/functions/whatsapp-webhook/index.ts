@@ -93,50 +93,48 @@ serve(async (req) => {
 
       console.log('Processing message from:', message.from);
       
-      // Generate a simple test response first
-      let response = {
-        type: 'text',
-        message: "I've received your message! Processing it now..."
-      };
-      
-      // First send a confirmation message that we received their message
       try {
-        await sendWhatsAppMessage(message.from, response, phoneNumberId);
-        console.log('Confirmation message sent successfully');
-      } catch (confirmError) {
-        console.error('Error sending confirmation message:', confirmError);
-        // Continue processing even if confirmation fails
-      }
-      
-      try {
-        // Now process the message normally
-        response = await handleMessage(message);
+        // Process the message immediately without sending confirmation
+        const response = await handleMessage(message);
         console.log('Generated response:', JSON.stringify(response, null, 2));
+
+        if (!response) {
+          console.error('No response generated from handleMessage');
+          response = {
+            type: 'text',
+            message: "I apologize, but I wasn't able to generate a response. Please try again."
+          };
+        }
+
+        // Send the response to WhatsApp
+        const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
+        console.log('Message send result:', JSON.stringify(result, null, 2));
+
+        // Even if the message fails to send to WhatsApp, we should return success to the webhook
+        // to prevent retries that might not help
+        return new Response(JSON.stringify({ status: 'ok' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       } catch (processError) {
         console.error('Error in message processing:', processError);
-        response = {
+        
+        // Send error message to user
+        const errorResponse = {
           type: 'text',
-          message: "I'm sorry, but I encountered an error while processing your message. Please try again later."
+          message: "I'm sorry, but I encountered an error while processing your message. Please try again with a simpler query or try one of our basic commands like 'events' or 'next event'."
         };
+        
+        try {
+          await sendWhatsAppMessage(message.from, errorResponse, phoneNumberId);
+        } catch (sendError) {
+          console.error('Error sending error message:', sendError);
+        }
+        
+        return new Response(JSON.stringify({ status: 'error', message: processError.message }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 // Still return 200 to prevent webhook retries
+        });
       }
-
-      if (!response) {
-        console.error('No response generated from handleMessage');
-        response = {
-          type: 'text',
-          message: "I apologize, but I wasn't able to generate a response. Please try again."
-        };
-      }
-
-      // Send the response to WhatsApp
-      const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
-      console.log('Message send result:', JSON.stringify(result, null, 2));
-
-      // Even if the message fails to send to WhatsApp, we should return success to the webhook
-      // to prevent retries that might not help
-      return new Response(JSON.stringify({ status: 'ok' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
 
     return new Response('Method not allowed', { 

@@ -15,6 +15,8 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
+    console.log('Looking for events after date:', today.toISOString());
+    
     // Get the next upcoming event with all the needed relationships
     const { data: events, error } = await supabase
       .from('events')
@@ -40,7 +42,8 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
       return handleError(error, 'getNextEvent');
     }
 
-    if (!events?.length) {
+    if (!events || events.length === 0) {
+      console.log('No upcoming events found');
       return {
         type: 'text',
         message: "No upcoming events found. Would you like to create a new event?"
@@ -48,15 +51,29 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     }
 
     const event = events[0];
-    console.log('Found next event:', event);
+    console.log('Found next event:', JSON.stringify(event, null, 2));
     
     // Use the formatter to create a consistent event display
-    const formattedEventDetails = formatEventDetails(event);
+    try {
+      const formattedEventDetails = formatEventDetails(event);
+      console.log('Formatted event details:', formattedEventDetails);
 
-    return {
-      type: 'text',
-      message: formattedEventDetails
-    };
+      return {
+        type: 'text',
+        message: formattedEventDetails
+      };
+    } catch (formatError) {
+      console.error('Error formatting event details:', formatError);
+      
+      // Fallback simple format if the formatter fails
+      const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
+      const simplifiedMessage = `*Next Event*\n\n${event.name}\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}`;
+      
+      return {
+        type: 'text',
+        message: simplifiedMessage
+      };
+    }
   } catch (error) {
     console.error('Error in getNextEvent:', error);
     return handleError(error, 'getNextEvent');

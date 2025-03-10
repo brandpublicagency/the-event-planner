@@ -9,11 +9,19 @@ import { handleError } from '../../utils/errorHandler.ts';
 import { fetchContextData, isEventQuestion, generateFallbackResponse } from './utils/contextUtils.ts';
 import { generateAICompletion } from './openai/aiCompletionService.ts';
 import { processFunctionCall } from './openai/functionCallHandler.ts';
+import { getNextEvent } from '../event/getNextEvent.ts';
 
 // Main function to handle AI-powered question answering
 export const handleAIQuestion = async (question: string): Promise<WhatsAppResponse> => {
   try {
     console.log('Processing AI question:', question);
+    
+    // Special case check: if the question is clearly about next event, use direct handler
+    if (question.toLowerCase().includes('next event') || 
+        question.toLowerCase().includes('upcoming event')) {
+      console.log('AI handler redirecting to getNextEvent for direct handling');
+      return await getNextEvent();
+    }
     
     // First check database connection with comprehensive verification
     const connectionOk = await checkDatabaseConnection();
@@ -99,6 +107,41 @@ export const handleAIQuestion = async (question: string): Promise<WhatsAppRespon
       };
     } catch (error) {
       console.error('Error with primary model, falling back to simpler response:', error);
+      
+      // First check if this is an event question for direct handling
+      if (isEventQuestion(question)) {
+        console.log('AI fallback: attempting direct event query');
+        try {
+          const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+          const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          
+          // Simple event query based on keywords
+          const { data: events } = await supabase
+            .from('events')
+            .select('name, event_date, event_type, pax')
+            .gte('event_date', new Date().toISOString())
+            .is('deleted_at', null)
+            .order('event_date', { ascending: true })
+            .limit(5);
+            
+          if (events && events.length > 0) {
+            const eventsText = events.map(event => {
+              const date = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
+              return `• ${event.name} - ${date} (${event.event_type})`;
+            }).join('\n');
+            
+            return {
+              type: 'text',
+              message: `Here are your upcoming events:\n\n${eventsText}`
+            };
+          }
+        } catch (eventError) {
+          console.error('Error in direct event query fallback:', eventError);
+          // Continue to generic fallback
+        }
+      }
+      
       return generateFallbackResponse(question);
     }
   } catch (error) {

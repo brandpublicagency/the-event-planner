@@ -100,20 +100,99 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         };
       }
 
-      // Handle specific queries with timeout
+      // Prioritize handling of basic commands over AI to ensure reliability
+      // Handle next event query - one of the most important commands
       if (messageText.includes('next event') || messageText === 'next event') {
+        console.log('Direct handling of next event query');
         try {
+          // Try with timeout
           return await withTimeout(
             getNextEvent(), 
             'Next event query',
             15000
           );
+        } catch (timeoutError) {
+          console.error('Timeout error getting next event:', timeoutError);
+          
+          // Fallback direct query if timeout occurs
+          try {
+            console.log('Fallback: Direct query for next event');
+            const today = new Date();
+            const { data: events, error } = await supabase
+              .from('events')
+              .select('name, event_date, event_type, pax')
+              .gte('event_date', today.toISOString())
+              .is('deleted_at', null)
+              .order('event_date', { ascending: true })
+              .limit(1);
+              
+            if (error) throw error;
+            
+            if (!events || events.length === 0) {
+              return {
+                type: 'text',
+                message: "No upcoming events found at this time."
+              };
+            }
+            
+            const event = events[0];
+            const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
+            
+            return {
+              type: 'text',
+              message: `Next event: ${event.name}\nDate: ${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}`
+            };
+          } catch (fallbackError) {
+            console.error('Error in fallback event query:', fallbackError);
+            return {
+              type: 'text',
+              message: "I couldn't retrieve your next event information. Please try again later."
+            };
+          }
+        }
+      }
+
+      if (messageText.includes('events') || messageText.includes('upcoming events') || messageText === 'events') {
+        console.log('Direct handling of events query');
+        try {
+          // First try to return the formatted event list
+          return await withTimeout(
+            getUpcomingEventsList(),
+            'Upcoming events query',
+            15000
+          );
         } catch (error) {
-          console.error('Error getting next event:', error);
-          return {
-            type: 'text',
-            message: "I'm having trouble retrieving your next event. Please try again shortly."
-          };
+          console.error('Error getting upcoming events list:', error);
+          
+          // Fallback to a simple fetch as a secondary attempt
+          try {
+            const events = await fetchEvents();
+            console.log(`Found ${events.length} events in database`);
+            
+            if (events.length === 0) {
+              return {
+                type: 'text',
+                message: "I don't see any events in the system yet. Would you like to create one?"
+              };
+            }
+            
+            // Format a simple text response for events
+            const eventsList = events.slice(0, 5).map(event => {
+              const date = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
+              return `• ${event.name} - ${date} (${event.event_type})`;
+            }).join('\n');
+            
+            return {
+              type: 'text',
+              message: `Upcoming events:\n\n${eventsList}\n\nShowing ${Math.min(events.length, 5)} of ${events.length} total events.`
+            };
+          } catch (secondError) {
+            console.error('Database fallback failed:', secondError);
+            return {
+              type: 'text',
+              message: "I'm having trouble accessing the event database right now. Please try again in a moment."
+            };
+          }
         }
       }
 
@@ -146,44 +225,6 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
             type: 'text',
             message: "I ran into an issue retrieving your tasks. Please try again shortly."
           };
-        }
-      }
-
-      if (messageText.includes('events') || messageText.includes('upcoming events')) {
-        try {
-          // First try to return the formatted event list
-          return await withTimeout(
-            getUpcomingEventsList(),
-            'Upcoming events query',
-            15000
-          );
-        } catch (error) {
-          console.error('Error getting upcoming events list:', error);
-          
-          // Fallback to a simple fetch as a secondary attempt
-          try {
-            const events = await fetchEvents();
-            console.log(`Found ${events.length} events in database`);
-            
-            if (events.length === 0) {
-              return {
-                type: 'text',
-                message: "I don't see any events in the system yet. Would you like to create one?"
-              };
-            }
-            
-            // Return a simple text response here as a fallback
-            return {
-              type: 'text',
-              message: `You have ${events.length} events in the system. You can ask about a specific event or say "next event" to see your upcoming event.`
-            };
-          } catch (secondError) {
-            console.error('Database connection test failed:', secondError);
-            return {
-              type: 'text',
-              message: "I'm having trouble accessing the event database right now. Please try again in a moment."
-            };
-          }
         }
       }
 
