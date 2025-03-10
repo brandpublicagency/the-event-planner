@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { Plus } from "lucide-react";
@@ -8,6 +9,7 @@ import { BackButton } from "./BackButton";
 import { MobileMenuToggle } from "./MobileMenuToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
 export interface ActionButtonProps {
   label: string;
   icon?: React.ReactNode;
@@ -15,6 +17,7 @@ export interface ActionButtonProps {
   disabled?: boolean;
   variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
 }
+
 export interface HeaderProps {
   contextTitle?: string;
   pageTitle?: string;
@@ -24,6 +27,7 @@ export interface HeaderProps {
   showBackButton?: boolean;
   backButtonPath?: string;
 }
+
 export const Header = ({
   contextTitle,
   pageTitle,
@@ -46,12 +50,15 @@ export const Header = ({
     if (path === '/contacts') return 'Contacts';
     if (path === '/documents') return 'Documents';
     if (path.includes('/profile')) return 'Profile';
-    return 'Eventify';
+    return 'Event Management';
   };
+  
   const finalPageTitle = pageTitle || getDefaultPageTitle();
+  
   const handleToggleMobileMenu = () => {
     document.documentElement.classList.toggle('sidebar-open');
   };
+  
   return <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
       <div className="flex items-center h-16 px-6">
         <div className="flex gap-4 items-center">

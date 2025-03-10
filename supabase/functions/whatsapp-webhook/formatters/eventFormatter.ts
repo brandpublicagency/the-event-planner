@@ -1,4 +1,5 @@
 
+
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 
 export const formatEventDetails = (event: any) => {
