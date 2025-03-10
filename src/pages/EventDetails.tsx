@@ -12,6 +12,7 @@ import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
+
 const EventDetails = () => {
   const {
     id
@@ -50,6 +51,7 @@ const EventDetails = () => {
   const handlePrint = () => {
     window.print();
   };
+  
   if (isLoading) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -59,6 +61,7 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+  
   if (error) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -76,6 +79,7 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+  
   if (!event) {
     return <div className="flex flex-col h-full">
         <Header showBackButton backButtonPath="/events" />
@@ -93,7 +97,9 @@ const EventDetails = () => {
         </div>
       </div>;
   }
+  
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
+  
   return <div className="flex flex-col h-full">
       <Header pageTitle={`${event.name} ${event.event_code}`} showBackButton backButtonPath="/events" />
       
@@ -116,4 +122,5 @@ const EventDetails = () => {
       </div>
     </div>;
 };
+
 export default EventDetails;
