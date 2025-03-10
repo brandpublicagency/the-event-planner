@@ -25,7 +25,7 @@ export const EventInfo = ({
   const venueNames = getVenueNames(event);
   return <div className="mb-8 event-info-container">
       <div className="flex items-center">
-        <h1 className="tracking-tight px-0 text-2xl font-semibold text-zinc-800">
+        <h1 className="tracking-tight px-0 text-zinc-800 text-xl font-medium">
           {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
         </h1>
       </div>
