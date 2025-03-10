@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -11,11 +10,14 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { GoogleCalendarButton } from "@/components/calendar/GoogleCalendarButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const [calendarConnected, setCalendarConnected] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Check URL parameters for Google Calendar OAuth response
@@ -27,11 +29,14 @@ const Calendar = () => {
       setCalendarConnected(true);
       toast({
         title: "Calendar Connected",
-        description: "Successfully connected to Google Calendar. You can now sync events!",
+        description: "Successfully connected to Google Calendar. Your events will now sync automatically!",
       });
       
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Trigger initial sync
+      syncAllEvents();
     } else if (error) {
       toast({
         variant: "destructive",
@@ -46,8 +51,36 @@ const Calendar = () => {
     // Check if calendar is already connected
     checkCalendarConnection();
   }, [toast]);
+
+  const syncAllEvents = async () => {
+    if (!calendarConnected) return;
+    
+    setIsSyncing(true);
+    try {
+      // Call the edge function to sync all events
+      const { data, error } = await supabase.functions.invoke('sync-all-events');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Sync Complete",
+        description: "All events have been synchronized with Google Calendar",
+      });
+      
+      // Refetch events to get updated Google Calendar IDs
+      await queryClient.invalidateQueries({ queryKey: ['events'] });
+    } catch (error) {
+      console.error('Error syncing events:', error);
+      toast({
+        variant: "destructive",
+        title: "Sync Failed",
+        description: "Failed to sync events with Google Calendar",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   
-  // Function to check if calendar is already connected
   const checkCalendarConnection = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('check-calendar-connection');
@@ -127,6 +160,13 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
+        actionButton={
+          calendarConnected ? {
+            label: isSyncing ? "Syncing..." : "Sync All Events",
+            onClick: syncAllEvents,
+            disabled: isSyncing
+          } : undefined
+        }
         secondaryAction={<GoogleCalendarButton connected={calendarConnected} />}
       />
       

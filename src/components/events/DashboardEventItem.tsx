@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, Copy, Check, CalendarPlus } from "lucide-react";
+import { MapPin, Calendar, Users, Copy, Pencil, Trash } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardEventItemProps {
   event: Event;
@@ -19,7 +18,6 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
   const navigate = useNavigate();
   const { toast } = useToast();
   const venueStr = getVenueNames(event);
-  const [isSyncing, setIsSyncing] = useState(false);
   
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking the badge
@@ -42,34 +40,6 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
       });
   };
 
-  const syncToCalendar = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigation
-    setIsSyncing(true);
-    
-    try {
-      // Call the edge function to sync the event with Google Calendar
-      const { data, error } = await supabase.functions.invoke('sync-event-to-calendar', {
-        body: { event }
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Event Synced",
-        description: "Event has been synced to Google Calendar"
-      });
-    } catch (error) {
-      console.error('Error syncing event to calendar:', error);
-      toast({
-        variant: "destructive",
-        title: "Sync Failed", 
-        description: "Could not sync event to Google Calendar. Make sure you've connected your calendar first."
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-  
   return (
     <div className="w-full hover:bg-zinc-50 transition-colors rounded-md overflow-hidden">
       <button
@@ -95,16 +65,33 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
               </Badge>
             </span>
             
-            <Button
-              variant="ghost" 
-              size="sm"
-              className="h-6 w-6 p-0 rounded-full"
-              onClick={syncToCalendar}
-              disabled={isSyncing}
-            >
-              <CalendarPlus className="h-3.5 w-3.5 text-zinc-500" />
-              <span className="sr-only">Sync to Calendar</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/events/${event.event_code}/edit`);
+                }}
+                className="text-zinc-600 hover:text-white hover:bg-zinc-900"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              
+              {handleDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(event.event_code);
+                  }}
+                  className="text-zinc-600 hover:text-white hover:bg-zinc-900"
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-500">
