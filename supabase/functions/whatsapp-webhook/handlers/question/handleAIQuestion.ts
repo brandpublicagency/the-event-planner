@@ -4,8 +4,7 @@ import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { getSystemMessage } from '../../utils/systemMessageUtils.ts';
 import { handleTimeoutError, withTimeout, WhatsAppResponse } from '../../utils/timeoutUtils.ts';
-import { checkDatabaseConnection } from '../../utils/dataFetcher/index.ts';
-import { formatEventsContext, formatContactsContext, formatDocumentsContext, formatTasksContext } from '../../utils/contextFormatter.ts';
+import { checkDatabaseConnection, verifyAllRequiredTables } from '../../utils/dataFetcher/index.ts';
 import { handleError } from '../../utils/errorHandler.ts';
 import { fetchContextData, isEventQuestion, generateFallbackResponse } from './utils/contextUtils.ts';
 import { generateAICompletion } from './openai/aiCompletionService.ts';
@@ -16,13 +15,28 @@ export const handleAIQuestion = async (question: string): Promise<WhatsAppRespon
   try {
     console.log('Processing AI question:', question);
     
-    // First check database connection
+    // First check database connection with comprehensive verification
     const connectionOk = await checkDatabaseConnection();
     if (!connectionOk) {
       return {
         type: 'text',
         message: "I'm having trouble connecting to our system. Please try again in a few moments."
       };
+    }
+    
+    // Perform a more detailed check of all required tables
+    try {
+      const { success, errorTables } = await verifyAllRequiredTables();
+      if (!success) {
+        console.error('Table verification failed for tables:', errorTables);
+        return {
+          type: 'text',
+          message: "I'm having trouble accessing some parts of our database. Please try again shortly or try using a more specific command like 'next event' or 'tasks'."
+        };
+      }
+    } catch (verifyError) {
+      console.error('Error during table verification:', verifyError);
+      // Continue with the rest of the function - this is just an additional check
     }
     
     // Fetch all required data with timeouts
@@ -47,6 +61,8 @@ export const handleAIQuestion = async (question: string): Promise<WhatsAppRespon
     }
     
     // Format the context data for each entity type
+    const { formatEventsContext, formatContactsContext, formatDocumentsContext, formatTasksContext } = await import('../../utils/contextFormatter.ts');
+    
     const eventsContext = formatEventsContext(events);
     const contactsContext = formatContactsContext(contacts);
     const documentsContext = formatDocumentsContext(documents);
@@ -73,6 +89,7 @@ export const handleAIQuestion = async (question: string): Promise<WhatsAppRespon
         "I'm sorry, I couldn't process your question. Please try again.";
       
       if (functionCall) {
+        console.log('Function call detected:', JSON.stringify(functionCall, null, 2));
         answer = await processFunctionCall(functionCall);
       }
       

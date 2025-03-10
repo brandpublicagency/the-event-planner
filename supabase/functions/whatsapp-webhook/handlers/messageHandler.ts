@@ -1,6 +1,6 @@
 
 import { handleListSelection } from './listHandler.ts';
-import { getNextEvent } from './event/index.ts';
+import { getNextEvent, getUpcomingEventsList } from './event/index.ts';
 import { getNextTask, getTodoList } from './task/index.ts';
 import { handleAIQuestion } from './question/index.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
@@ -106,7 +106,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
           return await withTimeout(
             getNextEvent(), 
             'Next event query',
-            10000
+            15000
           );
         } catch (error) {
           console.error('Error getting next event:', error);
@@ -151,28 +151,39 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
 
       if (messageText.includes('events') || messageText.includes('upcoming events')) {
         try {
-          // Fetch some events to check if DB access is working
-          const events = await fetchEvents();
-          console.log(`Found ${events.length} events in database`);
+          // First try to return the formatted event list
+          return await withTimeout(
+            getUpcomingEventsList(),
+            'Upcoming events query',
+            15000
+          );
+        } catch (error) {
+          console.error('Error getting upcoming events list:', error);
           
-          if (events.length === 0) {
+          // Fallback to a simple fetch as a secondary attempt
+          try {
+            const events = await fetchEvents();
+            console.log(`Found ${events.length} events in database`);
+            
+            if (events.length === 0) {
+              return {
+                type: 'text',
+                message: "I don't see any events in the system yet. Would you like to create one?"
+              };
+            }
+            
+            // Return a simple text response here as a fallback
             return {
               type: 'text',
-              message: "I don't see any events in the system yet. Would you like to create one?"
+              message: `You have ${events.length} events in the system. You can ask about a specific event or say "next event" to see your upcoming event.`
+            };
+          } catch (secondError) {
+            console.error('Database connection test failed:', secondError);
+            return {
+              type: 'text',
+              message: "I'm having trouble accessing the event database right now. Please try again in a moment."
             };
           }
-          
-          // Return a simple text response here as a fallback
-          return {
-            type: 'text',
-            message: `You have ${events.length} events in the system. You can ask about a specific event or say "next event" to see your upcoming event.`
-          };
-        } catch (error) {
-          console.error('Database connection test failed:', error);
-          return {
-            type: 'text',
-            message: "I'm having trouble accessing the event database right now. Please try again in a moment."
-          };
         }
       }
 
