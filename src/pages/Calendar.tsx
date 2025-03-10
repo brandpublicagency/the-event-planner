@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -18,6 +19,25 @@ const Calendar = () => {
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const queryClient = useQueryClient();
+
+  // Check calendar connection status
+  const checkCalendarConnection = async () => {
+    try {
+      console.log("Checking calendar connection status");
+      const { data, error } = await supabase.functions.invoke('check-calendar-connection');
+      if (error) {
+        console.error("Error checking calendar connection:", error);
+        return;
+      }
+      
+      console.log("Calendar connection status:", data);
+      if (data?.connected) {
+        setCalendarConnected(true);
+      }
+    } catch (error) {
+      console.error('Error checking calendar connection:', error);
+    }
+  };
 
   useEffect(() => {
     // Check URL parameters for Google Calendar OAuth response
@@ -57,10 +77,14 @@ const Calendar = () => {
     
     setIsSyncing(true);
     try {
+      console.log("Syncing all events with Google Calendar");
       // Call the edge function to sync all events
       const { data, error } = await supabase.functions.invoke('sync-all-events');
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error syncing events:", error);
+        throw error;
+      }
       
       toast({
         title: "Sync Complete",
@@ -80,34 +104,6 @@ const Calendar = () => {
       setIsSyncing(false);
     }
   };
-  
-  const checkCalendarConnection = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('check-calendar-connection');
-      if (!error && data?.connected) {
-        setCalendarConnected(true);
-      }
-    } catch (error) {
-      console.error('Error checking calendar connection:', error);
-    }
-  };
-
-  const { data: profile, isLoading: isProfileLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-        
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: events = [], isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['events', date?.getMonth(), date?.getFullYear()],
@@ -160,13 +156,11 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
-        actionButton={
-          calendarConnected ? {
-            label: isSyncing ? "Syncing..." : "Sync All Events",
-            onClick: syncAllEvents,
-            disabled: isSyncing
-          } : undefined
-        }
+        actionButton={calendarConnected ? {
+          label: isSyncing ? "Syncing..." : "Sync All Events",
+          onClick: syncAllEvents,
+          disabled: isSyncing
+        } : undefined}
         secondaryAction={<GoogleCalendarButton connected={calendarConnected} />}
       />
       

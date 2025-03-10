@@ -17,9 +17,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Checking calendar connection')
+    
     // Get the user ID from the request
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
+      console.error('No authorization header')
       throw new Error('No authorization header')
     }
 
@@ -32,18 +35,26 @@ serve(async (req) => {
     // Get the user ID from the JWT
     const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     if (userError || !user) {
+      console.error('User not found', userError)
       throw new Error('User not found')
     }
 
+    console.log('Checking Google tokens for user:', user.id)
+    
     // Check if the user has a Google Calendar token stored
-    // In a real implementation, you would check in a table where you store the tokens
     const { data: tokens, error: tokensError } = await supabase
       .from('google_tokens')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle()
 
+    if (tokensError) {
+      console.error('Error fetching tokens:', tokensError)
+    }
+
     const connected = !!tokens && !tokensError
+    
+    console.log('Google Calendar connection status:', connected)
     
     return new Response(
       JSON.stringify({ 
