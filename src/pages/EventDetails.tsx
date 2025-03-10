@@ -101,7 +101,7 @@ const EventDetails = () => {
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   
   return <div className="flex flex-col h-full">
-      <Header pageTitle={`${event.name} ${event.event_code}`} showBackButton backButtonPath="/events" />
+      <Header showBackButton backButtonPath="/events" />
       
       <div className="flex-1 p-6 bg-gray-100">
         <div className="max-w-4xl mx-auto">
