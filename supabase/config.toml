@@ -4,3 +4,5 @@ project_id = "gqkhnmlytbvklkyktcwt"
 [functions.whatsapp-webhook]
 verify_jwt = false
 
+[functions.fetch-link-preview]
+verify_jwt = false
