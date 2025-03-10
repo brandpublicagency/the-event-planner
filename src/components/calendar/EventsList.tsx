@@ -1,27 +1,65 @@
 
 import React from "react";
-import { CalendarIcon, PlusCircle } from "lucide-react";
+import { CalendarIcon, PlusCircle, CalendarPlus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/event";
 import { format, parseISO } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventsListProps {
   date?: Date;
   events?: Event[];
   isLoading: boolean;
+  calendarConnected?: boolean;
 }
 
-export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
+export const EventsList = ({ date, events, isLoading, calendarConnected = false }: EventsListProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleAddEvent = () => {
     if (date) {
       navigate(`/events/new?date=${date.toISOString().split('T')[0]}`);
     } else {
       navigate('/events/new');
+    }
+  };
+
+  const syncEventToCalendar = async (event: Event, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!calendarConnected) {
+      toast({
+        title: "Calendar Not Connected",
+        description: "Please connect to Google Calendar first",
+        variant: "default",
+      });
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-event-to-calendar', {
+        body: { event }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Event Synced",
+        description: "Event has been synced to Google Calendar"
+      });
+    } catch (error) {
+      console.error('Error syncing event to calendar:', error);
+      toast({
+        variant: "destructive",
+        title: "Sync Failed",
+        description: "Could not sync event to Google Calendar"
+      });
     }
   };
 
@@ -92,6 +130,17 @@ export const EventsList = ({ date, events, isLoading }: EventsListProps) => {
                     ))}
                   </div>
                 </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 flex-shrink-0"
+                  onClick={(e) => syncEventToCalendar(event, e)}
+                  title={calendarConnected ? "Sync to Google Calendar" : "Connect to Google Calendar first"}
+                >
+                  <CalendarPlus className="h-4 w-4 text-zinc-500" />
+                  <span className="sr-only">Sync to Calendar</span>
+                </Button>
               </div>
             </Link>
           ))}

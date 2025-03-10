@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardEventItemProps {
   event: Event;
@@ -19,6 +20,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
   const navigate = useNavigate();
   const { toast } = useToast();
   const venueStr = getVenueNames(event);
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking the badge
@@ -41,12 +43,32 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
       });
   };
 
-  const syncToCalendar = (e: React.MouseEvent) => {
+  const syncToCalendar = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation
-    toast({
-      title: "Coming Soon",
-      description: "Event syncing with Google Calendar will be available soon!"
-    });
+    setIsSyncing(true);
+    
+    try {
+      // Call the edge function to sync the event with Google Calendar
+      const { data, error } = await supabase.functions.invoke('sync-event-to-calendar', {
+        body: { event }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Event Synced",
+        description: "Event has been synced to Google Calendar"
+      });
+    } catch (error) {
+      console.error('Error syncing event to calendar:', error);
+      toast({
+        variant: "destructive",
+        title: "Sync Failed", 
+        description: "Could not sync event to Google Calendar. Make sure you've connected your calendar first."
+      });
+    } finally {
+      setIsSyncing(false);
+    }
   };
   
   return (
@@ -79,6 +101,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
               size="sm"
               className="h-6 w-6 p-0 rounded-full"
               onClick={syncToCalendar}
+              disabled={isSyncing}
             >
               <CalendarPlus className="h-3.5 w-3.5 text-zinc-500" />
               <span className="sr-only">Sync to Calendar</span>

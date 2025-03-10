@@ -18,6 +18,7 @@ const Calendar = () => {
   const [calendarConnected, setCalendarConnected] = useState(false);
 
   useEffect(() => {
+    // Check URL parameters for Google Calendar OAuth response
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const error = urlParams.get('error');
@@ -26,9 +27,10 @@ const Calendar = () => {
       setCalendarConnected(true);
       toast({
         title: "Calendar Connected",
-        description: "Successfully connected to Google Calendar",
+        description: "Successfully connected to Google Calendar. You can now sync events!",
       });
       
+      // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (error) {
       toast({
@@ -37,9 +39,25 @@ const Calendar = () => {
         description: `Failed to connect to Google Calendar: ${error}`,
       });
       
+      // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    
+    // Check if calendar is already connected
+    checkCalendarConnection();
   }, [toast]);
+  
+  // Function to check if calendar is already connected
+  const checkCalendarConnection = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-calendar-connection');
+      if (!error && data?.connected) {
+        setCalendarConnected(true);
+      }
+    } catch (error) {
+      console.error('Error checking calendar connection:', error);
+    }
+  };
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile'],
@@ -109,7 +127,7 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
-        secondaryAction={<GoogleCalendarButton />}
+        secondaryAction={<GoogleCalendarButton connected={calendarConnected} />}
       />
       
       <div className="flex-1 p-6">
@@ -148,6 +166,7 @@ const Calendar = () => {
                 date={date} 
                 events={selectedDateEvents} 
                 isLoading={isEventsLoading} 
+                calendarConnected={calendarConnected}
               />
             </div>
           </Card>

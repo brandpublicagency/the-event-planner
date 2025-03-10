@@ -20,30 +20,23 @@ export const SyncEventButton: React.FC<SyncEventButtonProps> = ({ event, classNa
     setIsSyncing(true);
 
     try {
-      // Here we would call a backend function to sync the event with Google Calendar
-      // For now, show a toast explaining the feature is coming soon
-      toast({
-        title: "Coming Soon",
-        description: "Event syncing with Google Calendar will be available soon!"
+      // Call the edge function to sync the event with Google Calendar
+      const { data, error } = await supabase.functions.invoke('sync-event-to-calendar', {
+        body: { event }
       });
       
-      // Future implementation:
-      // const { data, error } = await supabase.functions.invoke('sync-event-to-calendar', {
-      //   body: { eventCode: event.event_code }
-      // });
-      //
-      // if (error) throw error;
-      //
-      // toast({
-      //   title: "Event Synced",
-      //   description: "Event has been added to your Google Calendar"
-      // });
+      if (error) throw error;
+      
+      toast({
+        title: "Event Synced",
+        description: "Event has been synced to Google Calendar"
+      });
     } catch (error) {
       console.error('Error syncing event to calendar:', error);
       toast({
         variant: "destructive",
         title: "Sync Failed",
-        description: "Could not sync event to Google Calendar."
+        description: "Could not sync event to Google Calendar. Make sure you've connected your calendar first."
       });
     } finally {
       setIsSyncing(false);
