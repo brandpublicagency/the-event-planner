@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { Trash, Copy, Pencil } from "lucide-react";
+import { Trash, Copy, Pencil, CalendarPlus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { getVenueNames } from "@/utils/venueUtils";
+import { SyncEventButton } from "./SyncEventButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,6 +84,8 @@ export const EventCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <SyncEventButton event={event} />
+            
             <Button
               variant="ghost"
               size="sm"
@@ -94,6 +97,7 @@ export const EventCard = ({
             >
               <Pencil className="h-4 w-4" />
             </Button>
+            
             {handleDelete && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

@@ -1,8 +1,7 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventsList } from "@/components/calendar/EventsList";
@@ -10,10 +9,36 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
+import { GoogleCalendarButton } from "@/components/calendar/GoogleCalendarButton";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
+  const [calendarConnected, setCalendarConnected] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+    
+    if (success === 'true') {
+      setCalendarConnected(true);
+      toast({
+        title: "Calendar Connected",
+        description: "Successfully connected to Google Calendar",
+      });
+      
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (error) {
+      toast({
+        variant: "destructive",
+        title: "Connection Failed",
+        description: `Failed to connect to Google Calendar: ${error}`,
+      });
+      
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile'],
@@ -83,6 +108,7 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
+        actions={<GoogleCalendarButton />}
       />
       
       <div className="flex-1 p-6">

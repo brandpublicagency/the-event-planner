@@ -2,12 +2,13 @@
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, Copy, Check } from "lucide-react";
+import { MapPin, Calendar, Users, Copy, Check, CalendarPlus } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface DashboardEventItemProps {
   event: Event;
@@ -39,6 +40,14 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
         });
       });
   };
+
+  const syncToCalendar = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation
+    toast({
+      title: "Coming Soon",
+      description: "Event syncing with Google Calendar will be available soon!"
+    });
+  };
   
   return (
     <div className="w-full hover:bg-zinc-50 transition-colors rounded-md overflow-hidden">
@@ -47,7 +56,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
         className="text-left flex-1 w-full p-3"
       >
         <div className="flex flex-col gap-1">
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <span className={cn(
               "text-sm font-medium",
               event.event_date && new Date(event.event_date).toDateString() === new Date().toDateString() 
@@ -64,6 +73,16 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({ event, h
                 <Copy className="ml-1 h-2.5 w-2.5 opacity-70" />
               </Badge>
             </span>
+            
+            <Button
+              variant="ghost" 
+              size="sm"
+              className="h-6 w-6 p-0 rounded-full"
+              onClick={syncToCalendar}
+            >
+              <CalendarPlus className="h-3.5 w-3.5 text-zinc-500" />
+              <span className="sr-only">Sync to Calendar</span>
+            </Button>
           </div>
           
           <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-500">
