@@ -1,6 +1,6 @@
 
 import React from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Loader2 } from "lucide-react";
 import type { Event } from "@/types/event";
 import { EventCard } from "@/components/events/EventCard";
