@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
@@ -12,30 +12,34 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { GoogleCalendarButton } from "@/components/calendar/GoogleCalendarButton";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(true);
   const queryClient = useQueryClient();
 
   // Check calendar connection status
   const checkCalendarConnection = async () => {
+    setIsCheckingConnection(true);
     try {
       console.log("Checking calendar connection status");
       const { data, error } = await supabase.functions.invoke('check-calendar-connection');
       if (error) {
         console.error("Error checking calendar connection:", error);
-        return;
+        return false;
       }
       
       console.log("Calendar connection status:", data);
-      if (data?.connected) {
-        setCalendarConnected(true);
-      }
+      return data?.connected || false;
     } catch (error) {
       console.error('Error checking calendar connection:', error);
+      return false;
+    } finally {
+      setIsCheckingConnection(false);
     }
   };
 
@@ -69,7 +73,12 @@ const Calendar = () => {
     }
     
     // Check if calendar is already connected
-    checkCalendarConnection();
+    const checkConnection = async () => {
+      const isConnected = await checkCalendarConnection();
+      setCalendarConnected(isConnected);
+    };
+    
+    checkConnection();
   }, [toast]);
 
   const syncAllEvents = async () => {
@@ -161,7 +170,16 @@ const Calendar = () => {
           onClick: syncAllEvents,
           disabled: isSyncing
         } : undefined}
-        secondaryAction={<GoogleCalendarButton connected={calendarConnected} />}
+        secondaryAction={
+          <div className="flex items-center">
+            {isCheckingConnection && (
+              <Button variant="ghost" size="icon" className="mr-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </Button>
+            )}
+            <GoogleCalendarButton connected={calendarConnected} />
+          </div>
+        }
       />
       
       <div className="flex-1 p-6">
@@ -200,7 +218,6 @@ const Calendar = () => {
                 date={date} 
                 events={selectedDateEvents} 
                 isLoading={isEventsLoading} 
-                calendarConnected={calendarConnected}
               />
             </div>
           </Card>

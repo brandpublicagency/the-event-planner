@@ -31,7 +31,13 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
       
       if (data?.url) {
         console.log("Redirecting to Google OAuth:", data.url);
-        window.location.href = data.url; // Redirect to Google OAuth
+        // Open in a new tab to avoid interrupting the current session
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+        
+        toast({
+          title: "Google Calendar Authorization",
+          description: "Please complete the authorization in the new browser tab. You may need to allow pop-ups.",
+        });
       } else {
         throw new Error('No authorization URL returned');
       }

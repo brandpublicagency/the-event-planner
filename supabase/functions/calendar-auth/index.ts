@@ -21,12 +21,14 @@ serve(async (req) => {
     console.log('Starting Google Calendar authorization flow')
     
     if (!GOOGLE_OAUTH_CLIENT_ID || !GOOGLE_OAUTH_CLIENT_SECRET) {
-      throw new Error('Missing OAuth configuration')
+      console.error('Missing OAuth configuration: Client ID or Secret not set')
+      throw new Error('Missing OAuth configuration: Please set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET')
     }
 
     // Get the user ID from the request
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
+      console.error('No authorization header provided')
       throw new Error('No authorization header')
     }
 
@@ -43,6 +45,7 @@ serve(async (req) => {
     // Get the user ID from the JWT
     const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     if (userError || !user) {
+      console.error('User not found:', userError?.message || 'Unknown error')
       throw new Error('User not found')
     }
 
@@ -86,7 +89,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in calendar-auth:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, details: error.stack }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500 

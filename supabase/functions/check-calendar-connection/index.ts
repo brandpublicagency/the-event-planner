@@ -41,31 +41,46 @@ serve(async (req) => {
 
     console.log('Checking Google tokens for user:', user.id)
     
-    // Check if the user has a Google Calendar token stored
-    const { data: tokens, error: tokensError } = await supabase
-      .from('google_tokens')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    try {
+      // Check if the user has a Google Calendar token stored
+      const { data: tokens, error: tokensError } = await supabase
+        .from('google_tokens')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    if (tokensError) {
-      console.error('Error fetching tokens:', tokensError)
+      if (tokensError) {
+        console.error('Error fetching tokens:', tokensError)
+        throw tokensError
+      }
+
+      const connected = !!tokens
+      
+      console.log('Google Calendar connection status:', connected)
+      
+      return new Response(
+        JSON.stringify({ 
+          connected,
+          message: connected ? 'Connected to Google Calendar' : 'Not connected to Google Calendar'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        },
+      )
+    } catch (dbError) {
+      console.error('Database error:', dbError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Database error: ' + dbError.message,
+          connected: false 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 // Return 200 even for errors to prevent frontend crashes
+        }
+      )
     }
-
-    const connected = !!tokens && !tokensError
-    
-    console.log('Google Calendar connection status:', connected)
-    
-    return new Response(
-      JSON.stringify({ 
-        connected,
-        message: connected ? 'Connected to Google Calendar' : 'Not connected to Google Calendar'
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      },
-    )
   } catch (error) {
     console.error('Error checking calendar connection:', error)
     return new Response(
