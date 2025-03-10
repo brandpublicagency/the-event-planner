@@ -18,16 +18,57 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
       const eventCode = args.event_code;
       let updates = args.updates;
       
-      // Handle venue specifically - make sure it's an array
+      if (!eventCode || !updates) {
+        console.error('Missing required parameters for update_event:', args);
+        return "I couldn't update the event because some required information was missing. Please provide both an event code and the values to update.";
+      }
+      
+      // Handle venue formatting specifically
       if (updates && updates.venues) {
+        // Always ensure venues is an array
         if (!Array.isArray(updates.venues)) {
           if (typeof updates.venues === 'string') {
             updates.venues = [updates.venues];
             console.log('Converted venues string to array:', updates.venues);
+          } else {
+            console.error('Invalid venues format:', updates.venues);
+            return "I couldn't update the venue information because it was in an invalid format. Venues should be provided as a list.";
+          }
+        }
+        
+        // Validate venue values against allowed options
+        const allowedVenues = ['The Kitchen', 'The Gallery', 'The Grand Hall', 'Package 1', 'Package 2', 'Package 3'];
+        const validVenues = updates.venues.filter((venue: string) => allowedVenues.includes(venue));
+        
+        if (validVenues.length !== updates.venues.length) {
+          console.warn('Some venues were invalid and filtered out:', 
+            updates.venues.filter((v: string) => !allowedVenues.includes(v)));
+          updates.venues = validVenues;
+          
+          if (validVenues.length === 0) {
+            return "I couldn't update the venue because none of the specified venues are valid. Valid options are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, or Package 3.";
           }
         }
       }
 
+      // First check if the event exists
+      const { data: eventExists, error: checkError } = await supabase
+        .from('events')
+        .select('name')
+        .eq('event_code', eventCode)
+        .maybeSingle();
+        
+      if (checkError) {
+        console.error('Error checking event existence:', checkError);
+        throw checkError;
+      }
+      
+      if (!eventExists) {
+        return `I couldn't find an event with code ${eventCode}. Please check the event code and try again.`;
+      }
+      
+      console.log('Performing update on event', eventCode, 'with values:', updates);
+      
       // Perform the update
       const { error } = await supabase
         .from('events')
@@ -35,51 +76,76 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
         .eq('event_code', eventCode);
       
       if (error) {
+        console.error('Error updating event:', error);
         throw error;
       }
       
-      return `I've updated the event ${eventCode} with the following changes: ${JSON.stringify(updates)}.\n\nThe changes have been saved successfully.`;
+      // Format the updates for the response
+      const updateDescription = Object.entries(updates)
+        .map(([key, value]) => `- ${key}: ${JSON.stringify(value)}`)
+        .join('\n');
+      
+      return `I've updated the event ${eventCode} with the following changes:\n${updateDescription}\n\nThe changes have been saved successfully.`;
     } catch (error) {
       console.error('Error processing function call from WhatsApp:', error);
-      return `I encountered an error while trying to update the event. Please try again with more specific instructions.`;
+      return `I encountered an error while trying to update the event: ${error.message || 'Unknown error'}. Please try again with more specific instructions.`;
     }
   }
   
   if (functionCall.name === 'update_menu') {
     try {
       const args = JSON.parse(functionCall.arguments || '{}');
+      console.log('Update menu arguments from WhatsApp:', args);
+      
+      const eventCode = args.event_code;
+      const menuUpdates = args.menu_updates;
+      
+      if (!eventCode || !menuUpdates) {
+        console.error('Missing required parameters for update_menu:', args);
+        return "I couldn't update the menu because some required information was missing. Please provide both an event code and the menu details to update.";
+      }
       
       // Check if menu selection exists
       const { data: existingMenu } = await supabase
         .from('menu_selections')
         .select('*')
-        .eq('event_code', args.event_code)
+        .eq('event_code', eventCode)
         .maybeSingle();
+      
+      let updateResult;
       
       if (existingMenu) {
         // Update existing menu
-        const { error } = await supabase
+        console.log('Updating existing menu for event', eventCode);
+        updateResult = await supabase
           .from('menu_selections')
-          .update(args.menu_updates)
-          .eq('event_code', args.event_code);
-          
-        if (error) throw error;
+          .update(menuUpdates)
+          .eq('event_code', eventCode);
       } else {
         // Create new menu selection
-        const { error } = await supabase
+        console.log('Creating new menu for event', eventCode);
+        updateResult = await supabase
           .from('menu_selections')
           .insert({
-            event_code: args.event_code,
-            ...args.menu_updates
+            event_code: eventCode,
+            ...menuUpdates
           });
-          
-        if (error) throw error;
       }
       
-      return `I've updated the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\nThe menu has been saved successfully.`;
+      if (updateResult.error) {
+        console.error('Error updating menu:', updateResult.error);
+        throw updateResult.error;
+      }
+      
+      // Format the updates for the response
+      const menuDescription = Object.entries(menuUpdates)
+        .map(([key, value]) => `- ${key}: ${JSON.stringify(value)}`)
+        .join('\n');
+      
+      return `I've updated the menu for event ${eventCode} with the following changes:\n${menuDescription}\n\nThe menu has been saved successfully.`;
     } catch (error) {
       console.error('Error updating menu from WhatsApp:', error);
-      return `I encountered an error while trying to update the menu. Please try again with more specific instructions.`;
+      return `I encountered an error while trying to update the menu: ${error.message || 'Unknown error'}. Please try again with more specific instructions.`;
     }
   }
   

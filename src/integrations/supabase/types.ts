@@ -199,33 +199,6 @@ export type Database = {
           },
         ]
       }
-      google_tokens: {
-        Row: {
-          access_token: string
-          created_at: string | null
-          expires_at: number
-          id: string
-          refresh_token: string
-          user_id: string
-        }
-        Insert: {
-          access_token: string
-          created_at?: string | null
-          expires_at: number
-          id?: string
-          refresh_token: string
-          user_id: string
-        }
-        Update: {
-          access_token?: string
-          created_at?: string | null
-          expires_at?: number
-          id?: string
-          refresh_token?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       menu_options: {
         Row: {
           category: string

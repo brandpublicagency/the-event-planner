@@ -3,14 +3,13 @@ import { supabase, handleDbError } from './index.ts';
 import { withTimeout } from '../timeoutUtils.ts';
 
 export const fetchTasks = async () => {
-  console.log('Fetching tasks data');
+  console.log('Fetching tasks data from database');
   
   try {
     const { data: tasks, error } = await withTimeout(
       supabase
         .from('tasks')
         .select('*')
-        .is('deleted_at', null)
         .order('due_date', { ascending: true }),
       'fetchTasks',
       10000
@@ -41,11 +40,11 @@ export const fetchTaskById = async (taskId: string) => {
       'fetchTaskById',
       8000
     );
-
+    
     if (error) {
       handleDbError(`fetchTaskById for ${taskId}`, error);
     }
-
+    
     return task;
   } catch (error) {
     console.error(`Error in fetchTaskById for ${taskId}:`, error);

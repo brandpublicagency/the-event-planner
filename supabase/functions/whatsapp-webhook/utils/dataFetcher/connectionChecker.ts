@@ -1,28 +1,27 @@
 
 import { supabase } from './index.ts';
+import { withTimeout } from '../timeoutUtils.ts';
 
-export const checkDatabaseConnection = async () => {
+export const checkDatabaseConnection = async (): Promise<boolean> => {
+  console.log('Checking database connection...');
+  
   try {
-    console.log('Testing database connection...');
-    const startTime = Date.now();
-    
-    const { data, error } = await supabase
-      .from('events')
-      .select('count')
-      .limit(1)
-      .single();
-      
-    const duration = Date.now() - startTime;
+    // Use a simple query to check database connectivity
+    const { data, error } = await withTimeout(
+      supabase.from('events').select('event_code').limit(1),
+      'checkDatabaseConnection',
+      5000
+    );
     
     if (error) {
-      console.error('Database connection test failed:', error);
+      console.error('Database connection check failed:', error);
       return false;
     }
     
-    console.log(`Database connection test successful (${duration}ms)`);
+    console.log('Database connection successful');
     return true;
   } catch (error) {
-    console.error('Database connection test threw exception:', error);
+    console.error('Database connection check error:', error);
     return false;
   }
 };

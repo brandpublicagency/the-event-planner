@@ -1,99 +1,53 @@
 
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 
-interface Event {
-  event_code: string;
-  name: string;
-  event_type: string;
-  event_date: string;
-  pax?: number;
-  start_time?: string;
-  end_time?: string;
-  venues?: string[];
-  primary_name?: string;
-  primary_email?: string;
-  primary_phone?: string;
-  secondary_name?: string;
-  secondary_email?: string;
-  secondary_phone?: string;
-  company?: string;
-  address?: string;
-  menu_selections?: {
-    is_custom: boolean;
-    starter_type?: string;
-    main_course_type?: string;
-    dessert_type?: string;
-    custom_menu_details?: string;
-  };
-}
+export const formatEventDetails = (event: any) => {
+  const venues = event.event_venues
+    ?.map((ev: any) => ev.venues?.name)
+    .filter(Boolean)
+    .join(' + ') || 'No venues';
 
-export const formatEventDetails = (event: Event): string => {
-  const date = event.event_date ? format(new Date(event.event_date), "d MMMM yyyy") : 'Date TBC';
-  const time = event.start_time 
-    ? `${event.start_time}${event.end_time ? ` - ${event.end_time}` : ''}`
-    : 'Time TBC';
-  const venue = event.venues && event.venues.length > 0 
-    ? event.venues.join(', ') 
-    : 'Venue TBC';
-
-  let eventDetails = `${event.name}
-Type: ${event.event_type}
-Date: ${date}
-Time: ${time}
-Venue: ${venue}
-Guests: ${event.pax || 'TBC'}
-Event Code: ${event.event_code}`;
-
-  // Add contact information based on event type
-  if (event.event_type === 'Wedding') {
-    if (event.primary_name) {
-      eventDetails += `\nBride: ${event.primary_name}`;
-      if (event.primary_phone) eventDetails += ` (${event.primary_phone})`;
-    }
-    
-    if (event.secondary_name) {
-      eventDetails += `\nGroom: ${event.secondary_name}`;
-      if (event.secondary_phone) eventDetails += ` (${event.secondary_phone})`;
-    }
-  } else {
-    if (event.company) {
-      eventDetails += `\nCompany: ${event.company}`;
-    }
-    
-    if (event.primary_name) {
-      eventDetails += `\nContact: ${event.primary_name}`;
-      if (event.primary_phone) eventDetails += ` (${event.primary_phone})`;
-    }
-  }
-  
-  // Add address if available
-  if (event.address) {
-    eventDetails += `\nAddress: ${event.address}`;
+  let clientDetails = '';
+  if (event.wedding_details?.bride_name || event.wedding_details?.groom_name) {
+    clientDetails = `*Bride:* ${event.wedding_details.bride_name || 'Not specified'}
+*Groom:* ${event.wedding_details.groom_name || 'Not specified'}\n`;
+  } else if (event.corporate_details?.company_name || event.corporate_details?.contact_person) {
+    clientDetails = `*Company:* ${event.corporate_details.company_name || 'Not specified'}
+*Contact:* ${event.corporate_details.contact_person || 'Not specified'}\n`;
   }
 
-  return eventDetails;
+  const formattedDate = event.event_date ? formatDate(event.event_date) : 'Date not specified';
+  const menuDetails = event.menu_selections ? formatMenuDetails(event.menu_selections) : '';
+
+  return `*Event Details*
+
+${event.name}
+${formattedDate}${event.start_time ? ` • ${event.start_time}` : ''}
+*Pax: ${event.pax || 'Not specified'}* / ${event.event_type}
+${venues}${clientDetails}${menuDetails}`;
 };
 
-export const formatEventMenu = (event: Event): string => {
-  if (!event.menu_selections) {
-    return 'No menu selected for this event.';
+const formatDate = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr);
+    return format(date, "MMMM d, yyyy");
+  } catch {
+    return dateStr;
   }
+};
 
-  const menu = event.menu_selections;
-  let menuText = `Menu Details for ${event.name}\n`;
-  menuText += `Date: ${format(new Date(event.event_date), "d MMMM yyyy")}\n\n`;
+const formatMenuDetails = (menu: any) => {
+  if (!menu) return '';
 
-  if (menu.is_custom) {
-    menuText += 'Custom Menu\n';
-    if (menu.custom_menu_details) {
-      menuText += menu.custom_menu_details;
-    }
-    return menuText;
-  }
+  const starterSection = menu.is_custom ? '*Custom Menu*' : 
+    `*Arrival & Starter*
+${menu.starter_type || 'Not selected'}`;
 
-  menuText += `Starter: ${menu.starter_type || 'Not selected'}\n`;
-  menuText += `Main Course: ${menu.main_course_type || 'Not selected'}\n`;
-  menuText += `Dessert: ${menu.dessert_type || 'Not selected'}`;
+  const mainCourseSection = `\n*Main Course*
+${menu.main_course_type || 'Not selected'}`;
 
-  return menuText;
+  const dessertSection = `\n*Dessert*
+${menu.dessert_type || 'Not selected'}`;
+
+  return `\n\n${starterSection}${mainCourseSection}${dessertSection}`;
 };

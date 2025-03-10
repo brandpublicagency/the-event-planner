@@ -3,14 +3,14 @@ import { supabase, handleDbError } from './index.ts';
 import { withTimeout } from '../timeoutUtils.ts';
 
 export const fetchDocuments = async () => {
-  console.log('Fetching documents data');
+  console.log('Fetching documents data from database');
   
   try {
     const { data: documents, error } = await withTimeout(
       supabase
         .from('documents')
         .select('*')
-        .is('deleted_at', null),
+        .order('created_at', { ascending: false }),
       'fetchDocuments',
       10000
     );

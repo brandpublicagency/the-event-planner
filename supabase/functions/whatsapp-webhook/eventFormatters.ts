@@ -1,5 +1,5 @@
+
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
-import { formatMenuSelection, formatMainCourseSection } from './menuFormatters.ts';
 
 export const formatEventDetails = (event: any) => {
   const venues = event.event_venues
@@ -41,10 +41,13 @@ const formatMenuDetails = (menu: any) => {
 
   const starterSection = menu.is_custom ? '*Custom Menu*' : 
     `*Arrival & Starter*
-${menu.starter_type ? formatMenuSelection(menu.starter_type) : 'Not selected'}`;
+${menu.starter_type || 'Not selected'}`;
+
+  const mainCourseSection = `\n*Main Course*
+${menu.main_course_type || 'Not selected'}`;
 
   const dessertSection = `\n*Dessert*
-${menu.dessert_type ? formatMenuSelection(menu.dessert_type) : 'Not selected'}`;
+${menu.dessert_type || 'Not selected'}`;
 
-  return `\n\n${starterSection}\n\n${formatMainCourseSection(menu)}${dessertSection}`;
+  return `\n\n${starterSection}${mainCourseSection}${dessertSection}`;
 };

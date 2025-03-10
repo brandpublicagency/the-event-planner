@@ -1,58 +1,43 @@
 
-// Define the WhatsAppResponse type to match the one in messageHandler.ts
-export type WhatsAppResponse = 
-  | { type: 'text'; message: string; }
-  | { 
-      type: 'interactive'; 
-      interactive: {
-        type: string;
-        header?: { type: string; text: string; };
-        body: { text: string; };
-        action?: {
-          button?: string;
-          sections?: {
-            title: string;
-            rows: { id: string; title: string; description: string; }[];
-          }[];
-        };
-      };
-    };
-
-const DEFAULT_TIMEOUT = 15000; // 15 seconds default timeout
+export interface WhatsAppResponse {
+  type: 'text' | 'interactive';
+  message?: string;
+  interactive?: any;
+}
 
 export const withTimeout = async <T>(
   promise: Promise<T>,
   operationName: string,
-  timeout = DEFAULT_TIMEOUT
+  timeoutMs: number
 ): Promise<T> => {
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
-      reject(new Error(`Operation ${operationName} timed out after ${timeout}ms`));
-    }, timeout);
+      reject(new Error(`${operationName} operation timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
   });
 
   try {
-    const result = await Promise.race([promise, timeoutPromise]);
-    return result;
+    return await Promise.race([promise, timeoutPromise]);
   } catch (error) {
-    console.error(`Timeout error in ${operationName}:`, error);
+    console.error(`Timeout or error in ${operationName}:`, error);
     throw error;
   }
 };
 
-export const handleTimeoutError = (error: any): WhatsAppResponse => {
-  const isTimeout = error.message && error.message.includes('timed out');
+export const handleTimeoutError = (error: any, operationName: string): WhatsAppResponse => {
+  console.error(`Error in ${operationName}:`, error);
+  
+  const isTimeout = error.message?.includes('timed out');
   
   if (isTimeout) {
-    console.error('Operation timed out:', error.message);
     return {
       type: 'text',
-      message: "I'm sorry, but it's taking longer than expected to process your request. Please try again or try a simpler question."
+      message: "I'm sorry, but the operation is taking longer than expected. Please try again shortly."
     };
   }
   
   return {
     type: 'text',
-    message: "I encountered an error while processing your request. Please try again later."
+    message: "I encountered an error processing your request. Please try again."
   };
 };

@@ -8,47 +8,74 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getCalendarView = async (): Promise<WhatsAppResponse> => {
+  console.log('Generating calendar view');
+  
   try {
     const today = new Date();
+    const inOneMonth = new Date(today);
+    inOneMonth.setMonth(today.getMonth() + 1);
+    
     const { data: events, error } = await supabase
       .from('events')
       .select('*')
       .gte('event_date', today.toISOString())
+      .lt('event_date', inOneMonth.toISOString())
       .is('deleted_at', null)
-      .is('completed', false)
-      .order('event_date', { ascending: true })
-      .limit(10);
+      .order('event_date', { ascending: true });
 
     if (error) {
       console.error('Error fetching calendar events:', error);
-      return {
-        type: 'text',
-        message: "Error fetching calendar events. Please try again later."
-      };
+      throw error;
     }
 
     if (!events?.length) {
       return {
         type: 'text',
-        message: "No upcoming events in the calendar."
+        message: "No events found in the next 30 days."
       };
     }
 
-    const message = "*Upcoming Calendar Events:*\n\n" + events.map(event => 
-      `📅 ${event.event_date ? format(new Date(event.event_date), 'dd MMM yyyy') : 'Date TBD'}\n${event.name}\n${
-        event.event_type
-      } (${event.event_code})`
-    ).join('\n\n');
+    // Group events by week
+    const eventsByWeek: Record<string, any[]> = {};
+    
+    events.forEach(event => {
+      const eventDate = new Date(event.event_date);
+      const weekStart = new Date(eventDate);
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Start from Monday
+      
+      const weekKey = format(weekStart, "d MMM") + " - " + 
+                     format(new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000), "d MMM");
+      
+      if (!eventsByWeek[weekKey]) {
+        eventsByWeek[weekKey] = [];
+      }
+      
+      eventsByWeek[weekKey].push(event);
+    });
+
+    // Format the calendar output
+    let calendarText = "*Calendar: Next 30 Days*\n\n";
+    
+    Object.entries(eventsByWeek).forEach(([week, weekEvents]) => {
+      calendarText += `*Week: ${week}*\n`;
+      
+      weekEvents.forEach(event => {
+        const eventDate = new Date(event.event_date);
+        calendarText += `• ${format(eventDate, "EEE, d MMM")}: ${event.name} (${event.event_type})\n`;
+      });
+      
+      calendarText += "\n";
+    });
 
     return {
       type: 'text',
-      message
+      message: calendarText
     };
   } catch (error) {
     console.error('Error in getCalendarView:', error);
     return {
       type: 'text',
-      message: "An error occurred while fetching calendar events. Please try again later."
+      message: "I encountered an error while generating the calendar view. Please try again later."
     };
   }
 };

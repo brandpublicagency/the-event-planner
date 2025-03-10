@@ -8,28 +8,57 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getTodoList = async (): Promise<WhatsAppResponse> => {
+  console.log('Fetching todo list');
+  
   try {
     const { data: tasks, error } = await supabase
       .from('tasks')
       .select('*')
-      .is('completed', false)
+      .eq('completed', false)
       .order('due_date', { ascending: true })
       .limit(10);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching tasks:', error);
+      throw error;
+    }
 
     if (!tasks?.length) {
       return {
         type: 'text',
-        message: "No pending tasks found."
+        message: "You have no pending tasks. Great job!"
       };
     }
 
-    const sections = tasks.map(task => ({
-      id: `task_${task.id}`,
-      title: task.title,
-      description: `📅 Due: ${task.due_date ? format(new Date(task.due_date), 'dd MMM yyyy') : 'No due date'}\n⭐ Priority: ${task.priority || 'None'}\n📋 Status: ${task.status}`
-    }));
+    // Group tasks by status
+    const groupedTasks: Record<string, any[]> = {};
+    tasks.forEach(task => {
+      const status = task.status || 'pending';
+      if (!groupedTasks[status]) {
+        groupedTasks[status] = [];
+      }
+      groupedTasks[status].push(task);
+    });
+
+    // Create sections for the interactive list
+    const sections = Object.entries(groupedTasks).map(([status, statusTasks]) => {
+      const title = status.charAt(0).toUpperCase() + status.slice(1);
+      
+      return {
+        title: `${title} Tasks`,
+        rows: statusTasks.map(task => {
+          const dueDate = task.due_date 
+            ? format(new Date(task.due_date), 'dd MMM yyyy')
+            : 'No due date';
+            
+          return {
+            id: `task_${task.id}`,
+            title: task.title,
+            description: `Due: ${dueDate} | ${task.priority || 'Medium'} priority`
+          };
+        })
+      };
+    });
 
     return {
       type: 'interactive',
@@ -37,17 +66,14 @@ export const getTodoList = async (): Promise<WhatsAppResponse> => {
         type: 'list',
         header: {
           type: 'text',
-          text: 'Your To-do List'
+          text: 'Your To-Do List'
         },
         body: {
-          text: `You have ${tasks.length} pending tasks:`
+          text: `You have ${tasks.length} pending task${tasks.length > 1 ? 's' : ''}.`
         },
         action: {
           button: 'View Tasks',
-          sections: [{
-            title: '📋 Tasks',
-            rows: sections
-          }]
+          sections
         }
       }
     };
@@ -55,7 +81,7 @@ export const getTodoList = async (): Promise<WhatsAppResponse> => {
     console.error('Error in getTodoList:', error);
     return {
       type: 'text',
-      message: "An error occurred while fetching tasks. Please try again later."
+      message: "I encountered an error while retrieving your tasks. Please try again later."
     };
   }
 };
