@@ -81,6 +81,23 @@ export const Header = ({
         {children}
 
         <div className="ml-auto flex items-center gap-4">
+          {/* Display secondary action if provided */}
+          {secondaryAction}
+          
+          {/* Display action button if provided */}
+          {actionButton && (
+            <Button
+              variant={actionButton.variant || "default"}
+              size="sm"
+              onClick={actionButton.onClick}
+              disabled={actionButton.disabled}
+              className="gap-1"
+            >
+              {actionButton.icon}
+              {actionButton.label}
+            </Button>
+          )}
+          
           <SearchBar />
           <NotificationButton />
           <UserMenu />
