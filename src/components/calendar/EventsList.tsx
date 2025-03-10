@@ -9,14 +9,12 @@ interface EventsListProps {
   date?: Date;
   events?: Event[];
   isLoading?: boolean;
-  calendarConnected?: boolean;
 }
 
 export const EventsList: React.FC<EventsListProps> = ({
   date,
   events = [],
   isLoading = false,
-  calendarConnected = false,
 }) => {
   if (isLoading) {
     return (
