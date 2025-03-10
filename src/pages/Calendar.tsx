@@ -85,8 +85,8 @@ const Calendar = () => {
         pageTitle={format(currentDate, "MMMM yyyy")}
       />
       
-      <div className="flex-1 p-4">
-        <div className="flex justify-between items-center mb-4">
+      <div className="flex-1 flex flex-col">
+        <div className="flex justify-between items-center px-4 py-2 border-b">
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
@@ -120,11 +120,13 @@ const Calendar = () => {
           </Button>
         </div>
 
-        <CalendarGrid 
-          currentDate={currentDate}
-          events={events}
-          isLoading={isEventsLoading}
-        />
+        <div className="flex-1 overflow-auto">
+          <CalendarGrid 
+            currentDate={currentDate}
+            events={events}
+            isLoading={isEventsLoading}
+          />
+        </div>
       </div>
     </div>
   );

@@ -61,16 +61,16 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-full">
         <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
       </div>
     );
   }
 
   return (
-    <div className="calendar-grid">
+    <div className="calendar-grid h-full flex flex-col">
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 text-sm font-medium text-zinc-500 border-b pb-2">
+      <div className="grid grid-cols-7 text-sm font-medium text-zinc-500 border-b py-2 px-2">
         {WEEKDAYS.map((day) => (
           <div key={day} className="text-center">
             {day}
@@ -79,7 +79,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
       </div>
 
       {/* Calendar days */}
-      <div className="grid grid-cols-7 border-b border-zinc-200">
+      <div className="grid grid-cols-7 flex-1">
         {calendarDays.map((week, weekIndex) => (
           <React.Fragment key={weekIndex}>
             {week.map((day, dayIndex) => {
@@ -94,7 +94,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
                 <div 
                   key={dayIndex}
                   className={cn(
-                    "min-h-[120px] p-1 border-r last:border-r-0 border-zinc-200",
+                    "p-1 border-r last:border-r-0 border-zinc-200 overflow-hidden",
                     isCurrentMonth ? "bg-white" : "bg-zinc-50",
                     isCurrentDay && "bg-blue-50",
                     weekIndex > 0 && "border-t border-zinc-200"
