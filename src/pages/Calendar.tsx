@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
@@ -10,7 +11,6 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { GoogleCalendarButton } from "@/components/calendar/GoogleCalendarButton";
-import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 
 const Calendar = () => {
@@ -19,35 +19,35 @@ const Calendar = () => {
   const [calendarConnected, setCalendarConnected] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const checkCalendarConnection = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_APP_URL || 'https://www.warmkaroo.app'}/functions/v1/check-calendar-connection`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-            }
+  const checkCalendarConnection = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_URL || 'https://www.warmkaroo.app'}/functions/v1/check-calendar-connection`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
           }
-        );
-        
-        const data = await response.json();
-        console.log('Cal.com connection status:', data);
-        
-        if (data.connected) {
-          setCalendarConnected(true);
-          toast({
-            title: "Calendar Connected",
-            description: "Successfully connected to Cal.com Calendar!",
-          });
         }
-      } catch (error) {
-        console.error('Error checking Cal.com connection:', error);
+      );
+      
+      const data = await response.json();
+      console.log('Cal.com connection status:', data);
+      
+      if (data.connected) {
+        setCalendarConnected(true);
+        toast({
+          title: "Calendar Connected",
+          description: "Successfully connected to Cal.com Calendar!",
+        });
       }
-    };
-    
+    } catch (error) {
+      console.error('Error checking Cal.com connection:', error);
+    }
+  };
+
+  useEffect(() => {
     checkCalendarConnection();
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -63,6 +63,10 @@ const Calendar = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [toast]);
+
+  const refreshEvents = () => {
+    queryClient.invalidateQueries({ queryKey: ['events', date?.getMonth(), date?.getFullYear()] });
+  };
 
   const { data: events = [], isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['events', date?.getMonth(), date?.getFullYear()],
@@ -111,13 +115,17 @@ const Calendar = () => {
     .map(event => event.event_date ? new Date(event.event_date) : null)
     .filter(Boolean) as Date[];
 
+  const handleEventSync = () => {
+    refreshEvents();
+  };
+
   return (
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
         secondaryAction={
           <div className="flex items-center">
-            <GoogleCalendarButton connected={calendarConnected} />
+            <GoogleCalendarButton connected={calendarConnected} onSync={handleEventSync} />
           </div>
         }
       />

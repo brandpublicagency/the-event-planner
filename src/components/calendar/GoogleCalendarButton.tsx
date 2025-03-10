@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Check, ExternalLink } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ExternalLink, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 interface GoogleCalendarButtonProps {
   connected?: boolean;
   className?: string;
+  onSync?: () => void;
 }
 
 export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ 
   connected = false,
-  className = "" 
+  className = "",
+  onSync
 }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
@@ -54,16 +56,61 @@ export const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({
     }
   };
 
+  const handleSyncAllEvents = async () => {
+    if (!connected) {
+      toast({
+        variant: "destructive",
+        title: "Calendar Not Connected",
+        description: "Please connect to Cal.com first.",
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-all-events');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Events Synced",
+        description: "All events have been synced with Cal.com/Google Calendar."
+      });
+      
+      if (onSync) onSync();
+    } catch (error) {
+      console.error('Error syncing events:', error);
+      toast({
+        variant: "destructive",
+        title: "Sync Failed",
+        description: "Failed to sync events with calendar. Please try again later."
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   if (connected) {
     return (
-      <Button 
-        variant="outline" 
-        className={`gap-2 text-green-600 ${className}`}
-        disabled
-      >
-        <Check className="h-4 w-4" />
-        Connected to Cal.com
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          className={`gap-2 text-green-600 ${className}`}
+          disabled
+        >
+          <Check className="h-4 w-4" />
+          Connected to Cal.com
+        </Button>
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={handleSyncAllEvents}
+          disabled={isConnecting}
+        >
+          <RefreshCw className={`h-4 w-4 ${isConnecting ? 'animate-spin' : ''}`} />
+          {isConnecting ? "Syncing..." : "Sync All Events"}
+        </Button>
+      </div>
     );
   }
 
