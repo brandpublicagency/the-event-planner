@@ -14,6 +14,7 @@ export interface ActionButtonProps {
   label: string;
   icon?: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
   variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
 }
 

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -8,12 +9,14 @@ interface EventsListProps {
   date?: Date;
   events?: Event[];
   isLoading?: boolean;
+  calendarConnected?: boolean;
 }
 
 export const EventsList: React.FC<EventsListProps> = ({
   date,
   events = [],
   isLoading = false,
+  calendarConnected = false,
 }) => {
   if (isLoading) {
     return (
