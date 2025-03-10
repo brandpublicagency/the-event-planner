@@ -1,11 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
-import { format } from "https://deno.land/std@0.177.0/datetime/format.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
 const corsHeaders = {
@@ -28,21 +27,84 @@ serve(async (req) => {
 
     console.log('Syncing event to Google Calendar:', event.event_code)
 
-    // Create Supabase client to fetch tokens
-    const supabase = createClient(
-      SUPABASE_URL || '',
-      SUPABASE_SERVICE_ROLE_KEY || ''
-    )
+    // Get the user ID from the request
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Create Supabase client
+    const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '')
+
+    // Extract the JWT token from the Authorization header
+    const token = authHeader.replace('Bearer ', '')
+
+    // Get the user ID from the JWT
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    if (userError || !user) {
+      throw new Error('User not found')
+    }
 
     // Fetch the access token for Google Calendar
-    // Note: In a production environment, you would store the token in a secure table
-    // For this example, we'll simulate the token retrieval
+    // In a real implementation, you would get this from your secure tokens table
+    const { data: tokens, error: tokensError } = await supabase
+      .from('google_tokens')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (tokensError || !tokens) {
+      throw new Error('Google Calendar not connected. Please connect your calendar first.')
+    }
+    
+    // Check if token is expired and refresh if needed
+    let accessToken = tokens.access_token
+    if (tokens.expires_at < Math.floor(Date.now() / 1000)) {
+      // Token is expired, refresh it
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_id: GOOGLE_CLIENT_ID || '',
+          client_secret: GOOGLE_CLIENT_SECRET || '',
+          refresh_token: tokens.refresh_token,
+          grant_type: 'refresh_token',
+        }),
+      })
+
+      const refreshData = await tokenResponse.json()
+      if (refreshData.error) {
+        throw new Error(`Failed to refresh token: ${refreshData.error}`)
+      }
+
+      // Update access token
+      accessToken = refreshData.access_token
+
+      // Update token in database
+      await supabase
+        .from('google_tokens')
+        .update({
+          access_token: refreshData.access_token,
+          expires_at: Math.floor(Date.now() / 1000) + refreshData.expires_in,
+        })
+        .eq('user_id', user.id)
+    }
     
     // Format the event for Google Calendar
     const formattedEvent = formatEventForGoogleCalendar(event)
     
     // Call Google Calendar API to create the event
-    const calendarEvent = await createGoogleCalendarEvent(formattedEvent)
+    const calendarEvent = await createGoogleCalendarEvent(formattedEvent, accessToken)
+    
+    // Store the calendar event ID in the events table
+    await supabase
+      .from('events')
+      .update({
+        google_calendar_event_id: calendarEvent.id,
+      })
+      .eq('event_code', event.event_code)
     
     return new Response(
       JSON.stringify({ 
@@ -87,8 +149,8 @@ function formatEventForGoogleCalendar(event) {
   }
   
   // Get venue information if available
-  const location = event.venues && event.venues.length > 0
-    ? event.venues.join(', ')
+  const location = event.venues?.length > 0
+    ? event.venues.map(venue => venue.name || venue).join(', ')
     : '';
     
   return {
@@ -106,37 +168,21 @@ function formatEventForGoogleCalendar(event) {
   }
 }
 
-// Simulate creating a Google Calendar event
-// In a real implementation, you would use the Google Calendar API
-async function createGoogleCalendarEvent(event) {
-  console.log('Would create Google Calendar event:', event)
-  
-  // This is a placeholder. In a real implementation, you would:
-  // 1. Get the access token
-  // 2. Call the Google Calendar API
-  // 3. Save the calendar event ID in your database for future reference
-  
-  return {
-    id: `calendar-event-${Date.now()}`,
-    htmlLink: 'https://calendar.google.com',
-  }
-}
+// Function to create a Google Calendar event
+async function createGoogleCalendarEvent(event, accessToken) {
+  const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  })
 
-function createClient(supabaseUrl, supabaseKey) {
-  return {
-    from: (table) => ({
-      select: (columns) => ({
-        eq: (column, value) => ({
-          single: () => {
-            console.log(`Would select ${columns} from ${table} where ${column} = ${value}`)
-            return Promise.resolve({ data: null, error: null })
-          }
-        })
-      }),
-      insert: (data) => {
-        console.log(`Would insert into ${table}:`, data)
-        return Promise.resolve({ data: { id: 'new-id' }, error: null })
-      }
-    })
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(`Google Calendar API error: ${JSON.stringify(errorData)}`)
   }
+
+  return response.json()
 }

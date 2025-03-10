@@ -1,4 +1,4 @@
-// Update to a newer version of Deno std library
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 
 const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
@@ -24,6 +24,28 @@ serve(async (req) => {
       throw new Error('Missing OAuth configuration')
     }
 
+    // Get the user ID from the request
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Extract the JWT token from the Authorization header
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Create a temporary Supabase client to get the user ID
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.39.3")
+    const supabase = createClient(
+      SUPABASE_URL || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    )
+    
+    // Get the user ID from the JWT
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    if (userError || !user) {
+      throw new Error('User not found')
+    }
+
     const scopes = [
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/calendar.events'
@@ -31,17 +53,24 @@ serve(async (req) => {
 
     const returnUrl = `${APP_URL}/#/calendar`
     
+    // Include the user ID and return URL in the state parameter
+    const state = encodeURIComponent(JSON.stringify({
+      userId: user.id,
+      returnUrl
+    }))
+    
     const url = `https://accounts.google.com/o/oauth2/v2/auth` +
-      `?client_id=${encodeURIComponent(GOOGLE_OAUTH_CLIENT_ID)}` +
+      `?client_id=${encodeURIComponent(GOOGLE_OAUTH_CLIENT_ID || '')}` +
       `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
       `&response_type=code` +
       `&scope=${encodeURIComponent(scopes.join(' '))}` +
       `&access_type=offline` +
       `&prompt=consent` +
       `&include_granted_scopes=true` +
-      `&state=${encodeURIComponent(returnUrl)}`
+      `&state=${state}`
 
-    console.log('Generated authorization URL:', url)
+    console.log('Generated authorization URL')
+    console.log('User ID:', user.id)
     console.log('Return URL:', returnUrl)
 
     return new Response(
