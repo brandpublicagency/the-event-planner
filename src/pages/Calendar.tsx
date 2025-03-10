@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -108,7 +109,7 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       <Header
         pageTitle={date ? format(date, "MMMM d, yyyy") : "Calendar"}
-        actions={<GoogleCalendarButton />}
+        secondaryAction={<GoogleCalendarButton />}
       />
       
       <div className="flex-1 p-6">
