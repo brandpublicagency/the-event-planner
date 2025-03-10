@@ -1,21 +1,18 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
-import { useNavigate } from "react-router-dom";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const refreshEvents = () => {
     queryClient.invalidateQueries({ queryKey: ['events', currentDate.getMonth(), currentDate.getFullYear()] });
@@ -79,47 +76,43 @@ const Calendar = () => {
     });
   }
 
+  // Create custom header with navigation buttons
+  const headerContent = (
+    <div className="flex items-center gap-2 ml-4">
+      <Button 
+        variant="outline" 
+        size="icon"
+        onClick={previousMonth}
+        className="rounded-full h-8 w-8"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <Button 
+        variant="outline" 
+        onClick={goToToday}
+        className="rounded-full px-4 h-8"
+      >
+        Today
+      </Button>
+      <Button 
+        variant="outline" 
+        size="icon"
+        onClick={nextMonth}
+        className="rounded-full h-8 w-8"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full bg-white">
       <Header
         pageTitle={format(currentDate, "MMMM yyyy")}
+        children={headerContent}
       />
       
       <div className="flex-1 flex flex-col">
-        <div className="flex justify-between items-center px-4 py-2 border-b">
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={previousMonth}
-              className="rounded-full h-8 w-8"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={goToToday}
-              className="rounded-full px-4 h-8"
-            >
-              Today
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={nextMonth}
-              className="rounded-full h-8 w-8"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          <Button 
-            onClick={() => navigate('/events/new')}
-            className="rounded-full h-8 px-4 bg-black text-white hover:bg-zinc-800"
-          >
-            <Plus className="h-4 w-4 mr-2" /> New Event
-          </Button>
-        </div>
-
         <div className="flex-1 overflow-auto">
           <CalendarGrid 
             currentDate={currentDate}
