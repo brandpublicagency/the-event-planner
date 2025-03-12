@@ -32,7 +32,16 @@ serve(async (req) => {
       formData = Object.fromEntries(formDataObj.entries())
     }
     
+    // Log the data structure to better understand what we're receiving
     console.log('Processed form data:', formData)
+    console.log('Form data type:', typeof formData)
+    
+    // If the form data is nested inside another object (common in some form providers), extract it
+    if (formData.form_data && typeof formData.form_data === 'object') {
+      formData = formData.form_data
+    } else if (formData.data && typeof formData.data === 'object') {
+      formData = formData.data
+    }
 
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -49,20 +58,73 @@ serve(async (req) => {
     const timestamp = date.getTime().toString().slice(-4)
     const eventCode = `EVENT-${date.getDate()}${date.getMonth() + 1}-${timestamp}`
 
-    // Map Fluent Forms data to event table structure
     // Add more detailed logging to see what fields we're receiving
     console.log('Form fields available:', Object.keys(formData))
-
+    
+    // Check if formData is inside a 'fields' property (common in Fluent Forms)
+    if (formData.fields && typeof formData.fields === 'object') {
+      console.log('Found fields object, using that instead')
+      formData = formData.fields
+    }
+    
+    // Tried to find all possible field names that could contain the data we want
+    const getName = () => {
+      const possibilities = [
+        formData.event_name, 
+        formData['event-name'], 
+        formData.name, 
+        formData['event_name'], 
+        formData.event_title,
+        formData.title,
+        // Check for nested objects
+        formData.name_field?.value,
+        formData.event_name_field?.value
+      ]
+      return possibilities.find(val => val) || 'Untitled Event'
+    }
+    
+    const getEmail = () => {
+      const possibilities = [
+        formData.primary_email, 
+        formData['primary-email'], 
+        formData.email, 
+        formData['email'], 
+        formData.client_email,
+        formData['client-email'],
+        // Check for nested objects
+        formData.email_field?.value,
+        formData.primary_email_field?.value
+      ]
+      return possibilities.find(val => val) || null
+    }
+    
+    const getPhone = () => {
+      const possibilities = [
+        formData.primary_phone, 
+        formData['primary-phone'], 
+        formData.phone, 
+        formData['phone'], 
+        formData.client_phone,
+        formData['client-phone'],
+        formData.telephone,
+        // Check for nested objects
+        formData.phone_field?.value,
+        formData.primary_phone_field?.value
+      ]
+      return possibilities.find(val => val) || null
+    }
+    
+    // Map Fluent Forms data to event table structure
     const eventData = {
       event_code: eventCode,
-      name: formData.event_name || formData['event-name'] || formData.name || 'Untitled Event',
+      name: getName(),
       event_type: formData.event_type || formData['event-type'] || formData.type || 'Wedding',
       event_date: formData.event_date || formData['event-date'] || formData.date || null,
       pax: formData.pax ? parseInt(formData.pax) : null,
-      primary_name: formData.primary_name || formData['primary-name'] || formData.name || null,
-      primary_email: formData.primary_email || formData['primary-email'] || formData.email || null,
-      primary_phone: formData.primary_phone || formData['primary-phone'] || formData.phone || null,
-      description: formData.description || formData.message || null,
+      primary_name: formData.primary_name || formData['primary-name'] || formData.name || formData.client_name || null,
+      primary_email: getEmail(),
+      primary_phone: getPhone(),
+      description: formData.description || formData.message || formData.notes || null,
       venues: formData.venues ? Array.isArray(formData.venues) ? formData.venues : [formData.venues] : null
     }
 
@@ -110,4 +172,3 @@ serve(async (req) => {
     )
   }
 })
-
