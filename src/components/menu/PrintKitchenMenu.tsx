@@ -274,18 +274,16 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const componentRef = React.useRef<HTMLDivElement>(null);
   
   const handlePrint = useReactToPrint({
-    documentTitle: `Kitchen Menu - ${event.name}`,
-    // The current version expects this function to be passed directly in the options
     content: () => componentRef.current,
+    documentTitle: `Kitchen Menu - ${event.name}`,
     onBeforePrint: () => {
       console.log("Preparing to print...");
-      return Promise.resolve(); // Return a Promise to satisfy TypeScript
+      return Promise.resolve();
     },
     onAfterPrint: () => {
       console.log("Print completed or canceled");
-      return Promise.resolve(); // Return a Promise for consistency
+      return Promise.resolve();
     },
-    // Removed the removeAfterPrint property as it doesn't exist in UseReactToPrintOptions
     pageStyle: `
       @page {
         size: A4;
@@ -320,10 +318,11 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     `,
   });
 
-  // Correctly type the handler function
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
-    handlePrint();
+    if (componentRef.current) {
+      handlePrint();
+    }
   };
 
   return (
@@ -337,7 +336,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div style={{ display: "block", position: "absolute", width: "0", height: "0", overflow: "hidden" }}>
+      <div style={{ display: "none", position: "absolute", height: "0", overflow: "hidden" }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
     </>
