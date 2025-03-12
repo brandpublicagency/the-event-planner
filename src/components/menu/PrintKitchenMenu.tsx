@@ -276,6 +276,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   
   const handlePrint = useReactToPrint({
     documentTitle: `Kitchen Menu - ${event.name}`,
+    content: () => componentRef.current,
     onBeforePrint: () => {
       console.log("Preparing to print...");
       return Promise.resolve(); // Return a Promise to satisfy TypeScript
@@ -322,9 +323,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   // Correctly type the handler function
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
-    if (componentRef.current) {
-      handlePrint();
-    }
+    handlePrint();
   };
 
   return (
@@ -338,7 +337,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div style={{ display: "none" }}>
+      <div style={{ display: "block", position: "absolute", width: "0", height: "0", overflow: "hidden" }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
     </>
