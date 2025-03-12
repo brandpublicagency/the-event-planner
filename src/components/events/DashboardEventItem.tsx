@@ -2,13 +2,14 @@
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, Copy, Pencil, Trash } from "lucide-react";
+import { MapPin, Calendar, Users, Copy, Pencil } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { TaskActions } from "@/components/tasks/TaskActions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,44 +66,28 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
               </Badge>
             </span>
             
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={e => {
-              e.stopPropagation();
-              navigate(`/events/${event.event_code}/edit`);
-            }} className="text-zinc-600 hover:text-white hover:bg-zinc-900">
-                <Pencil className="h-4 w-4" />
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={e => {
+                  e.stopPropagation();
+                  navigate(`/events/${event.event_code}/edit`);
+                }}
+              >
+                <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
               </Button>
               
               {handleDelete && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-zinc-600 hover:text-white hover:bg-zinc-900"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this event? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDelete(event.event_code)}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <TaskActions
+                  isDeleting={false}
+                  onDelete={() => {
+                    if (handleDelete) {
+                      handleDelete(event.event_code);
+                    }
+                  }}
+                />
               )}
             </div>
           </div>
