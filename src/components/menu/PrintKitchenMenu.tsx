@@ -284,7 +284,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
       console.log("Print completed or canceled");
       return Promise.resolve(); // Return a Promise for consistency
     },
-    removeAfterPrint: false,
+    // Removed the removeAfterPrint property as it doesn't exist in UseReactToPrintOptions
     pageStyle: `
       @page {
         size: A4;
