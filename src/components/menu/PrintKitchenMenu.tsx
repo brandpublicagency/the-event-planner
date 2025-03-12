@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -274,8 +273,18 @@ KitchenMenuContent.displayName = 'KitchenMenuContent';
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = React.useRef<HTMLDivElement>(null);
   
+  // Log when the component ref is available
+  useEffect(() => {
+    console.log("Component mounted, ref status:", !!componentRef.current);
+  }, []);
+  
   const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
     documentTitle: `Kitchen Menu - ${event.name}`,
+    onBeforeGetContent: () => {
+      console.log("Before getting content, ref status:", !!componentRef.current);
+      return Promise.resolve();
+    },
     onBeforePrint: () => {
       console.log("Preparing to print...");
       return Promise.resolve();
@@ -321,7 +330,9 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
     if (componentRef.current) {
-      handlePrint(undefined, () => componentRef.current);
+      handlePrint();
+    } else {
+      console.error("Print component reference is not available!");
     }
   };
 
@@ -336,7 +347,15 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div style={{ position: "absolute", width: "0", height: "0", overflow: "hidden" }}>
+      <div className="print-content-wrapper" style={{ 
+        position: "fixed", 
+        top: "-9999px", 
+        left: "-9999px", 
+        height: "auto", 
+        width: "210mm", 
+        zIndex: -1,
+        visibility: "hidden"
+      }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
     </>
