@@ -59,12 +59,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 <Pencil className="h-4 w-4" />
               </Button>
               
-              {handleDelete && <Button variant="ghost" size="sm" onClick={e => {
-              e.stopPropagation();
-              handleDelete(event.event_code);
-            }} className="text-zinc-600 hover:text-white hover:bg-zinc-900">
-                  <Trash className="h-4 w-4" />
-                </Button>}
+              {handleDelete}
             </div>
           </div>
           
