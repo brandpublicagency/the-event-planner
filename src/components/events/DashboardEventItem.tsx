@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -8,19 +9,31 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 interface DashboardEventItemProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
 }
+
 export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   event,
   handleDelete
 }) => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const venueStr = getVenueNames(event);
+  
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking the badge
     navigator.clipboard.writeText(event.event_code).then(() => {
@@ -39,6 +52,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       });
     });
   };
+
   return <div className="w-full transition-colors overflow-hidden rounded-none bg-white">
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left flex-1 w-full p-3">
         <div className="flex flex-col gap-1">
@@ -59,7 +73,37 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 <Pencil className="h-4 w-4" />
               </Button>
               
-              {handleDelete}
+              {handleDelete && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-zinc-600 hover:text-white hover:bg-zinc-900"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this event? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(event.event_code)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
           
