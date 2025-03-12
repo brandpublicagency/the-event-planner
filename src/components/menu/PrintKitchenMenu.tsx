@@ -274,8 +274,14 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
 
   const handlePrint = useReactToPrint({
     documentTitle: `Kitchen Menu - ${event.name}`,
-    onBeforePrint: () => console.log('Before printing...'),
-    onAfterPrint: () => console.log('After printing...'),
+    onBeforePrint: async () => {
+      console.log('Before printing...');
+      return Promise.resolve();
+    },
+    onAfterPrint: async () => {
+      console.log('After printing...');
+      return Promise.resolve();
+    },
     removeAfterPrint: false,
     pageStyle: `
       @page {
