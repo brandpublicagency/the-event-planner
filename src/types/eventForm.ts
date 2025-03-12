@@ -8,7 +8,6 @@ export interface EventFormData {
   end_time?: string;
   pax?: number;
   venues: string[];
-  event_notes?: string;
   
   // Contact fields
   primary_name?: string;

@@ -66,7 +66,6 @@ const NewEvent = () => {
         created_by: user.id,
         completed: false,
         venues: data.venues || [],
-        event_notes: data.event_notes || null,
         
         // Contact fields
         primary_name: data.primary_name || null,

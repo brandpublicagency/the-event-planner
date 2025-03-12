@@ -1,9 +1,23 @@
 
-import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
+import { EventTypeSelect } from "./EventTypeSelect";
+import { EventDateSelect } from "./EventDateSelect";
+import { VenueSelect } from "./VenueSelect";
+
+const generateTimeOptions = (start: number, end: number) => {
+  const options = [];
+  for (let hour = start; hour <= end; hour++) {
+    const time = `${hour.toString().padStart(2, '0')}:00`;
+    options.push(time);
+  }
+  return options;
+};
+
+const startTimeOptions = generateTimeOptions(6, 20);
+const endTimeOptions = generateTimeOptions(9, 23);
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
@@ -11,81 +25,108 @@ interface EventBasicInfoProps {
 
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
   return (
-    <div className="space-y-4">
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Event Name</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter event name" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="space-y-6">
+      <EventTypeSelect form={form} />
 
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Enter event description"
-                className="resize-none min-h-[80px]"
-                {...field}
-                value={field.value || ''}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid gap-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Event Name" {...field} className="bg-white" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="pax"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Number of Guests</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Enter number of guests"
-                {...field}
-                onChange={(e) => {
-                  const value = e.target.value ? parseInt(e.target.value) : undefined;
-                  field.onChange(value);
-                }}
-                value={field.value || ''}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="pax"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Guest Count</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  className="bg-white"
+                  value={field.value === null ? '' : field.value}
+                  onChange={e => {
+                    const value = e.target.value;
+                    field.onChange(value ? parseInt(value) : null);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="event_notes"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Event Notes</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Enter any special requirements or notes"
-                className="resize-none min-h-[120px]"
-                {...field}
-                value={field.value || ''}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="col-span-1">
+            <EventDateSelect form={form} />
+          </div>
+
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {startTimeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {endTimeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      </div>
+
+      <VenueSelect form={form} />
     </div>
   );
 };
