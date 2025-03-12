@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -73,6 +72,17 @@ serve(async (req) => {
         `${formData.address_1.address_line_2 || ''}, ${formData.address_1.city || ''}, ${formData.address_1.zip || ''}, ${formData.address_1.country || ''}`.replace(/^[, ]+|[, ]+$/g, '');
     }
 
+    // Generate contract signing notes
+    let eventNotes = null;
+    if (formData.contract_signee && formData.accept_terms && formData.terms_date && formData.city_contract) {
+      eventNotes = `${formData.contract_signee} accepted the terms and conditions and signed the contract on ${formData.terms_date} in ${formData.city_contract}.`;
+      
+      // Add contract address if available
+      if (formData.city_contract_1) {
+        eventNotes += `\nContract address: ${formData.city_contract_1}`;
+      }
+    }
+
     // Explicit mapping for Wedding Confirmation Contract form
     const eventData = {
       event_code: eventCode,
@@ -94,7 +104,9 @@ serve(async (req) => {
       secondary_phone: formData.groom_contact_number || null,
       // Address with improved handling
       address: formattedAddress,
-      // Additional metadata
+      // Added event notes for contract signing details
+      event_notes: eventNotes,
+      // Additional metadata - keep for backward compatibility
       description: `Contract signed by ${formData.contract_signee || 'Unknown'} on ${formData.terms_date || new Date().toISOString().split('T')[0]}` || null,
     }
 
