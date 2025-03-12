@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -274,7 +275,6 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const componentRef = React.useRef<HTMLDivElement>(null);
   
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
     documentTitle: `Kitchen Menu - ${event.name}`,
     onBeforePrint: () => {
       console.log("Preparing to print...");
@@ -321,7 +321,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
     if (componentRef.current) {
-      handlePrint();
+      handlePrint(undefined, () => componentRef.current);
     }
   };
 
@@ -336,7 +336,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div style={{ display: "none", position: "absolute", height: "0", overflow: "hidden" }}>
+      <div style={{ position: "absolute", width: "0", height: "0", overflow: "hidden" }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
     </>
