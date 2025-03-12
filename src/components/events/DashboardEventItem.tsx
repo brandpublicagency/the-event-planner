@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -10,31 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { TaskActions } from "@/components/tasks/TaskActions";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 interface DashboardEventItemProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
 }
-
 export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   event,
   handleDelete
 }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const venueStr = getVenueNames(event);
-  
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking the badge
     navigator.clipboard.writeText(event.event_code).then(() => {
@@ -53,7 +41,6 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       });
     });
   };
-
   return <div className="w-full transition-colors overflow-hidden rounded-none bg-white">
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left flex-1 w-full p-3">
         <div className="flex flex-col gap-1">
@@ -67,28 +54,18 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
             </span>
             
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={e => {
-                  e.stopPropagation();
-                  navigate(`/events/${event.event_code}/edit`);
-                }}
-              >
-                <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <Button variant="ghost" size="icon" onClick={e => {
+              e.stopPropagation();
+              navigate(`/events/${event.event_code}/edit`);
+            }} className="h-6 w-6 border-border/40 hover:border-destructive/50">
+                <Pencil className="h-3 w-3 text-muted-foreground hover:text-foreground transition-colors" />
               </Button>
               
-              {handleDelete && (
-                <TaskActions
-                  isDeleting={false}
-                  onDelete={() => {
-                    if (handleDelete) {
-                      handleDelete(event.event_code);
-                    }
-                  }}
-                />
-              )}
+              {handleDelete && <TaskActions isDeleting={false} onDelete={() => {
+              if (handleDelete) {
+                handleDelete(event.event_code);
+              }
+            }} />}
             </div>
           </div>
           
