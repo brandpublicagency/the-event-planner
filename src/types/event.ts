@@ -1,3 +1,4 @@
+
 export interface Event {
   // Database fields
   event_code: string;
@@ -14,7 +15,6 @@ export interface Event {
   completed: boolean;
   deleted_at: string | null;
   venues: string[] | null;
-  event_notes: string | null;
   
   // Contact fields
   primary_name: string | null;
