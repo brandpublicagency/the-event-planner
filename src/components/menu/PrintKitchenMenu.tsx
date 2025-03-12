@@ -276,8 +276,14 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   
   const handlePrint = useReactToPrint({
     documentTitle: `Kitchen Menu - ${event.name}`,
-    onBeforePrint: () => console.log("Preparing to print..."),
-    onAfterPrint: () => console.log("Print completed or canceled"),
+    onBeforePrint: () => {
+      console.log("Preparing to print...");
+      return Promise.resolve(); // Return a Promise to satisfy TypeScript
+    },
+    onAfterPrint: () => {
+      console.log("Print completed or canceled");
+      return Promise.resolve(); // Return a Promise for consistency
+    },
     removeAfterPrint: false,
     pageStyle: `
       @page {
