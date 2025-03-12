@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.fetch-link-preview]
 verify_jwt = false
+
+[functions.fluent-forms-webhook]
+verify_jwt = false

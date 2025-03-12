@@ -120,7 +120,6 @@ export type Database = {
           event_code: string
           event_date: string | null
           event_type: string
-          google_calendar_event_id: string | null
           name: string
           package_id: string | null
           pax: number | null
@@ -147,7 +146,6 @@ export type Database = {
           event_code: string
           event_date?: string | null
           event_type: string
-          google_calendar_event_id?: string | null
           name: string
           package_id?: string | null
           pax?: number | null
@@ -174,7 +172,6 @@ export type Database = {
           event_code?: string
           event_date?: string | null
           event_type?: string
-          google_calendar_event_id?: string | null
           name?: string
           package_id?: string | null
           pax?: number | null
