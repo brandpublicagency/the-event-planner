@@ -119,6 +119,7 @@ export type Database = {
           end_time: string | null
           event_code: string
           event_date: string | null
+          event_notes: string | null
           event_type: string
           name: string
           package_id: string | null
@@ -145,6 +146,7 @@ export type Database = {
           end_time?: string | null
           event_code: string
           event_date?: string | null
+          event_notes?: string | null
           event_type: string
           name: string
           package_id?: string | null
@@ -171,6 +173,7 @@ export type Database = {
           end_time?: string | null
           event_code?: string
           event_date?: string | null
+          event_notes?: string | null
           event_type?: string
           name?: string
           package_id?: string | null

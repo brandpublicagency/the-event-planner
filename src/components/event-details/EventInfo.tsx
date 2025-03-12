@@ -3,11 +3,13 @@ import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
+
 interface EventInfoProps {
   event: Event;
   formattedDate: string;
   formattedTime: string;
 }
+
 export const EventInfo = ({
   event,
   formattedDate
@@ -29,8 +31,23 @@ export const EventInfo = ({
           {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
         </h1>
       </div>
+      
       <div className="text-sm font-semibold text-zinc-600">
         {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
       </div>
+
+      {event.address && (
+        <div className="mt-4">
+          <h2 className="text-sm font-semibold text-zinc-700">Address</h2>
+          <p className="text-sm text-zinc-600">{event.address}</p>
+        </div>
+      )}
+
+      {event.event_notes && (
+        <div className="mt-4">
+          <h2 className="text-sm font-semibold text-zinc-700">Event Notes</h2>
+          <p className="text-sm text-zinc-600 whitespace-pre-wrap">{event.event_notes}</p>
+        </div>
+      )}
     </div>;
 };
