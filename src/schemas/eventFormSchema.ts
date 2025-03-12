@@ -10,6 +10,7 @@ export const eventFormSchema = z.object({
   end_time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in 24-hour format (e.g., 22:00)").optional(),
   pax: z.number().min(1, "Number of guests must be at least 1").optional(),
   venues: z.array(z.string()),
+  event_notes: z.string().optional(),
   
   // New unified contact fields
   primary_name: z.string().optional(),

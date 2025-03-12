@@ -12,6 +12,7 @@ interface EventUpdateData {
   pax: number | null;
   venues?: string[];
   completed?: boolean;
+  event_notes?: string | null;
   
   // Contact fields
   primary_name?: string;
@@ -106,6 +107,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
         pax: data.pax || null,
         venues: data.venues || null,
         completed: data.completed !== undefined ? data.completed : undefined,
+        event_notes: data.event_notes || null,
         // Contact fields
         primary_name: data.primary_name || null,
         primary_phone: data.primary_phone || null,
