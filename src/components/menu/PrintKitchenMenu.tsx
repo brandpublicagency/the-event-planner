@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -273,22 +272,9 @@ KitchenMenuContent.displayName = 'KitchenMenuContent';
 // Print button component
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = React.useRef<HTMLDivElement>(null);
-
+  
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
     documentTitle: `Kitchen Menu - ${event.name}`,
-    onBeforeGetContent: () => {
-      console.log('Preparing content for printing...');
-      return Promise.resolve();
-    },
-    onBeforePrint: () => {
-      console.log('Before printing...');
-      return Promise.resolve();
-    },
-    onAfterPrint: () => {
-      console.log('After printing...');
-      return Promise.resolve();
-    },
     pageStyle: `
       @page {
         size: A4;
@@ -323,10 +309,16 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     `,
   });
 
+  const onPrintClick = () => {
+    if (componentRef.current) {
+      handlePrint(componentRef.current);
+    }
+  };
+
   return (
     <>
       <Button 
-        onClick={handlePrint}
+        onClick={onPrintClick}
         className="print-button rounded-full" 
         variant="outline"
         size="sm"
