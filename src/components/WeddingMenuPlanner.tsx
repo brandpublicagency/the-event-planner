@@ -12,9 +12,16 @@ interface WeddingMenuPlannerProps {
   eventName?: string;
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
+  onMenuStateChange?: (menuState: any) => void;
 }
 
-const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuToggle }: WeddingMenuPlannerProps) => {
+const WeddingMenuPlanner = ({ 
+  eventCode, 
+  eventName, 
+  isCustomMenu, 
+  onCustomMenuToggle,
+  onMenuStateChange 
+}: WeddingMenuPlannerProps) => {
   const { toast } = useToast();
   const { 
     menuState, 
@@ -38,7 +45,12 @@ const WeddingMenuPlanner = ({ eventCode, eventName, isCustomMenu, onCustomMenuTo
     if (onCustomMenuToggle && menuState.isCustomMenu !== isCustomMenu) {
       onCustomMenuToggle(menuState.isCustomMenu);
     }
-  }, [menuState.isCustomMenu]);
+    
+    // Send menu state to parent component for print functionality
+    if (onMenuStateChange) {
+      onMenuStateChange(menuState);
+    }
+  }, [menuState]);
 
   if (isLoading) {
     return (

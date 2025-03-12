@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -48,9 +49,9 @@ const EventDetails = () => {
     retry: 1,
     retryDelay: 1000
   });
-  const handlePrint = () => {
-    window.print();
-  };
+  
+  // Create a ref to hold the menu state that can be passed to PrintKitchenMenu
+  const [menuState, setMenuState] = React.useState<any>(null);
   
   if (isLoading) {
     return <div className="flex flex-col h-full">
@@ -106,7 +107,13 @@ const EventDetails = () => {
       <div className="flex-1 p-6 bg-gray-100">
         <div className="max-w-4xl mx-auto">
           <div className="print:hidden mb-6">
-            <EventHeader eventCode={event.event_code} onPrint={handlePrint} isCustomMenu={isCustomMenu} onCustomMenuToggle={setIsCustomMenu} />
+            <EventHeader 
+              eventCode={event.event_code} 
+              event={event}
+              menuState={menuState}
+              isCustomMenu={isCustomMenu} 
+              onCustomMenuToggle={setIsCustomMenu} 
+            />
           </div>
           
           <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
@@ -116,7 +123,13 @@ const EventDetails = () => {
             
             <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
             
-            <WeddingMenuPlanner eventCode={event.event_code} eventName={event.name} isCustomMenu={isCustomMenu} onCustomMenuToggle={setIsCustomMenu} />
+            <WeddingMenuPlanner 
+              eventCode={event.event_code} 
+              eventName={event.name} 
+              isCustomMenu={isCustomMenu} 
+              onCustomMenuToggle={setIsCustomMenu}
+              onMenuStateChange={setMenuState}
+            />
           </div>
         </div>
       </div>

@@ -1,21 +1,30 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
+import { Event } from "@/types/event";
+import { MenuState } from '@/hooks/menuStateTypes';
+import { PrintKitchenMenu } from '@/components/menu/PrintKitchenMenu';
+
 interface EventHeaderProps {
   eventCode: string;
-  onPrint: () => void;
+  event?: Event;
+  menuState?: MenuState;
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
 }
+
 export const EventHeader = ({
   eventCode,
-  onPrint,
+  event,
+  menuState,
   isCustomMenu,
   onCustomMenuToggle
 }: EventHeaderProps) => {
   const navigate = useNavigate();
+  
   return <div className="flex items-center justify-between print:hidden print:bg-white px-0 py-0">
       <Button variant="outline" size="sm" onClick={() => navigate('/events')} className="flex items-center gap-2 rounded-full">
         <ArrowLeft className="h-4 w-4" />
@@ -30,10 +39,9 @@ export const EventHeader = ({
           <Edit className="h-4 w-4" />
           Edit Details
         </Button>
-        <Button onClick={onPrint} variant="outline" size="sm" className="rounded-full flex items-center gap-2">
-          <Printer className="h-4 w-4" />
-          <span className="hidden sm:inline">Print</span>
-        </Button>
+        {event && menuState && (
+          <PrintKitchenMenu event={event} menuState={menuState} />
+        )}
       </div>
     </div>;
 };
