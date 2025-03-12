@@ -275,12 +275,17 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const componentRef = React.useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
     documentTitle: `Kitchen Menu - ${event.name}`,
-    onBeforePrint: async () => {
+    onBeforeGetContent: () => {
+      console.log('Preparing content for printing...');
+      return Promise.resolve();
+    },
+    onBeforePrint: () => {
       console.log('Before printing...');
       return Promise.resolve();
     },
-    onAfterPrint: async () => {
+    onAfterPrint: () => {
       console.log('After printing...');
       return Promise.resolve();
     },
@@ -321,7 +326,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   return (
     <>
       <Button 
-        onClick={() => handlePrint()}
+        onClick={handlePrint}
         className="print-button rounded-full" 
         variant="outline"
         size="sm"
