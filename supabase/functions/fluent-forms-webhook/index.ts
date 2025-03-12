@@ -18,8 +18,21 @@ serve(async (req) => {
       throw new Error('Method not allowed')
     }
 
-    const formData = await req.json()
-    console.log('Received form data:', formData)
+    // Parse the raw request body as text first
+    const rawBody = await req.text()
+    console.log('Raw request body:', rawBody)
+
+    // Try to parse as JSON if possible
+    let formData
+    try {
+      formData = JSON.parse(rawBody)
+    } catch (e) {
+      // If JSON parsing fails, try to parse as URL-encoded form data
+      const formDataObj = new URLSearchParams(rawBody)
+      formData = Object.fromEntries(formDataObj.entries())
+    }
+    
+    console.log('Processed form data:', formData)
 
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -37,18 +50,23 @@ serve(async (req) => {
     const eventCode = `EVENT-${date.getDate()}${date.getMonth() + 1}-${timestamp}`
 
     // Map Fluent Forms data to event table structure
+    // Add more detailed logging to see what fields we're receiving
+    console.log('Form fields available:', Object.keys(formData))
+
     const eventData = {
       event_code: eventCode,
-      name: formData.event_name || 'Untitled Event',
-      event_type: formData.event_type || 'Wedding',
-      event_date: formData.event_date || null,
+      name: formData.event_name || formData['event-name'] || formData.name || 'Untitled Event',
+      event_type: formData.event_type || formData['event-type'] || formData.type || 'Wedding',
+      event_date: formData.event_date || formData['event-date'] || formData.date || null,
       pax: formData.pax ? parseInt(formData.pax) : null,
-      primary_name: formData.primary_name || null,
-      primary_email: formData.primary_email || null,
-      primary_phone: formData.primary_phone || null,
-      description: formData.description || null,
-      venues: formData.venues ? [formData.venues] : null
+      primary_name: formData.primary_name || formData['primary-name'] || formData.name || null,
+      primary_email: formData.primary_email || formData['primary-email'] || formData.email || null,
+      primary_phone: formData.primary_phone || formData['primary-phone'] || formData.phone || null,
+      description: formData.description || formData.message || null,
+      venues: formData.venues ? Array.isArray(formData.venues) ? formData.venues : [formData.venues] : null
     }
+
+    console.log('Mapped event data:', eventData)
 
     // Insert the event data into the events table
     const { data, error } = await supabase
@@ -92,3 +110,4 @@ serve(async (req) => {
     )
   }
 })
+
