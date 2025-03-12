@@ -268,6 +268,8 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
   );
 });
 
+KitchenMenuContent.displayName = 'KitchenMenuContent';
+
 // Print button component
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = React.useRef<HTMLDivElement>(null);
@@ -282,7 +284,6 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
       console.log('After printing...');
       return Promise.resolve();
     },
-    removeAfterPrint: false,
     pageStyle: `
       @page {
         size: A4;
@@ -328,7 +329,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div style={{ display: 'none' }}>
+      <div className="hidden">
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
     </>
