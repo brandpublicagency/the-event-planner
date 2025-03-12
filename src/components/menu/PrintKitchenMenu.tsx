@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -276,6 +275,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   
   const handlePrint = useReactToPrint({
     documentTitle: `Kitchen Menu - ${event.name}`,
+    // The current version expects this function to be passed directly in the options
     content: () => componentRef.current,
     onBeforePrint: () => {
       console.log("Preparing to print...");
