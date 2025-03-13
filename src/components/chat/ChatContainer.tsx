@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
@@ -15,11 +14,10 @@ const ChatContainer = () => {
     setInputValue,
     clearInput,
   } = useChatState();
-
   const { data: contextData } = useChatContext();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-
+  
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     console.log('Messages updated:', {
@@ -27,7 +25,6 @@ const ChatContainer = () => {
       lastMessage: chatMessages[chatMessages.length - 1]?.text,
       isLoading
     });
-
     if (scrollAreaRef.current && shouldAutoScroll) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
@@ -39,7 +36,7 @@ const ChatContainer = () => {
       }
     }
   }, [chatMessages, shouldAutoScroll, isLoading]);
-
+  
   // Handle scroll events to determine if auto-scroll should be enabled
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
@@ -48,50 +45,59 @@ const ChatContainer = () => {
     ) < 100;
     setShouldAutoScroll(isNearBottom);
   };
-
+  
   return (
-    <div className="relative h-[300px]">
+    <div className="relative h-[300px] overflow-hidden">
+      {/* Animated border gradient background with animation */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 rounded-[16px] animate-gradient-x"
         style={{
-          background: "linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6)",
-          padding: "1px",
+          background: "linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6, #8b5cf6, #ec4899)",
+          backgroundSize: "300% 100%",
+          padding: "2px",
+          filter: "blur(0.5px)",
+        }}
+      />
+      
+      {/* Content card */}
+      <Card 
+        className="relative h-full w-full flex flex-col bg-background/95 backdrop-blur-sm border-0 shadow-sm" 
+        style={{ 
           borderRadius: "14px",
+          zIndex: 1,
         }}
       >
-        <Card className="h-full w-full flex flex-col bg-background" style={{ borderRadius: "14px" }}>
-          <ScrollArea 
-            className="flex-1 p-4"
-            ref={scrollAreaRef}
-            onScroll={handleScroll}
-          >
-            <div className="space-y-4 pb-2">
-              {chatMessages.map((message, index) => (
-                <div
-                  key={`${index}-${message.text.substring(0, 10)}`}
-                  className="transition-all duration-300 ease-in-out"
-                >
-                  <ChatMessage {...message} />
+        <ScrollArea 
+          className="flex-1 p-4"
+          ref={scrollAreaRef}
+          onScroll={handleScroll}
+        >
+          <div className="space-y-4 pb-2">
+            {chatMessages.map((message, index) => (
+              <div
+                key={`${index}-${message.text.substring(0, 10)}`}
+                className="transition-all duration-300 ease-in-out"
+              >
+                <ChatMessage {...message} />
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start animate-pulse">
+                <div className="px-4 py-2 rounded-[10px] border border-gray-300 bg-gray-100">
+                  Typing...
                 </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start animate-pulse">
-                  <div style={{ borderRadius: "10px" }} className="px-4 py-2 border border-gray-300 bg-gray-100">
-                    Typing...
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-          <ChatMessageHandler
-            contextData={contextData}
-            inputValue={inputValue}
-            isLoading={isLoading}
-            setInputValue={setInputValue}
-            clearInput={clearInput}
-          />
-        </Card>
-      </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+        <ChatMessageHandler
+          contextData={contextData}
+          inputValue={inputValue}
+          isLoading={isLoading}
+          setInputValue={setInputValue}
+          clearInput={clearInput}
+        />
+      </Card>
     </div>
   );
 };
