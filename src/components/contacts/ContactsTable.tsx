@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { Contact } from "@/types/contact";
 import { formatDate } from "@/utils/formatDate";
-
 interface ContactsTableProps {
   contacts: Contact[];
   isLoading: boolean;
@@ -16,7 +14,6 @@ interface ContactsTableProps {
   onDeleteContact: (contact: Contact) => void;
   hideSearch?: boolean;
 }
-
 const ContactsTable = ({
   contacts,
   isLoading,
@@ -26,55 +23,33 @@ const ContactsTable = ({
 }: ContactsTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
-
-  const filteredContacts = !hideSearch 
-    ? contacts.filter(contact => 
-        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        contact.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        contact.phone.includes(searchTerm)
-      ) 
-    : contacts;
-
+  const filteredContacts = !hideSearch ? contacts.filter(contact => contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()) || contact.email.toLowerCase().includes(searchTerm.toLowerCase()) || contact.phone.includes(searchTerm)) : contacts;
   const handleDeleteClick = (contact: Contact) => {
     setContactToDelete(contact);
   };
-
   const handleConfirmDelete = () => {
     if (contactToDelete) {
       onDeleteContact(contactToDelete);
       setContactToDelete(null);
     }
   };
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <p className="text-muted-foreground">Loading contacts...</p>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="flex flex-col h-full">
-      {!hideSearch && (
-        <div className="relative mb-4">
+  return <div className="flex flex-col h-full">
+      {!hideSearch && <div className="relative mb-4">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search contacts..." 
-            className="pl-8" 
-            value={searchTerm} 
-            onChange={e => setSearchTerm(e.target.value)} 
-          />
-        </div>
-      )}
+          <Input placeholder="Search contacts..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+        </div>}
 
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-[calc(100vh-12rem)]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-left pl-0">Name</TableHead>
+                <TableHead className="text-left pl-0 bg-transparent">Name</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
@@ -82,20 +57,13 @@ const ContactsTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredContacts.length === 0 ? (
-                <TableRow>
+              {filteredContacts.length === 0 ? <TableRow>
                   <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                     No contacts found
                   </TableCell>
-                </TableRow>
-              ) : (
-                filteredContacts.map(contact => (
-                  <TableRow key={contact.id} className="border-b hover:bg-transparent">
+                </TableRow> : filteredContacts.map(contact => <TableRow key={contact.id} className="border-b hover:bg-transparent">
                     <TableCell className="pl-0">
-                      <button 
-                        onClick={() => onEditContact(contact)}
-                        className="text-left font-medium text-gray-400 hover:text-gray-800 transition-colors"
-                      >
+                      <button onClick={() => onEditContact(contact)} className="text-left font-medium transition-colors text-gray-500 text-base">
                         {contact.name}
                       </button>
                     </TableCell>
@@ -112,9 +80,7 @@ const ContactsTable = ({
                         </Button>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
+                  </TableRow>)}
             </TableBody>
           </Table>
         </ScrollArea>
@@ -136,8 +102,6 @@ const ContactsTable = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
-
 export default ContactsTable;
