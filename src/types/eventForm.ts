@@ -1,6 +1,6 @@
 
 export interface EventFormData {
-  name: string; // Keeping this required as per the error
+  name: string; // Required field
   description?: string;
   event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
   event_date?: string;
