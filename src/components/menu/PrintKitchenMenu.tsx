@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Printer } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define interface for the print props
 interface PrintMenuProps {
@@ -273,6 +273,7 @@ KitchenMenuContent.displayName = 'KitchenMenuContent';
 // Print button component
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = React.useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   // Log when the component ref is available
   useEffect(() => {
@@ -280,22 +281,27 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   }, []);
   
   const handlePrint = useReactToPrint({
-    // Updated: react-to-print v3.x uses "documentTitle" and other properties
+    contentRef: componentRef,
     documentTitle: `Kitchen Menu - ${event.name}`,
-    onBeforeGetContent: () => {
-      console.log("Before getting content, ref status:", !!componentRef.current);
-      return Promise.resolve();
-    },
     onBeforePrint: () => {
       console.log("Preparing to print...");
       return Promise.resolve();
     },
     onAfterPrint: () => {
       console.log("Print completed or canceled");
-      return Promise.resolve();
+      toast({
+        title: "Print action completed",
+        description: "Your menu has been sent to the printer or saved as PDF."
+      });
     },
-    // The "content" property has been removed in favor of passing the component reference
-    // directly to handlePrint when it's called
+    onPrintError: (errorLocation, error) => {
+      console.error(`Print error (${errorLocation}):`, error);
+      toast({
+        title: "Print error",
+        description: "There was a problem printing your menu. Please try again.",
+        variant: "destructive"
+      });
+    },
     pageStyle: `
       @page {
         size: A4;
@@ -332,12 +338,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
 
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
-    if (componentRef.current) {
-      // In react-to-print v3.x, we pass the component reference to handlePrint
-      handlePrint(undefined, () => componentRef.current);
-    } else {
-      console.error("Print component reference is not available!");
-    }
+    handlePrint();
   };
 
   return (
@@ -351,14 +352,12 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
-      <div className="print-content-wrapper" style={{ 
-        position: "fixed", 
-        top: "-9999px", 
-        left: "-9999px", 
-        height: "auto", 
-        width: "210mm", 
-        zIndex: -1,
-        visibility: "hidden"
+      <div style={{ 
+        position: "absolute", 
+        left: "-9999px",
+        top: 0,
+        width: "210mm",
+        height: "auto",
       }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
