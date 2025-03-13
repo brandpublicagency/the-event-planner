@@ -22,7 +22,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between overflow-hidden rounded-xl p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between overflow-hidden rounded-xl p-4 pr-8 shadow-lg transition-all",
   {
     variants: {
       variant: {
@@ -47,6 +47,8 @@ const Toast = React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
+      // Remove the default duration to let our CSS animations control timing
+      duration={props.duration || 5000}
       {...props}
     />
   )
@@ -60,7 +62,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/10 px-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none focus:ring-1 focus:ring-white/30 disabled:pointer-events-none disabled:opacity-50",
       className
     )}
     {...props}
@@ -75,7 +77,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-white/50 opacity-0 transition-opacity hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100",
+      "absolute right-2 top-2 rounded-md p-1 text-white/70 opacity-0 transition-opacity hover:text-white focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100",
       className
     )}
     toast-close=""
@@ -155,6 +157,30 @@ const ToastWithIcon = React.forwardRef<
 });
 ToastWithIcon.displayName = "ToastWithIcon";
 
+// Add a toast with progress bar component
+const ToastWithProgress = React.forwardRef<
+  React.ElementRef<typeof Toast>,
+  React.ComponentPropsWithoutRef<typeof Toast> & { 
+    progressDuration?: number 
+  }
+>(({ children, variant, progressDuration = 5000, ...props }, ref) => {
+  return (
+    <Toast ref={ref} variant={variant} {...props}>
+      <div className="flex items-center w-full">
+        <ToastIcon variant={variant} />
+        <div className="flex flex-col gap-1 w-full">
+          {children}
+        </div>
+      </div>
+      <div 
+        className="toast-progress-bar" 
+        style={{ animationDuration: `${progressDuration}ms` }}
+      />
+    </Toast>
+  );
+});
+ToastWithProgress.displayName = "ToastWithProgress";
+
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
@@ -168,5 +194,7 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  ToastIcon,
   ToastWithIcon,
+  ToastWithProgress,
 }
