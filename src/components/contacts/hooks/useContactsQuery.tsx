@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -87,8 +86,8 @@ export const useContactsQuery = () => {
       } catch (error: any) {
         console.error('Error fetching contacts:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch contacts",
+          title: "Error fetching contacts",
+          description: "Failed to load contacts data",
           variant: "destructive",
         });
         return [];

@@ -44,8 +44,9 @@ const ContactEditDrawer = ({
       await updateContact(contact, values);
       onUpdateSuccess();
       toast({
-        title: "Success",
+        title: "Contact updated",
         description: "Contact updated successfully",
+        variant: "success"
       });
       onClose();
     } catch (error: any) {

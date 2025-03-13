@@ -54,8 +54,9 @@ export function useFileDelete() {
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       
       toast({
-        title: "Success",
+        title: "File deleted",
         description: "File deleted successfully",
+        variant: "success",
       });
       
       return true;

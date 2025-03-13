@@ -1,3 +1,4 @@
+
 import { handleChatAction } from "@/utils/chatActionHandler";
 import { PendingAction } from "@/types/chat";
 import { useChatState } from "@/hooks/useChatState";
@@ -59,7 +60,7 @@ export const useActionHandler = () => {
           console.error('Error executing action:', error);
           addSystemMessage("Sorry, I encountered an error while executing the action: " + error.message);
           toast({
-            title: "Error",
+            title: "Action failed",
             description: error.message || "Failed to execute the requested action",
             variant: "destructive",
           });

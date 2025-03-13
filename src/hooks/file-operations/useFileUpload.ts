@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -50,8 +51,9 @@ export function useFileUpload() {
 
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       toast({
-        title: "Success",
+        title: "File uploaded",
         description: "File uploaded successfully",
+        variant: "success"
       });
     } catch (error: any) {
       console.error('[Upload] Error:', error);
