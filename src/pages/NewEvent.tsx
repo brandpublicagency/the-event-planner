@@ -24,12 +24,14 @@ const NewEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   
+  // Type assertion to fix the resolver mismatch
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
+    resolver: zodResolver(eventFormSchema) as any,
     defaultValues: {
       name: '',
       event_type: 'Wedding',
-      venues: []
+      venues: [],
+      pax: null
     }
   });
 

@@ -1,13 +1,16 @@
 
 export interface EventFormData {
-  name: string; // Required field
-  description?: string;
+  // Required fields
+  name: string;
   event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
+  venues: string[];
+  
+  // Optional fields
+  description?: string;
   event_date?: string;
   start_time?: string;
   end_time?: string;
-  pax?: number;
-  venues: string[];
+  pax?: number | null;
   
   // Contact fields
   primary_name?: string;
