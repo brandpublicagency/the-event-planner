@@ -13,29 +13,14 @@ import { EventDateSelect } from "../forms/EventDateSelect";
 import { VenueSelect } from "../forms/VenueSelect";
 import ContactDetails from "../forms/ContactDetails";
 import { supabase } from "@/integrations/supabase/client";
-
-// Define simple interfaces for form data to avoid excessive type instantiation
-interface PublicEventFormValues {
-  name: string;
-  description?: string;
-  event_type: string;
-  event_date?: string;
-  start_time?: string;
-  end_time?: string;
-  pax?: number;
-  venues?: string[];
-  primary_name: string;
-  primary_email: string;
-  primary_phone: string;
-  [key: string]: any; // Allow for additional fields
-}
+import { EventFormData } from "@/types/eventForm";
 
 export default function PublicEventForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const form = useForm<PublicEventFormValues>({
+  const form = useForm<EventFormData>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       name: "",
@@ -49,7 +34,7 @@ export default function PublicEventForm() {
     },
   });
 
-  async function onSubmit(values: PublicEventFormValues) {
+  async function onSubmit(values: EventFormData) {
     setIsSubmitting(true);
 
     try {
