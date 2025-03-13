@@ -1,203 +1,51 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
 import { RootLayout } from "@/layouts/RootLayout";
 import Index from "@/pages/Index";
+import Login from "@/pages/Login";
 import Events from "@/pages/Events";
 import PassedEvents from "@/pages/PassedEvents";
 import Calendar from "@/pages/Calendar";
-import NewEvent from "@/pages/NewEvent";
-import EditEvent from "@/pages/EditEvent";
-import EventDetails from "@/pages/EventDetails";
 import Tasks from "@/pages/Tasks";
-import TaskDetails from "@/pages/TaskDetails";
-import Login from "@/pages/Login";
-import Documents from "@/pages/Documents";
-import Contacts from "@/pages/Contacts";
+import Projects from "@/pages/Projects";
+import NewProject from "@/pages/NewProject";
+import NewEvent from "@/pages/NewEvent";
+import NewTask from "@/pages/NewTask";
+import NewClient from "@/pages/NewClient";
 import ProfileSettings from "@/pages/ProfileSettings";
-import PublicEventFormPage from "@/pages/PublicEventFormPage";
-
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
+import Contacts from "@/pages/Contacts";
+import Clients from "@/pages/Clients";
+import Documents from "@/pages/Documents";
+import EventDetails from "@/pages/EventDetails";
+import EditEvent from "@/pages/EditEvent";
+import TaskDetails from "@/pages/TaskDetails";
+import Notifications from "@/pages/Notifications";
 
 export const AppRoutes = () => {
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={session ? <Navigate to="/" replace /> : <Login />}
-      />
-      {/* Public routes that don't require authentication */}
-      <Route path="/public/event-form" element={<PublicEventFormPage />} />
-      
-      {/* Private routes that require authentication */}
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Index />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/events"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Events />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/passed-events"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <PassedEvents />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/events/new"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <NewEvent />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/events/:id"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <EventDetails />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/events/:id/edit"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <EditEvent />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/calendar"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Calendar />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/tasks"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Tasks />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/tasks/:id"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <TaskDetails />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/contacts"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Contacts />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/documents"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <Documents />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile-settings"
-        element={
-          <PrivateRoute>
-            <RootLayout>
-              <ProfileSettings />
-            </RootLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/login" element={<Login />} />
+      <Route element={<RootLayout />}>
+        <Route path="/" element={<Index />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/passed-events" element={<PassedEvents />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/tasks/:id" element={<TaskDetails />} />
+        <Route path="/events/new" element={<NewEvent />} />
+        <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/events/:id/edit" element={<EditEvent />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/new" element={<NewProject />} />
+        <Route path="/tasks/new" element={<NewTask />} />
+        <Route path="/clients/new" element={<NewClient />} />
+        <Route path="/profile" element={<ProfileSettings />} />
+        <Route path="/contacts" element={<Contacts />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
     </Routes>
   );
 };

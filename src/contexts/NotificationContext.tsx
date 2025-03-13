@@ -1,0 +1,243 @@
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useTaskContext } from "./TaskContext";
+import { addDays, isPast, isFuture } from "date-fns";
+
+export type NotificationType = 
+  | "event_created" 
+  | "task_overdue" 
+  | "task_upcoming" 
+  | "event_incomplete";
+
+export interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+  type: NotificationType;
+  read: boolean;
+  actionType?: "review" | "approve";
+  relatedId?: string; // event_code or task_id
+}
+
+interface NotificationContextType {
+  notifications: Notification[];
+  unreadCount: number;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  clearNotifications: () => void;
+}
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
+  children 
+}) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { tasks } = useTaskContext();
+  
+  const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Process tasks for notifications
+  useEffect(() => {
+    const processTaskNotifications = () => {
+      const newNotifications: Notification[] = [];
+      const today = new Date();
+      
+      // Find overdue tasks
+      const overdueTasks = tasks.filter(task => {
+        if (!task.due_date || task.completed) return false;
+        const dueDate = new Date(task.due_date);
+        return isPast(dueDate) && !task.completed;
+      });
+      
+      // Find upcoming tasks due in the next 3 days
+      const upcomingTasks = tasks.filter(task => {
+        if (!task.due_date || task.completed) return false;
+        const dueDate = new Date(task.due_date);
+        const threeDaysFromNow = addDays(today, 3);
+        return isFuture(dueDate) && dueDate <= threeDaysFromNow;
+      });
+      
+      // Create notifications for overdue tasks
+      overdueTasks.forEach(task => {
+        newNotifications.push({
+          id: `task-overdue-${task.id}`,
+          title: "Task Overdue",
+          description: `"${task.title}" is past due`,
+          createdAt: new Date(),
+          type: "task_overdue",
+          read: false,
+          actionType: "review",
+          relatedId: task.id
+        });
+      });
+      
+      // Create notifications for upcoming tasks
+      upcomingTasks.forEach(task => {
+        newNotifications.push({
+          id: `task-upcoming-${task.id}`,
+          title: "Upcoming Task",
+          description: `"${task.title}" is due soon`,
+          createdAt: new Date(),
+          type: "task_upcoming",
+          read: false,
+          actionType: "review",
+          relatedId: task.id
+        });
+      });
+      
+      // Merge with existing notifications, avoid duplicates
+      setNotifications(prev => {
+        const existingIds = prev.map(n => n.id);
+        const filteredNew = newNotifications.filter(n => !existingIds.includes(n.id));
+        return [...prev, ...filteredNew];
+      });
+    };
+    
+    processTaskNotifications();
+  }, [tasks]);
+  
+  // Subscribe to new events
+  useEffect(() => {
+    // Subscribe to events table
+    const channel = supabase
+      .channel('event-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'events'
+        },
+        (payload) => {
+          // Add new event notification
+          const newEvent = payload.new;
+          setNotifications(prev => [
+            ...prev,
+            {
+              id: `event-created-${newEvent.event_code}`,
+              title: "New Event",
+              description: `New event "${newEvent.event_name}" has been created`,
+              createdAt: new Date(),
+              type: "event_created",
+              read: false,
+              actionType: "review",
+              relatedId: newEvent.event_code
+            }
+          ]);
+        }
+      )
+      .subscribe();
+      
+    // Cleanup subscription
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+  
+  // Check for incomplete events
+  useEffect(() => {
+    const checkIncompleteEvents = async () => {
+      // Get today's date
+      const today = new Date();
+      
+      // Get date 14 days from now
+      const futureDate = addDays(today, 14);
+      
+      try {
+        // Fetch upcoming events in the next 14 days
+        const { data: events, error } = await supabase
+          .from('events')
+          .select('*')
+          .gt('event_date', today.toISOString().split('T')[0])
+          .lt('event_date', futureDate.toISOString().split('T')[0]);
+          
+        if (error) {
+          console.error('Error fetching events for notification check:', error);
+          return;
+        }
+        
+        // Check for incomplete events
+        const incompleteEvents = events?.filter(event => {
+          // Check for missing important fields
+          return !event.venue_id || !event.client_name || !event.guests_count;
+        });
+        
+        // Create notifications for incomplete events
+        if (incompleteEvents?.length) {
+          const incompleteNotifications = incompleteEvents.map(event => ({
+            id: `event-incomplete-${event.event_code}`,
+            title: "Incomplete Event",
+            description: `Event "${event.event_name}" is missing critical information`,
+            createdAt: new Date(),
+            type: "event_incomplete" as NotificationType,
+            read: false,
+            actionType: "review" as const,
+            relatedId: event.event_code
+          }));
+          
+          // Add to notifications list
+          setNotifications(prev => {
+            const existingIds = prev.map(n => n.id);
+            const filteredNew = incompleteNotifications.filter(n => !existingIds.includes(n.id));
+            return [...prev, ...filteredNew];
+          });
+        }
+      } catch (err) {
+        console.error('Error in checkIncompleteEvents:', err);
+      }
+    };
+    
+    // Run once when component mounts
+    checkIncompleteEvents();
+    
+    // Set interval to check every hour
+    const interval = setInterval(checkIncompleteEvents, 3600000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  const markAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true } 
+          : notification
+      )
+    );
+  };
+  
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+  };
+  
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+  
+  return (
+    <NotificationContext.Provider 
+      value={{ 
+        notifications, 
+        unreadCount,
+        markAsRead, 
+        markAllAsRead,
+        clearNotifications
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (context === undefined) {
+    throw new Error('useNotifications must be used within a NotificationProvider');
+  }
+  return context;
+};

@@ -1,20 +1,22 @@
+
 import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/react-query";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { ReactNode } from "react";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
-export const AppProviders = ({ children }: { children: ReactNode }) => {
+export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-      <TooltipProvider>
+      <QueryClientProvider client={queryClient}>
         <TaskProvider>
-          <Toaster />
-          <Sonner />
-          {children}
+          <NotificationProvider>
+            {children}
+            <Toaster />
+          </NotificationProvider>
         </TaskProvider>
-      </TooltipProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 };
