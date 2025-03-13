@@ -56,12 +56,8 @@ const ContactsPage = () => {
       : contacts.filter(c => c.contactType === 'corporate');
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <div className="p-6 pt-[5px] px-[25px] my-0 bg-white h-full">
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
-        </div>
-        
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-hidden">
         <ContactsTabs 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 

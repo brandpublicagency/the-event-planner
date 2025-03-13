@@ -56,9 +56,9 @@ const ContactsTable = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full">
       {!hideSearch && (
-        <div className="relative">
+        <div className="relative mb-4">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search contacts..." 
@@ -69,54 +69,56 @@ const ContactsTable = ({
         </div>
       )}
 
-      <ScrollArea className="h-[calc(100vh-16rem)]">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b">
-              <TableHead className="text-left pl-0">Name</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredContacts.length === 0 ? (
-              <TableRow className="border-b">
-                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                  No contacts found
-                </TableCell>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-[calc(100vh-12rem)]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left pl-0">Name</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredContacts.map(contact => (
-                <TableRow key={contact.id} className="border-b">
-                  <TableCell className="pl-0">
-                    <button 
-                      onClick={() => onEditContact(contact)}
-                      className="text-left font-medium text-muted-foreground hover:text-gray-800 transition-colors"
-                    >
-                      {contact.name}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{contact.company || "-"}</TableCell>
-                  <TableCell className="text-muted-foreground">{contact.email || "-"}</TableCell>
-                  <TableCell className="text-muted-foreground">{contact.phone || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => onEditContact(contact)}>
-                        <Edit className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(contact)}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {filteredContacts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                    No contacts found
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </ScrollArea>
+              ) : (
+                filteredContacts.map(contact => (
+                  <TableRow key={contact.id} className="border-b hover:bg-transparent">
+                    <TableCell className="pl-0">
+                      <button 
+                        onClick={() => onEditContact(contact)}
+                        className="text-left font-medium text-gray-400 hover:text-gray-800 transition-colors"
+                      >
+                        {contact.name}
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-gray-400">{contact.company || "-"}</TableCell>
+                    <TableCell className="text-gray-400">{contact.email || "-"}</TableCell>
+                    <TableCell className="text-gray-400">{contact.phone || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => onEditContact(contact)}>
+                          <Edit className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(contact)}>
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </div>
       
       <AlertDialog open={!!contactToDelete} onOpenChange={open => !open && setContactToDelete(null)}>
         <AlertDialogContent>
