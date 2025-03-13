@@ -1,11 +1,12 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { verifyWebhookSignature, generateEventCode } from "./utils.ts";
 
 // CORS headers for the function
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cal-signature',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 };
 
@@ -18,6 +19,9 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: false
   }
 });
+
+// Get Cal.com webhook secret from environment variables
+const calWebhookSecret = Deno.env.get('CAL_WEBHOOK_SECRET') || '';
 
 serve(async (req: Request) => {
   // Handle CORS preflight requests
@@ -37,9 +41,33 @@ serve(async (req: Request) => {
       });
     }
 
-    // Parse the webhook payload
-    const payload = await req.json();
+    // Get the raw request body for signature verification
+    const bodyText = await req.text();
+    let payload;
+    
+    try {
+      payload = JSON.parse(bodyText);
+    } catch (e) {
+      console.error('Error parsing webhook payload:', e);
+      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     console.log('Received Cal.com webhook:', JSON.stringify(payload, null, 2));
+
+    // Get the Cal.com signature from headers
+    const signature = req.headers.get('x-cal-signature');
+    
+    // Verify the webhook signature
+    if (!signature || !verifyWebhookSignature(signature, bodyText, calWebhookSecret)) {
+      console.error('Invalid webhook signature');
+      return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
     // Extract relevant booking information
     const {
@@ -53,9 +81,7 @@ serve(async (req: Request) => {
     } = payload;
 
     // Generate a unique event code
-    const timestamp = new Date().getTime().toString().slice(-4);
-    const dateStr = new Date(startTime).toISOString().split('T')[0].replace(/-/g, '');
-    const eventCode = `EVENT-${dateStr}-${timestamp}`;
+    const eventCode = generateEventCode();
 
     // Format the data for our events table
     const eventData = {

@@ -1,20 +1,41 @@
 
 /**
  * Verifies the Cal.com webhook signature
- * Note: This implementation may need to be adjusted based on Cal.com's actual signature method
+ * Cal.com uses HMAC SHA-256 for webhook signature verification
  */
 export function verifyWebhookSignature(signature: string, body: string, secret: string): boolean {
-  // This is a placeholder for Cal.com's webhook verification
-  // The actual implementation depends on Cal.com's signature method
-  // Typically involves checking a HMAC signature against the request body
-  
   if (!signature || !secret) {
     return false;
   }
   
-  // For now, return true to accept all webhooks during testing
-  // TODO: Replace with actual verification logic once Cal.com documentation is referenced
-  return true;
+  // Import crypto functions from Deno standard library
+  const encoder = new TextEncoder();
+  const key = encoder.encode(secret);
+  const message = encoder.encode(body);
+  
+  // Create HMAC
+  const hmacKey = await crypto.subtle.importKey(
+    "raw",
+    key,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
+  
+  // Generate signature
+  const signatureBytes = await crypto.subtle.sign(
+    "HMAC",
+    hmacKey,
+    message
+  );
+  
+  // Convert to hex
+  const signatureHex = Array.from(new Uint8Array(signatureBytes))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  // Compare signatures
+  return signature === signatureHex;
 }
 
 /**
