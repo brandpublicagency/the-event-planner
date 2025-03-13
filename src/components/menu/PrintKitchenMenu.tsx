@@ -1,3 +1,4 @@
+```typescript
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -24,12 +25,12 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     
     // Starter Types
     'canapes': 'Canapés',
-    'plated_starter': 'Plated Starter',
+    'plated': 'Plated Starter',
     'harvest': 'Harvest Table',
     
     // Dessert Types
     'traditional': 'Traditional Baked Desserts',
-    'dessert_canapes': 'Dessert Canapés',
+    'canapes': 'Dessert Canapés',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
     
@@ -143,18 +144,6 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
       <p key={i} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{line}</p>
     ));
   };
-  
-  // Get formatted event details in one line
-  const getEventDetailsLine = () => {
-    const date = formatDate(event.event_date);
-    const time = formatTimeDisplay(event.start_time, event.end_time);
-    const guests = `${event.pax || 0} Guests`;
-    const eventType = event.event_type || '';
-    const packageInfo = (event as any).package_id ? `Package ${(event as any).package_id}` : '';
-    const venueNames = getVenueNames();
-    
-    return `${date}, ${time} / ${guests} / ${eventType}${packageInfo ? ' / ' + packageInfo : ''}`;
-  };
 
   return (
     <div 
@@ -172,11 +161,9 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
       </div>
 
       <div className="event-header" style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>
-          {event.name} <span style={{ fontWeight: 'normal', fontSize: '10px' }}>{event.event_code}</span>
-        </h2>
+        <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{event.name}</h2>
         <p style={{ fontSize: '12px', margin: '0' }}>
-          {getEventDetailsLine()}
+          {formatDate(event.event_date)}, {formatTimeDisplay(event.start_time, event.end_time)} / {event.pax} Guests / {event.event_type || 'Private Event'} / {getVenueNames()}
         </p>
         <div style={{ marginTop: '16px', borderTop: '1px solid #ddd' }}></div>
       </div>
@@ -451,10 +438,6 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
           margin-bottom: 4px;
           text-align: left;
         }
-        h2 span {
-          font-size: 10px;
-          font-weight: normal;
-        }
         h3 {
           font-size: 14px;
           font-weight: normal;
@@ -503,4 +486,4 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     </>
   );
 };
-
+```
