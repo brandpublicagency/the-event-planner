@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { format, parseISO } from 'date-fns';
 import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
 import { useToast } from '@/components/ui/use-toast';
+import { getVenueNames } from '@/utils/venueUtils';
 
 // Define interface for the print props
 interface PrintMenuProps {
@@ -30,12 +32,10 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     
     // Starter Types
     'canapes': 'Canapés',
-    'plated': 'Plated Starter',
     'harvest': 'Harvest Table',
     
     // Dessert Types
     'traditional': 'Traditional Baked Desserts',
-    'canapes': 'Dessert Canapés',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
     
@@ -133,38 +133,8 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     return `${formattedStart} - ${formattedEnd}`;
   };
 
-  // Helper to get venue names
-  const getVenueNames = () => {
-    // Try different possible venue data structures
-    if (event.event_venues && Array.isArray(event.event_venues) && event.event_venues.length > 0) {
-      // First attempt: array of objects with venues property
-      const venues = event.event_venues
-        .map(ev => ev.venues?.name || ev.venue_name || ev.name)
-        .filter(Boolean);
-      
-      if (venues.length > 0) {
-        return venues.join(', ');
-      }
-    }
-    
-    // Second attempt: direct venue property
-    if (event.venue_name) {
-      return event.venue_name;
-    }
-    
-    // Third attempt: venues as direct property
-    if (event.venues && typeof event.venues === 'string') {
-      return event.venues;
-    }
-    
-    // If we have a venue property that's an object
-    if (event.venue && typeof event.venue === 'object') {
-      return event.venue.name || event.venue.title || JSON.stringify(event.venue);
-    }
-    
-    // Fallback to manually entered venue from the example
-    return 'The Gallery';
-  };
+  // Get venue names using the utility function
+  const venueNames = getVenueNames(event);
 
   // Format notes
   const formatNotes = (notes: string) => {
@@ -191,7 +161,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
       <div className="event-header" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{event.name}</h2>
         <p style={{ fontSize: '12px', margin: '0' }}>
-          {formatDate(event.event_date)}, {formatTimeDisplay(event.start_time, event.end_time)} / {event.pax} Guests / {event.event_type || 'Private Event'} / {getVenueNames()}
+          {formatDate(event.event_date)}, {formatTimeDisplay(event.start_time, event.end_time)} / {event.pax} Guests / {event.event_type || 'Private Event'} / {venueNames}
         </p>
         <div style={{ marginTop: '16px', borderTop: '1px solid #ddd' }}></div>
       </div>

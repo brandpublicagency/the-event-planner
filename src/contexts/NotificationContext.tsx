@@ -119,7 +119,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
             {
               id: `event-created-${newEvent.event_code}`,
               title: "New Event",
-              description: `New event "${newEvent.event_name}" has been created`,
+              description: `New event "${newEvent.name}" has been created`,
               createdAt: new Date(),
               type: "event_created",
               read: false,
@@ -162,7 +162,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         // Check for incomplete events
         const incompleteEvents = events?.filter(event => {
           // Check for missing important fields
-          return !event.venue_id || !event.client_name || !event.guests_count;
+          return !event.venues?.length || !event.primary_name || !event.pax;
         });
         
         // Create notifications for incomplete events
@@ -170,7 +170,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           const incompleteNotifications = incompleteEvents.map(event => ({
             id: `event-incomplete-${event.event_code}`,
             title: "Incomplete Event",
-            description: `Event "${event.event_name}" is missing critical information`,
+            description: `Event "${event.name}" is missing critical information`,
             createdAt: new Date(),
             type: "event_incomplete" as NotificationType,
             read: false,

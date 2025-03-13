@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
@@ -74,7 +75,8 @@ const ChatContainer = () => {
         />
       </Card>
       
-      <style jsx>{`
+      <style>
+        {`
         .chat-container {
           position: relative;
           border: none !important;
@@ -106,7 +108,8 @@ const ChatContainer = () => {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
