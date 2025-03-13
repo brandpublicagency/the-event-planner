@@ -1,3 +1,4 @@
+
 const whatsappToken = Deno.env.get('WHATSAPP_TOKEN');
 
 /**
@@ -52,6 +53,7 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
         try {
           const responseText = await sendResponse.text();
           responseData = responseText ? JSON.parse(responseText) : {};
+          console.log('WhatsApp API response:', JSON.stringify(responseData, null, 2));
         } catch (parseError) {
           console.error('Error parsing API response:', parseError);
           responseData = { error: 'Invalid response' };
@@ -106,7 +108,7 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
     console.error('Error sending WhatsApp message:', error);
     return {
       success: false,
-      error: error.message
+      error: error.message || 'Unknown error'
     };
   }
 };
@@ -115,6 +117,8 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
  * Creates a properly formatted WhatsApp message payload
  */
 function createWhatsAppMessagePayload(to: string, response: any) {
+  console.log('Creating message payload from response:', JSON.stringify(response, null, 2));
+  
   if (response.type === 'text') {
     // Ensure the message text isn't too long for WhatsApp
     const messageText = truncateMessage(response.message || "Sorry, I couldn't process your request.");
@@ -160,7 +164,7 @@ function createWhatsAppMessagePayload(to: string, response: any) {
  */
 function truncateMessage(text: string): string {
   const MAX_LENGTH = 4096; // WhatsApp's limit
-  if (text.length <= MAX_LENGTH) return text;
+  if (!text || text.length <= MAX_LENGTH) return text || "No message content";
   
   return text.substring(0, MAX_LENGTH - 3) + '...';
 }
@@ -169,6 +173,9 @@ function truncateMessage(text: string): string {
  * Sanitizes a phone number for WhatsApp API
  */
 function sanitizePhoneNumber(phone: string): string {
+  // Check if null or undefined
+  if (!phone) return '';
+  
   // Remove any non-numeric characters
   const cleaned = phone.replace(/\D/g, '');
   
@@ -183,6 +190,26 @@ function sanitizePhoneNumber(phone: string): string {
  */
 function sanitizeInteractiveMessage(interactive: any): any {
   try {
+    if (!interactive) {
+      return {
+        type: 'button',
+        body: {
+          text: "Error: Missing interactive content"
+        },
+        action: {
+          buttons: [
+            {
+              type: 'reply',
+              reply: {
+                id: 'error',
+                title: 'Try Again'
+              }
+            }
+          ]
+        }
+      };
+    }
+    
     // Deep clone to avoid modifying original
     const sanitized = JSON.parse(JSON.stringify(interactive));
     
@@ -236,7 +263,24 @@ function sanitizeInteractiveMessage(interactive: any): any {
     return sanitized;
   } catch (error) {
     console.error('Error sanitizing interactive message:', error);
-    return interactive; // Return original if sanitization fails
+    // Return a safe fallback
+    return {
+      type: 'button',
+      body: {
+        text: "I encountered an error processing your request."
+      },
+      action: {
+        buttons: [
+          {
+            type: 'reply',
+            reply: {
+              id: 'error',
+              title: 'Try Again'
+            }
+          }
+        ]
+      }
+    };
   }
 }
 

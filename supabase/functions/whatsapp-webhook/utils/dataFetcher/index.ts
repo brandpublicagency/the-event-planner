@@ -18,6 +18,38 @@ export const handleDbError = (operation: string, error: any) => {
   throw error;
 };
 
+// Verify essential database tables exist and are accessible
+export const verifyAllRequiredTables = async (): Promise<boolean> => {
+  try {
+    // Check access to events table
+    const { error: eventsError } = await supabase
+      .from('events')
+      .select('id')
+      .limit(1);
+    
+    if (eventsError) {
+      console.error('Error verifying events table:', eventsError);
+      return false;
+    }
+    
+    // Check access to tasks table
+    const { error: tasksError } = await supabase
+      .from('tasks')
+      .select('id')
+      .limit(1);
+    
+    if (tasksError) {
+      console.error('Error verifying tasks table:', tasksError);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in verifyAllRequiredTables:', error);
+    return false;
+  }
+};
+
 // Export functions from other modules
 export { 
   fetchEvents, 
