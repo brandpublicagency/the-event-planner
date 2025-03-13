@@ -27,7 +27,7 @@ export const NotificationButton = () => {
           <Bell className="h-5 w-5 text-zinc-700" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white border-none text-xs" 
+              className="absolute -top-2 -right-2 px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white border-none text-xs" 
               variant="destructive"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
