@@ -1,27 +1,40 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  // Add timeouts to avoid hanging requests
+  global: {
+    fetch: (url, options) => {
+      return fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(15000) // 15 second timeout
+      });
+    }
+  }
+});
 
+/**
+ * Retrieves a list of upcoming events for WhatsApp display
+ */
 export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
   try {
+    console.log('Fetching upcoming events list');
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    // Simplified query - we'll query relationships carefully
     const { data: events, error } = await supabase
       .from('events')
       .select(`
-        *,
-        wedding_details (*),
-        corporate_details (*),
-        event_venues (
-          venues (
-            id,
-            name
-          )
-        )
+        id,
+        name,
+        event_date,
+        event_type,
+        pax,
+        event_code
       `)
       .gte('event_date', today.toISOString())
       .is('deleted_at', null)
@@ -29,7 +42,7 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
       .order('event_date', { ascending: true })
       .limit(10);
 
-    console.log('Events query result:', { count: events?.length, error });
+    console.log(`Events query result: ${events?.length || 0} events found`);
 
     if (error) {
       console.error('Error fetching events:', error);
@@ -43,37 +56,75 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
       };
     }
 
-    // Group events by type
-    const groupedEvents = events.reduce((acc: { [key: string]: any[] }, event) => {
-      const type = event.event_type === 'wedding' ? 'Wedding Events' : 'Corporate Events';
-      if (!acc[type]) {
-        acc[type] = [];
+    // Now fetch venues for these events
+    const eventIds = events.map(event => event.id);
+    const { data: venueData, error: venueError } = await supabase
+      .from('event_venues')
+      .select(`
+        event_id,
+        venues (
+          id,
+          name
+        )
+      `)
+      .in('event_id', eventIds);
+    
+    if (venueError) {
+      console.error('Error fetching venues:', venueError);
+      // Continue without venues
+    }
+    
+    // Create a map of event ID to venues
+    const venueMap = new Map();
+    venueData?.forEach(item => {
+      if (item.venues) {
+        if (!venueMap.has(item.event_id)) {
+          venueMap.set(item.event_id, []);
+        }
+        venueMap.get(item.event_id).push(item.venues);
       }
-      acc[type].push(event);
-      return acc;
-    }, {});
-
-    const sections = Object.entries(groupedEvents).map(([type, events]) => {
-      const emoji = type === 'Wedding Events' ? '💒' : '🏢';
-      return {
-        title: `${emoji} ${type}`,
-        rows: events.map(event => {
-          const venue = event.event_venues?.[0]?.venues?.name || 'Venue TBC';
-          const date = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'Date TBC';
-          
-          let description = `📅 ${date}\n📍 ${venue}`;
-          if (event.pax) {
-            description += `\n👥 ${event.pax} guests`;
-          }
-
-          return {
-            id: event.event_code,
-            title: event.name,
-            description
-          };
-        })
-      };
     });
+    
+    // Group events by type
+    const weddings = events.filter(event => event.event_type?.toLowerCase() === 'wedding');
+    const corporate = events.filter(event => event.event_type?.toLowerCase() === 'corporate');
+    const other = events.filter(event => 
+      !event.event_type || 
+      (event.event_type.toLowerCase() !== 'wedding' && 
+       event.event_type.toLowerCase() !== 'corporate')
+    );
+    
+    // Create sections for the list
+    const sections = [];
+    
+    if (weddings.length > 0) {
+      sections.push({
+        title: '💒 Wedding Events',
+        rows: weddings.map(event => createEventRow(event, venueMap.get(event.id)))
+      });
+    }
+    
+    if (corporate.length > 0) {
+      sections.push({
+        title: '🏢 Corporate Events',
+        rows: corporate.map(event => createEventRow(event, venueMap.get(event.id)))
+      });
+    }
+    
+    if (other.length > 0) {
+      sections.push({
+        title: '📅 Other Events',
+        rows: other.map(event => createEventRow(event, venueMap.get(event.id)))
+      });
+    }
+    
+    // If we couldn't categorize properly, use a single section
+    if (sections.length === 0 && events.length > 0) {
+      sections.push({
+        title: '📅 All Upcoming Events',
+        rows: events.map(event => createEventRow(event, venueMap.get(event.id)))
+      });
+    }
 
     return {
       type: 'interactive',
@@ -96,7 +147,52 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     console.error('Error in getUpcomingEventsList:', error);
     return {
       type: 'text',
-      message: "An error occurred while fetching events. Please try again later."
+      message: "I had trouble fetching the events list. Please try again in a moment."
     };
   }
 };
+
+/**
+ * Creates a row object for a WhatsApp list item
+ */
+function createEventRow(event: any, venues: any[] = []) {
+  // Get venue names if available
+  const venueName = venues?.length > 0 
+    ? venues.map(v => v.name).join(', ')
+    : 'Venue TBC';
+    
+  // Format date
+  const date = event.event_date 
+    ? format(new Date(event.event_date), 'dd MMM yyyy')
+    : 'Date TBC';
+  
+  // Create description with available info
+  let description = `📅 ${date}`;
+  
+  // Add venue if available (limited to 72 chars)
+  if (venueName) {
+    const venueText = `\n📍 ${venueName}`;
+    if (description.length + venueText.length <= 70) {
+      description += venueText;
+    }
+  }
+  
+  // Add guest count if available
+  if (event.pax) {
+    const paxText = `\n👥 ${event.pax} guests`;
+    if (description.length + paxText.length <= 70) {
+      description += paxText;
+    }
+  }
+  
+  // Ensure title is not too long (24 chars max)
+  const title = event.name?.length > 24 
+    ? event.name.substring(0, 21) + '...'
+    : event.name || 'Untitled Event';
+  
+  return {
+    id: `event_${event.event_code}`,
+    title: title,
+    description: description
+  };
+}
