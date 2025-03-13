@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,22 +9,20 @@ import { useNotifications, Notification } from "@/contexts/NotificationContext";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-
 export const NotificationDropdown: React.FC = () => {
-  const { 
-    notifications, 
-    markAsRead, 
-    markAllAsRead 
+  const {
+    notifications,
+    markAsRead,
+    markAllAsRead
   } = useNotifications();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleAction = (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
     markAsRead(notification.id);
-    
     if (notification.relatedId) {
       // Navigate based on notification type
       if (notification.type === "event_created" || notification.type === "event_incomplete") {
@@ -35,73 +32,40 @@ export const NotificationDropdown: React.FC = () => {
       }
     }
   };
-
   const handleApprove = (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
     markAsRead(notification.id);
-    
+
     // Show toast confirmation
     toast({
       title: "Approved",
       description: "The item has been approved",
-      variant: "success",
+      variant: "success"
     });
   };
-  
   const handleClickAllNotifications = (e: React.MouseEvent) => {
     e.preventDefault();
     navigate("/notifications");
   };
-
-  return (
-    <div className="max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+  return <div className="max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
       <div className="p-4 border-b flex items-center justify-between">
         <h2 className="text-xl font-semibold">Notifications</h2>
-        {notifications.some(n => !n.read) && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={(e) => {
-              e.stopPropagation();
-              markAllAsRead();
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
+        {notifications.some(n => !n.read) && <Button variant="ghost" size="sm" onClick={e => {
+        e.stopPropagation();
+        markAllAsRead();
+      }} className="text-sm text-muted-foreground hover:text-foreground">
             Clear All
-          </Button>
-        )}
+          </Button>}
       </div>
       
-      <div className="p-4 border-b bg-muted/20">
-        <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <div className="flex-1">
-            <h3 className="font-medium">Push Notifications</h3>
-            <p className="text-sm text-muted-foreground">
-              Automatically send new notifications
-            </p>
-          </div>
-          <Switch onClick={(e) => e.stopPropagation()} />
-        </div>
-      </div>
+      
       
       <div className="overflow-y-auto flex-1">
-        {notifications.length === 0 ? (
-          <div className="p-6 text-center text-muted-foreground">
+        {notifications.length === 0 ? <div className="p-6 text-center text-muted-foreground">
             No notifications yet
-          </div>
-        ) : (
-          <div>
-            {notifications.map(notification => (
-              <div 
-                key={notification.id} 
-                className={cn(
-                  "border-b p-4 hover:bg-muted/20 transition-colors",
-                  !notification.read && "bg-muted/10"
-                )}
-              >
+          </div> : <div>
+            {notifications.map(notification => <div key={notification.id} className={cn("border-b p-4 hover:bg-muted/20 transition-colors", !notification.read && "bg-muted/10")}>
                 <div className="flex gap-3">
                   <Avatar className="h-10 w-10 rounded-full bg-primary/10">
                     <div className="h-10 w-10 rounded-full flex items-center justify-center">
@@ -112,63 +76,41 @@ export const NotificationDropdown: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium">{notification.title}</h4>
-                      {!notification.read && (
-                        <Badge 
-                          variant="default"
-                          className="text-[10px] px-1.5 py-0.5 bg-zinc-800 text-white rounded-md font-normal"
-                        >
+                      {!notification.read && <Badge variant="default" className="text-[10px] px-1.5 py-0.5 bg-zinc-800 text-white rounded-md font-normal">
                           New
-                        </Badge>
-                      )}
+                        </Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {notification.description}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                      {formatDistanceToNow(notification.createdAt, {
+                  addSuffix: true
+                })}
                     </p>
                     
                     <div className="mt-2 flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={(e) => handleAction(notification, e)}
-                        className="rounded-md"
-                      >
+                      <Button variant="outline" size="sm" onClick={e => handleAction(notification, e)} className="rounded-md">
                         Review
                       </Button>
                       
-                      {notification.actionType === "approve" && (
-                        <Button 
-                          size="sm"
-                          onClick={(e) => handleApprove(notification, e)}
-                          className="rounded-md"
-                        >
+                      {notification.actionType === "approve" && <Button size="sm" onClick={e => handleApprove(notification, e)} className="rounded-md">
                           Approve
-                        </Button>
-                      )}
+                        </Button>}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
       </div>
       
       <div className="border-t p-2">
-        <Button 
-          variant="default" 
-          className="w-full rounded-full"
-          onClick={handleClickAllNotifications}
-        >
+        <Button variant="default" className="w-full rounded-full" onClick={handleClickAllNotifications}>
           See all notifications
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 function getIconForNotificationType(type: Notification["type"]) {
   switch (type) {
     case "event_created":
