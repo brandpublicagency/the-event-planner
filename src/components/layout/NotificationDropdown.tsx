@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CheckCheck, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +53,7 @@ export const NotificationDropdown: React.FC = () => {
             onClick={markAllAsRead}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            Mark all as read
+            Clear All
           </Button>
         )}
       </div>
@@ -95,7 +94,16 @@ export const NotificationDropdown: React.FC = () => {
                   </Avatar>
                   
                   <div className="flex-1">
-                    <h4 className="font-medium">{notification.title}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">{notification.title}</h4>
+                      {!notification.read && (
+                        <Badge 
+                          className="text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground rounded-md font-normal"
+                        >
+                          New
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {notification.description}
                     </p>
