@@ -12,7 +12,7 @@ import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
 import { EventFormData } from "@/types/eventForm";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventFormSchema, EventFormSchema } from "@/schemas/eventFormSchema";
+import { eventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
 import { useQueryClient } from "@tanstack/react-query";
