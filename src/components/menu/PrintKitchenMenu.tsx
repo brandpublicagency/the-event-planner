@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -124,7 +125,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     const formattedStart = format(parseISO(`2000-01-01T${startTime}`), 'HH:mm');
     const formattedEnd = format(parseISO(`2000-01-01T${endTime}`), 'HH:mm');
     
-    return `${formattedStart} to ${formattedEnd}`;
+    return `${formattedStart} - ${formattedEnd}`;
   };
 
   // Helper to get venue names
@@ -144,6 +145,17 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     ));
   };
 
+  // Get formatted event details in one line
+  const getEventDetailsLine = () => {
+    const date = formatDate(event.event_date);
+    const time = formatTimeDisplay(event.start_time, event.end_time);
+    const guests = `${event.pax || 0} Guests`;
+    const eventType = event.event_type || '';
+    const venueNames = getVenueNames();
+    
+    return `${date}, ${time} / ${guests} / ${eventType} / ${venueNames}`;
+  };
+
   return (
     <div 
       ref={ref} 
@@ -160,9 +172,11 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
       </div>
 
       <div className="event-header" style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{event.name} <span style={{ fontWeight: 'normal', fontSize: '12px' }}>{event.event_code}</span></h2>
+        <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>
+          {event.name} <span style={{ fontWeight: 'normal', fontSize: '10px' }}>{event.event_code}</span>
+        </h2>
         <p style={{ fontSize: '12px', margin: '0' }}>
-          {formatDate(event.event_date)}, {formatTimeDisplay(event.start_time, event.end_time)} / {event.pax} Guests / {getVenueNames()}
+          {getEventDetailsLine()}
         </p>
         <div style={{ marginTop: '16px', borderTop: '1px solid #ddd' }}></div>
       </div>
@@ -384,7 +398,6 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     documentTitle: `Kitchen Menu - ${event.name}`,
     onBeforePrint: () => {
       console.log("Preparing to print...");
-      return Promise.resolve();
     },
     onAfterPrint: () => {
       console.log("Print completed or canceled");
@@ -393,8 +406,8 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         description: "Your menu has been sent to the printer or saved as PDF."
       });
     },
-    onPrintError: (errorLocation, error) => {
-      console.error(`Print error (${errorLocation}):`, error);
+    onPrintError: (error) => {
+      console.error(`Print error:`, error);
       toast({
         title: "Print error",
         description: "There was a problem printing your menu. Please try again.",
@@ -436,6 +449,10 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
           font-weight: bold;
           margin-bottom: 4px;
           text-align: left;
+        }
+        h2 span {
+          font-size: 10px;
+          font-weight: normal;
         }
         h3 {
           font-size: 14px;
