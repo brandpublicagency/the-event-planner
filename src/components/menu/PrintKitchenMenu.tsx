@@ -140,36 +140,38 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
   // Format notes
   const formatNotes = (notes: string) => {
     return notes.split('\n').map((line, i) => (
-      <p key={i} className="text-sm">{line}</p>
+      <p key={i} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{line}</p>
     ));
   };
 
   return (
     <div 
       ref={ref} 
-      className="print-container bg-white p-6 max-w-[210mm]" 
+      className="print-container bg-white p-6" 
       style={{ 
         margin: '0 auto',
         fontFamily: 'Arial, sans-serif',
+        width: '210mm',
+        textAlign: 'left',
       }}
     >
-      <div className="print-header text-center mb-6">
-        <h1 className="text-xl font-bold uppercase">MENU SELECTION</h1>
+      <div className="print-header" style={{ marginBottom: '16px', textAlign: 'left' }}>
+        <h1 style={{ fontSize: '16px', fontWeight: 'normal', marginBottom: '16px' }}>MENU SELECTION</h1>
       </div>
 
-      <div className="event-header mb-8">
-        <h2 className="text-xl font-bold mb-2">{event.name} <span className="font-normal text-sm">{event.event_code}</span></h2>
-        <p className="text-sm">
+      <div className="event-header" style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{event.name} <span style={{ fontWeight: 'normal', fontSize: '12px' }}>{event.event_code}</span></h2>
+        <p style={{ fontSize: '12px', margin: '0' }}>
           {formatDate(event.event_date)}, {formatTimeDisplay(event.start_time, event.end_time)} / {event.pax} Guests / {getVenueNames()}
         </p>
-        <div className="mt-2 border-t border-gray-200"></div>
+        <div style={{ marginTop: '16px', borderTop: '1px solid #ddd' }}></div>
       </div>
 
       {/* Custom Menu Section */}
       {menuState.isCustomMenu && (
-        <div className="section mb-5">
-          <h3 className="text-base font-semibold">Custom Menu</h3>
-          <p className="text-sm whitespace-pre-line">{menuState.customMenuDetails}</p>
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Custom Menu</h3>
+          <p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: '0' }}>{menuState.customMenuDetails}</p>
         </div>
       )}
 
@@ -178,66 +180,66 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
         <>
           {/* Starter Section */}
           {menuState.selectedStarterType && (
-            <div className="section mb-5">
-              <h3 className="text-base font-semibold">Arrival & Starter</h3>
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Arrival & Starter</h3>
               {menuState.selectedStarterType === 'canapes' && (
                 <>
-                  <p className="text-sm font-medium">Canapé Package: {menuState.selectedCanapePackage}</p>
+                  <p style={{ fontSize: '12px', marginBottom: '4px' }}>Canapé Package: {menuState.selectedCanapePackage}</p>
                   {menuState.selectedCanapes.length > 0 && (
-                    <div className="ml-4 mt-2">
+                    <div>
                       {menuState.selectedCanapes.map((canape, idx) => (
-                        canape && <p key={idx} className="text-sm">• {getDescription(canape)}</p>
+                        canape && <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(canape)}</p>
                       ))}
                     </div>
                   )}
                 </>
               )}
               {menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter && (
-                <p className="text-sm ml-4">• {getDescription(menuState.selectedPlatedStarter)}</p>
+                <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.selectedPlatedStarter)}</p>
               )}
             </div>
           )}
 
           {/* Main Course Section */}
           {menuState.mainCourseType && (
-            <div className="section mb-5">
-              <h3 className="text-base font-semibold">Main Course</h3>
-              <p className="text-sm font-medium">{getDescription(menuState.mainCourseType)}</p>
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Main Course</h3>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '8px' }}>{getDescription(menuState.mainCourseType)}</p>
               
               {/* Buffet details */}
               {menuState.mainCourseType === 'buffet' && (
-                <div className="ml-4 mt-2">
+                <div>
                   {menuState.buffetMeatSelections.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Meat Selections:</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Meat Selections:</p>
                       {menuState.buffetMeatSelections.map((item, idx) => (
-                        <p key={idx} className="text-sm ml-2">• {getDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                       ))}
                     </div>
                   )}
                   
                   {menuState.buffetVegetableSelections.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Vegetable Selections:</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selections:</p>
                       {menuState.buffetVegetableSelections.map((item, idx) => (
-                        <p key={idx} className="text-sm ml-2">• {getDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                       ))}
                     </div>
                   )}
                   
                   {menuState.buffetStarchSelections.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Starch Selections:</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Starch Selections:</p>
                       {menuState.buffetStarchSelections.map((item, idx) => (
-                        <p key={idx} className="text-sm ml-2">• {getDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                       ))}
                     </div>
                   )}
                   
                   {menuState.buffetSaladSelection && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Salad Selection:</p>
-                      <p className="text-sm ml-2">• {getDescription(menuState.buffetSaladSelection)}</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.buffetSaladSelection)}</p>
                     </div>
                   )}
                 </div>
@@ -245,36 +247,36 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
               
               {/* Karoo Meat selection */}
               {menuState.mainCourseType === 'karoo' && (
-                <div className="ml-4 mt-2">
+                <div>
                   {menuState.karooMeatSelection && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Meat Selection:</p>
-                      <p className="text-sm ml-2">• {getDescription(menuState.karooMeatSelection)}</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Meat Selection:</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.karooMeatSelection)}</p>
                     </div>
                   )}
                   
                   {menuState.karooStarchSelection.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Starch Selections:</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Starch Selections:</p>
                       {menuState.karooStarchSelection.map((item, idx) => (
-                        <p key={idx} className="text-sm ml-2">• {getDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                       ))}
                     </div>
                   )}
                   
                   {menuState.karooVegetableSelections.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Vegetable Selections:</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selections:</p>
                       {menuState.karooVegetableSelections.map((item, idx) => (
-                        <p key={idx} className="text-sm ml-2">• {getDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                       ))}
                     </div>
                   )}
                   
                   {menuState.karooSaladSelection && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Salad Selection:</p>
-                      <p className="text-sm ml-2">• {getDescription(menuState.karooSaladSelection)}</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.karooSaladSelection)}</p>
                     </div>
                   )}
                 </div>
@@ -282,18 +284,18 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
               
               {/* Plated selections */}
               {menuState.mainCourseType === 'plated' && (
-                <div className="ml-4 mt-2">
+                <div>
                   {menuState.platedMainSelection && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Main Selection:</p>
-                      <p className="text-sm ml-2">• {getDescription(menuState.platedMainSelection)}</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Main Selection:</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.platedMainSelection)}</p>
                     </div>
                   )}
                   
                   {menuState.platedSaladSelection && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium">Salad Selection:</p>
-                      <p className="text-sm ml-2">• {getDescription(menuState.platedSaladSelection)}</p>
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.platedSaladSelection)}</p>
                     </div>
                   )}
                 </div>
@@ -303,28 +305,28 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
 
           {/* Dessert Section */}
           {menuState.dessertType && (
-            <div className="section mb-5">
-              <h3 className="text-base font-semibold">Dessert</h3>
-              <p className="text-sm font-medium">{getDescription(menuState.dessertType)}</p>
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Dessert</h3>
+              <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(menuState.dessertType)}</p>
               
               {menuState.dessertType === 'traditional' && menuState.traditionalDessert && (
-                <p className="text-sm ml-4">• {getDescription(menuState.traditionalDessert)}</p>
+                <p style={{ fontSize: '12px', margin: '0' }}>{getDescription(menuState.traditionalDessert)}</p>
               )}
               
               {menuState.dessertType === 'canapes' && menuState.dessertCanapes.length > 0 && (
-                <div className="ml-4 mt-2">
+                <div>
                   {menuState.dessertCanapes.map((item, idx) => (
-                    <p key={idx} className="text-sm">• {getDescription(item)}</p>
+                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)}</p>
                   ))}
                 </div>
               )}
               
               {menuState.dessertType === 'individual' && menuState.individualCakes.length > 0 && (
-                <div className="ml-4 mt-2">
+                <div>
                   {menuState.individualCakes.map((item, idx) => {
                     const quantity = menuState.individual_cake_quantities[item] || 0;
                     return (
-                      <p key={idx} className="text-sm">• {getDescription(item)} x {quantity}</p>
+                      <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(item)} x {quantity}</p>
                     );
                   })}
                 </div>
@@ -334,13 +336,13 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
 
           {/* Additional Options Section */}
           {menuState.otherSelections && menuState.otherSelections.length > 0 && (
-            <div className="section mb-5">
-              <h3 className="text-base font-semibold">Additional Options</h3>
-              <div className="ml-4 mt-2">
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Additional Options</h3>
+              <div>
                 {menuState.otherSelections.map((option, idx) => {
                   const quantity = menuState.otherSelectionsQuantities[option] || 0;
                   return (
-                    <p key={idx} className="text-sm">• {getDescription(option)} x {quantity}</p>
+                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getDescription(option)} x {quantity}</p>
                   );
                 })}
               </div>
@@ -350,13 +352,13 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
       )}
 
       {/* Divider */}
-      <hr className="my-6 border-gray-300" />
+      <hr style={{ margin: '16px 0', borderColor: '#ddd' }} />
 
       {/* Notes Section */}
       {menuState.notes && (
-        <div className="section mb-5">
-          <h3 className="text-base font-semibold">Additional Notes</h3>
-          <div className="ml-4 mt-2 whitespace-pre-line">
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Additional Notes</h3>
+          <div style={{ whiteSpace: 'pre-line' }}>
             {formatNotes(menuState.notes)}
           </div>
         </div>
@@ -402,7 +404,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     pageStyle: `
       @page {
         size: A4;
-        margin: 10mm !important;
+        margin: 15mm !important;
       }
       @media print {
         body {
@@ -411,40 +413,44 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         }
         * {
           box-sizing: border-box;
+          text-align: left;
+        }
+        h1, h2, h3, h4, h5, h6 {
+          text-align: left;
         }
         .print-container {
           width: 210mm;
-          height: 297mm;
-          padding: 10mm;
+          height: auto;
+          padding: 15mm;
           margin: 0 !important;
-          font-size: 12px;
+          text-align: left;
         }
         h1 {
-          font-size: 18px;
-          margin-bottom: 10px;
+          font-size: 16px;
+          font-weight: normal;
+          margin-bottom: 16px;
+          text-align: left;
         }
         h2 {
           font-size: 16px;
-          margin-top: 10px;
-          margin-bottom: 5px;
+          font-weight: bold;
+          margin-bottom: 4px;
+          text-align: left;
         }
         h3 {
           font-size: 14px;
-          font-weight: bold;
-          margin-top: 15px;
+          font-weight: normal;
           margin-bottom: 8px;
+          text-align: left;
         }
         p {
           font-size: 12px;
-          margin-top: 0;
+          margin: 0;
           margin-bottom: 4px;
-          line-height: 1.4;
-        }
-        .section {
-          margin-bottom: 15px;
+          text-align: left;
         }
         hr {
-          margin: 15px 0;
+          margin: 16px 0;
           border-color: #ddd;
         }
       }
