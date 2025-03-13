@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -79,20 +80,22 @@ export const NotificationDropdown: React.FC = () => {
                     <p className="text-sm my-0 py-px font-light text-zinc-900">
                       {notification.description}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(notification.createdAt, {
-                  addSuffix: true
-                })}
-                    </p>
                     
-                    <div className="mt-2 flex gap-2">
-                      <Button variant="outline" size="sm" onClick={e => handleAction(notification, e)} className="rounded text-gray-900 bg-white">
-                        Review
-                      </Button>
-                      
-                      {notification.actionType === "approve" && <Button size="sm" onClick={e => handleApprove(notification, e)} className="rounded-md">
-                          Approve
-                        </Button>}
+                    <div className="mt-2 flex items-center gap-2 justify-between">
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={e => handleAction(notification, e)} className="rounded text-gray-900 bg-white">
+                          Review
+                        </Button>
+                        
+                        {notification.actionType === "approve" && <Button size="sm" onClick={e => handleApprove(notification, e)} className="rounded-md">
+                            Approve
+                          </Button>}
+                      </div>
+                      <p className="text-xs text-muted-foreground m-0">
+                        {formatDistanceToNow(notification.createdAt, {
+                          addSuffix: true
+                        })}
+                      </p>
                     </div>
                   </div>
                 </div>
