@@ -108,6 +108,7 @@ export const NotificationDropdown: React.FC = () => {
                         variant="outline" 
                         size="sm"
                         onClick={() => handleAction(notification)}
+                        className="rounded-[3px]"
                       >
                         Review
                       </Button>
@@ -116,6 +117,7 @@ export const NotificationDropdown: React.FC = () => {
                         <Button 
                           size="sm"
                           onClick={() => handleApprove(notification)}
+                          className="rounded-[3px]"
                         >
                           Approve
                         </Button>
