@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 export default {
   darkMode: ["class"],
   content: [
@@ -77,6 +76,19 @@ export default {
         base: ['0.875rem', '1.5rem'],
         lg: ['1rem', '1.75rem'],
         xl: ['1.125rem', '1.75rem'],
+      },
+      animation: {
+        'gradient-x': 'gradient-x 15s ease infinite',
+      },
+      keyframes: {
+        'gradient-x': {
+          '0%, 100%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
+        },
       },
     },
   },
