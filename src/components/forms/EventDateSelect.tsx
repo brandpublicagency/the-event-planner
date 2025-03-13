@@ -1,4 +1,5 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,7 +16,6 @@ export const EventDateSelect = ({
   return <FormField control={form.control} name="event_date" render={({
     field
   }) => <FormItem className="flex flex-col">
-          <FormLabel className="my-[4px]">Event Date</FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
