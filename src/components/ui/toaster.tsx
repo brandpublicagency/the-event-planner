@@ -1,5 +1,4 @@
-
-import { useToast } from "@/hooks/use-toast"
+import * as React from "react"
 import {
   Toast,
   ToastClose,
@@ -7,8 +6,9 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
+  ToastWithIcon,
 } from "@/components/ui/toast"
-import { Check, CircleAlert } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export function Toaster() {
   const { toasts } = useToast()
@@ -17,23 +17,16 @@ export function Toaster() {
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, variant, ...props }) {
         return (
-          <Toast key={id} variant={variant} {...props}>
-            <div className="flex gap-3">
-              {variant === "destructive" ? (
-                <CircleAlert className="h-5 w-5 text-red-400" />
-              ) : (
-                <Check className="h-5 w-5 text-green-500" />
+          <ToastWithIcon key={id} variant={variant} {...props}>
+            <div>
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && (
+                <ToastDescription>{description}</ToastDescription>
               )}
-              <div className="grid gap-1">
-                {title && <ToastTitle>{title}</ToastTitle>}
-                {description && (
-                  <ToastDescription>{description}</ToastDescription>
-                )}
-              </div>
             </div>
             {action}
             <ToastClose />
-          </Toast>
+          </ToastWithIcon>
         )
       })}
       <ToastViewport />
