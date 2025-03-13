@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -279,7 +280,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   }, []);
   
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
+    // Updated: react-to-print v3.x uses "documentTitle" and other properties
     documentTitle: `Kitchen Menu - ${event.name}`,
     onBeforeGetContent: () => {
       console.log("Before getting content, ref status:", !!componentRef.current);
@@ -293,6 +294,8 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
       console.log("Print completed or canceled");
       return Promise.resolve();
     },
+    // The "content" property has been removed in favor of passing the component reference
+    // directly to handlePrint when it's called
     pageStyle: `
       @page {
         size: A4;
@@ -330,7 +333,8 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
     if (componentRef.current) {
-      handlePrint();
+      // In react-to-print v3.x, we pass the component reference to handlePrint
+      handlePrint(undefined, () => componentRef.current);
     } else {
       console.error("Print component reference is not available!");
     }
