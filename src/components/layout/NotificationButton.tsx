@@ -22,7 +22,7 @@ export const NotificationButton = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative rounded-full"
+          className="relative rounded-full h-10 w-10"
         >
           <Bell className="h-5 w-5 text-zinc-700" />
           {unreadCount > 0 && (
