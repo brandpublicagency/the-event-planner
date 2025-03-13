@@ -73,7 +73,7 @@ export const Header = ({
         {/* Children content */}
         {children}
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-3">
           {/* Display secondary action if provided */}
           {secondaryAction}
           
