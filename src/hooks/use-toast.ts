@@ -1,4 +1,3 @@
-
 import * as React from "react"
 
 import type {
@@ -7,14 +6,15 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 5000 // 5000ms for slower animation
+const TOAST_REMOVE_DELAY = 400 // Match this to CSS animation duration
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  variant?: "default" | "destructive" | "success"
+  variant?: "default" | "destructive" | "success" | "info"
+  showProgress?: boolean
 }
 
 const actionTypes = {
@@ -92,8 +92,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -139,9 +137,11 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast = Omit<ToasterToast, "id">
+interface ToastOptions extends Partial<ToasterToast> {
+  showProgress?: boolean
+}
 
-function toast({ ...props }: Toast) {
+function toast(options: ToastOptions) {
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -154,7 +154,7 @@ function toast({ ...props }: Toast) {
   dispatch({
     type: "ADD_TOAST",
     toast: {
-      ...props,
+      ...options,
       id,
       open: true,
       onOpenChange: (open) => {

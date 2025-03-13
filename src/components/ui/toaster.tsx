@@ -7,6 +7,7 @@ import {
   ToastTitle,
   ToastViewport,
   ToastWithIcon,
+  ToastWithProgress,
 } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
 
@@ -14,10 +15,17 @@ export function Toaster() {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+    <ToastProvider swipeDirection="right">
+      {toasts.map(function ({ id, title, description, action, variant, showProgress, duration, ...props }) {
+        const ToastComponent = showProgress ? ToastWithProgress : ToastWithIcon;
+        
         return (
-          <ToastWithIcon key={id} variant={variant} {...props}>
+          <ToastComponent 
+            key={id} 
+            variant={variant} 
+            {...(showProgress && { progressDuration: duration || 5000 })}
+            {...props}
+          >
             <div>
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
@@ -26,7 +34,7 @@ export function Toaster() {
             </div>
             {action}
             <ToastClose />
-          </ToastWithIcon>
+          </ToastComponent>
         )
       })}
       <ToastViewport />
