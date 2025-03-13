@@ -152,13 +152,21 @@ export const handleChatAction = async (
         break;
 
       case "update_menu":
-        if (!action.event_code || !action.menu_updates) {
-          throw new Error("Missing required fields for menu update");
+        if (!action.event_code) {
+          throw new Error("Missing event code for menu update");
         }
         
+        if (!action.menu_updates || typeof action.menu_updates !== 'object') {
+          throw new Error("Missing or invalid menu update data");
+        }
+        
+        console.log('Updating menu for event:', action.event_code, 'Menu updates:', action.menu_updates);
+        
         // Format menu data for better handling
-        if (action.menu_updates.is_custom !== undefined && typeof action.menu_updates.is_custom === 'string') {
-          action.menu_updates.is_custom = action.menu_updates.is_custom.toLowerCase() === 'true';
+        const processedMenuUpdates = { ...action.menu_updates };
+        
+        if (processedMenuUpdates.is_custom !== undefined && typeof processedMenuUpdates.is_custom === 'string') {
+          processedMenuUpdates.is_custom = processedMenuUpdates.is_custom.toLowerCase() === 'true';
         }
 
         // Handle array fields
@@ -175,21 +183,44 @@ export const handleChatAction = async (
         ];
         
         arrayFields.forEach(field => {
-          if (action.menu_updates[field] !== undefined) {
-            if (typeof action.menu_updates[field] === 'string') {
+          if (processedMenuUpdates[field] !== undefined) {
+            if (typeof processedMenuUpdates[field] === 'string') {
               // If a single item is provided as a string, convert to array
-              action.menu_updates[field] = [action.menu_updates[field]];
-            } else if (!Array.isArray(action.menu_updates[field])) {
+              processedMenuUpdates[field] = [processedMenuUpdates[field]];
+              console.log(`Converted ${field} string to array:`, processedMenuUpdates[field]);
+            } else if (!Array.isArray(processedMenuUpdates[field])) {
               console.warn(`Invalid ${field} format, expected array or string`);
-              delete action.menu_updates[field]; // Remove invalid data
+              delete processedMenuUpdates[field]; // Remove invalid data
             }
           }
         });
         
-        await updateMenuSelection(action.event_code, action.menu_updates);
+        await updateMenuSelection(action.event_code, processedMenuUpdates);
         await queryClient.invalidateQueries({ queryKey: ['events', action.event_code] });
         await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
-        onSuccess("Menu updated successfully!");
+        
+        // Build a descriptive success message
+        let successDetails = '';
+        if (processedMenuUpdates.starter_type) {
+          successDetails += `starter (${processedMenuUpdates.starter_type}), `;
+        }
+        if (processedMenuUpdates.main_course_type) {
+          successDetails += `main course (${processedMenuUpdates.main_course_type}), `;
+        }
+        if (processedMenuUpdates.dessert_type) {
+          successDetails += `dessert (${processedMenuUpdates.dessert_type}), `;
+        }
+        if (processedMenuUpdates.notes) {
+          successDetails += 'notes, ';
+        }
+        
+        // Remove trailing comma and space
+        if (successDetails) {
+          successDetails = successDetails.replace(/, $/, '');
+          onSuccess(`Menu updated successfully! Updated ${successDetails}.`);
+        } else {
+          onSuccess("Menu updated successfully!");
+        }
         break;
 
       case "send_email":

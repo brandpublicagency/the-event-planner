@@ -1,119 +1,91 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { withTimeout } from '../timeoutUtils.ts';
 
-// Create and export the Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  Deno.env.get('SUPABASE_URL')!,
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+);
 
-// Helper function to handle database errors consistently
-export const handleDbError = (operation: string, error: any) => {
-  console.error(`Error in ${operation}:`, {
+// Standard error handler for database operations
+export const handleDbError = (context: string, error: any) => {
+  console.error(`Database error in ${context}:`, {
     message: error.message,
+    code: error.code,
     details: error.details,
-    hint: error.hint,
-    code: error.code
+    hint: error.hint
   });
-  throw error;
+  
+  // Ensure we return a consistent error format
+  return {
+    error: true,
+    context,
+    message: error.message,
+    code: error.code
+  };
 };
 
-// Verify essential database tables exist and are accessible
-export const verifyAllRequiredTables = async (): Promise<{ success: boolean, errorTables: string[] }> => {
-  try {
-    console.log('Verifying database tables...');
-    const errorTables = [];
-    
-    // Check access to events table
-    const { error: eventsError } = await supabase
-      .from('events')
-      .select('id')
-      .limit(1);
-    
-    if (eventsError) {
-      console.error('Error verifying events table:', eventsError);
-      errorTables.push('events');
-    }
-    
-    // Check access to tasks table
-    const { error: tasksError } = await supabase
-      .from('tasks')
-      .select('id')
-      .limit(1);
-    
-    if (tasksError) {
-      console.error('Error verifying tasks table:', tasksError);
-      errorTables.push('tasks');
-    }
-    
-    // Check access to menu_selections table
-    const { error: menuError } = await supabase
-      .from('menu_selections')
-      .select('event_code')
-      .limit(1);
-    
-    if (menuError) {
-      console.error('Error verifying menu_selections table:', menuError);
-      errorTables.push('menu_selections');
-    }
-    
-    console.log(`Table verification complete. ${errorTables.length} tables with errors.`);
-    return { 
-      success: errorTables.length === 0,
-      errorTables
-    };
-  } catch (error) {
-    console.error('Error in verifyAllRequiredTables:', error);
-    return { 
-      success: false, 
-      errorTables: ['unknown - general error']
-    };
-  }
-};
-
-// Check database connection
+// Function to check if database connection is working
 export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
     console.log('Checking database connection...');
-    const start = Date.now();
+    const startTime = Date.now();
     
-    // Simple query to verify connection
-    const { data, error } = await withTimeout(
-      supabase.from('events').select('count(*)', { count: 'exact', head: true }),
-      'database connection check',
-      5000
-    );
+    // Simple query to test connection
+    const { error } = await supabase.from('events').select('event_code').limit(1);
     
-    const elapsed = Date.now() - start;
+    const elapsed = Date.now() - startTime;
     
     if (error) {
-      console.error(`Database connection check failed after ${elapsed}ms:`, error);
+      console.error('Database connection check failed:', {
+        error: error.message,
+        code: error.code,
+        elapsed
+      });
       return false;
     }
     
-    console.log(`Database connection verified in ${elapsed}ms`);
+    console.log(`Database connection successful (${elapsed}ms)`);
     return true;
-  } catch (error) {
-    console.error('Database connection check failed with exception:', error);
+  } catch (err) {
+    console.error('Database connection check error:', err);
     return false;
   }
 };
 
-// Export functions from other modules
-export { 
-  fetchEvents, 
-  fetchEventById 
-} from './eventFetcher.ts';
-
-export { 
-  fetchTasks, 
-  fetchTaskById 
-} from './taskFetcher.ts';
-
-export { 
-  fetchContacts 
-} from './contactFetcher.ts';
-
-export { 
-  fetchDocuments 
-} from './documentFetcher.ts';
+// Verify all required tables exist in the database
+export const verifyAllRequiredTables = async (): Promise<{success: boolean, errorTables: string[]}> => {
+  const requiredTables = ['events', 'tasks', 'profiles', 'documents', 'menu_selections'];
+  const errorTables: string[] = [];
+  
+  try {
+    console.log('Verifying required tables...');
+    
+    for (const table of requiredTables) {
+      try {
+        const { error } = await supabase.from(table).select('count').limit(1).single();
+        
+        if (error) {
+          console.error(`Table verification failed for ${table}:`, {
+            error: error.message,
+            code: error.code
+          });
+          errorTables.push(table);
+        }
+      } catch (tableError) {
+        console.error(`Error checking table ${table}:`, tableError);
+        errorTables.push(table);
+      }
+    }
+    
+    if (errorTables.length === 0) {
+      console.log('All required tables verified successfully');
+      return { success: true, errorTables: [] };
+    } else {
+      console.error('Some tables failed verification:', errorTables);
+      return { success: false, errorTables };
+    }
+  } catch (err) {
+    console.error('Table verification error:', err);
+    return { success: false, errorTables: requiredTables };
+  }
+};

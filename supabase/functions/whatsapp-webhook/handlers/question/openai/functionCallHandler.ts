@@ -115,10 +115,65 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
         const eventCode = args.event_code;
         const menuUpdates = args.menu_updates;
         
-        if (!eventCode || !menuUpdates) {
-          console.error('Missing required parameters for update_menu:', args);
-          return "I couldn't update the menu because some required information was missing. Please provide both an event code and the menu details to update.";
+        if (!eventCode) {
+          console.error('Missing event_code for update_menu:', args);
+          return "I couldn't update the menu because the event code was missing. Please provide an event code.";
         }
+        
+        if (!menuUpdates || Object.keys(menuUpdates).length === 0) {
+          console.error('Missing or empty menu_updates for update_menu:', args);
+          return "I couldn't update the menu because no menu details were provided. Please specify what menu items you'd like to update.";
+        }
+        
+        // Check if event exists
+        const { data: eventExists, error: checkError } = await supabase
+          .from('events')
+          .select('name')
+          .eq('event_code', eventCode)
+          .maybeSingle();
+          
+        if (checkError) {
+          console.error('Error checking event existence:', checkError);
+          throw checkError;
+        }
+        
+        if (!eventExists) {
+          return `I couldn't find an event with code ${eventCode}. Please check the event code and try again.`;
+        }
+        
+        // Process special menu fields
+        let processedUpdates = { ...menuUpdates };
+        
+        // Handle boolean conversions
+        if (processedUpdates.is_custom !== undefined && typeof processedUpdates.is_custom === 'string') {
+          processedUpdates.is_custom = processedUpdates.is_custom.toLowerCase() === 'true';
+        }
+        
+        // Handle array fields
+        const arrayFields = [
+          'buffet_meat_selections', 
+          'buffet_vegetable_selections',
+          'buffet_starch_selections',
+          'karoo_starch_selection',
+          'karoo_vegetable_selections',
+          'canape_selections',
+          'dessert_canapes',
+          'individual_cakes',
+          'other_selections'
+        ];
+        
+        arrayFields.forEach(field => {
+          if (processedUpdates[field] !== undefined) {
+            if (typeof processedUpdates[field] === 'string') {
+              // If a single item is provided as a string, convert to array
+              processedUpdates[field] = [processedUpdates[field]];
+              console.log(`Converted ${field} string to array:`, processedUpdates[field]);
+            } else if (!Array.isArray(processedUpdates[field])) {
+              console.warn(`Invalid ${field} format, expected array or string`);
+              delete processedUpdates[field]; // Remove invalid data
+            }
+          }
+        });
         
         // Check if menu selection exists
         const { data: existingMenu } = await supabase
@@ -131,19 +186,19 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
         
         if (existingMenu) {
           // Update existing menu
-          console.log('Updating existing menu for event', eventCode);
+          console.log('Updating existing menu for event', eventCode, 'with changes:', processedUpdates);
           updateResult = await supabase
             .from('menu_selections')
-            .update(menuUpdates)
+            .update(processedUpdates)
             .eq('event_code', eventCode);
         } else {
           // Create new menu selection
-          console.log('Creating new menu for event', eventCode);
+          console.log('Creating new menu for event', eventCode, 'with data:', processedUpdates);
           updateResult = await supabase
             .from('menu_selections')
             .insert({
               event_code: eventCode,
-              ...menuUpdates
+              ...processedUpdates
             });
         }
         
@@ -153,7 +208,7 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
         }
         
         // Format the updates for the response
-        const menuDescription = Object.entries(menuUpdates)
+        const menuDescription = Object.entries(processedUpdates)
           .map(([key, value]) => `- ${key}: ${JSON.stringify(value)}`)
           .join('\n');
         
