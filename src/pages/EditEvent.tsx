@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import EditEventForm from "@/components/forms/EditEventForm";
 import { updateEvent } from "@/utils/eventUpdateUtils";
 import { EventFormData } from "@/types/eventForm";
+import { Header } from "@/components/layout/Header";
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -39,20 +40,16 @@ const EditEvent = () => {
 
   useEffect(() => {
     if (event) {
-      // Ensure event_type is one of the allowed values
       const eventType = event.event_type as EventFormData['event_type'];
 
-      // Format times to HH:mm format if they exist
       const formatTime = (time: string | null) => {
         if (!time) return undefined;
-        return time.slice(0, 5); // Take only HH:mm part
+        return time.slice(0, 5);
       };
 
-      // Make sure venues is always an array
       const venues = Array.isArray(event.venues) ? event.venues : (event.venues ? [event.venues] : []);
       console.log("Initial venues from database:", venues);
 
-      // Reset form with event data
       form.reset({
         name: event.name,
         description: event.description || '',
@@ -63,7 +60,6 @@ const EditEvent = () => {
         pax: event.pax || undefined,
         venues: venues,
         
-        // All contact fields
         primary_name: event.primary_name || '',
         primary_email: event.primary_email || '',
         primary_phone: event.primary_phone || '',
@@ -74,8 +70,6 @@ const EditEvent = () => {
         company: event.company || '',
         vat_number: event.vat_number || '',
         
-        // Legacy fields (for backward compatibility)
-        // These fields can be set to empty strings as they're no longer used
         bride_name: '',
         bride_email: '',
         bride_mobile: '',
@@ -98,7 +92,6 @@ const EditEvent = () => {
       
       console.log("Submitting form with venues:", data.venues);
       
-      // Transform the form data to match EventUpdateData requirements
       const updateData = {
         ...data,
         description: data.description || '',
@@ -108,7 +101,6 @@ const EditEvent = () => {
       
       await updateEvent(id, updateData);
 
-      // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['events', id] });
       await queryClient.invalidateQueries({ queryKey: ['passed-events'] });
@@ -119,7 +111,6 @@ const EditEvent = () => {
         description: "Event updated successfully",
       });
 
-      // Determine whether to navigate back to events or passed events
       const today = new Date();
       const eventDate = data.event_date ? new Date(data.event_date) : null;
       
@@ -157,46 +148,29 @@ const EditEvent = () => {
   }
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
-      <div className="space-y-6">
-        <Button 
-          variant="ghost" 
-          className="h-8 px-2 lg:px-3"
-          onClick={() => {
-            const today = new Date();
-            const eventDate = event?.event_date ? new Date(event.event_date) : null;
-            
-            if (eventDate && eventDate >= today && !event.completed) {
-              navigate("/events");
-            } else {
-              navigate("/passed-events");
-            }
-          }}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Edit Event</h2>
+    <div className="flex flex-col h-full">
+      <Header 
+        pageTitle="Edit Event" 
+        showBackButton 
+        backButtonPath="/events"
+      />
+      <div className="flex-1 space-y-8 p-8 pt-6">
+        <div className="max-w-5xl">
+          <EditEventForm 
+            form={form} 
+            onSubmit={onSubmit}
+            onCancel={() => {
+              const today = new Date();
+              const eventDate = event?.event_date ? new Date(event.event_date) : null;
+              
+              if (eventDate && eventDate >= today && !event.completed) {
+                navigate("/events");
+              } else {
+                navigate("/passed-events");
+              }
+            }}
+          />
         </div>
-      </div>
-
-      <div className="max-w-5xl">
-        <EditEventForm 
-          form={form} 
-          onSubmit={onSubmit}
-          onCancel={() => {
-            const today = new Date();
-            const eventDate = event?.event_date ? new Date(event.event_date) : null;
-            
-            if (eventDate && eventDate >= today && !event.completed) {
-              navigate("/events");
-            } else {
-              navigate("/passed-events");
-            }
-          }}
-        />
       </div>
     </div>
   );

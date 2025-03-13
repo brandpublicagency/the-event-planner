@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -7,7 +6,6 @@ import { useToast } from "@/components/ui/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import ContactDetails from "@/components/forms/ContactDetails";
-import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
@@ -17,6 +15,7 @@ import { eventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
 import { useQueryClient } from "@tanstack/react-query";
+import { Header } from "@/components/layout/Header";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -53,7 +52,6 @@ const NewEvent = () => {
       
       const eventCode = generateEventCode();
       
-      // Prepare the event data
       const eventData = {
         event_code: eventCode,
         name: data.name,
@@ -67,7 +65,6 @@ const NewEvent = () => {
         completed: false,
         venues: data.venues || [],
         
-        // Contact fields
         primary_name: data.primary_name || null,
         primary_phone: data.primary_phone || null,
         primary_email: data.primary_email || null,
@@ -104,46 +101,37 @@ const NewEvent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/50">
-      <div className="container max-w-5xl py-8">
-        <div className="mb-8 space-y-4">
-          <Button 
-            variant="ghost" 
-            className="h-8 px-2 lg:px-3 -ml-2 focus:ring-0 focus:ring-offset-0"
-            onClick={() => navigate("/events")}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Events
-          </Button>
+    <div className="flex flex-col h-full">
+      <Header 
+        pageTitle="New Event" 
+        showBackButton 
+        backButtonPath="/events"
+      />
+      <div className="flex-1 py-8 px-6 bg-zinc-50/50">
+        <div className="container max-w-5xl">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormSection 
+                title="Event Details" 
+                description="Enter the basic information about the event."
+              >
+                <EventBasicInfo form={form} />
+              </FormSection>
 
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">New Event</h2>
-            <p className="text-sm text-zinc-500 mt-1">Create a new event by filling out the form below.</p>
-          </div>
+              <FormSection 
+                title="Contact Details" 
+                description={`Enter the ${eventType === "Wedding" ? "bride and groom" : "contact"} information.`}
+              >
+                <ContactDetails form={form} eventType={eventType} />
+              </FormSection>
+
+              <EventFormActions 
+                isSubmitting={isSubmitting}
+                onCancel={() => navigate('/events')}
+              />
+            </form>
+          </Form>
         </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormSection 
-              title="Event Details" 
-              description="Enter the basic information about the event."
-            >
-              <EventBasicInfo form={form} />
-            </FormSection>
-
-            <FormSection 
-              title="Contact Details" 
-              description={`Enter the ${eventType === "Wedding" ? "bride and groom" : "contact"} information.`}
-            >
-              <ContactDetails form={form} eventType={eventType} />
-            </FormSection>
-
-            <EventFormActions 
-              isSubmitting={isSubmitting}
-              onCancel={() => navigate('/events')}
-            />
-          </form>
-        </Form>
       </div>
     </div>
   );

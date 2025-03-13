@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -151,10 +150,10 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
     const time = formatTimeDisplay(event.start_time, event.end_time);
     const guests = `${event.pax || 0} Guests`;
     const eventType = event.event_type || '';
-    const packages = event.package_id ? `Package ${event.package_id}` : '';
+    const packageInfo = (event as any).package_id ? `Package ${(event as any).package_id}` : '';
     const venueNames = getVenueNames();
     
-    return `${date}, ${time} / ${guests} / ${eventType}${packages ? ' / ' + packages : ''}`;
+    return `${date}, ${time} / ${guests} / ${eventType}${packageInfo ? ' / ' + packageInfo : ''}`;
   };
 
   return (
@@ -504,3 +503,4 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     </>
   );
 };
+
