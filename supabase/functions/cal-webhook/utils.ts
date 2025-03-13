@@ -3,7 +3,7 @@
  * Verifies the Cal.com webhook signature
  * Cal.com uses HMAC SHA-256 for webhook signature verification
  */
-export function verifyWebhookSignature(signature: string, body: string, secret: string): boolean {
+export async function verifyWebhookSignature(signature: string, body: string, secret: string): Promise<boolean> {
   if (!signature || !secret) {
     return false;
   }

@@ -61,7 +61,7 @@ serve(async (req: Request) => {
     const signature = req.headers.get('x-cal-signature');
     
     // Verify the webhook signature
-    if (!signature || !verifyWebhookSignature(signature, bodyText, calWebhookSecret)) {
+    if (!signature || !(await verifyWebhookSignature(signature, bodyText, calWebhookSecret))) {
       console.error('Invalid webhook signature');
       return new Response(JSON.stringify({ error: 'Invalid signature' }), {
         status: 401,

@@ -2,7 +2,7 @@
 import * as z from "zod";
 
 export const eventFormSchema = z.object({
-  name: z.string().min(1, "Event name is required"),
+  name: z.string().min(1, "Event name is required"), // This ensures name is required
   description: z.string().optional(),
   event_type: z.enum(["Wedding", "Corporate Event", "Celebration", "Conference", "Private Event", "Other"]),
   event_date: z.string().optional(),
