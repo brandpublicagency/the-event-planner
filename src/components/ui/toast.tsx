@@ -1,8 +1,7 @@
-
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
@@ -23,14 +22,14 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-xl border p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between overflow-hidden rounded-xl p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full",
   {
     variants: {
       variant: {
-        default: "bg-[#222222] border-[#333333] text-white",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
-        success: "bg-[#222222] border-[#333333] text-white",
+        default: "toast-gradient-default",
+        destructive: "toast-gradient-destructive",
+        success: "toast-gradient-success",
+        info: "toast-gradient-info",
       },
     },
     defaultVariants: {
@@ -93,7 +92,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn("text-white font-medium text-base", className)}
+    className={cn("text-white font-semibold text-base", className)}
     {...props}
   />
 ))
@@ -105,14 +104,58 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-sm text-white/80", className)}
+    className={cn("text-sm text-white/90", className)}
     {...props}
   />
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+interface ToastIconProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "destructive" | "success" | "info";
+}
 
+const ToastIcon = React.forwardRef<
+  HTMLDivElement,
+  ToastIconProps
+>(({ className, variant = "default", ...props }, ref) => {
+  const IconComponent = {
+    default: InfoIcon,
+    destructive: AlertCircle,
+    success: CheckCircle2,
+    info: InfoIcon
+  }[variant];
+
+  return (
+    <div
+      ref={ref}
+      className={cn("mr-3 flex-shrink-0", className)}
+      {...props}
+    >
+      <IconComponent className="h-5 w-5 text-white" />
+    </div>
+  );
+});
+ToastIcon.displayName = "ToastIcon";
+
+// Wrapper component that combines icon and content
+const ToastWithIcon = React.forwardRef<
+  React.ElementRef<typeof Toast>,
+  React.ComponentPropsWithoutRef<typeof Toast>
+>(({ children, variant, ...props }, ref) => {
+  return (
+    <Toast ref={ref} variant={variant} {...props}>
+      <div className="flex items-center">
+        <ToastIcon variant={variant} />
+        <div className="flex flex-col gap-1">
+          {children}
+        </div>
+      </div>
+    </Toast>
+  );
+});
+ToastWithIcon.displayName = "ToastWithIcon";
+
+type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
 export {
@@ -125,4 +168,5 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  ToastWithIcon,
 }
