@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { 
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "./NotificationDropdown";
@@ -21,7 +21,12 @@ export const NotificationButton = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative rounded-full h-10 w-10"
+          className="relative rounded-full h-10 w-10 flex items-center justify-center"
+          onClick={(e) => {
+            // Prevent default to avoid navigation
+            e.preventDefault();
+            setOpen(!open);
+          }}
         >
           <Bell className="h-5 w-5 text-zinc-700" />
           {unreadCount > 0 && (
@@ -35,7 +40,7 @@ export const NotificationButton = () => {
           <span className="sr-only">Notifications</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
+      <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={4}>
         <NotificationDropdown />
       </DropdownMenuContent>
     </DropdownMenu>

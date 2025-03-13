@@ -1,9 +1,11 @@
+
 import React from "react";
 import { CheckCheck, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useNotifications, Notification } from "@/contexts/NotificationContext";
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -18,7 +20,10 @@ export const NotificationDropdown: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleAction = (notification: Notification) => {
+  const handleAction = (notification: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
     markAsRead(notification.id);
     
     if (notification.relatedId) {
@@ -31,7 +36,10 @@ export const NotificationDropdown: React.FC = () => {
     }
   };
 
-  const handleApprove = (notification: Notification) => {
+  const handleApprove = (notification: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
     markAsRead(notification.id);
     
     // Show toast confirmation
@@ -41,16 +49,24 @@ export const NotificationDropdown: React.FC = () => {
       variant: "success",
     });
   };
+  
+  const handleClickAllNotifications = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate("/notifications");
+  };
 
   return (
-    <div className="max-h-[80vh] overflow-hidden flex flex-col">
+    <div className="max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
       <div className="p-4 border-b flex items-center justify-between">
         <h2 className="text-xl font-semibold">Notifications</h2>
         {notifications.some(n => !n.read) && (
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={markAllAsRead}
+            onClick={(e) => {
+              e.stopPropagation();
+              markAllAsRead();
+            }}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
             Clear All
@@ -67,7 +83,7 @@ export const NotificationDropdown: React.FC = () => {
               Automatically send new notifications
             </p>
           </div>
-          <Switch />
+          <Switch onClick={(e) => e.stopPropagation()} />
         </div>
       </div>
       
@@ -115,7 +131,7 @@ export const NotificationDropdown: React.FC = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handleAction(notification)}
+                        onClick={(e) => handleAction(notification, e)}
                         className="rounded-[3px]"
                       >
                         Review
@@ -124,7 +140,7 @@ export const NotificationDropdown: React.FC = () => {
                       {notification.actionType === "approve" && (
                         <Button 
                           size="sm"
-                          onClick={() => handleApprove(notification)}
+                          onClick={(e) => handleApprove(notification, e)}
                           className="rounded-[3px]"
                         >
                           Approve
@@ -143,7 +159,7 @@ export const NotificationDropdown: React.FC = () => {
         <Button 
           variant="default" 
           className="w-full"
-          onClick={() => navigate("/notifications")}
+          onClick={handleClickAllNotifications}
         >
           See all notifications
         </Button>
