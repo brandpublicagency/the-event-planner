@@ -1,5 +1,4 @@
-
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
@@ -15,17 +14,19 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium">Contact Information</h3>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
           name="primary_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? "Bride's Name" : "Contact Name"}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter name" {...field} className="bg-white" />
+                <Input 
+                  placeholder={isWedding ? "Bride's Name" : "Contact Name"} 
+                  aria-label={isWedding ? "Bride's Name" : "Contact Name"}
+                  {...field} 
+                  className="bg-white" 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -37,9 +38,14 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           name="primary_email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? "Bride's Email" : "Contact Email"}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter email" {...field} className="bg-white" />
+                <Input 
+                  placeholder={isWedding ? "Bride's Email" : "Contact Email"} 
+                  aria-label={isWedding ? "Bride's Email" : "Contact Email"}
+                  type="email"
+                  {...field} 
+                  className="bg-white" 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -51,9 +57,14 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           name="primary_phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isWedding ? "Bride's Phone" : "Contact Phone"}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter phone number" {...field} className="bg-white" />
+                <Input 
+                  placeholder={isWedding ? "Bride's Phone" : "Contact Phone"} 
+                  aria-label={isWedding ? "Bride's Phone" : "Contact Phone"}
+                  type="tel"
+                  {...field} 
+                  className="bg-white" 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,9 +78,13 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="secondary_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Groom's Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter name" {...field} className="bg-white" />
+                    <Input 
+                      placeholder="Groom's Name" 
+                      aria-label="Groom's Name"
+                      {...field} 
+                      className="bg-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,9 +96,14 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="secondary_email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Groom's Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter email" {...field} className="bg-white" />
+                    <Input 
+                      placeholder="Groom's Email" 
+                      aria-label="Groom's Email"
+                      type="email"
+                      {...field} 
+                      className="bg-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,9 +115,14 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="secondary_phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Groom's Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter phone number" {...field} className="bg-white" />
+                    <Input 
+                      placeholder="Groom's Phone" 
+                      aria-label="Groom's Phone"
+                      type="tel"
+                      {...field} 
+                      className="bg-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,9 +138,13 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="company"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter company name" {...field} className="bg-white" />
+                    <Input 
+                      placeholder="Company Name" 
+                      aria-label="Company Name"
+                      {...field} 
+                      className="bg-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,9 +156,13 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
               name="vat_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter VAT number" {...field} className="bg-white" />
+                    <Input 
+                      placeholder="VAT Number" 
+                      aria-label="VAT Number"
+                      {...field} 
+                      className="bg-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -144,10 +177,10 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Address</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Enter address" 
+                placeholder="Address" 
+                aria-label="Address"
                 {...field} 
                 className="resize-none bg-white"
               />

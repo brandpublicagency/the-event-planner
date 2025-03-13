@@ -1,5 +1,4 @@
-
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
@@ -34,9 +33,13 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Event Name</FormLabel>
               <FormControl>
-                <Input placeholder="Event Name" {...field} className="bg-white" />
+                <Input 
+                  placeholder="Event Name" 
+                  aria-label="Event Name"
+                  {...field} 
+                  className="bg-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -48,10 +51,11 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           name="pax"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Guest Count</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 
+                  placeholder="Number of Guests"
+                  aria-label="Guest Count"
                   className="bg-white"
                   value={field.value === null ? '' : field.value}
                   onChange={e => {
@@ -76,10 +80,9 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
               name="start_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start Time</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-white">
+                      <SelectTrigger className="bg-white" aria-label="Start Time">
                         <SelectValue placeholder="Select start time" />
                       </SelectTrigger>
                     </FormControl>
@@ -103,10 +106,9 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
               name="end_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Time</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-white">
+                      <SelectTrigger className="bg-white" aria-label="End Time">
                         <SelectValue placeholder="Select end time" />
                       </SelectTrigger>
                     </FormControl>
