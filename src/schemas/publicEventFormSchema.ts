@@ -26,3 +26,5 @@ export const publicEventFormSchema = z.object({
   company: z.string().optional(),
   vat_number: z.string().optional(),
 });
+
+export type PublicEventFormSchema = z.infer<typeof publicEventFormSchema>;

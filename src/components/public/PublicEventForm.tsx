@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { publicEventFormSchema } from "@/schemas/publicEventFormSchema";
+import { publicEventFormSchema, PublicEventFormSchema } from "@/schemas/publicEventFormSchema";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,14 +13,13 @@ import { EventDateSelect } from "../forms/EventDateSelect";
 import { VenueSelect } from "../forms/VenueSelect";
 import ContactDetails from "../forms/ContactDetails";
 import { supabase } from "@/integrations/supabase/client";
-import { EventFormData } from "@/types/eventForm";
 
 export default function PublicEventForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const form = useForm<EventFormData>({
+  const form = useForm<PublicEventFormSchema>({
     resolver: zodResolver(publicEventFormSchema),
     defaultValues: {
       name: "",
@@ -34,7 +33,7 @@ export default function PublicEventForm() {
     },
   });
 
-  async function onSubmit(values: EventFormData) {
+  async function onSubmit(values: PublicEventFormSchema) {
     setIsSubmitting(true);
 
     try {
