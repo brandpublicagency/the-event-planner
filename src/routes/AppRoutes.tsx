@@ -1,6 +1,7 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RootLayout } from "@/layouts/RootLayout";
+import { Outlet } from "react-router-dom";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Events from "@/pages/Events";
@@ -25,7 +26,7 @@ export const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route element={<RootLayout />}>
+      <Route element={<RootLayout><Outlet /></RootLayout>}>
         <Route path="/" element={<Index />} />
         <Route path="/events" element={<Events />} />
         <Route path="/passed-events" element={<PassedEvents />} />
