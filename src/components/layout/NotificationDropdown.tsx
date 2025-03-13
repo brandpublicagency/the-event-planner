@@ -67,20 +67,16 @@ export const NotificationDropdown: React.FC = () => {
           </div> : <div>
             {notifications.map(notification => <div key={notification.id} className={cn("border-b p-4 hover:bg-muted/20 transition-colors", !notification.read && "bg-muted/10")}>
                 <div className="flex gap-3">
-                  <Avatar className="h-10 w-10 rounded-full bg-primary/10">
-                    <div className="h-10 w-10 rounded-full flex items-center justify-center">
-                      {getIconForNotificationType(notification.type)}
-                    </div>
-                  </Avatar>
+                  
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{notification.title}</h4>
-                      {!notification.read && <Badge variant="default" className="text-[10px] px-1.5 py-0.5 bg-zinc-800 text-white rounded-md font-normal">
+                      <h4 className="font-semibold text-gray-800">{notification.title}</h4>
+                      {!notification.read && <Badge variant="default" className="text-[10px] py-0.5 text-white font-normal bg-gray-700 rounded px-[8px]">
                           New
                         </Badge>}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-600">
                       {notification.description}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -90,7 +86,7 @@ export const NotificationDropdown: React.FC = () => {
                     </p>
                     
                     <div className="mt-2 flex gap-2">
-                      <Button variant="outline" size="sm" onClick={e => handleAction(notification, e)} className="rounded-md">
+                      <Button variant="outline" size="sm" onClick={e => handleAction(notification, e)} className="rounded bg-gray-50 text-slate-500">
                         Review
                       </Button>
                       
@@ -105,7 +101,7 @@ export const NotificationDropdown: React.FC = () => {
       </div>
       
       <div className="border-t p-2">
-        <Button variant="default" className="w-full rounded-full" onClick={handleClickAllNotifications}>
+        <Button variant="default" onClick={handleClickAllNotifications} className="w-full rounded bg-slate-300 hover:bg-slate-200">
           See all notifications
         </Button>
       </div>
