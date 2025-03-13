@@ -89,14 +89,16 @@ const Notifications = () => {
                       )}
                     >
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-medium">
-                          {notification.title}
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">{notification.title}</h3>
                           {!notification.read && (
-                            <Badge className="ml-2 bg-blue-500" variant="default">
+                            <Badge 
+                              className="text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground rounded-md font-normal"
+                            >
                               New
                             </Badge>
                           )}
-                        </h3>
+                        </div>
                         <span className="text-xs text-muted-foreground">
                           {format(notification.createdAt, "MMM d, yyyy 'at' h:mm a")}
                         </span>
@@ -127,14 +129,16 @@ const Notifications = () => {
                       )}
                     >
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-medium">
-                          {notification.title}
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">{notification.title}</h3>
                           {!notification.read && (
-                            <Badge className="ml-2 bg-blue-500" variant="default">
+                            <Badge 
+                              className="text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground rounded-md font-normal"
+                            >
                               New
                             </Badge>
                           )}
-                        </h3>
+                        </div>
                         <span className="text-xs text-muted-foreground">
                           {format(notification.createdAt, "MMM d, yyyy 'at' h:mm a")}
                         </span>
@@ -165,14 +169,16 @@ const Notifications = () => {
                         )}
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-medium">
-                            {notification.title}
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium">{notification.title}</h3>
                             {!notification.read && (
-                              <Badge className="ml-2 bg-blue-500" variant="default">
+                              <Badge 
+                                className="text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground rounded-md font-normal"
+                              >
                                 New
                               </Badge>
                             )}
-                          </h3>
+                          </div>
                           <span className="text-xs text-muted-foreground">
                             {format(notification.createdAt, "MMM d, yyyy 'at' h:mm a")}
                           </span>
