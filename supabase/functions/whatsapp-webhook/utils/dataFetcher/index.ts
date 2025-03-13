@@ -19,8 +19,11 @@ export const handleDbError = (operation: string, error: any) => {
 };
 
 // Verify essential database tables exist and are accessible
-export const verifyAllRequiredTables = async (): Promise<boolean> => {
+export const verifyAllRequiredTables = async (): Promise<{ success: boolean, errorTables: string[] }> => {
   try {
+    console.log('Verifying database tables...');
+    const errorTables = [];
+    
     // Check access to events table
     const { error: eventsError } = await supabase
       .from('events')
@@ -29,7 +32,7 @@ export const verifyAllRequiredTables = async (): Promise<boolean> => {
     
     if (eventsError) {
       console.error('Error verifying events table:', eventsError);
-      return false;
+      errorTables.push('events');
     }
     
     // Check access to tasks table
@@ -40,12 +43,58 @@ export const verifyAllRequiredTables = async (): Promise<boolean> => {
     
     if (tasksError) {
       console.error('Error verifying tasks table:', tasksError);
+      errorTables.push('tasks');
+    }
+    
+    // Check access to menu_selections table
+    const { error: menuError } = await supabase
+      .from('menu_selections')
+      .select('event_code')
+      .limit(1);
+    
+    if (menuError) {
+      console.error('Error verifying menu_selections table:', menuError);
+      errorTables.push('menu_selections');
+    }
+    
+    console.log(`Table verification complete. ${errorTables.length} tables with errors.`);
+    return { 
+      success: errorTables.length === 0,
+      errorTables
+    };
+  } catch (error) {
+    console.error('Error in verifyAllRequiredTables:', error);
+    return { 
+      success: false, 
+      errorTables: ['unknown - general error']
+    };
+  }
+};
+
+// Check database connection
+export const checkDatabaseConnection = async (): Promise<boolean> => {
+  try {
+    console.log('Checking database connection...');
+    const start = Date.now();
+    
+    // Simple query to verify connection
+    const { data, error } = await withTimeout(
+      supabase.from('events').select('count(*)', { count: 'exact', head: true }),
+      'database connection check',
+      5000
+    );
+    
+    const elapsed = Date.now() - start;
+    
+    if (error) {
+      console.error(`Database connection check failed after ${elapsed}ms:`, error);
       return false;
     }
     
+    console.log(`Database connection verified in ${elapsed}ms`);
     return true;
   } catch (error) {
-    console.error('Error in verifyAllRequiredTables:', error);
+    console.error('Database connection check failed with exception:', error);
     return false;
   }
 };
@@ -68,7 +117,3 @@ export {
 export { 
   fetchDocuments 
 } from './documentFetcher.ts';
-
-export { 
-  checkDatabaseConnection 
-} from './connectionChecker.ts';

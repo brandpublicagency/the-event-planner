@@ -113,7 +113,7 @@ serve(async (req) => {
           console.error('No response generated from handleMessage');
           const fallbackResponse = {
             type: 'text',
-            message: "I apologize, but I wasn't able to generate a response. Please try again."
+            message: "I apologize, but I wasn't able to generate a response. Please try again with a simple command like 'help'."
           };
           
           await sendWhatsAppMessage(message.from, fallbackResponse, phoneNumberId);
@@ -121,8 +121,22 @@ serve(async (req) => {
         } else {
           // Send the response to WhatsApp
           console.log('Sending response to WhatsApp:', JSON.stringify(response, null, 2));
-          const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
-          console.log('WhatsApp message send result:', JSON.stringify(result, null, 2));
+          try {
+            const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
+            console.log('WhatsApp message send result:', JSON.stringify(result, null, 2));
+          } catch (sendError) {
+            console.error('Error sending WhatsApp message:', sendError);
+            // Try to send a simpler fallback message
+            try {
+              const fallbackResponse = {
+                type: 'text',
+                message: "I had trouble sending my response. Please try again with a simpler query or command like 'help'."
+              };
+              await sendWhatsAppMessage(message.from, fallbackResponse, phoneNumberId);
+            } catch (fallbackError) {
+              console.error('Even fallback message failed:', fallbackError);
+            }
+          }
         }
 
         // Always return a 200 status to the webhook to prevent retries

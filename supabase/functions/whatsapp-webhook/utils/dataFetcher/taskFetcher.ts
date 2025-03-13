@@ -10,9 +10,10 @@ export const fetchTasks = async () => {
       supabase
         .from('tasks')
         .select('*')
+        .eq('completed', false)
         .order('due_date', { ascending: true }),
       'fetchTasks',
-      10000
+      12000
     );
     
     if (error) {
@@ -38,7 +39,7 @@ export const fetchTaskById = async (taskId: string) => {
         .eq('id', taskId)
         .maybeSingle(),
       'fetchTaskById',
-      8000
+      10000
     );
     
     if (error) {

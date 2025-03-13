@@ -17,12 +17,14 @@ export const fetchEvents = async () => {
             venues (
               name
             )
-          )
+          ),
+          wedding_details (*),
+          corporate_details (*)
         `)
         .is('deleted_at', null)
         .order('event_date', { ascending: true }),
       'fetchEvents',
-      10000
+      15000
     );
 
     if (error) {
@@ -51,12 +53,14 @@ export const fetchEventById = async (eventCode: string) => {
             venues (
               name
             )
-          )
+          ),
+          wedding_details (*),
+          corporate_details (*)
         `)
         .eq('event_code', eventCode)
         .maybeSingle(),
       'fetchEventById',
-      8000
+      10000
     );
 
     if (error) {

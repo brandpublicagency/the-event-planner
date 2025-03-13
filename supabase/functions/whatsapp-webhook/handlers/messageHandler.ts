@@ -5,8 +5,9 @@ import { getNextTask, getTodoList } from './task/index.ts';
 import { handleAIQuestion } from './question/index.ts';
 import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout, handleTimeoutError, WhatsAppResponse } from '../utils/timeoutUtils.ts';
-import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher/index.ts';
+import { fetchEvents, checkDatabaseConnection, verifyAllRequiredTables } from '../utils/dataFetcher/index.ts';
 import { handleError } from '../utils/errorHandler.ts';
+import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 
 export const handleMessage = async (message: any): Promise<WhatsAppResponse> => {
   try {
@@ -19,8 +20,15 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         console.error('Database connection check failed');
         return {
           type: 'text',
-          message: "I'm having trouble connecting to our database right now. Please try again in a few moments."
+          message: "I'm having trouble connecting to our database right now. Please try again in a few moments. If the issue persists, please contact support."
         };
+      }
+      
+      // Enhanced check for required tables
+      const { success, errorTables } = await verifyAllRequiredTables();
+      if (!success) {
+        console.warn(`Table verification issues detected: ${errorTables.join(', ')}`);
+        // Continue with processing but log the warning
       }
     } catch (dbError) {
       console.error('Error checking database connection:', dbError);
@@ -63,7 +71,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
 
       return {
         type: 'text',
-        message: "I couldn't process that selection. Please try again."
+        message: "I couldn't process that selection. Please try again using text commands."
       };
     }
 
@@ -84,7 +92,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
           console.error('Error getting welcome message:', error);
           return {
             type: 'text',
-            message: "Hello! I'm your event assistant. How can I help you today?"
+            message: "Hello! I'm your Warm Karoo event assistant. How can I help you today? Try typing 'events', 'tasks', or 'help'."
           };
         }
       }
@@ -100,9 +108,8 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
         };
       }
 
-      // Prioritize handling of basic commands over AI to ensure reliability
-      // Handle next event query - one of the most important commands
-      if (messageText.includes('next event') || messageText === 'next event') {
+      // Handle next event query
+      if (messageText.includes('next event') || messageText === 'next' || messageText === 'next event') {
         console.log('Direct handling of next event query');
         try {
           // Try with timeout
@@ -146,13 +153,13 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
             console.error('Error in fallback event query:', fallbackError);
             return {
               type: 'text',
-              message: "I couldn't retrieve your next event information. Please try again later."
+              message: "I couldn't retrieve your next event information. Please try again later or try a different command like 'help'."
             };
           }
         }
       }
 
-      if (messageText.includes('events') || messageText.includes('upcoming events') || messageText === 'events') {
+      if (messageText.includes('events') || messageText.includes('upcoming events') || messageText === 'events' || messageText === 'upcoming') {
         console.log('Direct handling of events query');
         try {
           // First try to return the formatted event list
@@ -190,7 +197,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
             console.error('Database fallback failed:', secondError);
             return {
               type: 'text',
-              message: "I'm having trouble accessing the event database right now. Please try again in a moment."
+              message: "I'm having trouble accessing the event database right now. Please try again in a moment or try a different command like 'help'."
             };
           }
         }
@@ -207,23 +214,40 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
           console.error('Error getting next task:', error);
           return {
             type: 'text',
-            message: "I couldn't retrieve your next task. Please try again shortly."
+            message: "I couldn't retrieve your next task. Please try again shortly or try the 'tasks' command to see all tasks."
           };
         }
       }
 
-      if (messageText.includes('tasks') || messageText.includes('todo') || messageText === 'tasks') {
+      if (messageText.includes('tasks') || messageText.includes('todo') || messageText === 'tasks' || messageText === 'todo') {
         try {
           return await withTimeout(
             getTodoList(),
             'Tasks query',
-            10000
+            12000
           );
         } catch (error) {
           console.error('Error getting todo list:', error);
           return {
             type: 'text',
-            message: "I ran into an issue retrieving your tasks. Please try again shortly."
+            message: "I ran into an issue retrieving your tasks. Please try again shortly or try a different command like 'help'."
+          };
+        }
+      }
+
+      if (messageText.includes('when') && (messageText.includes('event') || messageText.includes('next'))) {
+        console.log('Query about when the next event is');
+        try {
+          return await withTimeout(
+            getNextEvent(),
+            'Next event query from when question',
+            15000
+          );
+        } catch (error) {
+          console.error('Error processing when query:', error);
+          return {
+            type: 'text',
+            message: "I'm having trouble finding information about your next event. Please try typing 'next event' instead."
           };
         }
       }
