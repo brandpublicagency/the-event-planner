@@ -1,6 +1,6 @@
 
 export interface EventFormData {
-  name: string; // Required field
+  name: string; // Required field - matches the Zod schema requirement
   description?: string;
   event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
   event_date?: string;
