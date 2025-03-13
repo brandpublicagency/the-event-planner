@@ -6,10 +6,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
+
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
+
 const Sidebar = ({
   className,
   isCollapsed,
@@ -20,26 +22,44 @@ const Sidebar = ({
   } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Enhanced gradient definitions with more depth and visual interest
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
-        return 'bg-gradient-to-b from-blue-50/50 via-indigo-50/50 to-blue-100/50';
+        // Dashboard - Beautiful blue gradient with subtle depth
+        return 'bg-gradient-to-br from-blue-50 via-indigo-50/80 to-sky-100 backdrop-blur-sm border-r border-blue-100/50';
+      
       case '/events':
-        return 'bg-gradient-to-b from-emerald-50/50 via-green-50/50 to-teal-100/50';
+        // Events - Rich emerald gradient with depth
+        return 'bg-gradient-to-br from-emerald-50 via-green-50/80 to-teal-100 backdrop-blur-sm border-r border-emerald-100/50';
+      
       case '/passed-events':
-        return 'bg-gradient-to-b from-violet-50/50 via-purple-50/50 to-violet-100/50';
+        // Passed Events - Elegant violet gradient
+        return 'bg-gradient-to-br from-violet-50 via-purple-50/80 to-fuchsia-100 backdrop-blur-sm border-r border-violet-100/50';
+      
       case '/calendar':
-        return 'bg-gradient-to-b from-rose-50/50 via-pink-50/50 to-rose-100/50';
+        // Calendar - Sophisticated rose gradient
+        return 'bg-gradient-to-br from-rose-50 via-pink-50/80 to-red-100 backdrop-blur-sm border-r border-rose-100/50';
+      
       case '/tasks':
-        return 'bg-gradient-to-b from-amber-50/50 via-yellow-50/50 to-amber-100/50';
+        // Tasks - Warm amber gradient
+        return 'bg-gradient-to-br from-amber-50 via-yellow-50/80 to-orange-100 backdrop-blur-sm border-r border-amber-100/50';
+      
       case '/contacts':
-        return 'bg-gradient-to-b from-orange-50/50 via-orange-50/50 to-orange-100/50';
+        // Contacts - Vibrant orange gradient
+        return 'bg-gradient-to-br from-orange-50 via-orange-50/80 to-amber-100 backdrop-blur-sm border-r border-orange-100/50';
+      
       case '/documents':
-        return 'bg-gradient-to-b from-cyan-50/50 via-sky-50/50 to-cyan-100/50';
+        // Documents - Cool cyan gradient
+        return 'bg-gradient-to-br from-cyan-50 via-sky-50/80 to-blue-100 backdrop-blur-sm border-r border-cyan-100/50';
+      
       default:
-        return 'bg-gradient-to-b from-slate-50/50 via-gray-50/50 to-slate-100/50';
+        // Default - Neutral slate gradient
+        return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
     }
   };
+
   const {
     data: taskCount = 0
   } = useQuery({
@@ -56,6 +76,7 @@ const Sidebar = ({
       return count || 0;
     }
   });
+
   const mainNavItems = [{
     icon: LayoutGrid,
     path: "/",
@@ -86,6 +107,7 @@ const Sidebar = ({
     path: "/documents",
     label: "Documents"
   }];
+
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
       if (location.search.includes('newDocument=true')) {
@@ -99,8 +121,16 @@ const Sidebar = ({
       navigate('/documents?newDocument=true');
     }
   };
-  return <div className={cn("relative h-full transition-all duration-300 ease-in-out will-change-[width]", isCollapsed ? "w-[70px]" : "w-64", !isCollapsed && getGradientByPath(), isCollapsed && "bg-[#1A1F2C]", className)}>
-      {isCollapsed ? <div className="flex flex-col h-full">
+
+  return (
+    <div className={cn(
+      "relative h-full transition-all duration-300 ease-in-out will-change-[width]", 
+      isCollapsed ? "w-[70px] bg-[#1A1F2C]" : "w-64", 
+      !isCollapsed && getGradientByPath(),
+      className
+    )}>
+      {isCollapsed ? (
+        <div className="flex flex-col h-full">
           <div className="py-4">
             <SidebarProfile isCollapsed={isCollapsed} />
           </div>
@@ -126,7 +156,9 @@ const Sidebar = ({
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-        </div> : <div className="flex flex-col h-full">
+        </div>
+      ) : (
+        <div className="flex flex-col h-full">
           <SidebarProfile isCollapsed={isCollapsed} />
           
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
@@ -158,7 +190,10 @@ const Sidebar = ({
               </button>
             </div>
           </div>
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };
+
 export default Sidebar;
