@@ -1,4 +1,3 @@
-```typescript
 import React, { useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -486,4 +485,3 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     </>
   );
 };
-```
