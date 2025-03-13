@@ -5,6 +5,7 @@ import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
+
 const ChatContainer = () => {
   const {
     messages: chatMessages,
@@ -13,26 +14,21 @@ const ChatContainer = () => {
     setInputValue,
     clearInput
   } = useChatState();
+  
   const {
     data: contextData
   } = useChatContext();
+  
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    console.log('Messages updated:', {
-      messageCount: chatMessages.length,
-      lastMessage: chatMessages[chatMessages.length - 1]?.text,
-      isLoading
-    });
     if (scrollAreaRef.current && shouldAutoScroll) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
-        console.log('Initiating scroll...');
         setTimeout(() => {
           scrollArea.scrollTop = scrollArea.scrollHeight;
-          console.log('Scroll complete. New scroll position:', scrollArea.scrollTop);
         }, 100);
       }
     }
@@ -44,65 +40,75 @@ const ChatContainer = () => {
     const isNearBottom = Math.abs(target.scrollHeight - target.clientHeight - target.scrollTop) < 100;
     setShouldAutoScroll(isNearBottom);
   };
-  return <div className="relative h-[300px]">
-      {/* Fallback border that will always be visible */}
-      <Card className="h-full w-full flex flex-col border-1 border-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-white rounded-2xl">
+
+  return (
+    <div className="relative h-[300px]">
+      <Card className="chat-container h-full w-full flex flex-col rounded-2xl">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScroll={handleScroll}>
           <div className="space-y-4 pb-2">
-            {chatMessages.map((message, index) => <div key={`${index}-${message.text.substring(0, 10)}`} className="transition-all duration-300 ease-in-out">
+            {chatMessages.map((message, index) => (
+              <div 
+                key={`${index}-${message.text.substring(0, 10)}`} 
+                className="transition-all duration-300 ease-in-out"
+              >
                 <ChatMessage {...message} />
-              </div>)}
-            {isLoading && <div className="flex justify-start animate-pulse">
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="flex justify-start animate-pulse">
                 <div className="px-4 py-2 rounded-[10px] border border-gray-300 bg-gray-100">
                   Typing...
                 </div>
-              </div>}
+              </div>
+            )}
           </div>
         </ScrollArea>
-        <ChatMessageHandler contextData={contextData} inputValue={inputValue} isLoading={isLoading} setInputValue={setInputValue} clearInput={clearInput} />
+        
+        <ChatMessageHandler 
+          contextData={contextData} 
+          inputValue={inputValue} 
+          isLoading={isLoading} 
+          setInputValue={setInputValue} 
+          clearInput={clearInput} 
+        />
       </Card>
       
-      {/* CSS-only animated border overlay */}
       <style jsx>{`
-        .border-gradient-to-r {
+        .chat-container {
           position: relative;
-          z-index: 0;
-          overflow: hidden;
+          border: none !important;
+          box-shadow: none !important;
+          background: white;
+          z-index: 1;
         }
         
-        .border-gradient-to-r::before {
+        .chat-container::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          border-radius: 14px;
-          padding: 2px;
-          background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6, #8b5cf6, #ec4899);
+          inset: 0;
+          padding: 1px; /* Controls border thickness */
+          border-radius: inherit;
+          background: linear-gradient(90deg, 
+            #ec4899, #8b5cf6, #3b82f6, #8b5cf6, #ec4899);
           background-size: 300% 100%;
-          -webkit-animation: animatedgradient 15s ease infinite;
-          animation: animatedgradient 15s ease infinite;
           -webkit-mask: 
             linear-gradient(#fff 0 0) content-box, 
             linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
+          animation: animatedgradient 15s ease infinite;
           pointer-events: none;
         }
         
-        @-webkit-keyframes animatedgradient {
-          0% { background-position: 0% 50% }
-          50% { background-position: 100% 50% }
-          100% { background-position: 0% 50% }
-        }
-        
         @keyframes animatedgradient {
-          0% { background-position: 0% 50% }
-          50% { background-position: 100% 50% }
-          100% { background-position: 0% 50% }
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
       `}</style>
-    </div>;
+    </div>
+  );
 };
+
 export default ChatContainer;
