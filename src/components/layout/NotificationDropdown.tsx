@@ -1,13 +1,13 @@
 
 import React from "react";
-import { CheckCheck, Bell } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications, Notification } from "@/contexts/NotificationContext";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -114,7 +114,8 @@ export const NotificationDropdown: React.FC = () => {
                       <h4 className="font-medium">{notification.title}</h4>
                       {!notification.read && (
                         <Badge 
-                          className="text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground rounded-md font-normal"
+                          variant="default"
+                          className="text-[10px] px-1.5 py-0.5 bg-zinc-800 text-white rounded-md font-normal"
                         >
                           New
                         </Badge>
@@ -132,7 +133,7 @@ export const NotificationDropdown: React.FC = () => {
                         variant="outline" 
                         size="sm"
                         onClick={(e) => handleAction(notification, e)}
-                        className="rounded-[3px]"
+                        className="rounded-md"
                       >
                         Review
                       </Button>
@@ -141,7 +142,7 @@ export const NotificationDropdown: React.FC = () => {
                         <Button 
                           size="sm"
                           onClick={(e) => handleApprove(notification, e)}
-                          className="rounded-[3px]"
+                          className="rounded-md"
                         >
                           Approve
                         </Button>
@@ -158,7 +159,7 @@ export const NotificationDropdown: React.FC = () => {
       <div className="border-t p-2">
         <Button 
           variant="default" 
-          className="w-full"
+          className="w-full rounded-full"
           onClick={handleClickAllNotifications}
         >
           See all notifications
