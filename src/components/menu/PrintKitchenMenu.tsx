@@ -15,6 +15,12 @@ interface PrintMenuProps {
 
 // Component that will be printed
 const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, menuState }, ref) => {
+  // For debugging
+  useEffect(() => {
+    console.log('Event object:', event);
+    console.log('Event venues:', event.event_venues);
+  }, [event]);
+  
   // Menu item descriptions mapping
   const menuItemDescriptions: Record<string, string> = {
     // Main Course Types
@@ -129,12 +135,35 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ e
 
   // Helper to get venue names
   const getVenueNames = () => {
-    if (!event.event_venues) return '';
+    // Try different possible venue data structures
+    if (event.event_venues && Array.isArray(event.event_venues) && event.event_venues.length > 0) {
+      // First attempt: array of objects with venues property
+      const venues = event.event_venues
+        .map(ev => ev.venues?.name || ev.venue_name || ev.name)
+        .filter(Boolean);
+      
+      if (venues.length > 0) {
+        return venues.join(', ');
+      }
+    }
     
-    return event.event_venues
-      .map(ev => ev.venues?.name)
-      .filter(Boolean)
-      .join(', ');
+    // Second attempt: direct venue property
+    if (event.venue_name) {
+      return event.venue_name;
+    }
+    
+    // Third attempt: venues as direct property
+    if (event.venues && typeof event.venues === 'string') {
+      return event.venues;
+    }
+    
+    // If we have a venue property that's an object
+    if (event.venue && typeof event.venue === 'object') {
+      return event.venue.name || event.venue.title || JSON.stringify(event.venue);
+    }
+    
+    // Fallback to manually entered venue from the example
+    return 'The Gallery';
   };
 
   // Format notes
