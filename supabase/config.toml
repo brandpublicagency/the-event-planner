@@ -96,11 +96,11 @@ verify_jwt = false
 [functions.fluent-forms-webhook]
 verify_jwt = false
 
-# Environment variables for the event contract webhook - using the correct format
+# Environment variables for the event contract webhook
 [functions.event-contract-webhook.env]
 OPENAI_API_KEY = "EAASVhIiIxvoBOw6LrRVNOGIqxvL82SCa2ptW4rZADnTuhjvTwjggXYJLJNZAYwt2ZC4viiCqfQCp9R1qh4W0k7HlAZAwpoUkIWT8ZCrFJRKyZCQ2CkZBpQZCJl0Kuo8MwZA6e6XlbcETcNAJ9DgV5rCb9I474N3NkIUec8I4UuF9gHb3eRaOnEuZBsNp6pkUBcBJTg"
 
-# Environment variables for the WhatsApp webhook - using the correct format
+# Environment variables for the WhatsApp webhook
 [functions.whatsapp-webhook.env]
 OPENAI_API_KEY = "EAASVhIiIxvoBOw6LrRVNOGIqxvL82SCa2ptW4rZADnTuhjvTwjggXYJLJNZAYwt2ZC4viiCqfQCp9R1qh4W0k7HlAZAwpoUkIWT8ZCrFJRKyZCQ2CkZBpQZCJl0Kuo8MwZA6e6XlbcETcNAJ9DgV5rCb9I474N3NkIUec8I4UuF9gHb3eRaOnEuZBsNp6pkUBcBJTg"
 WHATSAPP_TOKEN = "EAASVhIiIxvoBOzhjTqF4UoQZCVayQwOZB8488mkeZCL1xzHvTX8UyJ6JPWalMUxpKBZCZCR9pnZBLJX6ZBxcdtY4hN79qHicYwhi0wSkYIW2ZA6GZCQ5GMuxTV8X2gr4d3o1jEsZAkzHRrehuGEnXxgoTKeqqq9bGMpdZAMgREQin3mKzSfmJlAJXDZAMM7RTth97wxriQZDZD" 
