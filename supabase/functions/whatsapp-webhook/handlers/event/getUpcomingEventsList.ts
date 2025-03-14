@@ -40,12 +40,11 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
           supabase
             .from('events')
             .select(`
-              id,
+              event_code,
               name,
               event_date,
               event_type,
-              pax,
-              event_code
+              pax
             `)
             .gte('event_date', today.toISOString())
             .is('deleted_at', null)
@@ -81,7 +80,7 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
 
     // Fetch venues with timeout and retry
     console.log('Fetching venues for events');
-    const eventIds = events.map(event => event.id);
+    const eventCodes = events.map(event => event.event_code);
     
     const { data: venueData, error: venueError } = await withRetry(
       async () => {
@@ -89,13 +88,13 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
           supabase
             .from('event_venues')
             .select(`
-              event_id,
+              event_code,
               venues (
                 id,
                 name
               )
             `)
-            .in('event_id', eventIds),
+            .in('event_code', eventCodes),
           'venues-query',
           8000  // 8 second timeout
         );
@@ -114,15 +113,15 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
       // Continue without venues
     }
     
-    // Create a map of event ID to venues
+    // Create a map of event code to venues
     const venueMap = new Map();
     if (venueData) {
       venueData.forEach(item => {
         if (item.venues) {
-          if (!venueMap.has(item.event_id)) {
-            venueMap.set(item.event_id, []);
+          if (!venueMap.has(item.event_code)) {
+            venueMap.set(item.event_code, []);
           }
-          venueMap.get(item.event_id).push(item.venues);
+          venueMap.get(item.event_code).push(item.venues);
         }
       });
       console.log(`Retrieved venue information for ${venueMap.size} events`);
@@ -145,21 +144,21 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     if (weddings.length > 0) {
       sections.push({
         title: '💒 Wedding Events',
-        rows: weddings.map(event => createEventRow(event, venueMap.get(event.id)))
+        rows: weddings.map(event => createEventRow(event, venueMap.get(event.event_code)))
       });
     }
     
     if (corporate.length > 0) {
       sections.push({
         title: '🏢 Corporate Events',
-        rows: corporate.map(event => createEventRow(event, venueMap.get(event.id)))
+        rows: corporate.map(event => createEventRow(event, venueMap.get(event.event_code)))
       });
     }
     
     if (other.length > 0) {
       sections.push({
         title: '📅 Other Events',
-        rows: other.map(event => createEventRow(event, venueMap.get(event.id)))
+        rows: other.map(event => createEventRow(event, venueMap.get(event.event_code)))
       });
     }
     
@@ -167,7 +166,7 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     if (sections.length === 0 && events.length > 0) {
       sections.push({
         title: '📅 All Upcoming Events',
-        rows: events.map(event => createEventRow(event, venueMap.get(event.id)))
+        rows: events.map(event => createEventRow(event, venueMap.get(event.event_code)))
       });
     }
 

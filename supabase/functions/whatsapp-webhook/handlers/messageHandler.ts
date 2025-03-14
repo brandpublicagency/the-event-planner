@@ -7,6 +7,8 @@ import { getWelcomeMessage, getHelpMessage } from './welcomeHandler.ts';
 import { withTimeout, handleTimeoutError, WhatsAppResponse } from '../utils/timeoutUtils.ts';
 import { fetchEvents, checkDatabaseConnection } from '../utils/dataFetcher/index.ts';
 import { handleError } from '../utils/errorHandler.ts';
+import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
+import { supabase } from '../utils/dataFetcher/index.ts';
 
 export const handleMessage = async (message: any): Promise<WhatsAppResponse> => {
   try {
@@ -120,7 +122,7 @@ export const handleMessage = async (message: any): Promise<WhatsAppResponse> => 
             const today = new Date();
             const { data: events, error } = await supabase
               .from('events')
-              .select('name, event_date, event_type, pax')
+              .select('name, event_date, event_type, pax, event_code')
               .gte('event_date', today.toISOString())
               .is('deleted_at', null)
               .order('event_date', { ascending: true })

@@ -11,7 +11,18 @@ export const fetchEvents = async () => {
       supabase
         .from('events')
         .select(`
-          *,
+          event_code,
+          name,
+          event_date,
+          event_type,
+          pax,
+          client_address,
+          company,
+          primary_name,
+          secondary_name,
+          start_time,
+          end_time,
+          completed,
           menu_selections (*),
           event_venues (
             venues (
@@ -45,7 +56,18 @@ export const fetchEventById = async (eventCode: string) => {
       supabase
         .from('events')
         .select(`
-          *,
+          event_code,
+          name,
+          event_date,
+          event_type,
+          pax,
+          client_address,
+          company,
+          primary_name,
+          secondary_name,
+          start_time,
+          end_time,
+          completed,
           menu_selections (*),
           event_venues (
             venues (
