@@ -41,7 +41,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   if (isDashboard) {
     return (
-      <div>
+      <>
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
           <EventMonthGroup
             key={monthYear}
@@ -57,7 +57,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             <p>No upcoming events</p>
           </div>
         )}
-      </div>
+      </>
     );
   }
 
