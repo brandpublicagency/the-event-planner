@@ -60,7 +60,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   const day = eventDate ? format(eventDate, "d") : "";
   
   return (
-    <div className="rounded-xl border border-zinc-100 bg-white mb-2 hover:border-zinc-200 transition-colors overflow-hidden shadow-sm">
+    <div className="rounded-xl border border-zinc-100 bg-white mb-2 hover:border-zinc-200 transition-colors overflow-hidden">
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
         <div className="flex items-stretch w-full">
           {/* Date column */}

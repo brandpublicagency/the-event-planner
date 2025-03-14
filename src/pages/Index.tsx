@@ -81,7 +81,7 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <div className="flex flex-col h-full rounded-lg shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b bg-white">
             <div className="flex items-center gap-2">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
