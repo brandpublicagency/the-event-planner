@@ -22,16 +22,16 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 }) => {
   if (isDashboard) {
     return (
-      <div>
-        <div className="flex items-center gap-2 mb-2">
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <h3 className="font-medium text-sm">{monthYear}</h3>
-          <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full bg-gray-50 text-zinc-600 border-none">
+          <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full bg-white text-zinc-600 border border-zinc-100">
             {events.length} {events.length === 1 ? 'event' : 'events'}
           </Badge>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           {events.map(event => (
             <DashboardEventItem key={event.event_code} event={event} handleDelete={handleDelete} />
           ))}
@@ -42,7 +42,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 
   return (
     <div className="rounded-xl border bg-white overflow-hidden">
-      <div className="flex items-center gap-2 p-3 border-b bg-gray-50">
+      <div className="flex items-center gap-2 p-3 border-b">
         <Calendar className="h-4 w-4 text-muted-foreground" />
         <h3 className="font-medium">{monthYear}</h3>
         <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full bg-white border border-gray-200">

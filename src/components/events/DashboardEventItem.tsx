@@ -56,8 +56,8 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   const isToday = event.event_date && new Date(event.event_date).toDateString() === new Date().toDateString();
   
   return (
-    <div className="bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-      <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full p-3">
+    <div className="border border-zinc-100 rounded-lg mb-2 hover:border-zinc-200 transition-colors">
+      <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full p-4">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center">
@@ -76,7 +76,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
               </Badge>
             </div>
             
-            <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-500 mt-1">
+            <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-500 mt-2">
               {venueStr && (
                 <div className="flex items-center">
                   <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
@@ -93,7 +93,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={e => {
               e.stopPropagation();
               navigate(`/events/${event.event_code}/edit`);
