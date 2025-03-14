@@ -2,7 +2,37 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 
+// These values MUST match exactly what's expected in the database trigger
+const ALLOWED_VENUES = [
+  "The Kitchen",
+  "The Gallery",
+  "The Grand Hall",
+  "The Lawn",
+  "The Avenue",
+  "Package 1",
+  "Package 2",
+  "Package 3"
+];
+
 export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
+  // Validate venues if they are being updated
+  if (updates.venues) {
+    if (Array.isArray(updates.venues)) {
+      const validVenues = updates.venues.filter(venue => ALLOWED_VENUES.includes(venue));
+      
+      if (validVenues.length === 0 && updates.venues.length > 0) {
+        throw new Error("Invalid venue values. Allowed values are: " + ALLOWED_VENUES.join(", "));
+      }
+      
+      updates.venues = validVenues;
+    } else if (typeof updates.venues === 'string') {
+      if (!ALLOWED_VENUES.includes(updates.venues)) {
+        throw new Error("Invalid venue value. Allowed values are: " + ALLOWED_VENUES.join(", "));
+      }
+      updates.venues = [updates.venues];
+    }
+  }
+
   const { data, error } = await supabase
     .from('events')
     .update(updates)
