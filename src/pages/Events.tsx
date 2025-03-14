@@ -24,9 +24,8 @@ export default function Events() {
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
-        .eq('completed', false)
         .is('deleted_at', null)
-        .gt('event_date', today.toISOString().split('T')[0]) // Changed from gte to gt to exclude today's events that have already passed
+        .gte('event_date', today.toISOString().split('T')[0]) // Changed from gt to gte to include today's events
         .order('event_date', { ascending: true });
 
       if (error) {
