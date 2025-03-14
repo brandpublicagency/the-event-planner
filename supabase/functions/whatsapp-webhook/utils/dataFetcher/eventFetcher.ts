@@ -23,6 +23,7 @@ export const fetchEvents = async () => {
           start_time,
           end_time,
           completed,
+          venues,
           menu_selections (*),
           event_venues (
             venues (
@@ -41,6 +42,17 @@ export const fetchEvents = async () => {
     }
 
     console.log(`Successfully fetched ${events?.length || 0} events`);
+    
+    // Log venue information for each event to help debug venue issues
+    if (events && events.length > 0) {
+      events.forEach(event => {
+        console.log(`Event ${event.event_code} venue data:`, {
+          venue_array: event.venues,
+          event_venues_relation: event.event_venues
+        });
+      });
+    }
+    
     return events || [];
   } catch (error) {
     console.error('Error in fetchEvents:', error);
@@ -68,6 +80,7 @@ export const fetchEventById = async (eventCode: string) => {
           start_time,
           end_time,
           completed,
+          venues,
           menu_selections (*),
           event_venues (
             venues (
@@ -83,6 +96,14 @@ export const fetchEventById = async (eventCode: string) => {
 
     if (error) {
       handleDbError(`fetchEventById for ${eventCode}`, error);
+    }
+    
+    // Log venue information to help debug venue issues
+    if (event) {
+      console.log(`Event ${event.event_code} venue data:`, {
+        venue_array: event.venues,
+        event_venues_relation: event.event_venues
+      });
     }
 
     return event;

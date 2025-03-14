@@ -74,6 +74,8 @@ export const processFormData = async (formData: any) => {
         'Package 1', 'Package 2', 'Package 3'
       ];
       
+      console.log('Pre-normalized venues:', venues);
+      
       // Normalize venue names (first character uppercase, rest lowercase)
       venues = venues.map(venue => {
         if (typeof venue === 'string') {
@@ -97,7 +99,7 @@ export const processFormData = async (formData: any) => {
       
       // Filter to only include valid venues
       venues = venues.filter(venue => validVenues.includes(venue));
-      console.log('Validated and normalized venues:', venues);
+      console.log('Post-normalized venues:', venues);
     }
     
     // Ensure address is set for non-wedding events
@@ -139,7 +141,8 @@ export const processFormData = async (formData: any) => {
       vat_number: normalizedData.vat_number || null,
     };
     
-    console.log('Inserting event data:', eventData);
+    console.log('Final event data being saved:', eventData);
+    console.log('Final venues being saved:', eventData.venues);
     
     // Insert event into database
     const { data: event, error } = await supabase

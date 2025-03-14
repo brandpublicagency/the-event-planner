@@ -1,3 +1,4 @@
+
 /**
  * Parses the request body into form data object based on content type
  */
@@ -11,7 +12,10 @@ export const parseFormData = async (req: Request): Promise<any> => {
   console.log('Content-Type:', contentType);
   
   // First, check if the body contains Fluent Forms data
-  if (rawBody.includes('_fluentform_') || rawBody.includes('name_company_contact') || rawBody.includes('event_type=')) {
+  if (rawBody.includes('_fluentform_') || 
+      rawBody.includes('name_company_contact') || 
+      rawBody.includes('event_type=') ||
+      rawBody.includes('venue_choices')) {
     const formDataObj = new URLSearchParams(rawBody);
     return Object.fromEntries(formDataObj.entries());
   } else if (contentType.includes('application/json')) {

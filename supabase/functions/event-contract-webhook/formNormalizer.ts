@@ -1,4 +1,3 @@
-
 import { FieldMappings } from './types.ts';
 
 /**
@@ -41,21 +40,39 @@ export const normalizeFormData = (formData: any) => {
       normalized.venues = [formData.corporate_venues];
       console.log('Extracted venues from corporate_venues single value:', normalized.venues);
     }
+  } else if (formData.venue_choices || Object.keys(formData).some(key => key.startsWith('venue_choices['))) {
+    // Handle array format with indices like venue_choices[0], venue_choices[1]
+    const venueKeys = Object.keys(formData).filter(key => key.startsWith('venue_choices['));
+    if (venueKeys.length > 0) {
+      normalized.venues = venueKeys.map(key => formData[key]);
+      console.log('Extracted venues from indexed venue_choices:', normalized.venues);
+    } else if (Array.isArray(formData.venue_choices)) {
+      normalized.venues = formData.venue_choices;
+      console.log('Extracted venues from venue_choices array:', normalized.venues);
+    } else if (typeof formData.venue_choices === 'string') {
+      normalized.venues = [formData.venue_choices];
+      console.log('Extracted venues from venue_choices string:', normalized.venues);
+    }
   } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.corporate_venues) {
     // Handle the 'user_inputs' format with comma-separated values
     normalized.venues = formData.__submission.user_inputs.corporate_venues.split(', ');
     console.log('Extracted venues from __submission.user_inputs.corporate_venues:', normalized.venues);
+  } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.venue_choices) {
+    // Handle the 'user_inputs' format with comma-separated values
+    const venueString = formData.__submission.user_inputs.venue_choices;
+    // Split by comma or other potential separators
+    normalized.venues = venueString.split(/,|\+|;|\s+\|\s+/).map(v => v.trim()).filter(Boolean);
+    console.log('Extracted venues from __submission.user_inputs.venue_choices:', normalized.venues);
   } else if (formData.user_inputs && formData.user_inputs.corporate_venues) {
     // Direct user_inputs object
     normalized.venues = formData.user_inputs.corporate_venues.split(', ');
     console.log('Extracted venues from user_inputs.corporate_venues:', normalized.venues);
-  } else if (normalized.corporate_venues) {
-    if (typeof normalized.corporate_venues === 'string') {
-      normalized.venues = [normalized.corporate_venues];
-    } else if (Array.isArray(normalized.corporate_venues)) {
-      normalized.venues = normalized.corporate_venues;
-    }
-    console.log('Extracted venues from normalized.corporate_venues:', normalized.venues);
+  } else if (formData.user_inputs && formData.user_inputs.venue_choices) {
+    // Direct user_inputs object with venue_choices
+    const venueString = formData.user_inputs.venue_choices;
+    // Split by comma or other potential separators
+    normalized.venues = venueString.split(/,|\+|;|\s+\|\s+/).map(v => v.trim()).filter(Boolean);
+    console.log('Extracted venues from user_inputs.venue_choices:', normalized.venues);
   }
   
   // Special handling for event name - combine company name and event type for corporate events
