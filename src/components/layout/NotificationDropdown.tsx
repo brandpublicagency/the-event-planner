@@ -1,9 +1,7 @@
+
 import React from "react";
-import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications, Notification } from "@/contexts/NotificationContext";
 import { formatDistanceToNow } from "date-fns";
@@ -153,20 +151,3 @@ export const NotificationDropdown: React.FC = () => {
     </div>
   );
 };
-
-function getIconForNotificationType(type: Notification["type"]) {
-  switch (type) {
-    case "event_created":
-      return <div className="h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">E</div>;
-    case "task_created":
-      return <div className="h-6 w-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">T</div>;
-    case "task_overdue":
-      return <div className="h-6 w-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">!</div>;
-    case "task_upcoming":
-      return <div className="h-6 w-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs">T</div>;
-    case "event_incomplete":
-      return <div className="h-6 w-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs">i</div>;
-    default:
-      return <div className="h-6 w-6 bg-gray-500 rounded-full flex items-center justify-center text-white text-xs">N</div>;
-  }
-}

@@ -9,6 +9,7 @@ import {
 import { Download } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface DocumentActionsProps {
   documentId: string;
@@ -17,15 +18,32 @@ interface DocumentActionsProps {
 }
 
 export default function DocumentActions({ documentId, title, content }: DocumentActionsProps) {
+  const { toast } = useToast();
+
   const handleExport = async (format: 'pdf' | 'docx') => {
     try {
       if (format === 'pdf') {
         await exportAsPdf(title, content);
+        toast({
+          title: "Export Successful",
+          description: `Document exported as PDF`,
+          variant: "success"
+        });
       } else {
         await exportAsDocx(title, content);
+        toast({
+          title: "Export Successful",
+          description: `Document exported as DOCX`,
+          variant: "success"
+        });
       }
     } catch (error) {
       console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting your document",
+        variant: "destructive"
+      });
     }
   };
 
