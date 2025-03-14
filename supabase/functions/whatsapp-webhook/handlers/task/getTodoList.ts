@@ -1,8 +1,6 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
-import { handleError } from '../../utils/errorHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -12,7 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     fetch: (url, options) => {
       return fetch(url, {
         ...options,
-        signal: AbortSignal.timeout(12000) // 12 second timeout
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
     }
   }
@@ -25,19 +23,6 @@ export const getTodoList = async (): Promise<WhatsAppResponse> => {
   try {
     console.log('Fetching todo list');
     
-    // First try a simpler query to test connection
-    const connectionTest = await supabase.from('tasks').select('count', { count: 'exact', head: true });
-    
-    if (connectionTest.error) {
-      console.error('Connection test error:', connectionTest.error);
-      return {
-        type: 'text',
-        message: "I'm having trouble connecting to the tasks database. Please try again in a moment."
-      };
-    }
-    
-    console.log('Connection test passed, fetching tasks...');
-    
     // Use a simplified query with a reasonable timeout
     const { data: tasks, error } = await supabase
       .from('tasks')
@@ -48,7 +33,7 @@ export const getTodoList = async (): Promise<WhatsAppResponse> => {
 
     if (error) {
       console.error('Error fetching tasks:', error);
-      return handleError(error, 'getTodoList');
+      throw error;
     }
 
     // Handle empty list gracefully
@@ -97,7 +82,10 @@ export const getTodoList = async (): Promise<WhatsAppResponse> => {
     }
   } catch (error) {
     console.error('Error in getTodoList:', error);
-    return handleError(error, 'getTodoList');
+    return {
+      type: 'text',
+      message: "I encountered an error while retrieving your tasks. Please try again in a moment."
+    };
   }
 };
 

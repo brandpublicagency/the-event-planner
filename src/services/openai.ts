@@ -79,105 +79,7 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
               },
               menu_updates: {
                 type: "object",
-                description: "The menu fields to update",
-                properties: {
-                  is_custom: { 
-                    type: "boolean", 
-                    description: "Whether this is a custom menu"
-                  },
-                  custom_menu_details: { 
-                    type: "string", 
-                    description: "Details for custom menu"
-                  },
-                  starter_type: { 
-                    type: "string", 
-                    description: "Type of starter (canapes, plated, harvest_table)"
-                  },
-                  canape_package: { 
-                    type: "string", 
-                    description: "Canape package selection"
-                  },
-                  canape_selections: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of selected canapes"
-                  },
-                  plated_starter: { 
-                    type: "string", 
-                    description: "Plated starter selection"
-                  },
-                  main_course_type: { 
-                    type: "string", 
-                    description: "Type of main course (buffet, plated, karoo)"
-                  },
-                  buffet_meat_selections: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of buffet meat selections"
-                  },
-                  buffet_vegetable_selections: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of buffet vegetable selections"
-                  },
-                  buffet_starch_selections: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of buffet starch selections"
-                  },
-                  buffet_salad_selection: { 
-                    type: "string", 
-                    description: "Buffet salad selection"
-                  },
-                  karoo_meat_selection: { 
-                    type: "string", 
-                    description: "Karoo meat selection"
-                  },
-                  karoo_starch_selection: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of karoo starch selections"
-                  },
-                  karoo_vegetable_selections: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of karoo vegetable selections"
-                  },
-                  karoo_salad_selection: { 
-                    type: "string", 
-                    description: "Karoo salad selection"
-                  },
-                  plated_main_selection: { 
-                    type: "string", 
-                    description: "Plated main course selection"
-                  },
-                  plated_salad_selection: { 
-                    type: "string", 
-                    description: "Plated salad selection"
-                  },
-                  dessert_type: { 
-                    type: "string", 
-                    description: "Type of dessert (traditional, dessert_bar, dessert_canapes, individual_cakes)"
-                  },
-                  traditional_dessert: { 
-                    type: "string", 
-                    description: "Traditional dessert selection"
-                  },
-                  dessert_canapes: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of dessert canape selections"
-                  },
-                  individual_cakes: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "Array of individual cake selections"
-                  },
-                  notes: { 
-                    type: "string", 
-                    description: "Additional notes for the menu"
-                  }
-                }
+                description: "The menu fields to update"
               }
             },
             required: ["event_code", "menu_updates"]
@@ -230,28 +132,7 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
       if (functionCall.name === 'update_menu') {
         try {
           const args = JSON.parse(functionCall.arguments || '{}');
-          console.log('Menu update arguments:', args);
-          
-          if (!args.event_code) {
-            return `I need an event code to update a menu. Please specify which event you want to update.`;
-          }
-          
-          if (!args.menu_updates || Object.keys(args.menu_updates).length === 0) {
-            return `I need specific menu details to update. Please tell me what menu items you'd like to change.`;
-          }
-          
-          // Ensure menu_updates isn't undefined or empty
-          const menuUpdates = args.menu_updates;
-          
-          // Format details for human-readable response
-          let menuDetailsText = '';
-          for (const [key, value] of Object.entries(menuUpdates)) {
-            const formattedKey = key.replace(/_/g, ' ');
-            menuDetailsText += `- ${formattedKey}: ${JSON.stringify(value)}\n`;
-          }
-          
-          // Return a properly formatted action string
-          return `I'll update the menu for event ${args.event_code} with the following changes:\n${menuDetailsText}\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(menuUpdates)}}`;
+          return `I'll update the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(args.menu_updates)}}`;
         } catch (error) {
           console.error('Error parsing function arguments:', error);
           return `I encountered an error while trying to update the menu. Please try again with more specific instructions.`;

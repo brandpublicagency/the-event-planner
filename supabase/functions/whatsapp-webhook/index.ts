@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleMessage } from './handlers/messageHandler.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
@@ -30,7 +29,7 @@ serve(async (req) => {
         console.log('Webhook verified successfully');
         return new Response(challenge, { headers: corsHeaders });
       }
-      console.error('Failed webhook verification:', { mode, token, expected: VERIFY_TOKEN });
+      console.error('Failed webhook verification:', { mode, token });
       return new Response('Forbidden', { status: 403, headers: corsHeaders });
     }
 
@@ -39,7 +38,7 @@ serve(async (req) => {
       let body;
       try {
         body = await req.json();
-        console.log('Webhook payload received:', JSON.stringify(body, null, 2));
+        console.log('Webhook payload received');
       } catch (jsonError) {
         console.error('Error parsing webhook payload:', jsonError);
         return new Response(JSON.stringify({ status: 'error', message: 'Invalid JSON' }), {
@@ -113,30 +112,13 @@ serve(async (req) => {
           console.error('No response generated from handleMessage');
           const fallbackResponse = {
             type: 'text',
-            message: "I apologize, but I wasn't able to generate a response. Please try again with a simple command like 'help'."
+            message: "I apologize, but I wasn't able to generate a response. Please try again."
           };
           
           await sendWhatsAppMessage(message.from, fallbackResponse, phoneNumberId);
-          console.log('Sent fallback response');
         } else {
           // Send the response to WhatsApp
-          console.log('Sending response to WhatsApp:', JSON.stringify(response, null, 2));
-          try {
-            const result = await sendWhatsAppMessage(message.from, response, phoneNumberId);
-            console.log('WhatsApp message send result:', JSON.stringify(result, null, 2));
-          } catch (sendError) {
-            console.error('Error sending WhatsApp message:', sendError);
-            // Try to send a simpler fallback message
-            try {
-              const fallbackResponse = {
-                type: 'text',
-                message: "I had trouble sending my response. Please try again with a simpler query or command like 'help'."
-              };
-              await sendWhatsAppMessage(message.from, fallbackResponse, phoneNumberId);
-            } catch (fallbackError) {
-              console.error('Even fallback message failed:', fallbackError);
-            }
-          }
+          await sendWhatsAppMessage(message.from, response, phoneNumberId);
         }
 
         // Always return a 200 status to the webhook to prevent retries

@@ -7,16 +7,7 @@ import { formatEventDetails } from '../../formatters/eventFormatter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  global: {
-    fetch: (url, options) => {
-      return fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(15000) // 15 second timeout
-      });
-    }
-  }
-});
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getNextEvent = async (): Promise<WhatsAppResponse> => {
   try {
@@ -60,17 +51,12 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     }
 
     const event = events[0];
-    console.log('Found next event:', {
-      name: event.name,
-      date: event.event_date,
-      type: event.event_type,
-      pax: event.pax
-    });
+    console.log('Found next event:', JSON.stringify(event, null, 2));
     
     // Use the formatter to create a consistent event display
     try {
       const formattedEventDetails = formatEventDetails(event);
-      console.log('Formatted event details successfully');
+      console.log('Formatted event details:', formattedEventDetails);
 
       return {
         type: 'text',
