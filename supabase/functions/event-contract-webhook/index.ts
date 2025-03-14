@@ -63,11 +63,17 @@ const normalizeFormData = (formData: any) => {
   console.log('Is Event Contract form:', hasEventContract);
   
   // Special handling for event name - combine company name and event type for corporate events
-  if (hasEventContract && normalized.company_name && normalized.event_type) {
-    normalized.name = `${normalized.company_name} ${normalized.event_type}`.trim();
-  } else if (hasEventContract && normalized.name_company_contact && normalized.event_type) {
-    // If no company name, use contact person name + event type
-    normalized.name = `${normalized.name_company_contact} ${normalized.event_type}`.trim();
+  if (hasEventContract) {
+    if (normalized.company_name && normalized.event_type) {
+      // If company name exists, use company name + event type
+      normalized.name = `${normalized.company_name} ${normalized.event_type}`.trim();
+    } else if (normalized.name_company_contact && normalized.event_type) {
+      // If no company name, use contact person name + event type
+      const fullName = normalized.surname_company_contact ? 
+                      `${normalized.name_company_contact} ${normalized.surname_company_contact}` : 
+                      normalized.name_company_contact;
+      normalized.name = `${fullName} ${normalized.event_type}`.trim();
+    }
   }
   
   // Handle corporate venues field (multiselect)
@@ -151,6 +157,16 @@ const normalizeFormData = (formData: any) => {
   if (normalized.number_of_guests) {
     const parsedPax = parseInt(normalized.number_of_guests);
     normalized.pax = isNaN(parsedPax) ? null : parsedPax;
+  }
+  
+  // Ensure vat_number is mapped properly
+  if (normalized.vat_number) {
+    normalized.vat_number = normalized.vat_number;
+  }
+  
+  // Ensure company name is mapped properly
+  if (normalized.company_name) {
+    normalized.company = normalized.company_name;
   }
   
   // Handle common field mapping patterns
@@ -292,7 +308,7 @@ serve(async (req) => {
   try {
     console.log('Received request to event-contract-webhook');
     
-    if (req.method !== 'POST') {
+    if (req.method !==  'POST') {
       return createErrorResponse('Only POST requests are accepted', 405);
     }
     
