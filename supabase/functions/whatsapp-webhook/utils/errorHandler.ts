@@ -30,7 +30,8 @@ export const handleError = (error: any, context: string): WhatsAppResponse => {
   // Determine if it's a connectivity error
   const isConnectivityError = error.message?.includes('network') ||
                               error.message?.includes('connection') ||
-                              error.message?.includes('connect');
+                              error.message?.includes('connect') ||
+                              error.message === ""; // Empty error message often indicates connection issues
                               
   // Create appropriate user-facing message
   let userMessage = "I encountered an unexpected error. Please try again shortly.";

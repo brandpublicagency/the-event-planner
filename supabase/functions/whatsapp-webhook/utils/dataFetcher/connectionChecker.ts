@@ -1,6 +1,6 @@
 
 import { supabase } from './index.ts';
-import { withTimeout } from '../timeoutUtils.ts';
+import { withTimeout, withRetry } from '../timeoutUtils.ts';
 import { handleError } from '../errorHandler.ts';
 
 /**
@@ -10,42 +10,50 @@ export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
     console.log('Checking database connection...');
     
-    // Try multiple connection strategies for better reliability
+    // Try multiple connection strategies with retry mechanism for better reliability
     try {
-      // Strategy 1: Simple count query with short timeout
-      const { data: countData, error: countError } = await withTimeout(
-        supabase.from('events').select('count(*)', { count: 'exact', head: true }),
-        'connectionCheck_count',
-        3000
+      // Use withRetry to attempt the connection multiple times
+      return await withRetry(
+        async () => {
+          // Strategy 1: Simple existence check
+          const { data, error } = await supabase.from('events').select('event_code').limit(1);
+          
+          if (error) {
+            console.error('Database connection check failed with specific error:', {
+              message: error.message,
+              details: error.details,
+              hint: error.hint,
+              code: error.code
+            });
+            throw error;
+          }
+          
+          console.log('Database connection successful', { dataFound: data && data.length > 0 });
+          return true;
+        },
+        'connectionCheck_basic',
+        3, // 3 retries
+        500 // 500ms initial delay
       );
-      
-      if (!countError) {
-        console.log('Database connection successful via count query');
-        return true;
-      }
-      
-      console.warn('Count query failed, trying alternative connection test...');
-      
-      // Strategy 2: Select a single row with minimal columns
-      const { data: rowData, error: rowError } = await withTimeout(
-        supabase.from('events').select('event_code').limit(1),
-        'connectionCheck_row',
-        3000
-      );
-      
-      if (!rowError) {
-        console.log('Database connection successful via row query');
-        return true;
-      }
-      
-      console.error('Database connection failed on all attempts:', { countError, rowError });
-      return false;
     } catch (strategyError) {
-      console.error('Error during connection check strategies:', strategyError);
+      console.error('All database connection check attempts failed:', {
+        message: strategyError.message,
+        name: strategyError.name,
+        stack: strategyError.stack?.split('\n').slice(0, 3).join('\n') 
+      });
+      
+      // Log Supabase URL (without credentials) for diagnostics
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'URL not found';
+      console.log('Attempted connection to:', supabaseUrl);
+      
       return false;
     }
   } catch (error) {
-    console.error('Critical error checking database connection:', error);
+    console.error('Critical error checking database connection:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+    });
     return false;
   }
 };
@@ -71,7 +79,12 @@ export const verifyAllRequiredTables = async (): Promise<{[key: string]: boolean
         results[table] = !error;
         
         if (error) {
-          console.error(`Table check failed for ${table}:`, error);
+          console.error(`Table check failed for ${table}:`, {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
         } else {
           console.log(`Table ${table} exists and is accessible`);
         }
@@ -103,6 +116,8 @@ export const performHealthCheck = async (): Promise<{
   // Check basic connection
   const connected = await checkDatabaseConnection();
   diagnostics.connectionResult = connected;
+  diagnostics.supabaseUrl = Deno.env.get('SUPABASE_URL') ? 'CONFIGURED' : 'MISSING';
+  diagnostics.supabaseKeyConfigured = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'CONFIGURED' : 'MISSING';
   
   // If connected, verify tables
   let tables = {};
