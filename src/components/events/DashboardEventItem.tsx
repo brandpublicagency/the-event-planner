@@ -54,9 +54,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   };
   
   const eventDate = event.event_date ? new Date(event.event_date) : null;
-  const formattedStartTime = event.start_time ? event.start_time.substring(0, 5) : "00:00";
-  const formattedEndTime = event.end_time ? event.end_time.substring(0, 5) : "";
-  const timeDisplay = formattedEndTime ? `${formattedStartTime} - ${formattedEndTime}` : formattedStartTime;
+  const formattedStartTime = event.start_time ? event.start_time.substring(0, 5) : "";
   
   // Extract day from date
   const day = eventDate ? format(eventDate, "d") : "";
@@ -66,16 +64,16 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
         <div className="flex items-stretch w-full">
           {/* Date column */}
-          <div className="flex flex-col items-center justify-center w-[100px] p-4 text-center bg-zinc-50">
-            <div className="text-4xl font-semibold text-zinc-800">{day}</div>
-            <div className="text-xs text-zinc-500 mt-1">{timeDisplay}</div>
+          <div className="flex flex-col items-center justify-center w-[80px] p-3 text-center bg-zinc-50">
+            <div className="text-3xl font-semibold text-zinc-800">{day}</div>
+            <div className="text-xs text-zinc-500 mt-1">{formattedStartTime}</div>
           </div>
           
           {/* Content column */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-3">
             <div className="flex flex-col">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-zinc-900 truncate">{event.name}</h4>
+                <h4 className="font-medium text-zinc-900 truncate text-sm">{event.name}</h4>
                 
                 <div className="flex items-center space-x-1">
                   <div 
@@ -87,7 +85,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 text-xs text-zinc-500 mt-3">
+              <div className="flex items-center gap-4 text-xs text-zinc-500 mt-2">
                 {venueStr && (
                   <div className="flex items-center">
                     <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
@@ -106,12 +104,12 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
           </div>
           
           {/* Actions */}
-          <div className="flex flex-col justify-center p-3 border-l border-zinc-100">
+          <div className="flex flex-col justify-center p-2 border-l border-zinc-100">
             <Button variant="ghost" size="icon" onClick={e => {
               e.stopPropagation();
               navigate(`/events/${event.event_code}/edit`);
-            }} className="h-8 w-8 rounded-full mb-2">
-              <Edit className="h-4 w-4 text-zinc-500" />
+            }} className="h-6 w-6 rounded-full mb-1">
+              <Edit className="h-3 w-3 text-zinc-400" />
             </Button>
             
             {handleDelete && (
@@ -121,9 +119,9 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                     variant="ghost"
                     size="icon"
                     onClick={(e) => e.stopPropagation()}
-                    className="h-8 w-8 rounded-full"
+                    className="h-6 w-6 rounded-full"
                   >
-                    <Trash className="h-4 w-4 text-zinc-500" />
+                    <Trash className="h-3 w-3 text-zinc-400" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="border-red-100 bg-white">
