@@ -1,3 +1,4 @@
+
 const whatsappToken = Deno.env.get('WHATSAPP_TOKEN');
 
 /**
@@ -12,10 +13,14 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
   try {
     console.log('Preparing to send message to:', to);
     
+    // Validate WhatsApp token
     if (!whatsappToken) {
-      console.error('WhatsApp token is missing');
+      console.error('WhatsApp token is missing from environment variables');
       throw new Error('WhatsApp token is missing');
     }
+    
+    // Log token details (but not the full token for security)
+    console.log('Using token starting with:', whatsappToken.substring(0, 5) + '...');
     
     const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
     
@@ -38,6 +43,10 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
     
     while (retries <= maxRetries) {
       try {
+        // Log request details
+        console.log(`Attempt ${retries + 1}/${maxRetries + 1} - Sending request to:`, url);
+        console.log('Using phone number ID:', phoneNumberId);
+        
         const sendResponse = await fetch(url, {
           method: 'POST',
           headers: {
@@ -52,6 +61,7 @@ export const sendWhatsAppMessage = async (to: string, response: any, phoneNumber
         try {
           const responseText = await sendResponse.text();
           responseData = responseText ? JSON.parse(responseText) : {};
+          console.log(`API response status: ${sendResponse.status}`, responseData);
         } catch (parseError) {
           console.error('Error parsing API response:', parseError);
           responseData = { error: 'Invalid response' };
@@ -265,6 +275,18 @@ async function sendFallbackMessage(url: string, to: string, token: string): Prom
         }
       })
     });
+    
+    if (response.ok) {
+      console.log('Fallback message sent successfully');
+    } else {
+      console.error('Failed to send fallback message. Status:', response.status);
+      try {
+        const responseData = await response.text();
+        console.error('Response:', responseData);
+      } catch (e) {
+        console.error('Could not parse response');
+      }
+    }
     
     return response.ok;
   } catch (error) {

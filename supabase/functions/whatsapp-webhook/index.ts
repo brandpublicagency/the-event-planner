@@ -1,15 +1,25 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleMessage } from './handlers/messageHandler.ts';
 import { sendWhatsAppMessage } from './whatsappApi.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 const VERIFY_TOKEN = Deno.env.get('VERIFY_TOKEN');
+const WHATSAPP_TOKEN = Deno.env.get('WHATSAPP_TOKEN');
 
 serve(async (req) => {
   console.log('Webhook request received:', {
     method: req.method,
     url: req.url
   });
+
+  // Check if WhatsApp token is configured
+  if (!WHATSAPP_TOKEN) {
+    console.error('CRITICAL: WHATSAPP_TOKEN environment variable is not set');
+    // Still continue as the verification request doesn't need the token
+  } else {
+    console.log('WhatsApp token is configured (starts with):', WHATSAPP_TOKEN.substring(0, 5) + '...');
+  }
 
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -103,6 +113,18 @@ serve(async (req) => {
 
       console.log('Processing message from:', message.from);
       
+      // Validate WhatsApp token before processing
+      if (!WHATSAPP_TOKEN) {
+        console.error('WHATSAPP_TOKEN is missing - cannot process message');
+        return new Response(JSON.stringify({ 
+          status: 'error',
+          message: 'WhatsApp token not configured'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 // Still return 200 to prevent webhook retries
+        });
+      }
+      
       try {
         // Process the message
         const response = await handleMessage(message);
@@ -118,7 +140,10 @@ serve(async (req) => {
           await sendWhatsAppMessage(message.from, fallbackResponse, phoneNumberId);
         } else {
           // Send the response to WhatsApp
-          await sendWhatsAppMessage(message.from, response, phoneNumberId);
+          const sendResult = await sendWhatsAppMessage(message.from, response, phoneNumberId);
+          if (!sendResult.success) {
+            console.error('Failed to send message:', sendResult.error);
+          }
         }
 
         // Always return a 200 status to the webhook to prevent retries
