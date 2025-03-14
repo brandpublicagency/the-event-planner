@@ -74,8 +74,42 @@ export const processFormData = async (formData: any) => {
         'Package 1', 'Package 2', 'Package 3'
       ];
       
+      // Normalize venue names (first character uppercase, rest lowercase)
+      venues = venues.map(venue => {
+        if (typeof venue === 'string') {
+          // Remove any leading/trailing whitespace
+          venue = venue.trim();
+          
+          // Normalize venue names based on specific patterns
+          if (venue.toLowerCase().includes('kitchen')) return 'The Kitchen';
+          if (venue.toLowerCase().includes('gallery')) return 'The Gallery';
+          if (venue.toLowerCase().includes('grand hall')) return 'The Grand Hall';
+          if (venue.toLowerCase().includes('lawn')) return 'The Lawn';
+          if (venue.toLowerCase().includes('avenue')) return 'The Avenue';
+          if (venue.toLowerCase().match(/\bpackage\s*1\b/i)) return 'Package 1';
+          if (venue.toLowerCase().match(/\bpackage\s*2\b/i)) return 'Package 2';
+          if (venue.toLowerCase().match(/\bpackage\s*3\b/i)) return 'Package 3';
+          
+          return venue;
+        }
+        return venue;
+      });
+      
+      // Filter to only include valid venues
       venues = venues.filter(venue => validVenues.includes(venue));
-      console.log('Validated venues:', venues);
+      console.log('Validated and normalized venues:', venues);
+    }
+    
+    // Ensure address is set for non-wedding events
+    let address = normalizedData.address || null;
+    if (normalizedData.event_type !== 'Wedding' && !address) {
+      // Try to get address from any available field
+      address = normalizedData.client_address || 
+               normalizedData.company_address || 
+               (normalizedData.user_inputs && normalizedData.user_inputs.address_1) || 
+               null;
+      
+      console.log('Setting address for non-wedding event:', address);
     }
     
     // Extract core event data
@@ -101,7 +135,7 @@ export const processFormData = async (formData: any) => {
       
       // Company details - ensure these are set for non-wedding events
       company: normalizedData.company || null,
-      address: normalizedData.address || (normalizedData.event_type !== 'Wedding' ? (normalizedData.client_address || normalizedData.company_address || null) : null),
+      address: address,
       vat_number: normalizedData.vat_number || null,
     };
     

@@ -24,6 +24,26 @@ export const normalizeFormData = (formData: any) => {
                          
   console.log('Is Event Contract form:', hasEventContract);
   
+  // Extract venues (specifically for corporate events)
+  if (formData.corporate_venues) {
+    // If venues is already an array, use it directly
+    normalized.venues = Array.isArray(formData.corporate_venues) 
+      ? formData.corporate_venues 
+      : [formData.corporate_venues];
+    console.log('Extracted venues from corporate_venues:', normalized.venues);
+  } else if (formData.user_inputs && formData.user_inputs.corporate_venues) {
+    // If it's in the user_inputs as a string, split it
+    normalized.venues = formData.user_inputs.corporate_venues.split(', ');
+    console.log('Extracted venues from user_inputs.corporate_venues:', normalized.venues);
+  } else if (normalized.corporate_venues) {
+    if (typeof normalized.corporate_venues === 'string') {
+      normalized.venues = [normalized.corporate_venues];
+    } else if (Array.isArray(normalized.corporate_venues)) {
+      normalized.venues = normalized.corporate_venues;
+    }
+    console.log('Extracted venues from normalized.corporate_venues:', normalized.venues);
+  }
+  
   // Special handling for event name - combine company name and event type for corporate events
   if (hasEventContract) {
     if (normalized.company_name && normalized.event_type) {
@@ -38,36 +58,34 @@ export const normalizeFormData = (formData: any) => {
     }
   }
   
-  // Handle corporate venues field (multiselect)
-  if (normalized.corporate_venues) {
-    if (typeof normalized.corporate_venues === 'string') {
-      normalized.venues = [normalized.corporate_venues];
-    } else if (Array.isArray(normalized.corporate_venues)) {
-      normalized.venues = normalized.corporate_venues;
-    }
-  }
-  
-  // Format address and ensure it's properly set for non-wedding events
+  // Extract and format address (handle both object and string formats)
   let formattedAddress = null;
-  if (normalized.address_1) {
-    if (typeof normalized.address_1 === 'string') {
-      formattedAddress = normalized.address_1;
-    } else if (typeof normalized.address_1 === 'object') {
+  if (formData.address_1) {
+    if (typeof formData.address_1 === 'object') {
+      // Format address from object components
       const addressParts = [
-        normalized.address_1.address_line_1,
-        normalized.address_1.address_line_2,
-        normalized.address_1.city,
-        normalized.address_1.state,
-        normalized.address_1.zip,
-        normalized.address_1.country
+        formData.address_1.address_line_1,
+        formData.address_1.address_line_2,
+        formData.address_1.city,
+        formData.address_1.state,
+        formData.address_1.zip,
+        formData.address_1.country
       ].filter(part => part && part.trim() !== '');
       
       formattedAddress = addressParts.join(', ');
+    } else {
+      // Use address as is if it's a string
+      formattedAddress = formData.address_1;
     }
     
     if (formattedAddress) {
       normalized.address = formattedAddress;
+      console.log('Extracted address from address_1:', normalized.address);
     }
+  } else if (formData.user_inputs && formData.user_inputs.address_1) {
+    // Fallback to user_inputs
+    normalized.address = formData.user_inputs.address_1;
+    console.log('Extracted address from user_inputs.address_1:', normalized.address);
   }
   
   // For non-wedding events, make sure to set the address if it exists in any field
@@ -141,6 +159,11 @@ export const normalizeFormData = (formData: any) => {
   // Ensure company name is mapped properly
   if (normalized.company_name) {
     normalized.company = normalized.company_name;
+  }
+  
+  // Handle secondary phone (company phone)
+  if (normalized.contact_number_company && normalized.contact_number_company !== normalized.primary_phone) {
+    normalized.secondary_phone = normalized.contact_number_company;
   }
   
   // Handle common field mapping patterns

@@ -1,4 +1,3 @@
-
 /**
  * Parses the request body into form data object based on content type
  */
@@ -18,7 +17,20 @@ export const parseFormData = async (req: Request): Promise<any> => {
   } else if (contentType.includes('application/json')) {
     // Try parsing as JSON
     try {
-      return JSON.parse(rawBody);
+      const parsedData = JSON.parse(rawBody);
+      
+      // Check if it's a Fluent Forms array structure
+      if (Array.isArray(parsedData) && parsedData.length > 0 && parsedData[0].response) {
+        console.log('Detected Fluent Forms array structure');
+        return parsedData[0].response;
+      } 
+      // Check if it's a Fluent Forms object structure
+      else if (parsedData.response) {
+        console.log('Detected Fluent Forms object structure');
+        return parsedData.response;
+      }
+      // Otherwise return the parsed data as is
+      return parsedData;
     } catch (jsonError) {
       console.error('JSON parsing error:', jsonError);
       // If JSON parsing fails, try form data as fallback

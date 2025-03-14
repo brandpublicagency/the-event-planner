@@ -22,6 +22,7 @@ serve(async (req) => {
     let formData;
     try {
       formData = await parseFormData(req);
+      console.log('Parsed form data:', JSON.stringify(formData, null, 2));
     } catch (parseError) {
       console.error('Error parsing request body:', parseError);
       return createErrorResponse('Invalid request body format. Error: ' + parseError.message, 400);
