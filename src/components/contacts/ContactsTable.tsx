@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -49,11 +50,11 @@ const ContactsTable = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-left pl-0 bg-transparent">Name</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="text-left pl-0 bg-transparent font-bold text-black">Name</TableHead>
+                <TableHead className="font-bold text-black">Company</TableHead>
+                <TableHead className="font-bold text-black">Email</TableHead>
+                <TableHead className="font-bold text-black">Phone</TableHead>
+                <TableHead className="w-[100px] font-bold text-black">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
