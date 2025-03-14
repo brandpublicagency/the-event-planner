@@ -22,6 +22,7 @@ export const groupEventsByMonth = (events: Event[]) => {
 
 export const deleteEvent = async (eventCode: string) => {
   try {
+    // Check if there are related menu selections
     const { count, error: countError } = await supabase
       .from('menu_selections')
       .select('*', { count: 'exact', head: true })
@@ -39,9 +40,10 @@ export const deleteEvent = async (eventCode: string) => {
       }
     }
     
+    // Permanently delete the event
     const { error } = await supabase
       .from('events')
-      .update({ deleted_at: new Date().toISOString() })
+      .delete()
       .eq('event_code', eventCode);
 
     if (error) {

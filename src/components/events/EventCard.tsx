@@ -101,25 +101,28 @@ export const EventCard = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-zinc-600 hover:text-white hover:bg-zinc-900"
+                    className="text-zinc-600 hover:text-white hover:bg-red-600"
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="border-red-100 bg-white">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this event? This action cannot be undone.
+                    <AlertDialogTitle className="text-red-600">Permanently Delete Event</AlertDialogTitle>
+                    <AlertDialogDescription className="text-zinc-600">
+                      <p className="mb-2">Are you sure you want to delete <span className="font-semibold">{event.name}</span>?</p>
+                      <div className="bg-red-50 p-3 rounded-md border border-red-100 my-2">
+                        <p className="text-red-800 text-sm">This action cannot be undone. The event and all associated data will be permanently deleted from the database.</p>
+                      </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogFooter className="gap-2">
+                    <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => handleDelete(event.event_code)}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-red-600 hover:bg-red-700 rounded-full text-white"
                     >
-                      Delete
+                      Delete Permanently
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
