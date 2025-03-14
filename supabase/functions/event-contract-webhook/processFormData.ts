@@ -99,9 +99,9 @@ export const processFormData = async (formData: any) => {
       secondary_phone: normalizedData.secondary_phone || null,
       secondary_email: normalizedData.secondary_email || null,
       
-      // Company details
+      // Company details - ensure these are set for non-wedding events
       company: normalizedData.company || null,
-      address: normalizedData.address || null,
+      address: normalizedData.address || (normalizedData.event_type !== 'Wedding' ? (normalizedData.client_address || normalizedData.company_address || null) : null),
       vat_number: normalizedData.vat_number || null,
     };
     

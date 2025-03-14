@@ -3,16 +3,16 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import FormSection from "@/components/forms/FormSection";
 import EventBasicInfo from "@/components/forms/EventBasicInfo";
 import ContactDetails from "@/components/forms/ContactDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
-import { EventFormData } from "@/types/eventForm";
+import { EventFormSchema } from "@/schemas/eventFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventFormSchema, EventFormSchema } from "@/schemas/eventFormSchema";
+import { eventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
 import { useQueryClient } from "@tanstack/react-query";
@@ -80,6 +80,7 @@ const NewEvent = () => {
 
       await createEvent(eventData, user.id);
 
+      // Explicitly trigger a refresh of data for realtime updates to work reliably
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
       await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
@@ -87,9 +88,14 @@ const NewEvent = () => {
       toast({
         title: "Success",
         description: "Event created successfully",
+        variant: "success",
+        showProgress: true
       });
 
-      navigate('/events');
+      // Short delay to allow notification to be processed
+      setTimeout(() => {
+        navigate('/events');
+      }, 500);
     } catch (error: any) {
       console.error('Error creating event:', error);
       toast({

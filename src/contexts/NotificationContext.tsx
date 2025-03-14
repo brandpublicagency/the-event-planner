@@ -104,7 +104,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   
   // Subscribe to new events
   useEffect(() => {
-    // Subscribe to events table
+    // Subscribe to events table for real-time notifications
     const channel = supabase
       .channel('event-notifications')
       .on(
@@ -115,6 +115,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           table: 'events'
         },
         (payload) => {
+          console.log('New event detected:', payload);
+          
           // Add new event notification
           const newEvent = payload.new;
           const newNotification = {
