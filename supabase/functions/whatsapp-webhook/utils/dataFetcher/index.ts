@@ -5,7 +5,16 @@ import { withTimeout } from '../timeoutUtils.ts';
 // Create and export the Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  global: {
+    fetch: (url, options) => {
+      return fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(20000) // 20 second timeout
+      });
+    }
+  }
+});
 
 // Helper function to handle database errors consistently
 export const handleDbError = (operation: string, error: any) => {

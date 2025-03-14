@@ -1,6 +1,7 @@
 
 import { supabase } from './index.ts';
 import { withTimeout } from '../timeoutUtils.ts';
+import { handleError } from '../errorHandler.ts';
 
 /**
  * Check database connection by performing a simple query
@@ -9,6 +10,7 @@ export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
     console.log('Checking database connection...');
     
+    // Use a more reliable check with timeout
     const { data, error } = await withTimeout(
       supabase.from('events').select('count(*)', { count: 'exact', head: true }),
       'connectionCheck',

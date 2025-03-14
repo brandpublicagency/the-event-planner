@@ -2,6 +2,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
+import { handleError } from '../../utils/errorHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -25,6 +26,24 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     console.log('Fetching upcoming events list');
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
+    
+    // Test database connection first
+    try {
+      const { data: testData, error: testError } = await supabase
+        .from('events')
+        .select('count(*)', { count: 'exact', head: true })
+        .limit(1);
+        
+      if (testError) {
+        console.error('Database connection test failed:', testError);
+        throw new Error('Database connection failed');
+      }
+      
+      console.log('Database connection test successful');
+    } catch (testError) {
+      console.error('Error testing database connection:', testError);
+      return handleError(testError, 'database connection test');
+    }
     
     // Simplified query - we'll query relationships carefully
     const { data: events, error } = await supabase
@@ -146,10 +165,7 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     };
   } catch (error) {
     console.error('Error in getUpcomingEventsList:', error);
-    return {
-      type: 'text',
-      message: "I had trouble fetching the events list. Please try again in a moment."
-    };
+    return handleError(error, 'getUpcomingEventsList');
   }
 };
 
