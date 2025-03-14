@@ -12,41 +12,22 @@ export function useFileDownload() {
       setIsLoading(true);
       console.log('[Download] Getting file:', filePath);
 
-      // First check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Authentication required');
-      }
-
-      // Download the file directly
-      const { data, error } = await supabase.storage
-        .from("task-files")
-        .download(filePath);
+      // Get public URL for the file
+      const { data } = supabase.storage
+        .from("taskmanager-files")
+        .getPublicUrl(filePath);
         
-      if (error) {
-        throw error;
+      if (!data?.publicUrl) {
+        throw new Error('Could not generate download URL');
       }
-      
-      if (!data) {
-        throw new Error('Could not retrieve file');
-      }
-      
-      // Create a blob with the correct content type
-      const blob = new Blob([data], { type: contentType });
-      
-      // Create a blob URL from the file content
-      const blobUrl = URL.createObjectURL(blob);
       
       // Create a download link and trigger click
       const link = document.createElement('a');
-      link.href = blobUrl;
+      link.href = data.publicUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Clean up the blob URL after a delay
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
       toast({
         title: "Success",

@@ -29,7 +29,7 @@ export function useFileUpload() {
       const filePath = `${taskId}/${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("task-files")
+        .from("taskmanager-files")
         .upload(filePath, file, {
           contentType: file.type,
           cacheControl: '3600',

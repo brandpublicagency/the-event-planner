@@ -14,12 +14,6 @@ export function useFileDelete() {
       setIsLoading(true);
       console.log('[Delete] Starting file deletion:', { filePath, fileId, taskId });
 
-      // First check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Authentication required');
-      }
-
       // Delete from database first to maintain referential integrity
       const { error: dbError } = await supabase
         .from("task_files")
@@ -35,7 +29,7 @@ export function useFileDelete() {
 
       // Then delete from storage
       const { error: storageError } = await supabase.storage
-        .from("task-files")
+        .from("taskmanager-files")
         .remove([filePath]);
 
       if (storageError) {

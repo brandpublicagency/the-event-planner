@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +13,7 @@ export function useFileView() {
       console.log('[View] Getting file URL for:', filePath);
       
       const { data } = supabase.storage
-        .from("task-files")
+        .from("taskmanager-files")
         .getPublicUrl(filePath);
 
       if (!data?.publicUrl) {
