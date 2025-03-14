@@ -41,43 +41,110 @@ const generateEventCode = async (eventType: string) => {
   }
 };
 
+// Normalize field names from different form sources
+const normalizeFormData = (formData: any) => {
+  const normalized: any = {};
+  
+  // Copy all fields to normalized first
+  for (const key in formData) {
+    // Clean up any fluentform prefixes
+    const cleanKey = key.replace(/^_fluentform_\d+_/, '');
+    normalized[cleanKey] = formData[key];
+  }
+  
+  // Handle common field mapping patterns
+  const fieldMappings: Record<string, string[]> = {
+    'name': ['event_name', 'event-name', 'eventName', 'title'],
+    'event_type': ['event-type', 'eventType', 'type', 'event_category', 'category'],
+    'event_date': ['event-date', 'eventDate', 'date'],
+    'start_time': ['start-time', 'startTime'],
+    'end_time': ['end-time', 'endTime'],
+    'pax': ['guests', 'guest_count', 'guest-count', 'attendees', 'people'],
+    'description': ['event_description', 'event-description', 'notes', 'details'],
+    'primary_name': ['primary-name', 'primaryName', 'contact_person', 'contact-person', 'contactPerson', 'bride_name', 'bride-name', 'brideName'],
+    'primary_phone': ['primary-phone', 'primaryPhone', 'contact_mobile', 'contact-mobile', 'contactMobile', 'bride_mobile', 'bride-mobile', 'brideMobile', 'phone', 'mobile'],
+    'primary_email': ['primary-email', 'primaryEmail', 'contact_email', 'contact-email', 'contactEmail', 'bride_email', 'bride-email', 'brideEmail', 'email'],
+    'secondary_name': ['secondary-name', 'secondaryName', 'groom_name', 'groom-name', 'groomName', 'secondary_contact', 'secondary-contact'],
+    'secondary_phone': ['secondary-phone', 'secondaryPhone', 'groom_mobile', 'groom-mobile', 'groomMobile', 'secondary_mobile', 'secondary-mobile'],
+    'secondary_email': ['secondary-email', 'secondaryEmail', 'groom_email', 'groom-email', 'groomEmail', 'secondary_email', 'secondary-email'],
+    'company': ['company_name', 'company-name', 'companyName', 'organization', 'client_company', 'client-company'],
+    'address': ['company_address', 'company-address', 'companyAddress', 'client_address', 'client-address', 'location'],
+    'vat_number': ['company_vat', 'company-vat', 'companyVat', 'tax_number', 'tax-number', 'taxNumber', 'vat', 'tax_id', 'tax-id']
+  };
+  
+  // Apply field mappings
+  for (const [standardField, alternativeNames] of Object.entries(fieldMappings)) {
+    // If the standard field doesn't exist in normalized data
+    if (!normalized[standardField] || normalized[standardField] === '') {
+      // Try to find a value from any of the alternative names
+      for (const altName of alternativeNames) {
+        if (normalized[altName] && normalized[altName] !== '') {
+          normalized[standardField] = normalized[altName];
+          break;
+        }
+      }
+    }
+  }
+  
+  // Convert venues to array if it's a string
+  if (typeof normalized.venues === 'string') {
+    normalized.venues = [normalized.venues];
+  } else if (!normalized.venues) {
+    normalized.venues = [];
+  }
+  
+  // Ensure correct types
+  if (normalized.pax && typeof normalized.pax === 'string') {
+    const parsedPax = parseInt(normalized.pax);
+    normalized.pax = isNaN(parsedPax) ? null : parsedPax;
+  }
+  
+  console.log('Normalized form data:', normalized);
+  return normalized;
+};
+
 const processFormData = async (formData: any) => {
   console.log('Processing contract form data:', formData);
   
   try {
+    // Normalize the form data
+    const normalizedData = normalizeFormData(formData);
+    
     // Validate required fields
-    if (!formData.name || !formData.event_type) {
+    if (!normalizedData.name || !normalizedData.event_type) {
       throw new Error('Missing required fields: name and event_type are required');
     }
     
     // Generate a unique event code
-    const eventCode = await generateEventCode(formData.event_type);
+    const eventCode = await generateEventCode(normalizedData.event_type);
     
     // Extract core event data
     const eventData = {
-      name: formData.name,
-      event_type: formData.event_type,
+      name: normalizedData.name,
+      event_type: normalizedData.event_type,
       event_code: eventCode,
-      event_date: formData.event_date || null,
-      start_time: formData.start_time || null,
-      end_time: formData.end_time || null,
-      pax: formData.pax ? parseInt(formData.pax) : null,
-      description: formData.description || null,
-      venues: formData.venues || null,
+      event_date: normalizedData.event_date || null,
+      start_time: normalizedData.start_time || null,
+      end_time: normalizedData.end_time || null,
+      pax: normalizedData.pax ? parseInt(normalizedData.pax) : null,
+      description: normalizedData.description || null,
+      venues: normalizedData.venues || null,
       
       // Contact details
-      primary_name: formData.primary_name || formData.contact_person || formData.bride_name || null,
-      primary_phone: formData.primary_phone || formData.contact_mobile || formData.bride_mobile || null,
-      primary_email: formData.primary_email || formData.contact_email || formData.bride_email || null,
-      secondary_name: formData.secondary_name || formData.groom_name || null,
-      secondary_phone: formData.secondary_phone || formData.groom_mobile || null,
-      secondary_email: formData.secondary_email || formData.groom_email || null,
+      primary_name: normalizedData.primary_name || normalizedData.contact_person || normalizedData.bride_name || null,
+      primary_phone: normalizedData.primary_phone || normalizedData.contact_mobile || normalizedData.bride_mobile || null,
+      primary_email: normalizedData.primary_email || normalizedData.contact_email || normalizedData.bride_email || null,
+      secondary_name: normalizedData.secondary_name || normalizedData.groom_name || null,
+      secondary_phone: normalizedData.secondary_phone || normalizedData.groom_mobile || null,
+      secondary_email: normalizedData.secondary_email || normalizedData.groom_email || null,
       
       // Company details
-      company: formData.company || formData.company_name || null,
-      address: formData.address || formData.company_address || null,
-      vat_number: formData.vat_number || formData.company_vat || null,
+      company: normalizedData.company || normalizedData.company_name || null,
+      address: normalizedData.address || normalizedData.company_address || null,
+      vat_number: normalizedData.vat_number || normalizedData.company_vat || null,
     };
+    
+    console.log('Inserting event data:', eventData);
     
     // Insert event into database
     const { data: event, error } = await supabase
@@ -138,7 +205,12 @@ serve(async (req) => {
       const contentType = req.headers.get('content-type') || '';
       console.log('Content-Type:', contentType);
       
-      if (contentType.includes('application/json')) {
+      // First, check if the body contains Fluent Forms data
+      if (rawBody.includes('_fluentform_')) {
+        const formDataObj = new URLSearchParams(rawBody);
+        formData = Object.fromEntries(formDataObj.entries());
+        console.log('Detected Fluent Forms data:', formData);
+      } else if (contentType.includes('application/json')) {
         // Try parsing as JSON
         try {
           formData = JSON.parse(rawBody);
@@ -168,12 +240,6 @@ serve(async (req) => {
       }
       
       console.log('Parsed form data:', formData);
-      
-      // Handle Fluent Forms specific format if detected
-      if (rawBody.includes('_fluentform_')) {
-        const formDataObj = new URLSearchParams(rawBody);
-        formData = Object.fromEntries(formDataObj.entries());
-      }
     } catch (parseError) {
       console.error('Error parsing request body:', parseError);
       return createErrorResponse('Invalid request body format. Error: ' + parseError.message, 400);
