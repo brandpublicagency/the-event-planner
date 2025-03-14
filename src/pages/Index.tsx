@@ -22,7 +22,7 @@ const Index = () => {
   const { tasks, isLoading: isTasksLoading } = useTaskContext();
 
   // Modified to match the Events page query logic
-  const { data: events = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
+  const { data: allEvents = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
       // Get today's date at the start of the day
@@ -52,6 +52,9 @@ const Index = () => {
     },
     retry: 1,
   });
+
+  // Limit to only 10 upcoming events for dashboard
+  const events = allEvents.slice(0, 10);
 
   // Effect to handle any errors
   useEffect(() => {
@@ -97,7 +100,7 @@ const Index = () => {
               <div className="flex items-center justify-center h-40">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-            ) : Object.keys(groupedEvents).length === 0 ? (
+            ) : events.length === 0 ? (
               <div className="flex items-center justify-center h-40 text-muted-foreground">
                 No upcoming events found
               </div>
