@@ -63,7 +63,7 @@ const ContactsTable = ({
                   </TableCell>
                 </TableRow> : filteredContacts.map(contact => <TableRow key={contact.id} className="border-b hover:bg-transparent">
                     <TableCell className="pl-0">
-                      <button onClick={() => onEditContact(contact)} className="text-left font-medium transition-colors text-gray-500 text-base">
+                      <button onClick={() => onEditContact(contact)} className="text-left transition-colors text-gray-800 font-normal text-sm">
                         {contact.name}
                       </button>
                     </TableCell>
