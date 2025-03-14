@@ -2,7 +2,9 @@
 export interface EventFormData {
   name: string; // Required field
   description?: string;
-  event_type: "Wedding" | "Corporate Event" | "Celebration" | "Conference" | "Private Event" | "Other";
+  event_type: "Wedding" | "Conference" | "Year-End Function" | "Corporate Function" | 
+              "Babyshower or Kitchen Tea" | "Celebration or other Party" | 
+              "Concert or Performance" | "Private Event" | "Other Event";
   event_date?: string;
   start_time?: string;
   end_time?: string;

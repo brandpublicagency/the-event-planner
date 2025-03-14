@@ -52,7 +52,20 @@ function getFunctionDefinitions() {
             properties: {
               name: { type: "string" },
               description: { type: "string" },
-              event_type: { type: "string" },
+              event_type: { 
+                type: "string",
+                enum: [
+                  "Wedding", 
+                  "Conference", 
+                  "Year-End Function", 
+                  "Corporate Function", 
+                  "Babyshower or Kitchen Tea", 
+                  "Celebration or other Party", 
+                  "Concert or Performance", 
+                  "Private Event", 
+                  "Other Event"
+                ]
+              },
               event_date: { type: "string" },
               start_time: { type: "string" },
               end_time: { type: "string" },

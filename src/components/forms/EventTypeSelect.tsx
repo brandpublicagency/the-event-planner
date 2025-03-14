@@ -27,11 +27,14 @@ export const EventTypeSelect = ({ form }: EventTypeSelectProps) => {
             </FormControl>
             <SelectContent>
               <SelectItem value="Wedding">Wedding</SelectItem>
-              <SelectItem value="Corporate Event">Corporate Event</SelectItem>
-              <SelectItem value="Celebration">Celebration</SelectItem>
               <SelectItem value="Conference">Conference</SelectItem>
+              <SelectItem value="Year-End Function">Year-End Function</SelectItem>
+              <SelectItem value="Corporate Function">Corporate Function</SelectItem>
+              <SelectItem value="Babyshower or Kitchen Tea">Babyshower or Kitchen Tea</SelectItem>
+              <SelectItem value="Celebration or other Party">Celebration or other Party</SelectItem>
+              <SelectItem value="Concert or Performance">Concert or Performance</SelectItem>
               <SelectItem value="Private Event">Private Event</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="Other Event">Other Event</SelectItem>
             </SelectContent>
           </Select>
           <FormMessage />

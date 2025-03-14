@@ -28,7 +28,7 @@ const NewEvent = () => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       name: '',
-      event_type: 'Wedding',
+      event_type: 'Wedding',  // Default event type
       venues: []
     }
   });
