@@ -7,19 +7,20 @@ import { WhatsAppResponse } from './timeoutUtils.ts';
 export const handleError = (error: any, context: string): WhatsAppResponse => {
   // Log the full error details
   console.error(`Error in ${context}:`, {
-    message: error.message,
+    message: error.message || 'Empty error message',
     stack: error.stack,
     details: error.details || 'No additional details'
   });
   
-  // Determine if it's a database error
+  // Determine error type for better user messaging
   const isDbError = error.message?.includes('database') || 
                     error.message?.includes('query') ||
                     error.message?.includes('relation') ||
                     error.message?.includes('table') ||
                     error.code?.startsWith('22') || // PostgreSQL error codes
                     error.code?.startsWith('23') ||
-                    error.code?.startsWith('42');
+                    error.code?.startsWith('42') ||
+                    error.message === "";  // Empty error messages often indicate DB issues
   
   // Determine if it's a timeout error
   const isTimeoutError = error.message?.includes('timeout') ||
@@ -37,7 +38,7 @@ export const handleError = (error: any, context: string): WhatsAppResponse => {
   let userMessage = "I encountered an unexpected error. Please try again shortly.";
   
   if (isDbError) {
-    userMessage = "I'm having trouble accessing the database right now. Please try again in a moment.";
+    userMessage = "I'm having trouble accessing our database right now. Please try again in a moment.";
   } else if (isTimeoutError) {
     userMessage = "The operation took too long to complete. Please try again or use a simpler command.";
   } else if (isConnectivityError) {

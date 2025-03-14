@@ -1,25 +1,27 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { withTimeout } from '../timeoutUtils.ts';
+import { withTimeout, withRetry } from '../timeoutUtils.ts';
 
 // Create and export the Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-// Validate that we have the required environment variables
+// Validate environment variables
 if (!supabaseUrl || !supabaseKey) {
   console.error('CRITICAL: Missing required Supabase credentials', { 
     hasUrl: !!supabaseUrl, 
     hasKey: !!supabaseKey 
   });
+  throw new Error('Missing Supabase credentials');
 }
 
 // Log Supabase connection details (safely)
 console.log('Initializing Supabase client with:', {
-  url: supabaseUrl ? `${supabaseUrl.substring(0, 8)}...` : 'MISSING',
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 15)}...` : 'MISSING',
   keyConfigured: !!supabaseKey
 });
 
+// Create Supabase client with improved settings
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     persistSession: false,
@@ -31,9 +33,10 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       'X-Client-Info': 'whatsapp-webhook-function'
     },
     fetch: (url, options) => {
+      // Add timeout to all requests
       return fetch(url, {
         ...options,
-        signal: AbortSignal.timeout(20000) // 20 second timeout
+        signal: AbortSignal.timeout(15000) // 15 second timeout
       });
     }
   },
@@ -50,10 +53,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 // Helper function to handle database errors consistently
 export const handleDbError = (operation: string, error: any) => {
   console.error(`Error in ${operation}:`, {
-    message: error.message,
-    details: error.details,
+    message: error.message || 'Empty error message',
+    details: error.details || 'No details',
     hint: error.hint,
-    code: error.code
+    code: error.code,
+    stack: error.stack?.split('\n').slice(0, 3).join('\n')
   });
   throw error;
 };

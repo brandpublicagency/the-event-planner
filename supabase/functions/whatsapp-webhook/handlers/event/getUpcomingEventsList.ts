@@ -1,22 +1,9 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { supabase } from '../../utils/dataFetcher/index.ts';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
-import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
+import { WhatsAppResponse, withTimeout, withRetry } from '../../utils/timeoutUtils.ts';
 import { handleError } from '../../utils/errorHandler.ts';
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  // Add timeouts to avoid hanging requests
-  global: {
-    fetch: (url, options) => {
-      return fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(15000) // 15 second timeout
-      });
-    }
-  }
-});
+import { checkDatabaseConnection } from '../../utils/dataFetcher/connectionChecker.ts';
 
 /**
  * Retrieves a list of upcoming events for WhatsApp display
@@ -24,50 +11,64 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
   try {
     console.log('Fetching upcoming events list');
+    
+    // Perform database connection check first
+    const isConnected = await withRetry(
+      checkDatabaseConnection,
+      'pre-events-list-connection-check',
+      2,  // 2 retries
+      300  // 300ms initial delay
+    );
+    
+    if (!isConnected) {
+      console.error('Database connection check failed before attempting to fetch events');
+      return {
+        type: 'text',
+        message: "I'm having trouble connecting to our database right now. Please try again in a moment."
+      };
+    }
+    
+    console.log('Database connection verified, proceeding with events query');
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
     
-    // Test database connection first with a quick test query
-    try {
-      console.log('Testing database connection before events query');
-      const { data: testData, error: testError } = await supabase
-        .from('events')
-        .select('count(*)', { count: 'exact', head: true })
-        .limit(1);
-        
-      if (testError) {
-        console.error('Database connection test failed:', testError);
-        throw new Error(`Database connection failed: ${testError.message}`);
-      }
-      
-      console.log('Database connection test successful, proceeding with events query');
-    } catch (testError) {
-      console.error('Error testing database connection:', testError);
-      return handleError(testError, 'database connection test');
-    }
-    
-    // First try with a simplified query to see if we can get results
-    console.log('Executing main events query');
-    const { data: events, error } = await supabase
-      .from('events')
-      .select(`
-        id,
-        name,
-        event_date,
-        event_type,
-        pax,
-        event_code
-      `)
-      .gte('event_date', today.toISOString())
-      .is('deleted_at', null)
-      .is('completed', false)
-      .order('event_date', { ascending: true })
-      .limit(10);
+    // Query for upcoming events with timeout and retry
+    const { data: events, error } = await withRetry(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from('events')
+            .select(`
+              id,
+              name,
+              event_date,
+              event_type,
+              pax,
+              event_code
+            `)
+            .gte('event_date', today.toISOString())
+            .is('deleted_at', null)
+            .is('completed', false)
+            .order('event_date', { ascending: true })
+            .limit(10),
+          'events-query',
+          10000  // 10 second timeout
+        );
+      },
+      'fetch-upcoming-events',
+      2,  // 2 retries
+      500  // 500ms initial delay
+    );
 
     console.log(`Events query result: ${events?.length || 0} events found`);
 
     if (error) {
-      console.error('Error fetching events:', error);
+      console.error('Error fetching events:', {
+        message: error.message || 'Empty error',
+        details: error.details,
+        code: error.code
+      });
       throw error;
     }
 
@@ -78,22 +79,38 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
       };
     }
 
-    // Now fetch venues for these events
+    // Fetch venues with timeout and retry
     console.log('Fetching venues for events');
     const eventIds = events.map(event => event.id);
-    const { data: venueData, error: venueError } = await supabase
-      .from('event_venues')
-      .select(`
-        event_id,
-        venues (
-          id,
-          name
-        )
-      `)
-      .in('event_id', eventIds);
+    
+    const { data: venueData, error: venueError } = await withRetry(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from('event_venues')
+            .select(`
+              event_id,
+              venues (
+                id,
+                name
+              )
+            `)
+            .in('event_id', eventIds),
+          'venues-query',
+          8000  // 8 second timeout
+        );
+      },
+      'fetch-event-venues',
+      2,  // 2 retries
+      300  // 300ms initial delay
+    );
     
     if (venueError) {
-      console.error('Error fetching venues:', venueError);
+      console.error('Error fetching venues:', {
+        message: venueError.message || 'Empty error',
+        details: venueError.details,
+        code: venueError.code
+      });
       // Continue without venues
     }
     
@@ -172,7 +189,10 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
       }
     };
   } catch (error) {
-    console.error('Error in getUpcomingEventsList:', error);
+    console.error('Error in getUpcomingEventsList:', {
+      message: error.message || 'Empty error message',
+      stack: error.stack
+    });
     return handleError(error, 'getUpcomingEventsList');
   }
 };

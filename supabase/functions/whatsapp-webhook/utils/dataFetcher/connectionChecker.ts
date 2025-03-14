@@ -4,53 +4,70 @@ import { withTimeout, withRetry } from '../timeoutUtils.ts';
 import { handleError } from '../errorHandler.ts';
 
 /**
- * Check database connection by performing a simple query
+ * Check database connection by performing multiple simple queries with retries
  */
 export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
-    console.log('Checking database connection...');
+    console.log('Checking database connection with multiple strategies...');
     
-    // Try multiple connection strategies with retry mechanism for better reliability
+    // Try multiple strategies with retry mechanism for better reliability
     try {
-      // Use withRetry to attempt the connection multiple times
+      // Strategy 1: Try a simple count query first (fastest)
       return await withRetry(
         async () => {
-          // Strategy 1: Simple existence check
-          const { data, error } = await supabase.from('events').select('event_code').limit(1);
-          
-          if (error) {
-            console.error('Database connection check failed with specific error:', {
-              message: error.message,
-              details: error.details,
-              hint: error.hint,
-              code: error.code
-            });
-            throw error;
+          try {
+            console.log('Strategy 1: Testing with count query');
+            const { count, error } = await supabase
+              .from('events')
+              .select('*', { count: 'exact', head: true })
+              .limit(1);
+            
+            if (error) {
+              console.error('Count query failed:', error);
+              throw error;
+            }
+            
+            console.log('Database connection successful (count strategy)');
+            return true;
+          } catch (countError) {
+            console.error('Count strategy failed:', countError);
+            
+            // Fall back to strategy 2: Simple existence check
+            console.log('Strategy 2: Testing with simple existence check');
+            const { data, error } = await supabase
+              .from('events')
+              .select('event_code')
+              .limit(1);
+            
+            if (error) {
+              console.error('Existence check failed:', error);
+              throw error;
+            }
+            
+            console.log('Database connection successful (existence strategy)');
+            return true;
           }
-          
-          console.log('Database connection successful', { dataFound: data && data.length > 0 });
-          return true;
         },
-        'connectionCheck_basic',
+        'connectionCheck',
         3, // 3 retries
-        500 // 500ms initial delay
+        500 // 500ms initial delay with exponential backoff
       );
     } catch (strategyError) {
-      console.error('All database connection check attempts failed:', {
-        message: strategyError.message,
+      console.error('All database connection strategies failed:', {
+        message: strategyError.message || 'Empty error message',
         name: strategyError.name,
-        stack: strategyError.stack?.split('\n').slice(0, 3).join('\n') 
+        stack: strategyError.stack?.split('\n').slice(0, 3).join('\n')
       });
       
-      // Log Supabase URL (without credentials) for diagnostics
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'URL not found';
-      console.log('Attempted connection to:', supabaseUrl);
+      // Log Supabase URL (safely) for diagnostics
+      const url = Deno.env.get('SUPABASE_URL');
+      console.log('Attempted connection to:', url ? `${url.substring(0, 15)}...` : 'MISSING');
       
       return false;
     }
   } catch (error) {
-    console.error('Critical error checking database connection:', {
-      message: error.message,
+    console.error('Critical error in database connection check:', {
+      message: error.message || 'Empty error message',
       name: error.name,
       stack: error.stack?.split('\n').slice(0, 3).join('\n')
     });
@@ -80,7 +97,7 @@ export const verifyAllRequiredTables = async (): Promise<{[key: string]: boolean
         
         if (error) {
           console.error(`Table check failed for ${table}:`, {
-            message: error.message,
+            message: error.message || 'Empty error message',
             details: error.details,
             hint: error.hint,
             code: error.code
@@ -116,8 +133,12 @@ export const performHealthCheck = async (): Promise<{
   // Check basic connection
   const connected = await checkDatabaseConnection();
   diagnostics.connectionResult = connected;
-  diagnostics.supabaseUrl = Deno.env.get('SUPABASE_URL') ? 'CONFIGURED' : 'MISSING';
-  diagnostics.supabaseKeyConfigured = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'CONFIGURED' : 'MISSING';
+  
+  // Safely log credentials status
+  const url = Deno.env.get('SUPABASE_URL');
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  diagnostics.supabaseUrl = url ? 'CONFIGURED' : 'MISSING';
+  diagnostics.supabaseKeyConfigured = key ? 'CONFIGURED' : 'MISSING';
   
   // If connected, verify tables
   let tables = {};
@@ -125,7 +146,7 @@ export const performHealthCheck = async (): Promise<{
     tables = await verifyAllRequiredTables();
     diagnostics.tableResults = tables;
     
-    // Try a simple data fetch
+    // Try a simple data fetch to test read operations
     try {
       const { data, error } = await withTimeout(
         supabase.from('events').select('event_code, name').limit(1),
@@ -141,7 +162,7 @@ export const performHealthCheck = async (): Promise<{
     } catch (e) {
       diagnostics.sampleDataFetch = {
         success: false,
-        error: e.message
+        error: e.message || 'Unknown error during sample data fetch'
       };
     }
   }
