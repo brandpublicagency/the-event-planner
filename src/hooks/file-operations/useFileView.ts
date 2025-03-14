@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export function useFileView() {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,18 +67,12 @@ export function useFileView() {
         imgContainer.appendChild(loadingIndicator);
         
         // Add to DOM first
-        document.body.appendChild(modal);
-        modal.appendChild(imgContainer);
         modal.appendChild(closeBtn);
+        modal.appendChild(imgContainer);
+        document.body.appendChild(modal);
         
         // Create and load image
         const img = new Image();
-        img.src = data.publicUrl;
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '100%';
-        img.style.objectFit = 'contain';
-        img.style.display = 'none'; // Hide until loaded
-        
         img.onload = () => {
           // Remove loading indicator and show image
           imgContainer.removeChild(loadingIndicator);
@@ -86,14 +80,31 @@ export function useFileView() {
           imgContainer.appendChild(img);
         };
         
-        img.onerror = () => {
-          document.body.removeChild(modal);
+        img.onerror = (e) => {
+          console.error("Image load error:", e);
+          imgContainer.removeChild(loadingIndicator);
+          
+          const errorMsg = document.createElement('div');
+          errorMsg.textContent = 'Error loading image. The file might not be a valid image.';
+          errorMsg.style.color = 'white';
+          errorMsg.style.textAlign = 'center';
+          errorMsg.style.padding = '20px';
+          
+          imgContainer.appendChild(errorMsg);
+          
           toast({
             title: "Error",
-            description: "Failed to load image. Try again later.",
+            description: "Failed to load image. The file might not be a valid image.",
             variant: "destructive",
           });
         };
+        
+        // Set source after attaching event handlers
+        img.src = data.publicUrl;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'contain';
+        img.style.display = 'none'; // Hide until loaded
       } else {
         // For other file types, open in a new tab
         window.open(data.publicUrl, '_blank', 'noopener,noreferrer');

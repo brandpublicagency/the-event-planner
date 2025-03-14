@@ -21,13 +21,26 @@ export function useFileDownload() {
         throw new Error('Could not generate download URL');
       }
       
+      // For direct download, we'll use the Fetch API to get the file as a blob
+      const response = await fetch(data.publicUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download: ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      
       // Create a download link and trigger click
       const link = document.createElement('a');
-      link.href = data.publicUrl;
+      link.href = objectUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
+      
+      // Clean up
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
 
       toast({
         title: "Success",
