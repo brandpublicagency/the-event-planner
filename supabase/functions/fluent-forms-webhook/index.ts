@@ -6,6 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// These values MUST match exactly what's expected in the database trigger
+const ALLOWED_VENUES = [
+  "The Kitchen",
+  "The Gallery",
+  "The Grand Hall",
+  "The Lawn",
+  "The Avenue",
+  "Package 1",
+  "Package 2",
+  "Package 3"
+];
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -88,30 +100,34 @@ serve(async (req) => {
       // Check if we have indexed venue fields like venue_choices[0], venue_choices[1]
       const venueKeys = Object.keys(formData).filter(key => key.startsWith('venue_choices['));
       if (venueKeys.length > 0) {
-        return venueKeys.map(key => formData[key]);
+        return venueKeys.map(key => formData[key]).filter(venue => ALLOWED_VENUES.includes(venue));
       }
       // Also check for corporate_venues which is used in some forms
       const corporateVenueKeys = Object.keys(formData).filter(key => key.startsWith('corporate_venues['));
       if (corporateVenueKeys.length > 0) {
-        return corporateVenueKeys.map(key => formData[key]);
+        return corporateVenueKeys.map(key => formData[key]).filter(venue => ALLOWED_VENUES.includes(venue));
       }
       // Otherwise try to get venues from user_inputs (comma-separated)
       else if (formData.__submission?.user_inputs?.venue_choices) {
         return formData.__submission.user_inputs.venue_choices
           .split(/,|\+|;|\s+\|\s+/)  // Split by various possible separators
           .map(v => v.trim())
-          .filter(Boolean);
+          .filter(v => v && ALLOWED_VENUES.includes(v));
       }
       else if (formData.__submission?.user_inputs?.corporate_venues) {
         return formData.__submission.user_inputs.corporate_venues
           .split(/,|\+|;|\s+\|\s+/)  // Split by various possible separators
           .map(v => v.trim())
-          .filter(Boolean);
+          .filter(v => v && ALLOWED_VENUES.includes(v));
       }
-      // Fallback to null if no venues found
-      return null;
+      // Fallback to empty array if no venues found
+      return [];
     };
 
+    // Get venues and validate them
+    const venues = extractVenues();
+    console.log('Extracted venues:', venues);
+    
     // Explicit mapping for Wedding Confirmation Contract form
     const eventData = {
       event_code: eventCode,
@@ -122,7 +138,7 @@ serve(async (req) => {
       event_date: formData.confirmed_wedding_date || null,
       pax: formData.number_of_guests ? parseInt(formData.number_of_guests) : null,
       // Extract venues with the new function
-      venues: extractVenues(),
+      venues: venues.length > 0 ? venues : null,
       // Primary contact details (bride)
       primary_name: `${formData.first_name_bride || ''} ${formData.last_name_bride || ''}`.trim() || null,
       primary_email: formData.email_bride || null,
