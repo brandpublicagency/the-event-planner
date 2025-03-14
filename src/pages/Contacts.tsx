@@ -6,7 +6,7 @@ const Contacts = () => {
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Contacts" />
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden">
         <ContactsPage />
       </div>
     </div>

@@ -50,15 +50,22 @@ const ContactsPage = () => {
     setSelectedContact(null);
   };
 
-  const filteredContacts = activeTab === "all" ? contacts : activeTab === "wedding" ? contacts.filter(c => c.contactType.startsWith('wedding')) : contacts.filter(c => c.contactType === 'corporate');
-
-  return <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="flex-1 overflow-hidden px-8 pt-5 pb-0 bg-white border-t border-gray-100 shadow-sm">
-        <ContactsTabs activeTab={activeTab} setActiveTab={setActiveTab} contacts={filteredContacts} isLoading={isLoading} onEditContact={handleEditContact} onDeleteContact={handleDeleteContact} />
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-hidden px-8 pt-5 pb-8 bg-white border-t border-gray-100 shadow-sm">
+        <ContactsTabs 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          contacts={contacts} 
+          isLoading={isLoading} 
+          onEditContact={handleEditContact} 
+          onDeleteContact={handleDeleteContact} 
+        />
       </div>
 
       {isEditDrawerOpen && <ContactEditDrawer contact={selectedContact} isOpen={isEditDrawerOpen} onClose={() => setIsEditDrawerOpen(false)} onUpdateSuccess={handleUpdateSuccess} />}
-    </div>;
+    </div>
+  );
 };
 
 export default ContactsPage;
