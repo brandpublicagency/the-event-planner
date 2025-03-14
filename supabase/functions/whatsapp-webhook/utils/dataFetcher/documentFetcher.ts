@@ -10,6 +10,7 @@ export const fetchDocuments = async () => {
       supabase
         .from('documents')
         .select('*')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false }),
       'fetchDocuments',
       10000
@@ -41,6 +42,7 @@ export const searchDocuments = async (searchTerm: string) => {
         supabase
           .from('documents')
           .select('*')
+          .is('deleted_at', null)
           .or(`title.ilike.%${trimmedSearch}%,content.ilike.%${trimmedSearch}%`)
           .order('created_at', { ascending: false })
           .limit(5),

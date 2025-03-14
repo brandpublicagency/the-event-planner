@@ -1,11 +1,10 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Trash2, Clock, File } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Clock, File } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Document } from "@/types/document";
+import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 
 interface DocumentListProps {
   documents: Document[];
@@ -15,37 +14,6 @@ interface DocumentListProps {
 }
 
 export default function DocumentList({ documents, selectedId, onSelect, categoryFilter }: DocumentListProps) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const deleteDocument = useMutation({
-    mutationFn: async (documentId: string) => {
-      console.log("Deleting document:", documentId);
-      
-      const { error } = await supabase
-        .from("documents")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("id", documentId)
-        .is("deleted_at", null);
-
-      if (error) {
-        console.error("Delete error:", error);
-        throw new Error(`Failed to delete document: ${error.message}`);
-      }
-      
-      return documentId;
-    },
-    onSuccess: (deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-      if (selectedId === deletedId) {
-        navigate('/documents');
-      }
-    },
-    onError: (error: Error) => {
-      console.error("Delete mutation error:", error);
-    },
-  });
-
   return (
     <div className="space-y-1">
       {documents.length === 0 ? (
@@ -69,20 +37,11 @@ export default function DocumentList({ documents, selectedId, onSelect, category
                 <span className="text-sm font-medium truncate">{doc.title || "Untitled"}</span>
               </div>
               
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (window.confirm("Are you sure you want to delete this document?")) {
-                    deleteDocument.mutate(doc.id);
-                  }
-                }}
-                disabled={deleteDocument.isPending}
-              >
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-destructive transition-colors" />
-              </Button>
+              <DocumentDeleteDialog 
+                documentId={doc.id} 
+                documentTitle={doc.title || "Untitled"} 
+                isButton={false}
+              />
             </div>
             
             {doc.created_at && (

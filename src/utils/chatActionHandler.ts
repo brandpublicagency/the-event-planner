@@ -292,7 +292,8 @@ export const handleChatAction = async (
         const { error: docUpdateError } = await supabase
           .from('documents')
           .update(action.updates)
-          .eq('id', action.document_id);
+          .eq('id', action.document_id)
+          .is('deleted_at', null);
         
         if (docUpdateError) throw docUpdateError;
         
@@ -301,7 +302,26 @@ export const handleChatAction = async (
         
         onSuccess("Document updated successfully!");
         break;
-        
+    
+    case "delete_document":
+      if (!action.document_id) {
+        throw new Error("Missing document ID for deletion");
+      }
+      
+      const { error: docDeleteError } = await supabase
+        .from('documents')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', action.document_id)
+        .is('deleted_at', null);
+      
+      if (docDeleteError) throw docDeleteError;
+      
+      await queryClient.invalidateQueries({ queryKey: ['documents'] });
+      await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
+      
+      onSuccess("Document deleted successfully!");
+      break;
+
       case "update_contact":
         if (!action.contact_id || !action.updates) {
           throw new Error("Missing required fields for contact update");
