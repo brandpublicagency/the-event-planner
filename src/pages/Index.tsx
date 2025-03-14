@@ -11,9 +11,8 @@ import { useState, useEffect } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, CalendarClock, CheckSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { Card } from "@/components/ui/card";
 import type { Event } from "@/types/event";
 
 const Index = () => {
@@ -81,16 +80,19 @@ const Index = () => {
         <ChatBox />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
-        <Card className="flex flex-col h-full p-4 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-zinc-900">Upcoming Events</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+        <div className="flex flex-col h-full bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-2">
+              <CalendarClock className="h-5 w-5 text-zinc-700" />
+              <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
+            </div>
             <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-1.5" />
               New Event
             </Button>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto p-2">
             {isEventsLoading ? (
               <div className="flex items-center justify-center h-40">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -122,17 +124,20 @@ const Index = () => {
               />
             )}
           </div>
-        </Card>
+        </div>
 
-        <Card className="flex flex-col h-full p-4 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-zinc-900">Upcoming Tasks</h3>
+        <div className="flex flex-col h-full bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="h-5 w-5 text-zinc-700" />
+              <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+            </div>
             <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-1.5" />
               New Task
             </Button>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto p-2">
             {isTasksLoading ? (
               <div className="flex items-center justify-center h-40">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -149,7 +154,7 @@ const Index = () => {
               />
             )}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
