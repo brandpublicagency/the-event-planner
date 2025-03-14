@@ -1,13 +1,12 @@
 
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Edit, Search, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { Contact } from "@/types/contact";
-import { formatDate } from "@/utils/formatDate";
+
 interface ContactsTableProps {
   contacts: Contact[];
   isLoading: boolean;
@@ -15,6 +14,7 @@ interface ContactsTableProps {
   onDeleteContact: (contact: Contact) => void;
   hideSearch?: boolean;
 }
+
 const ContactsTable = ({
   contacts,
   isLoading,
@@ -22,31 +22,28 @@ const ContactsTable = ({
   onDeleteContact,
   hideSearch = false
 }: ContactsTableProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
-  const filteredContacts = !hideSearch ? contacts.filter(contact => contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()) || contact.email.toLowerCase().includes(searchTerm.toLowerCase()) || contact.phone.includes(searchTerm)) : contacts;
+
   const handleDeleteClick = (contact: Contact) => {
     setContactToDelete(contact);
   };
+
   const handleConfirmDelete = () => {
     if (contactToDelete) {
       onDeleteContact(contactToDelete);
       setContactToDelete(null);
     }
   };
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-64">
         <p className="text-muted-foreground">Loading contacts...</p>
       </div>;
   }
-  return <div className="flex flex-col h-full">
-      {!hideSearch && <div className="relative mb-4">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search contacts..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-        </div>}
 
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-[calc(100vh-12rem)]">
+  return <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-hidden h-full">
+        <ScrollArea className="h-full">
           <Table>
             <TableHeader>
               <TableRow>
@@ -58,11 +55,11 @@ const ContactsTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredContacts.length === 0 ? <TableRow>
+              {contacts.length === 0 ? <TableRow>
                   <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                     No contacts found
                   </TableCell>
-                </TableRow> : filteredContacts.map(contact => <TableRow key={contact.id} className="border-b hover:bg-transparent">
+                </TableRow> : contacts.map(contact => <TableRow key={contact.id} className="border-b hover:bg-transparent">
                     <TableCell className="pl-0">
                       <button onClick={() => onEditContact(contact)} className="text-left transition-colors text-gray-800 font-normal text-sm">
                         {contact.name}
@@ -105,4 +102,5 @@ const ContactsTable = ({
       </AlertDialog>
     </div>;
 };
+
 export default ContactsTable;
