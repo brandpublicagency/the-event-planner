@@ -6,17 +6,26 @@ import { useNavigate } from "react-router-dom";
 
 interface BackButtonProps {
   path?: string;
+  onClick?: () => void;
 }
 
-export const BackButton = ({ path = "/" }: BackButtonProps) => {
+export const BackButton = ({ path = "/", onClick }: BackButtonProps) => {
   const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(path);
+    }
+  };
   
   return (
     <Button
       variant="ghost"
       size="sm"
       className="rounded-full h-8 mr-2"
-      onClick={() => navigate(path)}
+      onClick={handleClick}
     >
       <ChevronLeft className="h-4 w-4 mr-1" />
       <span className="text-sm font-medium">Back</span>

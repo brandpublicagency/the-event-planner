@@ -1,6 +1,5 @@
-
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +18,17 @@ const EventDetails = () => {
     id
   } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
+  
+  const handleBackNavigation = () => {
+    if (location.state?.previousPath === 'menu-selection') {
+      navigate('/menu-selection');
+    } else {
+      navigate('/events');
+    }
+  };
+  
   const {
     data: event,
     isLoading,
@@ -50,12 +59,11 @@ const EventDetails = () => {
     retryDelay: 1000
   });
   
-  // Create a ref to hold the menu state that can be passed to PrintKitchenMenu
   const [menuState, setMenuState] = React.useState<any>(null);
   
   if (isLoading) {
     return <div className="flex flex-col h-full">
-        <Header showBackButton backButtonPath="/events" />
+        <Header showBackButton onBackButtonClick={handleBackNavigation} />
         <div className="flex-1 space-y-6 p-6 md:p-8">
           <Skeleton className="h-[200px] w-full rounded-lg" />
           <Skeleton className="h-[400px] w-full rounded-lg" />
@@ -65,7 +73,7 @@ const EventDetails = () => {
   
   if (error) {
     return <div className="flex flex-col h-full">
-        <Header showBackButton backButtonPath="/events" />
+        <Header showBackButton onBackButtonClick={handleBackNavigation} />
         <div className="flex-1 p-8">
           <Card className="border-red-200 bg-red-50/50">
             <CardContent className="p-6">
@@ -83,7 +91,7 @@ const EventDetails = () => {
   
   if (!event) {
     return <div className="flex flex-col h-full">
-        <Header showBackButton backButtonPath="/events" />
+        <Header showBackButton onBackButtonClick={handleBackNavigation} />
         <div className="flex-1 p-8">
           <Card className="border-yellow-200 bg-yellow-50/50">
             <CardContent className="p-6">
@@ -102,7 +110,10 @@ const EventDetails = () => {
   const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   
   return <div className="flex flex-col h-full">
-      <Header showBackButton backButtonPath="/events" />
+      <Header 
+        showBackButton 
+        onBackButtonClick={handleBackNavigation}
+      />
       
       <div className="flex-1 p-6 bg-gray-100">
         <div className="max-w-4xl mx-auto">

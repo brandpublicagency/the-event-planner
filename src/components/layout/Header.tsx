@@ -26,6 +26,7 @@ export interface HeaderProps {
   children?: React.ReactNode;
   showBackButton?: boolean;
   backButtonPath?: string;
+  onBackButtonClick?: () => void;
 }
 
 export const Header = ({
@@ -35,7 +36,8 @@ export const Header = ({
   secondaryAction,
   children,
   showBackButton,
-  backButtonPath = "/"
+  backButtonPath = "/",
+  onBackButtonClick
 }: HeaderProps = {}) => {
   const location = useLocation();
 
@@ -64,7 +66,10 @@ export const Header = ({
         <div className="flex gap-4 items-center">
           <MobileMenuToggle onClick={handleToggleMobileMenu} />
           
-          {showBackButton && <BackButton path={backButtonPath} />}
+          {showBackButton && <BackButton 
+            path={backButtonPath} 
+            onClick={onBackButtonClick} 
+          />}
           
           {/* Page title now in the top bar */}
           {finalPageTitle}

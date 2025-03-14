@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Printer } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Event } from "@/types/event";
 import { MenuState } from '@/hooks/menuStateTypes';
@@ -24,9 +23,20 @@ export const EventHeader = ({
   onCustomMenuToggle
 }: EventHeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const handleBackNavigation = () => {
+    // If we have state with a previousPath of "menu-selection", go there
+    if (location.state?.previousPath === 'menu-selection') {
+      navigate('/menu-selection');
+    } else {
+      // Otherwise, default to the events list
+      navigate('/events');
+    }
+  };
   
   return <div className="flex items-center justify-between print:hidden print:bg-white px-0 py-0">
-      <Button variant="outline" size="sm" onClick={() => navigate('/events')} className="flex items-center gap-2 rounded-full">
+      <Button variant="outline" size="sm" onClick={handleBackNavigation} className="flex items-center gap-2 rounded-full">
         <ArrowLeft className="h-4 w-4" />
         Back to Events
       </Button>
