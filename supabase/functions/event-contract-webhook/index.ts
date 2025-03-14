@@ -130,19 +130,53 @@ serve(async (req) => {
     // Parse the request body
     let formData;
     try {
+      // Get the raw request body first
+      const rawBody = await req.text();
+      console.log('Raw request body:', rawBody);
+      
+      // Determine content type
       const contentType = req.headers.get('content-type') || '';
+      console.log('Content-Type:', contentType);
       
       if (contentType.includes('application/json')) {
-        formData = await req.json();
+        // Try parsing as JSON
+        try {
+          formData = JSON.parse(rawBody);
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError);
+          // If JSON parsing fails, try form data as fallback
+          formData = Object.fromEntries(new URLSearchParams(rawBody));
+        }
       } else if (contentType.includes('application/x-www-form-urlencoded')) {
-        const formText = await req.text();
-        formData = Object.fromEntries(new URLSearchParams(formText));
+        // Parse as form data
+        formData = Object.fromEntries(new URLSearchParams(rawBody));
+      } else if (contentType.includes('multipart/form-data')) {
+        // For multipart form data, we need to use FormData API
+        try {
+          // Create a new request with the same body but with proper headers for FormData
+          const formDataResponse = await fetch(`data:${contentType},${rawBody}`);
+          const formDataObj = await formDataResponse.formData();
+          formData = Object.fromEntries(formDataObj);
+        } catch (formDataError) {
+          console.error('FormData parsing error:', formDataError);
+          // Fallback to treating it as URL-encoded
+          formData = Object.fromEntries(new URLSearchParams(rawBody));
+        }
       } else {
-        return createErrorResponse('Unsupported content type. Please use application/json or application/x-www-form-urlencoded', 415);
+        // Default fallback - try parsing as URL-encoded
+        formData = Object.fromEntries(new URLSearchParams(rawBody));
+      }
+      
+      console.log('Parsed form data:', formData);
+      
+      // Handle Fluent Forms specific format if detected
+      if (rawBody.includes('_fluentform_')) {
+        const formDataObj = new URLSearchParams(rawBody);
+        formData = Object.fromEntries(formDataObj.entries());
       }
     } catch (parseError) {
       console.error('Error parsing request body:', parseError);
-      return createErrorResponse('Invalid request body format', 400);
+      return createErrorResponse('Invalid request body format. Error: ' + parseError.message, 400);
     }
     
     // Process the form data
