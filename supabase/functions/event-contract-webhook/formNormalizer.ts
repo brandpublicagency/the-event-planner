@@ -25,14 +25,28 @@ export const normalizeFormData = (formData: any) => {
   console.log('Is Event Contract form:', hasEventContract);
   
   // Extract venues (specifically for corporate events)
+  // Handle different possible formats for venues data
   if (formData.corporate_venues) {
-    // If venues is already an array, use it directly
-    normalized.venues = Array.isArray(formData.corporate_venues) 
-      ? formData.corporate_venues 
-      : [formData.corporate_venues];
-    console.log('Extracted venues from corporate_venues:', normalized.venues);
+    // Handle array format with indices like corporate_venues[0], corporate_venues[1]
+    const venueKeys = Object.keys(formData).filter(key => key.startsWith('corporate_venues['));
+    if (venueKeys.length > 0) {
+      normalized.venues = venueKeys.map(key => formData[key]);
+      console.log('Extracted venues from indexed corporate_venues:', normalized.venues);
+    } else if (Array.isArray(formData.corporate_venues)) {
+      // If venues is already an array, use it directly
+      normalized.venues = formData.corporate_venues;
+      console.log('Extracted venues from corporate_venues array:', normalized.venues);
+    } else {
+      // If it's a single value, make it an array
+      normalized.venues = [formData.corporate_venues];
+      console.log('Extracted venues from corporate_venues single value:', normalized.venues);
+    }
+  } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.corporate_venues) {
+    // Handle the 'user_inputs' format with comma-separated values
+    normalized.venues = formData.__submission.user_inputs.corporate_venues.split(', ');
+    console.log('Extracted venues from __submission.user_inputs.corporate_venues:', normalized.venues);
   } else if (formData.user_inputs && formData.user_inputs.corporate_venues) {
-    // If it's in the user_inputs as a string, split it
+    // Direct user_inputs object
     normalized.venues = formData.user_inputs.corporate_venues.split(', ');
     console.log('Extracted venues from user_inputs.corporate_venues:', normalized.venues);
   } else if (normalized.corporate_venues) {
@@ -60,16 +74,36 @@ export const normalizeFormData = (formData: any) => {
   
   // Extract and format address (handle both object and string formats)
   let formattedAddress = null;
-  if (formData.address_1) {
+  
+  // Check for address_1 as an object structure with nested fields
+  const hasNestedAddress = formData['address_1[address_line_1]'] || 
+                           (formData.address_1 && typeof formData.address_1 === 'object');
+  
+  if (hasNestedAddress) {
+    // First try to get values from flat structure like 'address_1[address_line_1]'
+    const addressLine = formData['address_1[address_line_1]'] || '';
+    const city = formData['address_1[city]'] || '';
+    const zip = formData['address_1[zip]'] || '';
+    const country = formData['address_1[country]'] || '';
+    
+    // Build formatted address from components
+    const addressParts = [
+      addressLine,
+      city,
+      zip,
+      country === 'ZA' ? 'South Africa' : country
+    ].filter(part => part && part.trim() !== '');
+    
+    formattedAddress = addressParts.join(', ');
+    console.log('Extracted address from flat address fields:', formattedAddress);
+  } else if (formData.address_1) {
     if (typeof formData.address_1 === 'object') {
       // Format address from object components
       const addressParts = [
         formData.address_1.address_line_1,
-        formData.address_1.address_line_2,
         formData.address_1.city,
-        formData.address_1.state,
         formData.address_1.zip,
-        formData.address_1.country
+        formData.address_1.country === 'ZA' ? 'South Africa' : formData.address_1.country
       ].filter(part => part && part.trim() !== '');
       
       formattedAddress = addressParts.join(', ');
@@ -77,15 +111,19 @@ export const normalizeFormData = (formData: any) => {
       // Use address as is if it's a string
       formattedAddress = formData.address_1;
     }
-    
-    if (formattedAddress) {
-      normalized.address = formattedAddress;
-      console.log('Extracted address from address_1:', normalized.address);
-    }
+    console.log('Extracted address from address_1 object/string:', formattedAddress);
+  } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.address_1) {
+    // Get from user_inputs structure
+    formattedAddress = formData.__submission.user_inputs.address_1;
+    console.log('Extracted address from __submission.user_inputs.address_1:', formattedAddress);
   } else if (formData.user_inputs && formData.user_inputs.address_1) {
-    // Fallback to user_inputs
-    normalized.address = formData.user_inputs.address_1;
-    console.log('Extracted address from user_inputs.address_1:', normalized.address);
+    // Direct user_inputs object
+    formattedAddress = formData.user_inputs.address_1;
+    console.log('Extracted address from user_inputs.address_1:', formattedAddress);
+  }
+  
+  if (formattedAddress) {
+    normalized.address = formattedAddress;
   }
   
   // For non-wedding events, make sure to set the address if it exists in any field
@@ -95,6 +133,10 @@ export const normalizeFormData = (formData: any) => {
         normalized.address = normalized.client_address;
       } else if (normalized.company_address) {
         normalized.address = normalized.company_address;
+      } else if (normalized.city_contract && normalized.city_contract_1) {
+        // Use city_contract and city_contract_1 as fallback address components
+        normalized.address = `${normalized.city_contract_1}, ${normalized.city_contract}`;
+        console.log('Created fallback address from city_contract fields:', normalized.address);
       }
     }
   }
