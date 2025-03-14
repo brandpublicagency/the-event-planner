@@ -22,7 +22,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 }) => {
   if (isDashboard) {
     return (
-      <div className="mb-4">
+      <>
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <h3 className="font-medium text-sm">{monthYear}</h3>
@@ -34,7 +34,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
         {events.map(event => (
           <DashboardEventItem key={event.event_code} event={event} handleDelete={handleDelete} />
         ))}
-      </div>
+      </>
     );
   }
 
