@@ -1,6 +1,4 @@
-/**
- * Interface defining the structure of WhatsApp responses
- */
+
 export interface WhatsAppResponse {
   type: 'text' | 'interactive';
   message?: string;
@@ -8,69 +6,44 @@ export interface WhatsAppResponse {
 }
 
 /**
- * Wraps a promise with a timeout
- * 
- * @param promise The promise to wrap with a timeout
+ * Execute a promise with a timeout
+ * @param promise The promise to execute
  * @param operationName Name of the operation (for logging)
  * @param timeoutMs Timeout in milliseconds
- * @returns The result of the promise if it completes before the timeout
- * @throws Error if the operation times out
+ * @returns Result of the promise
+ * @throws Error if timeout or other error occurs
  */
 export const withTimeout = async <T>(
   promise: Promise<T>,
   operationName: string,
-  timeoutMs: number = 15000 // Default 15 second timeout
+  timeoutMs: number = 10000
 ): Promise<T> => {
-  // Create a timeout promise that rejects after the specified time
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(new Error(`${operationName} operation timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-  });
-
+  let timeoutId: number | undefined;
+  
   try {
-    // Use Promise.race to see which completes first
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error(`Operation '${operationName}' timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+    });
+    
+    // Race the original promise against the timeout
     return await Promise.race([promise, timeoutPromise]);
-  } catch (error) {
-    // Add context to the error
-    if (error.message?.includes('timed out')) {
-      console.error(`Operation timed out: ${operationName} (${timeoutMs}ms)`);
-    } else {
-      console.error(`Error in ${operationName}:`, error);
+  } finally {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
     }
-    throw error;
   }
 };
 
 /**
- * Centralized function to handle timeout errors in a user-friendly way
+ * Handle timeout errors with a standardized response
  */
-export const handleTimeoutError = (error: any): WhatsAppResponse => {
-  console.error('Timeout or operation error:', error);
+export const handleTimeoutError = (error: any, operationName: string): WhatsAppResponse => {
+  console.error(`Timeout error in ${operationName}:`, error);
   
-  const isTimeout = error.message?.includes('timed out');
-  
-  if (isTimeout) {
-    return {
-      type: 'text',
-      message: "I'm sorry, but the operation is taking longer than expected. Please try again with a more specific request."
-    };
-  }
-  
-  // Database connection errors
-  if (error.message?.includes('connection') || 
-      error.code === 'PGCONNECTION' ||
-      error.message?.includes('database')) {
-    return {
-      type: 'text',
-      message: "I'm having trouble connecting to our database at the moment. Please try again shortly."
-    };
-  }
-  
-  // Generic error response
   return {
     type: 'text',
-    message: "I encountered an unexpected error. Please try again or use a more specific command like 'help', 'events', or 'tasks'."
+    message: "I'm sorry, but that operation is taking too long. Please try again or use a simpler request."
   };
 };
