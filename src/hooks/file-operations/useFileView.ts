@@ -23,13 +23,7 @@ export function useFileView() {
 
       // For image files, create an image viewer in a modal
       if (contentType.startsWith('image/')) {
-        const img = new Image();
-        img.src = data.publicUrl;
-        img.style.maxWidth = '90%';
-        img.style.maxHeight = '90%';
-        img.style.objectFit = 'contain';
-        
-        // Create a simple modal to display the image
+        // Create modal container
         const modal = document.createElement('div');
         modal.style.position = 'fixed';
         modal.style.top = '0';
@@ -44,28 +38,51 @@ export function useFileView() {
         
         // Add close button
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Close';
+        closeBtn.textContent = '✕';
         closeBtn.style.position = 'absolute';
         closeBtn.style.top = '20px';
         closeBtn.style.right = '20px';
         closeBtn.style.padding = '8px 16px';
-        closeBtn.style.backgroundColor = '#fff';
+        closeBtn.style.backgroundColor = 'transparent';
+        closeBtn.style.color = 'white';
         closeBtn.style.border = 'none';
         closeBtn.style.borderRadius = '4px';
+        closeBtn.style.fontSize = '20px';
         closeBtn.style.cursor = 'pointer';
         closeBtn.onclick = () => document.body.removeChild(modal);
         
-        // Add the image to the modal
+        // Add image container with loading indicator
         const imgContainer = document.createElement('div');
+        imgContainer.style.position = 'relative';
         imgContainer.style.maxWidth = '90%';
         imgContainer.style.maxHeight = '90%';
-        imgContainer.style.overflow = 'auto';
         
+        // Add loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.textContent = 'Loading image...';
+        loadingIndicator.style.color = 'white';
+        loadingIndicator.style.textAlign = 'center';
+        loadingIndicator.style.padding = '20px';
+        
+        imgContainer.appendChild(loadingIndicator);
+        
+        // Add to DOM first
         document.body.appendChild(modal);
         modal.appendChild(imgContainer);
         modal.appendChild(closeBtn);
         
+        // Create and load image
+        const img = new Image();
+        img.src = data.publicUrl;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'contain';
+        img.style.display = 'none'; // Hide until loaded
+        
         img.onload = () => {
+          // Remove loading indicator and show image
+          imgContainer.removeChild(loadingIndicator);
+          img.style.display = 'block';
           imgContainer.appendChild(img);
         };
         
