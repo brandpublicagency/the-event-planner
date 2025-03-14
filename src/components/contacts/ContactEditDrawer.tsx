@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -11,22 +10,21 @@ import PersonalInfoSection from "./drawer-sections/PersonalInfoSection";
 import BusinessInfoSection from "./drawer-sections/BusinessInfoSection";
 import EventsBookedSection from "./drawer-sections/EventsBookedSection";
 import ActionButtons from "./drawer-sections/ActionButtons";
-
 interface ContactEditDrawerProps {
   contact: Contact;
   isOpen: boolean;
   onClose: () => void;
   onUpdateSuccess: () => void;
 }
-
 const ContactEditDrawer = ({
   contact,
   isOpen,
   onClose,
-  onUpdateSuccess,
+  onUpdateSuccess
 }: ContactEditDrawerProps) => {
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -35,10 +33,9 @@ const ContactEditDrawer = ({
       phone: contact.phone || "",
       company: contact.company || "",
       address: contact.address || "",
-      vat_number: contact.vat_number || "",
-    },
+      vat_number: contact.vat_number || ""
+    }
   });
-
   const onSubmit = async (values: ContactFormValues) => {
     try {
       await updateContact(contact, values);
@@ -53,17 +50,11 @@ const ContactEditDrawer = ({
       toast({
         title: "Error",
         description: error.message || "Failed to update contact",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <OffCanvasDrawer 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      title={`Edit Contact: ${contact.name}`}
-    >
+  return <OffCanvasDrawer isOpen={isOpen} onClose={onClose} title={`Edit Contact: ${contact.name}`}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
           <div className="flex-1 space-y-5">
@@ -78,14 +69,9 @@ const ContactEditDrawer = ({
           </div>
           
           {/* Action Buttons - Now at the bottom */}
-          <ActionButtons 
-            onClose={onClose} 
-            isSubmitting={form.formState.isSubmitting}
-          />
+          <ActionButtons onClose={onClose} isSubmitting={form.formState.isSubmitting} />
         </form>
       </Form>
-    </OffCanvasDrawer>
-  );
+    </OffCanvasDrawer>;
 };
-
 export default ContactEditDrawer;
