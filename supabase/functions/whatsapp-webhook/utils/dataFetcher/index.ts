@@ -48,5 +48,6 @@ export {
 
 export { 
   checkDatabaseConnection,
-  verifyAllRequiredTables 
+  verifyAllRequiredTables,
+  performHealthCheck 
 } from './connectionChecker.ts';

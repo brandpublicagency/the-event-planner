@@ -10,22 +10,42 @@ export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
     console.log('Checking database connection...');
     
-    // Use a more reliable check with timeout
-    const { data, error } = await withTimeout(
-      supabase.from('events').select('count(*)', { count: 'exact', head: true }),
-      'connectionCheck',
-      5000
-    );
-    
-    if (error) {
-      console.error('Database connection check failed:', error);
+    // Try multiple connection strategies for better reliability
+    try {
+      // Strategy 1: Simple count query with short timeout
+      const { data: countData, error: countError } = await withTimeout(
+        supabase.from('events').select('count(*)', { count: 'exact', head: true }),
+        'connectionCheck_count',
+        3000
+      );
+      
+      if (!countError) {
+        console.log('Database connection successful via count query');
+        return true;
+      }
+      
+      console.warn('Count query failed, trying alternative connection test...');
+      
+      // Strategy 2: Select a single row with minimal columns
+      const { data: rowData, error: rowError } = await withTimeout(
+        supabase.from('events').select('event_code').limit(1),
+        'connectionCheck_row',
+        3000
+      );
+      
+      if (!rowError) {
+        console.log('Database connection successful via row query');
+        return true;
+      }
+      
+      console.error('Database connection failed on all attempts:', { countError, rowError });
+      return false;
+    } catch (strategyError) {
+      console.error('Error during connection check strategies:', strategyError);
       return false;
     }
-    
-    console.log('Database connection successful');
-    return true;
   } catch (error) {
-    console.error('Error checking database connection:', error);
+    console.error('Critical error checking database connection:', error);
     return false;
   }
 };
@@ -36,6 +56,7 @@ export const checkDatabaseConnection = async (): Promise<boolean> => {
 export const verifyAllRequiredTables = async (): Promise<{[key: string]: boolean}> => {
   try {
     console.log('Verifying required tables...');
+    // Check core tables needed for the webhook functionality
     const requiredTables = ['events', 'tasks', 'profiles', 'event_venues', 'menu_selections'];
     const results: {[key: string]: boolean} = {};
     
@@ -65,4 +86,56 @@ export const verifyAllRequiredTables = async (): Promise<{[key: string]: boolean
     console.error('Error verifying tables:', error);
     return {};
   }
+};
+
+/**
+ * Performs a comprehensive health check on the database
+ * with detailed diagnostics
+ */
+export const performHealthCheck = async (): Promise<{
+  connected: boolean;
+  tables: {[key: string]: boolean};
+  diagnostics: {[key: string]: any};
+}> => {
+  console.log('Performing comprehensive database health check...');
+  const diagnostics: {[key: string]: any} = {};
+  
+  // Check basic connection
+  const connected = await checkDatabaseConnection();
+  diagnostics.connectionResult = connected;
+  
+  // If connected, verify tables
+  let tables = {};
+  if (connected) {
+    tables = await verifyAllRequiredTables();
+    diagnostics.tableResults = tables;
+    
+    // Try a simple data fetch
+    try {
+      const { data, error } = await withTimeout(
+        supabase.from('events').select('event_code, name').limit(1),
+        'healthCheck_sampleData',
+        5000
+      );
+      
+      diagnostics.sampleDataFetch = {
+        success: !error,
+        hasData: data && data.length > 0,
+        error: error ? error.message : null
+      };
+    } catch (e) {
+      diagnostics.sampleDataFetch = {
+        success: false,
+        error: e.message
+      };
+    }
+  }
+  
+  console.log('Health check results:', { connected, tableCount: Object.keys(tables).length, diagnostics });
+  
+  return {
+    connected,
+    tables,
+    diagnostics
+  };
 };

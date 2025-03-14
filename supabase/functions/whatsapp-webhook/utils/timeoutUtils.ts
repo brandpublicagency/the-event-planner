@@ -19,16 +19,37 @@ export const withTimeout = async <T>(
   timeoutMs: number = 10000
 ): Promise<T> => {
   let timeoutId: number | undefined;
+  let completed = false;
   
   try {
+    console.log(`Starting operation '${operationName}' with ${timeoutMs}ms timeout`);
+    
+    const startTime = Date.now();
+    
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => {
-        reject(new Error(`Operation '${operationName}' timed out after ${timeoutMs}ms`));
+        const elapsed = Date.now() - startTime;
+        console.warn(`Operation '${operationName}' timed out after ${elapsed}ms (limit: ${timeoutMs}ms)`);
+        reject(new Error(`Operation '${operationName}' timed out after ${elapsed}ms`));
       }, timeoutMs);
     });
     
     // Race the original promise against the timeout
-    return await Promise.race([promise, timeoutPromise]);
+    const result = await Promise.race([promise, timeoutPromise]);
+    completed = true;
+    
+    const elapsed = Date.now() - startTime;
+    console.log(`Operation '${operationName}' completed successfully in ${elapsed}ms`);
+    return result;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`Error in operation '${operationName}': ${errorMessage}`);
+    
+    if (!completed && error instanceof Error) {
+      error.name = 'TimeoutError';
+    }
+    
+    throw error;
   } finally {
     if (timeoutId !== undefined) {
       clearTimeout(timeoutId);
@@ -46,4 +67,35 @@ export const handleTimeoutError = (error: any, operationName: string): WhatsAppR
     type: 'text',
     message: "I'm sorry, but that operation is taking too long. Please try again or use a simpler request."
   };
+};
+
+/**
+ * Retry a promise-based operation with exponential backoff
+ */
+export const withRetry = async <T>(
+  operation: () => Promise<T>,
+  operationName: string,
+  maxRetries: number = 3,
+  initialDelayMs: number = 200
+): Promise<T> => {
+  let lastError: any;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}/${maxRetries} for operation '${operationName}'`);
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt}/${maxRetries} for '${operationName}' failed:`, error);
+      
+      if (attempt < maxRetries) {
+        const delayMs = initialDelayMs * Math.pow(2, attempt - 1);
+        console.log(`Retrying in ${delayMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  
+  console.error(`All ${maxRetries} attempts for '${operationName}' failed`);
+  throw lastError;
 };

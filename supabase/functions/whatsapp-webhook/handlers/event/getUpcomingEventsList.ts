@@ -27,8 +27,9 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
     
-    // Test database connection first
+    // Test database connection first with a quick test query
     try {
+      console.log('Testing database connection before events query');
       const { data: testData, error: testError } = await supabase
         .from('events')
         .select('count(*)', { count: 'exact', head: true })
@@ -36,16 +37,17 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
         
       if (testError) {
         console.error('Database connection test failed:', testError);
-        throw new Error('Database connection failed');
+        throw new Error(`Database connection failed: ${testError.message}`);
       }
       
-      console.log('Database connection test successful');
+      console.log('Database connection test successful, proceeding with events query');
     } catch (testError) {
       console.error('Error testing database connection:', testError);
       return handleError(testError, 'database connection test');
     }
     
-    // Simplified query - we'll query relationships carefully
+    // First try with a simplified query to see if we can get results
+    console.log('Executing main events query');
     const { data: events, error } = await supabase
       .from('events')
       .select(`
@@ -77,6 +79,7 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     }
 
     // Now fetch venues for these events
+    console.log('Fetching venues for events');
     const eventIds = events.map(event => event.id);
     const { data: venueData, error: venueError } = await supabase
       .from('event_venues')
@@ -96,14 +99,19 @@ export const getUpcomingEventsList = async (): Promise<WhatsAppResponse> => {
     
     // Create a map of event ID to venues
     const venueMap = new Map();
-    venueData?.forEach(item => {
-      if (item.venues) {
-        if (!venueMap.has(item.event_id)) {
-          venueMap.set(item.event_id, []);
+    if (venueData) {
+      venueData.forEach(item => {
+        if (item.venues) {
+          if (!venueMap.has(item.event_id)) {
+            venueMap.set(item.event_id, []);
+          }
+          venueMap.get(item.event_id).push(item.venues);
         }
-        venueMap.get(item.event_id).push(item.venues);
-      }
-    });
+      });
+      console.log(`Retrieved venue information for ${venueMap.size} events`);
+    } else {
+      console.log('No venue data available');
+    }
     
     // Group events by type
     const weddings = events.filter(event => event.event_type?.toLowerCase() === 'wedding');
