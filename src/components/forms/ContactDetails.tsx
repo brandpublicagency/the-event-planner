@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +11,7 @@ export interface ContactDetailsProps {
 
 const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
   const isWedding = eventType === "Wedding";
-  const isCorporate = eventType === "Corporate Event";
+  const isCorporate = ["Corporate Function", "Conference", "Year-End Function"].includes(eventType);
 
   return (
     <div className="space-y-6">
@@ -71,6 +72,47 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           )}
         />
 
+        {/* For all non-wedding events, show company and VAT number fields */}
+        {!isWedding && (
+          <>
+            <FormField
+              control={form.control}
+              name="company"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input 
+                      placeholder="Company Name" 
+                      aria-label="Company Name"
+                      {...field} 
+                      className="bg-white" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="vat_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input 
+                      placeholder="VAT Number" 
+                      aria-label="VAT Number"
+                      {...field} 
+                      className="bg-white" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         {isWedding && (
           <>
             <FormField
@@ -120,46 +162,6 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                       placeholder="Groom's Phone" 
                       aria-label="Groom's Phone"
                       type="tel"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
-
-        {isCorporate && (
-          <>
-            <FormField
-              control={form.control}
-              name="company"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="Company Name" 
-                      aria-label="Company Name"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="vat_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="VAT Number" 
-                      aria-label="VAT Number"
                       {...field} 
                       className="bg-white" 
                     />
