@@ -25,3 +25,29 @@ export const fetchContacts = async () => {
     return [];
   }
 };
+
+// Add specific contact fetching function
+export const fetchContactById = async (contactId: string) => {
+  console.log(`Fetching contact with ID: ${contactId}`);
+  
+  try {
+    const { data: contact, error } = await withTimeout(
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', contactId)
+        .maybeSingle(),
+      'fetchContactById',
+      8000
+    );
+    
+    if (error) {
+      handleDbError(`fetchContactById for ${contactId}`, error);
+    }
+    
+    return contact;
+  } catch (error) {
+    console.error(`Error in fetchContactById for ${contactId}:`, error);
+    return null;
+  }
+};
