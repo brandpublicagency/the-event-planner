@@ -92,7 +92,7 @@ const Index = () => {
               New Event
             </Button>
           </div>
-          <div className="flex-1 overflow-auto p-2">
+          <div className="flex-1 overflow-auto">
             {isEventsLoading ? (
               <div className="flex items-center justify-center h-40">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

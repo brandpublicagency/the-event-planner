@@ -54,50 +54,80 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   };
   
   const isToday = event.event_date && new Date(event.event_date).toDateString() === new Date().toDateString();
+  const eventDate = event.event_date ? new Date(event.event_date) : null;
+  const formattedTime = event.start_time ? event.start_time.substring(0, 5) : "00:00";
   
   return (
-    <div className="border border-zinc-100 rounded-lg mb-2 hover:border-zinc-200 transition-colors">
-      <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center">
-              <span className={cn(
-                "text-sm font-medium truncate mr-2", 
-                isToday ? "text-blue-600" : "text-zinc-900"
-              )}>
-                {event.event_date ? format(new Date(event.event_date), 'dd MMM') : 'No date'} - {event.name}
-              </span>
-              
-              <Badge variant="outline" 
-                className="text-[10px] font-normal cursor-pointer hover:bg-white border-none py-0 h-5"
-                onClick={copyEventCode}>
-                {event.event_code}
-                <Copy className="ml-1 h-2.5 w-2.5 opacity-70" />
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-500 mt-2">
-              {venueStr && (
-                <div className="flex items-center">
-                  <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{venueStr}</span>
+    <div className="rounded-xl border border-zinc-100 bg-white mb-5 hover:border-zinc-200 transition-colors overflow-hidden shadow-sm">
+      <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
+        <div className="flex items-stretch w-full">
+          {/* Date column */}
+          <div className={cn(
+            "flex flex-col items-center justify-center min-w-[100px] p-4 text-center",
+            isToday ? "bg-blue-50" : "bg-zinc-50"
+          )}>
+            {eventDate && (
+              <>
+                {isToday && <div className="text-xs uppercase text-blue-600 font-medium mb-1">Today</div>}
+                {!isToday && eventDate && (
+                  <div className="text-xs text-zinc-500 mb-1">
+                    {format(eventDate, 'dd - dd MMM').split(' ')[0]}
+                  </div>
+                )}
+                <div className={cn(
+                  "text-xl font-semibold",
+                  isToday ? "text-blue-600" : "text-zinc-800"
+                )}>
+                  {formattedTime}
                 </div>
-              )}
-              
-              {event.pax && (
-                <div className="flex items-center ml-2">
-                  <Users className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span>{event.pax} guests</span>
+              </>
+            )}
+          </div>
+          
+          {/* Content column */}
+          <div className="flex-1 p-4">
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium text-zinc-900 truncate">{event.name}</h4>
+                
+                <div className="flex items-center space-x-1">
+                  <Badge variant="outline" 
+                    className="text-[10px] font-normal cursor-pointer hover:bg-white border-none py-0 h-5"
+                    onClick={copyEventCode}>
+                    {event.event_code}
+                    <Copy className="ml-1 h-2.5 w-2.5 opacity-70" />
+                  </Badge>
                 </div>
-              )}
+              </div>
+              
+              <p className="text-sm text-zinc-500 mt-1 line-clamp-2">
+                {event.description || `Event details for ${event.name}`}
+              </p>
+              
+              <div className="flex items-center gap-4 text-xs text-zinc-500 mt-3">
+                {venueStr && (
+                  <div className="flex items-center">
+                    <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">{venueStr}</span>
+                  </div>
+                )}
+                
+                {event.pax && (
+                  <div className="flex items-center">
+                    <Users className="h-3 w-3 mr-1 flex-shrink-0" />
+                    <span>{event.pax} guests</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          {/* Actions */}
+          <div className="flex flex-col justify-center p-2 border-l border-zinc-100">
             <Button variant="ghost" size="icon" onClick={e => {
               e.stopPropagation();
               navigate(`/events/${event.event_code}/edit`);
-            }} className="h-7 w-7 rounded-full">
+            }} className="h-8 w-8 rounded-full">
               <Edit className="h-3.5 w-3.5 text-zinc-500" />
             </Button>
             
@@ -108,7 +138,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                     variant="ghost"
                     size="icon"
                     onClick={(e) => e.stopPropagation()}
-                    className="h-7 w-7 rounded-full"
+                    className="h-8 w-8 rounded-full"
                   >
                     <Trash className="h-3.5 w-3.5 text-zinc-500" />
                   </Button>
