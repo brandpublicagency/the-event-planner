@@ -41,7 +41,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   if (isDashboard) {
     return (
-      <div className="p-2">
+      <div>
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
           <EventMonthGroup
             key={monthYear}

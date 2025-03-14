@@ -26,7 +26,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
         <div className="flex items-center gap-2 mb-3">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <h3 className="font-medium text-sm">{monthYear}</h3>
-          <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full bg-white text-zinc-600 border border-zinc-100">
+          <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full text-zinc-600 border border-zinc-100">
             {events.length} {events.length === 1 ? 'event' : 'events'}
           </Badge>
         </div>
@@ -41,11 +41,11 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
   }
 
   return (
-    <div className="rounded-xl border bg-white overflow-hidden">
+    <div className="rounded-xl border overflow-hidden">
       <div className="flex items-center gap-2 p-3 border-b">
         <Calendar className="h-4 w-4 text-muted-foreground" />
         <h3 className="font-medium">{monthYear}</h3>
-        <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full bg-white border border-gray-200">
+        <Badge variant="secondary" className="px-2 py-0.5 text-xs rounded-full border border-gray-200">
           {events.length} {events.length === 1 ? 'event' : 'events'}
         </Badge>
       </div>

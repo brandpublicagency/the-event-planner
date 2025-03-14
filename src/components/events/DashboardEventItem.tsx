@@ -64,7 +64,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
         <div className="flex items-stretch w-full">
           {/* Date column */}
-          <div className="flex flex-col items-center justify-center w-[80px] p-3 text-center bg-zinc-50">
+          <div className="flex flex-col items-center justify-center w-[80px] p-3 text-center">
             <div className="text-3xl font-semibold text-zinc-800">{day}</div>
             <div className="text-xs text-zinc-500 mt-1">{formattedStartTime}</div>
           </div>
