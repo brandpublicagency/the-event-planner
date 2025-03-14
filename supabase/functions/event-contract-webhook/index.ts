@@ -52,11 +52,112 @@ const normalizeFormData = (formData: any) => {
     normalized[cleanKey] = formData[key];
   }
   
+  console.log('Original form data keys:', Object.keys(formData));
+  
+  // Event contract form specific fields
+  const hasEventContract = formData.name_company_contact || 
+                         formData.event_type || 
+                         formData.confirmed_event_date || 
+                         formData.corporate_venues;
+                         
+  console.log('Is Event Contract form:', hasEventContract);
+  
+  // Special handling for event name - combine company name and event type for corporate events
+  if (hasEventContract && normalized.company_name && normalized.event_type) {
+    normalized.name = `${normalized.company_name} ${normalized.event_type}`.trim();
+  } else if (hasEventContract && normalized.name_company_contact && normalized.event_type) {
+    // If no company name, use contact person name + event type
+    normalized.name = `${normalized.name_company_contact} ${normalized.event_type}`.trim();
+  }
+  
+  // Handle corporate venues field (multiselect)
+  if (normalized.corporate_venues) {
+    if (typeof normalized.corporate_venues === 'string') {
+      normalized.venues = [normalized.corporate_venues];
+    } else if (Array.isArray(normalized.corporate_venues)) {
+      normalized.venues = normalized.corporate_venues;
+    }
+  }
+  
+  // Format address
+  let formattedAddress = null;
+  if (normalized.address_1) {
+    if (typeof normalized.address_1 === 'string') {
+      formattedAddress = normalized.address_1;
+    } else if (typeof normalized.address_1 === 'object') {
+      const addressParts = [
+        normalized.address_1.address_line_1,
+        normalized.address_1.address_line_2,
+        normalized.address_1.city,
+        normalized.address_1.state,
+        normalized.address_1.zip,
+        normalized.address_1.country
+      ].filter(part => part && part.trim() !== '');
+      
+      formattedAddress = addressParts.join(', ');
+    }
+    
+    if (formattedAddress) {
+      normalized.address = formattedAddress;
+    }
+  }
+  
+  // Generate contract signing notes
+  if (normalized.contract_signee && normalized.terms_date) {
+    let contractNotes = `Contract signed by ${normalized.contract_signee} on ${normalized.terms_date}`;
+    
+    if (normalized.city_contract) {
+      contractNotes += ` in ${normalized.city_contract}`;
+      
+      if (normalized.city_contract_1) {
+        contractNotes += `, ${normalized.city_contract_1}`;
+      }
+    }
+    
+    if (normalized.accept_terms) {
+      contractNotes += `. Terms and conditions accepted.`;
+    }
+    
+    normalized.event_notes = contractNotes;
+    normalized.description = contractNotes;
+  }
+  
+  // Map primary contact information
+  if (normalized.name_company_contact) {
+    // Combine first and last name if available
+    if (normalized.surname_company_contact) {
+      normalized.primary_name = `${normalized.name_company_contact} ${normalized.surname_company_contact}`.trim();
+    } else {
+      normalized.primary_name = normalized.name_company_contact;
+    }
+  }
+  
+  if (normalized.email_bride) {
+    normalized.primary_email = normalized.email_bride;
+  }
+  
+  if (normalized.contact_number_contact_person) {
+    normalized.primary_phone = normalized.contact_number_contact_person;
+  } else if (normalized.contact_number_company) {
+    normalized.primary_phone = normalized.contact_number_company;
+  }
+  
+  // Handle confirmed event date
+  if (normalized.confirmed_event_date) {
+    normalized.event_date = normalized.confirmed_event_date;
+  }
+  
+  // Handle number of guests as pax
+  if (normalized.number_of_guests) {
+    const parsedPax = parseInt(normalized.number_of_guests);
+    normalized.pax = isNaN(parsedPax) ? null : parsedPax;
+  }
+  
   // Handle common field mapping patterns
   const fieldMappings: Record<string, string[]> = {
     'name': ['event_name', 'event-name', 'eventName', 'title'],
     'event_type': ['event-type', 'eventType', 'type', 'event_category', 'category'],
-    'event_date': ['event-date', 'eventDate', 'date'],
+    'event_date': ['event-date', 'eventDate', 'date', 'confirmed_wedding_date'],
     'start_time': ['start-time', 'startTime'],
     'end_time': ['end-time', 'endTime'],
     'pax': ['guests', 'guest_count', 'guest-count', 'attendees', 'people'],
@@ -86,7 +187,7 @@ const normalizeFormData = (formData: any) => {
     }
   }
   
-  // Convert venues to array if it's a string
+  // Ensure venues is array
   if (typeof normalized.venues === 'string') {
     normalized.venues = [normalized.venues];
   } else if (!normalized.venues) {
@@ -129,19 +230,20 @@ const processFormData = async (formData: any) => {
       pax: normalizedData.pax ? parseInt(normalizedData.pax) : null,
       description: normalizedData.description || null,
       venues: normalizedData.venues || null,
+      event_notes: normalizedData.event_notes || null,
       
       // Contact details
-      primary_name: normalizedData.primary_name || normalizedData.contact_person || normalizedData.bride_name || null,
-      primary_phone: normalizedData.primary_phone || normalizedData.contact_mobile || normalizedData.bride_mobile || null,
-      primary_email: normalizedData.primary_email || normalizedData.contact_email || normalizedData.bride_email || null,
-      secondary_name: normalizedData.secondary_name || normalizedData.groom_name || null,
-      secondary_phone: normalizedData.secondary_phone || normalizedData.groom_mobile || null,
-      secondary_email: normalizedData.secondary_email || normalizedData.groom_email || null,
+      primary_name: normalizedData.primary_name || null,
+      primary_phone: normalizedData.primary_phone || null,
+      primary_email: normalizedData.primary_email || null,
+      secondary_name: normalizedData.secondary_name || null,
+      secondary_phone: normalizedData.secondary_phone || null,
+      secondary_email: normalizedData.secondary_email || null,
       
       // Company details
-      company: normalizedData.company || normalizedData.company_name || null,
-      address: normalizedData.address || normalizedData.company_address || null,
-      vat_number: normalizedData.vat_number || normalizedData.company_vat || null,
+      company: normalizedData.company || null,
+      address: normalizedData.address || null,
+      vat_number: normalizedData.vat_number || null,
     };
     
     console.log('Inserting event data:', eventData);
@@ -206,7 +308,7 @@ serve(async (req) => {
       console.log('Content-Type:', contentType);
       
       // First, check if the body contains Fluent Forms data
-      if (rawBody.includes('_fluentform_')) {
+      if (rawBody.includes('_fluentform_') || rawBody.includes('name_company_contact') || rawBody.includes('event_type=')) {
         const formDataObj = new URLSearchParams(rawBody);
         formData = Object.fromEntries(formDataObj.entries());
         console.log('Detected Fluent Forms data:', formData);
