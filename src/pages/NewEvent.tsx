@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -28,7 +27,7 @@ const NewEvent = () => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       name: '',
-      event_type: 'Wedding' as const,  // Use const assertion
+      event_type: 'Wedding' as const,
       venues: []
     }
   });
@@ -78,7 +77,9 @@ const NewEvent = () => {
         vat_number: data.vat_number || null
       };
 
-      await createEvent(eventData, user.id);
+      console.log('Creating event with data:', eventData);
+      const eventCodeResult = await createEvent(eventData, user.id);
+      console.log('Event created with code:', eventCodeResult);
 
       // Explicitly trigger a refresh of data for realtime updates to work reliably
       await queryClient.invalidateQueries({ queryKey: ['events'] });
@@ -92,10 +93,12 @@ const NewEvent = () => {
         showProgress: true
       });
 
-      // Short delay to allow notification to be processed
+      // Longer delay to allow notification to be processed
+      console.log('Waiting before navigation...');
       setTimeout(() => {
+        console.log('Navigating to events page');
         navigate('/events');
-      }, 500);
+      }, 1000);
     } catch (error: any) {
       console.error('Error creating event:', error);
       toast({

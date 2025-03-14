@@ -74,6 +74,9 @@ export const createEvent = async (data: EventCreate, userId: string) => {
       throw new Error("Failed to create event");
     }
 
+    // Log successful creation to help with debugging
+    console.log('Event created successfully with event_code:', createdEvent.event_code);
+
     return createdEvent.event_code;
   } catch (error: any) {
     console.error('Error creating event:', error);

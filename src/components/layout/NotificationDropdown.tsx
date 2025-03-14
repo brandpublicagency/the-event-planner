@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +18,10 @@ export const NotificationDropdown: React.FC = () => {
   } = useNotifications();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  React.useEffect(() => {
+    console.log('Current notifications in dropdown:', notifications);
+  }, [notifications]);
   
   const handleAction = (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
