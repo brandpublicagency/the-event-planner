@@ -3,12 +3,14 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskContext } from "./TaskContext";
 import { addDays, isPast, isFuture } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 export type NotificationType = 
   | "event_created" 
   | "task_overdue" 
   | "task_upcoming" 
-  | "event_incomplete";
+  | "event_incomplete"
+  | "task_created";
 
 export interface Notification {
   id: string;
@@ -36,6 +38,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { tasks } = useTaskContext();
+  const { toast } = useToast();
   
   const unreadCount = notifications.filter(n => !n.read).length;
   
@@ -114,19 +117,29 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         (payload) => {
           // Add new event notification
           const newEvent = payload.new;
+          const newNotification = {
+            id: `event-created-${newEvent.event_code}`,
+            title: "New Event",
+            description: `New event "${newEvent.name}" has been created`,
+            createdAt: new Date(),
+            type: "event_created" as NotificationType,
+            read: false,
+            actionType: "review" as const,
+            relatedId: newEvent.event_code
+          };
+          
           setNotifications(prev => [
             ...prev,
-            {
-              id: `event-created-${newEvent.event_code}`,
-              title: "New Event",
-              description: `New event "${newEvent.name}" has been created`,
-              createdAt: new Date(),
-              type: "event_created",
-              read: false,
-              actionType: "review",
-              relatedId: newEvent.event_code
-            }
+            newNotification
           ]);
+          
+          // Also show a toast notification
+          toast({
+            title: "New Event Created",
+            description: `Event "${newEvent.name}" has been added`,
+            variant: "info",
+            showProgress: true
+          });
         }
       )
       .subscribe();
@@ -135,7 +148,55 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
+  
+  // Subscribe to new tasks
+  useEffect(() => {
+    // Subscribe to tasks table
+    const channel = supabase
+      .channel('task-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          // Add new task notification
+          const newTask = payload.new;
+          const newNotification = {
+            id: `task-created-${newTask.id}`,
+            title: "New Task",
+            description: `New task "${newTask.title}" has been created`,
+            createdAt: new Date(),
+            type: "task_created" as NotificationType,
+            read: false,
+            actionType: "review" as const,
+            relatedId: newTask.id
+          };
+          
+          setNotifications(prev => [
+            ...prev,
+            newNotification
+          ]);
+          
+          // Also show a toast notification
+          toast({
+            title: "New Task Created",
+            description: `Task "${newTask.title}" has been added`,
+            variant: "info",
+            showProgress: true
+          });
+        }
+      )
+      .subscribe();
+      
+    // Cleanup subscription
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
   
   // Check for incomplete events
   useEffect(() => {
