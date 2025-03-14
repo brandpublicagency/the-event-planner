@@ -83,6 +83,35 @@ serve(async (req) => {
       }
     }
 
+    // Extract venues properly - improved to handle different formats
+    const extractVenues = () => {
+      // Check if we have indexed venue fields like venue_choices[0], venue_choices[1]
+      const venueKeys = Object.keys(formData).filter(key => key.startsWith('venue_choices['));
+      if (venueKeys.length > 0) {
+        return venueKeys.map(key => formData[key]);
+      }
+      // Also check for corporate_venues which is used in some forms
+      const corporateVenueKeys = Object.keys(formData).filter(key => key.startsWith('corporate_venues['));
+      if (corporateVenueKeys.length > 0) {
+        return corporateVenueKeys.map(key => formData[key]);
+      }
+      // Otherwise try to get venues from user_inputs (comma-separated)
+      else if (formData.__submission?.user_inputs?.venue_choices) {
+        return formData.__submission.user_inputs.venue_choices
+          .split(/,|\+|;|\s+\|\s+/)  // Split by various possible separators
+          .map(v => v.trim())
+          .filter(Boolean);
+      }
+      else if (formData.__submission?.user_inputs?.corporate_venues) {
+        return formData.__submission.user_inputs.corporate_venues
+          .split(/,|\+|;|\s+\|\s+/)  // Split by various possible separators
+          .map(v => v.trim())
+          .filter(Boolean);
+      }
+      // Fallback to null if no venues found
+      return null;
+    };
+
     // Explicit mapping for Wedding Confirmation Contract form
     const eventData = {
       event_code: eventCode,
@@ -92,8 +121,8 @@ serve(async (req) => {
       // Parse date correctly - Fluent Forms sends it in format Y-m-d
       event_date: formData.confirmed_wedding_date || null,
       pax: formData.number_of_guests ? parseInt(formData.number_of_guests) : null,
-      // Extract venues properly
-      venues: formData.venue_choices || null,
+      // Extract venues with the new function
+      venues: extractVenues(),
       // Primary contact details (bride)
       primary_name: `${formData.first_name_bride || ''} ${formData.last_name_bride || ''}`.trim() || null,
       primary_email: formData.email_bride || null,
