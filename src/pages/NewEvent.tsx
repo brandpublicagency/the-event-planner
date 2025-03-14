@@ -12,7 +12,7 @@ import { ensureUserProfile, createEvent } from "@/utils/eventUtils";
 import { useState } from "react";
 import { EventFormData } from "@/types/eventForm";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventFormSchema } from "@/schemas/eventFormSchema";
+import { eventFormSchema, EventFormSchema } from "@/schemas/eventFormSchema";
 import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,11 +24,11 @@ const NewEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   
-  const form = useForm<EventFormData>({
+  const form = useForm<EventFormSchema>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       name: '',
-      event_type: 'Wedding',  // Default event type
+      event_type: 'Wedding' as const,  // Use const assertion
       venues: []
     }
   });
@@ -41,7 +41,7 @@ const NewEvent = () => {
     return `EVENT-${format(date, 'ddMM')}-${timestamp}`;
   };
 
-  const onSubmit = async (data: EventFormData) => {
+  const onSubmit = async (data: EventFormSchema) => {
     console.log('Submitting form with venues:', data.venues);
     setIsSubmitting(true);
     try {
