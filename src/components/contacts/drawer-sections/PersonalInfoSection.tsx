@@ -2,7 +2,6 @@
 import {
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
@@ -27,9 +26,8 @@ const PersonalInfoSection = ({ form }: PersonalInfoSectionProps) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input placeholder="Name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -41,9 +39,8 @@ const PersonalInfoSection = ({ form }: PersonalInfoSectionProps) => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input placeholder="Email" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -55,9 +52,8 @@ const PersonalInfoSection = ({ form }: PersonalInfoSectionProps) => {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input placeholder="Phone" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -8,7 +8,7 @@ interface ActionButtonsProps {
 
 const ActionButtons = ({ onClose, isSubmitting }: ActionButtonsProps) => {
   return (
-    <div className="flex justify-start space-x-2 pb-6">
+    <div className="flex justify-start space-x-2 py-4 border-t mt-auto sticky bottom-0 bg-background">
       <Button 
         type="button" 
         variant="outline" 

@@ -65,21 +65,23 @@ const ContactEditDrawer = ({
       title={`Edit Contact: ${contact.name}`}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          {/* Action Buttons */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+          <div className="flex-1 space-y-5">
+            {/* Personal Information */}
+            <PersonalInfoSection form={form} />
+            
+            {/* Business Information */}
+            <BusinessInfoSection form={form} />
+            
+            {/* Events Booked Section */}
+            <EventsBookedSection contact={contact} />
+          </div>
+          
+          {/* Action Buttons - Now at the bottom */}
           <ActionButtons 
             onClose={onClose} 
             isSubmitting={form.formState.isSubmitting}
           />
-          
-          {/* Personal Information */}
-          <PersonalInfoSection form={form} />
-          
-          {/* Business Information */}
-          <BusinessInfoSection form={form} />
-          
-          {/* Events Booked Section */}
-          <EventsBookedSection contact={contact} />
         </form>
       </Form>
     </OffCanvasDrawer>
