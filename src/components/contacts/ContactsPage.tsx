@@ -52,7 +52,7 @@ const ContactsPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden px-8 pt-5 pb-8 bg-white border-t border-gray-100 shadow-sm">
+      <div className="flex-1 overflow-hidden px-8 pt-5 pb-8 bg-white shadow-sm">
         <ContactsTabs 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 

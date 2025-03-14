@@ -37,7 +37,7 @@ const ContactsTable = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64 rounded-lg bg-gray-50 border border-gray-100">
+      <div className="flex items-center justify-center h-full rounded-lg bg-gray-50 border border-gray-100">
         <p className="text-muted-foreground flex items-center gap-2">
           <span className="inline-block h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin"></span>
           Loading contacts...
@@ -49,7 +49,7 @@ const ContactsTable = ({
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden h-full rounded-lg border border-gray-100">
-        <ScrollArea className="h-[calc(100vh-12rem)]">
+        <ScrollArea className="h-full">
           <Table>
             <TableHeader className="bg-gray-50 sticky top-0">
               <TableRow>
