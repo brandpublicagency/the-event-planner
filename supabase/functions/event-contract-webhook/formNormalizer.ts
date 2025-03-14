@@ -113,6 +113,7 @@ export const normalizeFormData = (formData: any) => {
   // Handle confirmed event date
   if (normalized.confirmed_event_date) {
     normalized.event_date = normalized.confirmed_event_date;
+    console.log('Found confirmed event date:', normalized.event_date);
   }
   
   // Handle number of guests as pax

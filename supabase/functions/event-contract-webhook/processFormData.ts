@@ -26,12 +26,50 @@ export const processFormData = async (formData: any) => {
     // Generate a unique event code
     const eventCode = await generateEventCode(normalizedData.event_type);
     
+    // Format the date correctly if it exists
+    let formattedDate = null;
+    if (normalizedData.event_date) {
+      // Parse the date string and convert to ISO format
+      try {
+        // Check if date is in format DD.MM.YYYY
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(normalizedData.event_date)) {
+          const [day, month, year] = normalizedData.event_date.split('.');
+          formattedDate = `${year}-${month}-${day}`;
+        } 
+        // Check if date is in format MM/DD/YYYY
+        else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(normalizedData.event_date)) {
+          const [month, day, year] = normalizedData.event_date.split('/');
+          formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+        // Already in YYYY-MM-DD format
+        else if (/^\d{4}-\d{2}-\d{2}$/.test(normalizedData.event_date)) {
+          formattedDate = normalizedData.event_date;
+        }
+        else {
+          // Try to parse with Date and format
+          const date = new Date(normalizedData.event_date);
+          if (!isNaN(date.getTime())) {
+            formattedDate = date.toISOString().split('T')[0];
+          } else {
+            console.error('Invalid date format:', normalizedData.event_date);
+            formattedDate = null;
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        formattedDate = null;
+      }
+      
+      console.log('Original date:', normalizedData.event_date);
+      console.log('Formatted date:', formattedDate);
+    }
+    
     // Extract core event data
     const eventData = {
       name: normalizedData.name,
       event_type: normalizedData.event_type,
       event_code: eventCode,
-      event_date: normalizedData.event_date || null,
+      event_date: formattedDate,
       start_time: normalizedData.start_time || null,
       end_time: normalizedData.end_time || null,
       pax: normalizedData.pax ? parseInt(normalizedData.pax) : null,
