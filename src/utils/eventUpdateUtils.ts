@@ -46,6 +46,8 @@ const ALLOWED_VENUES = [
   "The Kitchen",
   "The Gallery",
   "The Grand Hall",
+  "The Lawn",
+  "The Avenue",
   "Package 1",
   "Package 2",
   "Package 3"

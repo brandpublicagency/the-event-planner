@@ -1,4 +1,3 @@
-
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { withTimeout } from '../../../utils/timeoutUtils.ts';
 
@@ -73,7 +72,7 @@ function getFunctionDefinitions() {
               venues: { 
                 type: "array", 
                 items: { type: "string" },
-                description: "Valid values are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, Package 3"
+                description: "Valid values are: The Kitchen, The Gallery, The Grand Hall, The Lawn, The Avenue, Package 1, Package 2, Package 3"
               },
               primary_name: { type: "string" },
               primary_phone: { type: "string" },

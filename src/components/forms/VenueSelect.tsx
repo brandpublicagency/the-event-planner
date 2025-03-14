@@ -22,6 +22,16 @@ const VENUE_OPTIONS = [
     description: "Spacious reception venue (60-180 guests)",
   },
   {
+    id: "the-lawn",
+    name: "The Lawn", 
+    description: "Beautiful outdoor space for ceremonies",
+  },
+  {
+    id: "the-avenue",
+    name: "The Avenue", 
+    description: "Elegant tree-lined venue for outdoor events",
+  },
+  {
     id: "package-1",
     name: "Package 1",
     description: "Gallery, Grand Hall, Kitchen & Accommodation",
