@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContactsTable from "./ContactsTable";
 import type { Contact } from "@/types/contact";
@@ -21,12 +21,28 @@ const ContactsTabs = ({
   onEditContact,
   onDeleteContact
 }: ContactsTabsProps) => {
-  return <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full">
-      <div className="mb-4">
-        <TabsList>
-          <TabsTrigger value="all">All Contacts</TabsTrigger>
-          <TabsTrigger value="wedding-bride">Wedding Contacts</TabsTrigger>
-          <TabsTrigger value="corporate">Corporate Contacts</TabsTrigger>
+  return (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full">
+      <div className="mb-6">
+        <TabsList className="bg-gray-50 p-1.5 rounded-xl border border-gray-100">
+          <TabsTrigger 
+            value="all" 
+            className="px-5 py-2 data-[state=active]:shadow-md data-[state=active]:bg-white"
+          >
+            All Contacts
+          </TabsTrigger>
+          <TabsTrigger 
+            value="wedding-bride" 
+            className="px-5 py-2 data-[state=active]:shadow-md data-[state=active]:bg-white"
+          >
+            Wedding Contacts
+          </TabsTrigger>
+          <TabsTrigger 
+            value="corporate" 
+            className="px-5 py-2 data-[state=active]:shadow-md data-[state=active]:bg-white"
+          >
+            Corporate Contacts
+          </TabsTrigger>
         </TabsList>
       </div>
 
@@ -41,7 +57,8 @@ const ContactsTabs = ({
       <TabsContent value="corporate" className="mt-0 h-[calc(100vh-12rem)]">
         <ContactsTable contacts={contacts.filter(c => c.contactType === 'corporate')} isLoading={isLoading} onEditContact={onEditContact} onDeleteContact={onDeleteContact} hideSearch={true} />
       </TabsContent>
-    </Tabs>;
+    </Tabs>
+  );
 };
 
 export default ContactsTabs;

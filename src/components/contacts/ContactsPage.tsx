@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import ContactsTabs from "./ContactsTabs";
@@ -52,7 +53,7 @@ const ContactsPage = () => {
   const filteredContacts = activeTab === "all" ? contacts : activeTab === "wedding" ? contacts.filter(c => c.contactType.startsWith('wedding')) : contacts.filter(c => c.contactType === 'corporate');
 
   return <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="flex-1 overflow-hidden px-6 bg-white">
+      <div className="flex-1 overflow-hidden px-8 pt-5 pb-0 bg-white border-t border-gray-100 shadow-sm">
         <ContactsTabs activeTab={activeTab} setActiveTab={setActiveTab} contacts={filteredContacts} isLoading={isLoading} onEditContact={handleEditContact} onDeleteContact={handleDeleteContact} />
       </div>
 
