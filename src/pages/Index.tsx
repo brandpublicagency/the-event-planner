@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Card } from "@/components/ui/card";
+import type { Event } from "@/types/event";
 
 const Index = () => {
   const { toast } = useToast();
@@ -35,7 +36,7 @@ const Index = () => {
           .select(`*`)
           .eq('completed', false)
           .is('deleted_at', null)
-          .gt('event_date', today.toISOString().split('T')[0]) // Changed from gte to gt to exclude today's events that have already passed
+          .gt('event_date', today.toISOString().split('T')[0])
           .order('event_date', { ascending: true });
 
         if (error) {
@@ -44,7 +45,7 @@ const Index = () => {
         }
 
         console.log('Fetched dashboard events:', data);
-        return data || [];
+        return data || [] as Event[];
       } catch (error) {
         console.error('Dashboard events fetch error:', error);
         throw error;

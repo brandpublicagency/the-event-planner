@@ -23,7 +23,7 @@ const PassedEvents = () => {
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .or(`completed.eq.true,event_date.lte.${today.toISOString().split('T')[0]}`) // Changed from lt to lte to include today's events
+        .or(`completed.eq.true,event_date.lte.${today.toISOString().split('T')[0]}`)
         .order('event_date', { ascending: false });
 
       if (error) {

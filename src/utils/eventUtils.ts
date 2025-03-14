@@ -1,8 +1,9 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 import { createEvent as createEventService } from "@/services/eventService";
 
-export const groupEventsByMonth = (events: Record<string, Event[]>) => {
+export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
     const date = new Date(event.event_date || new Date());
     const monthYear = date.toLocaleString('default', { 
