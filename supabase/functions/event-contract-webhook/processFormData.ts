@@ -64,6 +64,20 @@ export const processFormData = async (formData: any) => {
       console.log('Formatted date:', formattedDate);
     }
     
+    // Validate and normalize venues
+    let venues = normalizedData.venues || [];
+    if (venues.length > 0) {
+      // Check if all venues are valid
+      const validVenues = [
+        'The Kitchen', 'The Gallery', 'The Grand Hall', 
+        'The Lawn', 'The Avenue',
+        'Package 1', 'Package 2', 'Package 3'
+      ];
+      
+      venues = venues.filter(venue => validVenues.includes(venue));
+      console.log('Validated venues:', venues);
+    }
+    
     // Extract core event data
     const eventData = {
       name: normalizedData.name,
@@ -74,7 +88,7 @@ export const processFormData = async (formData: any) => {
       end_time: normalizedData.end_time || null,
       pax: normalizedData.pax ? parseInt(normalizedData.pax) : null,
       description: normalizedData.description || null,
-      venues: normalizedData.venues || null,
+      venues: venues.length > 0 ? venues : null,
       event_notes: normalizedData.event_notes || null,
       
       // Contact details

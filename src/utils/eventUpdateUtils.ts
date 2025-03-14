@@ -70,7 +70,7 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       
       if (validVenues.length === 0) {
         console.error("No valid venues provided");
-        throw new Error("Invalid venue value. Allowed values are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, Package 3");
+        throw new Error("Invalid venue value. Allowed values are: The Kitchen, The Gallery, The Grand Hall, The Lawn, The Avenue, Package 1, Package 2, Package 3");
       }
     }
 

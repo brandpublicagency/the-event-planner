@@ -47,7 +47,7 @@ export const normalizeFormData = (formData: any) => {
     }
   }
   
-  // Format address
+  // Format address and ensure it's properly set for non-wedding events
   let formattedAddress = null;
   if (normalized.address_1) {
     if (typeof normalized.address_1 === 'string') {
@@ -67,6 +67,17 @@ export const normalizeFormData = (formData: any) => {
     
     if (formattedAddress) {
       normalized.address = formattedAddress;
+    }
+  }
+  
+  // For non-wedding events, make sure to set the address if it exists in any field
+  if (normalized.event_type !== 'Wedding') {
+    if (!normalized.address) {
+      if (normalized.client_address) {
+        normalized.address = normalized.client_address;
+      } else if (normalized.company_address) {
+        normalized.address = normalized.company_address;
+      }
     }
   }
   

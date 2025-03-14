@@ -37,7 +37,11 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
         }
         
         // Validate venue values against allowed options
-        const allowedVenues = ['The Kitchen', 'The Gallery', 'The Grand Hall', 'Package 1', 'Package 2', 'Package 3'];
+        const allowedVenues = [
+          'The Kitchen', 'The Gallery', 'The Grand Hall', 
+          'The Lawn', 'The Avenue',
+          'Package 1', 'Package 2', 'Package 3'
+        ];
         const validVenues = updates.venues.filter((venue: string) => allowedVenues.includes(venue));
         
         if (validVenues.length !== updates.venues.length) {
@@ -46,7 +50,7 @@ export async function processFunctionCall(functionCall: any): Promise<string> {
           updates.venues = validVenues;
           
           if (validVenues.length === 0) {
-            return "I couldn't update the venue because none of the specified venues are valid. Valid options are: The Kitchen, The Gallery, The Grand Hall, Package 1, Package 2, or Package 3.";
+            return "I couldn't update the venue because none of the specified venues are valid. Valid options are: The Kitchen, The Gallery, The Grand Hall, The Lawn, The Avenue, Package 1, Package 2, or Package 3.";
           }
         }
       }
