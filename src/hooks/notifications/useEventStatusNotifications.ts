@@ -22,7 +22,8 @@ export function useEventStatusNotifications(
           .from('events')
           .select('*')
           .gt('event_date', today.toISOString().split('T')[0])
-          .lt('event_date', futureDate.toISOString().split('T')[0]);
+          .lt('event_date', futureDate.toISOString().split('T')[0])
+          .is('deleted_at', null); // Only include non-deleted events
           
         if (error) {
           console.error('Error fetching events for notification check:', error);

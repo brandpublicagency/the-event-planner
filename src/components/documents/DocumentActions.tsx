@@ -27,14 +27,16 @@ export default function DocumentActions({ documentId, title, content }: Document
         toast({
           title: "Export Successful",
           description: `Document exported as PDF`,
-          variant: "success"
+          variant: "success",
+          showProgress: true
         });
       } else {
         await exportAsDocx(title, content);
         toast({
           title: "Export Successful",
           description: `Document exported as DOCX`,
-          variant: "success"
+          variant: "success",
+          showProgress: true
         });
       }
     } catch (error) {
@@ -42,7 +44,8 @@ export default function DocumentActions({ documentId, title, content }: Document
       toast({
         title: "Export Failed",
         description: "There was an error exporting your document",
-        variant: "destructive"
+        variant: "destructive",
+        showProgress: true
       });
     }
   };

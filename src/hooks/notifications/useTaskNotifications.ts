@@ -86,8 +86,10 @@ export function useTaskNotifications(
         (payload) => {
           // Add new task notification
           const newTask = payload.new;
+          const notificationId = `task-created-${newTask.id}`;
+          
           const newNotification = {
-            id: `task-created-${newTask.id}`,
+            id: notificationId,
             title: "New Task",
             description: `New task "${newTask.title}" has been created`,
             createdAt: new Date(),
@@ -97,10 +99,15 @@ export function useTaskNotifications(
             relatedId: newTask.id
           };
           
-          setNotifications(prev => [
-            ...prev,
-            newNotification
-          ]);
+          // Check for duplicates before adding
+          setNotifications(prev => {
+            // Don't add duplicate notifications
+            if (prev.some(n => n.id === notificationId)) {
+              return prev;
+            }
+            
+            return [...prev, newNotification];
+          });
           
           // Also show a toast notification
           toast({

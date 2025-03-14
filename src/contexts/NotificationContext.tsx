@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState } from "react";
 import { useTaskContext } from "./TaskContext";
-import { useToast } from "@/hooks/use-toast";
 import { Notification, NotificationContextType } from "@/types/notification";
 import { useEventNotifications } from "@/hooks/notifications/useEventNotifications";
 import { useTaskNotifications } from "@/hooks/notifications/useTaskNotifications";
@@ -17,34 +16,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { tasks } = useTaskContext();
-  const { toast } = useToast();
   
   const unreadCount = notifications.filter(n => !n.read).length;
   
-  // Use the extracted hooks
+  // Use the specialized notification hooks
   useTaskNotifications(setNotifications, tasks);
   useEventNotifications(setNotifications);
   useEventStatusNotifications(setNotifications);
   
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true } 
-          : notification
-      )
-    );
-  };
-  
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
-  
-  const clearNotifications = () => {
-    setNotifications([]);
-  };
+  // Use the notification utility functions
+  const { markAsRead, markAllAsRead, clearNotifications } = useNotificationActions(setNotifications);
   
   return (
     <NotificationContext.Provider 
@@ -60,6 +41,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     </NotificationContext.Provider>
   );
 };
+
+// Import the hook from its dedicated file
+import { useNotificationActions } from "@/hooks/notifications/useNotificationActions";
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
