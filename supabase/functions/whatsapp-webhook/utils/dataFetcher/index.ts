@@ -38,5 +38,6 @@ export {
 } from './documentFetcher.ts';
 
 export { 
-  checkDatabaseConnection 
+  checkDatabaseConnection,
+  verifyAllRequiredTables 
 } from './connectionChecker.ts';
