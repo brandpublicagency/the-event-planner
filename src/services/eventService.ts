@@ -39,7 +39,7 @@ export const deleteEvent = async (eventCode: string) => {
   // First check if there are any related menu selections
   const { data: menuSelections, error: menuCheckError } = await supabase
     .from('menu_selections')
-    .select('id')
+    .select('event_code')
     .eq('event_code', eventCode);
   
   if (menuCheckError) {

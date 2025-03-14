@@ -1,9 +1,8 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 import { createEvent as createEventService } from "@/services/eventService";
 
-export const groupEventsByMonth = (events: Event[]) => {
+export const groupEventsByMonth = (events: Record<string, Event[]>) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
     const date = new Date(event.event_date || new Date());
     const monthYear = date.toLocaleString('default', { 
@@ -25,7 +24,7 @@ export const deleteEvent = async (eventCode: string) => {
     // Check if there are related menu selections
     const { count, error: countError } = await supabase
       .from('menu_selections')
-      .select('*', { count: 'exact', head: true })
+      .select('event_code', { count: 'exact', head: true })
       .eq('event_code', eventCode);
     
     if (!countError && count && count > 0) {
