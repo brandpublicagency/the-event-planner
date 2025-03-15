@@ -51,6 +51,7 @@ const ChatMessageHandler = ({
 
   // Track attempts for better error handling
   const [retryAttempts, setRetryAttempts] = useState(0);
+  const [useStreamingMode, setUseStreamingMode] = useState(true);
   
   // Set up message processor
   const { processAIResponse, tempMessageId, setTempMessageId } = useMessageProcessor({
@@ -61,7 +62,7 @@ const ChatMessageHandler = ({
   });
 
   // Set up AI message handler
-  const { fetchAIResponse } = useAIMessageHandler({
+  const { fetchAIResponse, isStreaming } = useAIMessageHandler({
     onSetIsLoading: setIsLoading,
     onAddSystemMessage: addSystemMessage,
     onSetPendingAction: setPendingAction,
@@ -88,7 +89,7 @@ const ChatMessageHandler = ({
     e.preventDefault();
     
     // Prevent submission when loading
-    if (isLoading) {
+    if (isLoading || isStreaming) {
       console.log('Already processing a message, please wait...');
       return;
     }
@@ -123,35 +124,53 @@ const ChatMessageHandler = ({
     if (!inputValue.trim()) return;
     
     // Add user message to the chat
+    const userMessage = { text: inputValue, isUser: true, id: Date.now().toString() };
     addUserMessage(inputValue);
-    
-    // Show temporary loading message
-    const tempId = Date.now().toString();
-    setTempMessageId(tempId);
-    addSystemMessage("Thinking...", tempId);
     
     // Start loading state
     setIsLoading(true);
     
     // Clear input after sending
     clearInput();
-    
-    // Decide which message handler to use
+
     try {
-      // Try to use OpenAI API first
-      console.log('Attempting to use AI response handler');
-      await fetchAIResponse(inputValue);
-      // Reset retry counter on success
-      setRetryAttempts(0);
+      console.log('Using streaming mode:', useStreamingMode);
+      
+      if (useStreamingMode) {
+        // Use streaming mode with full conversation history
+        await fetchAIResponse(inputValue, [...messages, userMessage]);
+        setRetryAttempts(0);
+      } else {
+        // Use regular (non-streaming) mode
+        console.log('Attempting to use regular AI response handler');
+        await fetchAIResponse(inputValue);
+        setRetryAttempts(0);
+      }
     } catch (error) {
       console.error('Error with AI response:', error);
+      
+      // If streaming fails, try regular mode
+      if (useStreamingMode) {
+        console.log('Streaming failed, falling back to regular mode');
+        setUseStreamingMode(false);
+        
+        try {
+          await fetchAIResponse(inputValue);
+          setRetryAttempts(0);
+          return;
+        } catch (regularError) {
+          console.error('Regular mode also failed:', regularError);
+        }
+      }
       
       // Fall back to using WhatsApp Webhook function
       try {
         console.log('Falling back to WhatsApp handler');
         
         // Update the temporary message
-        addSystemMessage("Processing...", tempId);
+        const tempId = String(Date.now());
+        setTempMessageId(tempId);
+        onAddSystemMessage("Processing...", tempId);
         
         await fetchWhatsAppResponse(inputValue);
         setRetryAttempts(0);
@@ -169,7 +188,7 @@ const ChatMessageHandler = ({
           errorMessage = "I'm still having connection issues. Please check your internet connection or try again in a few minutes.";
         }
         
-        addSystemMessage(errorMessage, tempId);
+        addSystemMessage(errorMessage, tempMessageId);
         setIsLoading(false);
       }
     }
@@ -177,6 +196,9 @@ const ChatMessageHandler = ({
     inputValue, 
     pendingAction, 
     isLoading,
+    isStreaming,
+    useStreamingMode,
+    messages,
     addUserMessage, 
     addSystemMessage, 
     clearInput, 
@@ -189,10 +211,9 @@ const ChatMessageHandler = ({
     setRetryAttempts
   ]);
 
-  // Render the chat interface using the children prop as a render function
   return children({
     messages,
-    isLoading,
+    isLoading: isLoading || isStreaming,
     pendingAction,
     handleSubmit
   });

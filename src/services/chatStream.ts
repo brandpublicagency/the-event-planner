@@ -1,0 +1,205 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import { ChatMessage } from "@/types/chat";
+
+export type StreamProcessor = {
+  onContent: (content: string) => void;
+  onFunctionCall: (functionCall: { name: string; arguments: string }) => void;
+  onError: (error: string) => void;
+  onComplete: () => void;
+}
+
+/**
+ * Streams a chat completion from the edge function
+ */
+export const streamChatCompletion = async (
+  messages: ChatMessage[],
+  systemMessage: string,
+  functionDefs?: any[],
+  processor: StreamProcessor
+) => {
+  try {
+    console.log(`Streaming chat completion with ${messages.length} messages`);
+    
+    // Call our edge function
+    const { data, error } = await supabase.functions.invoke("chat-stream", {
+      body: { messages, systemMessage, functionDefs },
+      responseType: 'stream'
+    });
+
+    if (error) {
+      console.error('Error calling chat-stream edge function:', error);
+      processor.onError(`Error streaming response: ${error.message}`);
+      return;
+    }
+
+    if (!data) {
+      processor.onError("No data received from streaming endpoint");
+      return;
+    }
+
+    // Set up the event source to handle SSE
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      
+      // Handle complete lines
+      let lineEnd = buffer.indexOf('\n');
+      while (lineEnd !== -1) {
+        const line = buffer.substring(0, lineEnd).trim();
+        buffer = buffer.substring(lineEnd + 1);
+        
+        if (line.startsWith('data: ')) {
+          const data = line.substring(6);
+          
+          if (data === '[DONE]') {
+            processor.onComplete();
+            return;
+          }
+          
+          try {
+            const parsed = JSON.parse(data);
+            
+            if (parsed.error) {
+              processor.onError(parsed.error);
+              continue;
+            }
+            
+            if (parsed.type === 'content') {
+              processor.onContent(parsed.data);
+            } else if (parsed.type === 'function_call') {
+              processor.onFunctionCall(parsed.data);
+            }
+          } catch (e) {
+            console.error('Error parsing SSE data:', e);
+          }
+        }
+        
+        lineEnd = buffer.indexOf('\n');
+      }
+    }
+    
+    // Process any remaining data in the buffer
+    if (buffer.trim() && buffer.startsWith('data: ')) {
+      try {
+        const data = JSON.parse(buffer.substring(6));
+        if (data.type === 'content') {
+          processor.onContent(data.data);
+        } else if (data.type === 'function_call') {
+          processor.onFunctionCall(data.data);
+        }
+      } catch (e) {
+        console.error('Error parsing final SSE data:', e);
+      }
+    }
+    
+    processor.onComplete();
+  } catch (error) {
+    console.error('Error in streamChatCompletion:', error);
+    processor.onError(`Streaming error: ${error.message}`);
+  }
+};
+
+/**
+ * Get available function definitions for the chat
+ */
+export const getChatFunctionDefinitions = () => {
+  return [
+    {
+      name: "update_event",
+      description: "Update an event's details in the system",
+      parameters: {
+        type: "object",
+        properties: {
+          event_code: {
+            type: "string",
+            description: "The unique code identifying the event"
+          },
+          updates: {
+            type: "object",
+            description: "The fields to update in the event",
+            properties: {
+              name: { type: "string" },
+              description: { type: "string" },
+              event_type: { type: "string" },
+              event_date: { type: "string" },
+              start_time: { type: "string" },
+              end_time: { type: "string" },
+              pax: { type: "number" },
+              venues: { 
+                type: "array", 
+                items: { type: "string" },
+                description: "Valid values are: The Kitchen, The Gallery, The Grand Hall, The Lawn, The Avenue, Package 1, Package 2, Package 3"
+              },
+              primary_name: { type: "string" },
+              primary_phone: { type: "string" },
+              primary_email: { type: "string" },
+              secondary_name: { type: "string" },
+              secondary_phone: { type: "string" },
+              secondary_email: { type: "string" },
+              address: { type: "string" },
+              company: { type: "string" },
+              vat_number: { type: "string" },
+            }
+          }
+        },
+        required: ["event_code", "updates"]
+      }
+    },
+    {
+      name: "update_menu",
+      description: "Update a menu for an event",
+      parameters: {
+        type: "object",
+        properties: {
+          event_code: {
+            type: "string",
+            description: "The unique code identifying the event"
+          },
+          menu_updates: {
+            type: "object",
+            description: "The menu fields to update"
+          }
+        },
+        required: ["event_code", "menu_updates"]
+      }
+    },
+    {
+      name: "create_task",
+      description: "Create a new task in the system",
+      parameters: {
+        type: "object",
+        properties: {
+          title: {
+            type: "string",
+            description: "The title of the task"
+          },
+          description: {
+            type: "string",
+            description: "The description of the task"
+          },
+          due_date: {
+            type: "string",
+            description: "The due date of the task in YYYY-MM-DD format"
+          },
+          priority: {
+            type: "string",
+            enum: ["low", "medium", "high"],
+            description: "The priority of the task"
+          },
+          event_code: {
+            type: "string",
+            description: "The event code this task is associated with, if any"
+          }
+        },
+        required: ["title"]
+      }
+    }
+  ];
+};

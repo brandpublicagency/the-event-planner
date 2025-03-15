@@ -1,11 +1,12 @@
 
 import { useState, useCallback } from "react";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import { PendingAction } from "@/types/chat";
+import { PendingAction, ChatMessage } from "@/types/chat";
 import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
 import { getChatCompletion } from "@/services/openai";
 import { getChatContextData } from "@/services/chatContext";
 import { getSystemMessage } from "@/utils/chat";
+import { useStreamingChat } from "@/hooks/useStreamingChat";
 
 interface AIMessageHandlerProps {
   onSetIsLoading: (loading: boolean) => void;
@@ -29,8 +30,16 @@ export const useAIMessageHandler = ({
   const [contextData, setContextData] = useState<any>(externalContextData || null);
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
+  
+  // Get streaming functionality
+  const { streamResponse, isStreaming } = useStreamingChat({
+    onAddSystemMessage,
+    onSetPendingAction,
+    onSetIsLoading,
+    contextData: contextData || externalContextData
+  });
 
-  const fetchAIResponse = async (inputText: string) => {
+  const fetchAIResponse = async (inputText: string, messages?: ChatMessage[]) => {
     try {
       // Get context data if not provided
       let data = contextData;
@@ -60,6 +69,22 @@ export const useAIMessageHandler = ({
         }
       }
 
+      // Generate a temporary message ID for updating
+      const tempId = String(Date.now());
+      if (onSetTempMessageId) {
+        onSetTempMessageId(tempId);
+      }
+      
+      // Show initial loading message
+      onAddSystemMessage("Thinking...", tempId);
+      
+      // Use streaming if available and messages are provided
+      if (messages) {
+        console.log('Using streaming response for chat');
+        await streamResponse(messages, tempId);
+        return;
+      }
+
       // Generate system message with context data
       const systemMessage = getSystemMessage(
         data.eventsContext || 'No events data available.',
@@ -70,7 +95,7 @@ export const useAIMessageHandler = ({
       );
 
       // Prepare the messages array for the OpenAI API
-      const messages: ChatCompletionMessageParam[] = prepareOpenAIMessages(
+      const apiMessages: ChatCompletionMessageParam[] = prepareOpenAIMessages(
         systemMessage,
         [], // We don't need to pass chat history as it's handled by the state
         inputText
@@ -78,7 +103,7 @@ export const useAIMessageHandler = ({
 
       // Make the request to OpenAI
       try {
-        const response = await getChatCompletion(messages);
+        const response = await getChatCompletion(apiMessages);
         
         if (!response) {
           throw new Error('Empty response from OpenAI');
@@ -93,7 +118,7 @@ export const useAIMessageHandler = ({
         } else {
           // Default processing if processor not provided
           onSetIsLoading(false);
-          onAddSystemMessage(response);
+          onAddSystemMessage(response, tempId);
           onClearInput();
         }
 
@@ -108,8 +133,7 @@ export const useAIMessageHandler = ({
              error.message?.includes('network'))) {
           
           setRetryCount(prev => prev + 1);
-          onAddSystemMessage(`I'm having trouble connecting to our AI service. Retrying... (Attempt ${retryCount + 1}/${MAX_RETRIES})`, 
-                            onSetTempMessageId ? String(Date.now()) : undefined);
+          onAddSystemMessage(`I'm having trouble connecting to our AI service. Retrying... (Attempt ${retryCount + 1}/${MAX_RETRIES})`, tempId);
           
           // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
@@ -122,7 +146,7 @@ export const useAIMessageHandler = ({
         onSetIsLoading(false);
         onAddSystemMessage(
           "I'm having trouble generating a response right now. This might be due to high demand or a temporary service issue. Please try again in a moment.",
-          onSetTempMessageId ? String(Date.now()) : undefined
+          tempId
         );
         onClearInput();
         throw error;
@@ -136,5 +160,5 @@ export const useAIMessageHandler = ({
     }
   };
 
-  return { fetchAIResponse };
+  return { fetchAIResponse, isStreaming };
 };

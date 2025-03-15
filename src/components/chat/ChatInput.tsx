@@ -1,77 +1,108 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SendHorizontal, Loader2 } from "lucide-react";
-import { KeyboardEvent, useState, useEffect } from "react";
+import { Send, Loader2 } from "lucide-react";
+import { ChatFileUpload } from "./ChatFileUpload";
+import { useState } from "react";
 
 interface ChatInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
   isLoading: boolean;
   placeholderText?: string;
 }
 
-const ChatInput = ({ 
-  value, 
-  onChange, 
-  onSubmit, 
+const ChatInput = ({
+  value,
+  onChange,
+  onSubmit,
   isLoading,
-  placeholderText = "Type your message..." 
+  placeholderText = "Type your message..."
 }: ChatInputProps) => {
-  const [isComposing, setIsComposing] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<{url: string, name: string}[]>([]);
   
-  // Handle Enter key press to submit the form
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Prevent form submission while IME composition is in progress (for languages like Chinese, Japanese)
-    if (isComposing) return;
+  const handleFileUploaded = (fileUrl: string, fileName: string) => {
+    setAttachedFiles(prev => [...prev, {url: fileUrl, name: fileName}]);
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Submit on Enter if not empty
-    if (e.key === "Enter" && !e.shiftKey && value.trim() !== "" && !isLoading) {
-      e.preventDefault();
-      onSubmit(e as unknown as React.FormEvent);
+    // If there are attached files, modify the message to include file links
+    if (attachedFiles.length > 0) {
+      const fileLinks = attachedFiles.map(file => 
+        `[${file.name}](${file.url})`
+      ).join('\n');
+      
+      // Add file links to message if not empty or append to message
+      const messageWithFiles = value.trim() 
+        ? `${value}\n\nAttached files:\n${fileLinks}`
+        : `I'm sending you these files:\n${fileLinks}`;
+      
+      // Temporarily update the input value with files
+      const originalValue = value;
+      (e.target as any).elements[0].value = messageWithFiles;
+      
+      // Submit the form
+      await onSubmit(e);
+      
+      // Reset the input value
+      (e.target as any).elements[0].value = originalValue;
+      
+      // Clear attached files
+      setAttachedFiles([]);
+    } else {
+      // Normal submission without files
+      await onSubmit(e);
     }
   };
   
-  // Focus the input field on component mount
-  useEffect(() => {
-    const inputElement = document.querySelector('input[placeholder="' + placeholderText + '"]') as HTMLInputElement;
-    if (inputElement && !isLoading) {
-      inputElement.focus();
-    }
-  }, [isLoading, placeholderText]);
-
   return (
-    <form onSubmit={onSubmit} className="p-3 border-t border-gray-100 bg-white">
-      <div className="flex gap-2">
+    <form onSubmit={handleSubmit} className="p-3 border-t flex items-center gap-2">
+      {attachedFiles.length > 0 && (
+        <div className="absolute -top-10 left-0 right-0 bg-gray-50 p-2 text-xs border-t flex gap-2 items-center flex-wrap">
+          {attachedFiles.map((file, index) => (
+            <div key={index} className="bg-white px-2 py-1 rounded border flex items-center gap-1">
+              <span className="truncate max-w-[150px]">{file.name}</span>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-4 w-4 p-0"
+                onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== index))}
+              >
+                <span className="sr-only">Remove</span>
+                <span aria-hidden>×</span>
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="flex-1 flex items-center relative">
         <Input
           value={value}
           onChange={onChange}
-          onKeyDown={handleKeyDown}
-          onCompositionStart={() => setIsComposing(true)}
-          onCompositionEnd={() => setIsComposing(false)}
           placeholder={placeholderText}
-          className="flex-1 bg-gray-50 rounded-lg focus-visible:ring-gray-400 focus-visible:ring-offset-0 border-gray-100"
-          autoComplete="off"
+          className="pr-10"
           disabled={isLoading}
         />
-        <Button 
-          type="submit"
-          size="icon"
-          className={`rounded-lg w-10 h-10 shrink-0 transition-colors duration-200 ${
-            value.trim() === "" || isLoading
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-          }`}
-          disabled={value.trim() === "" || isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <SendHorizontal className="h-5 w-5" />
-          )}
-        </Button>
+        <div className="absolute right-2">
+          <ChatFileUpload onFileUploaded={handleFileUploaded} />
+        </div>
       </div>
+      <Button 
+        type="submit" 
+        size="icon" 
+        disabled={isLoading || (!value.trim() && attachedFiles.length === 0)}
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Send className="h-4 w-4" />
+        )}
+        <span className="sr-only">Send</span>
+      </Button>
     </form>
   );
 };

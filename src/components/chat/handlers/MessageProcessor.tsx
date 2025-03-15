@@ -41,6 +41,10 @@ export const useMessageProcessor = ({
         // Clean up any double newlines or trailing whitespace
         displayMessage = displayMessage.replace(/\n{3,}/g, '\n\n').trim();
       }
+      
+      // Process file links from the AI
+      const fileLinksPattern = /\[File: ([^\]]+)\]\(([^)]+)\)/g;
+      displayMessage = displayMessage.replace(fileLinksPattern, '[File: $1]($2)');
 
       // First, show the AI's response
       if (tempMessageId) {

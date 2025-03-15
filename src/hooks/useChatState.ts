@@ -3,12 +3,14 @@ import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { ChatMessage, PendingAction } from "@/types/chat";
+import { useChatHistory } from "./useChatHistory";
 
 const CHAT_STORAGE_KEY = 'chat_messages';
 const LAST_ACTIVITY_KEY = 'chat_last_activity';
 const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 60 minutes in milliseconds
 
 export const useChatState = () => {
+  // Initialize with saved messages from session storage
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
       const lastActivity = sessionStorage.getItem(LAST_ACTIVITY_KEY);
@@ -36,6 +38,20 @@ export const useChatState = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const { toast } = useToast();
+  
+  // Get chat history functionality
+  const { 
+    chatHistory, 
+    saveMessage, 
+    resetConversation 
+  } = useChatHistory();
+  
+  // Initialize messages from history if available
+  useEffect(() => {
+    if (chatHistory.length > 0 && messages.length === 0) {
+      setMessages(chatHistory);
+    }
+  }, [chatHistory, messages.length]);
 
   // Set up real-time subscription
   useEffect(() => {
@@ -83,6 +99,13 @@ export const useChatState = () => {
         // Normal case - just append the message with a random ID
         const newMessageWithId = { ...message, id: Date.now().toString() };
         newMessages = [...prevMessages, newMessageWithId];
+        
+        // Save to persistent storage if it's not a temporary message
+        if (message.text !== "Thinking..." && 
+            message.text !== "Processing..." && 
+            !message.text.includes("Retrying...")) {
+          saveMessage(newMessageWithId);
+        }
       }
       
       try {
@@ -104,7 +127,7 @@ export const useChatState = () => {
     } catch (error) {
       console.error('Error broadcasting message:', error);
     }
-  }, []);
+  }, [saveMessage]);
 
   const addSystemMessage = useCallback((text: string, messageId?: string) => {
     console.log('Adding system message:', text, messageId ? `with ID: ${messageId}` : '');
@@ -119,6 +142,12 @@ export const useChatState = () => {
   const clearInput = useCallback(() => {
     setInputValue("");
   }, []);
+  
+  const clearChat = useCallback(() => {
+    setMessages([]);
+    sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    resetConversation();
+  }, [resetConversation]);
 
   // Update last activity
   useEffect(() => {
@@ -149,6 +178,7 @@ export const useChatState = () => {
     addSystemMessage,
     addUserMessage,
     clearInput,
+    clearChat,
     toast
   };
 };
