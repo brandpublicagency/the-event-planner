@@ -34,8 +34,8 @@ export const useContactActivityLogging = () => {
     fetchUserProfile();
   }, []);
   
-  const logContactUpdated = async (contact: Contact, updatedFields: string[]): Promise<Contact> => {
-    if (!currentUser) return contact;
+  const logContactUpdated = async (contact: Contact, updatedFields: string[]): Promise<void> => {
+    if (!currentUser) return;
     
     await logUserActivity({
       user_id: currentUser.id,
@@ -48,8 +48,6 @@ export const useContactActivityLogging = () => {
         fields_updated: updatedFields
       }
     });
-
-    return contact;
   };
   
   return {
