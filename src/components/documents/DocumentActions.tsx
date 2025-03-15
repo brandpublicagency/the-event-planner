@@ -6,9 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, Printer, Trash2 } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
-import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useReactToPrint } from "react-to-print";
 import { useRef } from "react";
@@ -53,6 +52,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
     }
   };
 
+  const printContent = () => editorRef?.current || null;
+
   const handlePrint = useReactToPrint({
     documentTitle: title,
     onPrintError: (error) => {
@@ -96,8 +97,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    // This is the correct way to use the content accessor function
-    content: () => editorRef?.current || null,
+    content: printContent,
   });
 
   return (
@@ -105,11 +105,11 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={handlePrint}
-        className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
+        onClick={() => handlePrint()}
+        className="flex items-center gap-1.5 h-7 px-2 min-w-[60px]"
         disabled={!editorRef?.current}
       >
-        <Printer className="h-3.5 w-3.5" />
+        <Printer className="h-3 w-3" />
         Print
       </Button>
 
@@ -118,9 +118,9 @@ export default function DocumentActions({ documentId, title, content, editorRef 
           <Button 
             variant="outline" 
             size="sm"
-            className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
+            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px]"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3 w-3" />
             Export
           </Button>
         </DropdownMenuTrigger>
@@ -133,8 +133,6 @@ export default function DocumentActions({ documentId, title, content, editorRef 
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <DocumentDeleteDialog documentId={documentId} documentTitle={title} />
     </div>
   );
 }
