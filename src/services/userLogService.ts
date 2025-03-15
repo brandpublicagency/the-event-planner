@@ -21,7 +21,7 @@ export const logUserActivity = async (activity: Omit<UserActivity, "timestamp" |
     // Only proceed if we have an authenticated user
     if (!currentUserId) {
       console.warn("Cannot log activity: No authenticated user");
-      return;
+      return null;
     }
     
     // Log activity to console for development purposes

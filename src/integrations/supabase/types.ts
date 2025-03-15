@@ -730,6 +730,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activities: {
+        Row: {
+          action: string
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          id: string
+          timestamp: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          action: string
+          details?: Json | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          timestamp?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          action?: string
+          details?: Json | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          timestamp?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -753,6 +786,23 @@ export type Database = {
         }
         Returns: string
       }
+      get_entity_history: {
+        Args: {
+          p_entity_type: string
+          p_entity_id: string
+          p_limit?: number
+        }
+        Returns: {
+          action: string
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          id: string
+          timestamp: string | null
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_pdf_content: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -763,11 +813,37 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_recent_activities: {
+        Args: {
+          p_limit?: number
+        }
+        Returns: {
+          action: string
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          id: string
+          timestamp: string | null
+          user_id: string
+          user_name: string
+        }[]
+      }
       lca: {
         Args: {
           "": unknown[]
         }
         Returns: unknown
+      }
+      log_user_activity: {
+        Args: {
+          p_user_id: string
+          p_user_name: string
+          p_action: string
+          p_entity_type: string
+          p_entity_id: string
+          p_details?: Json
+        }
+        Returns: string
       }
       lquery_in: {
         Args: {
