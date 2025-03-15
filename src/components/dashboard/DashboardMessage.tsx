@@ -1,13 +1,17 @@
 
 import React from 'react';
 import { useDashboardMessage } from '@/hooks/useDashboardMessage';
+import { useProfile } from '@/hooks/useProfile';
 import { CalendarClock, Calendar, CheckSquare, Gift, Quote } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 
 const DashboardMessage = () => {
-  const { dashboardMessage, isLoading, error } = useDashboardMessage();
+  const { dashboardMessage, isLoading: messageLoading, error } = useDashboardMessage();
+  const { profile, isLoading: profileLoading } = useProfile();
+  
+  const isLoading = messageLoading || profileLoading;
   
   if (isLoading) {
     return (
@@ -27,7 +31,9 @@ const DashboardMessage = () => {
     return (
       <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-gray-800">Hello there,</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {profile?.full_name ? `Hi ${profile.full_name.split(' ')[0]},` : 'Hello there,'}
+          </h2>
           <p className="text-gray-700">
             Welcome to your dashboard. Have a productive day!
           </p>
@@ -99,6 +105,9 @@ const DashboardMessage = () => {
     );
   }
   
+  // Get user's first name from profile
+  const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : '';
+  
   return (
     <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
       <div className="space-y-1">
@@ -106,8 +115,8 @@ const DashboardMessage = () => {
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
           <h2 className="text-xl font-semibold text-gray-800">
             {dashboardMessage.type === 'holiday' && dashboardMessage.holidayName 
-              ? dashboardMessage.holidayName 
-              : 'Hello there,'}
+              ? `Hi ${firstName}, it's ${dashboardMessage.holidayName}!` 
+              : `Hi ${firstName},`}
           </h2>
         </div>
         <p className="text-gray-700">{dashboardMessage.message}</p>
