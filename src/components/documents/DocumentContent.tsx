@@ -13,10 +13,10 @@ export function DocumentContent({ editor }: DocumentContentProps) {
     <>
       <EditorToolbar editor={editor} />
       <div className="flex-1 overflow-y-auto flex flex-col">
-        <div className="bg-white rounded-lg border p-4 min-h-[300px] mb-4 flex-1">
+        <div className="bg-white rounded-lg border p-4 min-h-[300px] h-full overflow-y-auto mb-4 flex-1">
           <EditorContent 
             editor={editor} 
-            className="min-h-[300px]"
+            className="min-h-full h-full"
           />
         </div>
       </div>
