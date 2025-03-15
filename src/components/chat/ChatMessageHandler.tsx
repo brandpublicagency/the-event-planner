@@ -20,10 +20,10 @@ interface ChatMessageHandlerProps {
 const ChatMessageHandler = ({ 
   children, 
   contextData, 
-  inputValue,
-  isLoading,
-  setInputValue,
-  clearInput
+  inputValue = "",
+  isLoading = false,
+  setInputValue = () => {},
+  clearInput = () => {}
 }: ChatMessageHandlerProps) => {
   const {
     messages,

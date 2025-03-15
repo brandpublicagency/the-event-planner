@@ -41,13 +41,14 @@ const ChatInput = ({
               }
             }
           }}
+          aria-label="Chat message input"
         />
       </div>
       <Button 
         type="submit" 
         size="icon" 
         disabled={isLoading || !value.trim()}
-        onClick={handleSubmit}
+        aria-label="Send message"
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
