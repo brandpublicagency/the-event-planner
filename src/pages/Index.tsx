@@ -134,7 +134,7 @@ const Index = () => {
 
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
           <Card className="rounded-xl p-6 border-0" style={{ 
-            background: 'linear-gradient(135deg, #FFDEE2 0%, #D6BCFA 100%)' 
+            background: 'linear-gradient(to br, from-blue-50 via-indigo-50/80 to-sky-100)' 
           }}>
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
