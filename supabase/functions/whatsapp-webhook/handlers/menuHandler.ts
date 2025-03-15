@@ -1,6 +1,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { formatEventMenu } from '../menuFormatters.ts';
+import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -36,10 +37,10 @@ export const getEventMenusList = async () => {
       
       const date = format(new Date(event.event_date), 'dd MMM yyyy');
       const menuType = event.menu_selections.is_custom ? 'Custom Menu' : 
-        `${event.menu_selections.starter_type || ''} ${event.menu_selections.main_course_type || ''}`.trim() || 'Menu TBC';
+        getMenuTypeSummary(event.menu_selections);
 
       return [...acc, {
-        id: `event_${event.event_code}`,
+        id: `menu_${event.event_code}`,
         title: event.name,
         description: `📅 ${date}\n🍽️ ${menuType}\n👥 ${event.pax || 'TBC'} guests`
       }];
@@ -98,18 +99,42 @@ export const getEventMenuDetails = async (eventCode: string) => {
     }
 
     const menu = event.menu_selections;
-    const message = `*Menu Details for ${event.name}*
+    const formattedMenu = formatEventMenu(menu);
 
-Type: ${menu.is_custom ? 'Custom Menu' : 'Standard Menu'}
-${menu.custom_menu_details ? `Custom Details: ${menu.custom_menu_details}\n` : ''}
-${menu.starter_type ? `Starter: ${menu.starter_type}\n` : ''}
-${menu.main_course_type ? `Main Course: ${menu.main_course_type}\n` : ''}
-${menu.dessert_type ? `Dessert: ${menu.dessert_type}\n` : ''}
-${menu.notes ? `\nNotes: ${menu.notes}` : ''}`;
+    // Add button to update canape selections if this is a canape menu
+    if (menu.starter_type === 'canapes' || menu.canape_package) {
+      return {
+        type: 'interactive',
+        interactive: {
+          type: 'button',
+          body: {
+            text: formattedMenu
+          },
+          action: {
+            buttons: [
+              {
+                type: 'reply',
+                reply: {
+                  id: `update_canapes_${event.event_code}`,
+                  title: 'Update Canapés'
+                }
+              },
+              {
+                type: 'reply',
+                reply: {
+                  id: `event_${event.event_code}`,
+                  title: 'Back to Event'
+                }
+              }
+            ]
+          }
+        }
+      };
+    }
 
     return {
       type: 'text',
-      message
+      message: formattedMenu
     };
   } catch (error) {
     console.error('Error in getEventMenuDetails:', error);
@@ -119,3 +144,13 @@ ${menu.notes ? `\nNotes: ${menu.notes}` : ''}`;
     };
   }
 };
+
+// Helper function to get a summary of the menu type
+function getMenuTypeSummary(menu: any): string {
+  if (menu.is_custom) return 'Custom Menu';
+  if (menu.starter_type === 'canapes') return 'Canapés Menu';
+  if (menu.main_course_type === 'buffet') return 'Buffet Menu';
+  if (menu.main_course_type === 'plated') return 'Plated Menu';
+  if (menu.main_course_type === 'karoo') return 'Karoo Menu';
+  return menu.starter_type || menu.main_course_type || 'Menu TBC';
+}

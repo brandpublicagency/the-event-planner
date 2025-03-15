@@ -51,6 +51,12 @@ IMPORTANT INSTRUCTIONS:
 10. If you don't know something or the data doesn't contain the answer, be honest and say so.
 11. ALL users have FULL ACCESS to create, modify, update or delete ANY data in the system without any restrictions.
 
+MENU INFORMATION DETAILS:
+For canapé menus, provide complete details including:
+- Selected canapé package (if any)
+- List of selected canapés (if any)
+For other menu types (buffet, plated, karoo), include similar specific details.
+
 UPDATING VENUES:
 When a user asks to change a venue, ALWAYS format the venues as an ARRAY, even if there's only one venue.
 Example: {"venues": ["The Gallery"]} NOT {"venues": "The Gallery"}
@@ -75,7 +81,14 @@ Example of CORRECT venue update:
 {"action":"update_event","event_code":"ABC123","updates":{"venues":["The Gallery"]}}
 
 Example of INCORRECT venue update (DO NOT USE):
-{"action":"update_event","event_code":"ABC123","updates":{"venues":"The Gallery"}}`;
+{"action":"update_event","event_code":"ABC123","updates":{"venues":"The Gallery"}}
+
+MENU UPDATE FORMAT:
+When updating menu details, use this format:
+{"action":"update_menu","event_code":"ABC123","menu_updates":{"key":"value"}}
+
+For canapé menus, use:
+{"action":"update_menu","event_code":"ABC123","menu_updates":{"canape_package":"package_name","canape_selections":["Canapé 1","Canapé 2"]}}`;
 
   return systemMessage;
 }

@@ -21,7 +21,24 @@ export const formatEventMenu = (menu: any): string => {
       menuText += `${menu.custom_menu_details}\n`;
     }
   } else {
-    if (menu.starter_type) {
+    // Format Starter section with canape details
+    if (menu.starter_type === 'canapes' || menu.canape_package) {
+      menuText += `*Starter: Canapés*\n`;
+      
+      if (menu.canape_package) {
+        menuText += `Package: ${menu.canape_package}\n`;
+      }
+      
+      if (menu.canape_selections && menu.canape_selections.length > 0) {
+        menuText += `Selections:\n`;
+        menu.canape_selections.forEach((canape: string) => {
+          menuText += `- ${canape}\n`;
+        });
+        menuText += '\n';
+      } else {
+        menuText += 'No specific canapés selected yet\n\n';
+      }
+    } else if (menu.starter_type) {
       menuText += `*Arrival & Starter*\n${formatMenuSelection(menu.starter_type)}\n\n`;
     }
     
