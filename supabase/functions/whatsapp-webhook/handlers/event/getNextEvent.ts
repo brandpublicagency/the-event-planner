@@ -6,11 +6,20 @@ import { handleError } from '../../utils/errorHandler.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'whatsapp-webhook-function'
+    }
+  }
+});
 
 export const getNextEvent = async (): Promise<WhatsAppResponse> => {
   try {
-    console.log('Fetching next event');
+    console.log('Fetching next event with unrestricted access');
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
@@ -62,16 +71,36 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
       console.error('Error fetching menu info:', e);
     }
     
+    // Fetch venues separately
+    let venueInfo = '';
+    try {
+      const { data: venueData, error: venueError } = await supabase
+        .from('event_venues')
+        .select(`
+          venues (
+            name
+          )
+        `)
+        .eq('event_code', event.event_code);
+        
+      if (!venueError && venueData && venueData.length > 0) {
+        const venueNames = venueData
+          .map((v: any) => v.venues?.name)
+          .filter(Boolean);
+        
+        if (venueNames.length > 0) {
+          venueInfo = `\nVenue: ${venueNames.join(', ')}`;
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching venue info:', e);
+    }
+    
     // Create a simplified event display
     try {
       const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
       
-      let venueInfo = '';
-      if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
-        venueInfo = ` at ${event.venues.join(', ')}`;
-      }
-      
-      const message = `*Next Event*\n\n*${event.name}*\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}${venueInfo}${menuInfo}`;
+      const message = `*Next Event*\n\n*${event.name}* (Code: ${event.event_code})\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}${venueInfo}${menuInfo}`;
       
       return {
         type: 'text',

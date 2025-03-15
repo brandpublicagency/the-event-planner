@@ -27,8 +27,7 @@ export function DocumentTitle({
         />
       </div>
       <DocumentActions 
-        documentId={documentId} 
-        title={title} 
+        document={{ id: documentId, title: title }}
         content={editor?.getHTML() || ''} 
       />
     </div>

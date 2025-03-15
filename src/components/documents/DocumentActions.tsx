@@ -12,16 +12,20 @@ import { useState } from "react";
 import { useReactToPrint } from 'react-to-print';
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import * as React from "react"; // Add explicit React import
+import * as React from "react";
 
-interface DocumentActionsProps {
-  document: any;
-  onEdit: () => void;
+export interface DocumentActionsProps {
+  document: {
+    id: string;
+    title: string;
+  };
+  content: string;
+  onEdit?: () => void;
 }
 
-export function DocumentActions({ document, onEdit }: DocumentActionsProps) {
+export function DocumentActions({ document, content, onEdit }: DocumentActionsProps) {
   const [isPrinting, setIsPrinting] = useState(false);
-  const printRef = React.useRef(null);
+  const printRef = React.useRef<HTMLDivElement | null>(null);
 
   const handlePrint = useReactToPrint({
     documentTitle: `${document.title || 'Document'}.pdf`,
@@ -39,9 +43,11 @@ export function DocumentActions({ document, onEdit }: DocumentActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onEdit}>
-          <Edit className="mr-2 h-4 w-4" /> Edit
-        </DropdownMenuItem>
+        {onEdit && (
+          <DropdownMenuItem onClick={onEdit}>
+            <Edit className="mr-2 h-4 w-4" /> Edit
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={() => {
           navigator.clipboard.writeText(document.id)
           toast({
@@ -51,9 +57,13 @@ export function DocumentActions({ document, onEdit }: DocumentActionsProps) {
           <Copy className="mr-2 h-4 w-4" /> Copy ID
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled={isPrinting} onClick={handlePrint} className={cn({
-          "cursor-not-allowed opacity-50": isPrinting,
-        })}>
+        <DropdownMenuItem 
+          disabled={isPrinting} 
+          onClick={() => handlePrint()}
+          className={cn({
+            "cursor-not-allowed opacity-50": isPrinting,
+          })}
+        >
           <Printer className="mr-2 h-4 w-4" />
           {isPrinting ? "Printing..." : "Print"}
         </DropdownMenuItem>
@@ -61,6 +71,9 @@ export function DocumentActions({ document, onEdit }: DocumentActionsProps) {
           <Download className="mr-2 h-4 w-4" /> Download
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <div className="hidden">
+        <div ref={printRef} dangerouslySetInnerHTML={{ __html: content }} />
+      </div>
     </DropdownMenu>
   )
 }
