@@ -62,18 +62,18 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
         <div className="flex items-stretch w-full">
           {/* Date column */}
-          <div className="flex flex-col items-center justify-center w-[80px] p-4 text-center">
-            <div className="text-[36px] font-semibold text-zinc-800">{day}</div>
+          <div className="flex flex-col items-center justify-center w-[80px] py-5 px-4 text-center border-r border-zinc-50">
+            <div className="text-[32px] font-semibold text-zinc-800 leading-none">{day}</div>
             <div className="text-xs text-zinc-500 mt-1">{formattedStartTime}</div>
           </div>
           
           {/* Content column */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 py-4 px-5">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between mt-1">
+              <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium text-zinc-900 text-base">{event.name}</h4>
                 
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-2">
                   <div 
                     className="text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700"
                     onClick={copyEventCode}>
@@ -83,19 +83,19 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 </div>
               </div>
               
-              <div className="flex items-start justify-between mt-3 text-xs text-zinc-500">
+              <div className="flex items-center justify-between text-xs text-zinc-500">
                 <div className="flex items-center">
                   {venueStr && (
                     <div className="flex items-center">
-                      <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <MapPin className="h-4 w-4 mr-1.5 flex-shrink-0 text-zinc-400" />
                       <span className="truncate">{venueStr}</span>
                     </div>
                   )}
                 </div>
                 
                 {event.pax && (
-                  <div className="flex items-center ml-auto">
-                    <Users className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-1.5 flex-shrink-0 text-zinc-400" />
                     <span>{event.pax} guests</span>
                   </div>
                 )}
@@ -104,7 +104,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
           </div>
           
           {/* Actions */}
-          <div className="flex items-center px-3 border-l border-zinc-100">
+          <div className="flex items-center px-3 border-l border-zinc-50">
             <Button variant="ghost" size="icon" onClick={e => {
               e.stopPropagation();
               navigate(`/events/${event.event_code}/edit`);
