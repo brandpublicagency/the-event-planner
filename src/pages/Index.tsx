@@ -90,8 +90,8 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            {/* White overlay with 80% opacity */}
-            <div className="absolute inset-0 bg-white/80 rounded-xl"></div>
+            {/* White overlay with 90% opacity - Updated from 80% to 90% */}
+            <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
@@ -146,8 +146,8 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            {/* White overlay with 80% opacity */}
-            <div className="absolute inset-0 bg-white/80 rounded-xl"></div>
+            {/* White overlay with 90% opacity - Updated from 80% to 90% */}
+            <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
               <CheckSquare className="h-5 w-5 text-zinc-700" />
