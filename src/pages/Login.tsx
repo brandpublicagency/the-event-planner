@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -10,10 +10,14 @@ import { PasswordAuth } from "@/components/auth/PasswordAuth";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const email = searchParams.get('email');
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Get the intended destination from location state, or default to "/"
+  const from = location.state?.from?.pathname || "/";
 
   useEffect(() => {
     const checkSession = async () => {
@@ -31,7 +35,8 @@ const Login = () => {
             navigate('/profile-settings');
             toast.info('Please complete your profile information');
           } else {
-            navigate('/');
+            // Navigate to the intended destination if available
+            navigate(from);
           }
         }
       } catch (error) {
@@ -59,7 +64,8 @@ const Login = () => {
             navigate('/profile-settings');
             toast.info('Please complete your profile information');
           } else {
-            navigate('/');
+            // Navigate to the intended destination if available
+            navigate(from);
           }
         } catch (error) {
           console.error('Profile fetch error:', error);
@@ -83,7 +89,7 @@ const Login = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, from]);
 
   if (isLoading) {
     return (
