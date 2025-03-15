@@ -134,10 +134,15 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Column - Greeting, Chat, and Tasks (spans 6 columns on desktop) */}
+        {/* Right Column - Chat, Greeting, and Tasks (spans 6 columns on desktop) */}
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-4">
-          {/* Greeting Card */}
-          <Card className="rounded-xl p-6 bg-rose-50 border-0">
+          {/* Chat Box - now first */}
+          <div className="order-1 h-72 mb-4">
+            <ChatBox />
+          </div>
+          
+          {/* Greeting Card - now in the middle */}
+          <Card className="order-2 rounded-xl p-6 bg-rose-50 border-0">
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
               <p className="text-gray-700">
@@ -146,12 +151,7 @@ const Index = () => {
             </div>
           </Card>
           
-          {/* Chat Box - reduced height */}
-          <div className="order-2 h-72 mb-4">
-            <ChatBox />
-          </div>
-          
-          {/* Upcoming Tasks Section - with styled header that matches Events */}
+          {/* Upcoming Tasks Section - now at the bottom */}
           <div className="order-3">
             <div 
               className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
