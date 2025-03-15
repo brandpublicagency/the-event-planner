@@ -133,8 +133,12 @@ export default function DocumentEditor({
             </div>}
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleSave} disabled={isSaving} className="gap-2 shadow-sm">
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <Button 
+            onClick={handleSave} 
+            disabled={isSaving} 
+            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-gradient-to-r from-[#F2FCE2] via-[#FFDEE2] to-[#D3E4FD] animate-gradient-x shadow-sm"
+          >
+            {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
           

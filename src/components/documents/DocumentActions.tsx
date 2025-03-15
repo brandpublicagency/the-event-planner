@@ -52,8 +52,6 @@ export default function DocumentActions({ documentId, title, content, editorRef 
     }
   };
 
-  const printContent = () => editorRef?.current || null;
-
   const handlePrint = useReactToPrint({
     documentTitle: title,
     onPrintError: (error) => {
@@ -97,7 +95,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    content: printContent,
+    // Fixed: Using a proper function with correct typing
+    content: () => editorRef?.current || null,
   });
 
   return (
