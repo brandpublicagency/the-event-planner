@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
@@ -13,7 +12,9 @@ const ChatContainer = () => {
   const {
     messages: chatMessages,
     isLoading,
-    clearInput
+    clearInput: stateResetInput,
+    inputValue: stateInputValue,
+    setInputValue: stateSetInputValue
   } = useChatState();
   
   const {
@@ -31,9 +32,19 @@ const ChatContainer = () => {
     setInitialLoad(false);
   }, []);
 
+  // Keep local state in sync with global state
+  useEffect(() => {
+    stateSetInputValue(inputValue);
+  }, [inputValue, stateSetInputValue]);
+
   // Retry loading context data if there was an error
   const handleRetryContextLoad = () => {
     refetchContext();
+  };
+
+  const clearInput = () => {
+    setInputValue("");
+    stateResetInput();
   };
 
   return (

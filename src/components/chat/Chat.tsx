@@ -1,11 +1,10 @@
-
 import { useChatState } from "@/hooks/useChatState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import ChatConfirmation from "@/components/chat/ChatConfirmation";
 import ChatMessageHandler from "@/components/chat/ChatMessageHandler";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
 
 interface ChatHandlerProps {
@@ -16,7 +15,8 @@ interface ChatHandlerProps {
 }
 
 const Chat = () => {
-  const { inputValue, setInputValue } = useChatState();
+  const { inputValue, setInputValue, clearInput } = useChatState();
+  const [localInputValue, setLocalInputValue] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   // Auto-scroll to bottom when messages update
@@ -28,6 +28,11 @@ const Chat = () => {
       });
     }
   }, []);
+
+  // Keep local state in sync with global state
+  useEffect(() => {
+    setInputValue(localInputValue);
+  }, [localInputValue, setInputValue]);
 
   return (
     <div className="flex flex-col h-full bg-white border rounded-lg">
@@ -61,9 +66,12 @@ const Chat = () => {
             )}
             
             <ChatInput
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onSubmit={handleSubmit}
+              value={localInputValue}
+              onChange={(e) => setLocalInputValue(e.target.value)}
+              onSubmit={async (e) => {
+                await handleSubmit(e);
+                setLocalInputValue("");
+              }}
               isLoading={isLoading}
             />
           </>
