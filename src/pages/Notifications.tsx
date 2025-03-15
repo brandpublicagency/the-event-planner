@@ -39,7 +39,7 @@ const Notifications = () => {
           onTabChange={handleTabChange}
           generalNotifications={notifications}
           scheduledNotifications={scheduledNotifications}
-          generalLoading={false}
+          generalLoading={loading}
           scheduledLoading={loading}
           onViewDetail={handleViewEvent}
           onCompleteTask={handleCompleteTask}

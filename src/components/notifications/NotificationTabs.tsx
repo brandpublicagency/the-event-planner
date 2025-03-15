@@ -44,11 +44,13 @@ export const NotificationTabs = ({
       value={activeTab} 
       onValueChange={onTabChange} 
       className="mt-6"
+      defaultValue="general"
     >
       <TabsList className="w-full max-w-md mx-auto mb-8 grid grid-cols-2">
         <TabsTrigger 
           value="general" 
           className={`flex items-center gap-1.5 ${generalUnreadCount > 0 && activeTab !== 'general' ? 'animate-pulse' : ''}`}
+          onClick={() => onTabChange('general')}
         >
           <Bell className="h-4 w-4" />
           <span>General</span>
@@ -61,6 +63,7 @@ export const NotificationTabs = ({
         <TabsTrigger 
           value="scheduled" 
           className={`flex items-center gap-1.5 ${scheduledUnreadCount > 0 && activeTab !== 'scheduled' ? 'animate-pulse' : ''}`}
+          onClick={() => onTabChange('scheduled')}
         >
           <AlarmClock className="h-4 w-4" />
           <span>Reminders</span>
