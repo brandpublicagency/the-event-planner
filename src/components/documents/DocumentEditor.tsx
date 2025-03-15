@@ -1,4 +1,3 @@
-
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -110,7 +109,6 @@ export default function DocumentEditor({
       </div>;
   }
 
-  // Get the HTML content safely with type checking
   const documentHtmlContent = isDocumentContent(document.content) 
     ? document.content.html 
     : '';
@@ -136,7 +134,7 @@ export default function DocumentEditor({
           <Button 
             onClick={handleSave} 
             disabled={isSaving} 
-            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-white border border-zinc-300 shadow-sm"
+            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-white border border-zinc-300"
           >
             {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             {isSaving ? 'Saving...' : 'Save'}

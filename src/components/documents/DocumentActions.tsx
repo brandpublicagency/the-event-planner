@@ -95,7 +95,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    contentResolver: () => editorRef?.current || null,
+    content: () => editorRef?.current || null,
   });
 
   return (
@@ -103,7 +103,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={handlePrint}
+        onClick={() => handlePrint()}
         className="flex items-center gap-1.5 h-7 px-2 min-w-[60px]"
         disabled={!editorRef?.current}
       >
