@@ -96,8 +96,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    // Fix for TypeScript error - specify content correctly using a function
-    content: () => editorRef?.current || null,
+    // Fix for TypeScript error - use contentResolver instead of content
+    contentResolver: () => editorRef?.current || null,
   });
 
   return (

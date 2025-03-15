@@ -47,7 +47,9 @@ const ChatContainer = () => {
   const suggestions = [
     "What events do I have scheduled this month?",
     "Show me my upcoming tasks",
-    "Summarize my latest document"
+    "Summarize my latest document",
+    "What's my next event?",
+    "Update the guest count for my next event to 50"
   ];
 
   return (

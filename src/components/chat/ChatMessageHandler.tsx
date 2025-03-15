@@ -14,6 +14,7 @@ import { useActionHandler } from "./handlers/ActionHandler";
 import { getChatCompletion } from "@/services/openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatMessageHandlerProps {
   contextData: any;
@@ -66,6 +67,72 @@ export const ChatMessageHandler = ({
     }
   }, [contextData]);
 
+  // Function to directly fetch next event data
+  const fetchNextEvent = async () => {
+    try {
+      console.log('Fetching next event directly');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          menu_selections (*),
+          event_venues (
+            venues (
+              name
+            )
+          )
+        `)
+        .gte('event_date', today.toISOString().split('T')[0])
+        .is('deleted_at', null)
+        .is('completed', false)
+        .order('event_date', { ascending: true })
+        .limit(1);
+      
+      if (error) {
+        console.error('Error fetching next event:', error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        return "No upcoming events found.";
+      }
+      
+      const event = data[0];
+      console.log('Found next event:', event);
+      
+      // Format venue info
+      let venueInfo = '';
+      if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
+        venueInfo = ` at ${event.venues.join(', ')}`;
+      } else if (event.event_venues && Array.isArray(event.event_venues)) {
+        const venueNames = event.event_venues
+          .map((v) => v.venues?.name)
+          .filter(Boolean);
+        if (venueNames.length > 0) {
+          venueInfo = ` at ${venueNames.join(', ')}`;
+        }
+      }
+      
+      // Format guest info
+      let paxInfo = '';
+      if (event.pax) {
+        paxInfo = ` for ${event.pax} guests`;
+      }
+      
+      return `The next event is "${event.name}" on ${new Date(event.event_date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })}. It's a ${event.event_type} event${venueInfo}${paxInfo}.`;
+    } catch (error) {
+      console.error('Error in fetchNextEvent:', error);
+      return "I couldn't retrieve information about the next event right now.";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted with input:', inputValue);
@@ -81,6 +148,14 @@ export const ChatMessageHandler = ({
       addUserMessage(inputValue);
       clearInput();
       setIsLoading(true);
+
+      // Special case: directly handle next event query
+      if (inputValue.toLowerCase().includes('next event')) {
+        const nextEvent = await fetchNextEvent();
+        addSystemMessage(nextEvent);
+        setIsLoading(false);
+        return;
+      }
 
       // Check if we should use fallback immediately
       const useWhatsAppFallback = !aiEnabled || !contextData || !dataReady;
