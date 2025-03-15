@@ -35,7 +35,7 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
 
   return (
     <ScrollArea 
-      className="flex-1 p-4 h-full min-h-0" 
+      className="flex-1 p-3 h-full min-h-0" 
       ref={scrollAreaRef} 
       onScroll={handleScroll}
     >
@@ -57,9 +57,9 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
           <div className="flex justify-start animate-pulse">
             <div className="px-2.5 py-1 rounded-lg bg-gray-50">
               <div className="flex items-center space-x-2">
-                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-1 h-1 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-1 h-1 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-1 h-1 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>

@@ -24,8 +24,8 @@ const ChatMessage = ({ text, isUser, avatarUrl }: ChatMessageProps) => {
       <div
         className={`max-w-[85%] px-3 py-1.5 rounded-lg text-xs ${
           isUser
-            ? "bg-blue-50 text-gray-800"
-            : "bg-gray-50 text-gray-800"
+            ? "bg-zinc-50 text-zinc-800"
+            : "bg-gray-50 text-zinc-800"
         }`}
       >
         <ChatMessageContent text={text} />
@@ -34,7 +34,7 @@ const ChatMessage = ({ text, isUser, avatarUrl }: ChatMessageProps) => {
       {isUser && (
         <Avatar className="h-6 w-6">
           <AvatarImage src={avatarUrl} />
-          <AvatarFallback className="bg-blue-100 text-blue-600">
+          <AvatarFallback className="bg-zinc-100 text-zinc-600">
             {isUser ? "U" : "A"}
           </AvatarFallback>
         </Avatar>
