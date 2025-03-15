@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useScheduledNotifications } from '@/contexts/ScheduledNotificationContext';
@@ -19,7 +18,6 @@ import {
   Eye,
   AlertTriangle
 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 
@@ -113,7 +111,6 @@ const Notifications = () => {
     <div className="container py-6 max-w-5xl">
       <PageHeader
         pageTitle="Notifications"
-        contextTitle="View and manage all your notifications"
         actionButton={
           activeTab === 'general' && notifications.some(n => !n.read) 
             ? {
@@ -159,7 +156,7 @@ const Notifications = () => {
             <Bell className="h-4 w-4" />
             <span>General</span>
             {notifications.filter(n => !n.read).length > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-zinc-200 text-zinc-800">
+              <Badge variant="red" className="ml-1">
                 {notifications.filter(n => !n.read).length}
               </Badge>
             )}
@@ -168,7 +165,7 @@ const Notifications = () => {
             <AlarmClock className="h-4 w-4" />
             <span>Reminders</span>
             {scheduledNotifications.filter(n => !n.read).length > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-zinc-200 text-zinc-800">
+              <Badge variant="red" className="ml-1">
                 {scheduledNotifications.filter(n => !n.read).length}
               </Badge>
             )}
@@ -209,7 +206,7 @@ const Notifications = () => {
                           <div className="flex items-center mb-1">
                             <h3 className="text-base font-medium text-zinc-900">{notification.title}</h3>
                             {!notification.read && (
-                              <Badge variant="default" className="ml-2 bg-zinc-900 text-white text-xs font-normal">
+                              <Badge variant="red" className="ml-2">
                                 New
                               </Badge>
                             )}

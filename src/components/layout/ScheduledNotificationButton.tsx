@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
 
 export function ScheduledNotificationButton() {
   const { unreadCount } = useScheduledNotifications();
@@ -20,12 +19,9 @@ export function ScheduledNotificationButton() {
         <Button variant="ghost" size="icon" className="relative">
           <AlarmClock className="h-4 w-4 text-zinc-700" />
           {unreadCount > 0 && (
-            <Badge
-              className="absolute -top-1 -right-1 flex items-center justify-center h-4 min-w-[16px] text-[10px] font-medium px-[5px] bg-zinc-900 text-white"
-              variant="default"
-            >
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </Badge>
+            <span className="absolute -top-1 -right-1 text-xs font-medium bg-red-500 text-white px-1 py-0.5 rounded-full min-w-[18px] h-[18px] inline-flex justify-center items-center">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
           )}
         </Button>
       </PopoverTrigger>
