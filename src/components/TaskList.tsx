@@ -6,6 +6,7 @@ import { useTaskContext } from "@/contexts/TaskContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
+import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
@@ -29,6 +30,7 @@ export function TaskList({
   const navigate = useNavigate();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [activeTab, setActiveTab] = useState("upcoming");
   const {
     addTask,
     isLoading,
@@ -56,6 +58,17 @@ export function TaskList({
     }
   };
 
+  const filteredTasks = tasks.filter(task => {
+    if (activeTab === "upcoming") {
+      return !task.completed;
+    } else {
+      return task.completed;
+    }
+  });
+
+  const upcomingCount = tasks.filter(task => !task.completed).length;
+  const completedCount = tasks.filter(task => task.completed).length;
+
   if (isLoading) {
     return <div className="flex items-center justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -77,7 +90,7 @@ export function TaskList({
         <div className="flex items-center justify-between p-4 border-b rounded-xl mb-4">
           <div className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-zinc-700" />
-            <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+            <h3 className="text-lg font-medium text-zinc-900">Tasks</h3>
           </div>
           <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full">
             <Plus className="h-4 w-4 mr-1.5" />
@@ -86,9 +99,16 @@ export function TaskList({
         </div>
       )}
       
+      <TaskListHeader 
+        upcomingCount={upcomingCount} 
+        completedCount={completedCount}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+      
       <div className="mt-2">
         <TaskListContent 
-          tasks={tasks} 
+          tasks={filteredTasks} 
           editingTaskId={editingTaskId} 
           selectedTaskId={selectedTaskId} 
           onTaskSelect={onTaskSelect} 
@@ -98,12 +118,14 @@ export function TaskList({
         />
       </div>
       
-      <AddTaskInput 
-        value={newTaskTitle} 
-        onChange={setNewTaskTitle} 
-        onSubmit={handleAddTask} 
-        inputRef={inputRef} 
-      />
+      {activeTab === "upcoming" && (
+        <AddTaskInput 
+          value={newTaskTitle} 
+          onChange={setNewTaskTitle} 
+          onSubmit={handleAddTask} 
+          inputRef={inputRef} 
+        />
+      )}
     </div>
   );
 }
