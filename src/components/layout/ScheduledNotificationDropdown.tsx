@@ -22,7 +22,8 @@ export function ScheduledNotificationDropdown() {
     unreadCount, 
     markAsRead, 
     markAsCompleted,
-    loading
+    loading,
+    refreshNotifications
   } = useScheduledNotifications();
   
   const { toast } = useToast();
@@ -51,13 +52,24 @@ export function ScheduledNotificationDropdown() {
     <div className="flex flex-col max-h-[85vh]">
       <div className="flex items-center justify-between px-3 py-2 border-b">
         <h3 className="font-medium text-base text-zinc-900">Task Reminders</h3>
-        {unreadCount > 0 && (
-          <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
-            <Link to="/notifications?tab=scheduled">
-              View All ({unreadCount})
-            </Link>
+        <div className="flex gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={refreshNotifications}
+            className="h-7 px-2 text-xs"
+          >
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            Refresh
           </Button>
-        )}
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
+              <Link to="/notifications?tab=scheduled">
+                View All ({unreadCount})
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <ScrollArea className="h-[300px]">
@@ -77,7 +89,7 @@ export function ScheduledNotificationDropdown() {
             {notifications.slice(0, 5).map((notification) => (
               <Card
                 key={notification.id}
-                className={`mx-2 my-1.5 p-3 ${notification.read ? 'opacity-70' : ''} border-zinc-200`}
+                className={`mx-2 my-1.5 p-3 ${!notification.read ? 'border-l-4 border-l-amber-500' : 'opacity-70'} border-zinc-200`}
               >
                 <div className="flex justify-between items-start gap-1">
                   <div className="flex-1">
@@ -89,6 +101,11 @@ export function ScheduledNotificationDropdown() {
                           className="text-[10px] py-0 h-4 text-white font-normal px-[6px] bg-zinc-900"
                         >
                           New
+                        </Badge>
+                      )}
+                      {notification.type === 'task_overdue' && (
+                        <Badge variant="red" className="text-[10px] py-0 h-4">
+                          Overdue
                         </Badge>
                       )}
                     </div>

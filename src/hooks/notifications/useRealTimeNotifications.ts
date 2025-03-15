@@ -28,13 +28,24 @@ export function useRealTimeNotifications() {
               (!payload.old || !payload.old.sent_at)) {
             console.log('New notification sent:', payload);
             
-            // Show toast
+            // Show more prominent toast with long duration
             toast({
-              title: "New notification",
-              description: "You have a new notification to review",
+              title: "Important Notification",
+              description: "You have a new notification that requires attention",
               variant: "default",
-              showProgress: true
+              showProgress: true,
+              duration: 10000 // 10 seconds for more visibility
             });
+            
+            // Also trigger browser notification if supported
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('New Notification', {
+                body: 'You have a new notification that requires attention',
+                icon: '/favicon.ico'
+              });
+            } else if ('Notification' in window && Notification.permission !== 'denied') {
+              Notification.requestPermission();
+            }
           }
         }
       )

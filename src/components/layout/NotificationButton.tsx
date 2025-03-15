@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +11,22 @@ import { useNotifications } from "@/contexts/NotificationContext";
 export const NotificationButton = () => {
   const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
+  const [animate, setAnimate] = useState(false);
+  
+  // Add animation effect when new notifications arrive
+  useEffect(() => {
+    if (unreadCount > 0) {
+      setAnimate(true);
+      const timer = setTimeout(() => setAnimate(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [unreadCount]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div 
-          className="flex items-center gap-2 cursor-pointer relative"
+          className={`flex items-center gap-2 cursor-pointer relative ${animate ? 'animate-pulse' : ''}`}
           onClick={(e) => {
             e.preventDefault();
             setOpen(!open);
