@@ -311,6 +311,33 @@ export type Database = {
           },
         ]
       }
+      holiday_messages: {
+        Row: {
+          created_at: string
+          holiday_date: string
+          holiday_name: string
+          id: string
+          message_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          holiday_date: string
+          holiday_name: string
+          id?: string
+          message_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          holiday_date?: string
+          holiday_name?: string
+          id?: string
+          message_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_options: {
         Row: {
           category: string
@@ -456,6 +483,30 @@ export type Database = {
             referencedColumns: ["event_code"]
           },
         ]
+      }
+      motivational_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_text: string
+          message_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_text: string
+          message_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_text?: string
+          message_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       notification_templates: {
         Row: {
