@@ -15,6 +15,7 @@ export const useTaskQuery = (enabled: boolean) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
+          toast.error("Authentication error");
           return [];
         }
         
@@ -23,7 +24,8 @@ export const useTaskQuery = (enabled: boolean) => {
           return [];
         }
         
-        console.log("Session found, fetching tasks...");
+        console.log("Session found, user:", sessionData.session.user.id);
+        console.log("Fetching tasks...");
         
         const { data, error } = await supabase
           .from("tasks")
@@ -36,10 +38,12 @@ export const useTaskQuery = (enabled: boolean) => {
           throw error;
         }
 
-        console.log("Tasks fetched successfully:", data);
+        console.log("Tasks fetched successfully, count:", data?.length || 0);
+        console.log("Tasks data:", data);
         return data as Task[];
-      } catch (error) {
+      } catch (error: any) {
         console.error("Task query error:", error);
+        toast.error("Error loading tasks: " + (error.message || "Unknown error"));
         throw error;
       }
     },

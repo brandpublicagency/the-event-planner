@@ -11,24 +11,24 @@ export const useTaskMutations = () => {
     mutationFn: async (title: string) => {
       console.log("Adding task:", title);
       
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (userError) {
-        console.error("User fetch error:", userError);
-        throw new Error("Failed to authenticate");
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error("Failed to verify session");
       }
       
-      if (!userData?.user) {
-        console.error("No user found");
-        throw new Error("User not authenticated");
+      if (!sessionData.session) {
+        console.error("No active session found");
+        throw new Error("Authentication required");
       }
-
-      console.log("User authenticated, creating task");
+      
+      console.log("User authenticated, creating task for user:", sessionData.session.user.id);
       
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
-          user_id: userData.user.id,
+          user_id: sessionData.session.user.id,
           status: "todo",
         }
       ]);
@@ -54,16 +54,16 @@ export const useTaskMutations = () => {
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
       console.log("Updating task:", id, updates);
       
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (userError) {
-        console.error("User fetch error:", userError);
-        throw new Error("Failed to authenticate");
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error("Failed to verify session");
       }
       
-      if (!userData?.user) {
-        console.error("No user found");
-        throw new Error("User not authenticated");
+      if (!sessionData.session) {
+        console.error("No active session found");
+        throw new Error("Authentication required");
       }
       
       console.log("User authenticated, updating task");
@@ -94,16 +94,16 @@ export const useTaskMutations = () => {
     mutationFn: async (id: string) => {
       console.log("Deleting task:", id);
       
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (userError) {
-        console.error("User fetch error:", userError);
-        throw new Error("Failed to authenticate");
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error("Failed to verify session");
       }
       
-      if (!userData?.user) {
-        console.error("No user found");
-        throw new Error("User not authenticated");
+      if (!sessionData.session) {
+        console.error("No active session found");
+        throw new Error("Authentication required");
       }
       
       console.log("User authenticated, deleting task");
