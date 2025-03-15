@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { PendingAction } from "@/types/chat";
 import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
