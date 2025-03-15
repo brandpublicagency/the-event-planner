@@ -55,7 +55,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
           {/* Content column */}
           <div className="flex-1 py-3 px-5">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between mb-3 mt-3 my-[6px]">
+              <div className="flex items-center justify-between mb-3 mt-3 my-[14px]">
                 <h4 className="font-medium text-zinc-900 text-base">{event.name}</h4>
                 
                 <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-xs text-zinc-500 -mt-3 my-[6px]">
+              <div className="flex items-center justify-between text-xs text-zinc-500 -mt-3 my-[14px]">
                 <div className="flex items-center">
                   {venueStr && <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1.5 flex-shrink-0 text-zinc-400" />
