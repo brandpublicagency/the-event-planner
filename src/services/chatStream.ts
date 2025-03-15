@@ -15,16 +15,15 @@ export type StreamProcessor = {
 export const streamChatCompletion = async (
   messages: ChatMessage[],
   systemMessage: string,
-  functionDefs?: any[],
-  processor: StreamProcessor
+  processor: StreamProcessor,
+  functionDefs?: any[]
 ) => {
   try {
     console.log(`Streaming chat completion with ${messages.length} messages`);
     
     // Call our edge function
     const { data, error } = await supabase.functions.invoke("chat-stream", {
-      body: { messages, systemMessage, functionDefs },
-      responseType: 'stream'
+      body: { messages, systemMessage, functionDefs }
     });
 
     if (error) {
@@ -38,65 +37,13 @@ export const streamChatCompletion = async (
       return;
     }
 
-    // Set up the event source to handle SSE
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      
-      buffer += decoder.decode(value, { stream: true });
-      
-      // Handle complete lines
-      let lineEnd = buffer.indexOf('\n');
-      while (lineEnd !== -1) {
-        const line = buffer.substring(0, lineEnd).trim();
-        buffer = buffer.substring(lineEnd + 1);
-        
-        if (line.startsWith('data: ')) {
-          const data = line.substring(6);
-          
-          if (data === '[DONE]') {
-            processor.onComplete();
-            return;
-          }
-          
-          try {
-            const parsed = JSON.parse(data);
-            
-            if (parsed.error) {
-              processor.onError(parsed.error);
-              continue;
-            }
-            
-            if (parsed.type === 'content') {
-              processor.onContent(parsed.data);
-            } else if (parsed.type === 'function_call') {
-              processor.onFunctionCall(parsed.data);
-            }
-          } catch (e) {
-            console.error('Error parsing SSE data:', e);
-          }
-        }
-        
-        lineEnd = buffer.indexOf('\n');
-      }
+    // Process the response data
+    if (data.content) {
+      processor.onContent(data.content);
     }
     
-    // Process any remaining data in the buffer
-    if (buffer.trim() && buffer.startsWith('data: ')) {
-      try {
-        const data = JSON.parse(buffer.substring(6));
-        if (data.type === 'content') {
-          processor.onContent(data.data);
-        } else if (data.type === 'function_call') {
-          processor.onFunctionCall(data.data);
-        }
-      } catch (e) {
-        console.error('Error parsing final SSE data:', e);
-      }
+    if (data.function_call) {
+      processor.onFunctionCall(data.function_call);
     }
     
     processor.onComplete();

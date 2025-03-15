@@ -170,7 +170,7 @@ const ChatMessageHandler = ({
         // Update the temporary message
         const tempId = String(Date.now());
         setTempMessageId(tempId);
-        onAddSystemMessage("Processing...", tempId);
+        addSystemMessage("Processing...", tempId);
         
         await fetchWhatsAppResponse(inputValue);
         setRetryAttempts(0);

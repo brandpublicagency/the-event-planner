@@ -39,14 +39,25 @@ export function ChatFileUpload({ onFileUploaded }: ChatFileUploadProps) {
     
     try {
       // Upload the file to Supabase Storage
-      const { data, error } = await supabase.storage
+      const uploadPromise = supabase.storage
         .from('chat-files')
-        .upload(filePath, selectedFile, {
-          onUploadProgress: (progress) => {
-            const percent = Math.round((progress.loaded / progress.total) * 100);
-            setProgress(percent);
+        .upload(filePath, selectedFile);
+      
+      // Setup a progress tracker
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return 95;
           }
+          return prev + 5;
         });
+      }, 100);
+      
+      const { data, error } = await uploadPromise;
+      
+      clearInterval(progressInterval);
+      setProgress(100);
       
       if (error) throw error;
       
