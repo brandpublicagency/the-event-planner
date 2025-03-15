@@ -39,16 +39,30 @@ serve(async (req) => {
     
     if (todayEvents && todayEvents.length > 0) {
       const event = todayEvents[0];
-      let message = `Today is ${event.name}`;
+      let message = "";
       
-      if (event.primary_name) {
-        message += ` for ${event.primary_name}`;
-        if (event.secondary_name) {
-          message += ` and ${event.secondary_name}`;
+      // Customize message based on event type
+      if (event.event_type === "Wedding") {
+        if (event.primary_name && event.secondary_name) {
+          message = `Today is ${event.primary_name} + ${event.secondary_name}'s Wedding Day! Remember, this is their most special day, and you are part of it!`;
+        } else if (event.primary_name) {
+          message = `Today is ${event.primary_name}'s Wedding Day! Remember, this is their most special day, and you are part of it!`;
+        } else {
+          message = `Today is a Wedding Day at ${event.name}! Remember, this is a couple's most special day, and you are part of it!`;
         }
+      } else {
+        // For non-wedding events
+        message = `Today is ${event.name}`;
+        
+        if (event.primary_name) {
+          message += ` for ${event.primary_name}`;
+          if (event.secondary_name) {
+            message += ` and ${event.secondary_name}`;
+          }
+        }
+        
+        message += ". This is their big day, and you are part of making it unforgettable. Good luck and give it your all!";
       }
-      
-      message += "! This is their big day, and you are part of making it unforgettable. Good luck and give it your all!";
       
       return new Response(
         JSON.stringify({
@@ -136,7 +150,13 @@ serve(async (req) => {
       
       let message = `You have an upcoming event ${dayText}: ${event.name}`;
       
-      if (event.primary_name) {
+      if (event.event_type === "Wedding" && (event.primary_name || event.secondary_name)) {
+        if (event.primary_name && event.secondary_name) {
+          message = `You have ${event.primary_name} + ${event.secondary_name}'s Wedding ${dayText}`;
+        } else if (event.primary_name) {
+          message = `You have ${event.primary_name}'s Wedding ${dayText}`;
+        }
+      } else if (event.primary_name) {
         message += ` for ${event.primary_name}`;
       }
       
