@@ -12,6 +12,7 @@ import { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import DocumentActions from "./DocumentActions";
 import type { Category } from "@/types/category";
+import { isDocumentContent } from "@/types/document";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -109,6 +110,11 @@ export default function DocumentEditor({
       </div>;
   }
 
+  // Get the HTML content safely with type checking
+  const documentHtmlContent = isDocumentContent(document.content) 
+    ? document.content.html 
+    : '';
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-center p-6 pb-4">
@@ -136,7 +142,7 @@ export default function DocumentEditor({
             <DocumentActions 
               documentId={document.id} 
               title={document.title} 
-              content={document.content?.html || ''} 
+              content={documentHtmlContent} 
               editorRef={contentRef}
             />
           )}

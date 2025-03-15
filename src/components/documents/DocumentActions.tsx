@@ -54,6 +54,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
   };
 
   const handlePrint = useReactToPrint({
+    // Remove 'content' property and use proper accessor function
     content: () => editorRef?.current || null,
     documentTitle: title,
     pageStyle: `
@@ -96,7 +97,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={handlePrint} 
+        onClick={() => handlePrint()} // Fix: Wrap in an anonymous function to call handlePrint properly
         className="flex items-center gap-2"
         disabled={!editorRef?.current}
       >
