@@ -76,26 +76,9 @@ const Index = () => {
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        {/* Greeting Card - Top Right */}
-        <div className="md:col-span-1 order-1 md:order-2">
-          <Card className="rounded-xl p-6 bg-rose-50 border-0">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
-              <p className="text-gray-700">
-                Today is <span className="font-semibold">Karla + Regard's Wedding Day!</span> Remember, this is their most special day, and you are part of it! Good luck, and kick ass!
-              </p>
-            </div>
-          </Card>
-        </div>
-        
-        {/* Chat Box - Top Left */}
-        <div className="md:col-span-1 order-2 md:order-1">
-          <ChatBox />
-        </div>
-
-        {/* Upcoming Events Section */}
-        <div className="md:col-span-1 order-3 flex flex-col h-full overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
+        {/* Left Column - Upcoming Events (spans 6 columns on desktop) */}
+        <div className="md:col-span-6 flex flex-col order-3 md:order-1 h-full overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
             style={{ 
@@ -151,45 +134,63 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Upcoming Tasks Section */}
-        <div className="md:col-span-1 order-4 flex flex-col h-full overflow-hidden">
-          <div 
-            className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
-            style={{ 
-              backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              marginBottom: '15px'
-            }}
-          >
-            {/* White overlay with 90% opacity */}
-            <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
-            
-            <div className="flex items-center gap-2 relative z-10">
-              <CheckSquare className="h-5 w-5 text-zinc-700" />
-              <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+        {/* Right Column - Greeting, Chat, and Tasks (spans 6 columns on desktop) */}
+        <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
+          {/* Greeting Card */}
+          <Card className="rounded-xl p-6 bg-rose-50 border-0">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
+              <p className="text-gray-700">
+                Today is <span className="font-semibold">Karla + Regard's Wedding Day!</span> Remember, this is their most special day, and you are part of it! Good luck, and kick ass!
+              </p>
             </div>
-            <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full relative z-10">
-              <Plus className="h-4 w-4 mr-1.5" />
-              New Task
-            </Button>
+          </Card>
+          
+          {/* Chat Box */}
+          <div className="order-2 h-96">
+            <ChatBox />
           </div>
-          <div className="flex-1 overflow-auto p-2">
-            {isTasksLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          
+          {/* Upcoming Tasks Section */}
+          <div className="order-4 flex flex-col h-full overflow-hidden">
+            <div 
+              className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+              style={{ 
+                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: '15px'
+              }}
+            >
+              {/* White overlay with 90% opacity */}
+              <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
+              
+              <div className="flex items-center gap-2 relative z-10">
+                <CheckSquare className="h-5 w-5 text-zinc-700" />
+                <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
               </div>
-            ) : upcomingTasks.length === 0 ? (
-              <div className="flex items-center justify-center h-40 text-muted-foreground">
-                No upcoming tasks found
-              </div>
-            ) : (
-              <TaskList 
-                tasks={upcomingTasks}
-                onTaskSelect={handleTaskSelect}
-                selectedTaskId={selectedTaskId}
-              />
-            )}
+              <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full relative z-10">
+                <Plus className="h-4 w-4 mr-1.5" />
+                New Task
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-2">
+              {isTasksLoading ? (
+                <div className="flex items-center justify-center h-40">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : upcomingTasks.length === 0 ? (
+                <div className="flex items-center justify-center h-40 text-muted-foreground">
+                  No upcoming tasks found
+                </div>
+              ) : (
+                <TaskList 
+                  tasks={upcomingTasks}
+                  onTaskSelect={handleTaskSelect}
+                  selectedTaskId={selectedTaskId}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
