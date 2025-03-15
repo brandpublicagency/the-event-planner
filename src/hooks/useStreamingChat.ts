@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { ChatMessage, PendingAction } from '@/types/chat';
-import { streamChatCompletion, getChatFunctionDefinitions } from '@/services/chatStream';
+import { streamChatCompletion, getChatFunctionDefinitions, StreamProcessor } from '@/services/chatStream';
 import { identifyActionFromAI } from "@/utils/chatActionParser";
 import { getSystemMessage } from '@/utils/chat';
 
@@ -56,73 +56,77 @@ export function useStreamingChat({
     const functionDefs = getChatFunctionDefinitions();
     
     try {
+      // Create the processor object that handles streaming events
+      const processor: StreamProcessor = {
+        onContent: (content) => {
+          completeMessageContent.current += content;
+          onAddSystemMessage(completeMessageContent.current, tempMessageId);
+        },
+        onFunctionCall: (functionCall) => {
+          try {
+            console.log('Function call from streaming API:', functionCall);
+            
+            // Format function call to our standard format
+            if (functionCall.name === "update_event") {
+              const args = JSON.parse(functionCall.arguments);
+              const message = `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${JSON.stringify(args.updates)}}`;
+              completeMessageContent.current = message;
+              onAddSystemMessage(message, tempMessageId);
+            } else if (functionCall.name === "update_menu") {
+              const args = JSON.parse(functionCall.arguments);
+              const message = `I'll update the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(args.menu_updates)}}`;
+              completeMessageContent.current = message;
+              onAddSystemMessage(message, tempMessageId);
+            } else if (functionCall.name === "create_task") {
+              const args = JSON.parse(functionCall.arguments);
+              const message = `I'll create a new task: "${args.title}".\n\n{"action":"create_task","task_data":${JSON.stringify(args)}}`;
+              completeMessageContent.current = message;
+              onAddSystemMessage(message, tempMessageId);
+            }
+          } catch (error) {
+            console.error('Error processing function call:', error);
+            completeMessageContent.current += "\n\nI attempted to perform an action but encountered an error. Please try again with more specific instructions.";
+            onAddSystemMessage(completeMessageContent.current, tempMessageId);
+          }
+        },
+        onError: (errorMessage) => {
+          console.error('Streaming error:', errorMessage);
+          setError(errorMessage);
+          onAddSystemMessage(
+            "I encountered an error while generating a response. Please try again.",
+            tempMessageId
+          );
+        },
+        onComplete: () => {
+          console.log('Streaming complete');
+          
+          // Identify any actions in the final response
+          const pendingAction = identifyActionFromAI(completeMessageContent.current);
+          if (pendingAction) {
+            console.log('Pending action identified:', pendingAction);
+            
+            // Add a separate confirmation message
+            onAddSystemMessage(
+              pendingAction.confirmationMessage || 
+              "I'll need your confirmation to proceed with this action. Type 'yes' to confirm or 'no' to cancel."
+            );
+            
+            onSetPendingAction(pendingAction);
+          }
+          
+          // Finish streaming
+          setIsStreaming(false);
+          streamingMessageId.current = null;
+          onSetIsLoading(false);
+        }
+      };
+
+      // Call the streamChatCompletion function with the correct parameter order
       await streamChatCompletion(
         messages, 
         systemMessage,
-        functionDefs,
-        {
-          onContent: (content) => {
-            completeMessageContent.current += content;
-            onAddSystemMessage(completeMessageContent.current, tempMessageId);
-          },
-          onFunctionCall: (functionCall) => {
-            try {
-              console.log('Function call from streaming API:', functionCall);
-              
-              // Format function call to our standard format
-              if (functionCall.name === "update_event") {
-                const args = JSON.parse(functionCall.arguments);
-                const message = `I'll update the event ${args.event_code} with the following changes: ${JSON.stringify(args.updates)}.\n\n{"action":"update_event","event_code":"${args.event_code}","updates":${JSON.stringify(args.updates)}}`;
-                completeMessageContent.current = message;
-                onAddSystemMessage(message, tempMessageId);
-              } else if (functionCall.name === "update_menu") {
-                const args = JSON.parse(functionCall.arguments);
-                const message = `I'll update the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(args.menu_updates)}}`;
-                completeMessageContent.current = message;
-                onAddSystemMessage(message, tempMessageId);
-              } else if (functionCall.name === "create_task") {
-                const args = JSON.parse(functionCall.arguments);
-                const message = `I'll create a new task: "${args.title}".\n\n{"action":"create_task","task_data":${JSON.stringify(args)}}`;
-                completeMessageContent.current = message;
-                onAddSystemMessage(message, tempMessageId);
-              }
-            } catch (error) {
-              console.error('Error processing function call:', error);
-              completeMessageContent.current += "\n\nI attempted to perform an action but encountered an error. Please try again with more specific instructions.";
-              onAddSystemMessage(completeMessageContent.current, tempMessageId);
-            }
-          },
-          onError: (errorMessage) => {
-            console.error('Streaming error:', errorMessage);
-            setError(errorMessage);
-            onAddSystemMessage(
-              "I encountered an error while generating a response. Please try again.",
-              tempMessageId
-            );
-          },
-          onComplete: () => {
-            console.log('Streaming complete');
-            
-            // Identify any actions in the final response
-            const pendingAction = identifyActionFromAI(completeMessageContent.current);
-            if (pendingAction) {
-              console.log('Pending action identified:', pendingAction);
-              
-              // Add a separate confirmation message
-              onAddSystemMessage(
-                pendingAction.confirmationMessage || 
-                "I'll need your confirmation to proceed with this action. Type 'yes' to confirm or 'no' to cancel."
-              );
-              
-              onSetPendingAction(pendingAction);
-            }
-            
-            // Finish streaming
-            setIsStreaming(false);
-            streamingMessageId.current = null;
-            onSetIsLoading(false);
-          }
-        }
+        processor,
+        functionDefs
       );
     } catch (error) {
       console.error('Error in streamResponse:', error);
