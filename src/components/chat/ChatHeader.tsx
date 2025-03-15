@@ -14,7 +14,7 @@ const ChatHeader = ({ hasData, isMinimized = false }: ChatHeaderProps) => {
       <div className="flex items-center">
         <Bot className={`${isMinimized ? 'h-4 w-4' : 'h-5 w-5'} text-gray-500 mr-2`} />
         <h3 className={`${isMinimized ? 'text-xs' : 'text-sm'} font-medium text-gray-700`}>
-          DMOS Assistant
+          Event Assistant
         </h3>
       </div>
       
