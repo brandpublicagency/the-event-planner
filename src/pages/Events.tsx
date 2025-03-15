@@ -9,6 +9,8 @@ import type { Event } from "@/types/event";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
+import { CalendarX, Calendar, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function Events() {
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .gte('event_date', today.toISOString().split('T')[0]) // Changed from gt to gte to include today's events
+        .gte('event_date', today.toISOString().split('T')[0]) // Get today's and future events
         .order('event_date', { ascending: true });
 
       if (error) {
@@ -66,9 +68,44 @@ export default function Events() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header pageTitle="Events" />
+      <Header 
+        pageTitle="Events" 
+        actionButton={{
+          label: "New Event",
+          icon: <PlusCircle className="h-4 w-4 mr-2" />,
+          onClick: () => navigate('/events/new')
+        }}
+      />
       
-      <div className="flex-1 p-6 flex flex-col">
+      <div className="flex-1 p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-5 w-5 text-zinc-600" />
+            <h2 className="text-lg font-medium">Upcoming Events</h2>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-zinc-700"
+              onClick={() => navigate('/events/passed')}
+            >
+              <CalendarX className="h-4 w-4 mr-1.5" />
+              Past Events
+            </Button>
+            
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate('/events/new')}
+            >
+              <PlusCircle className="h-4 w-4 mr-1.5" />
+              New Event
+            </Button>
+          </div>
+        </div>
+        
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">Loading events...</p>

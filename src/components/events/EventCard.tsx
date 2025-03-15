@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Trash, Copy, Pencil } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";

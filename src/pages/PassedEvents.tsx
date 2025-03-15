@@ -8,9 +8,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Event } from "@/types/event";
 import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
 import { Header } from "@/components/layout/Header";
+import { format } from "date-fns";
+import { Search, CalendarCheck, Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const PassedEvents = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: events = [], isLoading, error, refetch } = useQuery({
@@ -23,7 +29,7 @@ const PassedEvents = () => {
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .or(`completed.eq.true,event_date.lte.${today.toISOString().split('T')[0]}`)
+        .or(`completed.eq.true,event_date.lt.${today.toISOString().split('T')[0]}`)
         .order('event_date', { ascending: false });
 
       if (error) {
@@ -42,7 +48,16 @@ const PassedEvents = () => {
     refetchOnMount: true,
   });
 
-  const groupedEvents = groupEventsByMonth(events);
+  // Group events by month for display
+  const groupedEvents = events.reduce((acc: Record<string, Event[]>, event) => {
+    if (!event.event_date) return acc;
+    const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
+    if (!acc[monthYear]) {
+      acc[monthYear] = [];
+    }
+    acc[monthYear].push(event);
+    return acc;
+  }, {});
 
   const filteredEvents = Object.entries(groupedEvents).reduce(
     (acc: Record<string, Event[]>, [monthYear, monthEvents]) => {
@@ -77,7 +92,37 @@ const PassedEvents = () => {
         pageTitle="Passed Events"
       />
       
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-1.5">
+            <CalendarCheck className="h-5 w-5 text-zinc-600" />
+            <h2 className="text-lg font-medium">Past Events</h2>
+          </div>
+          
+          <div className="flex w-full sm:w-auto gap-2">
+            <div className="relative flex-1 sm:flex-initial">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+              <Input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 w-full sm:w-[250px] text-sm"
+              />
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-zinc-700 shrink-0"
+              onClick={() => navigate('/events')}
+            >
+              <Calendar className="h-4 w-4 mr-1.5" />
+              Upcoming Events
+            </Button>
+          </div>
+        </div>
+        
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (

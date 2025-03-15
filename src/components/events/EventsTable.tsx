@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
@@ -40,6 +39,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     : groupedEvents;
 
   if (isDashboard) {
+    // Keep the dashboard view unchanged
     return (
       <>
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
@@ -66,7 +66,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       isDashboard ? "h-auto" : "h-full",
       className
     )}>
-      <div className="space-y-4 pb-4">
+      <div className="space-y-6 pb-4">
         {Object.keys(groupedEvents).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
