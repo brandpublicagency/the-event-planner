@@ -151,7 +151,7 @@ const Index = () => {
             <ChatBox />
           </div>
           
-          {/* Upcoming Tasks Section - Now moved to appear after ChatBox */}
+          {/* Upcoming Tasks Section - Now with a proper heading */}
           <div className="order-3 flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b rounded-xl mb-4">
               <div className="flex items-center gap-2">
@@ -167,12 +167,13 @@ const Index = () => {
               tasks={upcomingTasks}
               onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
+              hideHeader={true} // Hide the header in TaskList since we're providing our own
             />
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Index;
