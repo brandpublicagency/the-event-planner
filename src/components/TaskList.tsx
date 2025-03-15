@@ -71,13 +71,6 @@ export function TaskList({
       </Alert>;
   }
 
-  // Take the most recent tasks for the dashboard display
-  const recentTasks = tasks && tasks.length > 0 
-    ? [...tasks].sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ).slice(0, 3)
-    : [];
-
   return (
     <div className="space-y-4">
       {!hideHeader && (
@@ -86,7 +79,7 @@ export function TaskList({
             <CheckSquare className="h-5 w-5 text-zinc-700" />
             <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
           </div>
-          <Button onClick={() => navigate('/tasks/new')} size="sm" variant="outline" className="rounded-full">
+          <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full">
             <Plus className="h-4 w-4 mr-1.5" />
             New Task
           </Button>
@@ -95,7 +88,7 @@ export function TaskList({
       
       <div className="mt-2">
         <TaskListContent 
-          tasks={recentTasks} 
+          tasks={tasks} 
           editingTaskId={editingTaskId} 
           selectedTaskId={selectedTaskId} 
           onTaskSelect={onTaskSelect} 

@@ -169,7 +169,7 @@ const Index = () => {
                 <CheckSquare className="h-5 w-5 text-zinc-700" />
                 <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
               </div>
-              <Button onClick={() => navigate('/tasks/new')} size="sm" variant="outline" className="rounded-full relative z-10">
+              <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full relative z-10">
                 <Plus className="h-4 w-4 mr-1.5" />
                 New Task
               </Button>

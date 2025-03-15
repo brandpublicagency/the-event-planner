@@ -13,22 +13,47 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
   const { data: userInfo, isLoading } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.log("No authenticated user found");
+          return null;
+        }
+        
+        console.log("Authenticated user:", user);
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error("Error fetching user profile:", error);
+          // Return basic information from auth even if profile fetch fails
+          return {
+            email: user.email,
+            name: 'User',
+            surname: ''
+          };
+        }
 
-      console.log("User profile data:", profile);
+        console.log("User profile data:", profile);
 
-      return {
-        email: user.email,
-        name: profile?.full_name || 'User',
-        surname: profile?.surname || ''
-      };
+        return {
+          email: user.email,
+          name: profile?.full_name || 'User',
+          surname: profile?.surname || ''
+        };
+      } catch (error) {
+        console.error("Error in user profile query:", error);
+        return {
+          email: 'user@example.com',
+          name: 'User',
+          surname: ''
+        };
+      }
     },
   });
 
@@ -59,9 +84,9 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           ) : (
             <>
               <div className="text-sm font-medium truncate">
-                {userInfo?.name || ''} {userInfo?.surname || ''}
+                {userInfo?.name || 'User'} {userInfo?.surname || ''}
               </div>
-              <div className="text-xs text-gray-400 truncate">{userInfo?.email || ''}</div>
+              <div className="text-xs text-gray-400 truncate">{userInfo?.email || 'user@example.com'}</div>
             </>
           )}
         </div>

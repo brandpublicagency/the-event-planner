@@ -11,7 +11,6 @@ import Tasks from "@/pages/Tasks";
 import Projects from "@/pages/Projects";
 import NewProject from "@/pages/NewProject";
 import NewEvent from "@/pages/NewEvent";
-import NewTask from "@/pages/NewTask";
 import NewClient from "@/pages/NewClient";
 import ProfileSettings from "@/pages/ProfileSettings";
 import Contacts from "@/pages/Contacts";
@@ -40,7 +39,6 @@ export const AppRoutes = () => {
         <Route path="/events/:id/edit" element={<EditEvent />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/new" element={<NewProject />} />
-        <Route path="/tasks/new" element={<NewTask />} />
         <Route path="/clients/new" element={<NewClient />} />
         <Route path="/profile" element={<ProfileSettings />} />
         <Route path="/contacts" element={<Contacts />} />

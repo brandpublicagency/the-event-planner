@@ -34,8 +34,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         throw new Error(error.message || "Failed to fetch tasks");
       }
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 10000, // 10 seconds
   });
 
   const addTask = async (title: string) => {
