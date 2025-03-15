@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
 import { NotificationTabs } from '@/components/notifications/NotificationTabs';

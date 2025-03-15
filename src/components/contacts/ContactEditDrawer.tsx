@@ -62,7 +62,6 @@ const ContactEditDrawer = ({
       
       // Log the contact update if there are changed fields and we have an updated contact
       if (changedFields.length > 0 && updatedContact) {
-        // Fix: Call the function without checking its return value
         await logContactUpdated(updatedContact, changedFields);
       }
       

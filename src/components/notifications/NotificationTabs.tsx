@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Bell, AlarmClock } from 'lucide-react';
@@ -30,31 +30,16 @@ export const NotificationTabs = ({
   const generalUnreadCount = generalNotifications.filter(n => !n.read).length;
   const scheduledUnreadCount = scheduledNotifications.filter(n => !n.read).length;
 
-  // Auto-switch to tab with unread items if current tab has none
-  useEffect(() => {
-    if (activeTab === 'general' && generalUnreadCount === 0 && scheduledUnreadCount > 0) {
-      onTabChange('scheduled');
-    } else if (activeTab === 'scheduled' && scheduledUnreadCount === 0 && generalUnreadCount > 0) {
-      onTabChange('general');
-    }
-  }, [activeTab, generalUnreadCount, scheduledUnreadCount, onTabChange]);
-
-  // Ensure we're using a proper default tab value
-  const handleTabChange = (value: string) => {
-    onTabChange(value);
-  };
-
   return (
     <Tabs 
-      value={activeTab} 
-      onValueChange={handleTabChange} 
+      defaultValue={activeTab} 
+      onValueChange={onTabChange} 
       className="mt-6"
-      defaultValue="general"
     >
       <TabsList className="w-full max-w-md mx-auto mb-8 grid grid-cols-2">
         <TabsTrigger 
           value="general" 
-          className={`flex items-center gap-1.5 ${generalUnreadCount > 0 && activeTab !== 'general' ? 'animate-pulse' : ''}`}
+          className="flex items-center gap-1.5"
         >
           <Bell className="h-4 w-4" />
           <span>General</span>
@@ -66,7 +51,7 @@ export const NotificationTabs = ({
         </TabsTrigger>
         <TabsTrigger 
           value="scheduled" 
-          className={`flex items-center gap-1.5 ${scheduledUnreadCount > 0 && activeTab !== 'scheduled' ? 'animate-pulse' : ''}`}
+          className="flex items-center gap-1.5"
         >
           <AlarmClock className="h-4 w-4" />
           <span>Reminders</span>
