@@ -4,13 +4,15 @@ import { useChatState } from "@/hooks/useChatState";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import type { PendingAction } from "@/types/chat";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatConfirmationProps {
   pendingAction: PendingAction;
 }
 
 const ChatConfirmation = ({ pendingAction }: ChatConfirmationProps) => {
-  const { addSystemMessage, setPendingAction, toast } = useChatState();
+  const { addSystemMessage, setPendingAction } = useChatState();
+  const { toast } = useToast();
 
   const handleConfirm = async () => {
     await handleConfirmation({

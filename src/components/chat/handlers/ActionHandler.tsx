@@ -3,9 +3,11 @@ import { handleChatAction } from "@/utils/chatActionHandler";
 import { PendingAction } from "@/types/chat";
 import { useChatState } from "@/hooks/useChatState";
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export const useActionHandler = () => {
-  const { addSystemMessage, setPendingAction, toast } = useChatState();
+  const { addSystemMessage, setPendingAction } = useChatState();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const handlePendingAction = async (
