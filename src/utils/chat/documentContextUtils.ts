@@ -1,23 +1,59 @@
 
-import { format } from "date-fns";
-
 /**
- * Prepares documents context data for the AI assistant
+ * Prepares documents context for AI
  */
-export function prepareDocumentsContext(documents: any[]) {
+export const prepareDocumentsContext = (documents: any[] = []): string => {
   if (!documents || documents.length === 0) {
-    return "No documents found.";
+    return 'No documents found.';
   }
   
-  return documents.map(doc => {
-    return `Document: ${JSON.stringify({
-      id: doc.id,
-      title: doc.title || 'Untitled',
-      created_at: doc.created_at ? format(new Date(doc.created_at), 'dd/MM/yyyy') : 'Unknown date',
-      updated_at: doc.updated_at ? format(new Date(doc.updated_at), 'dd/MM/yyyy') : 'Unknown date',
-      categories: doc.document_categories ? 
-        doc.document_categories.map((cat: any) => cat.name).join(', ') : 
-        'No categories'
-    }, null, 2)}`;
-  }).join('\n\n');
-}
+  // Sort documents by most recently updated
+  const sortedDocuments = [...documents].sort((a, b) => {
+    if (!a.updated_at) return 1;
+    if (!b.updated_at) return -1;
+    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  });
+  
+  let documentsContext = `DOCUMENTS (${documents.length} total):\n`;
+  
+  // Group documents by category if available
+  const documentsByCategory: Record<string, any[]> = {};
+  let uncategorized: any[] = [];
+  
+  sortedDocuments.forEach(doc => {
+    if (doc.category) {
+      if (!documentsByCategory[doc.category]) {
+        documentsByCategory[doc.category] = [];
+      }
+      documentsByCategory[doc.category].push(doc);
+    } else {
+      uncategorized.push(doc);
+    }
+  });
+  
+  // Add category-based document lists
+  Object.entries(documentsByCategory).forEach(([category, docs]) => {
+    documentsContext += `\n${category.toUpperCase()} (${docs.length}):\n`;
+    docs.slice(0, 5).forEach((doc, index) => {
+      documentsContext += `${index + 1}. ${doc.title || 'Untitled'} - Last updated: ${new Date(doc.updated_at).toLocaleDateString()}\n`;
+    });
+    
+    if (docs.length > 5) {
+      documentsContext += `... and ${docs.length - 5} more ${category} documents.\n`;
+    }
+  });
+  
+  // Add uncategorized documents
+  if (uncategorized.length > 0) {
+    documentsContext += `\nOTHER DOCUMENTS (${uncategorized.length}):\n`;
+    uncategorized.slice(0, 5).forEach((doc, index) => {
+      documentsContext += `${index + 1}. ${doc.title || 'Untitled'} - Last updated: ${new Date(doc.updated_at).toLocaleDateString()}\n`;
+    });
+    
+    if (uncategorized.length > 5) {
+      documentsContext += `... and ${uncategorized.length - 5} more uncategorized documents.\n`;
+    }
+  }
+  
+  return documentsContext;
+};

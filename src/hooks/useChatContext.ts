@@ -1,6 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  prepareEventsContext, 
+  prepareTasksContext, 
+  prepareContactsContext, 
+  prepareDocumentsContext 
+} from "@/utils/chat";
 
 export const useChatContext = () => {
   return useQuery({
@@ -20,9 +26,6 @@ export const useChatContext = () => {
         throw eventsError;
       }
 
-      // Fetch venues separately instead of through relations
-      const venuesMap = {}; // Initialize an empty object for venue lookup
-      
       // Fetch contacts data
       const { data: contacts, error: contactsError } = await supabase
         .from('profiles')
@@ -108,6 +111,12 @@ export const useChatContext = () => {
         };
       });
       
+      // Prepare formatted context strings
+      const eventsContext = prepareEventsContext(enrichedEvents || []);
+      const contactsContext = prepareContactsContext(contacts || []);
+      const documentsContext = prepareDocumentsContext(documents || []);
+      const tasksContext = prepareTasksContext(tasks || []);
+      
       console.log(`Chat context data fetched: ${enrichedEvents?.length || 0} events, ${contacts?.length || 0} contacts, ${documents?.length || 0} documents, ${tasks?.length || 0} tasks`);
       
       return {
@@ -115,7 +124,11 @@ export const useChatContext = () => {
         contacts: contacts || [],
         documents: documents || [],
         pdfContent: pdfContent || [],
-        tasks: tasks || []
+        tasks: tasks || [],
+        eventsContext,
+        contactsContext,
+        documentsContext,
+        tasksContext
       };
     },
     staleTime: 2 * 60 * 1000, // Cache for 2 minutes

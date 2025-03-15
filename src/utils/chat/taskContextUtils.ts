@@ -1,100 +1,47 @@
 
-import { Task } from "@/contexts/task/taskTypes";
-import { format } from "date-fns";
-
 /**
- * Prepares tasks context data for the AI assistant
+ * Prepares tasks context for AI
  */
-export function prepareTasksContext(tasks: Task[]) {
+export const prepareTasksContext = (tasks: any[] = []): string => {
   if (!tasks || tasks.length === 0) {
-    return "No tasks found.";
+    return 'No tasks found.';
   }
   
-  // Split into upcoming, today, and overdue tasks
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const overdueTasks = tasks.filter(task => {
-    if (!task.due_date) return false;
-    const dueDate = new Date(task.due_date);
-    return dueDate < today && !task.completed;
+  // Sort tasks by due date (upcoming first)
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
   
-  const todayTasks = tasks.filter(task => {
-    if (!task.due_date) return false;
-    const dueDate = new Date(task.due_date);
-    return dueDate >= today && dueDate < tomorrow && !task.completed;
-  });
+  // Separate pending and completed tasks
+  const pendingTasks = sortedTasks.filter(task => !task.completed);
+  const completedTasks = sortedTasks.filter(task => task.completed);
   
-  const upcomingTasks = tasks.filter(task => {
-    if (!task.due_date) return false;
-    const dueDate = new Date(task.due_date);
-    return dueDate >= tomorrow && !task.completed;
-  });
+  let tasksContext = `TASKS (${tasks.length} total):\n`;
   
-  let tasksContext = '';
-  
-  // Format overdue tasks
-  if (overdueTasks.length > 0) {
-    tasksContext += "OVERDUE TASKS:\n";
-    tasksContext += overdueTasks.map(task => {
-      return `Task: ${JSON.stringify({
-        id: task.id,
-        title: task.title,
-        status: task.status,
-        priority: task.priority || 'None',
-        due_date: task.due_date ? format(new Date(task.due_date), 'dd/MM/yyyy') : 'No due date',
-        completed: task.completed,
-        assigned_to: task.assigned_to || 'Unassigned',
-        notes: task.notes || [],
-        todos: task.todos || []
-      }, null, 2)}`;
-    }).join('\n\n');
+  // Add pending tasks first
+  if (pendingTasks.length > 0) {
+    tasksContext += `\nPENDING TASKS (${pendingTasks.length}):\n`;
+    pendingTasks.slice(0, 10).forEach((task, index) => {
+      const dueDate = task.due_date 
+        ? new Date(task.due_date).toLocaleDateString() 
+        : 'No due date';
+      
+      tasksContext += `${index + 1}. ${task.title} - Due: ${dueDate}${task.event_code ? ` - Event: ${task.event_code}` : ''}\n`;
+    });
+    
+    if (pendingTasks.length > 10) {
+      tasksContext += `... and ${pendingTasks.length - 10} more pending tasks.\n`;
+    }
+  } else {
+    tasksContext += "\nNo pending tasks found.\n";
   }
   
-  // Format today's tasks
-  if (todayTasks.length > 0) {
-    if (tasksContext) tasksContext += '\n\n';
-    tasksContext += "TODAY'S TASKS:\n";
-    tasksContext += todayTasks.map(task => {
-      return `Task: ${JSON.stringify({
-        id: task.id,
-        title: task.title,
-        status: task.status,
-        priority: task.priority || 'None',
-        due_date: task.due_date ? format(new Date(task.due_date), 'dd/MM/yyyy') : 'No due date',
-        completed: task.completed,
-        assigned_to: task.assigned_to || 'Unassigned',
-        notes: task.notes || [],
-        todos: task.todos || []
-      }, null, 2)}`;
-    }).join('\n\n');
-  }
-  
-  // Format upcoming tasks
-  if (upcomingTasks.length > 0) {
-    if (tasksContext) tasksContext += '\n\n';
-    tasksContext += "UPCOMING TASKS:\n";
-    tasksContext += upcomingTasks.map(task => {
-      return `Task: ${JSON.stringify({
-        id: task.id,
-        title: task.title,
-        status: task.status,
-        priority: task.priority || 'None',
-        due_date: task.due_date ? format(new Date(task.due_date), 'dd/MM/yyyy') : 'No due date',
-        completed: task.completed,
-        assigned_to: task.assigned_to || 'Unassigned',
-        notes: task.notes || [],
-        todos: task.todos || []
-      }, null, 2)}`;
-    }).join('\n\n');
-  }
-  
-  if (!tasksContext) {
-    tasksContext = "No active tasks found.";
+  // Add a brief summary of completed tasks
+  if (completedTasks.length > 0) {
+    tasksContext += `\nCOMPLETED TASKS: ${completedTasks.length} tasks have been completed.\n`;
   }
   
   return tasksContext;
-}
+};

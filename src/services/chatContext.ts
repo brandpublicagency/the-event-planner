@@ -1,5 +1,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  prepareEventsContext, 
+  prepareTasksContext, 
+  prepareContactsContext, 
+  prepareDocumentsContext 
+} from "@/utils/chat";
 
 /**
  * Fetches comprehensive data from various tables to provide context for chat AI
@@ -55,13 +61,27 @@ export const getChatContextData = async () => {
       throw tasksError;
     }
 
-    console.log(`Chat context loaded: ${events?.length || 0} events, ${contacts?.length || 0} contacts, ${documents?.length || 0} documents, ${tasks?.length || 0} tasks`);
-    
-    return {
+    const contextData = {
       events: events || [],
       contacts: contacts || [],
       documents: documents || [],
       tasks: tasks || []
+    };
+
+    // Prepare formatted context strings for better AI interaction
+    const eventsContext = prepareEventsContext(contextData.events);
+    const contactsContext = prepareContactsContext(contextData.contacts);
+    const documentsContext = prepareDocumentsContext(contextData.documents);
+    const tasksContext = prepareTasksContext(contextData.tasks);
+
+    console.log(`Chat context loaded: ${events?.length || 0} events, ${contacts?.length || 0} contacts, ${documents?.length || 0} documents, ${tasks?.length || 0} tasks`);
+    
+    return {
+      ...contextData,
+      eventsContext,
+      contactsContext,
+      documentsContext,
+      tasksContext
     };
   } catch (error) {
     console.error('Error in getChatContextData:', error);

@@ -19,7 +19,8 @@ const ChatContainer = () => {
   } = useChatState();
   
   const {
-    data: contextData
+    data: contextData,
+    isLoading: isContextLoading
   } = useChatContext();
   
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -143,7 +144,7 @@ const ChatContainer = () => {
         <ChatMessageHandler 
           contextData={contextData}
           inputValue={inputValue}
-          isLoading={isLoading}
+          isLoading={isLoading || isContextLoading}
           setInputValue={setInputValue}
           clearInput={clearInput}
         >
@@ -152,7 +153,7 @@ const ChatContainer = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onSubmit={handleSubmit}
-              isLoading={isLoading || handlerIsLoading}
+              isLoading={isLoading || handlerIsLoading || isContextLoading}
               placeholderText={pendingAction ? "Type 'yes' to confirm or 'no' to cancel..." : "Type your message..."}
             />
           )}
