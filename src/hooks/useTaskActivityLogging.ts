@@ -34,8 +34,8 @@ export const useTaskActivityLogging = () => {
     fetchUserProfile();
   }, []);
   
-  const logTaskUpdated = async (task: Task, updatedFields: string[]) => {
-    if (!currentUser) return;
+  const logTaskUpdated = async (task: Task, updatedFields: string[]): Promise<Task> => {
+    if (!currentUser) return task;
     
     await logUserActivity({
       user_id: currentUser.id,
@@ -48,10 +48,12 @@ export const useTaskActivityLogging = () => {
         fields_updated: updatedFields
       }
     });
+    
+    return task;
   };
   
-  const logTaskDeleted = async (task: Task) => {
-    if (!currentUser) return;
+  const logTaskDeleted = async (task: Task): Promise<Task> => {
+    if (!currentUser) return task;
     
     await logUserActivity({
       user_id: currentUser.id,
@@ -63,6 +65,8 @@ export const useTaskActivityLogging = () => {
         title: task.title
       }
     });
+    
+    return task;
   };
   
   return {
