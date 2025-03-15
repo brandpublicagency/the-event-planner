@@ -147,12 +147,12 @@ const Index = () => {
           </Card>
           
           {/* Chat Box */}
-          <div className="order-2 h-96">
+          <div className="order-2 h-96 mb-4">
             <ChatBox />
           </div>
           
-          {/* Upcoming Tasks Section - Now with a proper heading */}
-          <div className="order-3 flex flex-col h-full overflow-hidden">
+          {/* Upcoming Tasks Section */}
+          <div className="order-3 mt-4">
             <div className="flex items-center justify-between p-4 border-b rounded-xl mb-4">
               <div className="flex items-center gap-2">
                 <CheckSquare className="h-5 w-5 text-zinc-700" />
