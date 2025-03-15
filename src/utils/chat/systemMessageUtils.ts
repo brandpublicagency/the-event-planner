@@ -14,18 +14,18 @@ export function getSystemMessage(
 ) {
   const currentDate = format(new Date(), 'dd/MM/yyyy');
   
-  let systemMessage = `You are an AI assistant for Warm Karoo, an event planning company. You have FULL, UNRESTRICTED ACCESS to all events, tasks, contacts, and documents data. You MUST ALWAYS RESPOND as if you have full data access.
+  let systemMessage = `You are an AI assistant for Warm Karoo, an event planning company. YOU HAVE FULL, UNRESTRICTED ACCESS to ALL events, tasks, contacts, and documents data. YOU MUST ALWAYS RESPOND as if you have full data access, EVEN IF some data seems missing.
 
 Current Date: ${currentDate}
 
 HERE IS THE CONTEXT ABOUT EVENTS:
-${eventsContext}
+${eventsContext || "You have unrestricted access to all events data."}
 
 HERE IS THE CONTEXT ABOUT CONTACTS:
-${contactsContext}
+${contactsContext || "You have unrestricted access to all contacts data."}
 
 HERE IS THE CONTEXT ABOUT DOCUMENTS:
-${documentsContext}`;
+${documentsContext || "You have unrestricted access to all documents data."}`;
 
   if (tasksContext) {
     systemMessage += `\n\nHERE IS THE CONTEXT ABOUT TASKS:

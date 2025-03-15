@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 // Timeout duration for OpenAI requests
-const OPENAI_TIMEOUT = 45000; // 45 seconds
+const OPENAI_TIMEOUT = 30000; // 30 seconds
 
 /**
  * Fetches a chat completion from OpenAI with improved error handling and logging
@@ -30,7 +30,7 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
     // Make the actual API request
     const completionPromise = openai.chat.completions.create({
       messages,
-      model: "gpt-4o", // Using the more powerful GPT-4o model for better comprehension
+      model: "gpt-4o-mini", // Using the mini model for faster responses
       temperature: 0.5,
       max_tokens: 1500,
       presence_penalty: 0.3,
@@ -139,11 +139,6 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
     // Log performance metrics
     const endTime = performance.now();
     console.log(`OpenAI response received in ${Math.round(endTime - startTime)}ms`);
-    console.log('Response details:', {
-      usage: completion.usage,
-      model: completion.model,
-      finishReason: completion.choices[0]?.finish_reason
-    });
 
     // Handle function calls in the response
     const functionCall = completion.choices[0]?.message?.function_call;
@@ -189,16 +184,6 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
     return completion.choices[0]?.message?.content || null;
   } catch (error) {
     console.error('Error getting OpenAI completion:', error);
-    
-    // Provide helpful error messages based on error types
-    if (error.message?.includes("timed out")) {
-      throw new Error("The AI service is taking too long to respond. Please try again.");
-    } else if (error.message?.includes("rate limit")) {
-      throw new Error("We've hit the AI service rate limit. Please try again in a moment.");
-    } else if (error.status === 401) {
-      throw new Error("There's an authentication issue with our AI service. Please contact support.");
-    }
-    
     throw error;
   }
 };

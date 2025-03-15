@@ -25,7 +25,7 @@ export const useChatMessageHandler = ({
   isLoading: externalIsLoading,
   setInputValue: externalSetInputValue,
   clearInput: externalClearInput,
-  forceLocalData = false
+  forceLocalData = true // Changed default to true to force local data
 }: UseChatMessageHandlerProps) => {
   const {
     inputValue: internalInputValue,
@@ -78,7 +78,7 @@ export const useChatMessageHandler = ({
     contextData,
     onSetTempMessageId: setTempMessageId,
     processAIResponse,
-    forceLocalData
+    forceLocalData: true // Force local data usage
   });
 
   // Set up WhatsApp message handler for fallback
@@ -108,7 +108,7 @@ export const useChatMessageHandler = ({
     pendingAction,
     isLoading,
     isStreaming,
-    useStreamingMode,
+    useStreamingMode: false, // Force non-streaming mode
     addUserMessage,
     clearInput,
     setIsLoading,
@@ -122,7 +122,7 @@ export const useChatMessageHandler = ({
     addSystemMessage,
     retryAttempts,
     tempMessageId,
-    forceLocalData
+    forceLocalData: true // Force local data usage
   });
 
   return {

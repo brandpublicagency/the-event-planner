@@ -25,7 +25,7 @@ const ChatMessageHandler = ({
   isLoading = false,
   setInputValue = () => {},
   clearInput = () => {},
-  forceLocalData = false
+  forceLocalData = true // Force local data by default
 }: ChatMessageHandlerProps) => {
   const {
     messages,

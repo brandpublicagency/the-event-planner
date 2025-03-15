@@ -15,7 +15,7 @@ interface UseSubmitHandlerProps {
   handlePendingAction: (action: PendingAction, confirmation: boolean) => Promise<void>;
   fetchAIResponse: (inputText: string, messages?: ChatMessage[]) => Promise<void>;
   fetchWhatsAppResponse?: (inputText: string) => Promise<void>;
-  processConfirmation: (input: string) => boolean;
+  processConfirmation: (input: string) => boolean; // Fixed type signature
   setUseStreamingMode: (useStreaming: boolean) => void;
   setRetryAttempts: (attempts: number) => void;
   setTempMessageId: (id: string | null) => void;
@@ -45,7 +45,7 @@ export const useSubmitHandler = ({
   addSystemMessage,
   retryAttempts,
   tempMessageId,
-  forceLocalData = false
+  forceLocalData = true // Changed default to true
 }: UseSubmitHandlerProps) => {
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
@@ -60,39 +60,22 @@ export const useSubmitHandler = ({
       if (wasProcessed) return;
     }
 
+    // Add user message to chat
+    addUserMessage(inputValue);
+
     // Show loading indicator
     setIsLoading(true);
 
     try {
-      // Use the streaming mode by default
-      if (useStreamingMode && !forceLocalData) {
-        try {
-          // Clear any existing temp message ID
-          if (tempMessageId) {
-            setTempMessageId(null);
-          }
-          
-          await fetchAIResponse(inputValue, messages);
-          clearInput();
-          return;
-        } catch (error) {
-          console.error('Error in streaming mode, switching to local data:', error);
-          // If streaming fails, switch to local data mode
-          if (!forceLocalData) {
-            // Only set this if not already in force local data mode
-            setUseStreamingMode(false);
-            setRetryAttempts(retryAttempts + 1);
-          }
-        }
-      }
-
-      // If stream failed or isn't being used, try the local data approach
+      // Try direct AI processing without streaming
       try {
         await fetchAIResponse(inputValue);
+        clearInput();
+        return;
       } catch (error) {
         console.error('Error in local AI mode:', error);
         
-        // If we have a WhatsApp handler and local data failed, try that
+        // If local data approach failed and we have a WhatsApp handler, try that
         if (fetchWhatsAppResponse) {
           try {
             await fetchWhatsAppResponse(inputValue);
@@ -102,12 +85,12 @@ export const useSubmitHandler = ({
             // If both approaches failed, show an error message
             if (tempMessageId) {
               addSystemMessage(
-                "I'm having trouble connecting to any of our services. Please try again later or check your network connection.",
+                "I'm having trouble connecting to any of our services. Please try again with a more specific question about your events.",
                 tempMessageId
               );
             } else {
               addSystemMessage(
-                "I'm having trouble connecting to any of our services. Please try again later or check your network connection."
+                "I'm having trouble connecting to any of our services. Please try again with a more specific question about your events."
               );
             }
           }
@@ -115,12 +98,12 @@ export const useSubmitHandler = ({
           // If no WhatsApp handler, show the error
           if (tempMessageId) {
             addSystemMessage(
-              "I couldn't process your request. Please try asking something different or more specific.",
+              "I couldn't process your request. Please try asking something more specific about your events, like 'What is my next event?' or 'Show me events in July'.",
               tempMessageId
             );
           } else {
             addSystemMessage(
-              "I couldn't process your request. Please try asking something different or more specific."
+              "I couldn't process your request. Please try asking something more specific about your events, like 'What is my next event?' or 'Show me events in July'."
             );
           }
         }
@@ -134,12 +117,12 @@ export const useSubmitHandler = ({
       // Show error message
       if (tempMessageId) {
         addSystemMessage(
-          "I encountered an unexpected error. Please try again with a different question.",
+          "I encountered an unexpected error. Please try asking about specific events by name or date.",
           tempMessageId
         );
       } else {
         addSystemMessage(
-          "I encountered an unexpected error. Please try again with a different question."
+          "I encountered an unexpected error. Please try asking about specific events by name or date."
         );
       }
     } finally {

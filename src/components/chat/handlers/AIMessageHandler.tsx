@@ -6,7 +6,6 @@ import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils"
 import { getChatCompletion } from "@/services/openai";
 import { getChatContextData } from "@/services/chatContext";
 import { getSystemMessage } from "@/utils/chat";
-import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AIMessageHandlerProps {
@@ -28,21 +27,12 @@ export const useAIMessageHandler = ({
   contextData: externalContextData,
   onSetTempMessageId,
   processAIResponse,
-  forceLocalData = false
+  forceLocalData = true // Force local data by default
 }: AIMessageHandlerProps) => {
   const [contextData, setContextData] = useState<any>(externalContextData || null);
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
   
-  // Get streaming functionality
-  const { streamResponse, isStreaming } = useStreamingChat({
-    onAddSystemMessage,
-    onSetPendingAction,
-    onSetIsLoading,
-    contextData: contextData || externalContextData,
-    forceLocalData
-  });
-
   // Function to get upcoming events directly from the database
   const getUpcomingEvents = async () => {
     try {
@@ -59,11 +49,11 @@ export const useAIMessageHandler = ({
         
       if (error) {
         console.error('Error fetching events:', error);
-        return "I couldn't retrieve event information at the moment.";
+        return "I couldn't retrieve event information at the moment. Please try again shortly.";
       }
       
       if (!events || events.length === 0) {
-        return "There are no upcoming events scheduled.";
+        return "There are no upcoming events scheduled at this time.";
       }
       
       // Get the next event
@@ -83,7 +73,99 @@ export const useAIMessageHandler = ({
       return `The next event is "${nextEvent.name}" (${nextEvent.event_code}) on ${eventDate}.${venueInfo}\nGuests: ${nextEvent.pax || 'Not specified'}`;
     } catch (err) {
       console.error('Error in getUpcomingEvents:', err);
-      return "I encountered an error trying to fetch event information.";
+      return "I encountered an error trying to fetch event information. Please try again.";
+    }
+  };
+
+  // Handle questions about specific event types
+  const getEventsByType = async (eventType) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data: events, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('event_type', eventType)
+        .gt('event_date', today.toISOString())
+        .is('deleted_at', null)
+        .order('event_date', { ascending: true })
+        .limit(10);
+        
+      if (error) {
+        console.error(`Error fetching ${eventType} events:`, error);
+        return `I couldn't retrieve ${eventType} information at the moment.`;
+      }
+      
+      if (!events || events.length === 0) {
+        return `There are no upcoming ${eventType} events scheduled.`;
+      }
+      
+      const eventsList = events.map(event => {
+        const eventDate = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }) : 'date not specified';
+        
+        return `• ${event.name} (${event.event_code}) - ${eventDate} - Guests: ${event.pax || 'Not specified'}`;
+      }).join('\n');
+      
+      return `Here are the upcoming ${eventType} events:\n\n${eventsList}`;
+    } catch (err) {
+      console.error(`Error in getEventsByType for ${eventType}:`, err);
+      return `I encountered an error trying to fetch ${eventType} information.`;
+    }
+  };
+
+  // Handle specific date queries
+  const getEventsByMonth = async (month) => {
+    try {
+      const months = [
+        'january', 'february', 'march', 'april', 'may', 'june', 
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ];
+      
+      const monthIndex = months.indexOf(month.toLowerCase());
+      if (monthIndex === -1) {
+        return `I couldn't find events for '${month}'. Please specify a valid month.`;
+      }
+      
+      const currentYear = new Date().getFullYear();
+      const startDate = new Date(currentYear, monthIndex, 1).toISOString();
+      const endDate = new Date(currentYear, monthIndex + 1, 0).toISOString();
+      
+      const { data: events, error } = await supabase
+        .from('events')
+        .select('*')
+        .gte('event_date', startDate)
+        .lte('event_date', endDate)
+        .is('deleted_at', null)
+        .order('event_date', { ascending: true });
+        
+      if (error) {
+        console.error(`Error fetching events for ${month}:`, error);
+        return `I couldn't retrieve event information for ${month} at the moment.`;
+      }
+      
+      if (!events || events.length === 0) {
+        return `There are no events scheduled in ${month}.`;
+      }
+      
+      const eventsList = events.map(event => {
+        const eventDate = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }) : 'date not specified';
+        
+        return `• ${event.name} (${event.event_code}) - ${eventDate} - Guests: ${event.pax || 'Not specified'}`;
+      }).join('\n');
+      
+      return `Here are the events scheduled in ${month}:\n\n${eventsList}`;
+    } catch (err) {
+      console.error(`Error in getEventsByMonth for ${month}:`, err);
+      return `I encountered an error trying to fetch event information for ${month}.`;
     }
   };
 
@@ -93,8 +175,31 @@ export const useAIMessageHandler = ({
     
     // Check for next event questions
     if (lowerInput.includes('next event') || 
-        (lowerInput.includes('when') && lowerInput.includes('event'))) {
+        (lowerInput.includes('when') && lowerInput.includes('event')) ||
+        (lowerInput.includes('upcoming') && lowerInput.includes('event'))) {
       return await getUpcomingEvents();
+    }
+    
+    // Check for event type questions
+    const eventTypes = ['Wedding', 'Conference', 'Year-End Function', 'Corporate Function', 
+                        'Babyshower', 'Kitchen Tea', 'Party', 'Concert', 'Performance', 'Private Event'];
+    
+    for (const type of eventTypes) {
+      if (lowerInput.includes(type.toLowerCase())) {
+        return await getEventsByType(type);
+      }
+    }
+    
+    // Check for month-specific queries
+    const months = [
+      'january', 'february', 'march', 'april', 'may', 'june', 
+      'july', 'august', 'september', 'october', 'november', 'december'
+    ];
+    
+    for (const month of months) {
+      if (lowerInput.includes(month)) {
+        return await getEventsByMonth(month);
+      }
     }
     
     // Event code pattern like EVENT-001-123
@@ -147,35 +252,13 @@ export const useAIMessageHandler = ({
       // Show initial loading message
       onAddSystemMessage("Thinking...", tempId);
       
-      // Try to generate a basic response first if forceLocalData is true or as fallback
-      if (forceLocalData) {
-        const basicResponse = await getBasicEventResponse(inputText);
-        if (basicResponse) {
-          onSetIsLoading(false);
-          onAddSystemMessage(basicResponse, tempId);
-          onClearInput();
-          return;
-        }
-      }
-      
-      // Use streaming if available and messages are provided
-      if (messages && !forceLocalData) {
-        console.log('Using streaming response for chat');
-        try {
-          await streamResponse(messages, tempId);
-          return;
-        } catch (error) {
-          console.error('Streaming error, falling back to local data:', error);
-          
-          // Fall back to basic response
-          const basicResponse = await getBasicEventResponse(inputText);
-          if (basicResponse) {
-            onSetIsLoading(false);
-            onAddSystemMessage(basicResponse, tempId);
-            onClearInput();
-            return;
-          }
-        }
+      // Try to generate a basic response first for common queries
+      const basicResponse = await getBasicEventResponse(inputText);
+      if (basicResponse) {
+        onSetIsLoading(false);
+        onAddSystemMessage(basicResponse, tempId);
+        onClearInput();
+        return;
       }
 
       // Get context data if not provided
@@ -218,7 +301,7 @@ export const useAIMessageHandler = ({
       // Prepare the messages array for the OpenAI API
       const apiMessages: ChatCompletionMessageParam[] = prepareOpenAIMessages(
         systemMessage,
-        [], // We don't need to pass chat history as it's handled by the state
+        messages || [], // Use provided messages history if available
         inputText
       );
 
@@ -247,23 +330,19 @@ export const useAIMessageHandler = ({
       } catch (error) {
         console.error('Error in OpenAI request:', error);
         
-        // Try basic response as fallback
-        const basicResponse = await getBasicEventResponse(inputText);
+        // Try more basic response as fallback
+        const basicResponse = await getUpcomingEvents();
         if (basicResponse) {
           onSetIsLoading(false);
-          onAddSystemMessage(basicResponse, tempId);
+          onAddSystemMessage("I couldn't process your specific query, but here's information about your next event:\n\n" + basicResponse, tempId);
           onClearInput();
           return;
         }
         
         // Implement retry logic for recoverable errors
-        if (retryCount < MAX_RETRIES && 
-            (error.message?.includes('timeout') || 
-             error.message?.includes('rate limit') || 
-             error.message?.includes('network'))) {
-          
+        if (retryCount < MAX_RETRIES) {
           setRetryCount(prev => prev + 1);
-          onAddSystemMessage(`I'm having trouble connecting to our AI service. Retrying... (Attempt ${retryCount + 1}/${MAX_RETRIES})`, tempId);
+          onAddSystemMessage(`I'm having trouble processing your request. Let me try again...`, tempId);
           
           // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
@@ -272,7 +351,7 @@ export const useAIMessageHandler = ({
           return fetchAIResponse(inputText);
         }
         
-        // If max retries exceeded or unrecoverable error, show error message
+        // If max retries exceeded, show error message
         onSetIsLoading(false);
         onAddSystemMessage(
           "I'm having trouble generating a response right now. Please try asking about specific events by name or code for better results.",
@@ -284,11 +363,11 @@ export const useAIMessageHandler = ({
     } catch (error) {
       console.error('Error in fetchAIResponse:', error);
       onSetIsLoading(false);
-      onAddSystemMessage("I encountered an error. Please try asking about specific events, tasks, or contacts instead.");
+      onAddSystemMessage("I encountered an error. Please try asking about specific events like 'Show me events in July' or 'What's my next wedding event?'");
       onClearInput();
       throw error;
     }
   };
 
-  return { fetchAIResponse, isStreaming };
+  return { fetchAIResponse, isStreaming: false };
 };
