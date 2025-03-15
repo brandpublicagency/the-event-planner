@@ -1,18 +1,17 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { ActionButtonProps } from "./Header";
+import React from 'react';
+import { SearchBar } from './SearchBar';
+import { NotificationButton } from './NotificationButton';
+import { ScheduledNotificationButton } from './ScheduledNotificationButton';
+import { UserMenu } from './UserMenu';
 
-interface HeaderActionsProps {
-  actionButton?: ActionButtonProps;
-}
-
-export const HeaderActions = ({
-  actionButton
-}: HeaderActionsProps) => {
-  // This component is kept for backward compatibility
-  // but all logic is now in the Header component
-  console.log("HeaderActions is deprecated, use the actionButton prop in Header directly");
-  return null;
+export const HeaderActions = () => {
+  return (
+    <div className="flex items-center gap-4">
+      <SearchBar />
+      <NotificationButton />
+      <ScheduledNotificationButton />
+      <UserMenu />
+    </div>
+  );
 };

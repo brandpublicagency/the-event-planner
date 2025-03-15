@@ -96,6 +96,44 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_notification_id: string | null
+          id: string
+          recipient: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_notification_id?: string | null
+          id?: string
+          recipient: string
+          status: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_notification_id?: string | null
+          id?: string
+          recipient?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_event_notification_id_fkey"
+            columns: ["event_notification_id"]
+            isOneToOne: false
+            referencedRelation: "event_notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_documents: {
         Row: {
           content_type: string | null
@@ -127,6 +165,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_documents_event_code_fkey"
+            columns: ["event_code"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_code"]
+          },
+        ]
+      }
+      event_notifications: {
+        Row: {
+          created_at: string
+          event_code: string
+          id: string
+          is_completed: boolean
+          is_read: boolean
+          notification_type: string
+          scheduled_for: string
+          sent_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_code: string
+          id?: string
+          is_completed?: boolean
+          is_read?: boolean
+          notification_type: string
+          scheduled_for: string
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_code?: string
+          id?: string
+          is_completed?: boolean
+          is_read?: boolean
+          notification_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_notifications_event_code_fkey"
             columns: ["event_code"]
             isOneToOne: false
             referencedRelation: "events"
@@ -375,6 +457,77 @@ export type Database = {
           },
         ]
       }
+      notification_templates: {
+        Row: {
+          action_type: string | null
+          created_at: string
+          description_template: string
+          id: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          action_type?: string | null
+          created_at?: string
+          description_template: string
+          id?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string | null
+          created_at?: string
+          description_template?: string
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_triggers: {
+        Row: {
+          created_at: string
+          days_offset: number | null
+          enabled: boolean
+          event_relative: boolean
+          id: string
+          template_type: string
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_offset?: number | null
+          enabled?: boolean
+          event_relative?: boolean
+          id?: string
+          template_type: string
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_offset?: number | null
+          enabled?: boolean
+          event_relative?: boolean
+          id?: string
+          template_type?: string
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_triggers_template_type_fkey"
+            columns: ["template_type"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["type"]
+          },
+        ]
+      }
       pdf_processed_content: {
         Row: {
           content: string | null
@@ -414,6 +567,7 @@ export type Database = {
           full_name: string | null
           id: string
           mobile: string | null
+          notification_preferences: Json | null
           surname: string | null
           updated_at: string
         }
@@ -423,6 +577,7 @@ export type Database = {
           full_name?: string | null
           id: string
           mobile?: string | null
+          notification_preferences?: Json | null
           surname?: string | null
           updated_at?: string
         }
@@ -432,6 +587,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           mobile?: string | null
+          notification_preferences?: Json | null
           surname?: string | null
           updated_at?: string
         }

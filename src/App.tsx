@@ -1,122 +1,92 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import React from 'react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import { ThemeProvider } from "@/components/ui/theme-provider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
-import { TaskProvider } from "@/contexts/TaskContext";
-import { AppRoutes } from "./routes/AppRoutes";
-import { AppProviders } from "./providers/AppProviders";
-import { toast } from "sonner";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      retry: 1,
-      enabled: false, // Disable automatic fetching by default
-      meta: {
-        errorHandler: (error: Error) => {
-          console.error('Query error:', error);
-          toast.error('An error occurred while fetching data');
-        },
-      },
-    },
+import Dashboard from './pages/Dashboard';
+import Events from './pages/Events';
+import Tasks from './pages/Tasks';
+import Contacts from './pages/Contacts';
+import Documents from './pages/Documents';
+import Settings from './pages/Settings';
+import Chat from './pages/Chat';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import EventDetails from './pages/EventDetails';
+import TaskDetails from './pages/TaskDetails';
+import Notifications from './pages/Notifications';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { ScheduledNotificationProvider } from './contexts/ScheduledNotificationContext';
+
+const queryClient = new QueryClient();
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Dashboard />,
   },
-});
-
-const App = () => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authInitialized, setAuthInitialized] = useState(false);
-
-  useEffect(() => {
-    // Set up initial session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Auth initialization error:', error);
-          toast.error('Authentication error occurred');
-          return;
-        }
-        console.log('Initial session:', session);
-        setSession(session);
-        
-        // Enable queries only after authentication is confirmed
-        if (session) {
-          queryClient.setDefaultOptions({
-            queries: {
-              ...queryClient.getDefaultOptions().queries,
-              enabled: true,
-            },
-          });
-        }
-      } catch (error) {
-        console.error('Auth initialization failed:', error);
-        toast.error('Failed to initialize authentication');
-      } finally {
-        setIsLoading(false);
-        setAuthInitialized(true);
-      }
-    };
-
-    initializeAuth();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('Auth state changed:', session);
-      setSession(session);
-      setIsLoading(false);
-      
-      if (session) {
-        // Enable queries when user logs in
-        queryClient.setDefaultOptions({
-          queries: {
-            ...queryClient.getDefaultOptions().queries,
-            enabled: true,
-          },
-        });
-      } else {
-        // Clear query cache and disable queries when user logs out
-        queryClient.clear();
-        queryClient.setDefaultOptions({
-          queries: {
-            ...queryClient.getDefaultOptions().queries,
-            enabled: false,
-          },
-        });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  if (isLoading || !authInitialized) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-      </div>
-    );
+  {
+    path: "/events",
+    element: <Events />,
+  },
+  {
+    path: "/events/:eventCode",
+    element: <EventDetails />,
+  },
+  {
+    path: "/tasks",
+    element: <Tasks />,
+  },
+  {
+    path: "/tasks/:taskId",
+    element: <TaskDetails />,
+  },
+  {
+    path: "/contacts",
+    element: <Contacts />,
+  },
+  {
+    path: "/documents",
+    element: <Documents />,
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
+  },
+  {
+    path: "/chat",
+    element: <Chat />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
+  },
+  {
+    path: "/notifications",
+    element: <Notifications />,
   }
+]);
 
+// Wrap the application with our providers
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppProviders>
-          <AppRoutes />
-        </AppProviders>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <QueryClientProvider client={queryClient}>
+        <NotificationProvider>
+          <ScheduledNotificationProvider>
+            <RouterProvider router={router} />
+          </ScheduledNotificationProvider>
+        </NotificationProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;
