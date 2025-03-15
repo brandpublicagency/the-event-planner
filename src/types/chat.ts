@@ -4,6 +4,7 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 export interface ChatMessage {
   text: string;
   isUser: boolean;
+  id?: string;
 }
 
 export interface PendingAction {

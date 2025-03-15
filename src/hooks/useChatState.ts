@@ -59,12 +59,32 @@ export const useChatState = () => {
     };
   }, []);
 
-  const addMessage = useCallback(async (message: ChatMessage) => {
-    console.log('Adding message:', message);
+  const addMessage = useCallback(async (message: ChatMessage, messageId?: string) => {
+    console.log('Adding message:', message, messageId ? `with ID: ${messageId}` : '');
     
     // Update local state
     setMessages(prevMessages => {
-      const newMessages = [...prevMessages, message];
+      let newMessages;
+      
+      if (messageId) {
+        // If messageId is provided, replace the message with that ID
+        const messageIndex = prevMessages.findIndex(msg => msg.id === messageId);
+        if (messageIndex >= 0) {
+          console.log(`Replacing message at index ${messageIndex}`);
+          const updatedMessages = [...prevMessages];
+          updatedMessages[messageIndex] = { ...message, id: messageId };
+          newMessages = updatedMessages;
+        } else {
+          // If message with ID not found, add with that ID
+          console.log(`Message with ID ${messageId} not found, adding as new`);
+          newMessages = [...prevMessages, { ...message, id: messageId }];
+        }
+      } else {
+        // Normal case - just append the message with a random ID
+        const newMessageWithId = { ...message, id: Date.now().toString() };
+        newMessages = [...prevMessages, newMessageWithId];
+      }
+      
       try {
         sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(newMessages));
         sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
@@ -86,9 +106,9 @@ export const useChatState = () => {
     }
   }, []);
 
-  const addSystemMessage = useCallback((text: string) => {
-    console.log('Adding system message:', text);
-    addMessage({ text, isUser: false });
+  const addSystemMessage = useCallback((text: string, messageId?: string) => {
+    console.log('Adding system message:', text, messageId ? `with ID: ${messageId}` : '');
+    addMessage({ text, isUser: false }, messageId);
   }, [addMessage]);
 
   const addUserMessage = useCallback((text: string) => {
