@@ -44,16 +44,16 @@ export const EventCard = ({
   };
 
   return (
-    <div key={event.event_code} className={cn(
-      "group",
-      isDashboard && "border rounded-lg"
-    )}>
-      <div className={cn(
-        "flex flex-col gap-2 p-4",
-        isDashboard && "p-3"
-      )}>
+    <div 
+      key={event.event_code} 
+      className={cn(
+        "group border rounded-lg hover:border-zinc-200 transition-colors",
+        isDashboard && "shadow-sm"
+      )}
+    >
+      <div className="p-3">
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(`/events/${event.event_code}`)}

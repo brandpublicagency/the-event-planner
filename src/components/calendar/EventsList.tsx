@@ -18,7 +18,7 @@ export const EventsList: React.FC<EventsListProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-zinc-500">
+      <div className="flex items-center gap-2 text-sm text-zinc-500 py-2">
         <Loader2 className="h-4 w-4 animate-spin" />
         Loading events...
       </div>
@@ -27,14 +27,14 @@ export const EventsList: React.FC<EventsListProps> = ({
 
   if (!events.length) {
     return (
-      <div className="text-sm text-zinc-500">
+      <div className="text-sm text-zinc-500 py-2">
         No events scheduled for {date ? format(date, "MMMM d, yyyy") : "this date"}.
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {events.map((event) => (
         <EventCard
           key={event.event_code}

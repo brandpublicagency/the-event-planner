@@ -70,25 +70,25 @@ const ProjectCard = ({
 
   return (
     <Card 
-      className="cursor-pointer card-with-glow transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white" 
+      className="cursor-pointer card-with-glow transition-all duration-700 hover:bg-gradient-to-r hover:from-white hover:via-zinc-50 hover:to-white shadow-sm" 
       onClick={onClick}
     >
-      <CardContent className="p-6 relative z-10">
+      <CardContent className="p-4">
         <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-        <p className="mt-2 text-sm text-gray-500">{aiDescription}</p>
-        <div className="mt-4">
+        <p className="mt-1 text-sm text-gray-500">{aiDescription}</p>
+        <div className="mt-3">
           <div className="flex justify-between text-sm text-gray-600">
             <span>Progress</span>
             <span>{progress}%</span>
           </div>
-          <Progress value={progress} className="mt-2" />
+          <Progress value={progress} className="mt-1" />
         </div>
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center gap-2">
+        <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center gap-1">
             <Users className="h-4 w-4" />
             <span>{teamSize} members</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
             <span>Due {event_date ? new Date(event_date).toLocaleDateString() : 'Not set'}</span>
           </div>
