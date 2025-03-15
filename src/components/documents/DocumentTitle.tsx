@@ -38,8 +38,7 @@ export function DocumentTitle({
           updated_at: '', // Required by Document type
           deleted_at: null
         }}
-        content={editor?.getHTML() || ''} 
-        onEdit={() => {}} // Passing required callback
+        content={editor?.getHTML() || ''}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -145,7 +144,6 @@ export default function DocumentEditor({
             <DocumentActions 
               document={document}
               content={documentHtmlContent}
-              onEdit={() => {}} 
               printRef={contentRef}
             />
           )}

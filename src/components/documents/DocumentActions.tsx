@@ -2,17 +2,18 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
-  Download, Printer, Share, Trash, 
-  FileEdit, Eye, ArrowLeftRight 
+  Download, Printer, Share, Trash
 } from "lucide-react";
 import { useReactToPrint } from 'react-to-print';
 import { Document } from '@/types/document';
 import { exportDocument } from '@/utils/documentUtils';
+import { exportAsPdf, exportAsDocx } from '@/utils/exportUtils';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export interface DocumentActionsProps {
   document: Document;
   content?: string;
-  onEdit: () => void;
+  onEdit?: () => void;
   onDelete?: () => void;
   printRef?: React.RefObject<HTMLDivElement>;
 }
@@ -20,7 +21,6 @@ export interface DocumentActionsProps {
 export function DocumentActions({ 
   document, 
   content, 
-  onEdit, 
   onDelete,
   printRef 
 }: DocumentActionsProps) {
@@ -31,7 +31,7 @@ export function DocumentActions({
       console.log('Printing document:', document.title);
       return Promise.resolve();
     },
-    // Correctly type the content prop
+    // Only provide content if printRef is defined
     ...(printRef && { content: () => printRef.current })
   });
 
@@ -41,13 +41,31 @@ export function DocumentActions({
     }
   };
 
+  const handleExportAsPdf = () => {
+    if (content) {
+      exportAsPdf(content, document.title);
+    }
+  };
+
+  const handleExportAsDocx = () => {
+    if (content) {
+      exportAsDocx(content, document.title);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       {printRef && (
         <Button 
           size="sm" 
           variant="outline" 
-          onClick={() => handlePrint()} 
+          onClick={() => {
+            if (printRef.current) {
+              handlePrint();
+            } else {
+              console.warn("Print reference is not available");
+            }
+          }} 
           className="p-2 h-8 w-8"
         >
           <Printer className="h-4 w-4" />
@@ -56,16 +74,22 @@ export function DocumentActions({
       )}
       
       {content && (
-        <Button size="sm" variant="outline" onClick={handleExport} className="p-2 h-8 w-8">
-          <Download className="h-4 w-4" />
-          <span className="sr-only">Export</span>
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="outline" className="p-2 h-8 w-8">
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Export</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48">
+            <div className="flex flex-col gap-2">
+              <Button size="sm" onClick={handleExport}>HTML</Button>
+              <Button size="sm" onClick={handleExportAsPdf}>PDF</Button>
+              <Button size="sm" onClick={handleExportAsDocx}>DOCX</Button>
+            </div>
+          </PopoverContent>
+        </Popover>
       )}
-      
-      <Button size="sm" variant="outline" onClick={onEdit} className="p-2 h-8 w-8">
-        <FileEdit className="h-4 w-4" />
-        <span className="sr-only">Edit</span>
-      </Button>
       
       {onDelete && (
         <Button size="sm" variant="outline" onClick={onDelete} className="p-2 h-8 w-8 text-destructive">
