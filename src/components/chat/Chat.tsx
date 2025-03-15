@@ -30,7 +30,7 @@ const Chat = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-white border rounded-lg shadow-sm">
+    <div className="flex flex-col h-full bg-white border rounded-lg">
       <div className="p-3 border-b">
         <h2 className="text-base font-semibold">Event Assistant</h2>
         <p className="text-xs text-gray-500">Ask me about events, tasks, or menus</p>

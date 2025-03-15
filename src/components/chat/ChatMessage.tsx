@@ -13,18 +13,18 @@ const ChatMessage = ({ text, isUser, avatarUrl }: ChatMessageProps) => {
   return (
     <div className={`flex items-start gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <Avatar className="h-7 w-7">
+        <Avatar className="h-6 w-6">
           <AvatarImage src="/bot-avatar.png" />
           <AvatarFallback className="bg-gray-50">
-            <Bot className="h-3.5 w-3.5 text-gray-500" />
+            <Bot className="h-3 w-3 text-gray-500" />
           </AvatarFallback>
         </Avatar>
       )}
       
       <div
-        className={`max-w-[85%] px-3.5 py-2 rounded-lg text-sm ${
+        className={`max-w-[85%] px-3 py-1.5 rounded-lg text-xs ${
           isUser
-            ? "bg-primary text-primary-foreground"
+            ? "bg-blue-50 text-gray-800"
             : "bg-gray-50 text-gray-800"
         }`}
       >
@@ -32,9 +32,9 @@ const ChatMessage = ({ text, isUser, avatarUrl }: ChatMessageProps) => {
       </div>
       
       {isUser && (
-        <Avatar className="h-7 w-7">
+        <Avatar className="h-6 w-6">
           <AvatarImage src={avatarUrl} />
-          <AvatarFallback className="bg-primary">
+          <AvatarFallback className="bg-blue-100 text-blue-600">
             {isUser ? "U" : "A"}
           </AvatarFallback>
         </Avatar>

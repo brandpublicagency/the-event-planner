@@ -39,7 +39,7 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
       ref={scrollAreaRef} 
       onScroll={handleScroll}
     >
-      <div className="space-y-4 pb-2 text-sm">
+      <div className="space-y-3 pb-2 text-xs">
         {messages.map((message, index) => (
           <div 
             key={`${message.id || index}-${message.text.substring(0, 10)}`} 
@@ -55,11 +55,11 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
           msg.text.includes("Retrying...")
         ) && (
           <div className="flex justify-start animate-pulse">
-            <div className="px-3 py-1.5 rounded-lg bg-gray-50">
+            <div className="px-2.5 py-1 rounded-lg bg-gray-50">
               <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>
