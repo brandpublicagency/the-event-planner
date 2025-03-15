@@ -60,8 +60,10 @@ const ContactEditDrawer = ({
       // Update the contact first
       const updatedContact = await updateContact(contact, values);
       
-      // Don't check the return value of logContactUpdated and don't await it
+      // Log the contact update if there are changed fields and we have an updated contact
+      // Don't test the return value of logContactUpdated since it returns void
       if (changedFields.length > 0 && updatedContact) {
+        // Just call the function without checking its return value
         logContactUpdated(updatedContact, changedFields);
       }
       
