@@ -1,6 +1,4 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { ChatMessage } from "@/types/chat";
 
 export type StreamProcessor = {
   onContent: (content: string) => void;
@@ -13,7 +11,7 @@ export type StreamProcessor = {
  * Streams a chat completion from the edge function
  */
 export const streamChatCompletion = async (
-  messages: ChatMessage[],
+  messages: any[],
   systemMessage: string,
   processor: StreamProcessor,
   functionDefs?: any[]

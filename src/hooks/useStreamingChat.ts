@@ -1,9 +1,10 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { ChatMessage, PendingAction } from '@/types/chat';
-import { streamChatCompletion, getChatFunctionDefinitions, StreamProcessor } from '@/services/chatStream';
+import { getChatFunctionDefinitions, StreamProcessor } from '@/services/chatStream';
 import { identifyActionFromAI } from "@/utils/chatActionParser";
 import { getSystemMessage } from '@/utils/chat';
+import { streamChatRequest } from '@/services/streamingChatService';
 
 interface UseStreamingChatProps {
   onAddSystemMessage: (message: string, messageId?: string) => void;
@@ -122,7 +123,7 @@ export function useStreamingChat({
       };
 
       // Call the streamChatCompletion function with the correct parameter order
-      await streamChatCompletion(
+      await streamChatRequest(
         messages, 
         systemMessage,
         processor,
