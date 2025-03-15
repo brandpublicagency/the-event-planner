@@ -22,9 +22,11 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
         .eq('id', user.id)
         .single();
 
+      console.log("User profile data:", profile);
+
       return {
         email: user.email,
-        name: profile?.full_name || '',
+        name: profile?.full_name || 'User',
         surname: profile?.surname || ''
       };
     },
@@ -57,7 +59,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           ) : (
             <>
               <div className="text-sm font-medium truncate">
-                {userInfo?.name} {userInfo?.surname}
+                {userInfo?.name || ''} {userInfo?.surname || ''}
               </div>
               <div className="text-xs text-gray-400 truncate">{userInfo?.email || ''}</div>
             </>
