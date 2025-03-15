@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -7,31 +6,20 @@ import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 interface DashboardEventItemProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
 }
-
 export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   event,
   handleDelete
 }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const venueStr = getVenueNames(event);
-  
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(event.event_code).then(() => {
@@ -50,15 +38,12 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       });
     });
   };
-  
   const eventDate = event.event_date ? new Date(event.event_date) : null;
   const formattedStartTime = event.start_time ? event.start_time.substring(0, 5) : "";
-  
+
   // Extract day from date
   const day = eventDate ? format(eventDate, "d") : "";
-  
-  return (
-    <div className="rounded-xl border border-zinc-100 bg-white mb-3 hover:border-zinc-200 transition-colors overflow-hidden shadow-sm">
+  return <div className="rounded-xl border border-zinc-100 bg-white mb-3 hover:border-zinc-200 transition-colors overflow-hidden shadow-sm">
       <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-left w-full">
         <div className="flex items-stretch w-full">
           {/* Date column */}
@@ -70,35 +55,29 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
           {/* Content column */}
           <div className="flex-1 py-3 px-5">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between mb-3 mt-3">
+              <div className="flex items-center justify-between mb-3 mt-3 my-[6px]">
                 <h4 className="font-medium text-zinc-900 text-base">{event.name}</h4>
                 
                 <div className="flex items-center gap-2">
-                  <div 
-                    className="text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700"
-                    onClick={copyEventCode}>
+                  <div className="text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" onClick={copyEventCode}>
                     <span>EVENT-{event.event_code}</span>
                     <Copy className="h-3.5 w-3.5 opacity-70" />
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-xs text-zinc-500 -mt-3">
+              <div className="flex items-center justify-between text-xs text-zinc-500 -mt-3 my-px">
                 <div className="flex items-center">
-                  {venueStr && (
-                    <div className="flex items-center">
+                  {venueStr && <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1.5 flex-shrink-0 text-zinc-400" />
                       <span className="truncate">{venueStr}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 
-                {event.pax && (
-                  <div className="flex items-center">
+                {event.pax && <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1.5 flex-shrink-0 text-zinc-400" />
                     <span>{event.pax} guests</span>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
           </div>
@@ -106,21 +85,15 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
           {/* Actions */}
           <div className="flex items-center px-3 border-l border-zinc-50">
             <Button variant="ghost" size="icon" onClick={e => {
-              e.stopPropagation();
-              navigate(`/events/${event.event_code}/edit`);
-            }} className="h-8 w-8 rounded-full">
+            e.stopPropagation();
+            navigate(`/events/${event.event_code}/edit`);
+          }} className="h-8 w-8 rounded-full">
               <Edit className="h-4 w-4 text-zinc-400" />
             </Button>
             
-            {handleDelete && (
-              <AlertDialog>
+            {handleDelete && <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => e.stopPropagation()}
-                    className="h-8 w-8 rounded-full"
-                  >
+                  <Button variant="ghost" size="icon" onClick={e => e.stopPropagation()} className="h-8 w-8 rounded-full">
                     <Trash className="h-4 w-4 text-zinc-400" />
                   </Button>
                 </AlertDialogTrigger>
@@ -136,23 +109,18 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2">
                     <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        if (handleDelete) {
-                          handleDelete(event.event_code);
-                        }
-                      }}
-                      className="bg-red-600 hover:bg-red-700 rounded-full text-white"
-                    >
+                    <AlertDialogAction onClick={() => {
+                  if (handleDelete) {
+                    handleDelete(event.event_code);
+                  }
+                }} className="bg-red-600 hover:bg-red-700 rounded-full text-white">
                       Delete Permanently
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
-            )}
+              </AlertDialog>}
           </div>
         </div>
       </button>
-    </div>
-  );
+    </div>;
 };
