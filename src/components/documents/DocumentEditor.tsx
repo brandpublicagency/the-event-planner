@@ -136,7 +136,7 @@ export default function DocumentEditor({
           <Button 
             onClick={handleSave} 
             disabled={isSaving} 
-            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-gradient-to-r from-[#F2FCE2] via-[#FFDEE2] to-[#D3E4FD] animate-gradient-x shadow-sm"
+            className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-white border border-zinc-300 shadow-sm"
           >
             {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             {isSaving ? 'Saving...' : 'Save'}
