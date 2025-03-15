@@ -1,3 +1,4 @@
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,11 +7,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Copy, Edit, MoreHorizontal, RotateCcw, Download, Printer } from "lucide-react"
+import { Copy, Edit, MoreHorizontal, Download, Printer } from "lucide-react"
 import { useState } from "react";
 import { useReactToPrint } from 'react-to-print';
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import * as React from "react"; // Add explicit React import
 
 interface DocumentActionsProps {
   document: any;
@@ -21,11 +23,11 @@ export function DocumentActions({ document, onEdit }: DocumentActionsProps) {
   const [isPrinting, setIsPrinting] = useState(false);
   const printRef = React.useRef(null);
 
-  const { handlePrint } = useReactToPrint({
+  const handlePrint = useReactToPrint({
     documentTitle: `${document.title || 'Document'}.pdf`,
-    onBeforeGetContent: () => setIsPrinting(true),
+    onBeforePrint: () => setIsPrinting(true),
     onAfterPrint: () => setIsPrinting(false),
-    printRef
+    content: () => printRef.current
   });
 
   return (

@@ -3,7 +3,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { format } from "https://deno.land/std@0.190.0/datetime/mod.ts";
 import { WhatsAppResponse } from '../../utils/timeoutUtils.ts';
 import { handleError } from '../../utils/errorHandler.ts';
-import { formatEventDetails } from '../../formatters/eventFormatter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -17,13 +16,10 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     
     console.log('Looking for events after date:', today.toISOString());
     
-    // Get the next upcoming event without complex relationships that might fail
+    // Get the next upcoming event with a simpler query to avoid relationship errors
     const { data: events, error } = await supabase
       .from('events')
-      .select(`
-        *,
-        menu_selections (*)
-      `)
+      .select('*')
       .gte('event_date', today.toISOString())
       .is('deleted_at', null)
       .is('completed', false)
@@ -46,22 +42,33 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     const event = events[0];
     console.log('Found next event:', JSON.stringify(event, null, 2));
     
-    // Create a simplified event display since the formatter might rely on relationships
+    // Fetch menu selection separately
+    let menuInfo = '';
+    try {
+      const { data: menuSelection, error: menuError } = await supabase
+        .from('menu_selections')
+        .select('*')
+        .eq('event_code', event.event_code)
+        .maybeSingle();
+        
+      if (!menuError && menuSelection) {
+        const menuType = menuSelection.main_course_type || 
+                        (menuSelection.is_custom ? 'Custom menu' : '');
+        if (menuType) {
+          menuInfo = `\nMenu: ${menuType}`;
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching menu info:', e);
+    }
+    
+    // Create a simplified event display
     try {
       const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
       
       let venueInfo = '';
       if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
         venueInfo = ` at ${event.venues.join(', ')}`;
-      }
-      
-      let menuInfo = '';
-      if (event.menu_selections) {
-        const menuType = event.menu_selections.main_course_type || 
-                        (event.menu_selections.is_custom ? 'Custom menu' : '');
-        if (menuType) {
-          menuInfo = `\nMenu: ${menuType}`;
-        }
       }
       
       const message = `*Next Event*\n\n*${event.name}*\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}${venueInfo}${menuInfo}`;

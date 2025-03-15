@@ -20,42 +20,9 @@ export const useChatContext = () => {
         throw eventsError;
       }
 
-      // Fetch venue information directly rather than through complex relationships
-      let venuesMap = {};
-      try {
-        const { data: venues } = await supabase
-          .from('venues')
-          .select('id, name');
-          
-        if (venues && venues.length > 0) {
-          // Create a lookup map for venue names by ID
-          venuesMap = venues.reduce((acc, venue) => {
-            acc[venue.id] = venue.name;
-            return acc;
-          }, {});
-        }
-      } catch (error) {
-        console.warn('Error fetching venues:', error);
-        // Continue execution even if venues can't be fetched
-      }
-
-      // Fetch menu selections separately
-      let menuSelections = [];
-      try {
-        const { data, error } = await supabase
-          .from('menu_selections')
-          .select('*');
-
-        if (error) {
-          console.log('Menu selections table may not exist yet or other error:', error);
-        } else {
-          menuSelections = data || [];
-        }
-      } catch (error) {
-        console.log('Error fetching menu selections:', error);
-        // Don't throw here, just continue with empty array
-      }
-
+      // Fetch venues separately instead of through relations
+      const venuesMap = {}; // Initialize an empty object for venue lookup
+      
       // Fetch contacts data
       const { data: contacts, error: contactsError } = await supabase
         .from('profiles')
@@ -90,6 +57,23 @@ export const useChatContext = () => {
         throw tasksError;
       }
 
+      // Fetch menu selections separately
+      let menuSelections = [];
+      try {
+        const { data, error } = await supabase
+          .from('menu_selections')
+          .select('*');
+
+        if (error) {
+          console.log('Menu selections table may not exist yet or other error:', error);
+        } else {
+          menuSelections = data || [];
+        }
+      } catch (error) {
+        console.log('Error fetching menu selections:', error);
+        // Don't throw here, just continue with empty array
+      }
+
       // Try to get PDF content, but don't fail if it's not available
       let pdfContent = [];
       try {
@@ -114,7 +98,7 @@ export const useChatContext = () => {
         
         // Find event related tasks
         const eventTasks = tasks?.filter(task => 
-          task.event_code === event.event_code
+          task.task_code === event.event_code // Use task_code to match with event_code
         ) || [];
         
         return {

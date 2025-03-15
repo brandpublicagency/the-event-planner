@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { CategorySelector } from "./CategorySelector";
 import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
-import DocumentActions from "./DocumentActions";
+import { DocumentActions } from "./DocumentActions";
 import type { Category } from "@/types/category";
 import { isDocumentContent } from "@/types/document";
 
@@ -142,10 +143,8 @@ export default function DocumentEditor({
           
           {document && (
             <DocumentActions 
-              documentId={document.id} 
-              title={document.title} 
-              content={documentHtmlContent} 
-              editorRef={contentRef}
+              document={document}
+              onEdit={() => {}} 
             />
           )}
         </div>

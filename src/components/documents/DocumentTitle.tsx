@@ -1,5 +1,6 @@
+
 import { Input } from "@/components/ui/input";
-import DocumentActions from "./DocumentActions";
+import { DocumentActions } from "./DocumentActions";
 import { Editor } from '@tiptap/react';
 
 interface DocumentTitleProps {
