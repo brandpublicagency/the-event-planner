@@ -7,7 +7,7 @@ import { useChatState } from "@/hooks/useChatState";
 import ChatMessageHandler from "./ChatMessageHandler";
 import ChatInput from "./ChatInput";
 import { useEffect, useRef, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Bot, Sparkles } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -24,15 +24,17 @@ const ChatContainer = () => {
   
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current && shouldAutoScroll) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM is updated
+        requestAnimationFrame(() => {
           scrollArea.scrollTop = scrollArea.scrollHeight;
-        }, 100);
+        });
       }
     }
   }, [chatMessages, shouldAutoScroll, isLoading]);
@@ -44,24 +46,39 @@ const ChatContainer = () => {
     setShouldAutoScroll(isNearBottom);
   };
 
-  // Generate improved placeholder suggestions based on information types in the app
+  // Set initial load to false after component mount
+  useEffect(() => {
+    setInitialLoad(false);
+  }, []);
+
+  // Generate personalized placeholder suggestions
   const suggestions = [
-    "What is my next event?",
-    "Update the guest count for my next event to 50",
-    "Change the venue for my next event to The Gallery",
-    "Show me all my upcoming tasks",
     "What events do I have scheduled this month?",
-    "Create a new task for my next event"
+    "Create a new task for my next event",
+    "Show me the guest list for EVENT-001",
+    "Update the venue for my next event to The Gallery",
+    "What's my next deadline?",
+    "Show me all tasks for the Thompson wedding"
   ];
+
+  // Handler for clicking on a suggestion
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputValue(suggestion);
+    // Focus the input field
+    const inputElement = document.querySelector('input[placeholder="Type your message..."]') as HTMLInputElement;
+    if (inputElement) {
+      inputElement.focus();
+    }
+  };
 
   return (
     <div className="relative h-[440px]">
       <Card className="h-full w-full flex flex-col rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
         {chatMessages.length === 0 ? (
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-center p-6 border-b border-gray-100">
-              <Sparkles className="h-5 w-5 text-gray-500 mr-2" />
-              <h3 className="text-sm font-medium text-gray-700">Ask our AI anything</h3>
+            <div className="flex items-center justify-center p-4 border-b border-gray-100">
+              <Bot className="h-5 w-5 text-gray-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-700">DMOS Assistant</h3>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
@@ -77,7 +94,7 @@ const ChatContainer = () => {
                     <div 
                       key={index}
                       className="text-sm p-2 bg-gray-50 rounded-lg text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => setInputValue(suggestion)}
+                      onClick={() => handleSuggestionClick(suggestion)}
                     >
                       {suggestion}
                     </div>
@@ -89,21 +106,25 @@ const ChatContainer = () => {
         ) : (
           <>
             <div className="flex items-center p-3 border-b border-gray-100">
-              <Sparkles className="h-4 w-4 text-gray-500 mr-2" />
-              <h3 className="text-xs font-medium text-gray-700">AI Assistant</h3>
+              <Bot className="h-4 w-4 text-gray-500 mr-2" />
+              <h3 className="text-xs font-medium text-gray-700">DMOS Assistant</h3>
             </div>
-            <ScrollArea className="flex-1 p-4 bg-white" ref={scrollAreaRef} onScroll={handleScroll}>
+            <ScrollArea 
+              className="flex-1 p-4 bg-white" 
+              ref={scrollAreaRef} 
+              onScroll={handleScroll}
+            >
               <div className="space-y-4 pb-2">
                 {chatMessages.map((message, index) => (
                   <div 
-                    key={`${index}-${message.text.substring(0, 10)}`} 
+                    key={`${message.id || index}-${message.text.substring(0, 10)}`} 
                     className="transition-all duration-300 ease-in-out"
                   >
                     <ChatMessage {...message} />
                   </div>
                 ))}
                 
-                {isLoading && (
+                {isLoading && !chatMessages.some(msg => msg.text === "Thinking..." || msg.text === "Processing...") && (
                   <div className="flex justify-start animate-pulse">
                     <div className="px-4 py-2 rounded-lg bg-gray-50">
                       <div className="flex items-center space-x-2">
@@ -126,12 +147,13 @@ const ChatContainer = () => {
           setInputValue={setInputValue}
           clearInput={clearInput}
         >
-          {({ messages, isLoading, pendingAction, handleSubmit }) => (
+          {({ messages, isLoading: handlerIsLoading, pendingAction, handleSubmit }) => (
             <ChatInput
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onSubmit={handleSubmit}
-              isLoading={isLoading}
+              isLoading={isLoading || handlerIsLoading}
+              placeholderText={pendingAction ? "Type 'yes' to confirm or 'no' to cancel..." : "Type your message..."}
             />
           )}
         </ChatMessageHandler>

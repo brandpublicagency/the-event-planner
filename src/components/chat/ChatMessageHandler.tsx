@@ -1,9 +1,10 @@
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useChatState } from "@/hooks/useChatState";
 import { useActionHandler } from "./handlers/ActionHandler";
 import { useAIMessageHandler } from "./handlers/AIMessageHandler";
 import { useWhatsAppMessageHandler } from "./handlers/WhatsAppMessageHandler";
+import { useMessageProcessor } from "./handlers/MessageProcessor";
 import { ReactNode } from "react";
 import { ChatMessage, PendingAction } from "@/types/chat";
 
@@ -14,7 +15,7 @@ interface ChatMessageHandlerProps {
     pendingAction: PendingAction | null;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
   }) => ReactNode;
-  contextData?: any; // Add contextData as an optional prop
+  contextData?: any;
   inputValue?: string;
   isLoading?: boolean;
   setInputValue?: (value: string) => void;
@@ -41,13 +42,23 @@ const ChatMessageHandler = ({
     clearInput: internalClearInput
   } = useChatState();
   
-  // Use external props if provided, otherwise use internal state
+  // Use external state if provided, otherwise use internal state
   const inputValue = externalInputValue !== undefined ? externalInputValue : internalInputValue;
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
-  const setIsLoading = externalSetInputValue ? 
-    (value: boolean) => { internalSetIsLoading(value); } : 
-    internalSetIsLoading;
+  const setIsLoading = internalSetIsLoading;
   const clearInput = externalClearInput || internalClearInput;
+  const setInputValue = externalSetInputValue || ((value: string) => {});
+
+  // Track attempts for better error handling
+  const [retryAttempts, setRetryAttempts] = useState(0);
+  
+  // Set up message processor
+  const { processAIResponse, tempMessageId, setTempMessageId } = useMessageProcessor({
+    onSetIsLoading: setIsLoading,
+    onAddSystemMessage: addSystemMessage,
+    onSetPendingAction: setPendingAction,
+    onClearInput: clearInput
+  });
 
   // Set up AI message handler
   const { fetchAIResponse } = useAIMessageHandler({
@@ -55,16 +66,18 @@ const ChatMessageHandler = ({
     onAddSystemMessage: addSystemMessage,
     onSetPendingAction: setPendingAction,
     onClearInput: clearInput,
-    contextData // Pass contextData to the AI message handler
+    contextData,
+    onSetTempMessageId: setTempMessageId,
+    processAIResponse
   });
 
-  // Set up WhatsApp message handler
+  // Set up WhatsApp message handler for fallback
   const { fetchWhatsAppResponse } = useWhatsAppMessageHandler({
     onSetIsLoading: setIsLoading,
     onAddSystemMessage: addSystemMessage,
     onSetPendingAction: setPendingAction,
     onClearInput: clearInput,
-    contextData // Pass contextData to the WhatsApp message handler
+    contextData
   });
 
   // Set up action handler
@@ -73,6 +86,12 @@ const ChatMessageHandler = ({
   // Handle user's message submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission when loading
+    if (isLoading) {
+      console.log('Already processing a message, please wait...');
+      return;
+    }
     
     // Check if there's a pending confirmation action
     if (pendingAction) {
@@ -106,35 +125,68 @@ const ChatMessageHandler = ({
     // Add user message to the chat
     addUserMessage(inputValue);
     
+    // Show temporary loading message
+    const tempId = Date.now().toString();
+    setTempMessageId(tempId);
+    addSystemMessage("Thinking...", tempId);
+    
+    // Start loading state
+    setIsLoading(true);
+    
+    // Clear input after sending
+    clearInput();
+    
     // Decide which message handler to use
     try {
       // Try to use OpenAI API first
+      console.log('Attempting to use AI response handler');
       await fetchAIResponse(inputValue);
+      // Reset retry counter on success
+      setRetryAttempts(0);
     } catch (error) {
-      console.error('Error with AI response, falling back to WhatsApp handler:', error);
+      console.error('Error with AI response:', error);
       
       // Fall back to using WhatsApp Webhook function
       try {
+        console.log('Falling back to WhatsApp handler');
+        
+        // Update the temporary message
+        addSystemMessage("Processing...", tempId);
+        
         await fetchWhatsAppResponse(inputValue);
+        setRetryAttempts(0);
       } catch (fallbackError) {
         console.error('WhatsApp fallback also failed:', fallbackError);
-        addSystemMessage(
-          "I'm having trouble connecting to the assistant services. Please try again later."
-        );
+        
+        // Increment retry counter
+        const newAttempts = retryAttempts + 1;
+        setRetryAttempts(newAttempts);
+        
+        // Determine error message based on retry attempts
+        let errorMessage = "I'm having trouble connecting to the assistant services. Please try again later.";
+        
+        if (newAttempts > 1) {
+          errorMessage = "I'm still having connection issues. Please check your internet connection or try again in a few minutes.";
+        }
+        
+        addSystemMessage(errorMessage, tempId);
         setIsLoading(false);
-        clearInput();
       }
     }
   }, [
     inputValue, 
     pendingAction, 
+    isLoading,
     addUserMessage, 
     addSystemMessage, 
     clearInput, 
     fetchAIResponse, 
     fetchWhatsAppResponse, 
     handlePendingAction, 
-    setIsLoading
+    setIsLoading,
+    retryAttempts,
+    setTempMessageId,
+    setRetryAttempts
   ]);
 
   // Render the chat interface using the children prop as a render function

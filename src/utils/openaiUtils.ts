@@ -2,7 +2,7 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { getChatCompletion } from "@/services/openai";
 
-export const TIMEOUT_DURATION = 25000; // Optimized timeout for GPT-4o
+export const TIMEOUT_DURATION = 30000; // Increased timeout for reliability
 
 export const handleOpenAIRequest = async (
   messages: ChatCompletionMessageParam[],
@@ -16,25 +16,29 @@ export const handleOpenAIRequest = async (
 
   try {
     // Enhanced logging for debugging
-    console.log(`Sending OpenAI GPT-4o request with ${messages.length} messages`);
-    console.log(`System message length: ${
-      messages.find(m => m.role === 'system')?.content?.toString().length || 0
-    } characters`);
+    console.log(`Starting OpenAI request with ${messages.length} messages`);
+    
+    // Track the start time for performance monitoring
+    const startTime = performance.now();
     
     const response = await Promise.race([
       getChatCompletion(messages),
       timeoutPromise
     ]);
 
+    // Log performance metrics
+    const endTime = performance.now();
+    console.log(`OpenAI request completed in ${(endTime - startTime).toFixed(0)}ms`);
+
     if (!response) {
-      console.warn('Empty response from OpenAI GPT-4o, triggering fallback');
+      console.warn('Empty response from OpenAI, triggering fallback');
       onTimeout();
       return null;
     }
 
     return response;
   } catch (error: any) {
-    console.error('Error in OpenAI GPT-4o request:', error.message);
+    console.error('Error in OpenAI request:', error.message);
     if (error.message.includes("timeout") || error.message.includes("timed out")) {
       console.log('Timeout detected, triggering fallback');
       onTimeout();
@@ -48,23 +52,27 @@ export const prepareOpenAIMessages = (
   chatMessages: { text: string; isUser: boolean }[],
   currentInput: string
 ): ChatCompletionMessageParam[] => {
-  // Log the system message length for debugging
+  // Log the system message length for monitoring
   console.log(`Preparing system message of length: ${systemMessage.length}`);
   
+  // Create system message
   const systemMessageObj: ChatCompletionMessageParam = {
     role: "system",
     content: systemMessage
   };
 
+  // Convert chat history to OpenAI format
   const userMessages: ChatCompletionMessageParam[] = chatMessages.map(msg => ({
     role: msg.isUser ? "user" : "assistant",
     content: msg.text
   }));
 
+  // Add current user input
   const currentMessage: ChatCompletionMessageParam = {
     role: "user",
     content: currentInput
   };
 
+  // Return complete message array
   return [systemMessageObj, ...userMessages, currentMessage];
 };

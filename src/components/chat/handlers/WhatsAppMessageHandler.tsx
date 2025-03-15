@@ -1,11 +1,11 @@
 
-import { useState } from 'react';
-import { useMessageProcessor } from './MessageProcessor';
-import { PendingAction } from '@/types/chat';
+import { PendingAction } from "@/types/chat";
+import { identifyActionFromAI } from "@/utils/chatActionParser";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WhatsAppMessageHandlerProps {
   onSetIsLoading: (loading: boolean) => void;
-  onAddSystemMessage: (message: string, id?: string) => void;
+  onAddSystemMessage: (message: string, messageId?: string) => void;
   onSetPendingAction: (action: PendingAction | null) => void;
   onClearInput: () => void;
   contextData?: any;
@@ -18,64 +18,86 @@ export const useWhatsAppMessageHandler = ({
   onClearInput,
   contextData
 }: WhatsAppMessageHandlerProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
   
-  const { 
-    tempMessageId,
-    setTempMessageId,
-    processAIResponse 
-  } = useMessageProcessor({
-    onSetIsLoading,
-    onAddSystemMessage,
-    onSetPendingAction,
-    onClearInput
-  });
-
-  const fetchWhatsAppResponse = async (userMessage: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    
+  const fetchWhatsAppResponse = async (inputText: string, messageId?: string) => {
     try {
-      onSetIsLoading(true);
+      console.log('Invoking WhatsApp Webhook with:', inputText);
       
-      // Add a loading message that we'll replace later
-      const loadingMessageId = Date.now().toString();
-      setTempMessageId(loadingMessageId);
-      onAddSystemMessage('Processing...', loadingMessageId);
-      
-      // Prepare context data for the request
-      const contextInfo = contextData ? JSON.stringify(contextData) : '{}';
-      
-      // Call the WhatsApp webhook function
-      const response = await fetch('/api/whatsapp-webhook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          contextData: contextInfo
-        }),
+      // Invoke the Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('whatsapp-webhook', {
+        body: {
+          type: 'text',
+          text: { body: inputText },
+          from: 'web-user'
+        }
       });
       
-      if (!response.ok) {
-        throw new Error(`WhatsApp API error: ${response.statusText}`);
+      if (error) {
+        console.error('Error invoking WhatsApp webhook:', error);
+        throw error;
       }
       
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
+      if (!data) {
+        console.error('Empty response from WhatsApp webhook');
+        throw new Error('Empty response from WhatsApp webhook');
       }
       
-      // Process the response with our message processor
-      await processAIResponse(data.message || data.content || "I'm sorry, I couldn't process that request.");
+      console.log('WhatsApp webhook response:', data);
       
-    } catch (error) {
+      // Extract message content
+      const responseMessage = data.message || 'Sorry, I could not process your request.';
+      
+      // Check for potential action data in the response
+      const pendingAction = identifyActionFromAI(responseMessage);
+      
+      // Remove action JSON from the display message if present
+      let displayMessage = responseMessage;
+      if (pendingAction) {
+        const jsonPattern = /```json\s*({[\s\S]*?})\s*```/;
+        displayMessage = displayMessage.replace(jsonPattern, '');
+        // Clean up any double newlines or trailing whitespace
+        displayMessage = displayMessage.replace(/\n{3,}/g, '\n\n').trim();
+      }
+      
+      // Display the response message
+      if (messageId) {
+        onAddSystemMessage(displayMessage, messageId);
+      } else {
+        onAddSystemMessage(displayMessage);
+      }
+      
+      // If there's an action, set it up as a pending action
+      if (pendingAction) {
+        console.log('Pending action identified in WhatsApp response:', pendingAction);
+        
+        // Add a separate confirmation message
+        onAddSystemMessage(
+          pendingAction.confirmationMessage || 
+          "I'll need your confirmation to proceed with this action. Type 'yes' to confirm or 'no' to cancel."
+        );
+        onSetPendingAction(pendingAction);
+      }
+      
+      // Reset state
+      onSetIsLoading(false);
+      onClearInput();
+      
+      return responseMessage;
+    } catch (error: any) {
       console.error('Error in WhatsApp response:', error);
-      throw error;
-    } finally {
-      setIsProcessing(false);
+      
+      // Show error message if a message ID was provided
+      if (messageId) {
+        onAddSystemMessage("I'm having trouble connecting to the messaging service. Please try again later.", messageId);
+      } else {
+        onAddSystemMessage("I'm having trouble connecting to the messaging service. Please try again later.");
+      }
+      
+      // Reset state
+      onSetIsLoading(false);
+      onClearInput();
+      
+      throw new Error('WhatsApp API error: ' + (error.message || ''));
     }
   };
   
