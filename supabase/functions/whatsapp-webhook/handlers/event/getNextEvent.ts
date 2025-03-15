@@ -17,19 +17,12 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     
     console.log('Looking for events after date:', today.toISOString());
     
-    // Get the next upcoming event with all the needed relationships
+    // Get the next upcoming event without complex relationships that might fail
     const { data: events, error } = await supabase
       .from('events')
       .select(`
         *,
-        menu_selections (*),
-        event_venues (
-          venues (
-            name
-          )
-        ),
-        wedding_details (*),
-        corporate_details (*)
+        menu_selections (*)
       `)
       .gte('event_date', today.toISOString())
       .is('deleted_at', null)
@@ -53,25 +46,37 @@ export const getNextEvent = async (): Promise<WhatsAppResponse> => {
     const event = events[0];
     console.log('Found next event:', JSON.stringify(event, null, 2));
     
-    // Use the formatter to create a consistent event display
+    // Create a simplified event display since the formatter might rely on relationships
     try {
-      const formattedEventDetails = formatEventDetails(event);
-      console.log('Formatted event details:', formattedEventDetails);
-
+      const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
+      
+      let venueInfo = '';
+      if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
+        venueInfo = ` at ${event.venues.join(', ')}`;
+      }
+      
+      let menuInfo = '';
+      if (event.menu_selections) {
+        const menuType = event.menu_selections.main_course_type || 
+                        (event.menu_selections.is_custom ? 'Custom menu' : '');
+        if (menuType) {
+          menuInfo = `\nMenu: ${menuType}`;
+        }
+      }
+      
+      const message = `*Next Event*\n\n*${event.name}*\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}${venueInfo}${menuInfo}`;
+      
       return {
         type: 'text',
-        message: formattedEventDetails
+        message: message
       };
     } catch (formatError) {
-      console.error('Error formatting event details:', formatError);
+      console.error('Error creating event details:', formatError);
       
-      // Fallback simple format if the formatter fails
-      const eventDate = event.event_date ? format(new Date(event.event_date), "MMMM d, yyyy") : 'Date not specified';
-      const simplifiedMessage = `*Next Event*\n\n${event.name}\n${eventDate}\nType: ${event.event_type}\nGuests: ${event.pax || 'Not specified'}`;
-      
+      // Extremely simple fallback if all else fails
       return {
         type: 'text',
-        message: simplifiedMessage
+        message: `Next event: ${event.name} on ${event.event_date}`
       };
     }
   } catch (error) {

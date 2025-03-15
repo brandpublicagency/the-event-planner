@@ -75,16 +75,12 @@ export const ChatMessageHandler = ({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      // Use a simpler query to avoid relationship errors
       const { data, error } = await supabase
         .from('events')
         .select(`
           *,
-          menu_selections (*),
-          event_venues (
-            venues (
-              name
-            )
-          )
+          menu_selections (*)
         `)
         .gte('event_date', today.toISOString().split('T')[0])
         .is('deleted_at', null)
@@ -108,13 +104,6 @@ export const ChatMessageHandler = ({
       let venueInfo = '';
       if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
         venueInfo = ` at ${event.venues.join(', ')}`;
-      } else if (event.event_venues && Array.isArray(event.event_venues)) {
-        const venueNames = event.event_venues
-          .map((v) => v.venues?.name)
-          .filter(Boolean);
-        if (venueNames.length > 0) {
-          venueInfo = ` at ${venueNames.join(', ')}`;
-        }
       }
       
       // Format guest info
@@ -147,7 +136,7 @@ It's a ${event.event_type} event${venueInfo}${paxInfo}.${menuInfo}${contactInfo}
 You can update this event by asking me to change specific details like the guest count, date, venue, etc.`;
     } catch (error) {
       console.error('Error in fetchNextEvent:', error);
-      return "I couldn't retrieve information about the next event right now. Please try asking again or check if there are any upcoming events scheduled.";
+      return "I couldn't retrieve information about the next event right now. Please try asking about another topic or check your event list directly.";
     }
   };
 

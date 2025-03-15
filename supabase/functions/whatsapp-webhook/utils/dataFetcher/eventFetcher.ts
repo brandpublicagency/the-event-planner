@@ -24,12 +24,7 @@ export const fetchEvents = async () => {
           end_time,
           completed,
           venues,
-          menu_selections (*),
-          event_venues (
-            venues (
-              name
-            )
-          )
+          menu_selections (*)
         `)
         .is('deleted_at', null)
         .order('event_date', { ascending: true }),
@@ -47,8 +42,7 @@ export const fetchEvents = async () => {
     if (events && events.length > 0) {
       events.forEach(event => {
         console.log(`Event ${event.event_code} venue data:`, {
-          venue_array: event.venues,
-          event_venues_relation: event.event_venues
+          venue_array: event.venues
         });
       });
     }
@@ -81,12 +75,7 @@ export const fetchEventById = async (eventCode: string) => {
           end_time,
           completed,
           venues,
-          menu_selections (*),
-          event_venues (
-            venues (
-              name
-            )
-          )
+          menu_selections (*)
         `)
         .eq('event_code', eventCode)
         .maybeSingle(),
@@ -101,8 +90,7 @@ export const fetchEventById = async (eventCode: string) => {
     // Log venue information to help debug venue issues
     if (event) {
       console.log(`Event ${event.event_code} venue data:`, {
-        venue_array: event.venues,
-        event_venues_relation: event.event_venues
+        venue_array: event.venues
       });
     }
 
