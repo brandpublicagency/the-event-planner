@@ -60,10 +60,9 @@ const ContactEditDrawer = ({
       // Update the contact first
       const updatedContact = await updateContact(contact, values);
       
-      // Then log the activity and ignore the return value
+      // Fix: Don't check the return value of logContactUpdated since it returns void
       if (changedFields.length > 0 && updatedContact) {
-        // Don't check the return value of logContactUpdated
-        await logContactUpdated(updatedContact, changedFields);
+        logContactUpdated(updatedContact, changedFields);
       }
       
       onUpdateSuccess();

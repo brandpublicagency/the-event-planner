@@ -1,10 +1,8 @@
-
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DocumentsHeader } from "./DocumentsHeader";
+import DocumentsHeader from "./DocumentsHeader";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { Card } from "@/components/ui/card";
