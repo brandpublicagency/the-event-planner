@@ -1,4 +1,3 @@
-
 import { useChatState } from "@/hooks/useChatState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "@/components/chat/ChatMessage";
@@ -8,26 +7,26 @@ import ChatMessageHandler from "@/components/chat/ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
 import { useToast } from "@/components/ui/use-toast";
-
 interface ChatHandlerProps {
   messages: ChatMessageType[];
   isLoading: boolean;
   pendingAction: any;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
-
 const Chat = () => {
-  const { 
-    inputValue, 
-    setInputValue, 
-    clearInput: stateResetInput, 
+  const {
+    inputValue,
+    setInputValue,
+    clearInput: stateResetInput,
     messages: globalMessages,
     addUserMessage
   } = useChatState();
   const [localInputValue, setLocalInputValue] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
+
   // Auto-scroll to bottom when messages update
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -42,86 +41,56 @@ const Chat = () => {
   useEffect(() => {
     setInputValue(localInputValue);
   }, [localInputValue, setInputValue]);
-
   const clearInput = () => {
     setLocalInputValue("");
     stateResetInput();
   };
-
-  return (
-    <div className="flex flex-col h-full bg-white border rounded-lg overflow-hidden">
+  return <div className="flex flex-col h-full bg-white border rounded-lg overflow-hidden">
       <div className="p-3 border-b">
         <h2 className="text-base font-semibold">Event Assistant</h2>
-        <p className="text-xs text-gray-500">Ask me about events, tasks, or menus</p>
+        
       </div>
       
-      <ChatMessageHandler
-        inputValue={localInputValue}
-        setInputValue={setLocalInputValue}
-        clearInput={() => setLocalInputValue("")}
-        forceLocalData={true}
-      >
-        {({ messages, isLoading, pendingAction, handleSubmit }: ChatHandlerProps) => (
-          <>
-            <ScrollArea 
-              className="flex-1 p-3" 
-              ref={scrollAreaRef}
-            >
+      <ChatMessageHandler inputValue={localInputValue} setInputValue={setLocalInputValue} clearInput={() => setLocalInputValue("")} forceLocalData={true}>
+        {({
+        messages,
+        isLoading,
+        pendingAction,
+        handleSubmit
+      }: ChatHandlerProps) => <>
+            <ScrollArea className="flex-1 p-3" ref={scrollAreaRef}>
               <div className="space-y-4">
-                {messages && messages.length > 0 ? (
-                  messages.map((message) => (
-                    <ChatMessage
-                      key={message.id || `msg-${Math.random()}`}
-                      text={message.text}
-                      isUser={message.isUser}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center text-gray-400 py-8">
+                {messages && messages.length > 0 ? messages.map(message => <ChatMessage key={message.id || `msg-${Math.random()}`} text={message.text} isUser={message.isUser} />) : <div className="text-center text-gray-400 py-8">
                     No messages yet. Start a conversation!
-                  </div>
-                )}
+                  </div>}
               </div>
             </ScrollArea>
             
-            {pendingAction && (
-              <ChatConfirmation 
-                pendingAction={pendingAction} 
-              />
-            )}
+            {pendingAction && <ChatConfirmation pendingAction={pendingAction} />}
             
-            <ChatInput
-              value={localInputValue}
-              onChange={(e) => setLocalInputValue(e.target.value)}
-              onSubmit={async (e) => {
-                e.preventDefault();
-                if (!localInputValue.trim()) return;
-                
-                // Add user message first
-                addUserMessage(localInputValue);
-                
-                try {
-                  // Then handle submission through the handler
-                  await handleSubmit(e);
-                } catch (error) {
-                  console.error("Error submitting message:", error);
-                  toast({
-                    title: "Error",
-                    description: "There was a problem connecting to the AI service. Using local data instead.",
-                    variant: "destructive"
-                  });
-                }
-                
-                // Clear input after submission
-                setLocalInputValue("");
-              }}
-              isLoading={isLoading}
-            />
-          </>
-        )}
-      </ChatMessageHandler>
-    </div>
-  );
-};
+            <ChatInput value={localInputValue} onChange={e => setLocalInputValue(e.target.value)} onSubmit={async e => {
+          e.preventDefault();
+          if (!localInputValue.trim()) return;
 
+          // Add user message first
+          addUserMessage(localInputValue);
+          try {
+            // Then handle submission through the handler
+            await handleSubmit(e);
+          } catch (error) {
+            console.error("Error submitting message:", error);
+            toast({
+              title: "Error",
+              description: "There was a problem connecting to the AI service. Using local data instead.",
+              variant: "destructive"
+            });
+          }
+
+          // Clear input after submission
+          setLocalInputValue("");
+        }} isLoading={isLoading} />
+          </>}
+      </ChatMessageHandler>
+    </div>;
+};
 export default Chat;
