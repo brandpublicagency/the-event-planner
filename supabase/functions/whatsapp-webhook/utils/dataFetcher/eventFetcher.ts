@@ -20,6 +20,7 @@ export const fetchEvents = async () => {
 
     if (error) {
       handleDbError('fetchEvents', error);
+      return [];
     }
 
     // Fetch menu selections separately to avoid relationship errors
