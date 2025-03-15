@@ -20,14 +20,24 @@ export const useMessageProcessor = ({
   
   const processAIResponse = useCallback(async (message: string) => {
     try {
+      console.log('Processing AI response:', message.substring(0, 100) + '...');
+      
       // Check if the message contains action data
       const pendingAction = identifyActionFromAI(message);
 
       // Remove action JSON from the display message if present
       let displayMessage = message;
+      
+      // Clean up JSON code blocks
       if (pendingAction) {
-        const jsonPattern = /```json\s*({[\s\S]*?})\s*```/;
+        // Remove JSON block patterns
+        const jsonBlockPattern = /```json\s*({\s*"action":.+?})\s*```/gs;
+        displayMessage = displayMessage.replace(jsonBlockPattern, '');
+        
+        // Remove raw JSON objects that might be action data
+        const jsonPattern = /(\{\s*"action"\s*:\s*"[^"]+"\s*,[\s\S]*?\})/g;
         displayMessage = displayMessage.replace(jsonPattern, '');
+        
         // Clean up any double newlines or trailing whitespace
         displayMessage = displayMessage.replace(/\n{3,}/g, '\n\n').trim();
       }
@@ -44,11 +54,13 @@ export const useMessageProcessor = ({
       // If there's an action, set it up as a pending action
       if (pendingAction) {
         console.log('Pending action identified:', pendingAction);
+        
         // Add a separate confirmation message
         onAddSystemMessage(
           pendingAction.confirmationMessage || 
           "I'll need your confirmation to proceed with this action. Type 'yes' to confirm or 'no' to cancel."
         );
+        
         onSetPendingAction(pendingAction);
       }
       

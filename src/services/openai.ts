@@ -7,22 +7,33 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+// Timeout duration for OpenAI requests
+const OPENAI_TIMEOUT = 45000; // 45 seconds
+
+/**
+ * Fetches a chat completion from OpenAI with improved error handling and logging
+ */
 export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
   console.log(`Sending request to OpenAI with ${messages.length} messages`);
   
-  // Find the system message to log its length (for debugging)
-  const systemMessage = messages.find(msg => msg.role === 'system');
-  if (systemMessage && typeof systemMessage.content === 'string') {
-    console.log(`System message length: ${systemMessage.content.length} characters`);
-  }
-  
   try {
-    const completion = await openai.chat.completions.create({
+    // Create a timeout promise
+    const timeoutPromise = new Promise<string>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error("OpenAI request timed out"));
+      }, OPENAI_TIMEOUT);
+    });
+
+    // Track start time for performance metrics
+    const startTime = performance.now();
+    
+    // Make the actual API request
+    const completionPromise = openai.chat.completions.create({
       messages,
-      model: "gpt-4o", // Upgraded from gpt-4o-mini to the more capable gpt-4o
+      model: "gpt-4o", // Using the more powerful GPT-4o model for better comprehension
       temperature: 0.5,
-      max_tokens: 1500,    // Increased token limit for more detailed responses
-      presence_penalty: 0.4,
+      max_tokens: 1500,
+      presence_penalty: 0.3,
       frequency_penalty: 0.3,
       function_call: "auto",
       functions: [
@@ -84,65 +95,140 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
             },
             required: ["event_code", "menu_updates"]
           }
+        },
+        {
+          name: "create_task",
+          description: "Create a new task in the system",
+          parameters: {
+            type: "object",
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the task"
+              },
+              description: {
+                type: "string",
+                description: "The description of the task"
+              },
+              due_date: {
+                type: "string",
+                description: "The due date of the task in YYYY-MM-DD format"
+              },
+              priority: {
+                type: "string",
+                enum: ["low", "medium", "high"],
+                description: "The priority of the task"
+              },
+              event_code: {
+                type: "string",
+                description: "The event code this task is associated with, if any"
+              }
+            },
+            required: ["title"]
+          }
         }
       ]
     });
 
-    console.log('OpenAI response received', {
+    // Race the completion against the timeout
+    const completion = await Promise.race([
+      completionPromise,
+      timeoutPromise.then(() => { throw new Error("OpenAI request timed out"); })
+    ]);
+
+    // Log performance metrics
+    const endTime = performance.now();
+    console.log(`OpenAI response received in ${Math.round(endTime - startTime)}ms`);
+    console.log('Response details:', {
       usage: completion.usage,
       model: completion.model,
       finishReason: completion.choices[0]?.finish_reason
     });
 
-    // Check if there's a function call in the response
+    // Handle function calls in the response
     const functionCall = completion.choices[0]?.message?.function_call;
     if (functionCall) {
       console.log('Function call detected:', functionCall.name);
       
-      // Process function call and return formatted response
-      if (functionCall.name === 'update_event') {
-        try {
+      try {
+        // Process function call based on type
+        if (functionCall.name === 'update_event') {
           const args = JSON.parse(functionCall.arguments || '{}');
           console.log('Update event arguments:', args);
           
-          // Ensure we don't have nested updates
+          // Ensure event_code and updates exist
           const eventCode = args.event_code;
-          
-          // Ensure updates is flat and correctly formatted
           let updates = args.updates;
           
-          // Handle venue specifically - make sure it's an array
+          // Handle venue specifically - ensure it's an array
           if (updates && updates.venues) {
             if (!Array.isArray(updates.venues)) {
-              if (typeof updates.venues === 'string') {
-                updates.venues = [updates.venues];
-                console.log('Converted venues string to array:', updates.venues);
-              }
+              updates.venues = [updates.venues];
+              console.log('Converted venues to array:', updates.venues);
             }
           }
           
-          // Return a properly formatted action string
           return `I'll update the event ${eventCode} with the following changes: ${JSON.stringify(updates)}.\n\n{"action":"update_event","event_code":"${eventCode}","updates":${JSON.stringify(updates)}}`;
-        } catch (error) {
-          console.error('Error parsing function arguments:', error);
-          return `I encountered an error while trying to update the event. Please try again with more specific instructions.`;
         }
-      }
-      
-      if (functionCall.name === 'update_menu') {
-        try {
+        
+        if (functionCall.name === 'update_menu') {
           const args = JSON.parse(functionCall.arguments || '{}');
           return `I'll update the menu for event ${args.event_code} with the following changes: ${JSON.stringify(args.menu_updates)}.\n\n{"action":"update_menu","event_code":"${args.event_code}","menu_updates":${JSON.stringify(args.menu_updates)}}`;
-        } catch (error) {
-          console.error('Error parsing function arguments:', error);
-          return `I encountered an error while trying to update the menu. Please try again with more specific instructions.`;
         }
+        
+        if (functionCall.name === 'create_task') {
+          const args = JSON.parse(functionCall.arguments || '{}');
+          return `I'll create a new task: "${args.title}".\n\n{"action":"create_task","task_data":${JSON.stringify(args)}}`;
+        }
+      } catch (error) {
+        console.error('Error processing function call:', error);
+        return `I encountered an error while trying to process that request. Please try again with more specific instructions.`;
       }
     }
 
     return completion.choices[0]?.message?.content || null;
   } catch (error) {
-    console.error('Error getting chat completion:', error);
+    console.error('Error getting OpenAI completion:', error);
+    
+    // Provide helpful error messages based on error types
+    if (error.message?.includes("timed out")) {
+      throw new Error("The AI service is taking too long to respond. Please try again.");
+    } else if (error.message?.includes("rate limit")) {
+      throw new Error("We've hit the AI service rate limit. Please try again in a moment.");
+    } else if (error.status === 401) {
+      throw new Error("There's an authentication issue with our AI service. Please contact support.");
+    }
+    
     throw error;
   }
+};
+
+/**
+ * Prepares messages for the OpenAI API with proper formatting
+ */
+export const prepareOpenAIMessages = (
+  systemMessage: string,
+  chatMessages: { text: string; isUser: boolean }[],
+  currentInput: string
+): ChatCompletionMessageParam[] => {
+  // Create system message
+  const systemMessageObj: ChatCompletionMessageParam = {
+    role: "system",
+    content: systemMessage
+  };
+
+  // Convert chat history to OpenAI format
+  const historyMessages: ChatCompletionMessageParam[] = chatMessages.map(msg => ({
+    role: msg.isUser ? "user" : "assistant",
+    content: msg.text
+  }));
+
+  // Add current user input
+  const currentMessage: ChatCompletionMessageParam = {
+    role: "user",
+    content: currentInput
+  };
+
+  // Return complete message array
+  return [systemMessageObj, ...historyMessages, currentMessage];
 };

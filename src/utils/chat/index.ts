@@ -1,30 +1,13 @@
 
-// Export all chat context utils from this central file
+// Export chat utility functions for better organization and access
+export { formatEventForContext, prepareEventsContext } from './eventContextUtils';
+export { prepareTasksContext } from './taskContextUtils';
+export { prepareContactsContext } from './contactContextUtils';
+export { prepareDocumentsContext } from './documentContextUtils';
+export { getSystemMessage } from './systemMessageUtils';
 
-// Export functions from their correct source files
-export { 
-  formatEventForContext,
-  prepareEventsContext
-} from './eventContextUtils';
-
-export { 
-  prepareTasksContext 
-} from './taskContextUtils';
-
-export { 
-  prepareContactsContext 
-} from './contactContextUtils';
-
-export { 
-  prepareDocumentsContext 
-} from './documentContextUtils';
-
-export { 
-  getSystemMessage 
-} from './systemMessageUtils';
-
-// Export the utility files themselves (not as default exports)
-export * as eventContextUtils from './eventContextUtils';
-export * as taskContextUtils from './taskContextUtils';
-export * as contactContextUtils from './contactContextUtils';
-export * as documentContextUtils from './documentContextUtils';
+// Also provide namespace exports for more flexible imports
+export * as eventUtils from './eventContextUtils';
+export * as taskUtils from './taskContextUtils';
+export * as contactUtils from './contactContextUtils';
+export * as documentUtils from './documentContextUtils';
