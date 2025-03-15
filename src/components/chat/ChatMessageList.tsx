@@ -35,7 +35,7 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
 
   return (
     <ScrollArea 
-      className="flex-1 p-4 bg-white" 
+      className="flex-1 p-4 h-full min-h-0" 
       ref={scrollAreaRef} 
       onScroll={handleScroll}
     >

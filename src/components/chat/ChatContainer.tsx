@@ -39,7 +39,7 @@ const ChatContainer = () => {
   };
 
   return (
-    <div className="relative h-[440px]">
+    <div className="relative h-full">
       <Card className="h-full w-full flex flex-col rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
         {chatMessages.length === 0 ? (
           <div className="flex flex-col h-full">
