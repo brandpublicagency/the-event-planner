@@ -96,7 +96,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    // Use content property instead of contentResolver
+    // Fix: Use a function directly in the content property
     content: () => editorRef?.current || null,
   });
 

@@ -20,7 +20,34 @@ export const useChatContext = () => {
         throw eventsError;
       }
 
-      // Fetch menu selections separately - handle case where table might not exist yet
+      // Fetch venues for each event
+      const eventVenuesPromises = events?.map(async (event) => {
+        try {
+          const { data: eventVenues } = await supabase
+            .from('event_venues')
+            .select('venues:venue_id(name)')
+            .eq('event_code', event.event_code);
+            
+          return {
+            event_code: event.event_code,
+            venues: eventVenues?.map(v => v.venues?.name).filter(Boolean) || []
+          };
+        } catch (error) {
+          console.log(`Error fetching venues for event ${event.event_code}:`, error);
+          return { event_code: event.event_code, venues: [] };
+        }
+      }) || [];
+      
+      // Wait for all venue queries to complete
+      const eventVenues = await Promise.all(eventVenuesPromises);
+      
+      // Create a lookup map for venues
+      const venuesMap = eventVenues.reduce((acc, item) => {
+        acc[item.event_code] = item.venues;
+        return acc;
+      }, {});
+
+      // Fetch menu selections separately
       let menuSelections = [];
       try {
         const { data, error } = await supabase
@@ -86,7 +113,7 @@ export const useChatContext = () => {
         console.warn('PDF content not available:', error);
       }
 
-      // Enrich events with related data (menu selections and tasks)
+      // Enrich events with related data (menu selections, venues, and tasks)
       const enrichedEvents = events?.map(event => {
         // Find related menu selection for this event
         const eventMenuSelection = menuSelections?.find(ms => 
@@ -98,8 +125,12 @@ export const useChatContext = () => {
           task.task_code === event.event_code
         ) || [];
         
+        // Add venues from our separate query
+        const enrichedVenues = venuesMap[event.event_code] || event.venues || [];
+        
         return {
           ...event,
+          venues: enrichedVenues,
           menu_selections: eventMenuSelection,
           tasks: eventTasks
         };
@@ -115,9 +146,9 @@ export const useChatContext = () => {
         tasks: tasks || []
       };
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2,
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes (reduced for more real-time data)
+    retry: 3, // More retries for resilience
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 60 * 1000 // Refresh every 10 minutes
+    refetchInterval: 5 * 60 * 1000 // Refresh every 5 minutes (increased frequency)
   });
 };

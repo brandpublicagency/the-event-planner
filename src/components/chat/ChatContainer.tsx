@@ -43,13 +43,14 @@ const ChatContainer = () => {
     setShouldAutoScroll(isNearBottom);
   };
 
-  // Generate placeholder suggestions based on information types in the app
+  // Generate improved placeholder suggestions based on information types in the app
   const suggestions = [
+    "What is my next event?",
+    "Update the guest count for my next event to 50",
+    "Change the venue for my next event to The Gallery",
+    "Show me all my upcoming tasks",
     "What events do I have scheduled this month?",
-    "Show me my upcoming tasks",
-    "Summarize my latest document",
-    "What's my next event?",
-    "Update the guest count for my next event to 50"
+    "Create a new task for my next event"
   ];
 
   return (
@@ -66,7 +67,7 @@ const ChatContainer = () => {
                 <Sparkles className="h-6 w-6 text-gray-400" />
               </div>
               <p className="text-sm text-gray-500 mb-8 max-w-xs">
-                Ask me anything about your events, tasks, contacts, or documents
+                Ask me anything about your events, tasks, contacts, or documents. I have full access to all information and can make changes for you.
               </p>
               <div className="w-full">
                 <p className="text-xs text-gray-400 mb-3">Try asking</p>

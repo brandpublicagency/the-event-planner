@@ -1,3 +1,4 @@
+
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { withTimeout } from '../../../utils/timeoutUtils.ts';
 
@@ -13,7 +14,7 @@ export async function generateAICompletion(question: string, systemMessage: stri
   try {
     return await withTimeout(
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // Using a stable model 
+        model: "gpt-4o-mini", // Using latest model for better performance
         messages: [
           { role: "system", content: systemMessage },
           { role: "user", content: question }

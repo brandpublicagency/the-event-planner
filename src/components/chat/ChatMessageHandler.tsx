@@ -15,6 +15,7 @@ import { getChatCompletion } from "@/services/openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 interface ChatMessageHandlerProps {
   contextData: any;
@@ -67,7 +68,7 @@ export const ChatMessageHandler = ({
     }
   }, [contextData]);
 
-  // Function to directly fetch next event data
+  // Improved function to directly fetch next event data
   const fetchNextEvent = async () => {
     try {
       console.log('Fetching next event directly');
@@ -97,7 +98,7 @@ export const ChatMessageHandler = ({
       }
       
       if (!data || data.length === 0) {
-        return "No upcoming events found.";
+        return "No upcoming events found. Would you like me to help you create a new event?";
       }
       
       const event = data[0];
@@ -122,14 +123,31 @@ export const ChatMessageHandler = ({
         paxInfo = ` for ${event.pax} guests`;
       }
       
-      return `The next event is "${event.name}" on ${new Date(event.event_date).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      })}. It's a ${event.event_type} event${venueInfo}${paxInfo}.`;
+      // Format menu info if available
+      let menuInfo = '';
+      if (event.menu_selections) {
+        const menuType = event.menu_selections.main_course_type || 
+                        (event.menu_selections.is_custom ? 'Custom menu' : '');
+        if (menuType) {
+          menuInfo = `\nMenu: ${menuType}`;
+        }
+      }
+      
+      // Format contact info if available
+      let contactInfo = '';
+      if (event.primary_name || event.primary_email || event.primary_phone) {
+        contactInfo = `\nPrimary Contact: ${event.primary_name || 'Not specified'}`;
+        if (event.primary_email) contactInfo += `, Email: ${event.primary_email}`;
+        if (event.primary_phone) contactInfo += `, Phone: ${event.primary_phone}`;
+      }
+      
+      return `The next event is "${event.name}" (code: ${event.event_code}) on ${format(new Date(event.event_date), 'dd/MM/yyyy')}. 
+It's a ${event.event_type} event${venueInfo}${paxInfo}.${menuInfo}${contactInfo}
+
+You can update this event by asking me to change specific details like the guest count, date, venue, etc.`;
     } catch (error) {
       console.error('Error in fetchNextEvent:', error);
-      return "I couldn't retrieve information about the next event right now.";
+      return "I couldn't retrieve information about the next event right now. Please try asking again or check if there are any upcoming events scheduled.";
     }
   };
 
@@ -149,8 +167,10 @@ export const ChatMessageHandler = ({
       clearInput();
       setIsLoading(true);
 
-      // Special case: directly handle next event query
-      if (inputValue.toLowerCase().includes('next event')) {
+      // Special case: directly handle next event query with improved reliability
+      if (inputValue.toLowerCase().includes('next event') || 
+          inputValue.toLowerCase().includes('upcoming event')) {
+        console.log('Detected next event query, using direct fetch method');
         const nextEvent = await fetchNextEvent();
         addSystemMessage(nextEvent);
         setIsLoading(false);
@@ -256,7 +276,7 @@ export const ChatMessageHandler = ({
       }
     } catch (error) {
       console.error('Error in WhatsApp fallback:', error);
-      addSystemMessage("I'm sorry, I couldn't process your request at this time.");
+      addSystemMessage("I'm sorry, I couldn't process your request at this time. Please try asking about specific events, tasks, or documents.");
     }
   };
 
