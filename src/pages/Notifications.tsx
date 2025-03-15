@@ -41,7 +41,7 @@ const Notifications = () => {
   return (
     <div className="container py-6">
       <PageHeader
-        title="Notifications"
+        heading="Notifications"
         description="View and manage all your notifications"
         actions={
           <div className="flex gap-2">

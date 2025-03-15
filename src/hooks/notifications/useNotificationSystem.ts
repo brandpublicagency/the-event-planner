@@ -14,8 +14,8 @@ export function useNotificationSystem() {
     try {
       setLoading(true);
       
-      // Query event notifications and join with templates to get details
-      const { data, error } = await supabase
+      // First, query event notifications
+      const { data: notificationsData, error: notificationsError } = await supabase
         .from('event_notifications')
         .select(`
           id,
@@ -26,15 +26,14 @@ export function useNotificationSystem() {
           is_read,
           is_completed,
           created_at,
-          events:events!inner(name, event_type, primary_name),
-          templates:notification_templates!inner(title, description_template, action_type)
+          events:events!inner(name, event_type, primary_name)
         `)
         .is('is_read', false)
         .not('sent_at', 'is', null)
         .order('scheduled_for', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching notifications:', error);
+      if (notificationsError) {
+        console.error('Error fetching notifications:', notificationsError);
         toast({
           title: 'Error loading notifications',
           description: 'There was a problem fetching your notifications.',
@@ -43,25 +42,44 @@ export function useNotificationSystem() {
         return;
       }
 
+      // Get notification templates separately
+      const { data: templatesData, error: templatesError } = await supabase
+        .from('notification_templates')
+        .select('*');
+
+      if (templatesError) {
+        console.error('Error fetching notification templates:', templatesError);
+        return;
+      }
+
+      // Create a map of templates for easy lookup
+      const templatesMap = templatesData.reduce((acc, template) => {
+        acc[template.type] = template;
+        return acc;
+      }, {});
+
       // Transform data to match Notification type
-      const formattedNotifications: Notification[] = data?.map(item => {
+      const formattedNotifications: Notification[] = notificationsData.map(item => {
+        // Find matching template
+        const template = templatesMap[item.notification_type];
+        
         // Process template with event data
-        let description = item.templates.description_template;
+        let description = template?.description_template || 'Notification';
         description = description.replace('{event_name}', item.events.name || 'Untitled Event');
         description = description.replace('{event_type}', item.events.event_type || 'Event');
         description = description.replace('{primary_contact}', item.events.primary_name || 'Client');
 
         return {
           id: item.id,
-          title: item.templates.title,
+          title: template?.title || 'Notification',
           description: description,
           createdAt: new Date(item.sent_at || item.created_at),
           type: item.notification_type as any,
           read: item.is_read,
-          actionType: item.templates.action_type as any,
+          actionType: template?.action_type as any || 'review',
           relatedId: item.event_code
         };
-      }) || [];
+      });
 
       setPendingNotifications(formattedNotifications);
     } catch (err) {

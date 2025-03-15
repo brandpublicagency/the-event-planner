@@ -1,130 +1,110 @@
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import React from 'react';
 import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
-import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/lib/utils";
-import { CheckCircle, ArrowRight, Calendar, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { 
+  Calendar, 
+  CheckCircle, 
+  Clock, 
+  XCircle
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { formatDistanceToNow } from 'date-fns';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const ScheduledNotificationDropdown: React.FC = () => {
-  const {
-    notifications,
-    markAsRead,
-    markAsCompleted
+export function ScheduledNotificationDropdown() {
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAsCompleted,
+    loading
   } = useScheduledNotifications();
-  const navigate = useNavigate();
-  
-  const handleViewEvent = (notificationId: string, eventCode: string | undefined, e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    // Mark as read
-    markAsRead(notificationId);
-    
-    // Navigate to event if we have an event code
-    if (eventCode) {
-      navigate(`/events/${eventCode}`);
-    }
-  };
-  
-  const handleCompleteTask = (notificationId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    markAsCompleted(notificationId);
-  };
-  
+
   return (
-    <div className="max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-      <div className="p-4 border-b flex items-center justify-between bg-zinc-50">
-        <div className="flex items-center gap-2">
-          <Bell className="h-4 w-4" />
-          <h2 className="text-xl font-semibold">Scheduled Reminders</h2>
-        </div>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between px-4 py-2 border-b">
+        <h3 className="font-medium">Task Reminders</h3>
+        {unreadCount > 0 && (
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/notifications?tab=scheduled">
+              View All ({unreadCount})
+            </Link>
+          </Button>
+        )}
       </div>
-      
-      <div className="overflow-y-auto flex-1">
-        {notifications.length === 0 ? (
-          <div className="p-6 text-center text-muted-foreground">
+
+      <ScrollArea className="h-[300px]">
+        {loading ? (
+          <div className="p-4 text-center text-muted-foreground">
+            Loading...
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="p-4 text-center text-muted-foreground">
             No pending reminders
           </div>
         ) : (
-          <div>
-            {notifications.map(notification => (
-              <div 
-                key={notification.id} 
-                className={cn(
-                  "border-b p-4 hover:bg-muted/10 transition-colors", 
-                  !notification.read && "bg-blue-50"
-                )}
+          <div className="py-2">
+            {notifications.slice(0, 5).map((notification) => (
+              <Card
+                key={notification.id}
+                className={`mx-2 my-1 p-3 ${notification.read ? 'opacity-70' : ''}`}
               >
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-zinc-900">{notification.title}</h4>
-                      {!notification.read && (
-                        <Badge 
-                          variant="default" 
-                          className="text-[10px] py-0.5 text-white font-normal rounded px-[8px] bg-blue-600"
-                        >
-                          New
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm my-1 font-light text-zinc-800">
-                      {notification.description}
-                    </p>
-                    
-                    <div className="mt-2 flex items-center gap-2 justify-between">
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={e => handleViewEvent(notification.id, notification.relatedId, e)} 
-                          className="rounded-md bg-white border-zinc-200 hover:bg-zinc-100"
-                        >
-                          <Calendar className="h-3.5 w-3.5 mr-1" />
-                          View Event
-                        </Button>
-                        
-                        {notification.actionType === "approve" && (
-                          <Button 
-                            variant="default"
-                            size="sm" 
-                            onClick={e => handleCompleteTask(notification.id, e)} 
-                            className="rounded-md bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                            Mark Completed
-                          </Button>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground m-0">
-                        {formatDistanceToNow(notification.createdAt, {
-                          addSuffix: true
-                        })}
-                      </p>
-                    </div>
-                  </div>
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium text-sm">{notification.title}</h4>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                  </span>
                 </div>
-              </div>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{notification.description}</p>
+                <div className="flex gap-2 mt-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => markAsRead(notification.id)}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Clock className="h-3 w-3 mr-1" />
+                    Mark Read
+                  </Button>
+                  {notification.actionType === 'approve' && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => markAsCompleted(notification.id)}
+                      className="h-7 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                    >
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Complete
+                    </Button>
+                  )}
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    asChild
+                    className="h-7 px-2 text-xs ml-auto"
+                  >
+                    <Link to={`/events/${notification.relatedId}`}>
+                      <Calendar className="h-3 w-3 mr-1" />
+                      View
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
             ))}
+            {notifications.length > 5 && (
+              <div className="text-center p-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/notifications?tab=scheduled">
+                    View All ({notifications.length})
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         )}
-      </div>
-      
-      <div className="border-t p-2 bg-zinc-50">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate("/notifications")} 
-          className="w-full rounded text-zinc-800 bg-white border-zinc-200 hover:bg-zinc-100"
-        >
-          See all notifications
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Button>
-      </div>
+      </ScrollArea>
     </div>
   );
-};
+}
