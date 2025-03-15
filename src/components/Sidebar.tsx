@@ -113,7 +113,9 @@ const Sidebar = ({
     }
   };
 
-  return <div className={cn("relative h-full transition-all duration-300 ease-in-out will-change-[width]", isCollapsed ? "w-[70px] bg-[#1A1F2C]" : "w-64", !isCollapsed && getGradientByPath(), className)}>
+  const gradientClasses = getGradientByPath();
+
+  return <div className={cn("relative h-full transition-all duration-300 ease-in-out will-change-[width]", isCollapsed ? "w-[70px]" : "w-64", gradientClasses, className)}>
       {isCollapsed ? <div className="flex flex-col h-full">
           <SidebarProfile isCollapsed={isCollapsed} />
           
@@ -122,19 +124,19 @@ const Sidebar = ({
           </div>
           
           <div className="py-4 flex flex-col items-center gap-4">
-            <button onClick={() => navigate('/events/new')} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
+            <button onClick={() => navigate('/events/new')} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <Plus className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button onClick={() => navigate('/tasks?newTask=true')} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
+            <button onClick={() => navigate('/tasks?newTask=true')} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <CheckSquare className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button onClick={handleAddDocument} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md transition-colors duration-200">
+            <button onClick={handleAddDocument} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
               <FilePlus className="h-4 w-4 flex-shrink-0" />
             </button>
             
-            <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex justify-center items-center text-gray-400 hover:text-white text-sm h-9 w-9 rounded-md mt-4 transition-colors duration-200">
+            <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md mt-4 transition-colors duration-200">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

@@ -37,7 +37,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
       <div
         className={`flex-shrink-0 transition-all duration-300 ease-in-out z-30 ${
           isCollapsed ? "w-[70px]" : "w-64"
-        } bg-white border-r border-zinc-200 shadow-sm`}
+        }`}
       >
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
