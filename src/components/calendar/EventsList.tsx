@@ -34,7 +34,7 @@ export const EventsList: React.FC<EventsListProps> = ({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {events.map((event) => (
         <EventCard
           key={event.event_code}
