@@ -1,0 +1,120 @@
+
+import React from 'react';
+import { useDashboardMessage } from '@/hooks/useDashboardMessage';
+import { CalendarClock, Calendar, CheckSquare, Gift, Quote } from 'lucide-react';
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from 'date-fns';
+
+const DashboardMessage = () => {
+  const { dashboardMessage, isLoading, error } = useDashboardMessage();
+  
+  if (isLoading) {
+    return (
+      <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[300px]" />
+          </div>
+        </div>
+      </Card>
+    );
+  }
+  
+  if (error || !dashboardMessage) {
+    return (
+      <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold text-gray-800">Hello there,</h2>
+          <p className="text-gray-700">
+            Welcome to your dashboard. Have a productive day!
+          </p>
+        </div>
+      </Card>
+    );
+  }
+  
+  // Determine icon based on message type
+  let Icon;
+  let iconColor;
+  
+  switch (dashboardMessage.type) {
+    case 'event':
+      Icon = CalendarClock;
+      iconColor = 'text-pink-500';
+      break;
+    case 'holiday':
+      Icon = Gift;
+      iconColor = 'text-purple-500';
+      break;
+    case 'task':
+      Icon = CheckSquare;
+      iconColor = 'text-amber-500';
+      break;
+    case 'upcoming_event':
+      Icon = Calendar;
+      iconColor = 'text-blue-500';
+      break;
+    default:
+      Icon = Quote;
+      iconColor = 'text-green-500';
+  }
+  
+  // Format additional message details based on type
+  let additionalDetails = null;
+  
+  if (dashboardMessage.type === 'event' && dashboardMessage.eventDetails) {
+    const { start_time, pax, venues } = dashboardMessage.eventDetails;
+    const venueText = venues && venues.length > 0 ? venues.join(', ') : 'Not specified';
+    
+    additionalDetails = (
+      <div className="mt-2 text-sm text-gray-600">
+        {start_time && <p>Start time: {start_time.substring(0, 5)}</p>}
+        {pax && <p>Guests: {pax}</p>}
+        <p>Venue: {venueText}</p>
+      </div>
+    );
+  } else if (dashboardMessage.type === 'upcoming_event' && dashboardMessage.eventDetails) {
+    const { event_date, name } = dashboardMessage.eventDetails;
+    additionalDetails = (
+      <div className="mt-2 text-sm text-gray-600">
+        <p>Event: {name}</p>
+        <p>Date: {format(new Date(event_date), 'EEEE, MMMM d, yyyy')}</p>
+      </div>
+    );
+  } else if (dashboardMessage.type === 'task' && dashboardMessage.tasks && dashboardMessage.tasks.length > 0) {
+    additionalDetails = (
+      <div className="mt-2 text-sm text-gray-600">
+        <p className="font-medium">Priority tasks:</p>
+        <ul className="list-disc pl-5 mt-1">
+          {dashboardMessage.tasks.slice(0, 3).map((task, index) => (
+            <li key={index}>
+              {task.title} {task.due_date ? `(Due: ${format(new Date(task.due_date), 'MMM d')})` : ''}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  
+  return (
+    <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 mb-1">
+          {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
+          <h2 className="text-xl font-semibold text-gray-800">
+            {dashboardMessage.type === 'holiday' && dashboardMessage.holidayName 
+              ? dashboardMessage.holidayName 
+              : 'Hello there,'}
+          </h2>
+        </div>
+        <p className="text-gray-700">{dashboardMessage.message}</p>
+        {additionalDetails}
+      </div>
+    </Card>
+  );
+};
+
+export default DashboardMessage;
