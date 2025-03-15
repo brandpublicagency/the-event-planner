@@ -1,7 +1,8 @@
-import ChatContainer from "./chat/ChatContainer";
+
+import Chat from "./chat/Chat";
 
 const ChatBox = () => {
-  return <ChatContainer />;
+  return <Chat />;
 };
 
 export default ChatBox;
