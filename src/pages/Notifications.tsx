@@ -41,9 +41,14 @@ const Notifications = () => {
   return (
     <div className="container py-6">
       <PageHeader
-        heading="Notifications"
-        description="View and manage all your notifications"
-        actions={
+        pageTitle="Notifications"
+        contextTitle="View and manage all your notifications"
+        actionButton={{
+          label: "Mark All Read",
+          onClick: () => activeTab === 'general' ? markAllAsRead() : null,
+          disabled: activeTab === 'general' ? notifications.every(n => n.read) : false
+        }}
+        secondaryAction={
           <div className="flex gap-2">
             <Button 
               variant="outline" 
@@ -62,13 +67,6 @@ const Notifications = () => {
                 Check Reminders
               </Button>
             )}
-            <Button 
-              variant="default" 
-              onClick={() => activeTab === 'general' ? markAllAsRead() : null}
-              disabled={activeTab === 'general' ? notifications.every(n => n.read) : false}
-            >
-              Mark All Read
-            </Button>
           </div>
         }
       />
