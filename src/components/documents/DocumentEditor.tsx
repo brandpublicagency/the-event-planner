@@ -1,4 +1,3 @@
-
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,11 @@ import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { Category } from "@/types/category";
+
 interface DocumentEditorProps {
   documentId: string | null;
 }
+
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
@@ -42,6 +43,7 @@ export default function DocumentEditor({
     isLoadingDocumentCategories,
     updateDocumentCategories
   } = useDocumentCategories(documentId);
+
   useEffect(() => {
     if (!documentCategories || !categories || categories.length === 0) return;
     const selected = documentCategories.map(docCat => {
@@ -52,17 +54,15 @@ export default function DocumentEditor({
   }, [documentCategories, categories]);
 
   const handleSave = async () => {
-    // First save document content
     await saveDocument({
-      showToast: false // Don't show toast for document save
+      showToast: false
     });
     
-    // Then update categories if we have a document ID
     if (documentId) {
       await updateDocumentCategories({
         documentId,
         categoryIds: selectedCategories.map(c => c.id),
-        showSuccessToast: true // Only show toast after everything is saved
+        showSuccessToast: true
       });
     }
   };
@@ -78,9 +78,11 @@ export default function DocumentEditor({
       setSelectedCategories([...selectedCategories, category]);
     }
   };
+
   const removeCategory = (categoryId: string) => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
+
   if (!documentId) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-md">
@@ -91,18 +93,22 @@ export default function DocumentEditor({
         </div>
       </div>;
   }
+
   if (!isAuthenticated || isLoading) {
     return <div className="h-full flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>;
   }
+
   if (error || !document) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">
         {error ? `Error: ${error.message}` : "Document not found"}
       </div>;
   }
-  return <div className="h-full flex flex-col p-6">
-      <div className="flex justify-between items-center mb-5">
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex justify-between items-center p-6 pb-4">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
           <div className="w-full md:w-64">
             {!isLoadingDocumentCategories && <CategorySelector selectedCategory={null} onChange={handleCategoryChange} placeholder="Add category" />}
@@ -122,8 +128,9 @@ export default function DocumentEditor({
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <div className="rounded-lg overflow-hidden flex-1">
+      <div className="px-6 pb-6 flex-1 overflow-hidden">
         <DocumentContent editor={editor} />
       </div>
-    </div>;
+    </div>
+  );
 }

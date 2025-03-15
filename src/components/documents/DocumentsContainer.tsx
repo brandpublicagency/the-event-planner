@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,14 +61,12 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     }
   }, [documents, selectedDocId]);
 
-  // Reset documentCreated state when navigating away from the documents page
   useEffect(() => {
     return () => {
       setDocumentCreated(false);
     };
   }, []);
 
-  // Set documentCreated flag to false when autoCreateDocument changes to false
   useEffect(() => {
     if (!autoCreateDocument) {
       setDocumentCreated(false);
@@ -127,7 +124,6 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     },
   });
 
-  // Create a new document automatically when autoCreateDocument is true
   useEffect(() => {
     if (autoCreateDocument && !documentCreated && !createDocument.isPending && !isLoading) {
       console.log("Auto-creating document");
@@ -153,10 +149,10 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen">
       <DocumentsHeader />
       
-      <div className="flex flex-1 h-0 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <DocumentsSidebar 
           documents={documents}
           isLoading={isLoading}
@@ -170,10 +166,10 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           createDocumentPending={createDocument.isPending}
         />
 
-        <div className="flex-1 h-full overflow-auto bg-gray-50">
+        <div className="flex-1 overflow-hidden bg-gray-50">
           <DocumentEditor 
             documentId={selectedDocId} 
-            key={selectedDocId} // Add key to force re-mounting when selectedDocId changes
+            key={selectedDocId}
           />
         </div>
       </div>
