@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -10,21 +11,24 @@ import PersonalInfoSection from "./drawer-sections/PersonalInfoSection";
 import BusinessInfoSection from "./drawer-sections/BusinessInfoSection";
 import EventsBookedSection from "./drawer-sections/EventsBookedSection";
 import ActionButtons from "./drawer-sections/ActionButtons";
+import { useContactActivityLogging } from "@/hooks/useContactActivityLogging";
+
 interface ContactEditDrawerProps {
   contact: Contact;
   isOpen: boolean;
   onClose: () => void;
   onUpdateSuccess: () => void;
 }
+
 const ContactEditDrawer = ({
   contact,
   isOpen,
   onClose,
   onUpdateSuccess
 }: ContactEditDrawerProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { logContactUpdated, currentUser } = useContactActivityLogging();
+  
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -36,13 +40,34 @@ const ContactEditDrawer = ({
       vat_number: contact.vat_number || ""
     }
   });
+  
   const onSubmit = async (values: ContactFormValues) => {
     try {
-      await updateContact(contact, values);
+      // Determine which fields were changed
+      const originalValues = {
+        name: contact.name,
+        email: contact.email || "",
+        phone: contact.phone || "",
+        company: contact.company || "",
+        address: contact.address || "",
+        vat_number: contact.vat_number || ""
+      };
+      
+      const changedFields = Object.keys(values).filter(
+        key => values[key as keyof ContactFormValues] !== originalValues[key as keyof typeof originalValues]
+      );
+      
+      const updatedContact = await updateContact(contact, values);
+      
+      // Log the activity
+      if (changedFields.length > 0) {
+        await logContactUpdated(updatedContact, changedFields);
+      }
+      
       onUpdateSuccess();
       toast({
         title: "Contact updated",
-        description: "Contact updated successfully",
+        description: `Contact updated successfully by ${currentUser?.name || 'current user'}`,
         variant: "success"
       });
       onClose();
@@ -54,6 +79,7 @@ const ContactEditDrawer = ({
       });
     }
   };
+
   return <OffCanvasDrawer isOpen={isOpen} onClose={onClose} title={`Edit Contact: ${contact.name}`}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
@@ -74,4 +100,5 @@ const ContactEditDrawer = ({
       </Form>
     </OffCanvasDrawer>;
 };
+
 export default ContactEditDrawer;
