@@ -10,19 +10,17 @@ const Schedule = () => {
         contextTitle="Book a site visit or meeting with our team"
       />
       
-      <div className="flex-1 p-4">
-        <Card className="w-full h-full overflow-hidden bg-white shadow-sm">
-          <div className="w-full h-full">
-            <iframe
-              src="https://cal.com/warmkaroo/site-visit?date=2025-03-17&embed=true"
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              style={{ width: "100%", height: "100%", border: "none" }}
-              allowFullScreen
-            ></iframe>
-          </div>
-        </Card>
+      <div className="flex-1">
+        <div className="w-full h-full">
+          <iframe
+            src="https://cal.com/warmkaroo/site-visit?date=2025-03-17&embed=true"
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            style={{ width: "100%", height: "100%", border: "none" }}
+            allowFullScreen
+          ></iframe>
+        </div>
       </div>
     </div>
   );
