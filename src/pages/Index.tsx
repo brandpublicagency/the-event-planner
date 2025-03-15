@@ -136,13 +136,10 @@ const Index = () => {
 
         {/* Right Column - Chat, Greeting, and Tasks (spans 6 columns on desktop) */}
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
-          {/* Chat Box - at the top */}
-          <div className="h-72">
-            <ChatBox />
-          </div>
-          
-          {/* Greeting Card - in the middle */}
-          <Card className="rounded-xl p-6 bg-rose-50 border-0">
+          {/* Greeting Card - moved to the top */}
+          <Card className="rounded-xl p-6 border-0" style={{ 
+            background: 'linear-gradient(135deg, #FFDEE2 0%, #D6BCFA 100%)' 
+          }}>
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
               <p className="text-gray-700">
@@ -150,6 +147,11 @@ const Index = () => {
               </p>
             </div>
           </Card>
+          
+          {/* Chat Box - moved to the middle */}
+          <div className="h-72">
+            <ChatBox />
+          </div>
           
           {/* Upcoming Tasks Section - at the bottom */}
           <div>
