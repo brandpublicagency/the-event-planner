@@ -67,7 +67,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
               </div>
               
               {/* Added 2px padding below event+event code div */}
-              <div className="pb-2"></div>
+              
               
               {/* Added 2px padding above venue+pax div */}
               <div className="pt-2"></div>
