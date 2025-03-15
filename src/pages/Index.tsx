@@ -13,6 +13,7 @@ import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
 import { Plus, Loader2, CalendarClock, CheckSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { Card } from "@/components/ui/card";
 import type { Event } from "@/types/event";
 
 const Index = () => {
@@ -75,12 +76,26 @@ const Index = () => {
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
-      <div className="pt-4 px-6">
-        <ChatBox />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <div className="flex flex-col h-full overflow-hidden">
+        {/* Greeting Card - Top Right */}
+        <div className="md:col-span-1 order-1 md:order-2">
+          <Card className="rounded-xl p-6 bg-rose-50 border-0">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
+              <p className="text-gray-700">
+                Today is <span className="font-semibold">Karla + Regard's Wedding Day!</span> Remember, this is their most special day, and you are part of it! Good luck, and kick ass!
+              </p>
+            </div>
+          </Card>
+        </div>
+        
+        {/* Chat Box - Top Left */}
+        <div className="md:col-span-1 order-2 md:order-1">
+          <ChatBox />
+        </div>
+
+        {/* Upcoming Events Section */}
+        <div className="md:col-span-1 order-3 flex flex-col h-full overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
             style={{ 
@@ -90,7 +105,7 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            {/* White overlay with 90% opacity - Updated from 80% to 90% */}
+            {/* White overlay with 90% opacity */}
             <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
@@ -136,7 +151,8 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex flex-col h-full overflow-hidden">
+        {/* Upcoming Tasks Section */}
+        <div className="md:col-span-1 order-4 flex flex-col h-full overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
             style={{ 
@@ -146,7 +162,7 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            {/* White overlay with 90% opacity - Updated from 80% to 90% */}
+            {/* White overlay with 90% opacity */}
             <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
