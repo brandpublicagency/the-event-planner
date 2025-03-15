@@ -52,7 +52,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
     }
   };
 
-  const handlePrint = useReactToPrint({
+  // Create a print function that correctly uses the useReactToPrint hook
+  const printContent = useReactToPrint({
     documentTitle: title,
     onPrintError: (error) => {
       console.error('Print error:', error);
@@ -95,6 +96,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
+    // The correct property is 'content' that should return the element to print
     content: () => editorRef?.current || null,
   });
 
@@ -103,7 +105,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={() => handlePrint()}
+        // Call handlePrint via an arrow function to avoid type errors
+        onClick={() => printContent()}
         className="flex items-center gap-1.5 h-7 px-2 min-w-[60px]"
         disabled={!editorRef?.current}
       >
