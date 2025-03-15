@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { getRecentActivities, UserActivity } from "@/services/userLogService";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 interface RecentActivityListProps {
   limit?: number;
@@ -16,9 +16,14 @@ export function RecentActivityList({ limit = 5, className }: RecentActivityListP
   useEffect(() => {
     const fetchActivities = async () => {
       setIsLoading(true);
-      const data = await getRecentActivities(limit);
-      setActivities(data);
-      setIsLoading(false);
+      try {
+        const data = await getRecentActivities(limit);
+        setActivities(data);
+      } catch (error) {
+        console.error("Error loading activities:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchActivities();
@@ -29,45 +34,49 @@ export function RecentActivityList({ limit = 5, className }: RecentActivityListP
     return () => clearInterval(intervalId);
   }, [limit]);
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-6">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (activities.length === 0) {
+    return (
+      <div className="text-sm text-muted-foreground py-4 text-center">
+        No recent activity
+      </div>
+    );
+  }
+
   return (
-    <Card className={className}>
-      <CardHeader className="pb-2">
-        <CardTitle>Recent Activity</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center p-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500"></div>
+    <ul className="space-y-4">
+      {activities.map((activity) => (
+        <li key={activity.id} className="flex items-start gap-3 text-sm">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+            <span className="font-medium">{activity.user_name.charAt(0)}</span>
           </div>
-        ) : activities.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No recent activity</p>
-        ) : (
-          <ul className="space-y-3">
-            {activities.map((activity) => (
-              <li key={activity.id} className="flex items-start gap-2 text-sm">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="font-medium">{activity.user_name.charAt(0)}</span>
-                </div>
-                <div>
-                  <p>
-                    <span className="font-medium">{activity.user_name}</span>{" "}
-                    <span>{activity.action}</span>{" "}
-                    <span className="font-medium">{activity.entity_type}</span>
-                    {activity.details?.title && (
-                      <>: <span className="italic">{activity.details.title}</span></>
-                    )}
-                  </p>
-                  {activity.timestamp && (
-                    <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+          <div className="space-y-1">
+            <p>
+              <span className="font-medium">{activity.user_name}</span>{" "}
+              <span>{activity.action}</span>{" "}
+              <span className="font-medium">{activity.entity_type}</span>
+              {activity.details?.name && (
+                <>: <span className="italic">{activity.details.name}</span></>
+              )}
+              {activity.details?.title && !activity.details?.name && (
+                <>: <span className="italic">{activity.details.title}</span></>
+              )}
+            </p>
+            {activity.timestamp && (
+              <p className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+              </p>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

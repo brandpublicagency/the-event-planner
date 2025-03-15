@@ -35,7 +35,7 @@ export const useContactActivityLogging = () => {
   }, []);
   
   const logContactUpdated = async (contact: Contact, updatedFields: string[]) => {
-    if (!currentUser) return;
+    if (!currentUser) return null;
     
     await logUserActivity({
       user_id: currentUser.id,
@@ -48,6 +48,8 @@ export const useContactActivityLogging = () => {
         fields_updated: updatedFields
       }
     });
+
+    return contact;
   };
   
   return {

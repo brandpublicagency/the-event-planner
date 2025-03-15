@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from "react";
-import { getEntityHistory } from "@/services/userLogService";
+import { getEntityHistory, UserActivity } from "@/services/userLogService";
 import { formatDistanceToNow } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 interface EntityHistoryListProps {
   entityType: string;
@@ -16,7 +17,7 @@ export function EntityHistoryList({
   limit = 10,
   className 
 }: EntityHistoryListProps) {
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<UserActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -24,9 +25,14 @@ export function EntityHistoryList({
       if (!entityId) return;
       
       setIsLoading(true);
-      const data = await getEntityHistory(entityType, entityId, limit);
-      setHistory(data);
-      setIsLoading(false);
+      try {
+        const data = await getEntityHistory(entityType, entityId, limit);
+        setHistory(data);
+      } catch (error) {
+        console.error("Error loading history:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchHistory();
@@ -35,7 +41,7 @@ export function EntityHistoryList({
   if (isLoading) {
     return (
       <div className={`flex justify-center p-4 ${className}`}>
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }

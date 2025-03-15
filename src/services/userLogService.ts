@@ -1,7 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-export type UserActivity = {
+export interface UserActivity {
+  id?: string;
   user_id: string;
   user_name: string;
   action: string;
@@ -9,9 +10,9 @@ export type UserActivity = {
   entity_id: string;
   details?: Record<string, any>;
   timestamp?: string;
-};
+}
 
-export const logUserActivity = async (activity: Omit<UserActivity, "timestamp">) => {
+export const logUserActivity = async (activity: Omit<UserActivity, "timestamp" | "id">) => {
   try {
     // Get current user session
     const { data: sessionData } = await supabase.auth.getSession();
@@ -26,14 +27,15 @@ export const logUserActivity = async (activity: Omit<UserActivity, "timestamp">)
     // Log activity to console for development purposes
     console.log(`USER ACTIVITY: ${activity.user_name} ${activity.action} ${activity.entity_type} ${activity.entity_id}`);
     
-    // Store activity in database
-    const { error } = await supabase
-      .from("user_activities")
-      .insert({
-        ...activity,
-        user_id: currentUserId, // Use the current authenticated user's ID
-        timestamp: new Date().toISOString()
-      });
+    // Store activity in database - using RPC for custom tables
+    const { error } = await supabase.rpc('log_user_activity', {
+      p_user_id: currentUserId,
+      p_user_name: activity.user_name,
+      p_action: activity.action,
+      p_entity_type: activity.entity_type,
+      p_entity_id: activity.entity_id,
+      p_details: activity.details || {}
+    });
       
     if (error) {
       console.error("Error logging user activity:", error);
@@ -43,22 +45,12 @@ export const logUserActivity = async (activity: Omit<UserActivity, "timestamp">)
   }
 };
 
-export const getRecentActivities = async (limit = 10) => {
+export const getRecentActivities = async (limit = 10): Promise<UserActivity[]> => {
   try {
-    const { data, error } = await supabase
-      .from("user_activities")
-      .select(`
-        id,
-        user_id,
-        user_name,
-        action,
-        entity_type,
-        entity_id,
-        details,
-        timestamp
-      `)
-      .order('timestamp', { ascending: false })
-      .limit(limit);
+    // Using RPC function to get the activities
+    const { data, error } = await supabase.rpc('get_recent_activities', {
+      p_limit: limit
+    });
       
     if (error) {
       console.error("Error fetching recent activities:", error);
@@ -72,22 +64,14 @@ export const getRecentActivities = async (limit = 10) => {
   }
 };
 
-export const getEntityHistory = async (entityType: string, entityId: string, limit = 20) => {
+export const getEntityHistory = async (entityType: string, entityId: string, limit = 20): Promise<UserActivity[]> => {
   try {
-    const { data, error } = await supabase
-      .from("user_activities")
-      .select(`
-        id,
-        user_id,
-        user_name,
-        action,
-        details,
-        timestamp
-      `)
-      .eq('entity_type', entityType)
-      .eq('entity_id', entityId)
-      .order('timestamp', { ascending: false })
-      .limit(limit);
+    // Using RPC function to get entity history
+    const { data, error } = await supabase.rpc('get_entity_history', {
+      p_entity_type: entityType,
+      p_entity_id: entityId,
+      p_limit: limit
+    });
       
     if (error) {
       console.error(`Error fetching history for ${entityType} ${entityId}:`, error);

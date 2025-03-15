@@ -15,6 +15,7 @@ import { Plus, Loader2, CalendarClock, CheckSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import DashboardMessage from "@/components/dashboard/DashboardMessage";
+import { RecentActivityWidget } from "@/components/dashboard/RecentActivityWidget";
 import type { Event } from "@/types/event";
 
 const Index = () => {
@@ -169,6 +170,11 @@ const Index = () => {
               hideHeader={true}
             />
           </div>
+        </div>
+        
+        {/* Add full width Recent Activity Widget at the bottom */}
+        <div className="col-span-full order-4">
+          <RecentActivityWidget limit={7} />
         </div>
       </div>
     </div>

@@ -34,7 +34,7 @@ export function useTaskMutation(taskId: string) {
       // Log the changes if successful
       if (updatedTask) {
         const updatedFields = Object.keys(updates);
-        logTaskUpdated(updatedTask, updatedFields);
+        await logTaskUpdated(updatedTask, updatedFields);
       }
       
       return updatedTask;
