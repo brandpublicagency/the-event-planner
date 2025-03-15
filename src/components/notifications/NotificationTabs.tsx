@@ -38,7 +38,7 @@ export const NotificationTabs = ({
           <Bell className="h-4 w-4" />
           <span>General</span>
           {generalNotifications.filter(n => !n.read).length > 0 && (
-            <Badge variant="red" className="ml-1">
+            <Badge variant="red" className="ml-1 rounded-[4px] w-5 h-5 min-w-[20px] flex items-center justify-center">
               {generalNotifications.filter(n => !n.read).length}
             </Badge>
           )}
@@ -47,7 +47,7 @@ export const NotificationTabs = ({
           <AlarmClock className="h-4 w-4" />
           <span>Reminders</span>
           {scheduledNotifications.filter(n => !n.read).length > 0 && (
-            <Badge variant="red" className="ml-1">
+            <Badge variant="red" className="ml-1 rounded-[4px] w-5 h-5 min-w-[20px] flex items-center justify-center">
               {scheduledNotifications.filter(n => !n.read).length}
             </Badge>
           )}

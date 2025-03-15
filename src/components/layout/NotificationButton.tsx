@@ -24,7 +24,7 @@ export const NotificationButton = () => {
         >
           <span className="text-sm font-medium">Notifications</span>
           {unreadCount > 0 && (
-            <span className="flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-full w-6 h-6 min-w-[24px]">
+            <span className="flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-[4px] w-5 h-5 min-w-[20px]">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
