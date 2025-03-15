@@ -6,7 +6,7 @@ interface ChatMessageProps {
 
 import ReactMarkdown from 'react-markdown';
 import { cn } from "@/lib/utils";
-import { User, Bot } from "lucide-react";
+import { User, Sparkles } from "lucide-react";
 
 const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
   return (
@@ -14,23 +14,23 @@ const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
       className={`flex ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-300`}
     >
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shrink-0 mr-2">
-          <Bot size={15} />
+        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0 mr-2">
+          <Sparkles size={12} />
         </div>
       )}
       
       <div
         className={cn(
-          "px-4 py-3 max-w-[85%] shadow-sm",
+          "px-4 py-3 max-w-[85%]",
           isUser 
-            ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-t-xl rounded-bl-xl rounded-br-sm"
-            : "bg-white border border-gray-200 text-gray-800 rounded-t-xl rounded-br-xl rounded-bl-sm"
+            ? "bg-gray-800 text-white rounded-tl-lg rounded-tr-lg rounded-bl-lg"
+            : "bg-gray-50 border border-gray-100 text-gray-800 rounded-tr-lg rounded-tl-lg rounded-br-lg"
         )}
       >
         {isUser ? (
-          <div>{text}</div>
+          <div className="text-sm">{text}</div>
         ) : (
-          <div className="markdown-content">
+          <div className="markdown-content text-sm">
             <ReactMarkdown
               components={{
                 p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
@@ -42,7 +42,7 @@ const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
                 h3: ({ node, ...props }) => <h3 className="text-sm font-bold mb-1" {...props} />,
                 strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
                 em: ({ node, ...props }) => <em className="italic" {...props} />,
-                code: ({ node, ...props }) => <code className="px-1 py-0.5 bg-gray-100 rounded text-sm" {...props} />,
+                code: ({ node, ...props }) => <code className="px-1 py-0.5 bg-gray-200 rounded text-sm" {...props} />,
                 blockquote: ({ node, ...props }) => <blockquote className="pl-3 border-l-2 border-gray-300 text-gray-600 italic my-2" {...props} />,
                 hr: ({ node, ...props }) => <hr className="my-2 border-gray-200" {...props} />,
                 a: ({ node, ...props }) => <a className="text-blue-600 hover:underline" {...props} />,
@@ -61,8 +61,8 @@ const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
       </div>
       
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shrink-0 ml-2">
-          <User size={15} />
+        <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-white shrink-0 ml-2">
+          <User size={12} />
         </div>
       )}
     </div>

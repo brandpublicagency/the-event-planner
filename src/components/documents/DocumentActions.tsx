@@ -96,7 +96,7 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
-    // The correct property is 'content' that should return the element to print
+    // Fix for TypeScript error - specify content correctly
     content: () => editorRef?.current || null,
   });
 
@@ -105,8 +105,12 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        // Call handlePrint via an arrow function to avoid type errors
-        onClick={() => printContent()}
+        // Use a handler function to properly call printContent
+        onClick={() => {
+          if (printContent) {
+            printContent();
+          }
+        }}
         className="flex items-center gap-1.5 h-7 px-2 min-w-[60px]"
         disabled={!editorRef?.current}
       >

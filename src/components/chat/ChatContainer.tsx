@@ -6,7 +6,7 @@ import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
-import { MessageSquare } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -43,45 +43,77 @@ const ChatContainer = () => {
     setShouldAutoScroll(isNearBottom);
   };
 
+  // Generate placeholder suggestions based on information types in the app
+  const suggestions = [
+    "What events do I have scheduled this month?",
+    "Show me my upcoming tasks",
+    "Summarize my latest document"
+  ];
+
   return (
-    <div className="relative h-[300px]">
-      <Card className="chat-container h-full w-full flex flex-col rounded-xl border-none shadow-md overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-500 p-3 flex items-center gap-2 text-white">
-          <MessageSquare size={18} />
-          <h3 className="font-medium">Chat Assistant</h3>
-        </div>
-        
-        <ScrollArea className="flex-1 p-4 bg-white/60 backdrop-blur-sm" ref={scrollAreaRef} onScroll={handleScroll}>
-          <div className="space-y-4 pb-2">
-            {chatMessages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center h-32 text-muted-foreground p-6">
-                <MessageSquare className="h-10 w-10 mb-2 text-muted-foreground/50" />
-                <p className="text-sm">Ask me anything about your events, tasks, or documents.</p>
+    <div className="relative h-[440px]">
+      <Card className="h-full w-full flex flex-col rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
+        {chatMessages.length === 0 ? (
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-center p-6 border-b border-gray-100">
+              <Sparkles className="h-5 w-5 text-gray-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-700">Ask our AI anything</h3>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="h-6 w-6 text-gray-400" />
               </div>
-            ) : (
-              chatMessages.map((message, index) => (
-                <div 
-                  key={`${index}-${message.text.substring(0, 10)}`} 
-                  className="transition-all duration-300 ease-in-out"
-                >
-                  <ChatMessage {...message} />
-                </div>
-              ))
-            )}
-            
-            {isLoading && (
-              <div className="flex justify-start animate-pulse">
-                <div className="px-4 py-2 rounded-xl border border-gray-300 bg-gray-100">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
+              <p className="text-sm text-gray-500 mb-8 max-w-xs">
+                Ask me anything about your events, tasks, contacts, or documents
+              </p>
+              <div className="w-full">
+                <p className="text-xs text-gray-400 mb-3">Try asking</p>
+                <div className="space-y-2">
+                  {suggestions.map((suggestion, index) => (
+                    <div 
+                      key={index}
+                      className="text-sm p-2 bg-gray-50 rounded-lg text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => setInputValue(suggestion)}
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </ScrollArea>
+        ) : (
+          <>
+            <div className="flex items-center p-3 border-b border-gray-100">
+              <Sparkles className="h-4 w-4 text-gray-500 mr-2" />
+              <h3 className="text-xs font-medium text-gray-700">AI Assistant</h3>
+            </div>
+            <ScrollArea className="flex-1 p-4 bg-white" ref={scrollAreaRef} onScroll={handleScroll}>
+              <div className="space-y-4 pb-2">
+                {chatMessages.map((message, index) => (
+                  <div 
+                    key={`${index}-${message.text.substring(0, 10)}`} 
+                    className="transition-all duration-300 ease-in-out"
+                  >
+                    <ChatMessage {...message} />
+                  </div>
+                ))}
+                
+                {isLoading && (
+                  <div className="flex justify-start animate-pulse">
+                    <div className="px-4 py-2 rounded-lg bg-gray-50">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </>
+        )}
         
         <ChatMessageHandler 
           contextData={contextData} 
@@ -91,47 +123,6 @@ const ChatContainer = () => {
           clearInput={clearInput} 
         />
       </Card>
-      
-      <style>
-        {`
-        .chat-container {
-          position: relative;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(8px);
-          z-index: 1;
-          box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
-        }
-        
-        .chat-container::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          padding: 1px; /* Controls border thickness */
-          border-radius: inherit;
-          background: linear-gradient(90deg, 
-            #ec4899, #8b5cf6, #3b82f6, #8b5cf6, #ec4899);
-          background-size: 300% 100%;
-          -webkit-mask: 
-            linear-gradient(#fff 0 0) content-box, 
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          animation: animatedgradient 15s ease infinite;
-          pointer-events: none;
-        }
-        
-        @keyframes animatedgradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        `}
-      </style>
     </div>
   );
 };

@@ -18,14 +18,14 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading }: ChatInputProps) => 
           value={value}
           onChange={onChange}
           placeholder="Type your message..."
-          className="flex-1 bg-gray-50 rounded-xl focus-visible:ring-purple-500 focus-visible:ring-offset-0 border-gray-200"
+          className="flex-1 bg-gray-50 rounded-lg focus-visible:ring-gray-400 focus-visible:ring-offset-0 border-gray-100"
           autoComplete="off"
           disabled={isLoading}
         />
         <Button 
           type="submit"
           size="icon"
-          className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 rounded-full w-10 h-10 shrink-0 text-white shadow-md transition-all duration-200"
+          className="bg-gray-100 hover:bg-gray-200 rounded-lg w-10 h-10 shrink-0 text-gray-600 transition-colors duration-200"
           disabled={isLoading}
         >
           {isLoading ? (
