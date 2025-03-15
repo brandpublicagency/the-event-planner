@@ -6,6 +6,7 @@ import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatMessageHandler } from "./ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
+import { MessageSquare } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -44,22 +45,38 @@ const ChatContainer = () => {
 
   return (
     <div className="relative h-[300px]">
-      <Card className="chat-container h-full w-full flex flex-col rounded-2xl">
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScroll={handleScroll}>
+      <Card className="chat-container h-full w-full flex flex-col rounded-xl border-none shadow-md overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-500 p-3 flex items-center gap-2 text-white">
+          <MessageSquare size={18} />
+          <h3 className="font-medium">Chat Assistant</h3>
+        </div>
+        
+        <ScrollArea className="flex-1 p-4 bg-white/60 backdrop-blur-sm" ref={scrollAreaRef} onScroll={handleScroll}>
           <div className="space-y-4 pb-2">
-            {chatMessages.map((message, index) => (
-              <div 
-                key={`${index}-${message.text.substring(0, 10)}`} 
-                className="transition-all duration-300 ease-in-out"
-              >
-                <ChatMessage {...message} />
+            {chatMessages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center h-32 text-muted-foreground p-6">
+                <MessageSquare className="h-10 w-10 mb-2 text-muted-foreground/50" />
+                <p className="text-sm">Ask me anything about your events, tasks, or documents.</p>
               </div>
-            ))}
+            ) : (
+              chatMessages.map((message, index) => (
+                <div 
+                  key={`${index}-${message.text.substring(0, 10)}`} 
+                  className="transition-all duration-300 ease-in-out"
+                >
+                  <ChatMessage {...message} />
+                </div>
+              ))
+            )}
             
             {isLoading && (
               <div className="flex justify-start animate-pulse">
-                <div className="px-4 py-2 rounded-[10px] border border-gray-300 bg-gray-100">
-                  Typing...
+                <div className="px-4 py-2 rounded-xl border border-gray-300 bg-gray-100">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
                 </div>
               </div>
             )}
@@ -79,10 +96,10 @@ const ChatContainer = () => {
         {`
         .chat-container {
           position: relative;
-          border: none !important;
-          box-shadow: none !important;
-          background: white;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(8px);
           z-index: 1;
+          box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
         }
         
         .chat-container::before {
@@ -107,6 +124,11 @@ const ChatContainer = () => {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
         }
         `}
       </style>

@@ -6,20 +6,25 @@ interface ChatMessageProps {
 
 import ReactMarkdown from 'react-markdown';
 import { cn } from "@/lib/utils";
+import { User, Bot } from "lucide-react";
 
 const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
-  console.log('Rendering ChatMessage:', { text, isUser });
-  
   return (
     <div 
       className={`flex ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-300`}
     >
+      {!isUser && (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shrink-0 mr-2">
+          <Bot size={15} />
+        </div>
+      )}
+      
       <div
         className={cn(
-          "px-4 py-3 max-w-[85%] rounded-lg shadow-sm",
+          "px-4 py-3 max-w-[85%] shadow-sm",
           isUser 
-            ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-            : "bg-white border border-gray-200 text-gray-800"
+            ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-t-xl rounded-bl-xl rounded-br-sm"
+            : "bg-white border border-gray-200 text-gray-800 rounded-t-xl rounded-br-xl rounded-bl-sm"
         )}
       >
         {isUser ? (
@@ -54,6 +59,12 @@ const ChatMessage = ({ text, isUser }: ChatMessageProps) => {
           </div>
         )}
       </div>
+      
+      {isUser && (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shrink-0 ml-2">
+          <User size={15} />
+        </div>
+      )}
     </div>
   );
 };
