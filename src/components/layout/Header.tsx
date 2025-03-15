@@ -1,7 +1,5 @@
-
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Plus } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { SearchBar } from "./SearchBar";
 import { NotificationButton } from "./NotificationButton";
@@ -78,7 +76,7 @@ export const Header = ({
         {/* Children content */}
         {children}
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-6">
           {/* Display secondary action if provided */}
           {secondaryAction}
           
