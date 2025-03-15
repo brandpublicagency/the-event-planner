@@ -85,17 +85,17 @@ export function DocumentDeleteDialog({
       <AlertDialogTrigger asChild>
         {isButton ? (
           <Button 
-            variant="destructive" 
+            variant="outline" 
             size="sm"
-            className="gap-2"
+            className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
             disabled={deleteMutation.isPending}
           >
             {deleteMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5 text-zinc-500" />
             )}
-            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            <span className="text-zinc-500">Delete</span>
           </Button>
         ) : (
           <Button

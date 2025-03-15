@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, Trash2 } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -54,9 +54,15 @@ export default function DocumentActions({ documentId, title, content, editorRef 
   };
 
   const handlePrint = useReactToPrint({
-    // Remove 'content' property and use proper accessor function
-    content: () => editorRef?.current || null,
     documentTitle: title,
+    onPrintError: (error) => {
+      console.error('Print error:', error);
+      toast({
+        title: "Print Failed",
+        description: "There was an error printing your document",
+        variant: "destructive",
+      });
+    },
     pageStyle: `
       @page {
         size: A4;
@@ -90,6 +96,8 @@ export default function DocumentActions({ documentId, title, content, editorRef 
         variant: "success",
       });
     },
+    // This is the correct way to use the content accessor function
+    content: () => editorRef?.current || null,
   });
 
   return (
@@ -97,18 +105,22 @@ export default function DocumentActions({ documentId, title, content, editorRef 
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={() => handlePrint()} // Fix: Wrap in an anonymous function to call handlePrint properly
-        className="flex items-center gap-2"
+        onClick={handlePrint}
+        className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
         disabled={!editorRef?.current}
       >
-        <Printer className="h-4 w-4" />
+        <Printer className="h-3.5 w-3.5" />
         Print
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
+          >
+            <Download className="h-3.5 w-3.5" />
             Export
           </Button>
         </DropdownMenuTrigger>
