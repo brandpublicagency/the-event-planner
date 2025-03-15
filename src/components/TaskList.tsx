@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
 import { Loader2, AlertCircle, CheckSquare } from "lucide-react";
@@ -7,6 +8,8 @@ import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
 
 interface TaskListProps {
   tasks: Task[];
@@ -86,6 +89,10 @@ export function TaskList({
           <CheckSquare className="h-5 w-5 text-zinc-700" />
           <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
         </div>
+        <Button onClick={() => {}} size="sm" variant="outline" className="rounded-full relative z-10">
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Task
+        </Button>
       </div>
       
       <div className="mt-2">
