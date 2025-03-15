@@ -1,5 +1,6 @@
+
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -39,6 +40,8 @@ const Sidebar = ({
         return 'bg-gradient-to-br from-orange-50 via-orange-50/80 to-amber-100 backdrop-blur-sm border-r border-orange-100/50';
       case '/documents':
         return 'bg-gradient-to-br from-cyan-50 via-sky-50/80 to-blue-100 backdrop-blur-sm border-r border-cyan-100/50';
+      case '/schedule':
+        return 'bg-gradient-to-br from-purple-50 via-indigo-50/80 to-violet-100 backdrop-blur-sm border-r border-purple-100/50';
       default:
         return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
     }
@@ -90,6 +93,10 @@ const Sidebar = ({
     icon: FileText,
     path: "/documents",
     label: "Documents"
+  }, {
+    icon: Calendar,
+    path: "/schedule",
+    label: "Schedule Meeting"
   }];
 
   const handleAddDocument = () => {

@@ -21,6 +21,7 @@ import EventDetails from "@/pages/EventDetails";
 import EditEvent from "@/pages/EditEvent";
 import TaskDetails from "@/pages/TaskDetails";
 import Notifications from "@/pages/Notifications";
+import Schedule from "@/pages/Schedule";
 
 export const AppRoutes = () => {
   return (
@@ -45,6 +46,7 @@ export const AppRoutes = () => {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/documents" element={<Documents />} />
+        <Route path="/schedule" element={<Schedule />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
