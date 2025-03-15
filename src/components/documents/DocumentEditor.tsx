@@ -144,7 +144,9 @@ export default function DocumentEditor({
           {document && (
             <DocumentActions 
               document={document}
+              content={documentHtmlContent}
               onEdit={() => {}} 
+              printRef={contentRef}
             />
           )}
         </div>

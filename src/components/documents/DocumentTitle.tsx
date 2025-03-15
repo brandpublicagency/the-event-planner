@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { DocumentActions } from "./DocumentActions";
 import { Editor } from '@tiptap/react';
+import { Document } from '@/types/document';
 
 interface DocumentTitleProps {
   title: string;
@@ -27,8 +28,18 @@ export function DocumentTitle({
         />
       </div>
       <DocumentActions 
-        document={{ id: documentId, title: title }}
+        document={{
+          id: documentId,
+          title: title,
+          content: null,
+          user_id: '', // Required by Document type
+          template: null,
+          created_at: '', // Required by Document type
+          updated_at: '', // Required by Document type
+          deleted_at: null
+        }}
         content={editor?.getHTML() || ''} 
+        onEdit={() => {}} // Passing required callback
       />
     </div>
   );
