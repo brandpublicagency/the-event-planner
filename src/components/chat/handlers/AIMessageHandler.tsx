@@ -1,68 +1,83 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useMessageProcessor } from './MessageProcessor';
+import { PendingAction } from '@/types/chat';
 
 interface AIMessageHandlerProps {
   onSetIsLoading: (loading: boolean) => void;
-  onAddSystemMessage: (message: string, messageId?: string) => void;
-  onSetPendingAction: (action: any | null) => void;
+  onAddSystemMessage: (message: string, id?: string) => void;
+  onSetPendingAction: (action: PendingAction | null) => void;
   onClearInput: () => void;
+  contextData?: any;
 }
 
 export const useAIMessageHandler = ({
   onSetIsLoading,
   onAddSystemMessage,
   onSetPendingAction,
-  onClearInput
+  onClearInput,
+  contextData
 }: AIMessageHandlerProps) => {
-  const { tempMessageId, setTempMessageId, processAIResponse } = useMessageProcessor({
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { 
+    tempMessageId,
+    setTempMessageId,
+    processAIResponse 
+  } = useMessageProcessor({
     onSetIsLoading,
     onAddSystemMessage,
     onSetPendingAction,
     onClearInput
   });
 
-  const fetchAIResponse = useCallback(async (userMessage: string) => {
-    onSetIsLoading(true);
-    
-    // Add a temporary message that will be replaced with the actual response
-    const temporaryId = Date.now().toString();
-    setTempMessageId(temporaryId);
-    onAddSystemMessage("Thinking...", temporaryId);
+  const fetchAIResponse = async (userMessage: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     
     try {
-      const response = await fetch('/api/chat', {
+      onSetIsLoading(true);
+      
+      // Add a loading message that we'll replace later
+      const loadingMessageId = Date.now().toString();
+      setTempMessageId(loadingMessageId);
+      onAddSystemMessage('Thinking...', loadingMessageId);
+      
+      // Prepare context data for the AI request
+      const contextInfo = contextData ? JSON.stringify(contextData) : '{}';
+      
+      // Call OpenAI API through our backend
+      const response = await fetch('/api/openai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({
+          message: userMessage,
+          contextData: contextInfo
+        }),
       });
       
       if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`);
+        throw new Error(`OpenAI API error: ${response.statusText}`);
       }
       
       const data = await response.json();
       
-      // Process the AI response through our message processor
-      if (data.message) {
-        await processAIResponse(data.message);
-      } else {
-        throw new Error('No message in response');
+      if (data.error) {
+        throw new Error(data.error);
       }
-    } catch (error) {
-      console.error('Error fetching AI response:', error);
       
-      // Replace the temporary message with an error message
-      onAddSystemMessage(
-        "I'm having trouble connecting to the assistant. Please try again later.",
-        temporaryId
-      );
-      setTempMessageId(null);
-      onSetIsLoading(false);
+      // Process the AI response with our message processor
+      await processAIResponse(data.message || data.content || "I'm sorry, I couldn't process that request.");
+      
+    } catch (error) {
+      console.error('Error in AI response:', error);
+      throw error;
+    } finally {
+      setIsProcessing(false);
     }
-  }, [onSetIsLoading, onAddSystemMessage, processAIResponse, setTempMessageId]);
-
+  };
+  
   return { fetchAIResponse };
 };

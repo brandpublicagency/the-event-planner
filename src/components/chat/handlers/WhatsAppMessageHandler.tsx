@@ -1,63 +1,83 @@
 
-import { useCallback } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from 'react';
 import { useMessageProcessor } from './MessageProcessor';
+import { PendingAction } from '@/types/chat';
 
 interface WhatsAppMessageHandlerProps {
   onSetIsLoading: (loading: boolean) => void;
-  onAddSystemMessage: (message: string, messageId?: string) => void;
-  onSetPendingAction: (action: any | null) => void;
+  onAddSystemMessage: (message: string, id?: string) => void;
+  onSetPendingAction: (action: PendingAction | null) => void;
   onClearInput: () => void;
+  contextData?: any;
 }
 
 export const useWhatsAppMessageHandler = ({
   onSetIsLoading,
   onAddSystemMessage,
   onSetPendingAction,
-  onClearInput
+  onClearInput,
+  contextData
 }: WhatsAppMessageHandlerProps) => {
-  const { tempMessageId, setTempMessageId, processAIResponse } = useMessageProcessor({
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { 
+    tempMessageId,
+    setTempMessageId,
+    processAIResponse 
+  } = useMessageProcessor({
     onSetIsLoading,
     onAddSystemMessage,
     onSetPendingAction,
     onClearInput
   });
 
-  const fetchWhatsAppResponse = useCallback(async (userMessage: string) => {
-    onSetIsLoading(true);
-    
-    // Add a temporary message that will be replaced with the actual response
-    const temporaryId = Date.now().toString();
-    setTempMessageId(temporaryId);
-    onAddSystemMessage("Processing...", temporaryId);
+  const fetchWhatsAppResponse = async (userMessage: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('whatsapp-webhook-direct', {
-        body: { message: userMessage },
+      onSetIsLoading(true);
+      
+      // Add a loading message that we'll replace later
+      const loadingMessageId = Date.now().toString();
+      setTempMessageId(loadingMessageId);
+      onAddSystemMessage('Processing...', loadingMessageId);
+      
+      // Prepare context data for the request
+      const contextInfo = contextData ? JSON.stringify(contextData) : '{}';
+      
+      // Call the WhatsApp webhook function
+      const response = await fetch('/api/whatsapp-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          contextData: contextInfo
+        }),
       });
       
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        throw new Error(`WhatsApp API error: ${response.statusText}`);
       }
       
-      if (data?.message) {
-        // Process the response through our message processor
-        await processAIResponse(data.message);
-      } else {
-        throw new Error('No message in response');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
       }
+      
+      // Process the response with our message processor
+      await processAIResponse(data.message || data.content || "I'm sorry, I couldn't process that request.");
+      
     } catch (error) {
-      console.error('Error fetching WhatsApp response:', error);
-      
-      // Replace the temporary message with an error message
-      onAddSystemMessage(
-        "I'm having trouble processing your request. Please try again later.",
-        temporaryId
-      );
-      setTempMessageId(null);
-      onSetIsLoading(false);
+      console.error('Error in WhatsApp response:', error);
+      throw error;
+    } finally {
+      setIsProcessing(false);
     }
-  }, [onSetIsLoading, onAddSystemMessage, processAIResponse, setTempMessageId]);
-
+  };
+  
   return { fetchWhatsAppResponse };
 };

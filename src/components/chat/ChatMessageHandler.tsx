@@ -14,27 +14,48 @@ interface ChatMessageHandlerProps {
     pendingAction: PendingAction | null;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
   }) => ReactNode;
+  contextData?: any; // Add contextData as an optional prop
+  inputValue?: string;
+  isLoading?: boolean;
+  setInputValue?: (value: string) => void;
+  clearInput?: () => void;
 }
 
-const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
+const ChatMessageHandler = ({ 
+  children, 
+  contextData, 
+  inputValue: externalInputValue,
+  isLoading: externalIsLoading,
+  setInputValue: externalSetInputValue,
+  clearInput: externalClearInput
+}: ChatMessageHandlerProps) => {
   const {
-    inputValue,
+    inputValue: internalInputValue,
     messages,
-    isLoading,
+    isLoading: internalIsLoading,
     pendingAction,
     addUserMessage,
     addSystemMessage,
-    setIsLoading,
+    setIsLoading: internalSetIsLoading,
     setPendingAction,
-    clearInput
+    clearInput: internalClearInput
   } = useChatState();
+  
+  // Use external props if provided, otherwise use internal state
+  const inputValue = externalInputValue !== undefined ? externalInputValue : internalInputValue;
+  const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
+  const setIsLoading = externalSetInputValue ? 
+    (value: boolean) => { internalSetIsLoading(value); } : 
+    internalSetIsLoading;
+  const clearInput = externalClearInput || internalClearInput;
 
   // Set up AI message handler
   const { fetchAIResponse } = useAIMessageHandler({
     onSetIsLoading: setIsLoading,
     onAddSystemMessage: addSystemMessage,
     onSetPendingAction: setPendingAction,
-    onClearInput: clearInput
+    onClearInput: clearInput,
+    contextData // Pass contextData to the AI message handler
   });
 
   // Set up WhatsApp message handler
@@ -42,7 +63,8 @@ const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
     onSetIsLoading: setIsLoading,
     onAddSystemMessage: addSystemMessage,
     onSetPendingAction: setPendingAction,
-    onClearInput: clearInput
+    onClearInput: clearInput,
+    contextData // Pass contextData to the WhatsApp message handler
   });
 
   // Set up action handler

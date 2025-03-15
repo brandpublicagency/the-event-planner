@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
@@ -119,12 +118,16 @@ const ChatContainer = () => {
         )}
         
         <ChatMessageHandler 
-          contextData={contextData} 
-          inputValue={inputValue} 
-          isLoading={isLoading} 
-          setInputValue={setInputValue} 
-          clearInput={clearInput} 
-        />
+          contextData={contextData}
+          inputValue={inputValue}
+          isLoading={isLoading}
+          setInputValue={setInputValue}
+          clearInput={clearInput}
+        >
+          {({ messages, isLoading, pendingAction, handleSubmit }) => (
+            <></>
+          )}
+        </ChatMessageHandler>
       </Card>
     </div>
   );
