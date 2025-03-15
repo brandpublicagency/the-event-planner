@@ -63,14 +63,14 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
         <div className="flex items-stretch w-full">
           {/* Date column */}
           <div className="flex flex-col items-center justify-center w-[80px] p-4 text-center">
-            <div className="text-4xl font-semibold text-zinc-800">{day}</div>
+            <div className="text-[36px] font-semibold text-zinc-800">{day}</div>
             <div className="text-xs text-zinc-500 mt-1">{formattedStartTime}</div>
           </div>
           
           {/* Content column */}
           <div className="flex-1 p-4">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-1">
                 <h4 className="font-medium text-zinc-900 text-base">{event.name}</h4>
                 
                 <div className="flex items-center space-x-1">
@@ -83,16 +83,18 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 text-xs text-zinc-500 mt-2">
-                {venueStr && (
-                  <div className="flex items-center">
-                    <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                    <span className="truncate">{venueStr}</span>
-                  </div>
-                )}
+              <div className="flex items-start justify-between mt-3 text-xs text-zinc-500">
+                <div className="flex items-center">
+                  {venueStr && (
+                    <div className="flex items-center">
+                      <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span className="truncate">{venueStr}</span>
+                    </div>
+                  )}
+                </div>
                 
                 {event.pax && (
-                  <div className="flex items-center">
+                  <div className="flex items-center ml-auto">
                     <Users className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
                     <span>{event.pax} guests</span>
                   </div>
