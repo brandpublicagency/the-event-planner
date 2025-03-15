@@ -4,9 +4,16 @@ import { useChatState } from "@/hooks/useChatState";
 import { useActionHandler } from "./handlers/ActionHandler";
 import { useAIMessageHandler } from "./handlers/AIMessageHandler";
 import { useWhatsAppMessageHandler } from "./handlers/WhatsAppMessageHandler";
+import { ReactNode } from "react";
+import { ChatMessage, PendingAction } from "@/types/chat";
 
 interface ChatMessageHandlerProps {
-  children: React.ReactNode;
+  children: (props: {
+    messages: ChatMessage[];
+    isLoading: boolean;
+    pendingAction: PendingAction | null;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+  }) => ReactNode;
 }
 
 const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
@@ -108,8 +115,8 @@ const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
     setIsLoading
   ]);
 
+  // Render the chat interface using the children prop as a render function
   return children({
-    inputValue,
     messages,
     isLoading,
     pendingAction,

@@ -6,6 +6,14 @@ import ChatInput from "@/components/chat/ChatInput";
 import ChatConfirmation from "@/components/chat/ChatConfirmation";
 import ChatMessageHandler from "@/components/chat/ChatMessageHandler";
 import { useEffect, useRef } from "react";
+import { ChatMessage as ChatMessageType } from "@/types/chat";
+
+interface ChatHandlerProps {
+  messages: ChatMessageType[];
+  isLoading: boolean;
+  pendingAction: any;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+}
 
 const Chat = () => {
   const { inputValue, setInputValue } = useChatState();
@@ -29,7 +37,7 @@ const Chat = () => {
       </div>
       
       <ChatMessageHandler>
-        {({ messages, isLoading, pendingAction, handleSubmit }) => (
+        {({ messages, isLoading, pendingAction, handleSubmit }: ChatHandlerProps) => (
           <>
             <ScrollArea 
               className="flex-1 p-3" 

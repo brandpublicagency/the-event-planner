@@ -20,6 +20,7 @@ export interface PendingAction {
   task_id?: string;
   document_id?: string;
   contact_id?: string;
+  confirmationMessage?: string;
 }
 
 export type ChatRole = "system" | "user" | "assistant";

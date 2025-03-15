@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
-import { ChatMessageHandler } from "./ChatMessageHandler";
+import ChatMessageHandler from "./ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 
