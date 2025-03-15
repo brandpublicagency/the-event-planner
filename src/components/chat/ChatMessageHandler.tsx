@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { useChatMessageHandler } from "@/hooks/useChatMessageHandler";
+import { useChatMessageHandler } from "@/hooks/chat/useChatMessageHandler";
 import { ChatMessage, PendingAction } from "@/types/chat";
 
 interface ChatMessageHandlerProps {
