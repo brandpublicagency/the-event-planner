@@ -85,7 +85,14 @@ const Index = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         <div className="flex flex-col h-full overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b bg-white">
+          <div 
+            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center" 
+            style={{ 
+              backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
             <div className="flex items-center gap-2">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
               <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
