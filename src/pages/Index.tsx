@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,11 +20,9 @@ const Index = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const { tasks, isLoading: isTasksLoading } = useTaskContext();
 
-  // Modified to match the Events page query logic
   const { data: allEvents = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
-      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -53,10 +50,8 @@ const Index = () => {
     retry: 1,
   });
 
-  // Limit to only 10 upcoming events for dashboard
   const events = allEvents.slice(0, 10);
 
-  // Effect to handle any errors
   useEffect(() => {
     if (eventsError) {
       toast({
@@ -86,11 +81,12 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         <div className="flex flex-col h-full overflow-hidden">
           <div 
-            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center" 
+            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center rounded-xl mb-4"
             style={{ 
               backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center'
+              backgroundPosition: 'center',
+              marginBottom: '15px'
             }}
           >
             <div className="flex items-center gap-2">
