@@ -19,7 +19,7 @@ export const useWhatsAppMessageHandler = ({
   contextData
 }: WhatsAppMessageHandlerProps) => {
   
-  const fetchWhatsAppResponse = async (inputText: string, messageId?: string) => {
+  const fetchWhatsAppResponse = async (inputText: string, messageId?: string): Promise<void> => {
     try {
       console.log('Invoking WhatsApp Webhook with:', inputText);
       
@@ -82,7 +82,7 @@ export const useWhatsAppMessageHandler = ({
       onSetIsLoading(false);
       onClearInput();
       
-      return responseMessage;
+      return;
     } catch (error: any) {
       console.error('Error in WhatsApp response:', error);
       

@@ -39,7 +39,7 @@ export const useAIMessageHandler = ({
     contextData: contextData || externalContextData
   });
 
-  const fetchAIResponse = async (inputText: string, messages?: ChatMessage[]) => {
+  const fetchAIResponse = async (inputText: string, messages?: ChatMessage[]): Promise<void> => {
     try {
       // Get context data if not provided
       let data = contextData;
@@ -121,8 +121,8 @@ export const useAIMessageHandler = ({
           onAddSystemMessage(response, tempId);
           onClearInput();
         }
-
-        return response;
+        
+        return;
       } catch (error) {
         console.error('Error in OpenAI request:', error);
         
