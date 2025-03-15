@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -8,15 +9,15 @@ export const useTaskMutations = () => {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
         throw new Error("User not authenticated");
       }
 
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
-          user_id: user.id,
+          user_id: userData.user.id,
           status: "todo",
         }
       ]);
@@ -34,6 +35,11 @@ export const useTaskMutations = () => {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { error } = await supabase
         .from("tasks")
         .update(updates)
@@ -52,6 +58,11 @@ export const useTaskMutations = () => {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { error } = await supabase
         .from("tasks")
         .delete()

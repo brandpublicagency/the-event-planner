@@ -17,6 +17,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       console.log("Fetching tasks from Supabase");
       
       try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          console.log("No active session found");
+          return [];
+        }
+        
         const { data, error } = await supabase
           .from("tasks")
           .select("*")
@@ -75,6 +81,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateTask = async (id: string, updates: TaskUpdate) => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to update tasks",
+        variant: "destructive",
+      });
+      throw new Error("Authentication required");
+    }
+
     const { error } = await supabase
       .from("tasks")
       .update(updates)
@@ -99,6 +115,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteTask = async (id: string) => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to delete tasks",
+        variant: "destructive",
+      });
+      throw new Error("Authentication required");
+    }
+
     const { error } = await supabase
       .from("tasks")
       .delete()
@@ -123,6 +149,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleTask = async (id: string, completed: boolean) => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to update tasks",
+        variant: "destructive",
+      });
+      throw new Error("Authentication required");
+    }
+
     const { error } = await supabase
       .from("tasks")
       .update({ completed })

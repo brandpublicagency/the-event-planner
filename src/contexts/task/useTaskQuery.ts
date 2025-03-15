@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "./taskTypes";
@@ -8,6 +9,12 @@ export const useTaskQuery = (enabled: boolean) => {
     queryKey: ["tasks"],
     queryFn: async () => {
       try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          console.log("No active session found in useTaskQuery");
+          return [];
+        }
+        
         const { data, error } = await supabase
           .from("tasks")
           .select("*")
