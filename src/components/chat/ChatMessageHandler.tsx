@@ -1,307 +1,120 @@
 
+import { useCallback } from "react";
 import { useChatState } from "@/hooks/useChatState";
-import { useTaskContext } from "@/contexts/TaskContext";
-import { 
-  prepareEventsContext, 
-  prepareTasksContext, 
-  prepareContactsContext,
-  prepareDocumentsContext,
-  getSystemMessage 
-} from "@/utils/chat";
-import ChatInput from "./ChatInput";
-import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
-import { getChatCompletion } from "@/services/openai";
-import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { useAIMessageHandler } from "./handlers/AIMessageHandler";
+import { useWhatsAppMessageHandler } from "./handlers/WhatsAppMessageHandler";
 
 interface ChatMessageHandlerProps {
-  contextData: any;
-  inputValue: string;
-  isLoading: boolean;
-  setInputValue: (value: string) => void;
-  clearInput: () => void;
+  children: React.ReactNode;
 }
 
-export const ChatMessageHandler = ({
-  contextData,
-  inputValue,
-  isLoading,
-  setInputValue,
-  clearInput,
-}: ChatMessageHandlerProps) => {
+const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
   const {
+    inputValue,
+    messages,
+    isLoading,
     pendingAction,
-    setPendingAction,
     addUserMessage,
     addSystemMessage,
-    messages: chatMessages,
     setIsLoading,
-    toast
+    setPendingAction,
+    clearInput
   } = useChatState();
 
-  const { tasks } = useTaskContext();
+  // Set up AI message handler
+  const { fetchAIResponse } = useAIMessageHandler({
+    onSetIsLoading: setIsLoading,
+    onAddSystemMessage: addSystemMessage,
+    onSetPendingAction: setPendingAction,
+    onClearInput: clearInput
+  });
+
+  // Set up WhatsApp message handler
+  const { fetchWhatsAppResponse } = useWhatsAppMessageHandler({
+    onSetIsLoading: setIsLoading,
+    onAddSystemMessage: addSystemMessage,
+    onSetPendingAction: setPendingAction,
+    onClearInput: clearInput
+  });
+
+  // Set up action handler
   const { handlePendingAction } = useActionHandler();
-  const [aiEnabled, setAiEnabled] = useState(true);
-  const [dataReady, setDataReady] = useState(false);
-  const [fallbackTriggered, setFallbackTriggered] = useState(false);
 
-  // When contextData changes, check if it's ready to use
-  useEffect(() => {
-    if (contextData) {
-      const hasEvents = contextData.events && Array.isArray(contextData.events) && contextData.events.length > 0;
-      const hasContacts = contextData.contacts && Array.isArray(contextData.contacts);
-      const hasDocuments = contextData.documents && Array.isArray(contextData.documents);
-      
-      // Check if we have at least some minimal data to work with
-      setDataReady(hasEvents || hasContacts || hasDocuments);
-      
-      console.log('Context data loaded:', {
-        events: contextData.events?.length || 0,
-        contacts: contextData.contacts?.length || 0,
-        documents: contextData.documents?.length || 0,
-        tasks: contextData.tasks?.length || 0,
-        pdfContent: contextData.pdfContent ? 'Available' : 'Not available',
-        dataReady: hasEvents || hasContacts || hasDocuments
-      });
-    }
-  }, [contextData]);
-
-  // Improved function to directly fetch next event data
-  const fetchNextEvent = async () => {
-    try {
-      console.log('Fetching next event directly');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Use a simpler query to avoid relationship errors
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          *,
-          menu_selections (*)
-        `)
-        .gte('event_date', today.toISOString().split('T')[0])
-        .is('deleted_at', null)
-        .is('completed', false)
-        .order('event_date', { ascending: true })
-        .limit(1);
-      
-      if (error) {
-        console.error('Error fetching next event:', error);
-        throw error;
-      }
-      
-      if (!data || data.length === 0) {
-        return "No upcoming events found. Would you like me to help you create a new event?";
-      }
-      
-      const event = data[0];
-      console.log('Found next event:', event);
-      
-      // Format venue info
-      let venueInfo = '';
-      if (event.venues && Array.isArray(event.venues) && event.venues.length > 0) {
-        venueInfo = ` at ${event.venues.join(', ')}`;
-      }
-      
-      // Format guest info
-      let paxInfo = '';
-      if (event.pax) {
-        paxInfo = ` for ${event.pax} guests`;
-      }
-      
-      // Format menu info if available
-      let menuInfo = '';
-      if (event.menu_selections) {
-        const menuType = event.menu_selections.main_course_type || 
-                        (event.menu_selections.is_custom ? 'Custom menu' : '');
-        if (menuType) {
-          menuInfo = `\nMenu: ${menuType}`;
-        }
-      }
-      
-      // Format contact info if available
-      let contactInfo = '';
-      if (event.primary_name || event.primary_email || event.primary_phone) {
-        contactInfo = `\nPrimary Contact: ${event.primary_name || 'Not specified'}`;
-        if (event.primary_email) contactInfo += `, Email: ${event.primary_email}`;
-        if (event.primary_phone) contactInfo += `, Phone: ${event.primary_phone}`;
-      }
-      
-      return `The next event is "${event.name}" (code: ${event.event_code}) on ${format(new Date(event.event_date), 'dd/MM/yyyy')}. 
-It's a ${event.event_type} event${venueInfo}${paxInfo}.${menuInfo}${contactInfo}
-
-You can update this event by asking me to change specific details like the guest count, date, venue, etc.`;
-    } catch (error) {
-      console.error('Error in fetchNextEvent:', error);
-      return "I couldn't retrieve information about the next event right now. Please try asking about another topic or check your event list directly.";
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle user's message submission
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted with input:', inputValue);
     
-    if (!inputValue.trim()) {
-      console.log('Empty input, skipping submission');
+    // Check if there's a pending confirmation action
+    if (pendingAction) {
+      if (inputValue.toLowerCase().includes('yes') || 
+          inputValue.toLowerCase().includes('confirm') ||
+          inputValue.toLowerCase().includes('ok') ||
+          inputValue.toLowerCase().includes('sure')) {
+        addUserMessage(inputValue);
+        clearInput();
+        await handlePendingAction(pendingAction, true);
+      } else if (
+        inputValue.toLowerCase().includes('no') ||
+        inputValue.toLowerCase().includes('cancel') ||
+        inputValue.toLowerCase().includes('don\'t')
+      ) {
+        addUserMessage(inputValue);
+        clearInput();
+        await handlePendingAction(pendingAction, false);
+      } else {
+        // For any other input during a pending action
+        addUserMessage(inputValue);
+        addSystemMessage("Please confirm with 'yes' or decline with 'no'.");
+        clearInput();
+      }
       return;
     }
 
+    // Don't process empty messages
+    if (!inputValue.trim()) return;
+    
+    // Add user message to the chat
+    addUserMessage(inputValue);
+    
+    // Decide which message handler to use
     try {
-      // Reset fallback state on new submission
-      setFallbackTriggered(false);
-
-      // Add user message immediately and clear input
-      console.log('Adding user message:', inputValue);
-      addUserMessage(inputValue);
-      clearInput();
-      setIsLoading(true);
-
-      // Show temporary "checking" message for better UX
-      const checkingMessageId = Date.now().toString();
-      addSystemMessage("I'm checking on that for you. Give me one moment...", checkingMessageId);
-
-      // Special case: directly handle next event query with improved reliability
-      if (inputValue.toLowerCase().includes('next event') || 
-          inputValue.toLowerCase().match(/\bnext\s+event\b/i)) {
-        console.log('Detected next event query, using direct fetch method');
-        const nextEvent = await fetchNextEvent();
-        // Replace the temporary message
-        addSystemMessage(nextEvent, checkingMessageId);
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if we should use fallback immediately
-      const useWhatsAppFallback = !aiEnabled || !contextData || !dataReady;
-      
-      if (useWhatsAppFallback) {
-        console.log('Using WhatsApp fallback directly due to:', {
-          aiEnabled,
-          contextDataAvailable: !!contextData,
-          dataReady
-        });
-        const response = await handleWhatsAppFallback();
-        // Replace the temporary message
-        addSystemMessage(response, checkingMessageId);
-        setIsLoading(false);
-        return;
-      }
-
-      // Prepare comprehensive context for the AI
-      const eventsContext = contextData?.events ? prepareEventsContext(contextData.events) : "No events data available.";
-      const contactsContext = contextData?.contacts ? prepareContactsContext(contextData.contacts) : "No contacts data available.";
-      const documentsContext = contextData?.documents ? prepareDocumentsContext(contextData.documents) : "No documents data available.";
-      const tasksContext = tasks ? prepareTasksContext(tasks) : "No tasks data available.";
-      
-      console.log('Prepared context for AI:', {
-        eventsContextLength: eventsContext.length,
-        contactsContextLength: contactsContext.length,
-        documentsContextLength: documentsContext.length,
-        tasksContextLength: tasksContext ? tasksContext.length : 0,
-        pdfContentAvailable: contextData?.pdfContent ? true : false
-      });
-      
-      const systemMessage = getSystemMessage(
-        eventsContext, 
-        contactsContext,
-        documentsContext,
-        contextData?.pdfContent, 
-        tasksContext
-      );
-
-      // Prepare messages for OpenAI
-      const messages = prepareOpenAIMessages(
-        systemMessage,
-        chatMessages,
-        inputValue
-      );
-
-      console.log('Sending chat request with full context');
-      
-      // Use the handleOpenAIRequest utility with proper timeout handling
-      const aiResponse = await handleOpenAIRequest(
-        messages,
-        async () => {
-          console.log('OpenAI request timed out, falling back to WhatsApp handler');
-          setFallbackTriggered(true);
-          const fallbackResponse = await handleWhatsAppFallback();
-          // Replace the temporary message
-          addSystemMessage(fallbackResponse, checkingMessageId);
-          setIsLoading(false);
-        }
-      );
-      
-      if (aiResponse && !fallbackTriggered) {
-        console.log('Received AI response:', aiResponse.substring(0, 100) + '...');
-        // Replace the temporary message
-        addSystemMessage(aiResponse, checkingMessageId);
-      } else if (!fallbackTriggered) {
-        console.warn('No AI response received, falling back to WhatsApp handler');
-        const fallbackResponse = await handleWhatsAppFallback();
-        // Replace the temporary message
-        addSystemMessage(fallbackResponse, checkingMessageId);
-      }
-    } catch (error: any) {
-      console.error('Error in chat completion:', error);
-      const fallbackResponse = await handleWhatsAppFallback();
-      // Replace any temporary message with the fallback
-      addSystemMessage(fallbackResponse);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleWhatsAppFallback = async () => {
-    try {
-      // Fallback to WhatsApp handler
-      const response = await handleMessage({
-        type: 'text',
-        text: { body: inputValue }
-      });
-
-      console.log('Received response from WhatsApp handler:', response);
-
-      // Check the type of response and handle accordingly
-      if (response.type === 'text' && 'message' in response) {
-        return response.message;
-      } else if (response.type === 'interactive' && 'interactive' in response) {
-        const message = response.interactive.body.text;
-        
-        if (response.interactive.action?.sections) {
-          const listOptions = response.interactive.action.sections
-            .map(section => {
-              const sectionItems = section.rows
-                .map(row => `- ${row.title}: ${row.description}`)
-                .join('\n');
-              return `${section.title}:\n${sectionItems}`;
-            })
-            .join('\n\n');
-          
-          return `${message}\n\nAvailable options:\n${listOptions}`;
-        }
-        
-        return message;
-      } else {
-        // Handle any other unexpected response format
-        return "I received a response but couldn't format it properly. Please try a different query.";
-      }
+      // Try to use OpenAI API first
+      await fetchAIResponse(inputValue);
     } catch (error) {
-      console.error('Error in WhatsApp fallback:', error);
-      return "I'm sorry, I couldn't process your request at this time. Please try asking about specific events, tasks, or documents.";
+      console.error('Error with AI response, falling back to WhatsApp handler:', error);
+      
+      // Fall back to using WhatsApp Webhook function
+      try {
+        await fetchWhatsAppResponse(inputValue);
+      } catch (fallbackError) {
+        console.error('WhatsApp fallback also failed:', fallbackError);
+        addSystemMessage(
+          "I'm having trouble connecting to the assistant services. Please try again later."
+        );
+        setIsLoading(false);
+        clearInput();
+      }
     }
-  };
+  }, [
+    inputValue, 
+    pendingAction, 
+    addUserMessage, 
+    addSystemMessage, 
+    clearInput, 
+    fetchAIResponse, 
+    fetchWhatsAppResponse, 
+    handlePendingAction, 
+    setIsLoading
+  ]);
 
-  return (
-    <ChatInput
-      value={inputValue}
-      onChange={(e) => setInputValue(e.target.value)}
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-    />
-  );
+  return children({
+    inputValue,
+    messages,
+    isLoading,
+    pendingAction,
+    handleSubmit
+  });
 };
+
+export default ChatMessageHandler;
