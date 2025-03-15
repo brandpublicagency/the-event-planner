@@ -6,69 +6,42 @@ import { useToast } from "@/components/ui/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { getVenueNames } from "@/utils/venueUtils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 interface EventCardProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
 }
-
 export const EventCard = ({
   event,
   handleDelete,
-  isDashboard = false,
+  isDashboard = false
 }: EventCardProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const location = useLocation();
-
   const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
     e.stopPropagation();
     navigator.clipboard.writeText(eventCode);
     toast({
       title: "Copied",
-      description: "Event code copied to clipboard",
+      description: "Event code copied to clipboard"
     });
   };
-
-  return (
-    <div 
-      key={event.event_code} 
-      className={cn(
-        "group border rounded-lg hover:border-zinc-200 transition-colors",
-        isDashboard && "shadow-sm"
-      )}
-    >
-      <div className="p-3">
+  return <div key={event.event_code} className="">
+      <div className="rounded-none px-[15px] py-[15px]">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(`/events/${event.event_code}`)}
-                className="text-sm font-medium text-zinc-900 no-underline hover:no-underline"
-              >
+              <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-sm font-medium text-zinc-900 no-underline hover:no-underline">
                 {event.name}
               </button>
-              {!isDashboard && (
-                <button
-                  onClick={(e) => copyEventCode(e, event.event_code)}
-                  className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1"
-                >
+              {!isDashboard && <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1">
                   {event.event_code}
                   <Copy className="h-3 w-3" />
-                </button>
-              )}
+                </button>}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-zinc-900">
@@ -82,26 +55,16 @@ export const EventCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/events/${event.event_code}/edit`);
-              }}
-              className="text-zinc-600 hover:text-white hover:bg-zinc-900"
-            >
+            <Button variant="ghost" size="sm" onClick={e => {
+            e.stopPropagation();
+            navigate(`/events/${event.event_code}/edit`);
+          }} className="text-zinc-600 hover:text-white hover:bg-zinc-900">
               <Pencil className="h-4 w-4" />
             </Button>
             
-            {handleDelete && (
-              <AlertDialog>
+            {handleDelete && <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-zinc-600 hover:text-white hover:bg-red-600"
-                  >
+                  <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-white hover:bg-red-600">
                     <Trash className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
@@ -117,19 +80,14 @@ export const EventCard = ({
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2">
                     <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDelete(event.event_code)}
-                      className="bg-red-600 hover:bg-red-700 rounded-full text-white"
-                    >
+                    <AlertDialogAction onClick={() => handleDelete(event.event_code)} className="bg-red-600 hover:bg-red-700 rounded-full text-white">
                       Delete Permanently
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
-            )}
+              </AlertDialog>}
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
