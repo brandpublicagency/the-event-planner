@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -132,8 +133,16 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex flex-col h-full bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex flex-col h-full overflow-hidden">
+          <div 
+            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center rounded-xl mb-4"
+            style={{ 
+              backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              marginBottom: '15px'
+            }}
+          >
             <div className="flex items-center gap-2">
               <CheckSquare className="h-5 w-5 text-zinc-700" />
               <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
