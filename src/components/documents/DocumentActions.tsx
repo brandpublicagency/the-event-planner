@@ -31,8 +31,8 @@ export function DocumentActions({
       console.log('Printing document:', document.title);
       return Promise.resolve();
     },
-    // Only use content if printRef exists
-    content: printRef ? () => printRef.current : undefined
+    // Correctly type the content prop
+    ...(printRef && { content: () => printRef.current })
   });
 
   const handleExport = () => {

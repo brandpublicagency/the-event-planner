@@ -12,6 +12,7 @@ import ChatInput from "./ChatInput";
 import { handleMessage } from "@/utils/whatsappUtils";
 import { useActionHandler } from "./handlers/ActionHandler";
 import { getChatCompletion } from "@/services/openai";
+import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ export const ChatMessageHandler = ({
   const { handlePendingAction } = useActionHandler();
   const [aiEnabled, setAiEnabled] = useState(true);
   const [dataReady, setDataReady] = useState(false);
+  const [fallbackTriggered, setFallbackTriggered] = useState(false);
 
   // When contextData changes, check if it's ready to use
   useEffect(() => {
@@ -150,18 +152,26 @@ You can update this event by asking me to change specific details like the guest
     }
 
     try {
+      // Reset fallback state on new submission
+      setFallbackTriggered(false);
+
       // Add user message immediately and clear input
       console.log('Adding user message:', inputValue);
       addUserMessage(inputValue);
       clearInput();
       setIsLoading(true);
 
+      // Show temporary "checking" message for better UX
+      const checkingMessageId = Date.now().toString();
+      addSystemMessage("I'm checking on that for you. Give me one moment...", checkingMessageId);
+
       // Special case: directly handle next event query with improved reliability
       if (inputValue.toLowerCase().includes('next event') || 
-          inputValue.toLowerCase().includes('upcoming event')) {
+          inputValue.toLowerCase().match(/\bnext\s+event\b/i)) {
         console.log('Detected next event query, using direct fetch method');
         const nextEvent = await fetchNextEvent();
-        addSystemMessage(nextEvent);
+        // Replace the temporary message
+        addSystemMessage(nextEvent, checkingMessageId);
         setIsLoading(false);
         return;
       }
@@ -175,7 +185,9 @@ You can update this event by asking me to change specific details like the guest
           contextDataAvailable: !!contextData,
           dataReady
         });
-        await handleWhatsAppFallback();
+        const response = await handleWhatsAppFallback();
+        // Replace the temporary message
+        addSystemMessage(response, checkingMessageId);
         setIsLoading(false);
         return;
       }
@@ -202,29 +214,43 @@ You can update this event by asking me to change specific details like the guest
         tasksContext
       );
 
-      // Try to get a response from OpenAI
-      const messages: ChatCompletionMessageParam[] = [
-        { role: "system", content: systemMessage } as const,
-        ...chatMessages.map(msg => ({
-          role: msg.isUser ? "user" as const : "assistant" as const,
-          content: msg.text
-        })),
-        { role: "user" as const, content: inputValue }
-      ];
+      // Prepare messages for OpenAI
+      const messages = prepareOpenAIMessages(
+        systemMessage,
+        chatMessages,
+        inputValue
+      );
 
       console.log('Sending chat request with full context');
-      const aiResponse = await getChatCompletion(messages);
       
-      if (aiResponse) {
+      // Use the handleOpenAIRequest utility with proper timeout handling
+      const aiResponse = await handleOpenAIRequest(
+        messages,
+        async () => {
+          console.log('OpenAI request timed out, falling back to WhatsApp handler');
+          setFallbackTriggered(true);
+          const fallbackResponse = await handleWhatsAppFallback();
+          // Replace the temporary message
+          addSystemMessage(fallbackResponse, checkingMessageId);
+          setIsLoading(false);
+        }
+      );
+      
+      if (aiResponse && !fallbackTriggered) {
         console.log('Received AI response:', aiResponse.substring(0, 100) + '...');
-        addSystemMessage(aiResponse);
-      } else {
+        // Replace the temporary message
+        addSystemMessage(aiResponse, checkingMessageId);
+      } else if (!fallbackTriggered) {
         console.warn('No AI response received, falling back to WhatsApp handler');
-        await handleWhatsAppFallback();
+        const fallbackResponse = await handleWhatsAppFallback();
+        // Replace the temporary message
+        addSystemMessage(fallbackResponse, checkingMessageId);
       }
     } catch (error: any) {
       console.error('Error in chat completion:', error);
-      await handleWhatsAppFallback();
+      const fallbackResponse = await handleWhatsAppFallback();
+      // Replace any temporary message with the fallback
+      addSystemMessage(fallbackResponse);
     } finally {
       setIsLoading(false);
     }
@@ -242,10 +268,9 @@ You can update this event by asking me to change specific details like the guest
 
       // Check the type of response and handle accordingly
       if (response.type === 'text' && 'message' in response) {
-        addSystemMessage(response.message);
+        return response.message;
       } else if (response.type === 'interactive' && 'interactive' in response) {
         const message = response.interactive.body.text;
-        addSystemMessage(message);
         
         if (response.interactive.action?.sections) {
           const listOptions = response.interactive.action.sections
@@ -257,15 +282,17 @@ You can update this event by asking me to change specific details like the guest
             })
             .join('\n\n');
           
-          addSystemMessage(`Available options:\n${listOptions}`);
+          return `${message}\n\nAvailable options:\n${listOptions}`;
         }
+        
+        return message;
       } else {
         // Handle any other unexpected response format
-        addSystemMessage("I received a response but couldn't format it properly. Please try a different query.");
+        return "I received a response but couldn't format it properly. Please try a different query.";
       }
     } catch (error) {
       console.error('Error in WhatsApp fallback:', error);
-      addSystemMessage("I'm sorry, I couldn't process your request at this time. Please try asking about specific events, tasks, or documents.");
+      return "I'm sorry, I couldn't process your request at this time. Please try asking about specific events, tasks, or documents.";
     }
   };
 
