@@ -116,7 +116,7 @@ export const useChatMessageHandler = ({
     fetchAIResponse,
     fetchWhatsAppResponse,
     processConfirmation,
-    handleConfirmation, // Add the new handleConfirmation function
+    handleConfirmation,
     setUseStreamingMode,
     setRetryAttempts,
     setTempMessageId,

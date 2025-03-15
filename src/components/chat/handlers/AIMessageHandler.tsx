@@ -77,6 +77,128 @@ export const useAIMessageHandler = ({
     }
   };
 
+  // Get menu for a specific event - new function
+  const getEventMenu = async (eventNameOrCode: string) => {
+    try {
+      console.log(`Searching for menu info for event: ${eventNameOrCode}`);
+      
+      // Try to find the event by name or code
+      const { data: events, error } = await supabase
+        .from('events')
+        .select('*, menu_selections(*)')
+        .or(`name.ilike.%${eventNameOrCode}%,event_code.ilike.%${eventNameOrCode}%`)
+        .is('deleted_at', null)
+        .limit(1);
+      
+      if (error) {
+        console.error('Error fetching event by name:', error);
+        return `I couldn't find menu information for "${eventNameOrCode}". Please try again with the exact event name or code.`;
+      }
+      
+      if (!events || events.length === 0) {
+        return `I couldn't find an event matching "${eventNameOrCode}". Please check the spelling or try with the event code.`;
+      }
+      
+      const event = events[0];
+      
+      // Check if there's menu data
+      if (!event.menu_selections) {
+        return `The event "${event.name}" (${event.event_code}) doesn't have any menu selections yet.`;
+      }
+      
+      const menu = event.menu_selections;
+      
+      // Format the menu details
+      let menuDetails = `Here's the menu for "${event.name}" (${event.event_code}):\n\n`;
+      
+      if (menu.is_custom) {
+        menuDetails += `This event has a custom menu:\n${menu.custom_menu_details || 'Details not specified'}`;
+      } else {
+        // Add starter information
+        if (menu.starter_type) {
+          if (menu.starter_type === 'canapes') {
+            menuDetails += `**Starter:** Canapés\n`;
+            if (menu.canape_package) {
+              menuDetails += `**Package:** ${menu.canape_package}\n`;
+            }
+            if (menu.canape_selections && menu.canape_selections.length > 0) {
+              menuDetails += `**Selections:** ${menu.canape_selections.join(', ')}\n`;
+            }
+          } else if (menu.starter_type === 'plated') {
+            menuDetails += `**Starter:** Plated starter\n`;
+            if (menu.plated_starter) {
+              menuDetails += `**Selection:** ${menu.plated_starter}\n`;
+            }
+          }
+        }
+        
+        // Add main course information
+        if (menu.main_course_type) {
+          menuDetails += `\n**Main Course:** ${menu.main_course_type}\n`;
+          
+          if (menu.main_course_type === 'buffet') {
+            if (menu.buffet_meat_selections && menu.buffet_meat_selections.length > 0) {
+              menuDetails += `**Meat:** ${menu.buffet_meat_selections.join(', ')}\n`;
+            }
+            if (menu.buffet_starch_selections && menu.buffet_starch_selections.length > 0) {
+              menuDetails += `**Starch:** ${menu.buffet_starch_selections.join(', ')}\n`;
+            }
+            if (menu.buffet_vegetable_selections && menu.buffet_vegetable_selections.length > 0) {
+              menuDetails += `**Vegetables:** ${menu.buffet_vegetable_selections.join(', ')}\n`;
+            }
+            if (menu.buffet_salad_selection) {
+              menuDetails += `**Salad:** ${menu.buffet_salad_selection}\n`;
+            }
+          } else if (menu.main_course_type === 'plated') {
+            if (menu.plated_main_selection) {
+              menuDetails += `**Selection:** ${menu.plated_main_selection}\n`;
+            }
+            if (menu.plated_salad_selection) {
+              menuDetails += `**Salad:** ${menu.plated_salad_selection}\n`;
+            }
+          } else if (menu.main_course_type === 'karoo') {
+            if (menu.karoo_meat_selection) {
+              menuDetails += `**Meat:** ${menu.karoo_meat_selection}\n`;
+            }
+            if (menu.karoo_starch_selection && menu.karoo_starch_selection.length > 0) {
+              menuDetails += `**Starch:** ${menu.karoo_starch_selection.join(', ')}\n`;
+            }
+            if (menu.karoo_vegetable_selections && menu.karoo_vegetable_selections.length > 0) {
+              menuDetails += `**Vegetables:** ${menu.karoo_vegetable_selections.join(', ')}\n`;
+            }
+            if (menu.karoo_salad_selection) {
+              menuDetails += `**Salad:** ${menu.karoo_salad_selection}\n`;
+            }
+          }
+        }
+        
+        // Add dessert information
+        if (menu.dessert_type) {
+          menuDetails += `\n**Dessert:** ${menu.dessert_type}\n`;
+          
+          if (menu.dessert_type === 'traditional' && menu.traditional_dessert) {
+            menuDetails += `**Selection:** ${menu.traditional_dessert}\n`;
+          } else if (menu.dessert_type === 'individual_cakes' && menu.individual_cakes) {
+            menuDetails += `**Selections:** ${menu.individual_cakes.join(', ')}\n`;
+          } else if (menu.dessert_type === 'canape_desserts' && menu.dessert_canapes) {
+            menuDetails += `**Selections:** ${menu.dessert_canapes.join(', ')}\n`;
+          }
+        }
+      }
+      
+      // Add notes if any
+      if (menu.notes) {
+        menuDetails += `\n**Additional Notes:**\n${menu.notes}`;
+      }
+      
+      return menuDetails;
+      
+    } catch (err) {
+      console.error('Error in getEventMenu:', err);
+      return `I encountered an error trying to fetch menu information. Please try again.`;
+    }
+  };
+
   // Handle questions about specific event types
   const getEventsByType = async (eventType) => {
     try {
@@ -173,6 +295,20 @@ export const useAIMessageHandler = ({
   const getBasicEventResponse = async (inputText: string) => {
     const lowerInput = inputText.toLowerCase();
     
+    // Check for menu questions
+    if ((lowerInput.includes('menu') || lowerInput.includes('food')) && 
+        (lowerInput.includes('for') || lowerInput.includes('of'))) {
+      // Extract the event name
+      const eventNameMatch = lowerInput.match(/menu\s+(?:for|of)\s+(?:the\s+)?([a-z0-9\s-]+)(\s+event)?/i) || 
+                           lowerInput.match(/(?:the\s+)?([a-z0-9\s-]+)(?:\s+event)?\s+menu/i) ||
+                           lowerInput.match(/food\s+(?:for|of)\s+(?:the\s+)?([a-z0-9\s-]+)(\s+event)?/i);
+      
+      if (eventNameMatch && eventNameMatch[1]) {
+        const eventName = eventNameMatch[1].trim();
+        return await getEventMenu(eventName);
+      }
+    }
+    
     // Check for next event questions
     if (lowerInput.includes('next event') || 
         (lowerInput.includes('when') && lowerInput.includes('event')) ||
@@ -210,6 +346,11 @@ export const useAIMessageHandler = ({
       const eventCode = eventCodeMatch[0];
       
       try {
+        // If it's asking about menu for an event by code
+        if (lowerInput.includes('menu') || lowerInput.includes('food')) {
+          return await getEventMenu(eventCode);
+        }
+        
         const { data: event, error } = await supabase
           .from('events')
           .select('*')

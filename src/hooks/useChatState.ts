@@ -21,6 +21,7 @@ export const useChatState = () => {
         const now = Date.now();
         
         if (now - lastActivityTime > INACTIVITY_TIMEOUT) {
+          // Clear expired conversation
           sessionStorage.removeItem(CHAT_STORAGE_KEY);
           sessionStorage.removeItem(LAST_ACTIVITY_KEY);
           return [];
@@ -75,6 +76,29 @@ export const useChatState = () => {
     };
   }, []);
 
+  // Manage conversation expiry - check every minute
+  useEffect(() => {
+    const checkExpiry = () => {
+      const lastActivity = sessionStorage.getItem(LAST_ACTIVITY_KEY);
+      if (lastActivity) {
+        const lastActivityTime = parseInt(lastActivity, 10);
+        const now = Date.now();
+        
+        if (now - lastActivityTime > INACTIVITY_TIMEOUT) {
+          console.log('Chat session expired due to inactivity, resetting...');
+          setMessages([]);
+          sessionStorage.removeItem(CHAT_STORAGE_KEY);
+          sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+          resetConversation();
+        }
+      }
+    };
+    
+    const interval = setInterval(checkExpiry, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, [resetConversation]);
+
   const addMessage = useCallback(async (message: ChatMessage, messageId?: string) => {
     console.log('Adding message:', message, messageId ? `with ID: ${messageId}` : '');
     
@@ -109,6 +133,7 @@ export const useChatState = () => {
       }
       
       try {
+        // Update session storage and last activity time
         sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(newMessages));
         sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
       } catch (error) {
@@ -149,7 +174,7 @@ export const useChatState = () => {
     resetConversation();
   }, [resetConversation]);
 
-  // Update last activity
+  // Update last activity when user interacts
   useEffect(() => {
     const updateLastActivity = () => {
       sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
@@ -168,17 +193,16 @@ export const useChatState = () => {
 
   return {
     messages,
+    setMessages,
     inputValue,
-    isLoading,
-    pendingAction,
     setInputValue,
+    isLoading,
     setIsLoading,
+    pendingAction,
     setPendingAction,
-    addMessage,
     addSystemMessage,
     addUserMessage,
     clearInput,
-    clearChat,
-    toast
+    clearChat
   };
 };

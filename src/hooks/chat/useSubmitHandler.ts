@@ -15,8 +15,8 @@ interface UseSubmitHandlerProps {
   handlePendingAction: (action: PendingAction, confirmation: boolean) => Promise<void>;
   fetchAIResponse: (inputText: string, messages?: ChatMessage[]) => Promise<void>;
   fetchWhatsAppResponse?: (inputText: string) => Promise<void>;
-  processConfirmation: (input: string) => boolean; // Process confirmation keeps the same signature
-  handleConfirmation?: (input: string, action: PendingAction) => Promise<void>; // Add the new function
+  processConfirmation: (input: string) => boolean; // Process confirmation returns boolean
+  handleConfirmation: (input: string, action: PendingAction) => Promise<void>; // Handle confirmation process
   setUseStreamingMode: (useStreaming: boolean) => void;
   setRetryAttempts: (attempts: number) => void;
   setTempMessageId: (id: string | null) => void;
@@ -60,27 +60,9 @@ export const useSubmitHandler = ({
     if (pendingAction) {
       const isConfirmationInput = processConfirmation(inputValue);
       
-      if (isConfirmationInput && handleConfirmation) {
-        // Use the new handleConfirmation function if available
+      if (isConfirmationInput) {
+        // Use the handleConfirmation function directly
         await handleConfirmation(inputValue, pendingAction);
-        return;
-      } else if (isConfirmationInput) {
-        // Fallback to manually processing confirmation
-        addUserMessage(inputValue);
-        
-        const isConfirming = 
-          inputValue.toLowerCase().includes('yes') || 
-          inputValue.toLowerCase().includes('confirm') ||
-          inputValue.toLowerCase().includes('ok') ||
-          inputValue.toLowerCase().includes('sure');
-          
-        if (isConfirming) {
-          await handlePendingAction(pendingAction, true);
-        } else {
-          await handlePendingAction(pendingAction, false);
-        }
-        
-        clearInput();
         return;
       }
     }
