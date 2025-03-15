@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -153,22 +152,10 @@ const Index = () => {
           
           {/* Upcoming Tasks Section */}
           <div className="order-4 flex flex-col h-full overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b mb-4">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5 text-zinc-700" />
-                <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
-              </div>
-              <Button onClick={() => navigate('/tasks/new')} size="sm" variant="outline" className="rounded-full">
-                <Plus className="h-4 w-4 mr-1.5" />
-                New Task
-              </Button>
-            </div>
-            
             <TaskList 
               tasks={upcomingTasks}
               onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
-              hideHeader={true}
             />
           </div>
         </div>

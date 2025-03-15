@@ -1,28 +1,28 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, CheckSquare } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
 
 interface TaskListProps {
   tasks: Task[];
   onTaskSelect: (id: string) => void;
   selectedTaskId: string | null;
   focusNewTaskInput?: boolean;
-  hideHeader?: boolean;
 }
 
 export function TaskList({
   tasks,
   onTaskSelect,
   selectedTaskId,
-  focusNewTaskInput = false,
-  hideHeader = false
+  focusNewTaskInput = false
 }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -74,7 +74,26 @@ export function TaskList({
 
   return (
     <div className="space-y-4">
-      {!hideHeader && <TaskListHeader upcomingCount={0} completedCount={0} />}
+      <div 
+        className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+        style={{ 
+          backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          marginBottom: '15px'
+        }}
+      >
+        <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
+        
+        <div className="flex items-center gap-2 relative z-10">
+          <CheckSquare className="h-5 w-5 text-zinc-700" />
+          <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+        </div>
+        <Button onClick={() => {}} size="sm" variant="outline" className="rounded-full relative z-10">
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Task
+        </Button>
+      </div>
       
       <div className="mt-2">
         <TaskListContent 
