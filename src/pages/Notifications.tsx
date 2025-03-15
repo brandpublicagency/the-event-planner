@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PageHeader } from '@/components/PageHeader';
+import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
 import { NotificationTabs } from '@/components/notifications/NotificationTabs';
 import { NotificationActions } from '@/components/notifications/NotificationActions';
@@ -20,17 +20,9 @@ const Notifications = () => {
   } = useNotificationsPage();
 
   return (
-    <div className="container py-6 max-w-5xl">
-      <PageHeader
+    <div className="flex flex-col h-full">
+      <Header 
         pageTitle="Notifications"
-        actionButton={
-          activeTab === 'general' && notifications.some(n => !n.read) 
-            ? {
-                label: "Mark All Read",
-                onClick: handleMarkAllRead,
-              }
-            : undefined
-        }
         secondaryAction={
           <NotificationActions
             onRefresh={handleRefresh}
@@ -40,17 +32,19 @@ const Notifications = () => {
           />
         }
       />
-
-      <NotificationTabs
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        generalNotifications={notifications}
-        scheduledNotifications={scheduledNotifications}
-        generalLoading={false}
-        scheduledLoading={loading}
-        onViewDetail={handleViewEvent}
-        onCompleteTask={handleCompleteTask}
-      />
+      
+      <div className="p-6 flex-1">
+        <NotificationTabs
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          generalNotifications={notifications}
+          scheduledNotifications={scheduledNotifications}
+          generalLoading={false}
+          scheduledLoading={loading}
+          onViewDetail={handleViewEvent}
+          onCompleteTask={handleCompleteTask}
+        />
+      </div>
     </div>
   );
 };
