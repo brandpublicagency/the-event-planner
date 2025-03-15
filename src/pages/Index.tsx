@@ -135,7 +135,7 @@ const Index = () => {
         </div>
 
         {/* Right Column - Greeting, Chat, and Tasks (spans 6 columns on desktop) */}
-        <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
+        <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-4">
           {/* Greeting Card */}
           <Card className="rounded-xl p-6 bg-rose-50 border-0">
             <div className="space-y-1">
@@ -146,19 +146,30 @@ const Index = () => {
             </div>
           </Card>
           
-          {/* Chat Box */}
-          <div className="order-2 h-96 mb-4">
+          {/* Chat Box - reduced height */}
+          <div className="order-2 h-72 mb-4">
             <ChatBox />
           </div>
           
-          {/* Upcoming Tasks Section */}
-          <div className="order-3 mt-4">
-            <div className="flex items-center justify-between p-4 border-b rounded-xl mb-4">
-              <div className="flex items-center gap-2">
+          {/* Upcoming Tasks Section - with styled header that matches Events */}
+          <div className="order-3">
+            <div 
+              className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+              style={{ 
+                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: '15px'
+              }}
+            >
+              {/* White overlay with 90% opacity */}
+              <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
+              
+              <div className="flex items-center gap-2 relative z-10">
                 <CheckSquare className="h-5 w-5 text-zinc-700" />
                 <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
               </div>
-              <Button onClick={() => navigate('/tasks/new')} size="sm" variant="outline" className="rounded-full">
+              <Button onClick={() => navigate('/tasks/new')} size="sm" variant="outline" className="rounded-full relative z-10">
                 <Plus className="h-4 w-4 mr-1.5" />
                 New Task
               </Button>
