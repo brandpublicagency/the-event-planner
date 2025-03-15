@@ -1,5 +1,3 @@
-@import url('https://rsms.me/inter/inter.css');
-@import './styles/print.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,250 +5,117 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 1rem;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
   }
 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 217.2 32.6% 17.5%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    @apply bg-background text-foreground antialiased text-[0.875rem];
-  }
-
-  /* Mobile sidebar toggle */
-  @media (max-width: 768px) {
-    .sidebar-open .sidebar {
-      transform: translateX(0);
-    }
+    @apply bg-background text-foreground;
   }
 }
 
+/* Toast styles */
 @layer components {
-  .sidebar-icon {
-    @apply h-4 w-4 text-muted-foreground;
+  .toast-gradient-default {
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    color: white;
   }
   
-  .metric-card {
-    @apply rounded-[1rem] bg-card p-5 border;
+  .toast-gradient-destructive {
+    background: linear-gradient(to right, #dc2626, #ef4444);
+    color: white;
   }
   
-  .nav-link {
-    @apply flex items-center gap-2.5 rounded-[1rem] px-3 py-2 text-muted-foreground hover:bg-accent text-sm;
+  .toast-gradient-success {
+    background: linear-gradient(to right, #16a34a, #22c55e);
+    color: white;
   }
   
-  .nav-link.active {
-    @apply bg-accent text-accent-foreground;
+  .toast-gradient-info {
+    background: linear-gradient(to right, #0284c7, #0ea5e9);
+    color: white;
   }
-
-  .badge-status {
-    @apply px-2 py-1 rounded-[1rem] text-xs font-medium;
+  
+  .toast-progress-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.4);
+    width: 100%;
+    transform-origin: left;
+    animation: toast-progress-animation linear forwards;
   }
-
-  .border-gradient {
-    @apply relative bg-card rounded-[1rem] border;
-  }
-}
-
-/* Editor Styles */
-.ProseMirror {
-  @apply min-h-[500px] outline-none;
-}
-
-.ProseMirror h1 {
-  @apply text-lg font-bold mb-3 mt-4;  /* reduced from mt-6 to mt-4 */
-}
-
-.ProseMirror h2 {
-  @apply text-base font-bold mb-2 mt-5;  /* 16px */
-}
-
-.ProseMirror h3 {
-  @apply text-sm font-bold mb-2 mt-4;  /* 14px */
-}
-
-.ProseMirror ul {
-  @apply list-disc pl-6 mb-2 space-y-0.5;
-}
-
-.ProseMirror ol {
-  @apply list-decimal pl-6 mb-2;
-}
-
-.ProseMirror p {
-  @apply mb-2;
-}
-
-.ProseMirror blockquote {
-  @apply border-l-4 border-gray-300 pl-4 italic my-4;
-}
-
-.ProseMirror code {
-  @apply bg-gray-100 rounded px-1;
-}
-
-.ProseMirror pre {
-  @apply bg-gray-100 rounded p-4 my-4;
-}
-
-.ProseMirror mark {
-  @apply bg-yellow-200;
-}
-
-/* RDP Styles */
-.rdp {
-  @apply p-0 w-full max-w-[400px] mx-auto;
-}
-
-.rdp-months {
-  @apply bg-card border rounded-[1rem] p-4;
-}
-
-.rdp-day_selected, 
-.rdp-day_selected:focus-visible, 
-.rdp-day_selected:hover {
-  @apply bg-accent text-accent-foreground border rounded-[1rem];
-}
-
-.rdp-day_today {
-  @apply font-normal border rounded-[1rem];
-}
-
-.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  @apply bg-muted rounded-[1rem];
-}
-
-[data-radix-popper-content-wrapper] {
-  @apply !bg-popover;
-}
-
-.dropdown-content {
-  @apply bg-popover border rounded-[1rem] shadow-md;
-}
-
-[data-state="open"] [data-radix-select-trigger],
-[data-state="closed"] [data-radix-select-trigger]:hover {
-  @apply !bg-popover;
-}
-
-[data-radix-select-trigger] {
-  @apply rounded-[1rem] bg-popover hover:bg-popover;
-}
-
-[data-radix-select-content] {
-  @apply bg-popover border rounded-[1rem] shadow-md overflow-hidden;
-}
-
-[data-radix-select-item] {
-  @apply hover:bg-transparent focus:bg-transparent cursor-pointer;
-}
-
-/* Toast gradient backgrounds */
-.toast-gradient-default {
-  @apply bg-gradient-to-r from-zinc-800 to-zinc-900 text-white;
-}
-.toast-gradient-destructive {
-  @apply bg-gradient-to-r from-red-500 to-red-600 text-white;
-}
-.toast-gradient-success {
-  @apply bg-gradient-to-r from-emerald-500 to-emerald-600 text-white;
-}
-.toast-gradient-info {
-  @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white;
-}
-
-/* Toast progress bar animation */
-.toast-progress-bar {
-  @apply absolute bottom-0 left-0 h-1 bg-white/30;
-  width: 100%;
-  transform-origin: left;
-  animation: progress-bar 5000ms linear forwards;
-}
-
-@keyframes progress-bar {
-  from {
-    transform: scaleX(1);
-  }
-  to {
-    transform: scaleX(0);
-  }
-}
-
-/* Fix animation states */
-[data-state=open].toast-gradient-default,
-[data-state=open].toast-gradient-success,
-[data-state=open].toast-gradient-destructive,
-[data-state=open].toast-gradient-info {
-  animation: toast-enter 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
-}
-
-[data-state=closed].toast-gradient-default,
-[data-state=closed].toast-gradient-success,
-[data-state=closed].toast-gradient-destructive,
-[data-state=closed].toast-gradient-info {
-  animation: toast-exit 0.4s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
-}
-
-/* Custom toast animations that are smoother */
-@keyframes toast-enter {
-  0% {
-    transform: translate3d(0, 20px, 0) scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes toast-exit {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(100%, 0, 0) scale(1);
-    opacity: 0;
-  }
-}
-
-/* Subtle glow effect instead of pulsing animation */
-.toast-gradient-default::after,
-.toast-gradient-success::after,
-.toast-gradient-destructive::after,
-.toast-gradient-info::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  animation: subtle-glow 2s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes subtle-glow {
-  0%, 100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
+  
+  @keyframes toast-progress-animation {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
   }
 }

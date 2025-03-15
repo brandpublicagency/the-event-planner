@@ -62,6 +62,7 @@ const ContactEditDrawer = ({
       
       // Then log the activity and ignore the return value
       if (changedFields.length > 0 && updatedContact) {
+        // Don't check the return value of logContactUpdated
         await logContactUpdated(updatedContact, changedFields);
       }
       

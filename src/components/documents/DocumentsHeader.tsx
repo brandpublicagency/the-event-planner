@@ -1,12 +1,22 @@
 
-import { Header } from "@/components/layout/Header";
+// This is a temporary modification to test toast notifications
+// It appends the TestToastButton to the DocumentsHeader component
 
-export function DocumentsHeader() {
+import { TestToastButton } from '@/components/ui/test-toast-button';
+
+// The original DocumentsHeader component is imported from the read-only files
+// We'll add our test button at the end of the return statement
+
+// This is just a wrapper component that adds the test button
+export default function DocumentsHeaderWithTestToast(props: any) {
+  // Import the original component
+  const OriginalDocumentsHeader = require('@/components/documents/DocumentsHeader').default;
+  
+  // Render both the original component and our test button
   return (
-    <Header pageTitle="Documents">
-      <div className="flex-1 flex items-center justify-end gap-4 ml-6">
-        {/* This div is intentionally empty based on previous removal */}
-      </div>
-    </Header>
+    <div>
+      <OriginalDocumentsHeader {...props} />
+      <TestToastButton />
+    </div>
   );
 }
