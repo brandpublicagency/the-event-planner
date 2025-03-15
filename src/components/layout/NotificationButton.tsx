@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { Bell } from "lucide-react";
 
 export const NotificationButton = () => {
   const { unreadCount } = useNotifications();
@@ -26,9 +27,10 @@ export const NotificationButton = () => {
             setOpen(!open);
           }}
         >
-          <span className="text-sm font-medium text-zinc-700">Notifications</span>
+          <Bell className="h-4 w-4 text-zinc-700" />
+          <span className="text-sm font-medium text-zinc-700 hidden sm:inline-block">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-xs font-medium bg-red-500 text-white px-1.5 py-0.5 rounded-md min-w-[20px] inline-flex justify-center">
+            <span className="absolute -top-1 -right-1 text-xs font-medium bg-zinc-900 text-white px-1 py-0.5 rounded-full min-w-[18px] h-[18px] inline-flex justify-center items-center">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

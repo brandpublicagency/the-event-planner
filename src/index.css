@@ -161,31 +161,33 @@
 
 /* Toast gradient backgrounds */
 .toast-gradient-default {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  @apply bg-gradient-to-r from-zinc-800 to-zinc-900 text-white;
 }
-
-.toast-gradient-success {
-  background: linear-gradient(135deg, #10b981, #059669);
-  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
-
 .toast-gradient-destructive {
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
-  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  @apply bg-gradient-to-r from-red-500 to-red-600 text-white;
+}
+.toast-gradient-success {
+  @apply bg-gradient-to-r from-emerald-500 to-emerald-600 text-white;
+}
+.toast-gradient-info {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white;
 }
 
-.toast-gradient-info {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+/* Toast progress bar animation */
+.toast-progress-bar {
+  @apply absolute bottom-0 left-0 h-1 bg-white/30;
+  width: 100%;
+  transform-origin: left;
+  animation: progress-bar 5000ms linear forwards;
+}
+
+@keyframes progress-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 /* Fix animation states */
@@ -251,19 +253,4 @@
   50% {
     opacity: 1;
   }
-}
-
-/* Optional progress bar */
-.toast-progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.4);
-  animation: progress-bar 3s linear;
-}
-
-@keyframes progress-bar {
-  from { width: 100%; }
-  to { width: 0%; }
 }

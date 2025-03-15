@@ -6,12 +6,15 @@ import {
   Calendar, 
   CheckCircle, 
   Clock, 
-  XCircle
+  AlertCircle,
+  Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 export function ScheduledNotificationDropdown() {
   const { 
@@ -21,13 +24,35 @@ export function ScheduledNotificationDropdown() {
     markAsCompleted,
     loading
   } = useScheduledNotifications();
+  
+  const { toast } = useToast();
+  
+  const handleMarkAsRead = (id: string) => {
+    markAsRead(id);
+    toast({
+      title: "Notification marked as read",
+      variant: "success",
+      showProgress: true,
+      duration: 2000
+    });
+  };
+  
+  const handleMarkAsCompleted = (id: string) => {
+    markAsCompleted(id);
+    toast({
+      title: "Task marked as completed",
+      variant: "success",
+      showProgress: true,
+      duration: 2000
+    });
+  };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between px-4 py-2 border-b">
-        <h3 className="font-medium">Task Reminders</h3>
+    <div className="flex flex-col max-h-[85vh]">
+      <div className="flex items-center justify-between px-3 py-2 border-b">
+        <h3 className="font-medium text-base text-zinc-900">Task Reminders</h3>
         {unreadCount > 0 && (
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
             <Link to="/notifications?tab=scheduled">
               View All ({unreadCount})
             </Link>
@@ -37,32 +62,47 @@ export function ScheduledNotificationDropdown() {
 
       <ScrollArea className="h-[300px]">
         {loading ? (
-          <div className="p-4 text-center text-muted-foreground">
+          <div className="p-4 text-center text-zinc-500">
             Loading...
           </div>
         ) : notifications.length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">
-            No pending reminders
+          <div className="p-6 text-center text-zinc-500">
+            <div className="flex flex-col items-center gap-2">
+              <Clock className="h-6 w-6 text-zinc-300" />
+              <p>No pending reminders</p>
+            </div>
           </div>
         ) : (
           <div className="py-2">
             {notifications.slice(0, 5).map((notification) => (
               <Card
                 key={notification.id}
-                className={`mx-2 my-1 p-3 ${notification.read ? 'opacity-70' : ''}`}
+                className={`mx-2 my-1.5 p-3 ${notification.read ? 'opacity-70' : ''} border-zinc-200`}
               >
-                <div className="flex justify-between items-start">
-                  <h4 className="font-medium text-sm">{notification.title}</h4>
-                  <span className="text-xs text-muted-foreground">
+                <div className="flex justify-between items-start gap-1">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>
+                      {!notification.read && (
+                        <Badge 
+                          variant="default" 
+                          className="text-[10px] py-0 h-4 text-white font-normal px-[6px] bg-zinc-900"
+                        >
+                          New
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1 line-clamp-2">{notification.description}</p>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 min-w-[60px] text-right">
                     {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{notification.description}</p>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-1.5 mt-2">
                   <Button 
                     size="sm" 
-                    variant="ghost" 
-                    onClick={() => markAsRead(notification.id)}
+                    variant="outline" 
+                    onClick={() => handleMarkAsRead(notification.id)}
                     className="h-7 px-2 text-xs"
                   >
                     <Clock className="h-3 w-3 mr-1" />
@@ -71,9 +111,9 @@ export function ScheduledNotificationDropdown() {
                   {notification.actionType === 'approve' && (
                     <Button 
                       size="sm" 
-                      variant="ghost" 
-                      onClick={() => markAsCompleted(notification.id)}
-                      className="h-7 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                      variant="outline" 
+                      onClick={() => handleMarkAsCompleted(notification.id)}
+                      className="h-7 px-2 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200"
                     >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Complete
@@ -81,12 +121,12 @@ export function ScheduledNotificationDropdown() {
                   )}
                   <Button 
                     size="sm" 
-                    variant="ghost" 
+                    variant="outline" 
                     asChild
                     className="h-7 px-2 text-xs ml-auto"
                   >
                     <Link to={`/events/${notification.relatedId}`}>
-                      <Calendar className="h-3 w-3 mr-1" />
+                      <Eye className="h-3 w-3 mr-1" />
                       View
                     </Link>
                   </Button>
@@ -95,7 +135,7 @@ export function ScheduledNotificationDropdown() {
             ))}
             {notifications.length > 5 && (
               <div className="text-center p-2">
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild className="text-xs">
                   <Link to="/notifications?tab=scheduled">
                     View All ({notifications.length})
                   </Link>

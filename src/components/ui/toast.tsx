@@ -47,7 +47,6 @@ const Toast = React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
-      // Remove the default duration to let our CSS animations control timing
       duration={props.duration || 5000}
       {...props}
     />
@@ -139,7 +138,6 @@ const ToastIcon = React.forwardRef<
 });
 ToastIcon.displayName = "ToastIcon";
 
-// Wrapper component that combines icon and content
 const ToastWithIcon = React.forwardRef<
   React.ElementRef<typeof Toast>,
   React.ComponentPropsWithoutRef<typeof Toast>
@@ -157,7 +155,6 @@ const ToastWithIcon = React.forwardRef<
 });
 ToastWithIcon.displayName = "ToastWithIcon";
 
-// Add a toast with progress bar component
 const ToastWithProgress = React.forwardRef<
   React.ElementRef<typeof Toast>,
   React.ComponentPropsWithoutRef<typeof Toast> & { 
