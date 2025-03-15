@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -167,7 +168,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           createDocumentPending={createDocument.isPending}
         />
 
-        <div className="flex-1 h-full overflow-hidden bg-gray-50">
+        <div className="flex-1 h-full overflow-hidden bg-white"> 
           <DocumentEditor 
             documentId={selectedDocId} 
             key={selectedDocId}

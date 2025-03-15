@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -128,7 +129,7 @@ export default function DocumentEditor({
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <div className="flex-1 px-6 pb-6 overflow-hidden">
+      <div className="flex-1 px-6 pb-6 flex flex-col overflow-hidden">
         <DocumentContent editor={editor} />
       </div>
     </div>
