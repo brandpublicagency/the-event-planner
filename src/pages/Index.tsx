@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -79,7 +80,7 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
         <div className="md:col-span-6 flex flex-col order-3 md:order-1 h-full overflow-hidden">
           <div 
-            className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+            className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
             style={{ 
               backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
               backgroundSize: 'cover',
@@ -87,7 +88,7 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            <div className="absolute inset-0 bg-white/85 rounded-xl border border-gray-100"></div>
+            <div className="absolute inset-0 bg-white/85 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
@@ -141,7 +142,7 @@ const Index = () => {
           
           <div>
             <div 
-              className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+              className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
               style={{ 
                 backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
                 backgroundSize: 'cover',
@@ -149,7 +150,7 @@ const Index = () => {
                 marginBottom: '15px'
               }}
             >
-              <div className="absolute inset-0 bg-white/85 rounded-xl border border-gray-100"></div>
+              <div className="absolute inset-0 bg-white/85 rounded-xl"></div>
               
               <div className="flex items-center gap-2 relative z-10">
                 <CheckSquare className="h-5 w-5 text-zinc-700" />
