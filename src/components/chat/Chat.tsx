@@ -1,3 +1,4 @@
+
 import { useChatState } from "@/hooks/useChatState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "@/components/chat/ChatMessage";
@@ -15,7 +16,13 @@ interface ChatHandlerProps {
 }
 
 const Chat = () => {
-  const { inputValue, setInputValue, clearInput, messages: globalMessages } = useChatState();
+  const { 
+    inputValue, 
+    setInputValue, 
+    clearInput: stateResetInput, 
+    messages: globalMessages,
+    addUserMessage
+  } = useChatState();
   const [localInputValue, setLocalInputValue] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
@@ -33,6 +40,11 @@ const Chat = () => {
   useEffect(() => {
     setInputValue(localInputValue);
   }, [localInputValue, setInputValue]);
+
+  const clearInput = () => {
+    setLocalInputValue("");
+    stateResetInput();
+  };
 
   return (
     <div className="flex flex-col h-full bg-white border rounded-lg overflow-hidden">
@@ -79,7 +91,16 @@ const Chat = () => {
               value={localInputValue}
               onChange={(e) => setLocalInputValue(e.target.value)}
               onSubmit={async (e) => {
+                e.preventDefault();
+                if (!localInputValue.trim()) return;
+                
+                // Add user message first
+                addUserMessage(localInputValue);
+                
+                // Then handle submission through the handler
                 await handleSubmit(e);
+                
+                // Clear input after submission
                 setLocalInputValue("");
               }}
               isLoading={isLoading}

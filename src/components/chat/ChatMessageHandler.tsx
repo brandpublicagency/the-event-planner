@@ -38,6 +38,7 @@ const ChatMessageHandler = ({
     clearInput
   });
 
+  // Ensure messages are passed correctly to children
   return children({
     messages,
     isLoading: handlerIsLoading,
