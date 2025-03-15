@@ -8,8 +8,9 @@ import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentState } from "@/hooks/useDocumentState";
 import { CategorySelector } from "./CategorySelector";
 import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
+import DocumentActions from "./DocumentActions";
 import type { Category } from "@/types/category";
 
 interface DocumentEditorProps {
@@ -21,6 +22,7 @@ export default function DocumentEditor({
 }: DocumentEditorProps) {
   const isAuthenticated = useDocumentAuth();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
   const editor = useEditor({
     extensions: getEditorExtensions(),
     editorProps: {
@@ -124,13 +126,24 @@ export default function DocumentEditor({
                 </Badge>)}
             </div>}
         </div>
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2 shadow-sm">
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleSave} disabled={isSaving} className="gap-2 shadow-sm">
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+          
+          {document && (
+            <DocumentActions 
+              documentId={document.id} 
+              title={document.title} 
+              content={document.content?.html || ''} 
+              editorRef={contentRef}
+            />
+          )}
+        </div>
       </div>
       <div className="flex-1 px-6 pb-6 flex flex-col overflow-hidden">
-        <DocumentContent editor={editor} />
+        <DocumentContent editor={editor} ref={contentRef} />
       </div>
     </div>
   );

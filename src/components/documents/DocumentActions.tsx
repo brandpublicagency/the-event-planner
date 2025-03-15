@@ -6,24 +6,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import { exportAsPdf, exportAsDocx } from "@/utils/exportUtils";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useReactToPrint } from "react-to-print";
+import { useRef } from "react";
 
 interface DocumentActionsProps {
   documentId: string;
   title: string;
   content: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
-export default function DocumentActions({ documentId, title, content }: DocumentActionsProps) {
+export default function DocumentActions({ documentId, title, content, editorRef }: DocumentActionsProps) {
   const { toast } = useToast();
 
   const handleExport = async (format: 'pdf' | 'docx') => {
     try {
       if (format === 'pdf') {
-        await exportAsPdf(title, content);
+        await exportAsPdf(content, title);
         toast({
           title: "Export Successful",
           description: `Document exported as PDF`,
@@ -31,7 +34,7 @@ export default function DocumentActions({ documentId, title, content }: Document
           showProgress: true
         });
       } else {
-        await exportAsDocx(title, content);
+        await exportAsDocx(content, title);
         toast({
           title: "Export Successful",
           description: `Document exported as DOCX`,
@@ -50,8 +53,57 @@ export default function DocumentActions({ documentId, title, content }: Document
     }
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => editorRef?.current || null,
+    documentTitle: title,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-document, .print-document * {
+          visibility: visible;
+        }
+        .print-document {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          padding: 0;
+          margin: 0;
+        }
+        .ProseMirror {
+          font-size: 12pt;
+          line-height: 1.5;
+        }
+      }
+    `,
+    onAfterPrint: () => {
+      toast({
+        title: "Print Completed",
+        description: "Your document has been sent to the printer",
+        variant: "success",
+      });
+    },
+  });
+
   return (
     <div className="flex items-center gap-2">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={handlePrint} 
+        className="flex items-center gap-2"
+        disabled={!editorRef?.current}
+      >
+        <Printer className="h-4 w-4" />
+        Print
+      </Button>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
