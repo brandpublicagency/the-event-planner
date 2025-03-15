@@ -8,12 +8,22 @@ export const useTaskQuery = (enabled: boolean) => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
+      console.log("Executing tasks query function...");
+      
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          return [];
+        }
+        
         if (!sessionData.session) {
           console.log("No active session found in useTaskQuery");
           return [];
         }
+        
+        console.log("Session found, fetching tasks...");
         
         const { data, error } = await supabase
           .from("tasks")
@@ -26,6 +36,7 @@ export const useTaskQuery = (enabled: boolean) => {
           throw error;
         }
 
+        console.log("Tasks fetched successfully:", data);
         return data as Task[];
       } catch (error) {
         console.error("Task query error:", error);

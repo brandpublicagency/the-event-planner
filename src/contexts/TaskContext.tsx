@@ -1,5 +1,5 @@
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,17 +11,37 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    // Subscribe to auth changes to invalidate tasks query when auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      console.log("Auth state changed:", event);
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [queryClient]);
+
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       console.log("Fetching tasks from Supabase");
       
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          return [];
+        }
+        
         if (!sessionData.session) {
           console.log("No active session found");
           return [];
         }
+        
+        console.log("Session found, user ID:", sessionData.session.user.id);
         
         const { data, error } = await supabase
           .from("tasks")
@@ -44,7 +64,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   });
 
   const addTask = async (title: string) => {
-    const { data: session } = await supabase.auth.getSession();
+    console.log("Adding task:", title);
+    
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Session error:", sessionError);
+      toast({
+        title: "Authentication error",
+        description: "Failed to verify your session",
+        variant: "destructive",
+      });
+      throw sessionError;
+    }
+    
     if (!session?.session) {
       toast({
         title: "Authentication required",
@@ -53,6 +86,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       });
       throw new Error("Authentication required");
     }
+
+    console.log("User authenticated, creating task for user:", session.session.user.id);
 
     const { error } = await supabase
       .from("tasks")
@@ -72,6 +107,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
     
+    console.log("Task added successfully, invalidating query");
     await queryClient.invalidateQueries({ queryKey: ["tasks"] });
     
     toast({
@@ -81,7 +117,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateTask = async (id: string, updates: TaskUpdate) => {
-    const { data: session } = await supabase.auth.getSession();
+    console.log("Updating task:", id, updates);
+    
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Session error:", sessionError);
+      toast({
+        title: "Authentication error",
+        description: "Failed to verify your session",
+        variant: "destructive",
+      });
+      throw sessionError;
+    }
+    
     if (!session?.session) {
       toast({
         title: "Authentication required",
@@ -90,6 +139,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       });
       throw new Error("Authentication required");
     }
+
+    console.log("User authenticated, updating task");
 
     const { error } = await supabase
       .from("tasks")
@@ -106,6 +157,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
     
+    console.log("Task updated successfully, invalidating query");
     await queryClient.invalidateQueries({ queryKey: ["tasks"] });
     
     toast({
@@ -115,7 +167,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteTask = async (id: string) => {
-    const { data: session } = await supabase.auth.getSession();
+    console.log("Deleting task:", id);
+    
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Session error:", sessionError);
+      toast({
+        title: "Authentication error",
+        description: "Failed to verify your session",
+        variant: "destructive",
+      });
+      throw sessionError;
+    }
+    
     if (!session?.session) {
       toast({
         title: "Authentication required",
@@ -124,6 +189,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       });
       throw new Error("Authentication required");
     }
+
+    console.log("User authenticated, deleting task");
 
     const { error } = await supabase
       .from("tasks")
@@ -140,6 +207,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
     
+    console.log("Task deleted successfully, invalidating query");
     await queryClient.invalidateQueries({ queryKey: ["tasks"] });
     
     toast({
@@ -149,7 +217,20 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleTask = async (id: string, completed: boolean) => {
-    const { data: session } = await supabase.auth.getSession();
+    console.log("Toggling task:", id, completed);
+    
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Session error:", sessionError);
+      toast({
+        title: "Authentication error",
+        description: "Failed to verify your session",
+        variant: "destructive",
+      });
+      throw sessionError;
+    }
+    
     if (!session?.session) {
       toast({
         title: "Authentication required",
@@ -158,6 +239,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       });
       throw new Error("Authentication required");
     }
+
+    console.log("User authenticated, toggling task");
 
     const { error } = await supabase
       .from("tasks")
@@ -174,6 +257,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
     
+    console.log("Task toggled successfully, invalidating query");
     await queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 

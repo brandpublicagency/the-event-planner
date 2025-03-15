@@ -9,11 +9,22 @@ export const useTaskMutations = () => {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data: userData } = await supabase.auth.getUser();
+      console.log("Adding task:", title);
+      
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("User fetch error:", userError);
+        throw new Error("Failed to authenticate");
+      }
+      
       if (!userData?.user) {
+        console.error("No user found");
         throw new Error("User not authenticated");
       }
 
+      console.log("User authenticated, creating task");
+      
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
@@ -21,7 +32,13 @@ export const useTaskMutations = () => {
           status: "todo",
         }
       ]);
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Task insert error:", error);
+        throw error;
+      }
+      
+      console.log("Task created successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -35,16 +52,33 @@ export const useTaskMutations = () => {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      const { data: userData } = await supabase.auth.getUser();
+      console.log("Updating task:", id, updates);
+      
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("User fetch error:", userError);
+        throw new Error("Failed to authenticate");
+      }
+      
       if (!userData?.user) {
+        console.error("No user found");
         throw new Error("User not authenticated");
       }
+      
+      console.log("User authenticated, updating task");
       
       const { error } = await supabase
         .from("tasks")
         .update(updates)
         .eq("id", id);
-      if (error) throw error;
+        
+      if (error) {
+        console.error("Task update error:", error);
+        throw error;
+      }
+      
+      console.log("Task updated successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -58,16 +92,33 @@ export const useTaskMutations = () => {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { data: userData } = await supabase.auth.getUser();
+      console.log("Deleting task:", id);
+      
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("User fetch error:", userError);
+        throw new Error("Failed to authenticate");
+      }
+      
       if (!userData?.user) {
+        console.error("No user found");
         throw new Error("User not authenticated");
       }
+      
+      console.log("User authenticated, deleting task");
       
       const { error } = await supabase
         .from("tasks")
         .delete()
         .eq("id", id);
-      if (error) throw error;
+        
+      if (error) {
+        console.error("Task delete error:", error);
+        throw error;
+      }
+      
+      console.log("Task deleted successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
