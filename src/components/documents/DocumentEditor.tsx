@@ -1,5 +1,5 @@
 import { useEditor } from '@tiptap/react';
-import { Loader2, Save, Tag, X } from "lucide-react";
+import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { DocumentContent } from "./DocumentContent";
@@ -128,7 +128,7 @@ export default function DocumentEditor({
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </div>
-      <div className="px-6 pb-6 flex-1 overflow-hidden">
+      <div className="flex-1 px-6 pb-6 overflow-hidden">
         <DocumentContent editor={editor} />
       </div>
     </div>

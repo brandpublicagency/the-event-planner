@@ -10,13 +10,13 @@ export function DocumentContent({ editor }: DocumentContentProps) {
   if (!editor) return null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full">
       <EditorToolbar editor={editor} />
       <div className="flex-1 overflow-hidden">
-        <div className="bg-white rounded-lg border p-4 h-full overflow-y-auto">
+        <div className="bg-white rounded-lg border h-full overflow-y-auto">
           <EditorContent 
             editor={editor} 
-            className="h-full"
+            className="h-full p-4"
           />
         </div>
       </div>
