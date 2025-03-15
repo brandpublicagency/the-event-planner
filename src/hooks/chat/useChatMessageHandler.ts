@@ -16,6 +16,7 @@ interface UseChatMessageHandlerProps {
   isLoading?: boolean;
   setInputValue?: (value: string) => void;
   clearInput?: () => void;
+  forceLocalData?: boolean;
 }
 
 export const useChatMessageHandler = ({
@@ -23,7 +24,8 @@ export const useChatMessageHandler = ({
   inputValue: externalInputValue,
   isLoading: externalIsLoading,
   setInputValue: externalSetInputValue,
-  clearInput: externalClearInput
+  clearInput: externalClearInput,
+  forceLocalData = false
 }: UseChatMessageHandlerProps) => {
   const {
     inputValue: internalInputValue,
@@ -75,7 +77,8 @@ export const useChatMessageHandler = ({
     onClearInput: clearInput,
     contextData,
     onSetTempMessageId: setTempMessageId,
-    processAIResponse
+    processAIResponse,
+    forceLocalData
   });
 
   // Set up WhatsApp message handler for fallback
@@ -118,7 +121,8 @@ export const useChatMessageHandler = ({
     setTempMessageId,
     addSystemMessage,
     retryAttempts,
-    tempMessageId
+    tempMessageId,
+    forceLocalData
   });
 
   return {

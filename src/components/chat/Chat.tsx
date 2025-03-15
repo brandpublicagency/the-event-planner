@@ -7,6 +7,7 @@ import ChatConfirmation from "@/components/chat/ChatConfirmation";
 import ChatMessageHandler from "@/components/chat/ChatMessageHandler";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ChatHandlerProps {
   messages: ChatMessageType[];
@@ -25,6 +26,7 @@ const Chat = () => {
   } = useChatState();
   const [localInputValue, setLocalInputValue] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   // Auto-scroll to bottom when messages update
   useEffect(() => {
@@ -57,6 +59,7 @@ const Chat = () => {
         inputValue={localInputValue}
         setInputValue={setLocalInputValue}
         clearInput={() => setLocalInputValue("")}
+        forceLocalData={true}
       >
         {({ messages, isLoading, pendingAction, handleSubmit }: ChatHandlerProps) => (
           <>
@@ -97,8 +100,17 @@ const Chat = () => {
                 // Add user message first
                 addUserMessage(localInputValue);
                 
-                // Then handle submission through the handler
-                await handleSubmit(e);
+                try {
+                  // Then handle submission through the handler
+                  await handleSubmit(e);
+                } catch (error) {
+                  console.error("Error submitting message:", error);
+                  toast({
+                    title: "Error",
+                    description: "There was a problem connecting to the AI service. Using local data instead.",
+                    variant: "destructive"
+                  });
+                }
                 
                 // Clear input after submission
                 setLocalInputValue("");

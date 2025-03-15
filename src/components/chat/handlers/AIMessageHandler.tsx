@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { PendingAction, ChatMessage } from "@/types/chat";
 import { handleOpenAIRequest, prepareOpenAIMessages } from "@/utils/openaiUtils";
@@ -7,6 +7,7 @@ import { getChatCompletion } from "@/services/openai";
 import { getChatContextData } from "@/services/chatContext";
 import { getSystemMessage } from "@/utils/chat";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AIMessageHandlerProps {
   onSetIsLoading: (loading: boolean) => void;
@@ -16,6 +17,7 @@ interface AIMessageHandlerProps {
   contextData?: any;
   onSetTempMessageId?: (id: string | null) => void;
   processAIResponse?: (message: string) => void;
+  forceLocalData?: boolean;
 }
 
 export const useAIMessageHandler = ({
@@ -25,7 +27,8 @@ export const useAIMessageHandler = ({
   onClearInput,
   contextData: externalContextData,
   onSetTempMessageId,
-  processAIResponse
+  processAIResponse,
+  forceLocalData = false
 }: AIMessageHandlerProps) => {
   const [contextData, setContextData] = useState<any>(externalContextData || null);
   const [retryCount, setRetryCount] = useState(0);
@@ -36,11 +39,145 @@ export const useAIMessageHandler = ({
     onAddSystemMessage,
     onSetPendingAction,
     onSetIsLoading,
-    contextData: contextData || externalContextData
+    contextData: contextData || externalContextData,
+    forceLocalData
   });
+
+  // Function to get upcoming events directly from the database
+  const getUpcomingEvents = async () => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data: events, error } = await supabase
+        .from('events')
+        .select('*')
+        .gt('event_date', today.toISOString())
+        .is('deleted_at', null)
+        .order('event_date', { ascending: true })
+        .limit(5);
+        
+      if (error) {
+        console.error('Error fetching events:', error);
+        return "I couldn't retrieve event information at the moment.";
+      }
+      
+      if (!events || events.length === 0) {
+        return "There are no upcoming events scheduled.";
+      }
+      
+      // Get the next event
+      const nextEvent = events[0];
+      const eventDate = nextEvent.event_date ? new Date(nextEvent.event_date).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }) : 'date not specified';
+      
+      // Format venue information if available
+      let venueInfo = '';
+      if (nextEvent.venues && nextEvent.venues.length > 0) {
+        venueInfo = `\nVenue: ${Array.isArray(nextEvent.venues) ? nextEvent.venues.join(', ') : nextEvent.venues}`;
+      }
+      
+      return `The next event is "${nextEvent.name}" (${nextEvent.event_code}) on ${eventDate}.${venueInfo}\nGuests: ${nextEvent.pax || 'Not specified'}`;
+    } catch (err) {
+      console.error('Error in getUpcomingEvents:', err);
+      return "I encountered an error trying to fetch event information.";
+    }
+  };
+
+  // Simple responder for common event questions
+  const getBasicEventResponse = async (inputText: string) => {
+    const lowerInput = inputText.toLowerCase();
+    
+    // Check for next event questions
+    if (lowerInput.includes('next event') || 
+        (lowerInput.includes('when') && lowerInput.includes('event'))) {
+      return await getUpcomingEvents();
+    }
+    
+    // Event code pattern like EVENT-001-123
+    const eventCodePattern = /EVENT-\d{3}-\d{3}/i;
+    const eventCodeMatch = inputText.match(eventCodePattern);
+    
+    if (eventCodeMatch) {
+      const eventCode = eventCodeMatch[0];
+      
+      try {
+        const { data: event, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('event_code', eventCode)
+          .single();
+          
+        if (error || !event) {
+          return `I couldn't find an event with the code ${eventCode}.`;
+        }
+        
+        const eventDate = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }) : 'date not specified';
+        
+        let venueInfo = '';
+        if (event.venues && event.venues.length > 0) {
+          venueInfo = `\nVenue: ${Array.isArray(event.venues) ? event.venues.join(', ') : event.venues}`;
+        }
+        
+        return `Event "${event.name}" (${event.event_code}):\nDate: ${eventDate}${venueInfo}\nGuests: ${event.pax || 'Not specified'}\nType: ${event.event_type || 'Not specified'}`;
+      } catch (err) {
+        console.error('Error fetching event by code:', err);
+        return `I encountered an error trying to fetch information for event ${eventCode}.`;
+      }
+    }
+    
+    return null; // Return null if no basic response is available
+  };
 
   const fetchAIResponse = async (inputText: string, messages?: ChatMessage[]): Promise<void> => {
     try {
+      // Generate a temporary message ID for updating
+      const tempId = String(Date.now());
+      if (onSetTempMessageId) {
+        onSetTempMessageId(tempId);
+      }
+      
+      // Show initial loading message
+      onAddSystemMessage("Thinking...", tempId);
+      
+      // Try to generate a basic response first if forceLocalData is true or as fallback
+      if (forceLocalData) {
+        const basicResponse = await getBasicEventResponse(inputText);
+        if (basicResponse) {
+          onSetIsLoading(false);
+          onAddSystemMessage(basicResponse, tempId);
+          onClearInput();
+          return;
+        }
+      }
+      
+      // Use streaming if available and messages are provided
+      if (messages && !forceLocalData) {
+        console.log('Using streaming response for chat');
+        try {
+          await streamResponse(messages, tempId);
+          return;
+        } catch (error) {
+          console.error('Streaming error, falling back to local data:', error);
+          
+          // Fall back to basic response
+          const basicResponse = await getBasicEventResponse(inputText);
+          if (basicResponse) {
+            onSetIsLoading(false);
+            onAddSystemMessage(basicResponse, tempId);
+            onClearInput();
+            return;
+          }
+        }
+      }
+
       // Get context data if not provided
       let data = contextData;
       if (!data) {
@@ -67,22 +204,6 @@ export const useAIMessageHandler = ({
             tasksContext: 'No tasks data available.'
           };
         }
-      }
-
-      // Generate a temporary message ID for updating
-      const tempId = String(Date.now());
-      if (onSetTempMessageId) {
-        onSetTempMessageId(tempId);
-      }
-      
-      // Show initial loading message
-      onAddSystemMessage("Thinking...", tempId);
-      
-      // Use streaming if available and messages are provided
-      if (messages) {
-        console.log('Using streaming response for chat');
-        await streamResponse(messages, tempId);
-        return;
       }
 
       // Generate system message with context data
@@ -126,6 +247,15 @@ export const useAIMessageHandler = ({
       } catch (error) {
         console.error('Error in OpenAI request:', error);
         
+        // Try basic response as fallback
+        const basicResponse = await getBasicEventResponse(inputText);
+        if (basicResponse) {
+          onSetIsLoading(false);
+          onAddSystemMessage(basicResponse, tempId);
+          onClearInput();
+          return;
+        }
+        
         // Implement retry logic for recoverable errors
         if (retryCount < MAX_RETRIES && 
             (error.message?.includes('timeout') || 
@@ -145,7 +275,7 @@ export const useAIMessageHandler = ({
         // If max retries exceeded or unrecoverable error, show error message
         onSetIsLoading(false);
         onAddSystemMessage(
-          "I'm having trouble generating a response right now. This might be due to high demand or a temporary service issue. Please try again in a moment.",
+          "I'm having trouble generating a response right now. Please try asking about specific events by name or code for better results.",
           tempId
         );
         onClearInput();
@@ -154,7 +284,7 @@ export const useAIMessageHandler = ({
     } catch (error) {
       console.error('Error in fetchAIResponse:', error);
       onSetIsLoading(false);
-      onAddSystemMessage("I encountered an error. Please try again or contact support if the issue persists.");
+      onAddSystemMessage("I encountered an error. Please try asking about specific events, tasks, or contacts instead.");
       onClearInput();
       throw error;
     }

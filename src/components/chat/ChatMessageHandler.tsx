@@ -15,6 +15,7 @@ interface ChatMessageHandlerProps {
   isLoading?: boolean;
   setInputValue?: (value: string) => void;
   clearInput?: () => void;
+  forceLocalData?: boolean;
 }
 
 const ChatMessageHandler = ({ 
@@ -23,7 +24,8 @@ const ChatMessageHandler = ({
   inputValue = "",
   isLoading = false,
   setInputValue = () => {},
-  clearInput = () => {}
+  clearInput = () => {},
+  forceLocalData = false
 }: ChatMessageHandlerProps) => {
   const {
     messages,
@@ -35,7 +37,8 @@ const ChatMessageHandler = ({
     inputValue,
     isLoading,
     setInputValue,
-    clearInput
+    clearInput,
+    forceLocalData
   });
 
   // Ensure messages are passed correctly to children

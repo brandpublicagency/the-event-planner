@@ -11,13 +11,15 @@ interface UseStreamingChatProps {
   onSetPendingAction: (action: PendingAction | null) => void;
   onSetIsLoading: (isLoading: boolean) => void;
   contextData?: any;
+  forceLocalData?: boolean;
 }
 
 export function useStreamingChat({
   onAddSystemMessage,
   onSetPendingAction,
   onSetIsLoading,
-  contextData
+  contextData,
+  forceLocalData = false
 }: UseStreamingChatProps) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +30,11 @@ export function useStreamingChat({
     messages: ChatMessage[],
     tempMessageId: string
   ) => {
+    // Don't use streaming if forceLocalData is true
+    if (forceLocalData) {
+      throw new Error('Streaming not available in local data mode');
+    }
+    
     // Reset state
     setError(null);
     setIsStreaming(true);
@@ -36,12 +43,12 @@ export function useStreamingChat({
     
     if (!contextData) {
       onAddSystemMessage(
-        "I don't have access to your data right now. Please try again in a moment.",
+        "I don't have access to your data right now. Please try asking about specific events instead.",
         tempMessageId
       );
       setIsStreaming(false);
       onSetIsLoading(false);
-      return;
+      throw new Error('No context data available');
     }
     
     // Generate system message with context data
@@ -94,9 +101,10 @@ export function useStreamingChat({
           console.error('Streaming error:', errorMessage);
           setError(errorMessage);
           onAddSystemMessage(
-            "I encountered an error while generating a response. Please try again.",
+            "I encountered an error while generating a response. Please try asking about specific events instead.",
             tempMessageId
           );
+          throw new Error(errorMessage);
         },
         onComplete: () => {
           console.log('Streaming complete');
@@ -133,14 +141,15 @@ export function useStreamingChat({
       console.error('Error in streamResponse:', error);
       setError(error.message || 'Unknown error');
       onAddSystemMessage(
-        "I encountered an error while generating a response. Please try again.",
+        "I encountered an error while generating a response. Please try asking about specific events instead.",
         tempMessageId
       );
       setIsStreaming(false);
       streamingMessageId.current = null;
       onSetIsLoading(false);
+      throw error;
     }
-  }, [contextData, onAddSystemMessage, onSetIsLoading, onSetPendingAction]);
+  }, [contextData, onAddSystemMessage, onSetIsLoading, onSetPendingAction, forceLocalData]);
 
   return {
     streamResponse,

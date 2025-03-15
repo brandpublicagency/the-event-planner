@@ -1,6 +1,6 @@
 
-import { useCallback } from "react";
-import { ChatMessage, PendingAction } from "@/types/chat";
+import { FormEvent } from "react";
+import { PendingAction, ChatMessage } from "@/types/chat";
 
 interface UseSubmitHandlerProps {
   inputValue: string;
@@ -9,19 +9,20 @@ interface UseSubmitHandlerProps {
   isLoading: boolean;
   isStreaming: boolean;
   useStreamingMode: boolean;
-  addUserMessage: (text: string) => void;
+  addUserMessage: (message: string) => void;
   clearInput: () => void;
-  setIsLoading: (isLoading: boolean) => void;
-  handlePendingAction: (pendingAction: PendingAction, isConfirmed: boolean) => Promise<void>;
+  setIsLoading: (loading: boolean) => void;
+  handlePendingAction: (action: PendingAction, confirmation: boolean) => Promise<void>;
   fetchAIResponse: (inputText: string, messages?: ChatMessage[]) => Promise<void>;
-  fetchWhatsAppResponse: (inputText: string) => Promise<void>;
-  processConfirmation: (inputValue: string, pendingAction: PendingAction) => Promise<void>;
-  setUseStreamingMode: (useStreamingMode: boolean) => void;
-  setRetryAttempts: (retryAttempts: number | ((prevAttempts: number) => number)) => void;
+  fetchWhatsAppResponse?: (inputText: string) => Promise<void>;
+  processConfirmation: (input: string) => boolean;
+  setUseStreamingMode: (useStreaming: boolean) => void;
+  setRetryAttempts: (attempts: number) => void;
   setTempMessageId: (id: string | null) => void;
   addSystemMessage: (message: string, messageId?: string) => void;
   retryAttempts: number;
   tempMessageId: string | null;
+  forceLocalData?: boolean;
 }
 
 export const useSubmitHandler = ({
@@ -43,117 +44,111 @@ export const useSubmitHandler = ({
   setTempMessageId,
   addSystemMessage,
   retryAttempts,
-  tempMessageId
+  tempMessageId,
+  forceLocalData = false
 }: UseSubmitHandlerProps) => {
-  
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    
-    // Prevent submission when loading
-    if (isLoading || isStreaming) {
-      console.log('Already processing a message, please wait...');
+
+    if (!inputValue.trim() || isLoading || isStreaming) {
       return;
     }
     
-    // Check if there's a pending confirmation action
+    // Handle confirmations first
     if (pendingAction) {
-      await processConfirmation(inputValue, pendingAction);
-      return;
+      const wasProcessed = processConfirmation(inputValue);
+      if (wasProcessed) return;
     }
 
-    // Don't process empty messages
-    if (!inputValue.trim()) return;
-    
-    // Add user message to the chat
-    const userMessage = { text: inputValue, isUser: true, id: Date.now().toString() };
-    addUserMessage(inputValue);
-    
-    // Start loading state
+    // Show loading indicator
     setIsLoading(true);
-    
-    // Clear input after sending
-    clearInput();
 
     try {
-      console.log('Using streaming mode:', useStreamingMode);
-      
-      if (useStreamingMode) {
-        // Use streaming mode with full conversation history
-        await fetchAIResponse(inputValue, [...messages, userMessage]);
-        setRetryAttempts(0);
-      } else {
-        // Use regular (non-streaming) mode
-        console.log('Attempting to use regular AI response handler');
+      // Use the streaming mode by default
+      if (useStreamingMode && !forceLocalData) {
+        try {
+          // Clear any existing temp message ID
+          if (tempMessageId) {
+            setTempMessageId(null);
+          }
+          
+          await fetchAIResponse(inputValue, messages);
+          clearInput();
+          return;
+        } catch (error) {
+          console.error('Error in streaming mode, switching to local data:', error);
+          // If streaming fails, switch to local data mode
+          if (!forceLocalData) {
+            // Only set this if not already in force local data mode
+            setUseStreamingMode(false);
+            setRetryAttempts(retryAttempts + 1);
+          }
+        }
+      }
+
+      // If stream failed or isn't being used, try the local data approach
+      try {
         await fetchAIResponse(inputValue);
-        setRetryAttempts(0);
+      } catch (error) {
+        console.error('Error in local AI mode:', error);
+        
+        // If we have a WhatsApp handler and local data failed, try that
+        if (fetchWhatsAppResponse) {
+          try {
+            await fetchWhatsAppResponse(inputValue);
+          } catch (whatsappError) {
+            console.error('WhatsApp fallback also failed:', whatsappError);
+            
+            // If both approaches failed, show an error message
+            if (tempMessageId) {
+              addSystemMessage(
+                "I'm having trouble connecting to any of our services. Please try again later or check your network connection.",
+                tempMessageId
+              );
+            } else {
+              addSystemMessage(
+                "I'm having trouble connecting to any of our services. Please try again later or check your network connection."
+              );
+            }
+          }
+        } else {
+          // If no WhatsApp handler, show the error
+          if (tempMessageId) {
+            addSystemMessage(
+              "I couldn't process your request. Please try asking something different or more specific.",
+              tempMessageId
+            );
+          } else {
+            addSystemMessage(
+              "I couldn't process your request. Please try asking something different or more specific."
+            );
+          }
+        }
       }
     } catch (error) {
-      console.error('Error with AI response:', error);
+      console.error('Unhandled error in handleSubmit:', error);
       
-      // If streaming fails, try regular mode
-      if (useStreamingMode) {
-        console.log('Streaming failed, falling back to regular mode');
-        setUseStreamingMode(false);
-        
-        try {
-          await fetchAIResponse(inputValue);
-          setRetryAttempts(0);
-          return;
-        } catch (regularError) {
-          console.error('Regular mode also failed:', regularError);
-        }
-      }
+      // Reset loading state
+      setIsLoading(false);
       
-      // Fall back to using WhatsApp Webhook function
-      try {
-        console.log('Falling back to WhatsApp handler');
-        
-        // Update the temporary message
-        const tempId = String(Date.now());
-        setTempMessageId(tempId);
-        addSystemMessage("Processing...", tempId);
-        
-        await fetchWhatsAppResponse(inputValue);
-        setRetryAttempts(0);
-      } catch (fallbackError) {
-        console.error('WhatsApp fallback also failed:', fallbackError);
-        
-        // Increment retry counter
-        const newAttempts = retryAttempts + 1;
-        setRetryAttempts(newAttempts);
-        
-        // Determine error message based on retry attempts
-        let errorMessage = "I'm having trouble connecting to the assistant services. Please try again later.";
-        
-        if (newAttempts > 1) {
-          errorMessage = "I'm still having connection issues. Please check your internet connection or try again in a few minutes.";
-        }
-        
-        addSystemMessage(errorMessage, tempMessageId);
-        setIsLoading(false);
+      // Show error message
+      if (tempMessageId) {
+        addSystemMessage(
+          "I encountered an unexpected error. Please try again with a different question.",
+          tempMessageId
+        );
+      } else {
+        addSystemMessage(
+          "I encountered an unexpected error. Please try again with a different question."
+        );
       }
+    } finally {
+      // Always clear the input
+      clearInput();
     }
-  }, [
-    inputValue, 
-    pendingAction, 
-    isLoading,
-    isStreaming,
-    useStreamingMode,
-    messages,
-    addUserMessage, 
-    addSystemMessage, 
-    clearInput, 
-    fetchAIResponse, 
-    fetchWhatsAppResponse, 
-    handlePendingAction, 
-    setIsLoading,
-    retryAttempts,
-    setTempMessageId,
-    setRetryAttempts,
-    processConfirmation,
-    tempMessageId,
-    setUseStreamingMode
-  ]);
+  };
 
-  return { handleSubmit };
+  return {
+    handleSubmit
+  };
 };
