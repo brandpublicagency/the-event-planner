@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -82,12 +83,12 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
             </div>
           </div>
           
-          {/* Actions */}
-          <div className="flex items-center px-3 border-l border-zinc-50">
+          {/* Actions - Changed from horizontal to vertical layout */}
+          <div className="flex flex-col justify-center px-3 border-l border-zinc-50">
             <Button variant="ghost" size="icon" onClick={e => {
             e.stopPropagation();
             navigate(`/events/${event.event_code}/edit`);
-          }} className="h-8 w-8 rounded-full">
+          }} className="h-8 w-8 rounded-full mb-1">
               <Edit className="h-4 w-4 text-zinc-400" />
             </Button>
             
