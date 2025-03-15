@@ -82,7 +82,7 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         <div className="flex flex-col h-full overflow-hidden">
           <div 
-            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center rounded-xl mb-4"
+            className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
             style={{ 
               backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
               backgroundSize: 'cover',
@@ -90,11 +90,14 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            <div className="flex items-center gap-2">
+            {/* White overlay with 80% opacity */}
+            <div className="absolute inset-0 bg-white/80 rounded-xl"></div>
+            
+            <div className="flex items-center gap-2 relative z-10">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
               <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
             </div>
-            <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full">
+            <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full relative z-10">
               <Plus className="h-4 w-4 mr-1.5" />
               New Event
             </Button>
@@ -135,7 +138,7 @@ const Index = () => {
 
         <div className="flex flex-col h-full overflow-hidden">
           <div 
-            className="flex items-center justify-between p-4 border-b bg-no-repeat bg-cover bg-center rounded-xl mb-4"
+            className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
             style={{ 
               backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
               backgroundSize: 'cover',
@@ -143,11 +146,14 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            <div className="flex items-center gap-2">
+            {/* White overlay with 80% opacity */}
+            <div className="absolute inset-0 bg-white/80 rounded-xl"></div>
+            
+            <div className="flex items-center gap-2 relative z-10">
               <CheckSquare className="h-5 w-5 text-zinc-700" />
               <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
             </div>
-            <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full">
+            <Button onClick={() => navigate('/tasks')} size="sm" variant="outline" className="rounded-full relative z-10">
               <Plus className="h-4 w-4 mr-1.5" />
               New Task
             </Button>
