@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -77,7 +76,6 @@ const Index = () => {
       <Header pageTitle="Dashboard" />
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
-        {/* Left Column - Upcoming Events (spans 6 columns on desktop) */}
         <div className="md:col-span-6 flex flex-col order-3 md:order-1 h-full overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
@@ -88,8 +86,7 @@ const Index = () => {
               marginBottom: '15px'
             }}
           >
-            {/* White overlay with 90% opacity */}
-            <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
+            <div className="absolute inset-0 bg-white/95 rounded-xl"></div>
             
             <div className="flex items-center gap-2 relative z-10">
               <CalendarClock className="h-5 w-5 text-zinc-700" />
@@ -134,9 +131,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Column - Chat, Greeting, and Tasks (spans 6 columns on desktop) */}
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
-          {/* Greeting Card - moved to the top */}
           <Card className="rounded-xl p-6 border-0" style={{ 
             background: 'linear-gradient(135deg, #FFDEE2 0%, #D6BCFA 100%)' 
           }}>
@@ -148,12 +143,10 @@ const Index = () => {
             </div>
           </Card>
           
-          {/* Chat Box - moved to the middle */}
           <div className="h-72">
             <ChatBox />
           </div>
           
-          {/* Upcoming Tasks Section - at the bottom */}
           <div>
             <div 
               className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
@@ -164,8 +157,7 @@ const Index = () => {
                 marginBottom: '15px'
               }}
             >
-              {/* White overlay with 90% opacity */}
-              <div className="absolute inset-0 bg-white/90 rounded-xl"></div>
+              <div className="absolute inset-0 bg-white/95 rounded-xl"></div>
               
               <div className="flex items-center gap-2 relative z-10">
                 <CheckSquare className="h-5 w-5 text-zinc-700" />
@@ -180,7 +172,7 @@ const Index = () => {
               tasks={upcomingTasks}
               onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
-              hideHeader={true} // Hide the header in TaskList since we're providing our own
+              hideHeader={true}
             />
           </div>
         </div>
