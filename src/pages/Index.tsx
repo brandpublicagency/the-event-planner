@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -132,14 +133,14 @@ const Index = () => {
         </div>
 
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
-          <Card className="rounded-xl p-6 border border-gray-100 shadow-sm overflow-hidden">
+          <Card className="rounded-xl p-6 overflow-hidden border-0 shadow-none">
             <div className="space-y-1 relative z-10">
               <h2 className="text-xl font-semibold text-gray-800">Hello LeRoux,</h2>
               <p className="text-gray-700">
                 Today is <span className="font-semibold">Karla + Regard's Wedding Day!</span> Remember, this is their most special day, and you are part of it! Good luck, and kick ass!
               </p>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-sky-100 -z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-600 to-gray-700 -z-10"></div>
           </Card>
           
           <div className="h-72">
