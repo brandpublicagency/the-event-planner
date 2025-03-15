@@ -16,7 +16,25 @@ export const useConfirmationHandler = ({
   handlePendingAction
 }: UseConfirmationHandlerProps) => {
   
-  const processConfirmation = useCallback(async (
+  // Change the function signature to match what's expected by useChatMessageHandler
+  const processConfirmation = useCallback((inputValue: string): boolean => {
+    const isConfirming = 
+      inputValue.toLowerCase().includes('yes') || 
+      inputValue.toLowerCase().includes('confirm') ||
+      inputValue.toLowerCase().includes('ok') ||
+      inputValue.toLowerCase().includes('sure');
+      
+    const isDeclining = 
+      inputValue.toLowerCase().includes('no') ||
+      inputValue.toLowerCase().includes('cancel') ||
+      inputValue.toLowerCase().includes('don\'t');
+    
+    // Only return true if the input was processed as a confirmation/denial
+    return isConfirming || isDeclining;
+  }, []);
+  
+  // Add the function that actually handles the confirmation logic
+  const handleConfirmation = useCallback(async (
     inputValue: string, 
     pendingAction: PendingAction
   ) => {
@@ -47,5 +65,5 @@ export const useConfirmationHandler = ({
     }
   }, [addUserMessage, addSystemMessage, clearInput, handlePendingAction]);
   
-  return { processConfirmation };
+  return { processConfirmation, handleConfirmation };
 };

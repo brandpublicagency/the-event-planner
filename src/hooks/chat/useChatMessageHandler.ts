@@ -94,7 +94,7 @@ export const useChatMessageHandler = ({
   const { handlePendingAction } = useActionHandler();
   
   // Set up confirmation handler
-  const { processConfirmation } = useConfirmationHandler({
+  const { processConfirmation, handleConfirmation } = useConfirmationHandler({
     addUserMessage,
     addSystemMessage,
     clearInput,
@@ -116,6 +116,7 @@ export const useChatMessageHandler = ({
     fetchAIResponse,
     fetchWhatsAppResponse,
     processConfirmation,
+    handleConfirmation, // Add the new handleConfirmation function
     setUseStreamingMode,
     setRetryAttempts,
     setTempMessageId,

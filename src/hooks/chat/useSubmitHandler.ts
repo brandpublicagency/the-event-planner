@@ -15,7 +15,8 @@ interface UseSubmitHandlerProps {
   handlePendingAction: (action: PendingAction, confirmation: boolean) => Promise<void>;
   fetchAIResponse: (inputText: string, messages?: ChatMessage[]) => Promise<void>;
   fetchWhatsAppResponse?: (inputText: string) => Promise<void>;
-  processConfirmation: (input: string) => boolean; // Fixed type signature
+  processConfirmation: (input: string) => boolean; // Process confirmation keeps the same signature
+  handleConfirmation?: (input: string, action: PendingAction) => Promise<void>; // Add the new function
   setUseStreamingMode: (useStreaming: boolean) => void;
   setRetryAttempts: (attempts: number) => void;
   setTempMessageId: (id: string | null) => void;
@@ -39,6 +40,7 @@ export const useSubmitHandler = ({
   fetchAIResponse,
   fetchWhatsAppResponse,
   processConfirmation,
+  handleConfirmation,
   setUseStreamingMode,
   setRetryAttempts,
   setTempMessageId,
@@ -56,8 +58,31 @@ export const useSubmitHandler = ({
     
     // Handle confirmations first
     if (pendingAction) {
-      const wasProcessed = processConfirmation(inputValue);
-      if (wasProcessed) return;
+      const isConfirmationInput = processConfirmation(inputValue);
+      
+      if (isConfirmationInput && handleConfirmation) {
+        // Use the new handleConfirmation function if available
+        await handleConfirmation(inputValue, pendingAction);
+        return;
+      } else if (isConfirmationInput) {
+        // Fallback to manually processing confirmation
+        addUserMessage(inputValue);
+        
+        const isConfirming = 
+          inputValue.toLowerCase().includes('yes') || 
+          inputValue.toLowerCase().includes('confirm') ||
+          inputValue.toLowerCase().includes('ok') ||
+          inputValue.toLowerCase().includes('sure');
+          
+        if (isConfirming) {
+          await handlePendingAction(pendingAction, true);
+        } else {
+          await handlePendingAction(pendingAction, false);
+        }
+        
+        clearInput();
+        return;
+      }
     }
 
     // Add user message to chat
