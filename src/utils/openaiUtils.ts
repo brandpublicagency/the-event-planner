@@ -1,7 +1,8 @@
+
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { getChatCompletion } from "@/services/openai";
 
-export const TIMEOUT_DURATION = 30000; // Reduced from 45000 for faster fallback
+export const TIMEOUT_DURATION = 25000; // Optimized timeout for GPT-4o
 
 export const handleOpenAIRequest = async (
   messages: ChatCompletionMessageParam[],
@@ -14,8 +15,11 @@ export const handleOpenAIRequest = async (
   });
 
   try {
-    // Add logging for debugging
-    console.log(`Sending OpenAI request with ${messages.length} messages`);
+    // Enhanced logging for debugging
+    console.log(`Sending OpenAI GPT-4o request with ${messages.length} messages`);
+    console.log(`System message length: ${
+      messages.find(m => m.role === 'system')?.content?.toString().length || 0
+    } characters`);
     
     const response = await Promise.race([
       getChatCompletion(messages),
@@ -23,15 +27,16 @@ export const handleOpenAIRequest = async (
     ]);
 
     if (!response) {
-      console.warn('Empty response from OpenAI, triggering fallback');
+      console.warn('Empty response from OpenAI GPT-4o, triggering fallback');
       onTimeout();
       return null;
     }
 
     return response;
   } catch (error: any) {
-    console.error('Error in OpenAI request:', error.message);
+    console.error('Error in OpenAI GPT-4o request:', error.message);
     if (error.message.includes("timeout") || error.message.includes("timed out")) {
+      console.log('Timeout detected, triggering fallback');
       onTimeout();
     }
     return null; // Return null to trigger fallback in calling code
@@ -43,6 +48,9 @@ export const prepareOpenAIMessages = (
   chatMessages: { text: string; isUser: boolean }[],
   currentInput: string
 ): ChatCompletionMessageParam[] => {
+  // Log the system message length for debugging
+  console.log(`Preparing system message of length: ${systemMessage.length}`);
+  
   const systemMessageObj: ChatCompletionMessageParam = {
     role: "system",
     content: systemMessage

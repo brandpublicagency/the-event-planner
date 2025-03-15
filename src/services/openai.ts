@@ -19,12 +19,12 @@ export const getChatCompletion = async (messages: ChatCompletionMessageParam[]) 
   try {
     const completion = await openai.chat.completions.create({
       messages,
-      model: "gpt-4o-mini", // Using more capable model
-      temperature: 0.5,     // Lower temperature for more factual responses
-      max_tokens: 1200,     // Increased token limit for more detailed responses
+      model: "gpt-4o", // Upgraded from gpt-4o-mini to the more capable gpt-4o
+      temperature: 0.5,
+      max_tokens: 1500,    // Increased token limit for more detailed responses
       presence_penalty: 0.4,
       frequency_penalty: 0.3,
-      function_call: "auto",  // Allow the model to decide when to call functions
+      function_call: "auto",
       functions: [
         {
           name: "update_event",

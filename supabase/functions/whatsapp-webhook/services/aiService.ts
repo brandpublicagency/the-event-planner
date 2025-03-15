@@ -7,12 +7,12 @@ const openai = new OpenAI({
 });
 
 export const generateCompletion = async (systemPrompt: string, userQuestion: string) => {
-  console.log('Generating AI completion');
+  console.log('Generating AI completion with GPT-4o');
   
   try {
     const completion = await withTimeout(
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o", // Upgraded to GPT-4o from gpt-4o-mini
         messages: [
           {
             role: "system",
@@ -23,7 +23,7 @@ export const generateCompletion = async (systemPrompt: string, userQuestion: str
             content: userQuestion
           }
         ],
-        max_tokens: 800,
+        max_tokens: 1000, // Increased tokens for more detailed responses
         temperature: 0.5
       }),
       'AI completion'
