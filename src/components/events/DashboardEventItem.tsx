@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -65,6 +66,12 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                   </div>
                 </div>
               </div>
+              
+              {/* Added 2px padding below event+event code div */}
+              <div className="pb-2"></div>
+              
+              {/* Added 2px padding above venue+pax div */}
+              <div className="pt-2"></div>
               
               <div className="flex items-center justify-between text-xs text-zinc-500 -mt-3 my-[14px]">
                 <div className="flex items-center">
