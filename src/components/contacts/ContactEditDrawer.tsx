@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { updateContact } from "@/services/contactService";
 import type { Contact } from "@/types/contact";
 import OffCanvasDrawer from "@/components/ui/off-canvas-drawer";
@@ -57,10 +57,11 @@ const ContactEditDrawer = ({
         key => values[key as keyof ContactFormValues] !== originalValues[key as keyof typeof originalValues]
       );
       
+      // Update the contact first
       const updatedContact = await updateContact(contact, values);
       
-      // Log the activity
-      if (changedFields.length > 0) {
+      // Then log the activity and ignore the return value
+      if (changedFields.length > 0 && updatedContact) {
         await logContactUpdated(updatedContact, changedFields);
       }
       

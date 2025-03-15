@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { TaskUpdate } from "@/contexts/TaskContext";
 import { useTaskActivityLogging } from "@/hooks/useTaskActivityLogging";
 
@@ -34,7 +34,8 @@ export function useTaskMutation(taskId: string) {
       // Log the changes if successful
       if (updatedTask) {
         const updatedFields = Object.keys(updates);
-        return await logTaskUpdated(updatedTask, updatedFields);
+        // logTaskUpdated returns the updated task as is, ignoring its return value
+        await logTaskUpdated(updatedTask, updatedFields);
       }
       
       return updatedTask;

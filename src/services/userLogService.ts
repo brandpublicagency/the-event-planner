@@ -61,7 +61,13 @@ export const getRecentActivities = async (limit = 10): Promise<UserActivity[]> =
       return [];
     }
     
-    return data || [];
+    // Convert JSON details to Record<string, any>
+    return (data || []).map(item => ({
+      ...item,
+      details: typeof item.details === 'string' 
+        ? JSON.parse(item.details) 
+        : (item.details || {})
+    })) as UserActivity[];
   } catch (error) {
     console.error("Failed to fetch recent activities:", error);
     return [];
@@ -83,7 +89,13 @@ export const getEntityHistory = async (entityType: string, entityId: string, lim
       return [];
     }
     
-    return data || [];
+    // Convert JSON details to Record<string, any>
+    return (data || []).map(item => ({
+      ...item,
+      details: typeof item.details === 'string' 
+        ? JSON.parse(item.details) 
+        : (item.details || {})
+    })) as UserActivity[];
   } catch (error) {
     console.error(`Failed to fetch history for ${entityType} ${entityId}:`, error);
     return [];

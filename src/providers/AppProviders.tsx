@@ -5,6 +5,7 @@ import { queryClient } from "@/lib/react-query";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { Toaster } from "@/components/ui/toaster";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ScheduledNotificationProvider } from "@/contexts/ScheduledNotificationContext";
 
 export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,8 +13,10 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
       <QueryClientProvider client={queryClient}>
         <TaskProvider>
           <NotificationProvider>
-            {children}
-            <Toaster />
+            <ScheduledNotificationProvider>
+              {children}
+              <Toaster />
+            </ScheduledNotificationProvider>
           </NotificationProvider>
         </TaskProvider>
       </QueryClientProvider>
