@@ -1,9 +1,11 @@
+
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
 import { useChatContext } from "@/hooks/useChatContext";
 import { useChatState } from "@/hooks/useChatState";
 import ChatMessageHandler from "./ChatMessageHandler";
+import ChatInput from "./ChatInput";
 import { useEffect, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 
@@ -125,7 +127,12 @@ const ChatContainer = () => {
           clearInput={clearInput}
         >
           {({ messages, isLoading, pendingAction, handleSubmit }) => (
-            <></>
+            <ChatInput
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+            />
           )}
         </ChatMessageHandler>
       </Card>
