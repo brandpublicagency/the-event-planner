@@ -36,9 +36,8 @@ export function useNotificationSystem() {
 
   // Override markAsRead to update local state
   const handleMarkAsRead = useCallback(async (id: string) => {
-    const success = await markAsRead(id);
-    
-    if (success) {
+    try {
+      await markAsRead(id);
       setPendingNotifications(prev => 
         prev.map(notification => 
           notification.id === id 
@@ -46,20 +45,25 @@ export function useNotificationSystem() {
             : notification
         )
       );
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return Promise.reject(error);
     }
-    return Promise.resolve();
   }, [markAsRead]);
 
   // Override markAsCompleted to update local state
   const handleMarkAsCompleted = useCallback(async (id: string) => {
-    const success = await markAsCompleted(id);
-    
-    if (success) {
+    try {
+      await markAsCompleted(id);
       setPendingNotifications(prev => 
         prev.filter(notification => notification.id !== id)
       );
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error marking notification as completed:', error);
+      return Promise.reject(error);
     }
-    return Promise.resolve();
   }, [markAsCompleted]);
 
   // Load notifications on component mount

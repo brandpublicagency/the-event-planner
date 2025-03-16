@@ -23,4 +23,5 @@ export interface NotificationContextType {
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => void;
   clearNotifications: () => void;
+  markAsCompleted?: (id: string) => Promise<void>; // Added this optional method
 }
