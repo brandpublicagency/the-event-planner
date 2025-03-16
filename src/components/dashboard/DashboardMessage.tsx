@@ -31,10 +31,15 @@ const DashboardMessage = () => {
   
   if (isLoading || isProfileLoading) {
     return (
-      <Card className="p-6 mb-6 bg-white shadow-sm">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-2/3 mt-2" />
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+        <Card className="p-6 col-span-4 bg-white shadow-sm">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-2/3 mt-2" />
+        </Card>
+        <Card className="p-6 col-span-2 shadow-sm">
+          <Skeleton className="h-28 w-full" />
+        </Card>
+      </div>
     );
   }
 
@@ -60,26 +65,26 @@ const DashboardMessage = () => {
   const tomorrowFormatted = format(tomorrow, "EEEE, d MMMM yyyy").toUpperCase();
   
   return (
-    <Card className="p-6 mb-6 shadow-sm bg-white/0">
-      <div className="flex flex-col md:flex-row gap-4 justify-between">
-        <div className="flex-1">
-          <h2 className="text-2xl font-semibold text-gray-800">{personalizedGreeting}</h2>
-          
-          {error ? (
-            <div className="flex items-start space-x-3 text-amber-600 mt-2">
-              <AlertCircle className="h-5 w-5 mt-0.5" />
-              <p>Unable to load personalized updates. Check your connection and try again.</p>
-            </div>
-          ) : (
-            <p className="text-gray-600 mt-1">{dashboardMessage.message}</p>
-          )}
-          
-          <div className="inline-block rounded-md bg-gray-100 px-4 py-1 mt-4 text-sm text-gray-700 uppercase tracking-wide font-medium">
-            {todayFormatted.toUpperCase()}
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+      <Card className="p-6 col-span-4 bg-white shadow-sm">
+        <h2 className="text-2xl font-semibold text-gray-800">{personalizedGreeting}</h2>
         
-        {weatherData && (
+        {error ? (
+          <div className="flex items-start space-x-3 text-amber-600 mt-2">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <p>Unable to load personalized updates. Check your connection and try again.</p>
+          </div>
+        ) : (
+          <p className="text-gray-600 mt-1">{dashboardMessage.message}</p>
+        )}
+        
+        <div className="inline-block rounded-md bg-gray-100 px-4 py-1 mt-4 text-sm text-gray-700 uppercase tracking-wide font-medium">
+          {todayFormatted.toUpperCase()}
+        </div>
+      </Card>
+      
+      {weatherData && (
+        <div className="col-span-2">
           <WeatherCard 
             date={tomorrowFormatted}
             location="Warm Karoo, Bloemfontein"
@@ -87,11 +92,10 @@ const DashboardMessage = () => {
             highTemp={highTemp}
             chanceOfRain={chanceOfRain}
             weatherData={weatherData}
-            className="w-full md:w-80"
           />
-        )}
-      </div>
-    </Card>
+        </div>
+      )}
+    </div>
   );
 };
 

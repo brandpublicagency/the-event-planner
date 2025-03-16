@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { format } from 'date-fns';
 import { MapPin, Droplet, Cloud, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog, Moon, Sunrise, Sunset } from 'lucide-react';
 
 interface WeatherCardProps {
@@ -101,31 +100,12 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   const rainColorClass = 
     chanceOfRain === "HIGH" ? "text-white" :
     chanceOfRain === "MEDIUM" ? "text-yellow-100" : "text-green-100";
-  
-  // Get time period description for accessibility
-  const getTimePeriodDescription = (hour: number) => {
-    if (hour >= 5 && hour < 8) return "Early Morning";
-    if (hour >= 8 && hour < 12) return "Morning";
-    if (hour >= 12 && hour < 16) return "Midday";
-    if (hour >= 16 && hour < 19) return "Late Afternoon";
-    if (hour >= 19 && hour < 22) return "Evening";
-    return "Night";
-  };
 
   return (
-    <div 
-      className={`rounded-xl overflow-hidden shadow-sm ${className}`} 
-      aria-label={`Weather for ${location}, ${getTimePeriodDescription(currentHour)}`}
-    >
-      <div className={`${gradientClass} text-white p-5 flex flex-col h-full relative`}>
-        {/* Large weather icon in background */}
-        <div className="absolute top-3 right-3 opacity-10">
-          {getWeatherIcon()}
-          <div className="h-24 w-24" />
-        </div>
-        
+    <div className={`rounded-xl overflow-hidden shadow-sm ${className}`}>
+      <div className={`${gradientClass} text-white p-5 flex flex-col h-full`}>
         {/* Header section with date and location */}
-        <div className="mb-4 z-10">
+        <div className="mb-3">
           <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
           <div className="flex items-center mt-1.5 text-xs text-white/90">
             <MapPin className="h-3 w-3 mr-1.5" />
@@ -133,37 +113,32 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           </div>
         </div>
         
-        {/* Clear divider */}
-        <div className="border-t border-white/10 my-2"></div>
-        
         {/* Temperature display section */}
-        <div className="grid grid-cols-2 gap-3 my-3 z-10">
-          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
+        <div className="grid grid-cols-2 gap-3 my-3">
+          <div className="flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-sm rounded-md">
             <span className="text-xs text-white/80 mb-1">Low</span>
             <span className="text-4xl font-light">{displayLowTemp}°</span>
           </div>
           
-          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
+          <div className="flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-sm rounded-md">
             <span className="text-xs text-white/80 mb-1">High</span>
             <span className="text-4xl font-light">{displayHighTemp}°</span>
           </div>
         </div>
         
-        {/* Clear divider */}
-        <div className="border-t border-white/10 my-2"></div>
-        
         {/* Chance of rain indicator - bottom section */}
-        <div className="mt-auto z-10">
-          <div className="text-xs uppercase tracking-wider font-medium text-white/80 mb-1">Chance of rain</div>
-          <div className="flex items-center">
-            <Droplet className="h-4 w-4 mr-2 text-white/70" />
-            <span className={`font-semibold text-sm ${rainColorClass}`}>{chanceOfRain}</span>
+        <div className="mt-3 flex justify-between items-center">
+          <div>
+            <div className="text-xs uppercase tracking-wider font-medium text-white/80 mb-1">Chance of rain</div>
+            <div className="flex items-center">
+              <Droplet className="h-4 w-4 mr-2 text-white/70" />
+              <span className={`font-semibold text-sm ${rainColorClass}`}>{chanceOfRain}</span>
+            </div>
           </div>
-        </div>
-        
-        {/* Small weather icon indicator */}
-        <div className="absolute bottom-4 right-4 z-10 bg-white/20 rounded-full p-1.5">
-          {getWeatherIcon()}
+          
+          <div className="bg-white/20 rounded-full p-2">
+            {getWeatherIcon()}
+          </div>
         </div>
       </div>
     </div>
