@@ -1,3 +1,4 @@
+
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
@@ -29,25 +30,32 @@ const DashboardMessage = () => {
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
 
   let borderColorClass = "";
+  let textColorClass = "";
   let gradientClass = "";
 
   if (hour >= 5 && hour < 8) {
     borderColorClass = "border-indigo-300/40";
+    textColorClass = "text-indigo-300";
     gradientClass = "bg-gradient-to-r from-gray-400/30 to-indigo-300/30";
   } else if (hour >= 8 && hour < 12) {
     borderColorClass = "border-sky-300/40";
+    textColorClass = "text-sky-300";
     gradientClass = "bg-gradient-to-r from-blue-200/30 to-sky-300/30";
   } else if (hour >= 12 && hour < 16) {
     borderColorClass = "border-cyan-400/40";
+    textColorClass = "text-cyan-400";
     gradientClass = "bg-gradient-to-r from-blue-300/30 to-cyan-400/30";
   } else if (hour >= 16 && hour < 19) {
     borderColorClass = "border-amber-200/40";
+    textColorClass = "text-amber-200";
     gradientClass = "bg-gradient-to-r from-amber-200/30 to-gray-400/30";
   } else if (hour >= 19 && hour < 22) {
     borderColorClass = "border-purple-400/40";
+    textColorClass = "text-purple-400";
     gradientClass = "bg-gradient-to-r from-gray-500/30 to-purple-400/30";
   } else {
     borderColorClass = "border-blue-800/40";
+    textColorClass = "text-blue-800";
     gradientClass = "bg-gradient-to-r from-gray-700/30 to-blue-800/30";
   }
 
@@ -92,7 +100,7 @@ const DashboardMessage = () => {
             </div> : <p className="text-gray-600 mt-1 text-sm">{dashboardMessage.message}</p>}
         </div>
         
-        <div className={`inline-block rounded-md px-3 py-3 mt-3 text-sm text-white/90 uppercase tracking-wide font-medium ${gradientClass}`}>
+        <div className={`inline-block px-3 py-3 mt-3 text-2xl font-medium tracking-wide ${textColorClass}`}>
           {todayFormatted.toUpperCase()}
         </div>
       </Card>
