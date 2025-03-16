@@ -15,7 +15,6 @@ export const NotificationDropdown: React.FC = () => {
   const {
     notifications: generalNotifications,
     markAsRead: markGeneralAsRead,
-    markAllAsRead
   } = useNotifications();
   
   const {
@@ -97,25 +96,7 @@ export const NotificationDropdown: React.FC = () => {
     <div className="max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
       <div className="p-3 border-b flex items-center justify-between">
         <h2 className="text-base font-medium text-zinc-900">Notifications</h2>
-        {totalUnreadCount > 0 && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={e => {
-              e.stopPropagation();
-              markAllAsRead();
-              toast({
-                title: "All notifications marked as read",
-                variant: "success",
-                showProgress: true,
-                duration: 2000
-              });
-            }} 
-            className="text-xs text-zinc-600 h-7 px-2"
-          >
-            Clear All
-          </Button>
-        )}
+        {/* Removed "Clear All" button as per request */}
       </div>
       
       <ScrollArea className="overflow-y-auto flex-1">
