@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
@@ -22,8 +21,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     <div 
       key={notification.id} 
       className={cn(
-        "p-3 hover:bg-zinc-50 transition-colors", 
-        !notification.read && "bg-zinc-50/50"
+        "p-4 mb-3 rounded-lg border border-zinc-100 shadow-sm bg-white",
+        !notification.read && "border-zinc-200"
       )}
     >
       <div className="flex gap-2">

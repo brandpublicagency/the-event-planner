@@ -7,27 +7,42 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface NotificationListProps {
   notifications: Notification[];
-  onView: (notification: Notification, e: React.MouseEvent) => void;
-  onComplete: (notification: Notification, e: React.MouseEvent) => void;
+  onViewDetail?: (id: string, relatedId?: string) => void;
+  onCompleteTask?: (id: string) => void;
+  listType?: string;
+  error?: Error | null;
 }
 
 export const NotificationsList: React.FC<NotificationListProps> = ({
   notifications,
-  onView,
-  onComplete
+  onViewDetail,
+  onCompleteTask,
+  error
 }) => {
   if (notifications.length === 0) {
     return <EmptyNotifications />;
   }
   
+  const handleView = (notification: Notification, e: React.MouseEvent) => {
+    if (onViewDetail) {
+      onViewDetail(notification.id, notification.relatedId);
+    }
+  };
+
+  const handleComplete = (notification: Notification, e: React.MouseEvent) => {
+    if (onCompleteTask) {
+      onCompleteTask(notification.id);
+    }
+  };
+  
   return (
-    <div className="divide-y divide-zinc-100">
+    <div className="p-2">
       {notifications.map(notification => (
         <NotificationItem 
           key={notification.id}
           notification={notification}
-          onView={onView}
-          onComplete={onComplete}
+          onView={handleView}
+          onComplete={handleComplete}
         />
       ))}
     </div>

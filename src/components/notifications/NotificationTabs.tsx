@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +66,6 @@ export const NotificationTabs = ({
       <TabsContent value="general">
         <NotificationsList 
           notifications={generalNotifications}
-          loading={generalLoading}
           onViewDetail={(id, relatedId) => onViewDetail('general', id, relatedId)}
           onCompleteTask={(id) => onCompleteTask('general', id)}
           listType="general"
@@ -75,7 +75,6 @@ export const NotificationTabs = ({
       <TabsContent value="scheduled">
         <NotificationsList 
           notifications={scheduledNotifications}
-          loading={scheduledLoading}
           onViewDetail={(id, relatedId) => onViewDetail('scheduled', id, relatedId)}
           onCompleteTask={(id) => onCompleteTask('scheduled', id)}
           listType="scheduled"

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
@@ -57,7 +58,6 @@ const Notifications = () => {
           )}
           <NotificationsList 
             notifications={notifications}
-            loading={loading}
             error={error}
             onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
             onCompleteTask={(id) => handleCompleteTask('unified', id)}
