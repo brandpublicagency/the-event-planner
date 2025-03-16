@@ -1,10 +1,10 @@
+
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarProfileProps {
@@ -72,11 +72,11 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
   return (
     <div className={cn(
-      "h-16 w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
+      "h-[65px] w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
       isCollapsed ? "justify-center px-0" : "px-4"
     )}>
       <div className={cn(
-        "flex items-center w-full",
+        "flex items-center w-[257px]",
         isCollapsed ? "justify-center" : "gap-3"
       )}>
         <Avatar 
@@ -93,41 +93,28 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
         </Avatar>
 
         {!isCollapsed && (
-          <>
-            <motion.div 
-              className="flex-1 overflow-hidden"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {isLoading ? (
-                <>
-                  <Skeleton className="h-4 w-24 mb-1" />
-                  <Skeleton className="h-3 w-20" />
-                </>
-              ) : (
-                <>
-                  <div className="text-sm font-medium truncate text-gray-900">
-                    {userInfo?.name || 'User'} {userInfo?.surname || ''}
-                  </div>
-                  <div className="text-xs text-gray-500 truncate">
-                    {userInfo?.email || 'user@example.com'}
-                  </div>
-                </>
-              )}
-            </motion.div>
-            
-            <motion.button
-              className="p-1.5 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100/50"
-              onClick={() => navigate('/profile')}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
-              title="Settings"
-            >
-              <Settings className="h-4 w-4" />
-            </motion.button>
-          </>
+          <motion.div 
+            className="flex-1 overflow-hidden"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isLoading ? (
+              <>
+                <Skeleton className="h-4 w-24 mb-1" />
+                <Skeleton className="h-3 w-20" />
+              </>
+            ) : (
+              <>
+                <div className="text-sm font-medium truncate text-gray-900">
+                  {userInfo?.name || 'User'} {userInfo?.surname || ''}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  {userInfo?.email || 'user@example.com'}
+                </div>
+              </>
+            )}
+          </motion.div>
         )}
       </div>
     </div>
