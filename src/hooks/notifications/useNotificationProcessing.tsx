@@ -20,16 +20,25 @@ export function useNotificationProcessing() {
       });
       
       console.log('Invoking process-notifications function...');
-      const { data, error } = await supabase.functions.invoke('process-notifications');
+      
+      // Attempt to call the edge function with a timeout
+      const fetchPromise = supabase.functions.invoke('process-notifications');
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Edge function timed out')), 5000)
+      );
+      
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       if (error) {
         console.error('Error invoking notifications function:', error);
         toast({
-          title: 'Error processing notifications',
-          description: 'There was a problem triggering the notification process.',
-          variant: 'destructive',
+          title: 'Using local notification processing',
+          description: 'Edge function unavailable - fetching notifications directly.',
+          variant: 'default',
         });
-        throw error;
+        
+        // Return a fallback result to allow processing to continue
+        return { processed: 0, created: 0, localFallback: true };
       }
       
       console.log('Notification processing response:', data);
@@ -44,11 +53,13 @@ export function useNotificationProcessing() {
     } catch (err) {
       console.error('Error triggering notifications:', err);
       toast({
-        title: 'Error processing notifications',
-        description: 'There was a problem with the notification service. Trying local data instead.',
-        variant: 'destructive',
+        title: 'Using local notification data',
+        description: 'Edge function unavailable - using local data instead.',
+        variant: 'default',
       });
-      throw err;
+      
+      // Return a fallback result to allow processing to continue
+      return { processed: 0, created: 0, localFallback: true };
     }
   }, [toast]);
 

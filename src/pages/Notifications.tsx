@@ -65,13 +65,22 @@ const Notifications = () => {
             onMarkAllRead={handleMarkAllRead}
             onCheckMissing={handleManualNotificationCheck}
             loading={loading}
-            showDevActions={process.env.NODE_ENV === 'development' || true} // Always show for now
+            showDevActions={true} // Always show these actions for now since we need them
           />
         }
       />
       
       <div className="p-6 flex-1">
         <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
+          {error && (
+            <Alert variant="default" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Edge Function Unavailable</AlertTitle>
+              <AlertDescription>
+                Using local notification data. Some features may be limited.
+              </AlertDescription>
+            </Alert>
+          )}
           <NotificationList 
             notifications={notifications}
             loading={loading}

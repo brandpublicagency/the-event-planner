@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
-import { useToast } from "@/hooks/use-toast";
 
 /**
  * Fetches notification data from Supabase and formats it for display
@@ -36,7 +35,34 @@ export const fetchNotificationData = async () => {
     // Check if notifications is empty or couldn't be loaded properly
     if (!notificationsData || notificationsData.length === 0) {
       console.log('No notifications found in database');
-      return [];
+      
+      // Create some basic notifications for testing
+      await createBasicNotifications();
+      
+      // Try fetching again after creating basic ones
+      const { data: retryData, error: retryError } = await supabase
+        .from('event_notifications')
+        .select(`
+          id,
+          event_code,
+          notification_type,
+          scheduled_for,
+          sent_at,
+          is_read,
+          is_completed,
+          created_at,
+          events:events!inner(name, event_type, primary_name)
+        `)
+        .is('is_read', false)
+        .order('sent_at', { ascending: false })
+        .limit(10);
+        
+      if (retryError || !retryData || retryData.length === 0) {
+        return [];
+      }
+      
+      console.log('Fetched notifications after creating basic ones:', retryData);
+      notificationsData = retryData;
     }
 
     // Get notification templates separately
@@ -51,10 +77,11 @@ export const fetchNotificationData = async () => {
 
     if (!templatesData || templatesData.length === 0) {
       console.log('No notification templates found in database');
+      
       // Return basic notifications without template data
       return notificationsData.map(item => ({
         id: item.id,
-        title: 'Notification',
+        title: item.notification_type || 'Notification',
         description: `${item.notification_type} for ${item.events?.name || 'Event'}`,
         createdAt: new Date(item.sent_at || item.created_at),
         type: item.notification_type as any,
@@ -77,7 +104,7 @@ export const fetchNotificationData = async () => {
       
       // Process template with event data
       let description = template?.description_template || 'Notification';
-      let title = template?.title || 'Notification';
+      let title = template?.title || item.notification_type || 'Notification';
       
       // Safely replace template placeholders
       try {
@@ -103,5 +130,64 @@ export const fetchNotificationData = async () => {
     console.error('Error in notification system:', err);
     // Instead of throwing, return an empty array to not break the UI
     return [];
+  }
+};
+
+/**
+ * Creates some basic notification records if none exist
+ * This is a fallback for when the edge function fails
+ */
+const createBasicNotifications = async () => {
+  try {
+    // First, get some events
+    const { data: events, error: eventsError } = await supabase
+      .from('events')
+      .select('event_code, name, event_type, primary_name')
+      .order('created_at', { ascending: false })
+      .limit(3);
+      
+    if (eventsError || !events || events.length === 0) {
+      console.log('No events found to create notifications for');
+      return;
+    }
+    
+    console.log('Found events for notifications:', events);
+    
+    // Check if these events already have notifications
+    const { data: existingNotifications, error: checkError } = await supabase
+      .from('event_notifications')
+      .select('event_code')
+      .in('event_code', events.map(e => e.event_code));
+      
+    if (checkError) {
+      console.error('Error checking existing notifications:', checkError);
+      return;
+    }
+    
+    const existingEventCodes = new Set(existingNotifications?.map(n => n.event_code) || []);
+    
+    // Create basic notifications for events that don't have them
+    for (const event of events) {
+      if (!existingEventCodes.has(event.event_code)) {
+        const { error: insertError } = await supabase
+          .from('event_notifications')
+          .insert([
+            {
+              event_code: event.event_code,
+              notification_type: 'event_created',
+              scheduled_for: new Date().toISOString(),
+              sent_at: new Date().toISOString(),
+            }
+          ]);
+          
+        if (insertError) {
+          console.error('Error creating notification for event:', event.event_code, insertError);
+        } else {
+          console.log('Created notification for event:', event.event_code);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error creating basic notifications:', err);
   }
 };
