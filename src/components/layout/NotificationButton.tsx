@@ -8,7 +8,6 @@ import {
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
-import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const NotificationButton = () => {
@@ -33,16 +32,18 @@ export const NotificationButton = () => {
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div 
-          className={`relative flex items-center gap-2 cursor-pointer ${animate ? 'animate-pulse' : ''}`}
+          className="relative inline-flex items-center cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             setOpen(!open);
           }}
         >
-          <Bell className="h-5 w-5 text-zinc-700" />
-          <span className="text-sm font-medium">Notifications</span>
+          <span className="text-base font-medium">Notifications</span>
           {totalUnreadCount > 0 && (
-            <Badge variant="notification" className="absolute -top-1 -right-1">
+            <Badge 
+              variant="notification" 
+              className="ml-1 flex items-center justify-center"
+            >
               {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
             </Badge>
           )}

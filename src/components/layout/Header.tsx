@@ -39,7 +39,6 @@ export const Header = ({
 }: HeaderProps = {}) => {
   const location = useLocation();
 
-  // Get default page title based on current route if not provided
   const getDefaultPageTitle = () => {
     const path = location.pathname;
     if (path === '/') return 'Dashboard';
@@ -69,18 +68,14 @@ export const Header = ({
             onClick={onBackButtonClick} 
           />}
           
-          {/* Page title now in the top bar */}
           {finalPageTitle}
         </div>
 
-        {/* Children content */}
         {children}
 
         <div className="ml-auto flex items-center gap-6">
-          {/* Display secondary action if provided */}
           {secondaryAction}
           
-          {/* Display action button if provided */}
           {actionButton && <Button variant={actionButton.variant || "default"} size="sm" onClick={actionButton.onClick} disabled={actionButton.disabled} className="gap-1">
               {actionButton.icon}
               {actionButton.label}
