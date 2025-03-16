@@ -5,9 +5,10 @@ import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
@@ -33,18 +34,45 @@ const Notifications = () => {
     handleViewEvent,
     handleCompleteTask,
     handleRefresh,
+    triggerNotificationProcessing
   } = useNotificationsPage();
   
+  const { toast } = useToast();
   const location = useLocation();
 
-  // Refresh notifications when the page is loaded and also trigger processing
+  // Refresh notifications when the page is loaded
   useEffect(() => {
     console.log('Notifications page mounted - refreshing notifications');
-    
-    // This will first trigger notification processing to clean up duplicates,
-    // then fetch the latest notifications afterward
     handleRefresh();
   }, [handleRefresh]);
+
+  // Process and fetch missing notifications 
+  const handleProcessNotifications = async () => {
+    toast({
+      title: "Processing notifications",
+      description: "Checking for scheduled notifications...",
+      variant: "default",
+      showProgress: true,
+    });
+    
+    try {
+      await triggerNotificationProcessing();
+      await handleRefresh();
+      
+      toast({
+        title: "Notifications processed",
+        description: "Latest notifications have been processed and loaded",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error('Error processing notifications:', error);
+      toast({
+        title: "Processing failed",
+        description: "There was an error processing notifications. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Log notifications for debugging
   console.log('Notifications page rendering with notifications:', notifications.length);
@@ -61,15 +89,26 @@ const Notifications = () => {
         <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Recent Notifications</h2>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={loading}
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleProcessNotifications}
+                disabled={loading}
+              >
+                <Zap className="h-4 w-4 mr-1" />
+                Process All
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={loading}
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Refresh
+              </Button>
+            </div>
           </div>
 
           {error && (
@@ -102,4 +141,3 @@ const Notifications = () => {
 };
 
 export default Notifications;
-

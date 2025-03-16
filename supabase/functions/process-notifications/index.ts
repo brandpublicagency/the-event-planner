@@ -56,6 +56,9 @@ serve(async (req: Request) => {
     
     console.log(`Found ${notificationTriggers?.length || 0} active notification triggers`);
     
+    // Create missing notifications for recent events
+    const createdCount = await createMissingNotifications(supabase, notificationTriggers);
+    
     // Get all pending notifications scheduled for now or earlier
     const { data: pendingNotifications, error: notificationsError } = await supabase
       .from('event_notifications')
@@ -68,16 +71,13 @@ serve(async (req: Request) => {
       throw notificationsError;
     }
 
-    // Create missing notifications for recent events
-    await createMissingNotifications(supabase, notificationTriggers);
-
     if (!pendingNotifications || pendingNotifications.length === 0) {
       console.log('No pending notifications to process');
       
       return new Response(
         JSON.stringify({ 
           message: 'No pending notifications to process',
-          created: 0,
+          created: createdCount,
           processed: 0
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -103,70 +103,76 @@ serve(async (req: Request) => {
     }, {}) : {};
 
     // Process each notification
-    const results = await Promise.allSettled(
-      pendingNotifications.map(async (notification) => {
+    let processedCount = 0;
+    const results = [];
+    
+    for (const notification of pendingNotifications) {
+      try {
+        console.log(`Processing notification ${notification.id} of type ${notification.notification_type} for event ${notification.event_code}`);
+        
+        // Get the notification template from our map
+        const template = templateMap[notification.notification_type];
+
+        // Get the event details (with error handling)
+        let event = null;
         try {
-          console.log(`Processing notification ${notification.id} of type ${notification.notification_type}`);
-          
-          // Get the notification template from our map
-          const template = templateMap[notification.notification_type];
-
-          if (!template) {
-            console.error(`Template not found for type ${notification.notification_type}`);
-            throw new Error(`Template not found for type ${notification.notification_type}`);
-          }
-
-          // Get the event details
-          const { data: event, error: eventError } = await supabase
+          const { data: eventData, error: eventError } = await supabase
             .from('events')
             .select('event_code, name, event_type, primary_name, event_date')
             .eq('event_code', notification.event_code)
             .single();
-
-          if (eventError || !event) {
+            
+          if (!eventError && eventData) {
+            event = eventData;
+          } else {
             console.error(`Event not found for code ${notification.event_code}:`, eventError);
-            throw eventError || new Error(`Event not found for code ${notification.event_code}`);
           }
-
-          // Process notification template
-          const description = processTemplate(template, event);
-          
-          // Mark notification as sent
-          const { error: updateError } = await supabase
-            .from('event_notifications')
-            .update({ 
-              sent_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', notification.id);
-
-          if (updateError) {
-            console.error(`Error updating notification ${notification.id}:`, updateError);
-            throw updateError;
-          }
-
-          console.log(`Successfully processed notification ${notification.id} for event ${event.name}`);
-          
-          return {
-            notification_id: notification.id,
-            event_code: notification.event_code,
-            status: 'processed',
-            description
-          };
-        } catch (error) {
-          console.error(`Error processing notification ${notification.id}:`, error);
-          return {
-            notification_id: notification.id,
-            status: 'error',
-            error: error.message
-          };
+        } catch (eventFetchError) {
+          console.error(`Error fetching event ${notification.event_code}:`, eventFetchError);
         }
-      })
-    );
+
+        if (!event) {
+          console.log(`Skipping notification ${notification.id} - event ${notification.event_code} not found`);
+          continue;
+        }
+        
+        // Mark notification as sent
+        const { error: updateError } = await supabase
+          .from('event_notifications')
+          .update({ 
+            sent_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', notification.id);
+
+        if (updateError) {
+          console.error(`Error updating notification ${notification.id}:`, updateError);
+          throw updateError;
+        }
+
+        console.log(`Successfully processed notification ${notification.id} for event ${event.name}`);
+        processedCount++;
+        
+        results.push({
+          notification_id: notification.id,
+          event_code: notification.event_code,
+          status: 'processed',
+          description: `Processed ${notification.notification_type} for ${event.name}`
+        });
+      } catch (error) {
+        console.error(`Error processing notification ${notification.id}:`, error);
+        results.push({
+          notification_id: notification.id,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
-        processed: results.length,
+        processed: processedCount,
+        created: createdCount,
         results 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -260,20 +266,38 @@ async function createMissingNotifications(supabase, notificationTriggers) {
   try {
     console.log('Checking for missing notifications...');
     
-    // Get recent events
+    // Get recent events with specific event codes to check
     const { data: recentEvents, error: recentEventsError } = await supabase
       .from('events')
       .select('event_code, name, event_type, primary_name, event_date, created_at')
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .or('event_code.eq.EVENT-163-5038,event_code.eq.EVENT-163-1567')
+      .is('deleted_at', null);
 
     if (recentEventsError) {
       console.error('Error fetching recent events:', recentEventsError);
-      return 0;
+      throw recentEventsError;
+    }
+    
+    if (!recentEvents || recentEvents.length === 0) {
+      // Get other recent events if specific ones not found
+      const { data: otherEvents, error: otherEventsError } = await supabase
+        .from('events')
+        .select('event_code, name, event_type, primary_name, event_date, created_at')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(20);
+        
+      if (otherEventsError) {
+        console.error('Error fetching other recent events:', otherEventsError);
+        return 0;
+      }
+      
+      if (otherEvents && otherEvents.length > 0) {
+        recentEvents.push(...otherEvents);
+      }
     }
 
-    console.log(`Checking ${recentEvents?.length || 0} recent events for missing notifications...`);
+    console.log(`Checking ${recentEvents?.length || 0} events for missing notifications, including EVENT-163-5038 and EVENT-163-1567...`);
     
     let createdCount = 0;
     
@@ -284,12 +308,14 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       'event_incomplete'
     ];
     
-    // For each recent event, create any missing notifications
+    // For each event, create any missing notifications
     for (const event of recentEvents || []) {
+      console.log(`Checking notifications for event ${event.event_code}`);
+      
       // Get existing notifications for this event
       const { data: existingNotifications, error: notificationError } = await supabase
         .from('event_notifications')
-        .select('notification_type')
+        .select('notification_type, sent_at')
         .eq('event_code', event.event_code);
         
       if (notificationError) {
@@ -299,6 +325,7 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       
       // Create a set of existing notification types
       const existingTypes = new Set(existingNotifications?.map(n => n.notification_type) || []);
+      console.log(`Event ${event.event_code} has notifications: ${Array.from(existingTypes).join(', ')}`);
       
       for (const notificationType of requiredTypes) {
         if (!existingTypes.has(notificationType)) {
@@ -324,6 +351,9 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             scheduledFor = reminderDate.toISOString();
           }
           
+          // Mark as sent immediately if scheduled date is in the past
+          const shouldMarkAsSent = new Date(scheduledFor) <= new Date();
+          
           // Insert the notification with proper scheduling
           const { error: insertError } = await supabase
             .from('event_notifications')
@@ -331,14 +361,40 @@ async function createMissingNotifications(supabase, notificationTriggers) {
               event_code: event.event_code,
               notification_type: notificationType,
               scheduled_for: scheduledFor,
-              sent_at: scheduledFor <= new Date().toISOString() ? new Date().toISOString() : null,
+              sent_at: shouldMarkAsSent ? new Date().toISOString() : null,
             });
             
           if (insertError) {
             console.error(`Error creating ${notificationType} notification for event ${event.event_code}:`, insertError);
           } else {
             createdCount++;
-            console.log(`Created ${notificationType} notification for event ${event.event_code}`);
+            console.log(`Created ${notificationType} notification for event ${event.event_code}, sent status: ${shouldMarkAsSent}`);
+          }
+        } else {
+          // Check if notification exists but hasn't been sent yet
+          const unsent = existingNotifications.find(n => 
+            n.notification_type === notificationType && n.sent_at === null
+          );
+          
+          if (unsent) {
+            console.log(`Found unsent ${notificationType} notification for event ${event.event_code}, marking as sent`);
+            
+            // Mark notification as sent if needed
+            const { error: updateError } = await supabase
+              .from('event_notifications')
+              .update({ 
+                sent_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .eq('event_code', event.event_code)
+              .eq('notification_type', notificationType)
+              .is('sent_at', null);
+              
+            if (updateError) {
+              console.error(`Error marking ${notificationType} notification as sent:`, updateError);
+            } else {
+              console.log(`Successfully marked ${notificationType} notification as sent for event ${event.event_code}`);
+            }
           }
         }
       }

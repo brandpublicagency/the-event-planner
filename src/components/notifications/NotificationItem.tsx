@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Notification } from "@/types/notification";
-import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard } from "lucide-react";
+import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard, Clock } from "lucide-react";
 import { NotificationActions } from "./NotificationActions";
 
 interface NotificationItemProps {
@@ -30,7 +30,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
             <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>
-            {!notification.read && (
+            {notification.status === 'pending' && (
+              <Badge 
+                variant="outline" 
+                className="text-[10px] py-0 h-4 text-orange-700 font-normal rounded px-[6px] bg-orange-50 border-orange-200"
+              >
+                <Clock className="h-3 w-3 mr-1" />
+                Scheduled
+              </Badge>
+            )}
+            {!notification.read && notification.status !== 'pending' && (
               <Badge 
                 variant="default" 
                 className="text-[10px] py-0 h-4 text-white font-normal rounded px-[6px] bg-zinc-900"
@@ -81,7 +90,6 @@ const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type 
     );
   }
   
-  // Fix: Fix the comparison to use strict equality instead of the wrong check
   if (type === "proforma_reminder") {
     return (
       <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-blue-200 bg-blue-50 text-blue-700">

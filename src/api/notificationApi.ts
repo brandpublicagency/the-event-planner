@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -10,7 +9,7 @@ export const fetchNotificationData = async () => {
   try {
     console.log('Fetching notifications data from API...');
     
-    // Query event notifications with proper filtering
+    // Query event notifications with updated filtering to include pending notifications
     const { data: notificationsData, error: notificationsError } = await supabase
       .from('event_notifications')
       .select(`
@@ -25,8 +24,7 @@ export const fetchNotificationData = async () => {
         events:events!inner(name, event_type, primary_name)
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
-      .filter('sent_at', 'not.is', null) // Only include sent notifications
-      .order('sent_at', { ascending: false })
+      .order('scheduled_for', { ascending: false })
       .limit(20);
 
     if (notificationsError) {
@@ -58,8 +56,7 @@ export const fetchNotificationData = async () => {
           events:events!inner(name, event_type, primary_name)
         `)
         .not('is_completed', 'eq', true)  // Exclude completed notifications
-        .filter('sent_at', 'not.is', null) // Only include sent notifications
-        .order('sent_at', { ascending: false })
+        .order('scheduled_for', { ascending: false })
         .limit(20);
         
       if (retryError || !retryData || retryData.length === 0) {
@@ -110,7 +107,7 @@ const formatNotifications = async (notificationsData) => {
         id: item.id,
         title: formatNotificationTitle(item.notification_type) || 'Notification',
         description: `${item.notification_type} for ${item.events?.name || 'Event'}`,
-        createdAt: new Date(item.sent_at || item.created_at),
+        createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
         type: item.notification_type as any,
         read: item.is_read,
         actionType: 'review' as any,
@@ -147,7 +144,7 @@ const formatNotifications = async (notificationsData) => {
         id: item.id,
         title: title,
         description: description,
-        createdAt: new Date(item.sent_at || item.created_at),
+        createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
         type: item.notification_type as any,
         read: item.is_read,
         actionType: template?.action_type as any || 'review',
@@ -162,7 +159,7 @@ const formatNotifications = async (notificationsData) => {
       id: item.id,
       title: formatNotificationTitle(item.notification_type) || 'Notification',
       description: `Notification for ${item.events?.name || 'Event'}`,
-      createdAt: new Date(item.sent_at || item.created_at),
+      createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
       type: item.notification_type as any,
       read: item.is_read,
       actionType: 'review' as any,
