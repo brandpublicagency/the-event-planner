@@ -8,12 +8,13 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { RefreshCw, Bell, PlayCircle } from "lucide-react";
+import { RefreshCw, Bell, PlayCircle, AlertTriangle } from "lucide-react";
 
 interface NotificationActionsProps {
   onRefresh: () => void;
   onTriggerProcess: () => void;
   onMarkAllRead: () => void;
+  onCheckMissing?: () => void;
   loading?: boolean;
   showDevActions?: boolean;
 }
@@ -22,6 +23,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   onRefresh,
   onTriggerProcess,
   onMarkAllRead,
+  onCheckMissing,
   loading = false,
   showDevActions = false
 }) => {
@@ -49,24 +51,47 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
       </Button>
       
       {showDevActions && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onTriggerProcess}
-                className="h-8 text-xs"
-              >
-                <PlayCircle className="h-4 w-4 mr-1" />
-                Process
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Manually trigger notification processing</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onTriggerProcess}
+                  className="h-8 text-xs"
+                >
+                  <PlayCircle className="h-4 w-4 mr-1" />
+                  Process
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Manually trigger notification processing</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {onCheckMissing && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onCheckMissing}
+                    className="h-8 text-xs"
+                  >
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    Fix Missing
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Check for and create missing notifications</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </>
       )}
     </div>
   );

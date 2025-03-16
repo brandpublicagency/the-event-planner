@@ -32,7 +32,8 @@ const Notifications = () => {
     handleMarkAllRead,
     handleCompleteTask,
     handleRefresh,
-    handleTriggerProcess
+    handleTriggerProcess,
+    handleManualNotificationCheck
   } = useNotificationsPage();
 
   // Log notifications for debugging
@@ -56,6 +57,7 @@ const Notifications = () => {
             onRefresh={handleRefresh}
             onTriggerProcess={handleTriggerProcess}
             onMarkAllRead={handleMarkAllRead}
+            onCheckMissing={handleManualNotificationCheck}
             loading={loading}
             showDevActions={process.env.NODE_ENV === 'development' || true} // Always show for now
           />
