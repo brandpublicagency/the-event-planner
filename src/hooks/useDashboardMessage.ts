@@ -52,9 +52,9 @@ export const useDashboardMessage = () => {
         return fallbackMessage;
       }
     },
-    // Refresh more frequently to get updated contextual messages
-    staleTime: 1 * 60 * 1000, // 1 minute instead of 2 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes instead of 10
+    // Cache for 5 minutes since weather data is now cached server-side for 30 minutes
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
     retry: 1, // Retry once before using fallback
   });
 

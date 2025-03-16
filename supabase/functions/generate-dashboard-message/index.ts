@@ -56,7 +56,7 @@ serve(async (req) => {
       console.error("Error fetching upcoming events:", error);
     }
 
-    // Prioritize fetching weather data
+    // Fetch weather data (now with 30-minute caching)
     try {
       weatherData = await fetchWeatherForecast();
       console.log("Weather data fetched:", weatherData ? JSON.stringify(weatherData).substring(0, 100) + "..." : "failed");
@@ -89,11 +89,6 @@ serve(async (req) => {
         message = `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
       }
       console.log("Using fallback message:", message);
-    }
-    
-    // Add a timestamp to the weather data
-    if (weatherData) {
-      weatherData.timestamp = new Date().toISOString();
     }
     
     // Prepare the final response
