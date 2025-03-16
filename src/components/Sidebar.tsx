@@ -1,12 +1,25 @@
-
 import { cn } from "@/lib/utils";
-import { LayoutGrid, FileText, Archive, Wallet, ListTodo, Users, Plus, FilePlus, CheckSquare, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { 
+  LayoutGrid, 
+  FileText, 
+  Archive, 
+  Wallet, 
+  ListTodo, 
+  Users, 
+  Plus, 
+  FilePlus, 
+  CheckSquare, 
+  ChevronLeft, 
+  ChevronRight, 
+  Calendar 
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
+import { motion } from "framer-motion";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -18,9 +31,7 @@ const Sidebar = ({
   isCollapsed,
   setIsCollapsed
 }: SidebarProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -47,62 +58,69 @@ const Sidebar = ({
     }
   };
 
-  const {
-    data: taskCount = 0
-  } = useQuery({
+  const { data: taskCount = 0 } = useQuery({
     queryKey: ['taskCount'],
     queryFn: async () => {
-      const {
-        count,
-        error
-      } = await supabase.from('tasks').select('*', {
-        count: 'exact',
-        head: true
-      }).eq('completed', false);
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('*', {
+          count: 'exact',
+          head: true
+        })
+        .eq('completed', false);
+      
       if (error) throw error;
       return count || 0;
     }
   });
 
-  const mainNavItems = [{
-    icon: LayoutGrid,
-    path: "/",
-    label: "Dashboard"
-  }, {
-    icon: FileText,
-    path: "/events",
-    label: "Events"
-  }, {
-    icon: Archive,
-    path: "/passed-events",
-    label: "Passed Events"
-  }, {
-    icon: Wallet,
-    path: "/calendar",
-    label: "Calendar"
-  }, {
-    icon: ListTodo,
-    path: "/tasks",
-    label: "To-do list",
-    badge: taskCount > 0 ? taskCount : undefined
-  }, {
-    icon: Users,
-    path: "/contacts",
-    label: "Contacts"
-  }, {
-    icon: FileText,
-    path: "/documents",
-    label: "Documents"
-  }, {
-    icon: Calendar,
-    path: "/schedule",
-    label: "Schedule Meeting"
-  }];
+  const mainNavItems = [
+    {
+      icon: LayoutGrid,
+      path: "/",
+      label: "Dashboard"
+    }, 
+    {
+      icon: FileText,
+      path: "/events",
+      label: "Events"
+    }, 
+    {
+      icon: Archive,
+      path: "/passed-events",
+      label: "Passed Events"
+    }, 
+    {
+      icon: Wallet,
+      path: "/calendar",
+      label: "Calendar"
+    }, 
+    {
+      icon: ListTodo,
+      path: "/tasks",
+      label: "To-do list",
+      badge: taskCount > 0 ? taskCount : undefined
+    }, 
+    {
+      icon: Users,
+      path: "/contacts",
+      label: "Contacts"
+    }, 
+    {
+      icon: FileText,
+      path: "/documents",
+      label: "Documents"
+    }, 
+    {
+      icon: Calendar,
+      path: "/schedule",
+      label: "Schedule Meeting"
+    }
+  ];
 
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
       if (location.search.includes('newDocument=true')) {
-        console.log('Already on documents page with newDocument=true parameter');
         return;
       }
       navigate('/documents?newDocument=true', {
@@ -113,67 +131,127 @@ const Sidebar = ({
     }
   };
 
-  const gradientClasses = getGradientByPath();
+  const sidebarVariants = {
+    expanded: { width: 256 },
+    collapsed: { width: 70 }
+  };
 
-  return <div className={cn("relative h-full transition-all duration-300 ease-in-out will-change-[width]", isCollapsed ? "w-[70px]" : "w-64", gradientClasses, className)}>
-      {isCollapsed ? <div className="flex flex-col h-full">
-          <SidebarProfile isCollapsed={isCollapsed} />
-          
-          <div className="flex-1 flex items-center justify-center">
-            <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
+  return (
+    <motion.div 
+      className={cn(
+        "relative h-full transition-all duration-300 ease-in-out overflow-hidden",
+        getGradientByPath(),
+        className
+      )}
+      initial={isCollapsed ? "collapsed" : "expanded"}
+      animate={isCollapsed ? "collapsed" : "expanded"}
+      variants={sidebarVariants}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 30 
+      }}
+    >
+      <div className="flex flex-col h-full">
+        <SidebarProfile isCollapsed={isCollapsed} />
+        
+        <div className={cn(
+          "flex-1 overflow-y-auto overflow-x-hidden py-4",
+          isCollapsed ? "px-2" : "px-3"
+        )}>
+          <SidebarNavigation 
+            isCollapsed={isCollapsed} 
+            items={mainNavItems} 
+          />
+        </div>
+        
+        <div className={cn(
+          "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-3 pb-4",
+          isCollapsed ? "px-2" : "px-3"
+        )}>
+          <div className={cn(
+            "flex",
+            isCollapsed ? "flex-col items-center gap-3" : "flex-col gap-1"
+          )}>
+            {/* Quick action buttons */}
+            {isCollapsed ? (
+              <>
+                <button 
+                  onClick={() => navigate('/events/new')} 
+                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+                  title="Add Event"
+                >
+                  <Plus className="h-5 w-5 transition-transform group-hover:scale-110" />
+                </button>
+                
+                <button 
+                  onClick={() => navigate('/tasks?newTask=true')} 
+                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+                  title="Add Task"
+                >
+                  <CheckSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
+                </button>
+                
+                <button 
+                  onClick={handleAddDocument} 
+                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+                  title="Add Document"
+                >
+                  <FilePlus className="h-5 w-5 transition-transform group-hover:scale-110" />
+                </button>
+                
+                <div className="my-2 w-8 border-t border-gray-200/50"></div>
+                
+                <button 
+                  onClick={() => setIsCollapsed(!isCollapsed)} 
+                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+                  title="Expand Sidebar"
+                >
+                  <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => navigate('/events/new')} 
+                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+                >
+                  <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
+                  <span className="text-sm font-medium">Add Event</span>
+                </button>
+                
+                <button 
+                  onClick={() => navigate('/tasks?newTask=true')} 
+                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+                >
+                  <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
+                  <span className="text-sm font-medium">Add Task</span>
+                </button>
+                
+                <button 
+                  onClick={handleAddDocument} 
+                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+                >
+                  <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
+                  <span className="text-sm font-medium">Add Document</span>
+                </button>
+                
+                <div className="my-2 border-t border-gray-200/50"></div>
+                
+                <button 
+                  onClick={() => setIsCollapsed(!isCollapsed)} 
+                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+                >
+                  <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+                  <span className="text-sm font-medium">Collapse Sidebar</span>
+                </button>
+              </>
+            )}
           </div>
-          
-          <div className="py-4 flex flex-col items-center gap-4">
-            <button onClick={() => navigate('/events/new')} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
-              <Plus className="h-4 w-4 flex-shrink-0" />
-            </button>
-            
-            <button onClick={() => navigate('/tasks?newTask=true')} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
-              <CheckSquare className="h-4 w-4 flex-shrink-0" />
-            </button>
-            
-            <button onClick={handleAddDocument} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md transition-colors duration-200">
-              <FilePlus className="h-4 w-4 flex-shrink-0" />
-            </button>
-            
-            <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex justify-center items-center text-gray-600 hover:text-gray-900 text-sm h-9 w-9 rounded-md mt-4 transition-colors duration-200">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div> : <div className="flex flex-col h-full">
-          <SidebarProfile isCollapsed={isCollapsed} />
-          
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-[5px] mx-[5px] py-[10px]">
-            <div className="space-y-6 my-2 mx-[5px] px-0">
-              <SidebarNavigation isCollapsed={isCollapsed} items={mainNavItems} />
-            </div>
-          </div>
-          
-          <div className="mt-auto px-3 pb-3">
-            <div className="flex flex-col gap-2.5">
-              <button onClick={() => navigate('/events/new')} className="flex items-center text-gray-600 hover:text-gray-900 h-9 rounded-md gap-2 transition-colors duration-200 px-[15px] text-xs font-normal">
-                <Plus className="h-3.5 w-3.5 flex-shrink-0 rounded-none bg-transparent" />
-                <span className="text-xs">ADD EVENT</span>
-              </button>
-              
-              <button onClick={() => navigate('/tasks?newTask=true')} className="flex items-center text-gray-600 hover:text-gray-900 h-9 rounded-md gap-2 transition-colors duration-200 px-[15px] text-xs font-normal">
-                <CheckSquare className="h-3.5 w-3.5 flex-shrink-0 rounded-none bg-transparent" />
-                <span className="text-xs">ADD TASK</span>
-              </button>
-              
-              <button onClick={handleAddDocument} className="flex items-center text-gray-600 hover:text-gray-900 h-9 rounded-md gap-2 transition-colors duration-200 px-[15px] text-xs font-normal">
-                <FilePlus className="h-3.5 w-3.5 flex-shrink-0 rounded-none bg-transparent" />
-                <span className="text-xs">ADD DOCUMENT</span>
-              </button>
-              
-              <button onClick={() => setIsCollapsed(!isCollapsed)} className="flex items-center text-sm h-9 px-2 rounded-md gap-2 mt-2 transition-colors duration-200 text-zinc-400">
-                <ChevronLeft className="h-4 w-4 flex-shrink-0" />
-                <span className="font-medium text-xs">COLLAPSE MENU</span>
-              </button>
-            </div>
-          </div>
-        </div>}
-    </div>;
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
 export default Sidebar;

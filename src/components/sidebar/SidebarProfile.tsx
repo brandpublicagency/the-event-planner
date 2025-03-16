@@ -1,15 +1,19 @@
-
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
+import { Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProfileProps {
   isCollapsed: boolean;
 }
 
 const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
+  const navigate = useNavigate();
+  
   const { data: userInfo, isLoading } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
@@ -17,11 +21,8 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          console.log("No authenticated user found");
           return null;
         }
-        
-        console.log("Authenticated user:", user);
 
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -30,7 +31,6 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           .single();
           
         if (error) {
-          console.error("Error fetching user profile:", error);
           // Return basic information from auth even if profile fetch fails
           return {
             email: user.email,
@@ -39,15 +39,12 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           };
         }
 
-        console.log("User profile data:", profile);
-
         return {
           email: user.email,
           name: profile?.full_name || 'User',
           surname: profile?.surname || ''
         };
       } catch (error) {
-        console.error("Error in user profile query:", error);
         return {
           email: 'user@example.com',
           name: 'User',
@@ -57,40 +54,82 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
     },
   });
 
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!userInfo) return "WK";
+    
+    const firstInitial = userInfo.name?.charAt(0) || '';
+    const lastInitial = userInfo.surname?.charAt(0) || '';
+    
+    if (firstInitial && lastInitial) {
+      return `${firstInitial}${lastInitial}`;
+    } else if (firstInitial) {
+      return firstInitial;
+    }
+    
+    return "WK";
+  };
+
   return (
     <div className={cn(
-      "h-[65px] w-[calc(100%+1px)] flex items-center backdrop-blur-sm bg-white/90 border-b border-zinc-200",
-      isCollapsed ? "justify-center px-0" : "px-4 gap-3"
+      "h-16 w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
+      isCollapsed ? "justify-center px-0" : "px-4"
     )}>
-      <a 
-        href="https://www.warmkaroo.com" 
-        target="_blank" 
-        rel="noopener noreferrer"
-      >
-        <Avatar className={cn(
-          "w-10 h-10 flex-shrink-0 cursor-pointer"
-        )}>
-          <AvatarImage src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" alt="Warm Karoo Logo" />
-          <AvatarFallback className="bg-[#0A0F1D]">WK</AvatarFallback>
+      <div className={cn(
+        "flex items-center w-full",
+        isCollapsed ? "justify-center" : "gap-3"
+      )}>
+        <Avatar 
+          className="h-9 w-9 cursor-pointer ring-2 ring-white/80 shadow-sm hover:shadow-md transition-shadow duration-200"
+          onClick={() => navigate('/profile')}
+        >
+          <AvatarImage 
+            src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
+            alt="Warm Karoo Logo" 
+          />
+          <AvatarFallback className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-medium">
+            {getUserInitials()}
+          </AvatarFallback>
         </Avatar>
-      </a>
-      {!isCollapsed && (
-        <div className="flex-1 overflow-hidden">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-4 w-24 mb-1" />
-              <Skeleton className="h-3 w-20" />
-            </>
-          ) : (
-            <>
-              <div className="text-sm font-medium truncate">
-                {userInfo?.name || 'User'} {userInfo?.surname || ''}
-              </div>
-              <div className="text-xs text-gray-400 truncate">{userInfo?.email || 'user@example.com'}</div>
-            </>
-          )}
-        </div>
-      )}
+
+        {!isCollapsed && (
+          <>
+            <motion.div 
+              className="flex-1 overflow-hidden"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-3 w-20" />
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-medium truncate text-gray-900">
+                    {userInfo?.name || 'User'} {userInfo?.surname || ''}
+                  </div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {userInfo?.email || 'user@example.com'}
+                  </div>
+                </>
+              )}
+            </motion.div>
+            
+            <motion.button
+              className="p-1.5 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100/50"
+              onClick={() => navigate('/profile')}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2, delay: 0.1 }}
+              title="Settings"
+            >
+              <Settings className="h-4 w-4" />
+            </motion.button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
