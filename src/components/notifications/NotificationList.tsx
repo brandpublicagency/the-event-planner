@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Notification } from "@/types/notification";
 import { NotificationItem } from "./NotificationItem";
@@ -30,7 +29,7 @@ export const NotificationsList: React.FC<NotificationListProps> = ({
       onCompleteTask(notification.id);
     }
   };
-  return <div className="p-2 px-0 py-[10px]">
+  return <div className="p-2 py-[10px] px-[7px]">
       {notifications.map(notification => <NotificationItem key={notification.id} notification={notification} onView={handleView} onComplete={handleComplete} />)}
     </div>;
 };
