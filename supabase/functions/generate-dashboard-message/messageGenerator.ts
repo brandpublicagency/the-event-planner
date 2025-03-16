@@ -1,3 +1,4 @@
+
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://esm.sh/date-fns@2.30.0";
 
@@ -71,7 +72,13 @@ export const determineMessageContext = (
  * Create the system prompt for OpenAI based on the message context
  */
 const createSystemPrompt = (messageType: string, contextData: any) => {
-  const basePrompt = "You are an AI assistant for an event planning company. Write a friendly, personalized greeting for the user's dashboard. Keep the message concise (under 150 characters). Don't add any prefixes like 'Welcome' or 'Good morning' (the UI will handle that). Just focus on the main information.";
+  const timeOfDay = getTimeOfDay();
+  const basePrompt = `You are an AI assistant for an event planning company. Write a friendly, personalized message for the user's dashboard. Always structure your message in 3 parts:
+1. Start with "Welcome to your dashboard."
+2. In the middle, include relevant information based on the context below.
+3. End with "Have a pleasant ${timeOfDay}!"
+
+Keep the entire message concise (under 150 characters). Don't add any prefixes like 'Good morning' (the UI will handle that).`;
   
   let contextPrompt = "";
   
@@ -97,23 +104,23 @@ const createSystemPrompt = (messageType: string, contextData: any) => {
       break;
     case 'weather':
       contextPrompt = `
-        There are no events or tasks to highlight today.
         Focus on tomorrow's weather forecast: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
-        Provide a brief weather-appropriate suggestion.
+        Provide a weather-appropriate suggestion for tomorrow.
       `;
       break;
     default:
       contextPrompt = `
-        There are no events or tasks to highlight today.
         Provide a simple, friendly greeting to start the user's day.
       `;
   }
   
-  // Add weather data to all message types except the weather-only type
-  if (messageType !== 'weather' && contextData.weatherData) {
-    contextPrompt += `
-      Also, briefly mention tomorrow's weather: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
-    `;
+  // Always include weather data in all message types
+  if (contextData.weatherData && contextData.weatherData.description) {
+    if (messageType !== 'weather') {
+      contextPrompt += `
+        Also, include tomorrow's weather forecast: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
+      `;
+    }
   }
   
   return `${basePrompt}\n\n${contextPrompt}`;
@@ -130,10 +137,27 @@ export const generatePersonalizedMessage = async (systemPrompt: string, contextD
     // Generate the message using OpenAI
     const message = await getChatCompletion(systemPrompt);
     
-    return message || "Welcome to your dashboard. Have a great day!";
+    // If message couldn't be generated, return a fallback with weather if available
+    if (!message) {
+      const timeOfDay = getTimeOfDay();
+      
+      if (contextData.weatherData) {
+        return `Welcome to your dashboard. Tomorrow's forecast shows ${contextData.weatherData.description} with a high of ${contextData.weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
+      }
+      
+      return `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
+    }
+    
+    return message;
   } catch (error) {
     console.error("Error generating message with OpenAI:", error);
-    return "Welcome to your dashboard. Have a great day!";
+    const timeOfDay = getTimeOfDay();
+    
+    if (contextData.weatherData) {
+      return `Welcome to your dashboard. Tomorrow's forecast shows ${contextData.weatherData.description} with a high of ${contextData.weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
+    }
+    
+    return `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
   }
 };
 

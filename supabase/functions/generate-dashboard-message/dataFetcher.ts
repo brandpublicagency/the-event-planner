@@ -159,6 +159,43 @@ export const fetchWeatherForecast = async () => {
         }
       }
       
+      // Map weather descriptions to more user-friendly terms
+      const weatherMapping = {
+        'Clear': 'clear skies',
+        'Clouds': {
+          'few clouds': 'mostly sunny',
+          'scattered clouds': 'partly cloudy',
+          'broken clouds': 'mostly cloudy',
+          'overcast clouds': 'overcast'
+        },
+        'Rain': {
+          'light rain': 'light rain',
+          'moderate rain': 'rain',
+          'heavy intensity rain': 'heavy rain',
+          'default': 'rainy'
+        },
+        'Drizzle': 'drizzle',
+        'Thunderstorm': 'thunderstorms',
+        'Snow': 'snow',
+        'Mist': 'misty',
+        'Fog': 'foggy',
+        'Haze': 'hazy'
+      };
+      
+      // Get friendly description
+      let friendlyDescription = closestForecast.weather[0].description;
+      const mainCondition = closestForecast.weather[0].main;
+      
+      if (weatherMapping[mainCondition]) {
+        if (typeof weatherMapping[mainCondition] === 'object') {
+          friendlyDescription = weatherMapping[mainCondition][closestForecast.weather[0].description] || 
+                                weatherMapping[mainCondition]['default'] || 
+                                closestForecast.weather[0].description;
+        } else {
+          friendlyDescription = weatherMapping[mainCondition];
+        }
+      }
+      
       // Extract relevant weather data
       console.log("Weather data successfully fetched");
       return {
@@ -168,7 +205,7 @@ export const fetchWeatherForecast = async () => {
         humidity: closestForecast.main.humidity,
         wind_speed: closestForecast.wind?.speed || 0,
         condition: closestForecast.weather[0].main,
-        description: closestForecast.weather[0].description,
+        description: friendlyDescription,
         icon: closestForecast.weather[0].icon
       };
     } catch (error) {

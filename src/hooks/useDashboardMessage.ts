@@ -34,9 +34,16 @@ export const useDashboardMessage = () => {
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
+        // Get time of day for fallback
+        const hour = new Date().getHours();
+        let timeOfDay = "day";
+        if (hour < 12) timeOfDay = "morning";
+        else if (hour < 17) timeOfDay = "afternoon";
+        else timeOfDay = "evening";
+        
         // Create a fallback message
         const fallbackMessage: DashboardMessage = {
-          message: 'Welcome to your dashboard. Have a great day!',
+          message: `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
           type: 'default'
         };
         
@@ -51,10 +58,18 @@ export const useDashboardMessage = () => {
 
   return { 
     dashboardMessage: dashboardMessage || {
-      message: 'Welcome to your dashboard. Have a great day!',
+      message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
       type: 'default'
     }, 
     isLoading, 
     error 
   };
+};
+
+// Helper function to get time of day
+const getTimeOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  return "evening";
 };

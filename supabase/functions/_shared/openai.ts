@@ -25,8 +25,10 @@ export const getChatCompletion = async (systemPrompt: string) => {
             content: systemPrompt
           }
         ],
-        temperature: 0.7,
-        max_tokens: 150
+        temperature: 0.5, // Lower temperature for more consistent responses
+        max_tokens: 150,
+        top_p: 0.9, // Slightly more focused sampling
+        presence_penalty: 0.1 // Small penalty to encourage specific formats
       })
     });
     

@@ -75,7 +75,13 @@ serve(async (req) => {
       console.log("Message generated successfully");
     } catch (error) {
       console.error("Error generating message:", error);
-      message = "Welcome to your dashboard. Have a great day!";
+      const timeOfDay = contextData.timeOfDay || "day";
+      
+      if (weatherData) {
+        message = `Welcome to your dashboard. Tomorrow's forecast shows ${weatherData.description} with a high of ${weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
+      } else {
+        message = `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
+      }
     }
     
     // Prepare the final response
@@ -92,8 +98,16 @@ serve(async (req) => {
     return createJsonResponse(response);
   } catch (error) {
     console.error("Error in dashboard message generation:", error);
+    
+    // Try to determine time of day for fallback message
+    const hour = new Date().getHours();
+    let timeOfDay = "day";
+    if (hour < 12) timeOfDay = "morning";
+    else if (hour < 17) timeOfDay = "afternoon";
+    else timeOfDay = "evening";
+    
     return createErrorResponse(
-      "Welcome to your dashboard. Have a great day!",
+      `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
       500
     );
   }
