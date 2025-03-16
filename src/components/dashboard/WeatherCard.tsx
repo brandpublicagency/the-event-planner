@@ -104,18 +104,25 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
 
   return (
     <div className={`rounded-xl overflow-hidden shadow-sm h-full ${className}`}>
-      <div className={`${gradientClass} text-white p-4 flex flex-col h-full`}>
-        {/* Header section with date and location */}
-        <div className="mb-2">
-          <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
-          <div className="flex items-center mt-1 text-xs text-white/90">
-            <MapPin className="h-3 w-3 mr-1" />
-            <span>{location}</span>
+      <div className={`${gradientClass} text-white p-3 flex flex-col h-full`}>
+        {/* Header section with date, location, and weather icon */}
+        <div className="mb-2 flex justify-between items-start">
+          <div>
+            <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
+            <div className="flex items-center mt-1 text-xs text-white/90">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span>{location}</span>
+            </div>
+          </div>
+          
+          {/* Weather icon indicator - moved to top right */}
+          <div className="bg-white/20 rounded-full p-1.5">
+            {getWeatherIcon()}
           </div>
         </div>
         
         {/* Temperature and rain info section in a single row */}
-        <div className="grid grid-cols-3 gap-2 mt-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
             <span className="text-xs text-white/80 mb-1">Low</span>
             <span className="text-3xl font-light">{displayLowTemp}°</span>
@@ -132,13 +139,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
               <span className="text-xs text-white/80">Rain</span>
             </div>
             <span className={`text-sm font-semibold ${rainColorClass}`}>{chanceOfRain}</span>
-          </div>
-        </div>
-        
-        {/* Weather icon indicator - bottom right */}
-        <div className="flex justify-end mt-2">
-          <div className="bg-white/20 rounded-full p-1.5">
-            {getWeatherIcon()}
           </div>
         </div>
       </div>
