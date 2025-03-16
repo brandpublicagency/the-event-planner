@@ -32,12 +32,12 @@ const DashboardMessage = () => {
   if (isLoading || isProfileLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-        <Card className="p-6 col-span-4 bg-white shadow-sm">
+        <Card className="p-4 col-span-4 bg-white shadow-sm">
           <Skeleton className="h-6 w-3/4" />
           <Skeleton className="h-4 w-2/3 mt-2" />
         </Card>
-        <Card className="p-6 col-span-2 shadow-sm">
-          <Skeleton className="h-28 w-full" />
+        <Card className="p-4 col-span-2 shadow-sm">
+          <Skeleton className="h-24 w-full" />
         </Card>
       </div>
     );
@@ -66,8 +66,8 @@ const DashboardMessage = () => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-      <Card className="p-6 col-span-4 bg-white shadow-sm">
-        <h2 className="text-2xl font-semibold text-gray-800">{personalizedGreeting}</h2>
+      <Card className="p-4 col-span-4 bg-white shadow-sm h-full">
+        <h2 className="text-xl font-semibold text-gray-800">{personalizedGreeting}</h2>
         
         {error ? (
           <div className="flex items-start space-x-3 text-amber-600 mt-2">
@@ -78,13 +78,13 @@ const DashboardMessage = () => {
           <p className="text-gray-600 mt-1">{dashboardMessage.message}</p>
         )}
         
-        <div className="inline-block rounded-md bg-gray-100 px-4 py-1 mt-4 text-sm text-gray-700 uppercase tracking-wide font-medium">
+        <div className="inline-block rounded-md bg-gray-100 px-3 py-1 mt-3 text-sm text-gray-700 uppercase tracking-wide font-medium">
           {todayFormatted.toUpperCase()}
         </div>
       </Card>
       
       {weatherData && (
-        <div className="col-span-2">
+        <div className="col-span-2 h-full">
           <WeatherCard 
             date={tomorrowFormatted}
             location="Warm Karoo, Bloemfontein"

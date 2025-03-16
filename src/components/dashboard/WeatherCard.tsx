@@ -103,41 +103,41 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
     chanceOfRain === "MEDIUM" ? "text-yellow-100" : "text-green-100";
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-sm ${className}`}>
-      <div className={`${gradientClass} text-white p-5 flex flex-col h-full`}>
+    <div className={`rounded-xl overflow-hidden shadow-sm h-full ${className}`}>
+      <div className={`${gradientClass} text-white p-4 flex flex-col h-full`}>
         {/* Header section with date and location */}
-        <div className="mb-3">
+        <div className="mb-2">
           <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
-          <div className="flex items-center mt-1.5 text-xs text-white/90">
-            <MapPin className="h-3 w-3 mr-1.5" />
+          <div className="flex items-center mt-1 text-xs text-white/90">
+            <MapPin className="h-3 w-3 mr-1" />
             <span>{location}</span>
           </div>
         </div>
         
-        {/* Temperature display section */}
-        <div className="grid grid-cols-2 gap-3 my-3">
-          <div className="flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-sm rounded-md">
+        {/* Temperature and rain info section in a single row */}
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
             <span className="text-xs text-white/80 mb-1">Low</span>
-            <span className="text-4xl font-light">{displayLowTemp}°</span>
+            <span className="text-3xl font-light">{displayLowTemp}°</span>
           </div>
           
-          <div className="flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-sm rounded-md">
+          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
             <span className="text-xs text-white/80 mb-1">High</span>
-            <span className="text-4xl font-light">{displayHighTemp}°</span>
+            <span className="text-3xl font-light">{displayHighTemp}°</span>
+          </div>
+          
+          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
+            <div className="flex items-center mb-1">
+              <Droplet className="h-3 w-3 mr-1 text-white/80" />
+              <span className="text-xs text-white/80">Rain</span>
+            </div>
+            <span className={`text-sm font-semibold ${rainColorClass}`}>{chanceOfRain}</span>
           </div>
         </div>
         
-        {/* Chance of rain indicator - bottom section */}
-        <div className="mt-3 flex justify-between items-center">
-          <div>
-            <div className="text-xs uppercase tracking-wider font-medium text-white/80 mb-1">Chance of rain</div>
-            <div className="flex items-center">
-              <Droplet className="h-4 w-4 mr-2 text-white/70" />
-              <span className={`font-semibold text-sm ${rainColorClass}`}>{chanceOfRain}</span>
-            </div>
-          </div>
-          
-          <div className="bg-white/20 rounded-full p-2">
+        {/* Weather icon indicator - bottom right */}
+        <div className="flex justify-end mt-2">
+          <div className="bg-white/20 rounded-full p-1.5">
             {getWeatherIcon()}
           </div>
         </div>
