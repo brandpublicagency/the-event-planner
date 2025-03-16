@@ -29,42 +29,49 @@ const DashboardMessage = () => {
   // Combine greeting with user's name if available
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
   
-  // Determine time-based border color based on current hour - matches WeatherCard gradient
+  // Determine time-based border color and gradients based on current hour
   let borderColorClass = "";
+  let gradientClass = "";
   
   // Early Morning (5:00 AM - 7:59 AM)
   if (hour >= 5 && hour < 8) {
     borderColorClass = "border-indigo-300";
+    gradientClass = "bg-gradient-to-r from-gray-400/30 to-indigo-300/30";
   } 
   // Morning (8:00 AM - 11:59 AM)
   else if (hour >= 8 && hour < 12) {
     borderColorClass = "border-sky-300";
+    gradientClass = "bg-gradient-to-r from-blue-200/30 to-sky-300/30";
   } 
   // Midday (12:00 PM - 3:59 PM)
   else if (hour >= 12 && hour < 16) {
     borderColorClass = "border-cyan-400";
+    gradientClass = "bg-gradient-to-r from-blue-300/30 to-cyan-400/30";
   } 
   // Late Afternoon (4:00 PM - 6:59 PM)
   else if (hour >= 16 && hour < 19) {
     borderColorClass = "border-amber-200";
+    gradientClass = "bg-gradient-to-r from-amber-200/30 to-gray-400/30";
   } 
   // Evening (7:00 PM - 9:59 PM)
   else if (hour >= 19 && hour < 22) {
     borderColorClass = "border-purple-400";
+    gradientClass = "bg-gradient-to-r from-gray-500/30 to-purple-400/30";
   } 
   // Night (10:00 PM - 4:59 AM)
   else {
     borderColorClass = "border-blue-800";
+    gradientClass = "bg-gradient-to-r from-gray-700/30 to-blue-800/30";
   }
   
   if (isLoading || isProfileLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-        <Card className="p-4 col-span-4 shadow-sm">
+        <Card className="p-4 col-span-4 shadow-sm rounded-xl">
           <Skeleton className="h-6 w-3/4" />
           <Skeleton className="h-4 w-2/3 mt-2" />
         </Card>
-        <Card className="p-4 col-span-2 shadow-sm">
+        <Card className="p-4 col-span-2 shadow-sm rounded-xl">
           <Skeleton className="h-24 w-full" />
         </Card>
       </div>
@@ -94,7 +101,7 @@ const DashboardMessage = () => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-      <Card className={`p-4 col-span-4 shadow-sm border ${borderColorClass} h-full bg-transparent`}>
+      <Card className={`p-4 col-span-4 shadow-sm border ${borderColorClass} h-full bg-transparent rounded-xl`}>
         <h2 className="text-xl font-semibold text-gray-800">{personalizedGreeting}</h2>
         
         {error ? (
@@ -106,7 +113,7 @@ const DashboardMessage = () => {
           <p className="text-gray-600 mt-1">{dashboardMessage.message}</p>
         )}
         
-        <div className="inline-block rounded-md bg-gray-100 px-3 py-1 mt-3 text-sm text-gray-700 uppercase tracking-wide font-medium">
+        <div className={`inline-block rounded-md px-3 py-1 mt-3 text-sm text-white/90 uppercase tracking-wide font-medium ${gradientClass}`}>
           {todayFormatted.toUpperCase()}
         </div>
       </Card>

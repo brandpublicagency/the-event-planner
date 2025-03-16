@@ -40,27 +40,27 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   
   // Early Morning (5:00 AM - 7:59 AM)
   if (currentHour >= 5 && currentHour < 8) {
-    gradientClass = "bg-gradient-to-r from-gray-400 to-indigo-300";
+    gradientClass = "bg-gradient-to-r from-gray-400/80 to-indigo-300/80";
   } 
   // Morning (8:00 AM - 11:59 AM)
   else if (currentHour >= 8 && currentHour < 12) {
-    gradientClass = "bg-gradient-to-r from-blue-200 to-sky-300";
+    gradientClass = "bg-gradient-to-r from-blue-200/80 to-sky-300/80";
   } 
   // Midday (12:00 PM - 3:59 PM)
   else if (currentHour >= 12 && currentHour < 16) {
-    gradientClass = "bg-gradient-to-r from-blue-300 to-cyan-400";
+    gradientClass = "bg-gradient-to-r from-blue-300/80 to-cyan-400/80";
   } 
   // Late Afternoon (4:00 PM - 6:59 PM)
   else if (currentHour >= 16 && currentHour < 19) {
-    gradientClass = "bg-gradient-to-r from-amber-200 to-gray-400";
+    gradientClass = "bg-gradient-to-r from-amber-200/80 to-gray-400/80";
   } 
   // Evening (7:00 PM - 9:59 PM)
   else if (currentHour >= 19 && currentHour < 22) {
-    gradientClass = "bg-gradient-to-r from-gray-500 to-purple-400";
+    gradientClass = "bg-gradient-to-r from-gray-500/80 to-purple-400/80";
   } 
   // Night (10:00 PM - 4:59 AM)
   else {
-    gradientClass = "bg-gradient-to-r from-gray-700 to-blue-800";
+    gradientClass = "bg-gradient-to-r from-gray-700/80 to-blue-800/80";
   }
   
   // Determine the weather icon to display based on time of day and weather conditions
