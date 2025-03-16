@@ -18,6 +18,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { tasks } = useTaskContext();
   
+  // Calculate unread count based on the actual notifications array
   const unreadCount = notifications.filter(n => !n.read).length;
   
   // Use the specialized notification hooks

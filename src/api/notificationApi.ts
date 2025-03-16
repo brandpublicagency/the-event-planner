@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -6,6 +7,8 @@ import { Notification } from "@/types/notification";
  */
 export const fetchNotificationData = async () => {
   try {
+    console.log('Fetching notifications data...');
+    
     // First, query event notifications
     const { data: notificationsData, error: notificationsError } = await supabase
       .from('event_notifications')
@@ -160,12 +163,12 @@ const formatNotifications = async (notificationsData) => {
  */
 const createBasicNotifications = async () => {
   try {
-    // First, get some events
+    // First, get some events including the latest one (EVENT-163-1567)
     const { data: events, error: eventsError } = await supabase
       .from('events')
       .select('event_code, name, event_type, primary_name')
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(5);
       
     if (eventsError || !events || events.length === 0) {
       console.log('No events found to create notifications for');

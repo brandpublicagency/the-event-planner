@@ -17,6 +17,10 @@ export function NotificationDropdown() {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  // Log notifications for debugging
+  console.log('Notifications in dropdown:', notifications);
+  console.log('Unread count:', unreadCount);
+
   const handleViewNotification = async (id: string, relatedId?: string) => {
     try {
       await markAsRead(id);
