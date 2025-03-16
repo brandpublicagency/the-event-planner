@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Bell, AlarmClock } from 'lucide-react';
 import { Notification } from '@/types/notification';
-import { NotificationList } from './NotificationList';
+import { NotificationsList } from './NotificationList';
 
 interface NotificationTabsProps {
   activeTab: string;
@@ -64,7 +63,7 @@ export const NotificationTabs = ({
       </TabsList>
 
       <TabsContent value="general">
-        <NotificationList 
+        <NotificationsList 
           notifications={generalNotifications}
           loading={generalLoading}
           onViewDetail={(id, relatedId) => onViewDetail('general', id, relatedId)}
@@ -74,7 +73,7 @@ export const NotificationTabs = ({
       </TabsContent>
 
       <TabsContent value="scheduled">
-        <NotificationList 
+        <NotificationsList 
           notifications={scheduledNotifications}
           loading={scheduledLoading}
           onViewDetail={(id, relatedId) => onViewDetail('scheduled', id, relatedId)}

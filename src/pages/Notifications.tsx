@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
-import { NotificationList } from '@/components/notifications/NotificationList';
+import { NotificationsList } from '@/components/notifications/NotificationList';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -56,7 +55,7 @@ const Notifications = () => {
               </AlertDescription>
             </Alert>
           )}
-          <NotificationList 
+          <NotificationsList 
             notifications={notifications}
             loading={loading}
             error={error}

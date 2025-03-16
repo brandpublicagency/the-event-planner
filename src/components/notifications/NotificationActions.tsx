@@ -1,21 +1,39 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Check } from "lucide-react";
+import { Notification } from "@/types/notification";
 
 interface NotificationActionsProps {
-  onMarkAllRead: () => void;
-  loading?: boolean;
+  notification: Notification;
+  onView: (notification: Notification, e: React.MouseEvent) => void;
+  onComplete: (notification: Notification, e: React.MouseEvent) => void;
 }
 
 export const NotificationActions: React.FC<NotificationActionsProps> = ({
-  onMarkAllRead,
-  loading = false
+  notification,
+  onView,
+  onComplete
 }) => {
-  // This component now only has the essential action
   return (
     <div className="flex items-center gap-2">
-      {/* No buttons as per request */}
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="text-xs h-7 px-2 border-zinc-200 flex items-center gap-1"
+        onClick={(e) => onView(notification, e)}
+      >
+        View
+      </Button>
+      <Button 
+        variant="success" 
+        size="sm" 
+        className="text-xs h-7 px-2 flex items-center gap-1"
+        onClick={(e) => onComplete(notification, e)}
+      >
+        <Check className="h-3 w-3" />
+        Mark as done
+      </Button>
     </div>
   );
 };
