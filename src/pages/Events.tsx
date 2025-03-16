@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -22,11 +23,14 @@ export default function Events() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
+      
+      console.log("Today's ISO date for filtering:", todayIso);
 
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
+        .is('completed', false)  // Ensure only non-completed events are shown
         .gte('event_date', todayIso) // Get today's and future events
         .order('event_date', { ascending: true });
 
@@ -40,7 +44,14 @@ export default function Events() {
         throw error;
       }
 
-      console.log('Fetched events:', data);
+      console.log('Fetched upcoming events:', data);
+      
+      // Log the event with code EVENT-001-113 if it exists
+      const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
+      if (specificEvent) {
+        console.log('EVENT-001-113 found in upcoming events:', specificEvent);
+      }
+      
       return data || [];
     },
     refetchOnWindowFocus: true,

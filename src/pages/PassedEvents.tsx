@@ -27,6 +27,8 @@ const PassedEvents = () => {
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
       
+      console.log("Today's ISO date for filtering passed events:", todayIso);
+      
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
@@ -44,6 +46,13 @@ const PassedEvents = () => {
       }
 
       console.log('Fetched passed events:', data);
+      
+      // Log the event with code EVENT-001-113 if it exists
+      const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
+      if (specificEvent) {
+        console.log('EVENT-001-113 found in passed events:', specificEvent);
+      }
+      
       return data as Event[];
     },
     refetchOnWindowFocus: true,
