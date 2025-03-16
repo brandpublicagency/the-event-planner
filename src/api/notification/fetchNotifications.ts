@@ -43,35 +43,44 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
     if (!notificationsData || notificationsData.length === 0) {
       console.log('No notifications found in database, triggering notification processing');
       
-      // Trigger notification processing to create any immediate notifications
-      await triggerNotificationProcessing();
-      
-      // Try fetching again after creating notifications
-      const { data: retryData, error: retryError } = await supabase
-        .from('event_notifications')
-        .select(`
-          id,
-          event_code,
-          notification_type,
-          sent_at,
-          is_read,
-          is_completed,
-          created_at,
-          events:events!inner(name, event_type, primary_name, event_date)
-        `)
-        .not('is_completed', 'eq', true)  // Exclude completed notifications
-        .not('sent_at', 'is', null)       // Only include notifications that have been sent
-        .order('sent_at', { ascending: false })
-        .limit(20);
+      try {
+        // Trigger notification processing to create any immediate notifications
+        await triggerNotificationProcessing();
         
-      if (retryError || !retryData || retryData.length === 0) {
-        console.log('Still no notifications after retry');
-        return [];
+        // Try fetching again after creating notifications
+        const { data: retryData, error: retryError } = await supabase
+          .from('event_notifications')
+          .select(`
+            id,
+            event_code,
+            notification_type,
+            sent_at,
+            is_read,
+            is_completed,
+            created_at,
+            events:events!inner(name, event_type, primary_name, event_date)
+          `)
+          .not('is_completed', 'eq', true)  // Exclude completed notifications
+          .not('sent_at', 'is', null)       // Only include notifications that have been sent
+          .order('sent_at', { ascending: false })
+          .limit(20);
+          
+        if (retryError) {
+          console.error('Error fetching notifications after processing:', retryError);
+          return [];
+        }
+        
+        if (retryData && retryData.length > 0) {
+          console.log('Fetched notifications after processing:', retryData.length);
+          const formattedRetryNotifications = await formatNotifications(retryData);
+          return removeDuplicateNotifications(formattedRetryNotifications);
+        }
+      } catch (processingError) {
+        console.error('Error during notification processing:', processingError);
       }
       
-      console.log('Fetched notifications after processing:', retryData.length);
-      const formattedRetryNotifications = await formatNotifications(retryData);
-      return removeDuplicateNotifications(formattedRetryNotifications);
+      console.log('Still no notifications after retry');
+      return [];
     }
 
     const formattedNotifications = await formatNotifications(notificationsData);

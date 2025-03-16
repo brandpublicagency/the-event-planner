@@ -8,7 +8,18 @@ import { supabase } from "@/integrations/supabase/client";
 export const triggerNotificationProcessing = async () => {
   try {
     console.log('Triggering notification processing...');
-    const { data, error } = await supabase.functions.invoke('process-notifications');
+    
+    // Attempt to call the edge function with a timeout
+    const fetchPromise = supabase.functions.invoke('process-notifications', {
+      method: 'POST',
+      body: { processImmediate: true }
+    });
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Edge function timed out')), 10000)
+    );
+    
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
     
     if (error) {
       console.error('Error invoking process-notifications function:', error);
@@ -19,6 +30,7 @@ export const triggerNotificationProcessing = async () => {
     return data;
   } catch (err) {
     console.error('Error triggering notification processing:', err);
+    // Let the error propagate so it can be handled by the caller
     throw err;
   }
 };

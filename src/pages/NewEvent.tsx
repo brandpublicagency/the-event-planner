@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import EventFormActions from "@/components/forms/EventFormActions";
 import { useQueryClient } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
+import { triggerNotificationProcessing } from "@/api/notification/triggerNotificationProcessing";
 
 const NewEvent = () => {
   const navigate = useNavigate();
@@ -81,6 +82,15 @@ const NewEvent = () => {
       console.log('Creating event with data:', eventData);
       const eventCodeResult = await createEvent(eventData, user.id);
       console.log('Event created with code:', eventCodeResult);
+
+      // Explicitly trigger notification processing to create immediate notifications
+      try {
+        console.log('Explicitly triggering notification processing after event creation');
+        await triggerNotificationProcessing();
+      } catch (notificationError) {
+        console.error('Error triggering notifications, but continuing:', notificationError);
+        // Don't fail the event creation if notification processing fails
+      }
 
       // Explicitly trigger a refresh of data for realtime updates to work reliably
       await queryClient.invalidateQueries({ queryKey: ['events'] });
