@@ -5,7 +5,6 @@ export type NotificationType =
   | "task_overdue" 
   | "task_upcoming" 
   | "event_incomplete"
-  | "proforma_reminder" 
   | "final_payment_reminder"  
   | "document_due_reminder"   
   | "task_created";

@@ -108,7 +108,7 @@ async function createDirectNotifications() {
     console.log('Creating direct notifications for recent events:', recentEvents.length);
     
     let createdCount = 0;
-    const notificationTypes = ['event_created_unified', 'proforma_reminder'];
+    const notificationTypes = ['event_created_unified'];
     
     for (const event of recentEvents) {
       // For each recent event, ensure unified notification exists

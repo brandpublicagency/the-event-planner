@@ -27,7 +27,6 @@ interface Event {
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -41,10 +40,8 @@ serve(async (req: Request) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     console.log('Processing scheduled notifications...');
 
-    // First, clean up duplicate notifications
     await cleanupDuplicateNotifications(supabase);
 
-    // Fetch notification triggers to check what should be processed
     const { data: notificationTriggers, error: triggersError } = await supabase
       .from('notification_triggers')
       .select('*')
@@ -56,11 +53,9 @@ serve(async (req: Request) => {
     }
     
     console.log(`Found ${notificationTriggers?.length || 0} active notification triggers`);
-    
-    // Create missing notifications for recent events
+
     const createdCount = await createMissingNotifications(supabase, notificationTriggers);
     
-    // Get all pending notifications scheduled for now or earlier
     const { data: pendingNotifications, error: notificationsError } = await supabase
       .from('event_notifications')
       .select('*')
@@ -87,7 +82,6 @@ serve(async (req: Request) => {
 
     console.log(`Processing ${pendingNotifications.length} pending notifications`);
 
-    // Fetch all templates in one go for efficiency
     const { data: templates, error: templatesError } = await supabase
       .from('notification_templates')
       .select('*');
@@ -97,13 +91,11 @@ serve(async (req: Request) => {
       throw templatesError;
     }
     
-    // Create a map for quick lookup
     const templateMap = templates ? templates.reduce((acc, template) => {
       acc[template.type] = template;
       return acc;
     }, {}) : {};
 
-    // Process each notification
     let processedCount = 0;
     const results = [];
     
@@ -111,10 +103,8 @@ serve(async (req: Request) => {
       try {
         console.log(`Processing notification ${notification.id} of type ${notification.notification_type} for event ${notification.event_code}`);
         
-        // Get the notification template from our map
         const template = templateMap[notification.notification_type];
 
-        // Get the event details (with error handling)
         let event = null;
         try {
           const { data: eventData, error: eventError } = await supabase
@@ -137,7 +127,6 @@ serve(async (req: Request) => {
           continue;
         }
         
-        // Mark notification as sent
         const { error: updateError } = await supabase
           .from('event_notifications')
           .update({ 
@@ -193,16 +182,13 @@ serve(async (req: Request) => {
   }
 });
 
-// Helper function to process template with event data
 function processTemplate(template: NotificationTemplate, event: Event): string {
   let description = template.description_template;
   
-  // Replace variables in template
   description = description.replace(/{event_name}/g, event.name || 'Untitled Event');
   description = description.replace(/{event_type}/g, event.event_type || 'Event');
   description = description.replace(/{primary_contact}/g, event.primary_name || 'Client');
   
-  // Format and replace event_date if it exists
   if (event.event_date && description.includes('{event_date}')) {
     try {
       const formattedDate = format(new Date(event.event_date), 'dd MMMM yyyy');
@@ -218,12 +204,10 @@ function processTemplate(template: NotificationTemplate, event: Event): string {
   return description;
 }
 
-// Function to check for and remove duplicate notifications
 async function cleanupDuplicateNotifications(supabase) {
   try {
     console.log('Starting duplicate notification cleanup...');
     
-    // Get all sent notifications
     const { data: allNotifications, error: fetchError } = await supabase
       .from('event_notifications')
       .select('id, event_code, notification_type, sent_at, is_read')
@@ -238,7 +222,6 @@ async function cleanupDuplicateNotifications(supabase) {
     
     console.log(`Found ${allNotifications.length} notifications to check for duplicates`);
     
-    // Find duplicates (same event_code and notification_type, keeping the most recent)
     const seen = new Map();
     const duplicates = [];
     
@@ -246,7 +229,6 @@ async function cleanupDuplicateNotifications(supabase) {
       const key = `${notification.event_code}_${notification.notification_type}`;
       
       if (seen.has(key)) {
-        // Add the older one to duplicates
         duplicates.push(notification.id);
       } else {
         seen.set(key, notification.id);
@@ -256,7 +238,6 @@ async function cleanupDuplicateNotifications(supabase) {
     if (duplicates.length > 0) {
       console.log(`Found ${duplicates.length} duplicate notifications to clean up`);
       
-      // Mark duplicates as completed so they don't show up
       const { error: updateError } = await supabase
         .from('event_notifications')
         .update({ is_completed: true })
@@ -275,13 +256,10 @@ async function cleanupDuplicateNotifications(supabase) {
   }
 }
 
-// Function to check for and create missing notifications
 async function createMissingNotifications(supabase, notificationTriggers) {
   try {
     console.log('Checking for missing notifications...');
     
-    // Replace the existing specific event code query with the requested query
-    // Get recent events created in the last 30 days
     const daysToLookBack = 30;
     const lookBackDate = new Date();
     lookBackDate.setDate(lookBackDate.getDate() - daysToLookBack);
@@ -303,17 +281,14 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     
     let createdCount = 0;
     
-    // Look up the unified notification trigger
     const unifiedTrigger = notificationTriggers.find(trigger => 
       trigger.template_type === 'event_created_unified'
     );
     
-    // Look up the final payment reminder trigger
     const paymentReminderTrigger = notificationTriggers.find(trigger => 
       trigger.template_type === 'final_payment_reminder'
     );
     
-    // Look up the document due reminder trigger
     const documentDueReminderTrigger = notificationTriggers.find(trigger => 
       trigger.template_type === 'document_due_reminder'
     );
@@ -322,23 +297,18 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     console.log('Found payment reminder trigger:', paymentReminderTrigger ? 'yes' : 'no');
     console.log('Found document due reminder trigger:', documentDueReminderTrigger ? 'yes' : 'no');
     
-    // Required notification types that should exist for each event
     const requiredTypes = [
       'event_created_unified',   // Unified type
       'event_incomplete',        // Keep this one
-      'proforma_reminder',       // Keep this as a separate reminder for 14 days before
       'final_payment_reminder',  // Final payment reminder type
       'document_due_reminder'    // Document due reminder type
     ];
     
-    // First, clean up any existing document due reminders that were created too early
     for (const event of recentEvents || []) {
-      // Skip events without an event date
       if (!event.event_date) continue;
       
       console.log(`Checking document_due_reminder for event ${event.event_code} (date: ${event.event_date})`);
       
-      // Get existing document due reminders for this event
       const { data: existingReminders, error: remindersError } = await supabase
         .from('event_notifications')
         .select('*')
@@ -354,22 +324,17 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       if (existingReminders && existingReminders.length > 0) {
         console.log(`Found ${existingReminders.length} document due reminders for event ${event.event_code}`);
         
-        // Calculate the correct scheduled date (14 days before event)
         const eventDate = new Date(event.event_date);
         const correctReminderDate = new Date(eventDate);
         correctReminderDate.setDate(eventDate.getDate() - 14);
         
-        // Mark old reminders as completed
         for (const reminder of existingReminders) {
-          // Check if this is an old-style reminder (not based on event date)
           const reminderDate = new Date(reminder.scheduled_for);
           const daysBeforeEvent = Math.round((eventDate.getTime() - reminderDate.getTime()) / (1000 * 60 * 60 * 24));
           
-          // If this reminder is scheduled more than 16 days before the event or is in the wrong timeframe
           if (daysBeforeEvent > 16 || daysBeforeEvent < 12) {
             console.log(`Marking outdated document reminder ${reminder.id} as completed (scheduled ${daysBeforeEvent} days before event)`);
             
-            // Mark it as completed
             const { error: updateError } = await supabase
               .from('event_notifications')
               .update({ 
@@ -384,11 +349,9 @@ async function createMissingNotifications(supabase, notificationTriggers) {
           }
         }
         
-        // Create a new reminder with the correct timing if needed
         if (existingReminders.every(r => r.is_completed)) {
           console.log(`Creating new correctly timed document reminder for event ${event.event_code}`);
           
-          // Insert a correctly timed notification
           const { error: insertError } = await supabase
             .from('event_notifications')
             .insert({
@@ -408,11 +371,9 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       }
     }
     
-    // For each event, create any missing notifications
     for (const event of recentEvents || []) {
       console.log(`Checking notifications for event ${event.event_code} (${event.name})`);
       
-      // Get existing notifications for this event
       const { data: existingNotifications, error: notificationError } = await supabase
         .from('event_notifications')
         .select('notification_type, sent_at')
@@ -423,21 +384,16 @@ async function createMissingNotifications(supabase, notificationTriggers) {
         continue;
       }
       
-      // Create a set of existing notification types
       const existingTypes = new Set(existingNotifications?.map(n => n.notification_type) || []);
       console.log(`Event ${event.event_code} has notifications: ${Array.from(existingTypes).join(', ')}`);
       
-      // Check if we need to create the unified notification
       if (!existingTypes.has('event_created_unified')) {
-        // If the event has any of the old notification types but not the unified one,
-        // we'll create the unified one
         if (existingTypes.has('event_created') || 
             existingTypes.has('document_send_reminder') || 
             existingTypes.has('invoice_reminder')) {
           
           console.log(`Creating unified notification for event ${event.event_code} to replace old types`);
           
-          // Insert the unified notification
           const { error: insertError } = await supabase
             .from('event_notifications')
             .insert({
@@ -453,7 +409,6 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             createdCount++;
             console.log(`Created unified notification for event ${event.event_code}`);
             
-            // Mark old notification types as completed to hide them
             if (existingTypes.has('event_created') || 
                 existingTypes.has('document_send_reminder') || 
                 existingTypes.has('invoice_reminder')) {
@@ -474,61 +429,49 @@ async function createMissingNotifications(supabase, notificationTriggers) {
         }
       }
       
-      // Now check for other required notification types
       for (const notificationType of requiredTypes) {
-        // Skip event_created_unified if we just added it
         if (notificationType === 'event_created_unified' && 
             (existingTypes.has('event_created_unified') || createdCount > 0)) {
           continue;
         }
         
-        // For document_due_reminder, ensure it's not already in the existingTypes
         if (notificationType === 'document_due_reminder' && 
             existingTypes.has('document_due_reminder')) {
+          continue;
+        }
+        
+        if (notificationType === 'proforma_reminder') {
           continue;
         }
         
         if (!existingTypes.has(notificationType)) {
           console.log(`Creating missing ${notificationType} notification for event ${event.event_code}`);
           
-          // Calculate scheduled time based on notification type
           let scheduledFor = new Date().toISOString();
           let shouldMarkAsSent = false;
           
           if (notificationType === 'event_created_unified') {
-            // Event created unified notifications are scheduled immediately
             scheduledFor = new Date().toISOString();
-            shouldMarkAsSent = true; // Always send event created notifications immediately
-          } else if (notificationType === 'proforma_reminder' && event.event_date) {
-            // Pro-forma reminders scheduled 14 days before event
-            const eventDate = new Date(event.event_date);
-            const reminderDate = new Date(eventDate);
-            reminderDate.setDate(eventDate.getDate() - 14);
-            scheduledFor = reminderDate.toISOString();
+            shouldMarkAsSent = true;
           } else if (notificationType === 'event_incomplete' && event.event_date) {
-            // Event incomplete reminders scheduled 7 days before event
             const eventDate = new Date(event.event_date);
             const reminderDate = new Date(eventDate);
             reminderDate.setDate(eventDate.getDate() - 7);
             scheduledFor = reminderDate.toISOString();
           } else if (notificationType === 'final_payment_reminder' && event.event_date) {
-            // Final payment reminders scheduled 7 days before event
             const eventDate = new Date(event.event_date);
             const reminderDate = new Date(eventDate);
             reminderDate.setDate(eventDate.getDate() - 7);
             scheduledFor = reminderDate.toISOString();
           } else if (notificationType === 'document_due_reminder' && event.event_date) {
-            // Document due reminders scheduled 14 days before event
             const eventDate = new Date(event.event_date);
             const reminderDate = new Date(eventDate);
             reminderDate.setDate(eventDate.getDate() - 14);
             scheduledFor = reminderDate.toISOString();
           }
           
-          // Skip if we couldn't calculate a scheduled date (e.g., no event_date for date-dependent notifications)
           if (
             (notificationType === 'document_due_reminder' || 
-             notificationType === 'proforma_reminder' || 
              notificationType === 'event_incomplete' ||
              notificationType === 'final_payment_reminder') && 
             !event.event_date
@@ -537,12 +480,10 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             continue;
           }
           
-          // Mark as sent immediately if scheduled date is in the past
           if (new Date(scheduledFor) <= new Date()) {
             shouldMarkAsSent = true;
           }
           
-          // Insert the notification with proper scheduling
           const { error: insertError } = await supabase
             .from('event_notifications')
             .insert({
@@ -559,7 +500,6 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             console.log(`Created ${notificationType} notification for event ${event.event_code}, sent status: ${shouldMarkAsSent}`);
           }
         } else {
-          // Check if notification exists but hasn't been sent yet
           const unsent = existingNotifications.find(n => 
             n.notification_type === notificationType && n.sent_at === null
           );
@@ -567,7 +507,6 @@ async function createMissingNotifications(supabase, notificationTriggers) {
           if (unsent) {
             console.log(`Found unsent ${notificationType} notification for event ${event.event_code}, marking as sent`);
             
-            // Mark notification as sent if needed
             const { error: updateError } = await supabase
               .from('event_notifications')
               .update({ 
@@ -595,4 +534,3 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     return 0;
   }
 }
-

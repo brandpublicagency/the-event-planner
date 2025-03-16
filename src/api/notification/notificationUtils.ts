@@ -1,4 +1,3 @@
-
 import { Notification } from "@/types/notification";
 
 /**
@@ -16,8 +15,6 @@ export const formatNotificationTitle = (type: string): string => {
       return 'Upcoming Task';
     case 'event_incomplete':
       return 'Event Incomplete';
-    case 'proforma_reminder':
-      return 'Pro-forma Invoice Due';
     case 'final_payment_reminder':
       return 'Final Payment Due';
     case 'document_due_reminder':

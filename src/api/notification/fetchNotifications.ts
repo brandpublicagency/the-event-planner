@@ -29,6 +29,7 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
       .not('sent_at', 'is', null)       // Only include notifications that have been sent
+      .not('notification_type', 'eq', 'proforma_reminder') // Exclude proforma_reminder notifications
       .order('sent_at', { ascending: false })
       .limit(20);
 
