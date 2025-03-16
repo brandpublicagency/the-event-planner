@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
-import { RefreshCw, Bell, Eye, CheckCircle, AlertTriangle, Calendar } from 'lucide-react';
+import { RefreshCw, Bell, Eye, CheckCircle, AlertTriangle, Calendar, AlarmClock } from 'lucide-react';
 import { Notification } from '@/types/notification';
 
 interface NotificationListProps {
@@ -13,7 +13,7 @@ interface NotificationListProps {
   loading: boolean;
   onViewDetail: (id: string, relatedId?: string) => void;
   onCompleteTask: (id: string) => void;
-  listType?: 'general' | 'scheduled';
+  listType?: 'general' | 'scheduled' | 'unified';
 }
 
 export const NotificationList = ({
@@ -21,7 +21,7 @@ export const NotificationList = ({
   loading,
   onViewDetail,
   onCompleteTask,
-  listType = 'general'
+  listType = 'unified'
 }: NotificationListProps) => {
   if (loading) {
     return (
@@ -39,18 +39,10 @@ export const NotificationList = ({
       <Card>
         <CardContent className="py-10 text-center">
           <div className="flex flex-col items-center justify-center space-y-3">
-            {listType === 'general' ? (
-              <Bell className="h-10 w-10 text-zinc-300" />
-            ) : (
-              <Calendar className="h-10 w-10 text-zinc-300" />
-            )}
-            <h3 className="text-lg font-medium text-zinc-900">
-              {listType === 'general' ? 'No notifications' : 'No scheduled reminders'}
-            </h3>
+            <Bell className="h-10 w-10 text-zinc-300" />
+            <h3 className="text-lg font-medium text-zinc-900">No notifications</h3>
             <p className="text-sm text-zinc-500 max-w-sm">
-              {listType === 'general'
-                ? "You don't have any notifications yet. They'll appear here when there are updates to your events or tasks."
-                : "You don't have any reminders scheduled. They'll appear here when you have upcoming tasks or deadlines."}
+              You don't have any notifications yet. They'll appear here when there are updates to your events or tasks.
             </p>
           </div>
         </CardContent>
@@ -88,6 +80,12 @@ export const NotificationList = ({
                         Attention needed
                       </Badge>
                     )}
+                    {(notification.type === "task_upcoming" || notification.type === "task_overdue") && (
+                      <Badge variant="outline" className="ml-2 border-blue-200 bg-blue-50 text-blue-700 text-xs">
+                        <AlarmClock className="h-3 w-3 mr-1" />
+                        Reminder
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-zinc-600 mb-3">{notification.description}</p>
                   
@@ -110,7 +108,7 @@ export const NotificationList = ({
                           className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700"
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
-                          {listType === 'general' ? 'Approve' : 'Mark Complete'}
+                          Mark Complete
                         </Button>
                       )}
                     </div>

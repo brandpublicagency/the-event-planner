@@ -2,16 +2,13 @@
 import React, { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
-import { NotificationTabs } from '@/components/notifications/NotificationTabs';
 import { NotificationActions } from '@/components/notifications/NotificationActions';
+import { NotificationList } from '@/components/notifications/NotificationList';
 
 const Notifications = () => {
   const {
-    activeTab,
     notifications,
-    scheduledNotifications,
     loading,
-    handleTabChange,
     handleViewEvent,
     handleMarkAllRead,
     handleCompleteTask,
@@ -21,16 +18,15 @@ const Notifications = () => {
 
   // Log notifications for debugging
   console.log('Current notifications:', notifications);
-  console.log('Scheduled notifications:', scheduledNotifications);
   
   // Auto-trigger processing on initial load to ensure we have the latest notifications
   useEffect(() => {
-    // Only trigger if there are no scheduled notifications
-    if (scheduledNotifications.length === 0 && !loading) {
-      console.log('No scheduled notifications found, triggering processing...');
+    // Only trigger if there are no notifications
+    if (notifications.length === 0 && !loading) {
+      console.log('No notifications found, triggering processing...');
       handleTriggerProcess();
     }
-  }, [scheduledNotifications.length, loading, handleTriggerProcess]);
+  }, [notifications.length, loading, handleTriggerProcess]);
 
   return (
     <div className="flex flex-col h-full">
@@ -40,6 +36,7 @@ const Notifications = () => {
           <NotificationActions
             onRefresh={handleRefresh}
             onTriggerProcess={handleTriggerProcess}
+            onMarkAllRead={handleMarkAllRead}
             loading={loading}
             showDevActions={process.env.NODE_ENV === 'development' || true} // Always show for now
           />
@@ -47,15 +44,12 @@ const Notifications = () => {
       />
       
       <div className="p-6 flex-1">
-        <NotificationTabs
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          generalNotifications={notifications}
-          scheduledNotifications={scheduledNotifications}
-          generalLoading={loading}
-          scheduledLoading={loading}
-          onViewDetail={handleViewEvent}
-          onCompleteTask={handleCompleteTask}
+        <NotificationList 
+          notifications={notifications}
+          loading={loading}
+          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+          onCompleteTask={(id) => handleCompleteTask('unified', id)}
+          listType="unified"
         />
       </div>
     </div>

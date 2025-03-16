@@ -1,15 +1,15 @@
 
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useScheduledNotifications } from '@/contexts/ScheduledNotificationContext';
-import { useTabState } from './useTabState';
 import { useNotificationHandlers } from './useNotificationHandlers';
+import { useMemo } from 'react';
 
 /**
  * Main hook for the Notifications page that combines all notification functionality
  */
 export function useNotificationsPage() {
   // General notifications
-  const { notifications, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications: generalNotifications, markAsRead, markAllAsRead } = useNotifications();
   
   // Scheduled/reminder notifications
   const { 
@@ -18,11 +18,14 @@ export function useNotificationsPage() {
     markAsCompleted,
     refreshNotifications,
     triggerNotificationProcessing,
-    loading
+    loading: scheduledLoading
   } = useScheduledNotifications();
   
-  // Tab state management
-  const { activeTab, handleTabChange } = useTabState();
+  // Combine all notifications
+  const allNotifications = useMemo(() => {
+    return [...generalNotifications, ...scheduledNotifications]
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }, [generalNotifications, scheduledNotifications]);
   
   // Handlers for notification interactions
   const {
@@ -34,6 +37,7 @@ export function useNotificationsPage() {
   } = useNotificationHandlers(
     markAsRead,
     markAllAsRead,
+    markScheduledAsRead,
     markAsCompleted,
     refreshNotifications,
     triggerNotificationProcessing
@@ -41,13 +45,10 @@ export function useNotificationsPage() {
 
   return {
     // State
-    activeTab,
-    notifications,
-    scheduledNotifications,
-    loading,
+    notifications: allNotifications,
+    loading: scheduledLoading,
     
     // Handlers
-    handleTabChange,
     handleViewEvent,
     handleMarkAllRead,
     handleCompleteTask,

@@ -1,43 +1,73 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Play, MailCheck } from 'lucide-react';
+import { RefreshCw, PlusCircle, CheckCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface NotificationActionsProps {
   onRefresh: () => void;
   onTriggerProcess: () => void;
+  onMarkAllRead: () => void;
   loading: boolean;
-  showDevActions: boolean;
+  showDevActions?: boolean;
 }
 
-export const NotificationActions = ({
+export const NotificationActions: React.FC<NotificationActionsProps> = ({
   onRefresh,
   onTriggerProcess,
+  onMarkAllRead,
   loading,
-  showDevActions = true, // Enable by default for now to help with testing
-}: NotificationActionsProps) => {
+  showDevActions = false
+}) => {
   return (
-    <div className="flex gap-2">
-      <Button 
-        size="sm" 
-        variant="outline" 
-        onClick={onRefresh}
-        disabled={loading}
-      >
-        <RefreshCw className="h-4 w-4 mr-2" />
-        Refresh
-      </Button>
+    <div className="flex items-center gap-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onMarkAllRead}
+            className="h-9"
+          >
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Mark All Read
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Mark all notifications as read</TooltipContent>
+      </Tooltip>
+      
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRefresh}
+            className="h-9"
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <span className="ml-1 hidden md:inline">Refresh</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Refresh notifications</TooltipContent>
+      </Tooltip>
       
       {showDevActions && (
-        <Button 
-          size="sm" 
-          variant="default"
-          onClick={onTriggerProcess}
-          disabled={loading}
-        >
-          <Play className="h-4 w-4 mr-2" />
-          Process Reminders
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onTriggerProcess}
+              className="h-9"
+              disabled={loading}
+            >
+              <PlusCircle className="h-4 w-4 mr-1" />
+              <span className="hidden md:inline">Process Pending</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Process pending notifications</TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

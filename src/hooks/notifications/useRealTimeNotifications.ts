@@ -28,19 +28,28 @@ export function useRealTimeNotifications() {
               (!payload.old || !payload.old.sent_at)) {
             console.log('New notification received:', payload);
             
-            // Show more prominent toast with long duration
+            // Show toast with notification type indicator
+            let title = "New Notification";
+            let description = "You have a new notification";
+            
+            // Customize based on notification type if available
+            if (payload.new.notification_type?.includes('task')) {
+              title = "Task Reminder";
+              description = "You have a new task reminder";
+            }
+            
             toast({
-              title: "Important Notification",
-              description: "You have a new notification that requires attention",
+              title,
+              description,
               variant: "info",
               showProgress: true,
-              duration: 8000 // 8 seconds for more visibility
+              duration: 5000
             });
             
             // Also trigger browser notification if supported
             if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('New Notification', {
-                body: 'You have a new notification that requires attention',
+              new Notification(title, {
+                body: description,
                 icon: '/favicon.ico'
               });
             } else if ('Notification' in window && Notification.permission !== 'denied') {

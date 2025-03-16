@@ -7,21 +7,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
 import { Bell } from "lucide-react";
 
 export const NotificationButton = () => {
-  const { unreadCount } = useNotifications();
+  const { unreadCount: generalUnreadCount } = useNotifications();
+  const { unreadCount: scheduledUnreadCount } = useScheduledNotifications();
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
   
+  // Combined unread count
+  const totalUnreadCount = generalUnreadCount + scheduledUnreadCount;
+  
   // Add animation effect when new notifications arrive
   useEffect(() => {
-    if (unreadCount > 0) {
+    if (totalUnreadCount > 0) {
       setAnimate(true);
       const timer = setTimeout(() => setAnimate(false), 2000);
       return () => clearTimeout(timer);
     }
-  }, [unreadCount]);
+  }, [totalUnreadCount]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -35,9 +40,9 @@ export const NotificationButton = () => {
         >
           <Bell className="h-5 w-5 text-zinc-700" />
           <span className="text-sm font-medium">Notifications</span>
-          {unreadCount > 0 && (
+          {totalUnreadCount > 0 && (
             <span className="flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-[4px] w-5 h-5 min-w-[20px]">
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
             </span>
           )}
         </div>

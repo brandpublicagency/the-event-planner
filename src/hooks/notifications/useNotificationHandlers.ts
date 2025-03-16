@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 export function useNotificationHandlers(
   markAsRead: (id: string) => Promise<void>,
   markAllAsRead: () => void,
+  markScheduledAsRead: (id: string) => Promise<void>,
   markAsCompleted: (id: string) => Promise<void>,
   refreshNotifications: () => Promise<void>,
   triggerNotificationProcessing: () => Promise<any>
@@ -16,26 +17,36 @@ export function useNotificationHandlers(
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleViewEvent = useCallback(async (type: 'general' | 'scheduled', id: string, eventCode?: string) => {
-    // Mark notification as read
-    if (type === 'general') {
-      await markAsRead(id);
-    } else {
-      await markAsRead(id);
+  const handleViewEvent = useCallback(async (type: 'general' | 'scheduled' | 'unified', id: string, eventCode?: string) => {
+    try {
+      // Try to mark as read in both systems - one will succeed based on where the notification exists
+      await Promise.allSettled([
+        markAsRead(id),
+        markScheduledAsRead(id)
+      ]);
+      
+      // Navigate to event if we have an event code
+      if (eventCode) {
+        navigate(`/events/${eventCode}`);
+      }
+      
+      toast({
+        title: "Notification marked as read",
+        variant: "success",
+        showProgress: true,
+        duration: 3000
+      });
+    } catch (error) {
+      console.error("Error handling notification view:", error);
+      toast({
+        title: "Error",
+        description: "Could not mark notification as read",
+        variant: "destructive",
+        showProgress: true,
+        duration: 3000
+      });
     }
-    
-    // Navigate to event if we have an event code
-    if (eventCode) {
-      navigate(`/events/${eventCode}`);
-    }
-    
-    toast({
-      title: "Notification marked as read",
-      variant: "success",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [markAsRead, navigate, toast]);
+  }, [markAsRead, markScheduledAsRead, navigate, toast]);
 
   const handleMarkAllRead = useCallback(() => {
     markAllAsRead();
@@ -47,15 +58,26 @@ export function useNotificationHandlers(
     });
   }, [markAllAsRead, toast]);
 
-  const handleCompleteTask = useCallback(async (type: 'general' | 'scheduled', id: string) => {
-    await markAsCompleted(id);
-    toast({
-      title: "Task marked as complete",
-      description: "The task has been marked as completed successfully",
-      variant: "success",
-      showProgress: true,
-      duration: 3000
-    });
+  const handleCompleteTask = useCallback(async (type: 'general' | 'scheduled' | 'unified', id: string) => {
+    try {
+      await markAsCompleted(id);
+      toast({
+        title: "Task marked as complete",
+        description: "The task has been marked as completed successfully",
+        variant: "success",
+        showProgress: true,
+        duration: 3000
+      });
+    } catch (error) {
+      console.error("Error completing task:", error);
+      toast({
+        title: "Error",
+        description: "Could not mark task as complete",
+        variant: "destructive",
+        showProgress: true,
+        duration: 3000
+      });
+    }
   }, [markAsCompleted, toast]);
 
   const handleRefresh = useCallback(async () => {

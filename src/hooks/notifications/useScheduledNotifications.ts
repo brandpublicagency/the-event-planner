@@ -10,11 +10,11 @@ export function useScheduledNotifications(
 
   // Set up real-time subscription for new notifications
   useEffect(() => {
-    console.log('Setting up scheduled notification subscription');
+    console.log('Setting up unified notification subscription');
     
     // Subscribe to event_notifications table for real-time updates
     const channel = supabase
-      .channel('scheduled-notifications')
+      .channel('unified-notifications')
       .on(
         'postgres_changes',
         {
@@ -28,12 +28,17 @@ export function useScheduledNotifications(
           if (payload.new && 
               payload.new.sent_at && 
               (!payload.old || !payload.old.sent_at)) {
-            console.log('New scheduled notification sent:', payload);
+            console.log('New notification sent:', payload);
             
-            // Show toast with clear styling and progress
+            // Determine notification type
+            const isReminder = payload.new.notification_type?.includes('task');
+            
+            // Show toast with appropriate styling and text
             toast({
-              title: "New notification",
-              description: "You have a new notification to review",
+              title: isReminder ? "New Reminder" : "New Notification",
+              description: isReminder 
+                ? "You have a new task reminder to review" 
+                : "You have a new notification to review",
               variant: "info",
               showProgress: true,
               duration: 5000
@@ -45,12 +50,12 @@ export function useScheduledNotifications(
         }
       )
       .subscribe((status) => {
-        console.log('Scheduled notification subscription status:', status);
+        console.log('Unified notification subscription status:', status);
       });
       
     // Cleanup subscription
     return () => {
-      console.log('Cleaning up scheduled notification subscription');
+      console.log('Cleaning up unified notification subscription');
       supabase.removeChannel(channel);
     };
   }, [toast, onNewNotification]);
