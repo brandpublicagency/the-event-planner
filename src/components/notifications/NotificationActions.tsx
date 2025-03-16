@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import { Notification } from "@/types/notification";
 
 interface NotificationActionsProps {
-  notification: Notification; // Add this to match what's being passed
+  notification: Notification;
   onView: (notification: Notification, e: React.MouseEvent) => void;
   onComplete: (notification: Notification, e: React.MouseEvent) => void;
 }
