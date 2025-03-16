@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,20 +10,27 @@ import { useState, useEffect } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { deleteEvent } from "@/services/eventService";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, CalendarClock, CheckSquare } from "lucide-react";
+import { Plus, Loader2, CalendarClock, CheckSquare, Bell } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import DashboardMessage from "@/components/dashboard/DashboardMessage";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationsList } from "@/components/notifications/NotificationList";
 import type { Event } from "@/types/event";
+
 const Index = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const {
-    tasks,
-    isLoading: isTasksLoading
-  } = useTaskContext();
+  const { tasks, isLoading: isTasksLoading } = useTaskContext();
+  
+  // Get notifications data
+  const { 
+    notifications, 
+    markAsRead, 
+    markAsCompleted, 
+    refreshNotifications
+  } = useNotifications();
+
   const {
     data: allEvents = [],
     refetch,
@@ -53,6 +61,14 @@ const Index = () => {
     },
     retry: 1
   });
+  
+  // Refresh notifications when component mounts
+  useEffect(() => {
+    refreshNotifications().catch(err => {
+      console.error('Error refreshing notifications:', err);
+    });
+  }, [refreshNotifications]);
+  
   const events = allEvents.slice(0, 10);
   useEffect(() => {
     if (eventsError) {
@@ -63,11 +79,32 @@ const Index = () => {
       });
     }
   }, [eventsError, toast]);
+  
   const upcomingTasks = tasks.filter(task => !task.completed);
+  const groupedEvents = groupEventsByMonth(events);
+  
+  const handleNotificationView = (id: string, relatedId?: string) => {
+    // Mark notification as read
+    markAsRead(id).catch(err => console.error('Error marking notification as read:', err));
+    
+    // Navigate to related content if available
+    if (relatedId) {
+      if (relatedId.includes('event_')) {
+        navigate(`/events/${relatedId}`);
+      } else if (relatedId.includes('task_')) {
+        navigate(`/tasks?selected=${relatedId}`);
+      }
+    }
+  };
+  
+  const handleNotificationComplete = (id: string) => {
+    markAsCompleted(id).catch(err => console.error('Error marking notification as completed:', err));
+  };
+  
   const handleTaskSelect = (id: string) => {
     navigate(`/tasks?selected=${id}`);
   };
-  const groupedEvents = groupEventsByMonth(events);
+
   return <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
@@ -123,26 +160,62 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right column - Upcoming Tasks */}
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
-            backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            marginBottom: '15px'
-          }}>
-              <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
-              
-              <div className="flex items-center gap-2 relative z-10">
-                <CheckSquare className="h-5 w-5 text-zinc-700" />
-                <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+          {/* Right column - Tasks and Notifications Vertical Layout */}
+          <div className="flex flex-col gap-6 h-full">
+            {/* Upcoming Tasks */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
+                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: '15px'
+              }}>
+                <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
+                
+                <div className="flex items-center gap-2 relative z-10">
+                  <CheckSquare className="h-5 w-5 text-zinc-700" />
+                  <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
+                </div>
+                <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full relative z-10">
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  New Task
+                </Button>
               </div>
-              <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full relative z-10">
-                <Plus className="h-4 w-4 mr-1.5" />
-                New Task
-              </Button>
+              <TaskList tasks={upcomingTasks} onTaskSelect={handleTaskSelect} selectedTaskId={selectedTaskId} hideHeader={true} isDashboard={true} />
             </div>
-            <TaskList tasks={upcomingTasks} onTaskSelect={handleTaskSelect} selectedTaskId={selectedTaskId} hideHeader={true} isDashboard={true} />
+            
+            {/* Latest Updates (Notifications) */}
+            <div className="flex flex-col mt-2">
+              <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
+                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: '15px'
+              }}>
+                <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
+                
+                <div className="flex items-center gap-2 relative z-10">
+                  <Bell className="h-5 w-5 text-zinc-700" />
+                  <h3 className="text-lg font-medium text-zinc-900">Latest Updates</h3>
+                </div>
+                <Button 
+                  onClick={() => refreshNotifications()} 
+                  size="sm" 
+                  variant="outline" 
+                  className="rounded-full relative z-10"
+                >
+                  Refresh
+                </Button>
+              </div>
+              
+              <div className="overflow-auto max-h-[400px]">
+                <NotificationsList 
+                  notifications={notifications.slice(0, 5)} 
+                  onViewDetail={handleNotificationView}
+                  onCompleteTask={handleNotificationComplete}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
