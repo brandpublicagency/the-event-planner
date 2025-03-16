@@ -20,7 +20,7 @@ export interface Notification {
 export interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  markAsRead: (id: string) => void;
+  markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => void;
   clearNotifications: () => void;
 }
