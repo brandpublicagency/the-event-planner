@@ -85,6 +85,9 @@ serve(async (req: Request) => {
       });
     }
 
+    // Check for duplicate notifications and clean them up
+    await cleanupDuplicateNotifications(supabase);
+
     if (!pendingNotifications || pendingNotifications.length === 0) {
       console.log('No pending notifications to process');
       
@@ -104,22 +107,34 @@ serve(async (req: Request) => {
 
     console.log(`Found ${pendingNotifications.length} pending notifications to process`);
 
+    // Fetch all templates in one go for efficiency
+    const { data: templates, error: templatesError } = await supabase
+      .from('notification_templates')
+      .select('*');
+      
+    if (templatesError) {
+      console.error('Error fetching notification templates:', templatesError);
+      throw templatesError;
+    }
+    
+    // Create a map for quick lookup
+    const templateMap = templates ? templates.reduce((acc, template) => {
+      acc[template.type] = template;
+      return acc;
+    }, {}) : {};
+
     // Process each notification
     const results = await Promise.allSettled(
       pendingNotifications.map(async (notification) => {
         try {
           console.log(`Processing notification ${notification.id} of type ${notification.notification_type}`);
           
-          // Get the notification template
-          const { data: template, error: templateError } = await supabase
-            .from('notification_templates')
-            .select('*')
-            .eq('type', notification.notification_type)
-            .single();
+          // Get the notification template from our map
+          const template = templateMap[notification.notification_type];
 
-          if (templateError || !template) {
-            console.error(`Template not found for type ${notification.notification_type}:`, templateError);
-            throw templateError || new Error(`Template not found for type ${notification.notification_type}`);
+          if (!template) {
+            console.error(`Template not found for type ${notification.notification_type}`);
+            throw new Error(`Template not found for type ${notification.notification_type}`);
           }
 
           // Get the event details
@@ -212,6 +227,56 @@ function processTemplate(template: NotificationTemplate, event: Event): string {
   return description;
 }
 
+// Function to check for and remove duplicate notifications
+async function cleanupDuplicateNotifications(supabase) {
+  try {
+    // Get all notifications
+    const { data: allNotifications, error: fetchError } = await supabase
+      .from('event_notifications')
+      .select('id, event_code, notification_type')
+      .not('is_completed', 'eq', true)
+      .is('sent_at', 'not.null');
+      
+    if (fetchError || !allNotifications) {
+      console.error('Error fetching notifications for cleanup:', fetchError);
+      return;
+    }
+    
+    // Find duplicates (same event_code and notification_type)
+    const seen = new Map();
+    const duplicates = [];
+    
+    allNotifications.forEach(notification => {
+      const key = `${notification.event_code}_${notification.notification_type}`;
+      if (seen.has(key)) {
+        duplicates.push(notification.id);
+      } else {
+        seen.set(key, notification.id);
+      }
+    });
+    
+    if (duplicates.length > 0) {
+      console.log(`Found ${duplicates.length} duplicate notifications to clean up`);
+      
+      // Mark duplicates as completed so they don't show up
+      const { error: updateError } = await supabase
+        .from('event_notifications')
+        .update({ is_completed: true })
+        .in('id', duplicates);
+        
+      if (updateError) {
+        console.error('Error cleaning up duplicate notifications:', updateError);
+      } else {
+        console.log(`Successfully cleaned up ${duplicates.length} duplicate notifications`);
+      }
+    } else {
+      console.log('No duplicate notifications found');
+    }
+  } catch (error) {
+    console.error('Error during notification cleanup:', error);
+  }
+}
+
 // Function to check for and create missing notifications
 async function createMissingNotifications(supabase, notificationTriggers) {
   try {
@@ -260,6 +325,7 @@ async function createMissingNotifications(supabase, notificationTriggers) {
               event_code: event.event_code,
               notification_type: notificationType,
               scheduled_for: new Date().toISOString(),
+              sent_at: new Date().toISOString(), // Mark as sent immediately so it appears in UI
             });
             
           if (insertError) {
@@ -278,3 +344,4 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     return 0;
   }
 }
+

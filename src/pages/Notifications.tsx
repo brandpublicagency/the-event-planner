@@ -37,9 +37,12 @@ const Notifications = () => {
   
   const location = useLocation();
 
-  // Refresh notifications when the page is loaded
+  // Refresh notifications when the page is loaded and also trigger processing
   useEffect(() => {
     console.log('Notifications page mounted - refreshing notifications');
+    
+    // This will first trigger notification processing to clean up duplicates,
+    // then fetch the latest notifications afterward
     handleRefresh();
   }, [handleRefresh]);
 
@@ -56,8 +59,21 @@ const Notifications = () => {
       
       <div className="p-6 flex-1">
         <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Recent Notifications</h2>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh
+            </Button>
+          </div>
+
           {error && (
-            <Alert variant="default" className="mb-4">
+            <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Notification System Error</AlertTitle>
               <AlertDescription>
@@ -65,11 +81,13 @@ const Notifications = () => {
               </AlertDescription>
             </Alert>
           )}
+          
           {loading && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">Loading notifications...</p>
             </div>
           )}
+          
           <NotificationsList 
             notifications={notifications}
             error={error}
@@ -84,3 +102,4 @@ const Notifications = () => {
 };
 
 export default Notifications;
+

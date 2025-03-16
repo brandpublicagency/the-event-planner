@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Notification } from "@/types/notification";
-import { Calendar, AlertTriangle, AlarmClock } from "lucide-react";
+import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard } from "lucide-react";
 import { NotificationActions } from "./NotificationActions";
 
 interface NotificationItemProps {
@@ -74,8 +75,17 @@ const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type 
   if (type === "event_incomplete") {
     return (
       <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-orange-200 bg-orange-50 text-orange-700">
-        <AlertTriangle className="h-3 w-3 mr-1" />
-        Alert
+        <FileText className="h-3 w-3 mr-1" />
+        Document
+      </Badge>
+    );
+  }
+  
+  if (type === "proforma_reminder") {
+    return (
+      <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-blue-200 bg-blue-50 text-blue-700">
+        <CreditCard className="h-3 w-3 mr-1" />
+        Invoice
       </Badge>
     );
   }
@@ -89,5 +99,11 @@ const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type 
     );
   }
   
-  return null;
+  return (
+    <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-purple-200 bg-purple-50 text-purple-700">
+      <AlertTriangle className="h-3 w-3 mr-1" />
+      Alert
+    </Badge>
+  );
 };
+

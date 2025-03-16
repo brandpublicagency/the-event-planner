@@ -82,6 +82,17 @@ export function useNotificationSystem() {
       console.error('Failed to fetch notifications in initial load:', err);
     });
     
+    // Trigger processing to clean up any duplicates
+    triggerNotificationProcessing()
+      .then(() => {
+        console.log('Triggered notification processing to clean up duplicates');
+        // After processing, refresh notifications to get the latest state
+        return fetchNotifications();
+      })
+      .catch(err => {
+        console.error('Failed to process notifications:', err);
+      });
+    
     // Set up real-time subscription for new notifications
     const subscription = supabase
       .channel('event_notifications_changes')
@@ -105,7 +116,7 @@ export function useNotificationSystem() {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, triggerNotificationProcessing]);
 
   return {
     loading,
@@ -118,3 +129,4 @@ export function useNotificationSystem() {
     hasAttemptedFetch
   };
 }
+

@@ -23,8 +23,10 @@ export const fetchNotificationData = async () => {
         created_at,
         events:events!inner(name, event_type, primary_name)
       `)
+      .not('is_completed', 'eq', true)  // Exclude completed notifications
+      .is('sent_at', 'not.null')        // Only include sent notifications
       .order('sent_at', { ascending: false })
-      .limit(10);
+      .limit(20);
 
     if (notificationsError) {
       console.error('Error fetching notifications:', notificationsError);
@@ -54,8 +56,10 @@ export const fetchNotificationData = async () => {
           created_at,
           events:events!inner(name, event_type, primary_name)
         `)
+        .not('is_completed', 'eq', true)  // Exclude completed notifications
+        .is('sent_at', 'not.null')        // Only include sent notifications
         .order('sent_at', { ascending: false })
-        .limit(10);
+        .limit(20);
         
       if (retryError || !retryData || retryData.length === 0) {
         console.log('Still no notifications after retry');
@@ -68,7 +72,12 @@ export const fetchNotificationData = async () => {
 
     const formattedNotifications = await formatNotifications(notificationsData);
     console.log('Formatted notifications:', formattedNotifications.length);
-    return formattedNotifications;
+    
+    // De-duplicate notifications by filtering out ones with the same notification_type and event_code
+    const uniqueNotifications = removeDuplicateNotifications(formattedNotifications);
+    console.log('After removing duplicates:', uniqueNotifications.length);
+    
+    return uniqueNotifications;
   } catch (err) {
     console.error('Error in notification system:', err);
     // Instead of throwing, return an empty array to not break the UI
@@ -97,7 +106,7 @@ const formatNotifications = async (notificationsData) => {
       // Return basic notifications without template data
       return notificationsData.map(item => ({
         id: item.id,
-        title: item.notification_type || 'Notification',
+        title: formatNotificationTitle(item.notification_type) || 'Notification',
         description: `${item.notification_type} for ${item.events?.name || 'Event'}`,
         createdAt: new Date(item.sent_at || item.created_at),
         type: item.notification_type as any,
@@ -120,7 +129,7 @@ const formatNotifications = async (notificationsData) => {
       
       // Process template with event data
       let description = template?.description_template || 'Notification';
-      let title = template?.title || item.notification_type || 'Notification';
+      let title = template?.title || formatNotificationTitle(item.notification_type) || 'Notification';
       
       // Safely replace template placeholders
       try {
@@ -147,7 +156,7 @@ const formatNotifications = async (notificationsData) => {
     // Provide a basic format if there's an error
     return notificationsData.map(item => ({
       id: item.id,
-      title: item.notification_type || 'Notification',
+      title: formatNotificationTitle(item.notification_type) || 'Notification',
       description: `Notification for ${item.events?.name || 'Event'}`,
       createdAt: new Date(item.sent_at || item.created_at),
       type: item.notification_type as any,
@@ -157,6 +166,51 @@ const formatNotifications = async (notificationsData) => {
     }));
   }
 }
+
+/**
+ * Format notification titles from snake_case to proper titles
+ */
+const formatNotificationTitle = (notificationType: string | null): string => {
+  if (!notificationType) return 'Notification';
+  
+  // Handle specific notification types
+  switch (notificationType) {
+    case 'event_created':
+      return 'New Event Created';
+    case 'proforma_reminder':
+      return 'Pro-forma Invoice Reminder';
+    case 'event_incomplete':
+      return 'Event Document Reminder';
+    case 'task_overdue':
+      return 'Task Overdue';
+    case 'task_upcoming':
+      return 'Upcoming Task';
+    case 'task_created':
+      return 'New Task Created';
+    default:
+      // Format other types by converting snake_case to Title Case
+      return notificationType
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+  }
+};
+
+/**
+ * Removes duplicate notifications based on notification_type and event_code
+ */
+const removeDuplicateNotifications = (notifications: Notification[]): Notification[] => {
+  const seen = new Set();
+  return notifications.filter(notification => {
+    // Create a unique key using type and relatedId
+    const key = `${notification.type}_${notification.relatedId}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+};
 
 /**
  * Creates some basic notification records if none exist
@@ -181,7 +235,7 @@ const createBasicNotifications = async () => {
     // Check if these events already have notifications
     const { data: existingNotifications, error: checkError } = await supabase
       .from('event_notifications')
-      .select('event_code')
+      .select('event_code, notification_type')
       .in('event_code', events.map(e => e.event_code));
       
     if (checkError) {
@@ -189,29 +243,39 @@ const createBasicNotifications = async () => {
       return;
     }
     
-    const existingEventCodes = new Set(existingNotifications?.map(n => n.event_code) || []);
+    // Create a map of existing notifications to avoid duplicates
+    const existingMap = new Map();
+    existingNotifications?.forEach(n => {
+      const key = `${n.event_code}_${n.notification_type}`;
+      existingMap.set(key, true);
+    });
     
     // Create basic notifications for events that don't have them
+    const notificationTypes = ['event_created', 'proforma_reminder', 'event_incomplete'];
+    
     for (const event of events) {
-      if (!existingEventCodes.has(event.event_code)) {
-        const currentTime = new Date().toISOString();
-        
-        const { error: insertError } = await supabase
-          .from('event_notifications')
-          .insert([
-            {
-              event_code: event.event_code,
-              notification_type: 'event_created',
-              scheduled_for: currentTime,
-              sent_at: currentTime, // Mark as sent immediately so it appears in the UI
-              is_read: false
-            }
-          ]);
+      for (const notificationType of notificationTypes) {
+        const key = `${event.event_code}_${notificationType}`;
+        if (!existingMap.has(key)) {
+          const currentTime = new Date().toISOString();
           
-        if (insertError) {
-          console.error('Error creating notification for event:', event.event_code, insertError);
-        } else {
-          console.log('Created notification for event:', event.event_code);
+          const { error: insertError } = await supabase
+            .from('event_notifications')
+            .insert([
+              {
+                event_code: event.event_code,
+                notification_type: notificationType,
+                scheduled_for: currentTime,
+                sent_at: currentTime, // Mark as sent immediately so it appears in the UI
+                is_read: false
+              }
+            ]);
+            
+          if (insertError) {
+            console.error('Error creating notification for event:', event.event_code, insertError);
+          } else {
+            console.log('Created notification for event:', event.event_code, notificationType);
+          }
         }
       }
     }
@@ -219,3 +283,4 @@ const createBasicNotifications = async () => {
     console.error('Error creating basic notifications:', err);
   }
 };
+
