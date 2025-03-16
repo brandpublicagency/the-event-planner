@@ -1,9 +1,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ChatMessage } from '@/types/chat';
+import { ChatMessage, SaveChatMessageParams, SavedChatMessage } from '@/types/chat';
 import { v4 as uuidv4 } from 'uuid';
-import { SaveChatMessageParams, SavedChatMessage } from '@/types/chat';
 
 /**
  * Hook to manage chat history persistence in Supabase
@@ -32,9 +31,8 @@ export function useChatHistory(conversationId: string) {
       // Convert database format to application format
       const messages = (data as SavedChatMessage[]).map((msg: SavedChatMessage): ChatMessage => ({
         id: msg.message_id,
-        content: msg.content,
-        role: msg.is_user ? 'user' : 'assistant',
-        createdAt: new Date(msg.created_at),
+        text: msg.content,
+        isUser: msg.is_user,
       }));
 
       setHistory(messages);
@@ -52,8 +50,8 @@ export function useChatHistory(conversationId: string) {
       const messageParams: SaveChatMessageParams = {
         message_id: message.id,
         conversation_id: conversationId,
-        content: message.content,
-        is_user: message.role === 'user',
+        content: message.text,
+        is_user: message.isUser,
       };
 
       // Use a typecast to handle the table not being in the TypeScript definitions
@@ -76,12 +74,11 @@ export function useChatHistory(conversationId: string) {
   }, [conversationId, loadChatHistory]);
 
   // Add new message to state and save to Supabase
-  const addMessage = useCallback(async (content: string, role: 'user' | 'assistant') => {
+  const addMessage = useCallback(async (content: string, isUser: boolean) => {
     const newMessage: ChatMessage = {
       id: uuidv4(),
-      content,
-      role,
-      createdAt: new Date(),
+      text: content,
+      isUser,
     };
 
     setHistory(prev => [...prev, newMessage]);
