@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +9,7 @@ import {
   ToastTitle
 } from "@/components/ui/toast";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react";
+import { InfoIcon, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SidebarToastsProps {
   isCollapsed: boolean;

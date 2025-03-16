@@ -4,13 +4,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Task } from "@/contexts/TaskContext";
-import { useTaskActivityLogging } from "@/hooks/useTaskActivityLogging";
 
 export function useTaskDelete(task: Task) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { logTaskDeleted } = useTaskActivityLogging();
 
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
@@ -45,9 +43,6 @@ export function useTaskDelete(task: Task) {
         .eq("user_id", task.user_id);
 
       if (taskDeleteError) throw taskDeleteError;
-      
-      // Log the task deletion
-      await logTaskDeleted(task);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

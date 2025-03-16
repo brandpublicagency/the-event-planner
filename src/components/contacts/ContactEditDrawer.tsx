@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -10,7 +11,6 @@ import PersonalInfoSection from "./drawer-sections/PersonalInfoSection";
 import BusinessInfoSection from "./drawer-sections/BusinessInfoSection";
 import EventsBookedSection from "./drawer-sections/EventsBookedSection";
 import ActionButtons from "./drawer-sections/ActionButtons";
-import { useContactActivityLogging } from "@/hooks/useContactActivityLogging";
 
 interface ContactEditDrawerProps {
   contact: Contact;
@@ -26,7 +26,6 @@ const ContactEditDrawer = ({
   onUpdateSuccess
 }: ContactEditDrawerProps) => {
   const { toast } = useToast();
-  const { logContactUpdated, currentUser } = useContactActivityLogging();
   
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -42,35 +41,12 @@ const ContactEditDrawer = ({
   
   const onSubmit = async (values: ContactFormValues) => {
     try {
-      const originalValues = {
-        name: contact.name,
-        email: contact.email || "",
-        phone: contact.phone || "",
-        company: contact.company || "",
-        address: contact.address || "",
-        vat_number: contact.vat_number || ""
-      };
-      
-      const changedFields = Object.keys(values).filter(
-        key => values[key as keyof ContactFormValues] !== originalValues[key as keyof typeof originalValues]
-      );
-      
-      let success = false;
-      try {
-        await updateContact(contact, values);
-        success = true;
-      } catch (error) {
-        success = false;
-      }
-      
-      if (success && changedFields.length > 0) {
-        logContactUpdated(contact, changedFields);
-      }
+      await updateContact(contact, values);
       
       onUpdateSuccess();
       toast({
         title: "Contact updated",
-        description: `Contact updated successfully by ${currentUser?.name || 'current user'}`,
+        description: `Contact updated successfully`,
         variant: "success"
       });
       onClose();
