@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -172,7 +171,10 @@ const ToastWithProgress = React.forwardRef<
       </div>
       <div 
         className="toast-progress-bar" 
-        style={{ animationDuration: `${progressDuration}ms` }}
+        style={{ 
+          animationDuration: `${progressDuration}ms`,
+          animationName: 'toast-progress-animation'
+        }}
       />
     </Toast>
   );
