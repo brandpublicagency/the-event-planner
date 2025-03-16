@@ -9,6 +9,7 @@ import { useNotificationProcessing } from './useNotificationProcessing';
 
 export function useNotificationSystem() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
   const { toast } = useToast();
   
@@ -21,10 +22,12 @@ export function useNotificationSystem() {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const formattedNotifications = await fetchNotificationData();
       setPendingNotifications(formattedNotifications);
     } catch (err) {
       console.error('Error in notification system:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load notifications'));
       toast({
         title: 'Error loading notifications',
         description: 'There was a problem fetching your notifications.',
@@ -69,7 +72,9 @@ export function useNotificationSystem() {
 
   // Load notifications on component mount
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications().catch(err => {
+      console.error('Failed to fetch notifications in initial load:', err);
+    });
     
     // Set up real-time subscription for new notifications
     const subscription = supabase
@@ -84,7 +89,9 @@ export function useNotificationSystem() {
         },
         (payload) => {
           console.log('Notification updated:', payload);
-          fetchNotifications();
+          fetchNotifications().catch(err => {
+            console.error('Failed to fetch notifications after update:', err);
+          });
         }
       )
       .subscribe();
@@ -96,6 +103,7 @@ export function useNotificationSystem() {
 
   return {
     loading,
+    error,
     pendingNotifications,
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,

@@ -11,6 +11,7 @@ import { Notification } from '@/types/notification';
 interface NotificationListProps {
   notifications: Notification[];
   loading: boolean;
+  error?: Error | null;
   onViewDetail: (id: string, relatedId?: string) => void;
   onCompleteTask: (id: string) => void;
   listType?: 'general' | 'scheduled' | 'unified';
@@ -19,6 +20,7 @@ interface NotificationListProps {
 export const NotificationList = ({
   notifications,
   loading,
+  error,
   onViewDetail,
   onCompleteTask,
   listType = 'unified'
@@ -31,6 +33,22 @@ export const NotificationList = ({
           <p className="mt-4 text-zinc-500">Loading notifications...</p>
         </div>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center">
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <AlertTriangle className="h-10 w-10 text-amber-500" />
+            <h3 className="text-lg font-medium text-zinc-900">Error loading notifications</h3>
+            <p className="text-sm text-zinc-500 max-w-sm">
+              {error.message || "There was a problem loading your notifications. Please try again later."}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 

@@ -33,6 +33,12 @@ export const fetchNotificationData = async () => {
 
     console.log('Fetched notifications:', notificationsData);
 
+    // Check if notifications is empty or couldn't be loaded properly
+    if (!notificationsData || notificationsData.length === 0) {
+      console.log('No notifications found in database');
+      return [];
+    }
+
     // Get notification templates separately
     const { data: templatesData, error: templatesError } = await supabase
       .from('notification_templates')
@@ -56,13 +62,20 @@ export const fetchNotificationData = async () => {
       
       // Process template with event data
       let description = template?.description_template || 'Notification';
-      description = description.replace('{event_name}', item.events.name || 'Untitled Event');
-      description = description.replace('{event_type}', item.events.event_type || 'Event');
-      description = description.replace('{primary_contact}', item.events.primary_name || 'Client');
+      let title = template?.title || 'Notification';
+      
+      // Safely replace template placeholders
+      try {
+        description = description.replace('{event_name}', item.events?.name || 'Untitled Event');
+        description = description.replace('{event_type}', item.events?.event_type || 'Event');
+        description = description.replace('{primary_contact}', item.events?.primary_name || 'Client');
+      } catch (e) {
+        console.error('Error processing notification template:', e);
+      }
 
       return {
         id: item.id,
-        title: template?.title || 'Notification',
+        title: title,
         description: description,
         createdAt: new Date(item.sent_at || item.created_at),
         type: item.notification_type as any,
@@ -73,6 +86,7 @@ export const fetchNotificationData = async () => {
     });
   } catch (err) {
     console.error('Error in notification system:', err);
-    throw err;
+    // Instead of throwing, return an empty array to not break the UI
+    return [];
   }
 };

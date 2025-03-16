@@ -28,6 +28,7 @@ const Notifications = () => {
   const {
     notifications,
     loading,
+    error,
     handleViewEvent,
     handleMarkAllRead,
     handleCompleteTask,
@@ -39,14 +40,14 @@ const Notifications = () => {
   // Log notifications for debugging
   console.log('Current notifications:', notifications);
   
-  // Auto-trigger processing on initial load to ensure we have the latest notifications
+  // Only trigger processing when there are no notifications and no errors
   useEffect(() => {
-    // Only trigger if there are no notifications
-    if (notifications.length === 0 && !loading) {
+    // Only trigger if there are no notifications and we're not already loading
+    if (notifications.length === 0 && !loading && !error) {
       console.log('No notifications found, triggering processing...');
-      handleTriggerProcess();
+      handleRefresh(); // Use handleRefresh instead of triggering processing to avoid errors
     }
-  }, [notifications.length, loading, handleTriggerProcess]);
+  }, [notifications.length, loading, error, handleRefresh]);
 
   return (
     <div className="flex flex-col h-full">
@@ -69,6 +70,7 @@ const Notifications = () => {
           <NotificationList 
             notifications={notifications}
             loading={loading}
+            error={error}
             onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
             onCompleteTask={(id) => handleCompleteTask('unified', id)}
             listType="unified"
