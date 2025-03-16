@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -194,6 +193,8 @@ const formatNotificationTitle = (notificationType: string | null): string => {
       return 'New Task Created';
     case 'final_payment_reminder':
       return 'Final Payment Reminder';
+    case 'document_due_reminder':
+      return 'Document Due Reminder';
     default:
       // Format other types by converting snake_case to Title Case
       return notificationType

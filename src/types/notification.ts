@@ -7,6 +7,7 @@ export type NotificationType =
   | "event_incomplete"
   | "proforma_reminder" 
   | "final_payment_reminder"  // Added new notification type for final payments
+  | "document_due_reminder"   // Document due reminder type
   | "task_created";
 
 export interface Notification {

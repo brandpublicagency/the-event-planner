@@ -312,16 +312,100 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       trigger.template_type === 'final_payment_reminder'
     );
     
+    // Look up the document due reminder trigger
+    const documentDueReminderTrigger = notificationTriggers.find(trigger => 
+      trigger.template_type === 'document_due_reminder'
+    );
+    
     console.log('Found unified trigger:', unifiedTrigger ? 'yes' : 'no');
     console.log('Found payment reminder trigger:', paymentReminderTrigger ? 'yes' : 'no');
+    console.log('Found document due reminder trigger:', documentDueReminderTrigger ? 'yes' : 'no');
     
     // Required notification types that should exist for each event
     const requiredTypes = [
-      'event_created_unified', // Unified type
-      'event_incomplete',      // Keep this one
-      'proforma_reminder',     // Keep this as a separate reminder for 14 days before
-      'final_payment_reminder' // Add the new final payment reminder type
+      'event_created_unified',   // Unified type
+      'event_incomplete',        // Keep this one
+      'proforma_reminder',       // Keep this as a separate reminder for 14 days before
+      'final_payment_reminder',  // Final payment reminder type
+      'document_due_reminder'    // Document due reminder type
     ];
+    
+    // First, clean up any existing document due reminders that were created too early
+    for (const event of recentEvents || []) {
+      // Skip events without an event date
+      if (!event.event_date) continue;
+      
+      console.log(`Checking document_due_reminder for event ${event.event_code} (date: ${event.event_date})`);
+      
+      // Get existing document due reminders for this event
+      const { data: existingReminders, error: remindersError } = await supabase
+        .from('event_notifications')
+        .select('*')
+        .eq('event_code', event.event_code)
+        .eq('notification_type', 'document_due_reminder')
+        .not('is_completed', 'eq', true);
+        
+      if (remindersError) {
+        console.error(`Error checking reminders for event ${event.event_code}:`, remindersError);
+        continue;
+      }
+      
+      if (existingReminders && existingReminders.length > 0) {
+        console.log(`Found ${existingReminders.length} document due reminders for event ${event.event_code}`);
+        
+        // Calculate the correct scheduled date (14 days before event)
+        const eventDate = new Date(event.event_date);
+        const correctReminderDate = new Date(eventDate);
+        correctReminderDate.setDate(eventDate.getDate() - 14);
+        
+        // Mark old reminders as completed
+        for (const reminder of existingReminders) {
+          // Check if this is an old-style reminder (not based on event date)
+          const reminderDate = new Date(reminder.scheduled_for);
+          const daysBeforeEvent = Math.round((eventDate.getTime() - reminderDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // If this reminder is scheduled more than 16 days before the event or is in the wrong timeframe
+          if (daysBeforeEvent > 16 || daysBeforeEvent < 12) {
+            console.log(`Marking outdated document reminder ${reminder.id} as completed (scheduled ${daysBeforeEvent} days before event)`);
+            
+            // Mark it as completed
+            const { error: updateError } = await supabase
+              .from('event_notifications')
+              .update({ 
+                is_completed: true,
+                updated_at: new Date().toISOString() 
+              })
+              .eq('id', reminder.id);
+              
+            if (updateError) {
+              console.error(`Error marking reminder ${reminder.id} as completed:`, updateError);
+            }
+          }
+        }
+        
+        // Create a new reminder with the correct timing if needed
+        if (existingReminders.every(r => r.is_completed)) {
+          console.log(`Creating new correctly timed document reminder for event ${event.event_code}`);
+          
+          // Insert a correctly timed notification
+          const { error: insertError } = await supabase
+            .from('event_notifications')
+            .insert({
+              event_code: event.event_code,
+              notification_type: 'document_due_reminder',
+              scheduled_for: correctReminderDate.toISOString(),
+              sent_at: correctReminderDate <= new Date() ? new Date().toISOString() : null,
+            });
+            
+          if (insertError) {
+            console.error(`Error creating document due reminder for event ${event.event_code}:`, insertError);
+          } else {
+            createdCount++;
+            console.log(`Created document due reminder for event ${event.event_code}, scheduled for ${correctReminderDate.toISOString()}`);
+          }
+        }
+      }
+    }
     
     // For each event, create any missing notifications
     for (const event of recentEvents || []) {
@@ -397,6 +481,12 @@ async function createMissingNotifications(supabase, notificationTriggers) {
           continue;
         }
         
+        // For document_due_reminder, ensure it's not already in the existingTypes
+        if (notificationType === 'document_due_reminder' && 
+            existingTypes.has('document_due_reminder')) {
+          continue;
+        }
+        
         if (!existingTypes.has(notificationType)) {
           console.log(`Creating missing ${notificationType} notification for event ${event.event_code}`);
           
@@ -424,6 +514,24 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             const reminderDate = new Date(eventDate);
             reminderDate.setDate(eventDate.getDate() - 7);
             scheduledFor = reminderDate.toISOString();
+          } else if (notificationType === 'document_due_reminder' && event.event_date) {
+            // Document due reminders scheduled 14 days before event
+            const eventDate = new Date(event.event_date);
+            const reminderDate = new Date(eventDate);
+            reminderDate.setDate(eventDate.getDate() - 14);
+            scheduledFor = reminderDate.toISOString();
+          }
+          
+          // Skip if we couldn't calculate a scheduled date (e.g., no event_date for date-dependent notifications)
+          if (
+            (notificationType === 'document_due_reminder' || 
+             notificationType === 'proforma_reminder' || 
+             notificationType === 'event_incomplete' ||
+             notificationType === 'final_payment_reminder') && 
+            !event.event_date
+          ) {
+            console.log(`Skipping ${notificationType} for event ${event.event_code} - no event date set`);
+            continue;
           }
           
           // Mark as sent immediately if scheduled date is in the past
