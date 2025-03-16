@@ -42,17 +42,17 @@ export const useChatState = () => {
   
   // Get chat history functionality
   const { 
-    chatHistory, 
-    saveMessage, 
-    resetConversation 
-  } = useChatHistory();
+    history,
+    addMessage: saveMessage,
+    clearHistory: resetConversation
+  } = useChatHistory("default-conversation");
   
   // Initialize messages from history if available
   useEffect(() => {
-    if (chatHistory.length > 0 && messages.length === 0) {
-      setMessages(chatHistory);
+    if (history.length > 0 && messages.length === 0) {
+      setMessages(history);
     }
-  }, [chatHistory, messages.length]);
+  }, [history, messages.length]);
 
   // Set up real-time subscription
   useEffect(() => {
@@ -128,7 +128,7 @@ export const useChatState = () => {
         if (message.text !== "Thinking..." && 
             message.text !== "Processing..." && 
             !message.text.includes("Retrying...")) {
-          saveMessage(newMessageWithId);
+          saveMessage(newMessageWithId.text, newMessageWithId.isUser);
         }
       }
       

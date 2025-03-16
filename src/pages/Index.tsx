@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
-import ChatBox from "@/components/ChatBox";
 import { groupEventsByMonth } from "@/utils/eventUtils";
 import { TaskList } from "@/components/TaskList";
 import { useState, useEffect } from "react";
@@ -137,10 +136,6 @@ const Index = () => {
 
         <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
           <DashboardMessage />
-          
-          <div className="h-72">
-            <ChatBox />
-          </div>
           
           <div>
             <div 
