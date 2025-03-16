@@ -19,7 +19,7 @@ export function Toaster() {
   const defaultToasts = toasts.filter(toast => toast.position !== "sidebar");
 
   return (
-    <ToastProvider swipeDirection="right">
+    <ToastProvider>
       {defaultToasts.map(function ({ id, title, description, action, variant, showProgress, duration, ...props }) {
         const ToastComponent = showProgress ? ToastWithProgress : ToastWithIcon;
         

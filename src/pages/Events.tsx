@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -24,6 +23,7 @@ export default function Events() {
       variant: "info",
       showProgress: true,
       duration: 5000,
+      position: "sidebar"
     });
     
     console.log("Toast notification triggered in Events component");
@@ -134,7 +134,6 @@ export default function Events() {
     <div className="flex flex-col h-full">
       <Header 
         pageTitle="Events" 
-        // Removed actionButton prop
       />
       
       <div className="flex-1 p-6 flex flex-col gap-4">
@@ -165,8 +164,6 @@ export default function Events() {
             </Button>
           </div>
         </div>
-        
-        {/* Removed TestToastButton component */}
         
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
