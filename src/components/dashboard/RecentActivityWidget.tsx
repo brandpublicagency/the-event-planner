@@ -1,6 +1,5 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RecentActivityList } from "@/components/activity/RecentActivityList";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
@@ -32,7 +31,9 @@ export function RecentActivityWidget({ limit = 10, className }: RecentActivityWi
         </Button>
       </CardHeader>
       <CardContent>
-        <RecentActivityList key={refreshKey} limit={limit} />
+        <div className="text-center text-muted-foreground py-6">
+          Activity logging has been disabled
+        </div>
       </CardContent>
     </Card>
   );

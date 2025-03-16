@@ -3,24 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TaskUpdate } from "@/contexts/TaskContext";
-import { useTaskActivityLogging } from "@/hooks/useTaskActivityLogging";
 
 export function useTaskMutation(taskId: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { logTaskUpdated } = useTaskActivityLogging();
 
   return useMutation({
     mutationFn: async (updates: TaskUpdate) => {
-      // First fetch the current task to compare changes later
-      const { data: existingTask, error: fetchError } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("id", taskId)
-        .single();
-        
-      if (fetchError) throw fetchError;
-      
       // Update the task
       const { error, data: updatedTask } = await supabase
         .from("tasks")
@@ -30,13 +19,6 @@ export function useTaskMutation(taskId: string) {
         .single();
 
       if (error) throw error;
-      
-      // Log the changes if successful
-      if (updatedTask) {
-        const updatedFields = Object.keys(updates);
-        // logTaskUpdated returns the updated task as is, ignoring its return value
-        await logTaskUpdated(updatedTask, updatedFields);
-      }
       
       return updatedTask;
     },
