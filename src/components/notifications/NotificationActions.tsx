@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Notification } from "@/types/notification";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -15,13 +16,28 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   onView,
   onComplete
 }) => {
+  const navigate = useNavigate();
+  
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Navigate to edit event page if relatedId exists
+    if (notification.relatedId) {
+      navigate(`/events/${notification.relatedId}/edit`);
+    } else {
+      // Fall back to original onView handler if no relatedId
+      onView(notification, e);
+    }
+  };
+  
   return (
     <div className="flex items-center gap-2">
       <Button 
         variant="outline" 
         size="sm" 
         className="text-xs h-7 px-2 border-zinc-200 flex items-center gap-1"
-        onClick={(e) => onView(notification, e)}
+        onClick={handleViewClick}
       >
         View
       </Button>
