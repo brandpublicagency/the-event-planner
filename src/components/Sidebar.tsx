@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -122,12 +121,12 @@ const Sidebar = ({
     {
       icon: UsersIcon,
       path: "/schedule/meeting",
-      label: "Schedule Meeting"
+      label: "Meeting"
     },
     {
       icon: Building,
       path: "/schedule/site-visit",
-      label: "Schedule Site Visit"
+      label: "Site Visit"
     }
   ];
 
@@ -180,11 +179,9 @@ const Sidebar = ({
           <SidebarNavigation 
             isCollapsed={isCollapsed} 
             items={scheduleNavItems} 
-            sectionTitle="Schedule"
           />
         </div>
         
-        {/* Toast notifications positioned above action buttons */}
         <SidebarToasts isCollapsed={isCollapsed} />
         
         <div className={cn(
@@ -195,7 +192,6 @@ const Sidebar = ({
             "flex",
             isCollapsed ? "flex-col items-center gap-3" : "flex-col gap-1"
           )}>
-            {/* Quick action buttons */}
             {isCollapsed ? (
               <>
                 <button 
