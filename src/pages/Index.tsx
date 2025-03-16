@@ -163,6 +163,7 @@ const Index = () => {
               onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
               hideHeader={true}
+              isDashboard={true}
             />
           </div>
         </div>

@@ -18,6 +18,7 @@ interface TaskListProps {
   selectedTaskId: string | null;
   focusNewTaskInput?: boolean;
   hideHeader?: boolean;
+  isDashboard?: boolean;
 }
 
 export function TaskList({
@@ -25,7 +26,8 @@ export function TaskList({
   onTaskSelect,
   selectedTaskId,
   focusNewTaskInput = false,
-  hideHeader = false
+  hideHeader = false,
+  isDashboard = false
 }: TaskListProps) {
   const navigate = useNavigate();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -58,13 +60,16 @@ export function TaskList({
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (activeTab === "upcoming") {
-      return !task.completed;
-    } else {
-      return task.completed;
-    }
-  });
+  // If on dashboard, only show upcoming tasks
+  const filteredTasks = isDashboard 
+    ? tasks.filter(task => !task.completed)
+    : tasks.filter(task => {
+        if (activeTab === "upcoming") {
+          return !task.completed;
+        } else {
+          return task.completed;
+        }
+      });
 
   const upcomingCount = tasks.filter(task => !task.completed).length;
   const completedCount = tasks.filter(task => task.completed).length;
@@ -109,12 +114,15 @@ export function TaskList({
         </div>
       )}
       
-      <TaskListHeader 
-        upcomingCount={upcomingCount} 
-        completedCount={completedCount}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+      {/* Only show tabs if not on dashboard */}
+      {!isDashboard && (
+        <TaskListHeader 
+          upcomingCount={upcomingCount} 
+          completedCount={completedCount}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      )}
       
       <div className="mt-2">
         <TaskListContent 
@@ -128,7 +136,8 @@ export function TaskList({
         />
       </div>
       
-      {activeTab === "upcoming" && (
+      {/* Only show add task input if on upcoming tab or dashboard */}
+      {(activeTab === "upcoming" || isDashboard) && (
         <AddTaskInput 
           value={newTaskTitle} 
           onChange={setNewTaskTitle} 
