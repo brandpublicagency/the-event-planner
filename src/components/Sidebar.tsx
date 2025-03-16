@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -11,7 +12,9 @@ import {
   CheckSquare, 
   ChevronLeft, 
   ChevronRight, 
-  Calendar 
+  Calendar,
+  Users as UsersIcon,
+  Building
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +55,8 @@ const Sidebar = ({
         return 'bg-gradient-to-br from-orange-50 via-orange-50/80 to-amber-100 backdrop-blur-sm border-r border-orange-100/50';
       case '/documents':
         return 'bg-gradient-to-br from-cyan-50 via-sky-50/80 to-blue-100 backdrop-blur-sm border-r border-cyan-100/50';
-      case '/schedule':
+      case '/schedule/meeting':
+      case '/schedule/site-visit':
         return 'bg-gradient-to-br from-purple-50 via-indigo-50/80 to-violet-100 backdrop-blur-sm border-r border-purple-100/50';
       default:
         return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
@@ -111,11 +115,19 @@ const Sidebar = ({
       icon: FileText,
       path: "/documents",
       label: "Documents"
-    }, 
+    }
+  ];
+  
+  const scheduleNavItems = [
     {
-      icon: Calendar,
-      path: "/schedule",
+      icon: UsersIcon,
+      path: "/schedule/meeting",
       label: "Schedule Meeting"
+    },
+    {
+      icon: Building,
+      path: "/schedule/site-visit",
+      label: "Schedule Site Visit"
     }
   ];
 
@@ -163,6 +175,12 @@ const Sidebar = ({
           <SidebarNavigation 
             isCollapsed={isCollapsed} 
             items={mainNavItems} 
+          />
+          
+          <SidebarNavigation 
+            isCollapsed={isCollapsed} 
+            items={scheduleNavItems} 
+            sectionTitle="Schedule"
           />
         </div>
         
