@@ -22,7 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '@/types/notification';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 // Import the component with the correct name
 import { NotificationsList } from "@/components/notifications/NotificationList";
@@ -66,7 +66,7 @@ export function NotificationDropdown() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleViewNotification = async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
@@ -84,11 +84,11 @@ export function NotificationDropdown() {
 
     // Redirect user based on notification type
     if (notification.type === "event_created") {
-      router.push(`/events/${notification.relatedId}`);
+      navigate(`/events/${notification.relatedId}`);
     } else if (notification.type === "task_overdue" || notification.type === "task_upcoming") {
-      router.push(`/tasks`);
+      navigate(`/tasks`);
     } else {
-      router.push(`/`);
+      navigate(`/`);
     }
   };
 
@@ -105,7 +105,7 @@ export function NotificationDropdown() {
     }
 
     setIsOpen(false);
-    router.push(`/tasks`);
+    navigate(`/tasks`);
   };
 
   useEffect(() => {
@@ -145,28 +145,15 @@ export function NotificationDropdown() {
         </div>
         <DropdownMenuSeparator />
         <ScrollArea className="h-[300px] w-full">
-          {/* {notifications.map((notification) => (
-            <NotificationItem
-              key={notification.id}
-              notification={notification}
-              onView={handleViewNotification}
-              onComplete={handleMarkAsComplete}
-            />
-          ))} */}
-          {/* When rendering the NotificationsList, make sure to use the updated prop names
-          and pass functions that match the expected signatures: */}
-
           <NotificationsList
             notifications={notifications}
             onViewDetail={(id, relatedId) => {
-              // Handle the view detail action with id and relatedId
               const notification = notifications.find(n => n.id === id);
               if (notification) {
                 handleViewNotification(notification, new MouseEvent('click') as any);
               }
             }}
             onCompleteTask={(id) => {
-              // Handle the complete task action with id
               const notification = notifications.find(n => n.id === id);
               if (notification) {
                 handleMarkAsComplete(notification, new MouseEvent('click') as any);
