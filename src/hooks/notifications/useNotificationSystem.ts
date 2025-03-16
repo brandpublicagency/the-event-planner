@@ -3,9 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Notification } from '@/types/notification';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchNotificationData } from '@/api/notificationApi';
+import { fetchNotificationData, triggerNotificationProcessing } from '@/api/notificationApi';
 import { useNotificationActions } from './useNotificationActions';
-import { useNotificationProcessing } from './useNotificationProcessing';
 
 export function useNotificationSystem() {
   const [loading, setLoading] = useState(true);
@@ -14,9 +13,8 @@ export function useNotificationSystem() {
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const { toast } = useToast();
   
-  // Use the combined useNotificationActions hook
+  // Use the notification actions hook
   const { markAsRead, markAsCompleted } = useNotificationActions();
-  const { triggerNotificationProcessing } = useNotificationProcessing();
 
   // Fetch notifications from the database - this is the SINGLE SOURCE OF TRUTH
   const fetchNotifications = useCallback(async () => {
@@ -28,6 +26,7 @@ export function useNotificationSystem() {
       console.log('Notifications fetched in useNotificationSystem:', formattedNotifications.length);
       setPendingNotifications(formattedNotifications);
       setHasAttemptedFetch(true);
+      return formattedNotifications;
     } catch (err) {
       console.error('Error in notification system:', err);
       setError(err instanceof Error ? err : new Error('Failed to load notifications'));
@@ -38,10 +37,32 @@ export function useNotificationSystem() {
       });
       // Still mark as attempted even if there was an error
       setHasAttemptedFetch(true);
+      throw err;
     } finally {
       setLoading(false);
     }
   }, [toast]);
+
+  // Trigger notification processing and then fetch the latest
+  const refreshNotifications = useCallback(async () => {
+    try {
+      console.log('Refreshing notifications with processing...');
+      setLoading(true);
+      
+      // First trigger notification processing
+      await triggerNotificationProcessing().catch(err => {
+        console.log('Notification processing failed, continuing with fetch:', err);
+      });
+      
+      // Then fetch the latest notifications
+      return await fetchNotifications();
+    } catch (err) {
+      console.error('Error refreshing notifications:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchNotifications]);
 
   // Override markAsRead to update local state
   const handleMarkAsRead = useCallback(async (id: string) => {
@@ -54,10 +75,10 @@ export function useNotificationSystem() {
             : notification
         )
       );
-      return Promise.resolve();
+      return true;
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      return Promise.reject(error);
+      throw error;
     }
   }, [markAsRead]);
 
@@ -68,46 +89,34 @@ export function useNotificationSystem() {
       setPendingNotifications(prev => 
         prev.filter(notification => notification.id !== id)
       );
-      return Promise.resolve();
+      return true;
     } catch (error) {
       console.error('Error marking notification as completed:', error);
-      return Promise.reject(error);
+      throw error;
     }
   }, [markAsCompleted]);
 
   // Load notifications on component mount
   useEffect(() => {
-    console.log('Initial fetch in useNotificationSystem');
+    console.log('Initial notification fetch in useNotificationSystem');
     fetchNotifications().catch(err => {
       console.error('Failed to fetch notifications in initial load:', err);
     });
     
-    // Trigger processing to clean up any duplicates
-    triggerNotificationProcessing()
-      .then(() => {
-        console.log('Triggered notification processing to clean up duplicates');
-        // After processing, refresh notifications to get the latest state
-        return fetchNotifications();
-      })
-      .catch(err => {
-        console.error('Failed to process notifications:', err);
-      });
-    
-    // Set up real-time subscription for new notifications
+    // Set up real-time subscription for notifications
     const subscription = supabase
-      .channel('event_notifications_changes')
+      .channel('event_notifications_channel')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'event_notifications',
-          filter: 'sent_at=not.is.null',
         },
         (payload) => {
-          console.log('Notification updated in real-time:', payload);
+          console.log('Notification database change detected:', payload);
           fetchNotifications().catch(err => {
-            console.error('Failed to fetch notifications after update:', err);
+            console.error('Failed to fetch notifications after database change:', err);
           });
         }
       )
@@ -116,7 +125,7 @@ export function useNotificationSystem() {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [fetchNotifications, triggerNotificationProcessing]);
+  }, [fetchNotifications]);
 
   return {
     loading,
@@ -124,9 +133,7 @@ export function useNotificationSystem() {
     pendingNotifications,
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,
-    refreshNotifications: fetchNotifications,
-    triggerNotificationProcessing,
+    refreshNotifications,
     hasAttemptedFetch
   };
 }
-

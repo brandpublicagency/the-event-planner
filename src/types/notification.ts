@@ -16,6 +16,7 @@ export interface Notification {
   read: boolean;
   actionType?: "review" | "approve";
   relatedId?: string; // event_code or task_id
+  status?: "pending" | "sent" | "read" | "completed";
 }
 
 export interface NotificationContextType {
@@ -24,5 +25,6 @@ export interface NotificationContextType {
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => void;
   clearNotifications: () => void;
-  markAsCompleted?: (id: string) => Promise<void>; // Added this optional method
+  markAsCompleted?: (id: string) => Promise<void>;
+  refreshNotifications: () => Promise<void>;
 }

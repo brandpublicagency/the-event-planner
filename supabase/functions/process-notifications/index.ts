@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.5';
 
@@ -33,13 +32,16 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log('Starting notification processing with URL:', SUPABASE_URL);
+    console.log('Starting notification processing');
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error('Missing required environment variables for Supabase connection');
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     console.log('Processing scheduled notifications...');
+
+    // First, clean up duplicate notifications
+    await cleanupDuplicateNotifications(supabase);
 
     // Fetch notification triggers to check what should be processed
     const { data: notificationTriggers, error: triggersError } = await supabase
@@ -54,16 +56,11 @@ serve(async (req: Request) => {
     
     console.log(`Found ${notificationTriggers?.length || 0} active notification triggers`);
     
-    // Log trigger types for debugging
-    notificationTriggers?.forEach(trigger => {
-      console.log(`Active trigger: ${trigger.template_type}, type: ${trigger.trigger_type}, days_offset: ${trigger.days_offset}, event_relative: ${trigger.event_relative}`);
-    });
-
     // Get all pending notifications scheduled for now or earlier
     const { data: pendingNotifications, error: notificationsError } = await supabase
       .from('event_notifications')
       .select('*')
-      .is('sent_at', null)
+      .filter('sent_at', 'is', null)
       .lte('scheduled_for', new Date().toISOString());
 
     if (notificationsError) {
@@ -71,29 +68,11 @@ serve(async (req: Request) => {
       throw notificationsError;
     }
 
-    // Debug log existing notifications
-    const { data: existingNotifications, error: existingError } = await supabase
-      .from('event_notifications')
-      .select('id, event_code, notification_type, scheduled_for, sent_at, is_read')
-      .not('sent_at', 'is', null)
-      .limit(5);
-
-    if (!existingError && existingNotifications) {
-      console.log(`Found ${existingNotifications.length} existing processed notifications for reference:`);
-      existingNotifications.forEach(n => {
-        console.log(`- ${n.notification_type} for ${n.event_code}, sent: ${n.sent_at}, read: ${n.is_read}`);
-      });
-    }
-
-    // Check for duplicate notifications and clean them up
-    await cleanupDuplicateNotifications(supabase);
+    // Create missing notifications for recent events
+    await createMissingNotifications(supabase, notificationTriggers);
 
     if (!pendingNotifications || pendingNotifications.length === 0) {
       console.log('No pending notifications to process');
-      
-      // Check if there are any notifications that should have been created but weren't
-      // This is useful to debug issues like the missing proforma_reminder
-      await createMissingNotifications(supabase, notificationTriggers);
       
       return new Response(
         JSON.stringify({ 
@@ -105,7 +84,7 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`Found ${pendingNotifications.length} pending notifications to process`);
+    console.log(`Processing ${pendingNotifications.length} pending notifications`);
 
     // Fetch all templates in one go for efficiency
     const { data: templates, error: templatesError } = await supabase
@@ -166,7 +145,7 @@ serve(async (req: Request) => {
             throw updateError;
           }
 
-          console.log(`Processed notification ${notification.id} for event ${event.name}`);
+          console.log(`Successfully processed notification ${notification.id} for event ${event.name}`);
           
           return {
             notification_id: notification.id,
@@ -185,13 +164,9 @@ serve(async (req: Request) => {
       })
     );
 
-    // Check for and create missing notifications
-    const createdCount = await createMissingNotifications(supabase, notificationTriggers);
-
     return new Response(
       JSON.stringify({ 
         processed: results.length,
-        created: createdCount,
         results 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -201,11 +176,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack,
-        environment: {
-          supabaseUrl: SUPABASE_URL ? 'Set' : 'Not Set',
-          serviceKey: SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not Set'
-        }
+        details: error.stack
       }),
       { 
         status: 500,
@@ -230,25 +201,32 @@ function processTemplate(template: NotificationTemplate, event: Event): string {
 // Function to check for and remove duplicate notifications
 async function cleanupDuplicateNotifications(supabase) {
   try {
-    // Get all notifications
+    console.log('Starting duplicate notification cleanup...');
+    
+    // Get all sent notifications
     const { data: allNotifications, error: fetchError } = await supabase
       .from('event_notifications')
-      .select('id, event_code, notification_type')
+      .select('id, event_code, notification_type, sent_at, is_read')
       .not('is_completed', 'eq', true)
-      .is('sent_at', 'not.null');
+      .filter('sent_at', 'not.is', null)
+      .order('sent_at', { ascending: false });
       
     if (fetchError || !allNotifications) {
       console.error('Error fetching notifications for cleanup:', fetchError);
       return;
     }
     
-    // Find duplicates (same event_code and notification_type)
+    console.log(`Found ${allNotifications.length} notifications to check for duplicates`);
+    
+    // Find duplicates (same event_code and notification_type, keeping the most recent)
     const seen = new Map();
     const duplicates = [];
     
     allNotifications.forEach(notification => {
       const key = `${notification.event_code}_${notification.notification_type}`;
+      
       if (seen.has(key)) {
+        // Add the older one to duplicates
         duplicates.push(notification.id);
       } else {
         seen.set(key, notification.id);
@@ -280,9 +258,13 @@ async function cleanupDuplicateNotifications(supabase) {
 // Function to check for and create missing notifications
 async function createMissingNotifications(supabase, notificationTriggers) {
   try {
+    console.log('Checking for missing notifications...');
+    
+    // Get recent events
     const { data: recentEvents, error: recentEventsError } = await supabase
       .from('events')
       .select('event_code, name, event_type, primary_name, event_date, created_at')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -295,7 +277,14 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     
     let createdCount = 0;
     
-    // For each recent event, create any missing notification types
+    // Required notification types that should exist for each event
+    const requiredTypes = [
+      'event_created', 
+      'proforma_reminder', 
+      'event_incomplete'
+    ];
+    
+    // For each recent event, create any missing notifications
     for (const event of recentEvents || []) {
       // Get existing notifications for this event
       const { data: existingNotifications, error: notificationError } = await supabase
@@ -311,27 +300,45 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       // Create a set of existing notification types
       const existingTypes = new Set(existingNotifications?.map(n => n.notification_type) || []);
       
-      // Always ensure the basic types exist - don't rely on triggers alone
-      const requiredTypes = ['event_created', 'proforma_reminder', 'event_incomplete'];
-      
       for (const notificationType of requiredTypes) {
         if (!existingTypes.has(notificationType)) {
           console.log(`Creating missing ${notificationType} notification for event ${event.event_code}`);
           
-          // Insert the notification
+          // Calculate scheduled time based on notification type
+          let scheduledFor = new Date().toISOString();
+          
+          if (notificationType === 'event_created') {
+            // Event created notifications are scheduled immediately
+            scheduledFor = new Date().toISOString();
+          } else if (notificationType === 'proforma_reminder' && event.event_date) {
+            // Pro-forma reminders scheduled 14 days before event
+            const eventDate = new Date(event.event_date);
+            const reminderDate = new Date(eventDate);
+            reminderDate.setDate(eventDate.getDate() - 14);
+            scheduledFor = reminderDate.toISOString();
+          } else if (notificationType === 'event_incomplete' && event.event_date) {
+            // Event incomplete reminders scheduled 7 days before event
+            const eventDate = new Date(event.event_date);
+            const reminderDate = new Date(eventDate);
+            reminderDate.setDate(eventDate.getDate() - 7);
+            scheduledFor = reminderDate.toISOString();
+          }
+          
+          // Insert the notification with proper scheduling
           const { error: insertError } = await supabase
             .from('event_notifications')
             .insert({
               event_code: event.event_code,
               notification_type: notificationType,
-              scheduled_for: new Date().toISOString(),
-              sent_at: new Date().toISOString(), // Mark as sent immediately so it appears in UI
+              scheduled_for: scheduledFor,
+              sent_at: scheduledFor <= new Date().toISOString() ? new Date().toISOString() : null,
             });
             
           if (insertError) {
             console.error(`Error creating ${notificationType} notification for event ${event.event_code}:`, insertError);
           } else {
             createdCount++;
+            console.log(`Created ${notificationType} notification for event ${event.event_code}`);
           }
         }
       }
@@ -344,4 +351,3 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     return 0;
   }
 }
-

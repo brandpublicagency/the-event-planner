@@ -1,12 +1,10 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { useTaskContext } from "./TaskContext";
 import { Notification, NotificationContextType } from "@/types/notification";
 import { useNotificationSystem } from "@/hooks/notifications/useNotificationSystem";
+import { useToast } from "@/hooks/use-toast";
 
-// Re-export types from the types file
-export type { NotificationType, Notification } from "@/types/notification";
-
+// Create the context
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
@@ -18,26 +16,60 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     loading,
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,
-    refreshNotifications,
+    refreshNotifications: handleRefreshNotifications,
   } = useNotificationSystem();
+  
+  const { toast } = useToast();
   
   // Calculate unread count based on the actual notifications array
   const unreadCount = pendingNotifications.filter(n => !n.read).length;
   
   console.log('NotificationContext rendering with notifications:', pendingNotifications.length, 'unread:', unreadCount);
   
-  // Create wrapper functions that return void promises to match the expected types
+  // Wrapper for markAsRead that returns a void promise to match the expected type
   const markAsRead = useCallback(async (id: string): Promise<void> => {
-    await handleMarkAsRead(id);
-    return Promise.resolve();
-  }, [handleMarkAsRead]);
+    try {
+      await handleMarkAsRead(id);
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to mark notification as read',
+        variant: 'destructive',
+      });
+      return Promise.reject(error);
+    }
+  }, [handleMarkAsRead, toast]);
   
+  // Wrapper for markAsCompleted that returns a void promise to match the expected type
   const markAsCompleted = useCallback(async (id: string): Promise<void> => {
-    await handleMarkAsCompleted(id);
-    return Promise.resolve();
-  }, [handleMarkAsCompleted]);
+    try {
+      await handleMarkAsCompleted(id);
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error marking notification as completed:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to mark notification as completed',
+        variant: 'destructive',
+      });
+      return Promise.reject(error);
+    }
+  }, [handleMarkAsCompleted, toast]);
   
-  // Add markAllAsRead and clearNotifications functions
+  // Wrapper for refreshNotifications that returns a void promise to match the expected type
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    try {
+      await handleRefreshNotifications();
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+      return Promise.reject(error);
+    }
+  }, [handleRefreshNotifications]);
+  
+  // Add markAllAsRead functionality
   const markAllAsRead = useCallback(() => {
     pendingNotifications.forEach(notification => {
       if (!notification.read) {
@@ -48,11 +80,31 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, [pendingNotifications, markAsRead]);
   
+  // Add clearNotifications functionality
   const clearNotifications = useCallback(() => {
-    // This doesn't actually remove notifications from database
-    // Just a placeholder for the interface compatibility
-    console.log('clearNotifications called - this is a no-op in the current implementation');
-    refreshNotifications();
+    console.log('Clearing all notifications - marking as completed');
+    pendingNotifications.forEach(notification => {
+      markAsCompleted(notification.id).catch(err => {
+        console.error('Error clearing notification:', err);
+      });
+    });
+  }, [pendingNotifications, markAsCompleted]);
+
+  useEffect(() => {
+    // Refresh notifications when component mounts
+    refreshNotifications().catch(err => {
+      console.error('Failed to refresh notifications on mount:', err);
+    });
+    
+    // Set up a periodic refresh every 5 minutes
+    const interval = setInterval(() => {
+      console.log('Periodic notification refresh');
+      refreshNotifications().catch(err => {
+        console.error('Failed to refresh notifications on interval:', err);
+      });
+    }, 300000); // 5 minutes
+    
+    return () => clearInterval(interval);
   }, [refreshNotifications]);
 
   return (
@@ -61,9 +113,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         notifications: pendingNotifications, 
         unreadCount,
         markAsRead, 
+        markAsCompleted,
         markAllAsRead,
         clearNotifications,
-        markAsCompleted
+        refreshNotifications
       }}
     >
       {children}

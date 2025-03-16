@@ -1,14 +1,16 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
 /**
  * Fetches notification data from Supabase and formats it for display
+ * This is the SINGLE SOURCE OF TRUTH for notifications
  */
 export const fetchNotificationData = async () => {
   try {
     console.log('Fetching notifications data from API...');
     
-    // Query event notifications - this is the SINGLE SOURCE OF TRUTH for notifications
+    // Query event notifications with proper filtering
     const { data: notificationsData, error: notificationsError } = await supabase
       .from('event_notifications')
       .select(`
@@ -23,7 +25,7 @@ export const fetchNotificationData = async () => {
         events:events!inner(name, event_type, primary_name)
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
-      .filter('sent_at', 'not.is', null)        // Only include sent notifications
+      .filter('sent_at', 'not.is', null) // Only include sent notifications
       .order('sent_at', { ascending: false })
       .limit(20);
 
@@ -34,14 +36,14 @@ export const fetchNotificationData = async () => {
 
     console.log('Fetched raw notifications:', notificationsData?.length || 0);
 
-    // Check if notifications is empty or couldn't be loaded properly
+    // Handle case when no notifications are found
     if (!notificationsData || notificationsData.length === 0) {
-      console.log('No notifications found in database, creating basic ones');
+      console.log('No notifications found in database, triggering notification processing');
       
-      // Create some basic notifications for testing
-      await createBasicNotifications();
+      // Trigger notification processing to create pending notifications
+      await triggerNotificationProcessing();
       
-      // Try fetching again after creating basic ones
+      // Try fetching again after creating notifications
       const { data: retryData, error: retryError } = await supabase
         .from('event_notifications')
         .select(`
@@ -56,7 +58,7 @@ export const fetchNotificationData = async () => {
           events:events!inner(name, event_type, primary_name)
         `)
         .not('is_completed', 'eq', true)  // Exclude completed notifications
-        .filter('sent_at', 'not.is', null)        // Only include sent notifications
+        .filter('sent_at', 'not.is', null) // Only include sent notifications
         .order('sent_at', { ascending: false })
         .limit(20);
         
@@ -65,31 +67,32 @@ export const fetchNotificationData = async () => {
         return [];
       }
       
-      console.log('Fetched notifications after creating basic ones:', retryData.length);
-      return formatNotifications(retryData);
+      console.log('Fetched notifications after processing:', retryData.length);
+      const formattedRetryNotifications = await formatNotifications(retryData);
+      return removeDuplicateNotifications(formattedRetryNotifications);
     }
 
     const formattedNotifications = await formatNotifications(notificationsData);
     console.log('Formatted notifications:', formattedNotifications.length);
     
-    // De-duplicate notifications by filtering out ones with the same notification_type and event_code
+    // Deduplicate notifications
     const uniqueNotifications = removeDuplicateNotifications(formattedNotifications);
     console.log('After removing duplicates:', uniqueNotifications.length);
     
     return uniqueNotifications;
   } catch (err) {
     console.error('Error in notification system:', err);
-    // Instead of throwing, return an empty array to not break the UI
+    // Return an empty array to not break the UI
     return [];
   }
 };
 
 /**
- * Format notification data with templates if available
+ * Format notification data with templates
  */
 const formatNotifications = async (notificationsData) => {
   try {
-    // Get notification templates separately
+    // Get notification templates for formatting
     const { data: templatesData, error: templatesError } = await supabase
       .from('notification_templates')
       .select('*');
@@ -111,7 +114,8 @@ const formatNotifications = async (notificationsData) => {
         type: item.notification_type as any,
         read: item.is_read,
         actionType: 'review' as any,
-        relatedId: item.event_code
+        relatedId: item.event_code,
+        status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
       }));
     }
 
@@ -130,7 +134,7 @@ const formatNotifications = async (notificationsData) => {
       let description = template?.description_template || 'Notification';
       let title = template?.title || formatNotificationTitle(item.notification_type) || 'Notification';
       
-      // Safely replace template placeholders
+      // Replace template placeholders safely
       try {
         description = description.replace(/{event_name}/g, item.events?.name || 'Untitled Event');
         description = description.replace(/{event_type}/g, item.events?.event_type || 'Event');
@@ -147,7 +151,8 @@ const formatNotifications = async (notificationsData) => {
         type: item.notification_type as any,
         read: item.is_read,
         actionType: template?.action_type as any || 'review',
-        relatedId: item.event_code
+        relatedId: item.event_code,
+        status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
       };
     });
   } catch (error) {
@@ -161,7 +166,8 @@ const formatNotifications = async (notificationsData) => {
       type: item.notification_type as any,
       read: item.is_read,
       actionType: 'review' as any,
-      relatedId: item.event_code
+      relatedId: item.event_code,
+      status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
     }));
   }
 }
@@ -196,14 +202,15 @@ const formatNotificationTitle = (notificationType: string | null): string => {
 };
 
 /**
- * Removes duplicate notifications based on notification_type and event_code
+ * Removes duplicate notifications based on type and relatedId
  */
 const removeDuplicateNotifications = (notifications: Notification[]): Notification[] => {
-  const seen = new Set();
+  const seen = new Map();
   return notifications.filter(notification => {
     // Create a unique key using type and relatedId
     const key = `${notification.type}_${notification.relatedId}`;
     if (seen.has(key)) {
+      console.log(`Filtering out duplicate notification: ${key}`);
       return false;
     }
     seen.add(key);
@@ -212,73 +219,22 @@ const removeDuplicateNotifications = (notifications: Notification[]): Notificati
 };
 
 /**
- * Creates some basic notification records if none exist
- * This is a fallback for when the edge function fails
+ * Trigger the notification processing edge function
  */
-const createBasicNotifications = async () => {
+export const triggerNotificationProcessing = async () => {
   try {
-    // Get the 5 most recent events
-    const { data: events, error: eventsError } = await supabase
-      .from('events')
-      .select('event_code, name, event_type, primary_name')
-      .order('created_at', { ascending: false })
-      .limit(5);
-      
-    if (eventsError || !events || events.length === 0) {
-      console.log('No events found to create notifications for');
-      return;
+    console.log('Triggering notification processing...');
+    const { data, error } = await supabase.functions.invoke('process-notifications');
+    
+    if (error) {
+      console.error('Error invoking process-notifications function:', error);
+      throw error;
     }
     
-    console.log('Found events for notifications:', events.map(e => e.event_code).join(', '));
-    
-    // Check if these events already have notifications
-    const { data: existingNotifications, error: checkError } = await supabase
-      .from('event_notifications')
-      .select('event_code, notification_type')
-      .in('event_code', events.map(e => e.event_code));
-      
-    if (checkError) {
-      console.error('Error checking existing notifications:', checkError);
-      return;
-    }
-    
-    // Create a map of existing notifications to avoid duplicates
-    const existingMap = new Map();
-    existingNotifications?.forEach(n => {
-      const key = `${n.event_code}_${n.notification_type}`;
-      existingMap.set(key, true);
-    });
-    
-    // Create basic notifications for events that don't have them
-    const notificationTypes = ['event_created', 'proforma_reminder', 'event_incomplete'];
-    
-    for (const event of events) {
-      for (const notificationType of notificationTypes) {
-        const key = `${event.event_code}_${notificationType}`;
-        if (!existingMap.has(key)) {
-          const currentTime = new Date().toISOString();
-          
-          const { error: insertError } = await supabase
-            .from('event_notifications')
-            .insert([
-              {
-                event_code: event.event_code,
-                notification_type: notificationType,
-                scheduled_for: currentTime,
-                sent_at: currentTime, // Mark as sent immediately so it appears in the UI
-                is_read: false
-              }
-            ]);
-            
-          if (insertError) {
-            console.error('Error creating notification for event:', event.event_code, insertError);
-          } else {
-            console.log('Created notification for event:', event.event_code, notificationType);
-          }
-        }
-      }
-    }
+    console.log('Notification processing response:', data);
+    return data;
   } catch (err) {
-    console.error('Error creating basic notifications:', err);
+    console.error('Error triggering notification processing:', err);
+    throw err;
   }
 };
