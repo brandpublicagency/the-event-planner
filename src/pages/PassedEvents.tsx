@@ -22,14 +22,16 @@ const PassedEvents = () => {
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['passed-events'],
     queryFn: async () => {
+      // Get today's date in ISO format (YYYY-MM-DD)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const todayIso = today.toISOString().split('T')[0];
       
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .or(`completed.eq.true,event_date.lt.${today.toISOString().split('T')[0]}`)
+        .or(`completed.eq.true,event_date.lt.${todayIso}`)
         .order('event_date', { ascending: false });
 
       if (error) {

@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -19,15 +18,16 @@ export default function Events() {
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      // Get today's date at the start of the day
+      // Get today's date at the start of the day in ISO format (YYYY-MM-DD)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const todayIso = today.toISOString().split('T')[0];
 
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .gte('event_date', today.toISOString().split('T')[0]) // Get today's and future events
+        .gte('event_date', todayIso) // Get today's and future events
         .order('event_date', { ascending: true });
 
       if (error) {
