@@ -37,11 +37,35 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   // Determine time-based gradient based on current hour
   const currentHour = timeOverride !== undefined ? timeOverride : new Date().getHours();
   
-  // Updated gradient classes with the new styles
+  // Updated gradient classes with refined night-time styles
   let gradientStyle;
   
-  // Early Morning (5:00 AM - 7:59 AM)
-  if (currentHour >= 5 && currentHour < 8) {
+  // Late Evening (8:00 PM - 9:59 PM)
+  if (currentHour >= 20 && currentHour < 22) {
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(75, 85, 99), rgb(51, 65, 85), rgb(55, 48, 163))"
+    };
+  }
+  // Night (10:00 PM - 1:59 AM)
+  else if (currentHour >= 22 || currentHour < 2) {
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(31, 41, 55), rgb(51, 65, 85), rgb(17, 24, 39))"
+    };
+  }
+  // Deep Night (2:00 AM - 3:59 AM)
+  else if (currentHour >= 2 && currentHour < 4) {
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(17, 24, 39), rgb(30, 41, 59), rgb(30, 27, 75))"
+    };
+  }
+  // Pre-Dawn (4:00 AM - 5:59 AM)
+  else if (currentHour >= 4 && currentHour < 6) {
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(31, 41, 55), rgb(51, 65, 85), rgb(49, 46, 129))"
+    };
+  }
+  // Early Morning (6:00 AM - 7:59 AM)
+  else if (currentHour >= 6 && currentHour < 8) {
     gradientStyle = {
       background: "linear-gradient(135deg, rgb(209, 213, 219), rgb(203, 213, 225), rgb(199, 210, 254))"
     };
@@ -58,30 +82,34 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
       background: "linear-gradient(135deg, rgb(186, 230, 253), rgb(191, 219, 254), rgb(207, 250, 254))"
     };
   } 
-  // Late Afternoon (4:00 PM - 6:59 PM)
-  else if (currentHour >= 16 && currentHour < 19) {
+  // Late Afternoon (4:00 PM - 7:59 PM)
+  else if (currentHour >= 16 && currentHour < 20) {
     gradientStyle = {
       background: "linear-gradient(135deg, rgb(254, 243, 199), rgb(255, 237, 213), rgb(219, 234, 254))"
-    };
-  } 
-  // Evening (7:00 PM - 9:59 PM)
-  else if (currentHour >= 19 && currentHour < 22) {
-    gradientStyle = {
-      background: "linear-gradient(135deg, rgb(233, 213, 255), rgb(203, 213, 225), rgb(252, 231, 243))"
-    };
-  } 
-  // Night (10:00 PM - 4:59 AM)
-  else {
-    gradientStyle = {
-      background: "linear-gradient(135deg, rgb(100, 116, 139), rgb(59, 130, 246), rgb(192, 132, 252))"
     };
   }
   
   // Fallback Tailwind classes for compatibility
   let fallbackGradientClass = "";
   
-  // Early Morning (5:00 AM - 7:59 AM)
-  if (currentHour >= 5 && currentHour < 8) {
+  // Late Evening (8:00 PM - 9:59 PM)
+  if (currentHour >= 20 && currentHour < 22) {
+    fallbackGradientClass = "bg-gradient-to-r from-gray-600 via-slate-600 to-indigo-800";
+  }
+  // Night (10:00 PM - 1:59 AM)
+  else if (currentHour >= 22 || currentHour < 2) {
+    fallbackGradientClass = "bg-gradient-to-r from-gray-800 via-slate-700 to-gray-900";
+  }
+  // Deep Night (2:00 AM - 3:59 AM)
+  else if (currentHour >= 2 && currentHour < 4) {
+    fallbackGradientClass = "bg-gradient-to-r from-gray-900 via-slate-800 to-indigo-950";
+  }
+  // Pre-Dawn (4:00 AM - 5:59 AM)
+  else if (currentHour >= 4 && currentHour < 6) {
+    fallbackGradientClass = "bg-gradient-to-r from-gray-800 via-slate-700 to-indigo-900";
+  }
+  // Early Morning (6:00 AM - 7:59 AM)
+  else if (currentHour >= 6 && currentHour < 8) {
     fallbackGradientClass = "bg-gradient-to-r from-gray-300 via-slate-300 to-indigo-200";
   } 
   // Morning (8:00 AM - 11:59 AM)
@@ -92,17 +120,9 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   else if (currentHour >= 12 && currentHour < 16) {
     fallbackGradientClass = "bg-gradient-to-r from-sky-200 via-blue-200 to-cyan-100";
   } 
-  // Late Afternoon (4:00 PM - 6:59 PM)
-  else if (currentHour >= 16 && currentHour < 19) {
+  // Late Afternoon (4:00 PM - 7:59 PM)
+  else if (currentHour >= 16 && currentHour < 20) {
     fallbackGradientClass = "bg-gradient-to-r from-amber-100 via-orange-100 to-blue-100";
-  } 
-  // Evening (7:00 PM - 9:59 PM)
-  else if (currentHour >= 19 && currentHour < 22) {
-    fallbackGradientClass = "bg-gradient-to-r from-purple-200 via-slate-300 to-pink-100";
-  } 
-  // Night (10:00 PM - 4:59 AM)
-  else {
-    fallbackGradientClass = "bg-gradient-to-r from-slate-500 via-blue-500 to-purple-400";
   }
   
   // Determine the weather icon to display based on time of day and weather conditions

@@ -27,12 +27,32 @@ const DashboardMessage = () => {
   const firstName = profile?.full_name?.split(' ')[0] || '';
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
 
-  // Updated border colors for each time of day
+  // Updated border colors for each time of day to match WeatherCard gradients
   let borderColorClass = "";
   let textColorClass = "";
 
-  // Early Morning (5:00 AM - 7:59 AM)
-  if (hour >= 5 && hour < 8) {
+  // Late Evening (8:00 PM - 9:59 PM)
+  if (hour >= 20 && hour < 22) {
+    borderColorClass = "border-slate-600";
+    textColorClass = "text-indigo-400";
+  }
+  // Night (10:00 PM - 1:59 AM)
+  else if (hour >= 22 || hour < 2) {
+    borderColorClass = "border-slate-700";
+    textColorClass = "text-slate-400";
+  }
+  // Deep Night (2:00 AM - 3:59 AM)
+  else if (hour >= 2 && hour < 4) {
+    borderColorClass = "border-slate-800";
+    textColorClass = "text-slate-400"; 
+  }
+  // Pre-Dawn (4:00 AM - 5:59 AM)
+  else if (hour >= 4 && hour < 6) {
+    borderColorClass = "border-indigo-900";
+    textColorClass = "text-indigo-300";
+  }
+  // Early Morning (6:00 AM - 7:59 AM)
+  else if (hour >= 6 && hour < 8) {
     borderColorClass = "border-indigo-200";
     textColorClass = "text-indigo-500";
   } 
@@ -46,20 +66,10 @@ const DashboardMessage = () => {
     borderColorClass = "border-cyan-200";
     textColorClass = "text-cyan-500";
   } 
-  // Late Afternoon (4:00 PM - 6:59 PM)
-  else if (hour >= 16 && hour < 19) {
+  // Late Afternoon (4:00 PM - 7:59 PM)
+  else if (hour >= 16 && hour < 20) {
     borderColorClass = "border-amber-200";
     textColorClass = "text-amber-500";
-  } 
-  // Evening (7:00 PM - 9:59 PM)
-  else if (hour >= 19 && hour < 22) {
-    borderColorClass = "border-purple-200";
-    textColorClass = "text-purple-500";
-  } 
-  // Night (10:00 PM - 4:59 AM)
-  else {
-    borderColorClass = "border-blue-400";
-    textColorClass = "text-blue-300";
   }
 
   if (isLoading || isProfileLoading) {
