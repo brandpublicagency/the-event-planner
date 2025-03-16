@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import {
   Toast,
@@ -14,9 +15,12 @@ import { useToast } from "@/hooks/use-toast"
 export function Toaster() {
   const { toasts } = useToast()
 
+  // Filter to show only toasts that should appear in the default position (not sidebar)
+  const defaultToasts = toasts.filter(toast => toast.position !== "sidebar");
+
   return (
     <ToastProvider swipeDirection="right">
-      {toasts.map(function ({ id, title, description, action, variant, showProgress, duration, ...props }) {
+      {defaultToasts.map(function ({ id, title, description, action, variant, showProgress, duration, ...props }) {
         const ToastComponent = showProgress ? ToastWithProgress : ToastWithIcon;
         
         return (

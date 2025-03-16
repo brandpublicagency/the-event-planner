@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -15,6 +16,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
   variant?: "default" | "destructive" | "success" | "info"
   showProgress?: boolean
+  position?: "default" | "sidebar" // Add position property
 }
 
 const actionTypes = {
@@ -139,6 +141,7 @@ function dispatch(action: Action) {
 
 interface ToastOptions extends Partial<ToasterToast> {
   showProgress?: boolean
+  position?: "default" | "sidebar"
 }
 
 function toast(options: ToastOptions) {

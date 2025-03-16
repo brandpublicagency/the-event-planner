@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -19,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
+import { SidebarToasts } from "./sidebar/SidebarToasts";
 import { motion } from "framer-motion";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -154,6 +156,9 @@ const Sidebar = ({
     >
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
+        
+        {/* Add SidebarToasts component here, between profile and navigation */}
+        <SidebarToasts isCollapsed={isCollapsed} />
         
         <div className={cn(
           "flex-1 overflow-y-auto overflow-x-hidden py-4",
