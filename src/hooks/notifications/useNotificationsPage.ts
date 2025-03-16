@@ -1,12 +1,17 @@
 
-import { useState, useEffect, useCallback } from 'react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useScheduledNotifications } from '@/contexts/ScheduledNotificationContext';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { useTabState } from './useTabState';
+import { useNotificationHandlers } from './useNotificationHandlers';
 
+/**
+ * Main hook for the Notifications page that combines all notification functionality
+ */
 export function useNotificationsPage() {
+  // General notifications
   const { notifications, markAsRead, markAllAsRead } = useNotifications();
+  
+  // Scheduled/reminder notifications
   const { 
     notifications: scheduledNotifications, 
     markAsRead: markScheduledAsRead, 
@@ -16,87 +21,32 @@ export function useNotificationsPage() {
     loading
   } = useScheduledNotifications();
   
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'general');
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Update URL when tab changes
-  useEffect(() => {
-    setSearchParams({ tab: activeTab });
-  }, [activeTab, setSearchParams]);
-
-  const handleTabChange = useCallback((value: string) => {
-    setActiveTab(value);
-  }, []);
-
-  const handleViewEvent = useCallback((type: 'general' | 'scheduled', id: string, eventCode?: string) => {
-    // Mark notification as read
-    if (type === 'general') {
-      markAsRead(id);
-    } else {
-      markScheduledAsRead(id);
-    }
-    
-    // Navigate to event if we have an event code
-    if (eventCode) {
-      navigate(`/events/${eventCode}`);
-    }
-    
-    toast({
-      title: "Notification marked as read",
-      variant: "success",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [markAsRead, markScheduledAsRead, navigate, toast]);
-
-  const handleMarkAllRead = useCallback(() => {
-    markAllAsRead();
-    toast({
-      title: "All notifications marked as read",
-      variant: "success",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [markAllAsRead, toast]);
-
-  const handleCompleteTask = useCallback((type: 'general' | 'scheduled', id: string) => {
-    markAsCompleted(id);
-    toast({
-      title: "Task marked as complete",
-      description: "The task has been marked as completed successfully",
-      variant: "success",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [markAsCompleted, toast]);
-
-  const handleRefresh = useCallback(() => {
-    refreshNotifications();
-    toast({
-      title: "Refreshing notifications",
-      description: "Fetching the latest notifications",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [refreshNotifications, toast]);
-
-  const handleTriggerProcess = useCallback(() => {
-    triggerNotificationProcessing();
-    toast({
-      title: "Processing notifications",
-      description: "Checking for scheduled notifications",
-      showProgress: true,
-      duration: 3000
-    });
-  }, [triggerNotificationProcessing, toast]);
+  // Tab state management
+  const { activeTab, handleTabChange } = useTabState();
+  
+  // Handlers for notification interactions
+  const {
+    handleViewEvent,
+    handleMarkAllRead,
+    handleCompleteTask,
+    handleRefresh,
+    handleTriggerProcess
+  } = useNotificationHandlers(
+    markAsRead,
+    markAllAsRead,
+    markAsCompleted,
+    refreshNotifications,
+    triggerNotificationProcessing
+  );
 
   return {
+    // State
     activeTab,
     notifications,
     scheduledNotifications,
     loading,
+    
+    // Handlers
     handleTabChange,
     handleViewEvent,
     handleMarkAllRead,

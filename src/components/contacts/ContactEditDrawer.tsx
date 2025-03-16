@@ -55,10 +55,16 @@ const ContactEditDrawer = ({
         key => values[key as keyof ContactFormValues] !== originalValues[key as keyof typeof originalValues]
       );
       
-      const updatedContact = await updateContact(contact, values);
+      let success = false;
+      try {
+        await updateContact(contact, values);
+        success = true;
+      } catch (error) {
+        success = false;
+      }
       
-      if (changedFields.length > 0 && updatedContact) {
-        logContactUpdated(updatedContact, changedFields);
+      if (success && changedFields.length > 0) {
+        logContactUpdated(contact, changedFields);
       }
       
       onUpdateSuccess();
