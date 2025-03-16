@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, ExternalLink } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Notification } from '@/types/notification';
@@ -67,6 +67,11 @@ export function NotificationDropdown() {
     };
   }, [dropdownRef]);
 
+  const handleViewAll = () => {
+    setIsOpen(false);
+    navigate('/notifications');
+  };
+
   return (
     <div className="w-full">
       <div className="flex flex-col space-y-1 p-2">
@@ -76,7 +81,7 @@ export function NotificationDropdown() {
         </p>
       </div>
       <DropdownMenuSeparator />
-      <ScrollArea className="h-[300px] w-full">
+      <ScrollArea className="h-[400px] w-full">
         <NotificationsList
           notifications={notifications}
           onViewDetail={handleViewNotification}
@@ -85,16 +90,11 @@ export function NotificationDropdown() {
       </ScrollArea>
       <DropdownMenuSeparator />
       <div
-        onClick={(e) => {
-          e.preventDefault();
-          markAllAsRead();
-          setIsOpen(false);
-          toast.success("All notifications marked as read!");
-        }}
+        onClick={handleViewAll}
         className="w-full flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer"
       >
-        <CheckCheck className="h-4 w-4" />
-        <span className="text-sm">Mark all as read</span>
+        <ExternalLink className="h-4 w-4" />
+        <span className="text-sm">View all notifications</span>
       </div>
     </div>
   );
