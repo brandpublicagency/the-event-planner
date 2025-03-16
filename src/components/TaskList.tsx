@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
-import { Loader2, AlertCircle, CheckSquare } from "lucide-react";
+import { Loader2, AlertCircle, CheckSquare, Plus } from "lucide-react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TaskListContent } from "./tasks/list/TaskListContent";
@@ -9,6 +9,7 @@ import { AddTaskInput } from "./tasks/list/AddTaskInput";
 import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface TaskListProps {
   tasks: Task[];
@@ -91,7 +92,7 @@ export function TaskList({
     <div className="space-y-4">
       {!hideHeader && (
         <div 
-          className="flex items-center justify-between p-4 border-b rounded-xl mb-4 relative"
+          className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
           style={{ 
             backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
             backgroundSize: 'cover',
@@ -105,6 +106,16 @@ export function TaskList({
             <CheckSquare className="h-5 w-5 text-zinc-700" />
             <h3 className="text-lg font-medium text-zinc-900">Tasks</h3>
           </div>
+
+          <Button 
+            onClick={() => navigate('/tasks?newTask=true')} 
+            size="sm" 
+            variant="outline" 
+            className="rounded-full relative z-10"
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            New Task
+          </Button>
         </div>
       )}
       

@@ -14,11 +14,6 @@ const Tasks = () => {
     <div className="flex flex-col h-full">
       <Header 
         pageTitle="Tasks" 
-        actionButton={{
-          label: "New Task",
-          icon: <span className="mr-1">+</span>,
-          onClick: () => navigate('/tasks?newTask=true')
-        }}
       />
       
       <div className="flex-1 p-6 py-[5px] px-[25px]">
