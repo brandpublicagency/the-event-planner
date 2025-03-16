@@ -76,6 +76,7 @@ export function useNotificationsPage() {
     hasAttemptedFetch,
     handleViewEvent,
     handleCompleteTask,
-    handleRefresh
+    handleRefresh,
+    triggerNotificationProcessing
   };
 }

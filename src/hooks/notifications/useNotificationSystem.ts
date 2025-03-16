@@ -134,6 +134,7 @@ export function useNotificationSystem() {
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,
     refreshNotifications,
+    triggerNotificationProcessing, // Add this to the returned object
     hasAttemptedFetch
   };
 }

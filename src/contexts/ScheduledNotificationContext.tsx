@@ -41,12 +41,25 @@ export const ScheduledNotificationProvider: React.FC<{
   
   console.log('ScheduledNotificationContext rendering with notifications:', pendingNotifications.length, 'unread:', unreadCount);
 
+  // Wrap functions to ensure they return Promise<void>
+  const handleMarkAsRead = async (id: string): Promise<void> => {
+    await markAsRead(id);
+  };
+
+  const handleMarkAsCompleted = async (id: string): Promise<void> => {
+    await markAsCompleted(id);
+  };
+
+  const handleRefreshNotifications = async (): Promise<void> => {
+    await refreshNotifications();
+  };
+
   const contextValue: ScheduledNotificationContextType = {
     notifications: pendingNotifications,
     unreadCount,
-    markAsRead,
-    markAsCompleted,
-    refreshNotifications,
+    markAsRead: handleMarkAsRead,
+    markAsCompleted: handleMarkAsCompleted,
+    refreshNotifications: handleRefreshNotifications,
     triggerNotificationProcessing,
     loading
   };

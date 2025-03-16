@@ -213,7 +213,7 @@ const removeDuplicateNotifications = (notifications: Notification[]): Notificati
       console.log(`Filtering out duplicate notification: ${key}`);
       return false;
     }
-    seen.add(key);
+    seen.set(key, true); // Fix: Use proper Map API to set a value
     return true;
   });
 };
