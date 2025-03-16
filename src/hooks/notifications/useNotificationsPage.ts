@@ -4,12 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { Notification } from '@/types/notification';
 import { useNotificationSystem } from './useNotificationSystem';
 import { useTabState } from './useTabState';
-import { useNotificationHandlers } from './useNotificationHandlers';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useNotificationsPage() {
-  const [activeTab, setActiveTab] = useTabState();
+  // Fix the destructuring - useTabState returns an object, not an array
+  const tabState = useTabState();
+  const activeTab = tabState.activeTab;
+  const setActiveTab = tabState.handleTabChange;
+  
   const {
     pendingNotifications,
     loading,
@@ -26,8 +29,6 @@ export function useNotificationsPage() {
 
   // Group and sort notifications
   const notifications = pendingNotifications;
-
-  const { handleNotificationAction } = useNotificationHandlers();
 
   // Handler for viewing event details
   const handleViewEvent = useCallback((listType: string, notificationId: string, eventCode?: string) => {
@@ -67,8 +68,22 @@ export function useNotificationsPage() {
 
   // Handler for task completion
   const handleCompleteTask = useCallback((listType: string, notificationId: string) => {
-    handleNotificationAction(notificationId, 'complete');
-  }, [handleNotificationAction]);
+    // Fix: directly call markAsCompleted instead of non-existent handleNotificationAction
+    markAsCompleted(notificationId).then(() => {
+      toast({
+        title: "Task completed",
+        description: "The task has been marked as completed",
+        variant: "success"
+      });
+    }).catch(error => {
+      console.error('Error completing task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete the task",
+        variant: "destructive"
+      });
+    });
+  }, [markAsCompleted, toast]);
 
   // Handler for refreshing the list
   const handleRefresh = useCallback(async () => {
