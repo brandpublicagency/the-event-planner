@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
-import { RefreshCw, Bell, Eye, CheckCircle, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Bell, Eye, CheckCircle, AlertTriangle, Calendar } from 'lucide-react';
 import { Notification } from '@/types/notification';
 
 interface NotificationListProps {
@@ -42,7 +42,7 @@ export const NotificationList = ({
             {listType === 'general' ? (
               <Bell className="h-10 w-10 text-zinc-300" />
             ) : (
-              <Bell className="h-10 w-10 text-zinc-300" />
+              <Calendar className="h-10 w-10 text-zinc-300" />
             )}
             <h3 className="text-lg font-medium text-zinc-900">
               {listType === 'general' ? 'No notifications' : 'No scheduled reminders'}
@@ -74,6 +74,12 @@ export const NotificationList = ({
                     {!notification.read && (
                       <Badge variant="red" className="ml-2">
                         New
+                      </Badge>
+                    )}
+                    {notification.type === "event_created" && (
+                      <Badge variant="outline" className="ml-2 border-green-200 bg-green-50 text-green-700 text-xs">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        New Event
                       </Badge>
                     )}
                     {notification.type === "event_incomplete" && (

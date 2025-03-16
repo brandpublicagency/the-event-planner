@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
 import { NotificationTabs } from '@/components/notifications/NotificationTabs';
@@ -18,6 +18,10 @@ const Notifications = () => {
     handleRefresh,
     handleTriggerProcess
   } = useNotificationsPage();
+
+  // Log notifications for debugging
+  console.log('Current notifications:', notifications);
+  console.log('Scheduled notifications:', scheduledNotifications);
 
   return (
     <div className="flex flex-col h-full">
