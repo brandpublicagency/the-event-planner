@@ -7,10 +7,10 @@ import { Notification } from "@/types/notification";
 interface ScheduledNotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  markAsRead: (id: string) => void;
-  markAsCompleted: (id: string) => void;
-  refreshNotifications: () => void;
-  triggerNotificationProcessing: () => void;
+  markAsRead: (id: string) => Promise<void>;
+  markAsCompleted: (id: string) => Promise<void>;
+  refreshNotifications: () => Promise<void>;
+  triggerNotificationProcessing: () => Promise<any>;
   loading: boolean;
 }
 

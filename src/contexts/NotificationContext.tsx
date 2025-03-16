@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { useTaskContext } from "./TaskContext";
 import { Notification, NotificationContextType } from "@/types/notification";
 import { useEventNotifications } from "@/hooks/notifications/useEventNotifications";
@@ -24,8 +24,29 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   useEventNotifications(setNotifications);
   useEventStatusNotifications(setNotifications);
   
-  // Use the notification utility functions
-  const { markAsRead, markAllAsRead, clearNotifications } = useNotificationActions(setNotifications);
+  // Mark a notification as read
+  const markAsRead = useCallback(async (id: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true } 
+          : notification
+      )
+    );
+    return Promise.resolve();
+  }, []);
+  
+  // Mark all notifications as read
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+  }, []);
+  
+  // Clear all notifications
+  const clearNotifications = useCallback(() => {
+    setNotifications([]);
+  }, []);
   
   return (
     <NotificationContext.Provider 
@@ -41,9 +62,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     </NotificationContext.Provider>
   );
 };
-
-// Import the hook from its dedicated file
-import { useNotificationActions } from "@/hooks/notifications/useNotificationActions";
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);

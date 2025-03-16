@@ -11,6 +11,8 @@ export function useNotificationSystem() {
   const [loading, setLoading] = useState(true);
   const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
   const { toast } = useToast();
+  
+  // Use separate hooks for specialized functionality
   const { markAsRead, markAsCompleted } = useNotificationActions();
   const { triggerNotificationProcessing } = useNotificationProcessing();
 
@@ -45,6 +47,7 @@ export function useNotificationSystem() {
         )
       );
     }
+    return Promise.resolve();
   }, [markAsRead]);
 
   // Override markAsCompleted to update local state
@@ -56,6 +59,7 @@ export function useNotificationSystem() {
         prev.filter(notification => notification.id !== id)
       );
     }
+    return Promise.resolve();
   }, [markAsCompleted]);
 
   // Load notifications on component mount

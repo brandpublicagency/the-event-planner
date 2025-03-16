@@ -16,12 +16,12 @@ export function useNotificationHandlers(
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleViewEvent = useCallback((type: 'general' | 'scheduled', id: string, eventCode?: string) => {
+  const handleViewEvent = useCallback(async (type: 'general' | 'scheduled', id: string, eventCode?: string) => {
     // Mark notification as read
     if (type === 'general') {
-      markAsRead(id);
+      await markAsRead(id);
     } else {
-      markAsRead(id);
+      await markAsRead(id);
     }
     
     // Navigate to event if we have an event code
@@ -47,8 +47,8 @@ export function useNotificationHandlers(
     });
   }, [markAllAsRead, toast]);
 
-  const handleCompleteTask = useCallback((type: 'general' | 'scheduled', id: string) => {
-    markAsCompleted(id);
+  const handleCompleteTask = useCallback(async (type: 'general' | 'scheduled', id: string) => {
+    await markAsCompleted(id);
     toast({
       title: "Task marked as complete",
       description: "The task has been marked as completed successfully",
@@ -58,8 +58,8 @@ export function useNotificationHandlers(
     });
   }, [markAsCompleted, toast]);
 
-  const handleRefresh = useCallback(() => {
-    refreshNotifications();
+  const handleRefresh = useCallback(async () => {
+    await refreshNotifications();
     toast({
       title: "Refreshing notifications",
       description: "Fetching the latest notifications",
@@ -68,8 +68,8 @@ export function useNotificationHandlers(
     });
   }, [refreshNotifications, toast]);
 
-  const handleTriggerProcess = useCallback(() => {
-    triggerNotificationProcessing();
+  const handleTriggerProcess = useCallback(async () => {
+    await triggerNotificationProcessing();
     toast({
       title: "Processing notifications",
       description: "Checking for scheduled notifications",
