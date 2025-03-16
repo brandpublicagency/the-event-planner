@@ -15,7 +15,7 @@ const DashboardMessage = () => {
   
   if (isLoading) {
     return (
-      <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+      <Card className="rounded-xl p-6 border shadow-sm bg-white w-full">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-full" />
           <div className="space-y-2">
@@ -29,7 +29,7 @@ const DashboardMessage = () => {
   
   if (error || !dashboardMessage) {
     return (
-      <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+      <Card className="rounded-xl p-6 border shadow-sm bg-white w-full">
         <div className="space-y-1">
           <h2 className="text-xl font-semibold text-gray-800">
             {profile?.full_name ? `Hi ${profile.full_name.split(' ')[0]},` : 'Hello there,'}
@@ -109,7 +109,7 @@ const DashboardMessage = () => {
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : '';
   
   return (
-    <Card className="rounded-xl p-6 border border-[#FFDEE2] shadow-none bg-transparent">
+    <Card className="rounded-xl p-6 border shadow-sm bg-white w-full">
       <div className="space-y-1">
         <div className="flex items-center gap-2 mb-1">
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
