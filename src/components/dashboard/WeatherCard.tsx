@@ -36,31 +36,73 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   
   // Determine time-based gradient based on current hour
   const currentHour = timeOverride !== undefined ? timeOverride : new Date().getHours();
-  let gradientClass = "";
+  
+  // Updated gradient classes with the new styles
+  let gradientStyle;
   
   // Early Morning (5:00 AM - 7:59 AM)
   if (currentHour >= 5 && currentHour < 8) {
-    gradientClass = "bg-gradient-to-r from-gray-400/80 to-indigo-300/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(209, 213, 219), rgb(203, 213, 225), rgb(199, 210, 254))"
+    };
   } 
   // Morning (8:00 AM - 11:59 AM)
   else if (currentHour >= 8 && currentHour < 12) {
-    gradientClass = "bg-gradient-to-r from-blue-200/80 to-sky-300/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(219, 234, 254), rgb(186, 230, 253), rgb(224, 231, 255))"
+    };
   } 
   // Midday (12:00 PM - 3:59 PM)
   else if (currentHour >= 12 && currentHour < 16) {
-    gradientClass = "bg-gradient-to-r from-blue-300/80 to-cyan-400/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(186, 230, 253), rgb(191, 219, 254), rgb(207, 250, 254))"
+    };
   } 
   // Late Afternoon (4:00 PM - 6:59 PM)
   else if (currentHour >= 16 && currentHour < 19) {
-    gradientClass = "bg-gradient-to-r from-amber-200/80 to-gray-400/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(254, 243, 199), rgb(255, 237, 213), rgb(219, 234, 254))"
+    };
   } 
   // Evening (7:00 PM - 9:59 PM)
   else if (currentHour >= 19 && currentHour < 22) {
-    gradientClass = "bg-gradient-to-r from-gray-500/80 to-purple-400/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(233, 213, 255), rgb(203, 213, 225), rgb(252, 231, 243))"
+    };
   } 
   // Night (10:00 PM - 4:59 AM)
   else {
-    gradientClass = "bg-gradient-to-r from-gray-700/80 to-blue-800/80";
+    gradientStyle = {
+      background: "linear-gradient(135deg, rgb(100, 116, 139), rgb(59, 130, 246), rgb(192, 132, 252))"
+    };
+  }
+  
+  // Fallback Tailwind classes for compatibility
+  let fallbackGradientClass = "";
+  
+  // Early Morning (5:00 AM - 7:59 AM)
+  if (currentHour >= 5 && currentHour < 8) {
+    fallbackGradientClass = "bg-gradient-to-r from-gray-300 via-slate-300 to-indigo-200";
+  } 
+  // Morning (8:00 AM - 11:59 AM)
+  else if (currentHour >= 8 && currentHour < 12) {
+    fallbackGradientClass = "bg-gradient-to-r from-blue-100 via-sky-200 to-indigo-100";
+  } 
+  // Midday (12:00 PM - 3:59 PM)
+  else if (currentHour >= 12 && currentHour < 16) {
+    fallbackGradientClass = "bg-gradient-to-r from-sky-200 via-blue-200 to-cyan-100";
+  } 
+  // Late Afternoon (4:00 PM - 6:59 PM)
+  else if (currentHour >= 16 && currentHour < 19) {
+    fallbackGradientClass = "bg-gradient-to-r from-amber-100 via-orange-100 to-blue-100";
+  } 
+  // Evening (7:00 PM - 9:59 PM)
+  else if (currentHour >= 19 && currentHour < 22) {
+    fallbackGradientClass = "bg-gradient-to-r from-purple-200 via-slate-300 to-pink-100";
+  } 
+  // Night (10:00 PM - 4:59 AM)
+  else {
+    fallbackGradientClass = "bg-gradient-to-r from-slate-500 via-blue-500 to-purple-400";
   }
   
   // Determine the weather icon to display based on time of day and weather conditions
@@ -104,7 +146,10 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
 
   return (
     <div className={`rounded-xl overflow-hidden shadow-sm h-full ${className}`}>
-      <div className={`${gradientClass} text-white p-3 flex flex-col h-full`}>
+      <div 
+        className={`text-white p-3 flex flex-col h-full ${fallbackGradientClass}`} 
+        style={gradientStyle}
+      >
         {/* Header section with date, location, and weather icon */}
         <div className="mb-2 flex justify-between items-start">
           <div>
