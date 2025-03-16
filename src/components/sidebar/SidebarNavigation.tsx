@@ -24,7 +24,7 @@ const SidebarNavigation = ({
       {sectionTitle && <div className={cn("text-xs font-medium mb-4", isCollapsed ? "text-center w-full" : "", "text-gray-500 uppercase tracking-wider px-3")}>
           {sectionTitle}
         </div>}
-      <nav className="my-0">
+      <nav className="my-[10px]">
         {items.map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
