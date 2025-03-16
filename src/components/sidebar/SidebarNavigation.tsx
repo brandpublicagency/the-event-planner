@@ -38,7 +38,7 @@ const SidebarNavigation = ({
           {sectionTitle}
         </div>
       )}
-      <nav className="space-y-1.5">
+      <nav className="space-y-3 pt-4">
         {items.map(item => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
