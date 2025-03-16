@@ -7,6 +7,7 @@ interface DashboardMessage {
   type: 'event' | 'task' | 'upcoming_event' | 'weather' | 'default';
   eventDetails?: any;
   tasks?: any[];
+  upcomingEvents?: any;
   weatherData?: any;
 }
 

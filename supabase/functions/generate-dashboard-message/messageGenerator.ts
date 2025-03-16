@@ -1,4 +1,3 @@
-
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://esm.sh/date-fns@2.30.0";
 
@@ -7,160 +6,139 @@ export interface DashboardMessage {
   type: 'event' | 'task' | 'upcoming_event' | 'weather' | 'default';
   eventDetails?: any;
   tasks?: any[];
+  upcomingEvents?: any[];
   weatherData?: any;
 }
 
 /**
- * Determines the message type and context based on fetched data
+ * Determine the appropriate context for generating the dashboard message
  */
 export const determineMessageContext = (
-  todayEvents: any[], 
-  tasks: any[], 
+  todayEvents: any[],
+  tasks: any[],
   upcomingEvents: any[],
   weatherData: any
 ) => {
-  const today = new Date();
+  // Initialize with default message type
   let messageType = 'default';
   let contextData = {};
-  let systemPrompt = "You are a friendly, supportive assistant for an event planning company called Warmkaroo. Generate a personalized dashboard greeting message that sounds conversational and engaging. Make the user feel seen and supported in their day. Keep the tone friendly, warm, and slightly informal. The message should be concise (1-3 sentences) and focused on the most immediate/important context.";
-    
+  
+  // Check for events happening today (highest priority)
   if (todayEvents && todayEvents.length > 0) {
     messageType = 'event';
-    const event = todayEvents[0];
-    
     contextData = {
-      today_event: event,
-      message_type: 'event',
-      time_of_day: getTimeOfDay(),
-      event_details: {
-        name: event.name,
-        type: event.event_type,
-        venue: event.venues && event.venues.length > 0 ? event.venues.join(', ') : 'Not specified',
-        start_time: event.start_time ? formatTime(event.start_time) : 'Not specified',
-        pax: event.pax || 'Not specified',
-        client_name: event.primary_name || 'the client'
-      },
-      weather: weatherData ? {
-        temp: weatherData.temp,
-        condition: weatherData.condition,
-        description: weatherData.description
-      } : null
+      event: todayEvents[0],
+      weatherData
     };
-    
-    systemPrompt += "\n\nToday there is an event happening that requires attention. For weddings, mention the couple's names (if available) and express excitement about their special day. For corporate events, emphasize professionalism and readiness. For other events, highlight the importance of making the event successful and memorable for the client. Mention specific details like the event name, venue, start time, or number of guests to make the message feel personalized. Convey a sense of excitement and readiness. If weather data is available, mention tomorrow's weather forecast briefly, especially if it might impact the event.";
-  } else if (tasks && tasks.length > 0) {
-    messageType = 'task';
-    
-    // Format task details for better prompting
-    const taskDetails = tasks.map(task => ({
-      title: task.title,
-      priority: task.priority || 'medium',
-      due_date: task.due_date ? format(new Date(task.due_date), 'EEEE, MMMM d') : 'today',
-      is_overdue: task.due_date && new Date(task.due_date) < today
-    }));
-    
-    contextData = {
-      tasks: tasks,
-      message_type: 'task',
-      time_of_day: getTimeOfDay(),
-      task_count: tasks.length,
-      task_details: taskDetails,
-      highest_priority: getHighestPriority(tasks),
-      weather: weatherData ? {
-        temp: weatherData.temp,
-        condition: weatherData.condition,
-        description: weatherData.description
-      } : null
-    };
-    
-    systemPrompt += "\n\nThere are priority tasks that need attention. Mention how many tasks are pending and emphasize the importance of the highest priority ones. If any tasks are overdue, gently emphasize their urgency without sounding demanding. Be encouraging and supportive, suggesting that tackling these tasks will lead to a more productive day. Mention a specific task by name to make the message feel more personalized. If weather data is available, mention tomorrow's weather forecast briefly at the end of the message.";
-  } else if (upcomingEvents && upcomingEvents.length > 0) {
-    messageType = 'upcoming_event';
-    const event = upcomingEvents[0];
-    const eventDate = new Date(event.event_date);
-    const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    const formattedDate = format(eventDate, 'EEEE, MMMM d');
-    
-    contextData = {
-      upcoming_event: event,
-      days_until: daysUntil,
-      message_type: 'upcoming_event',
-      time_of_day: getTimeOfDay(),
-      event_details: {
-        name: event.name,
-        type: event.event_type,
-        date: formattedDate,
-        days_away: daysUntil,
-        venue: event.venues && event.venues.length > 0 ? event.venues.join(', ') : 'Not specified',
-        client_name: event.primary_name || 'the client',
-        pax: event.pax || 'Not specified'
-      },
-      weather: weatherData ? {
-        temp: weatherData.temp,
-        condition: weatherData.condition,
-        description: weatherData.description
-      } : null
-    };
-    
-    systemPrompt += "\n\nThere is an upcoming event in the next few days. Emphasize preparation and planning for this specific event. Mention the event by name, the exact date, and how many days away it is to create a sense of timeline. If it's very soon (1-2 days away), create a sense of gentle urgency. Suggest that early preparation will lead to a successful event. Mention specific details like the venue or client name to make the message feel personalized. If weather data is available, mention tomorrow's weather forecast briefly, especially if it might impact the event preparation.";
-  } else if (weatherData) {
-    messageType = 'weather';
-    
-    contextData = {
-      message_type: 'weather',
-      time_of_day: getTimeOfDay(),
-      day_of_week: format(today, 'EEEE'),
-      date: format(today, 'MMMM d, yyyy'),
-      weather: {
-        temp: weatherData.temp,
-        condition: weatherData.condition,
-        description: weatherData.description
-      }
-    };
-    
-    systemPrompt += "\n\nProvide a default welcome message that acknowledges the specific day and focuses on tomorrow's weather forecast. Highlight the temperature and weather conditions, mentioning if they're favorable for outdoor events or if there's anything to be cautious about. Keep the tone positive, even if the forecast isn't ideal, suggesting ways to make the most of the day regardless of weather.";
-  } else {
-    messageType = 'default';
-    contextData = {
-      message_type: 'default',
-      time_of_day: getTimeOfDay(),
-      day_of_week: format(today, 'EEEE'),
-      date: format(today, 'MMMM d, yyyy')
-    };
-    
-    systemPrompt += "\n\nProvide a default welcome message that acknowledges the specific day and date. Focus on having a productive day in event planning. Suggest that even a day without specific events or tasks can be valuable for planning, preparation, or professional development. Be positive and forward-looking, encouraging the user to make the most of their day.";
   }
-
+  // Otherwise check for important tasks (next priority)
+  else if (tasks && tasks.length > 0) {
+    messageType = 'task';
+    contextData = {
+      tasks,
+      weatherData
+    };
+  }
+  // Otherwise check for upcoming events (third priority)
+  else if (upcomingEvents && upcomingEvents.length > 0) {
+    messageType = 'upcoming_event';
+    contextData = {
+      upcomingEvent: upcomingEvents[0],
+      weatherData
+    };
+  }
+  // Weather-only message (fourth priority)
+  else if (weatherData) {
+    messageType = 'weather';
+    contextData = {
+      weatherData
+    };
+  }
+  // If nothing else, use default message
+  else {
+    contextData = {
+      currentTime: new Date().toISOString()
+    };
+  }
+  
+  // Create the system prompt for OpenAI
+  const systemPrompt = createSystemPrompt(messageType, contextData);
+  
   return { messageType, contextData, systemPrompt };
 };
 
 /**
- * Generates personalized message using OpenAI
+ * Create the system prompt for OpenAI based on the message context
  */
-export const generatePersonalizedMessage = async (
-  systemPrompt: string, 
-  contextData: any
-) => {
-  const openai = new OpenAI({
-    apiKey: Deno.env.get("OPENAI_API_KEY")!
-  });
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: JSON.stringify(contextData) }
-    ],
-    temperature: 0.7,
-    max_tokens: 150
-  });
-
-  return completion.choices[0].message.content?.trim() || 
-    "Welcome to your dashboard. Have a productive day!";
+const createSystemPrompt = (messageType: string, contextData: any) => {
+  const basePrompt = "You are an AI assistant for an event planning company. Write a friendly, personalized greeting for the user's dashboard. Keep the message concise (under 150 characters). Don't add any prefixes like 'Welcome' or 'Good morning' (the UI will handle that). Just focus on the main information.";
+  
+  let contextPrompt = "";
+  
+  switch (messageType) {
+    case 'event':
+      contextPrompt = `
+        Today, there is an event: "${contextData.event.name}" (${contextData.event.event_type}). 
+        Mention this event happening today and include a relevant detail like the venue, time, or number of guests (${contextData.event.pax} people).
+      `;
+      break;
+    case 'task':
+      contextPrompt = `
+        The user has ${contextData.tasks.length} important tasks to complete. 
+        Mention the most important task first: "${contextData.tasks[0].title}".
+        Encourage the user to stay on top of their tasks.
+      `;
+      break;
+    case 'upcoming_event':
+      contextPrompt = `
+        The next upcoming event is "${contextData.upcomingEvent.name}" (${contextData.upcomingEvent.event_type}).
+        Mention this upcoming event and when it's happening.
+      `;
+      break;
+    case 'weather':
+      contextPrompt = `
+        There are no events or tasks to highlight today.
+        Focus on tomorrow's weather forecast: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
+        Provide a brief weather-appropriate suggestion.
+      `;
+      break;
+    default:
+      contextPrompt = `
+        There are no events or tasks to highlight today.
+        Provide a simple, friendly greeting to start the user's day.
+      `;
+  }
+  
+  // Add weather data to all message types except the weather-only type
+  if (messageType !== 'weather' && contextData.weatherData) {
+    contextPrompt += `
+      Also, briefly mention tomorrow's weather: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
+    `;
+  }
+  
+  return `${basePrompt}\n\n${contextPrompt}`;
 };
 
 /**
- * Prepares the final dashboard message response
+ * Generate a personalized dashboard message using OpenAI
+ */
+export const generatePersonalizedMessage = async (systemPrompt: string, contextData: any) => {
+  try {
+    // Import the OpenAI service dynamically to avoid issues with Deno
+    const { getChatCompletion } = await import('../../_shared/openai.ts');
+    
+    // Generate the message using OpenAI
+    const message = await getChatCompletion(systemPrompt);
+    
+    return message || "Welcome to your dashboard. Have a great day!";
+  } catch (error) {
+    console.error("Error generating message with OpenAI:", error);
+    return "Welcome to your dashboard. Have a great day!";
+  }
+};
+
+/**
+ * Prepare the final dashboard response with all necessary data
  */
 export const prepareDashboardResponse = (
   message: string,
@@ -170,23 +148,25 @@ export const prepareDashboardResponse = (
   upcomingEvents: any[],
   weatherData: any
 ): DashboardMessage => {
-  let response: DashboardMessage = {
+  // Base response with message and type
+  const response: DashboardMessage = {
     message,
-    type: messageType as any
+    type: messageType as DashboardMessage['type']
   };
-
-  // Add additional details based on message type
-  if (messageType === 'event' && todayEvents && todayEvents.length > 0) {
+  
+  // Add relevant data based on message type
+  if (messageType === 'event' && todayEvents?.length > 0) {
     response.eventDetails = todayEvents[0];
-  } else if (messageType === 'task' && tasks && tasks.length > 0) {
-    response.tasks = tasks;
-  } else if (messageType === 'upcoming_event' && upcomingEvents && upcomingEvents.length > 0) {
-    response.eventDetails = upcomingEvents[0];
-  } else if (messageType === 'weather' && weatherData) {
-    response.weatherData = weatherData;
   }
   
-  // Add weather data to all response types
+  if (messageType === 'task' && tasks?.length > 0) {
+    response.tasks = tasks;
+  }
+  
+  if (messageType === 'upcoming_event' && upcomingEvents?.length > 0) {
+    response.upcomingEvents = upcomingEvents;
+  }
+  
   if (weatherData) {
     response.weatherData = weatherData;
   }
