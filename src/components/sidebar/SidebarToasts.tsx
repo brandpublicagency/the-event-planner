@@ -1,8 +1,10 @@
+
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, AlertCircle, InfoIcon, X } from "lucide-react";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 // Define a self-contained toast type
 interface SidebarToast {
@@ -18,37 +20,65 @@ interface SidebarToastsProps {
 }
 
 export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
+  // Use the notification context to get real notifications
+  const { notifications, unreadCount } = useNotifications();
+  
   // Maintain our own toast state independent of the app's toast system
   const [sidebarToasts, setSidebarToasts] = useState<SidebarToast[]>([]);
   
-  // For testing - create a demo toast when component mounts
+  // Convert notifications to sidebar toasts when they change
   useEffect(() => {
-    // Create a demo toast for testing
-    const createDemoToast = () => {
-      const newToast: SidebarToast = {
-        id: `toast-${Date.now()}`,
-        title: "Demo Toast",
-        description: "This is a demo toast that will disappear automatically",
-        variant: "success",
-        createdAt: new Date()
+    if (notifications && notifications.length > 0) {
+      // Take the most recent unread notification and display it as a toast
+      const unreadNotifications = notifications.filter(n => !n.read).slice(0, 2);
+      
+      if (unreadNotifications.length > 0) {
+        const toasts = unreadNotifications.map(notification => ({
+          id: notification.id,
+          title: notification.title,
+          description: notification.description,
+          variant: notification.type.includes('error') ? 'destructive' : 
+                  (notification.type.includes('created') ? 'success' : 'default'),
+          createdAt: notification.createdAt
+        }));
+        
+        setSidebarToasts(prev => {
+          // Deduplicate by id
+          const existingIds = new Set(prev.map(t => t.id));
+          const newToasts = toasts.filter(t => !existingIds.has(t.id));
+          
+          if (newToasts.length === 0) return prev;
+          return [...newToasts, ...prev].slice(0, 5); // Keep maximum 5 toasts
+        });
+      }
+    }
+  }, [notifications]);
+  
+  // Create a fallback toast if no notifications are available
+  useEffect(() => {
+    // If there are no notifications and no toasts, create a fallback toast
+    if ((!notifications || notifications.length === 0) && sidebarToasts.length === 0) {
+      // Create a fallback toast for first-time users
+      const createFallbackToast = () => {
+        const newToast: SidebarToast = {
+          id: `welcome-toast-${Date.now()}`,
+          title: "Welcome to WarmKaroo",
+          description: "Create your first event by clicking the 'New Event' button",
+          variant: "success",
+          createdAt: new Date()
+        };
+        
+        setSidebarToasts(prev => [...prev, newToast]);
       };
       
-      setSidebarToasts(prev => [...prev, newToast]);
-    };
-    
-    // Create demo toast after 1 second
-    const timeout = setTimeout(createDemoToast, 1000);
-    
-    // Create another demo toast after 3 seconds
-    const timeout2 = setTimeout(() => {
-      createDemoToast();
-    }, 3000);
-    
-    return () => {
-      clearTimeout(timeout);
-      clearTimeout(timeout2);
-    };
-  }, []);
+      // Create fallback toast after 1 second
+      const timeout = setTimeout(createFallbackToast, 1000);
+      
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [notifications, sidebarToasts.length]);
   
   // Clean up old toasts automatically
   useEffect(() => {
