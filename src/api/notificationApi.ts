@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -24,7 +23,7 @@ export const fetchNotificationData = async () => {
         events:events!inner(name, event_type, primary_name)
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
-      .is('sent_at', 'not.null')        // Only include sent notifications
+      .filter('sent_at', 'not.is', null)        // Only include sent notifications
       .order('sent_at', { ascending: false })
       .limit(20);
 
@@ -57,7 +56,7 @@ export const fetchNotificationData = async () => {
           events:events!inner(name, event_type, primary_name)
         `)
         .not('is_completed', 'eq', true)  // Exclude completed notifications
-        .is('sent_at', 'not.null')        // Only include sent notifications
+        .filter('sent_at', 'not.is', null)        // Only include sent notifications
         .order('sent_at', { ascending: false })
         .limit(20);
         
@@ -283,4 +282,3 @@ const createBasicNotifications = async () => {
     console.error('Error creating basic notifications:', err);
   }
 };
-

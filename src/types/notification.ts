@@ -4,6 +4,7 @@ export type NotificationType =
   | "task_overdue" 
   | "task_upcoming" 
   | "event_incomplete"
+  | "proforma_reminder" 
   | "task_created";
 
 export interface Notification {

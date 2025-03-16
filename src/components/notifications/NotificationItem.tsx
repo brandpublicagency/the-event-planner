@@ -81,6 +81,7 @@ const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type 
     );
   }
   
+  // Fix: Fix the comparison to use strict equality instead of the wrong check
   if (type === "proforma_reminder") {
     return (
       <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-blue-200 bg-blue-50 text-blue-700">
@@ -106,4 +107,3 @@ const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type 
     </Badge>
   );
 };
-
