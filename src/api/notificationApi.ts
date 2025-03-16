@@ -7,9 +7,9 @@ import { Notification } from "@/types/notification";
  */
 export const fetchNotificationData = async () => {
   try {
-    console.log('Fetching notifications data...');
+    console.log('Fetching notifications data from API...');
     
-    // First, query event notifications
+    // Query event notifications - this is the SINGLE SOURCE OF TRUTH for notifications
     const { data: notificationsData, error: notificationsError } = await supabase
       .from('event_notifications')
       .select(`
@@ -23,20 +23,19 @@ export const fetchNotificationData = async () => {
         created_at,
         events:events!inner(name, event_type, primary_name)
       `)
-      .is('is_read', false)
-      .not('sent_at', 'is', null)
-      .order('scheduled_for', { ascending: false });
+      .order('sent_at', { ascending: false })
+      .limit(10);
 
     if (notificationsError) {
       console.error('Error fetching notifications:', notificationsError);
       throw new Error(notificationsError.message);
     }
 
-    console.log('Fetched notifications:', notificationsData);
+    console.log('Fetched raw notifications:', notificationsData?.length || 0);
 
     // Check if notifications is empty or couldn't be loaded properly
     if (!notificationsData || notificationsData.length === 0) {
-      console.log('No notifications found in database');
+      console.log('No notifications found in database, creating basic ones');
       
       // Create some basic notifications for testing
       await createBasicNotifications();
@@ -55,19 +54,21 @@ export const fetchNotificationData = async () => {
           created_at,
           events:events!inner(name, event_type, primary_name)
         `)
-        .is('is_read', false)
         .order('sent_at', { ascending: false })
         .limit(10);
         
       if (retryError || !retryData || retryData.length === 0) {
+        console.log('Still no notifications after retry');
         return [];
       }
       
-      console.log('Fetched notifications after creating basic ones:', retryData);
+      console.log('Fetched notifications after creating basic ones:', retryData.length);
       return formatNotifications(retryData);
     }
 
-    return formatNotifications(notificationsData);
+    const formattedNotifications = await formatNotifications(notificationsData);
+    console.log('Formatted notifications:', formattedNotifications.length);
+    return formattedNotifications;
   } catch (err) {
     console.error('Error in notification system:', err);
     // Instead of throwing, return an empty array to not break the UI
@@ -163,7 +164,7 @@ const formatNotifications = async (notificationsData) => {
  */
 const createBasicNotifications = async () => {
   try {
-    // First, get some events including the latest one (EVENT-163-1567)
+    // Get the 5 most recent events
     const { data: events, error: eventsError } = await supabase
       .from('events')
       .select('event_code, name, event_type, primary_name')
@@ -175,7 +176,7 @@ const createBasicNotifications = async () => {
       return;
     }
     
-    console.log('Found events for notifications:', events);
+    console.log('Found events for notifications:', events.map(e => e.event_code).join(', '));
     
     // Check if these events already have notifications
     const { data: existingNotifications, error: checkError } = await supabase
@@ -193,14 +194,17 @@ const createBasicNotifications = async () => {
     // Create basic notifications for events that don't have them
     for (const event of events) {
       if (!existingEventCodes.has(event.event_code)) {
+        const currentTime = new Date().toISOString();
+        
         const { error: insertError } = await supabase
           .from('event_notifications')
           .insert([
             {
               event_code: event.event_code,
               notification_type: 'event_created',
-              scheduled_for: new Date().toISOString(),
-              sent_at: new Date().toISOString(),
+              scheduled_for: currentTime,
+              sent_at: currentTime, // Mark as sent immediately so it appears in the UI
+              is_read: false
             }
           ]);
           

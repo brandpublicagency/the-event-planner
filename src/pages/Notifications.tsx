@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
 import { NotificationsList } from '@/components/notifications/NotificationList';
@@ -7,6 +7,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
@@ -33,9 +34,17 @@ const Notifications = () => {
     handleCompleteTask,
     handleRefresh,
   } = useNotificationsPage();
+  
+  const location = useLocation();
+
+  // Refresh notifications when the page is loaded
+  useEffect(() => {
+    console.log('Notifications page mounted - refreshing notifications');
+    handleRefresh();
+  }, [handleRefresh]);
 
   // Log notifications for debugging
-  console.log('Current notifications:', notifications);
+  console.log('Notifications page rendering with notifications:', notifications.length);
   console.log('Loading state:', loading, 'Has attempted fetch:', hasAttemptedFetch);
 
   return (
@@ -50,11 +59,16 @@ const Notifications = () => {
           {error && (
             <Alert variant="default" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Edge Function Unavailable</AlertTitle>
+              <AlertTitle>Notification System Error</AlertTitle>
               <AlertDescription>
-                Using local notification data. Some features may be limited.
+                {error.message}
               </AlertDescription>
             </Alert>
+          )}
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading notifications...</p>
+            </div>
           )}
           <NotificationsList 
             notifications={notifications}

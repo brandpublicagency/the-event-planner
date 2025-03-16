@@ -1,7 +1,6 @@
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { useNotificationSystem } from "@/hooks/notifications/useNotificationSystem";
-import { useRealTimeNotifications } from "@/hooks/notifications/useRealTimeNotifications";
 import { Notification } from "@/types/notification";
 
 interface ScheduledNotificationContextType {
@@ -27,6 +26,7 @@ export const useScheduledNotifications = () => {
 export const ScheduledNotificationProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  // Use the centralized notification system
   const {
     loading,
     pendingNotifications,
@@ -35,12 +35,11 @@ export const ScheduledNotificationProvider: React.FC<{
     refreshNotifications,
     triggerNotificationProcessing
   } = useNotificationSystem();
-
-  // Set up real-time notification subscription
-  useRealTimeNotifications();
   
   // Calculate unread count
   const unreadCount = pendingNotifications.filter(n => !n.read).length;
+  
+  console.log('ScheduledNotificationContext rendering with notifications:', pendingNotifications.length, 'unread:', unreadCount);
 
   const contextValue: ScheduledNotificationContextType = {
     notifications: pendingNotifications,

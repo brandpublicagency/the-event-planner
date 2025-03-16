@@ -1,25 +1,23 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { CheckCheck, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Notification } from '@/types/notification';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 
 export function NotificationDropdown() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   // Log notifications for debugging
-  console.log('Notifications in dropdown:', notifications);
-  console.log('Unread count:', unreadCount);
+  console.log('NotificationDropdown rendering with notifications:', notifications.length, 'Unread:', unreadCount);
 
   const handleViewNotification = async (id: string, relatedId?: string) => {
     try {
@@ -57,19 +55,6 @@ export function NotificationDropdown() {
     setIsOpen(false);
     navigate(`/tasks`);
   };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !(dropdownRef.current as any).contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownRef]);
 
   const handleViewAll = () => {
     setIsOpen(false);

@@ -7,21 +7,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
-import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
 import { Badge } from "@/components/ui/badge";
 
 export const NotificationButton = () => {
   const { unreadCount: generalUnreadCount, notifications: generalNotifications } = useNotifications();
-  const { unreadCount: scheduledUnreadCount, notifications: scheduledNotifications } = useScheduledNotifications();
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
   
-  // Log notification counts and details for debugging
-  console.log('General notifications:', generalNotifications.length, 'Unread:', generalUnreadCount);
-  console.log('Scheduled notifications:', scheduledNotifications?.length, 'Unread:', scheduledUnreadCount);
+  // Log notification counts for debugging
+  console.log('NotificationButton rendering with notifications:', generalNotifications.length, 'Unread:', generalUnreadCount);
   
-  // Combined unread count
-  const totalUnreadCount = generalUnreadCount + scheduledUnreadCount;
+  // Total unread count
+  const totalUnreadCount = generalUnreadCount;
   
   // Add animation effect when new notifications arrive
   useEffect(() => {

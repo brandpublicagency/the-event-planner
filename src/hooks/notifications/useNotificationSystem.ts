@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Notification } from '@/types/notification';
 import { useToast } from '@/hooks/use-toast';
@@ -17,12 +18,14 @@ export function useNotificationSystem() {
   const { markAsRead, markAsCompleted } = useNotificationActions();
   const { triggerNotificationProcessing } = useNotificationProcessing();
 
-  // Fetch notifications from the database
+  // Fetch notifications from the database - this is the SINGLE SOURCE OF TRUTH
   const fetchNotifications = useCallback(async () => {
     try {
+      console.log('Fetching notifications in useNotificationSystem...');
       setLoading(true);
       setError(null);
       const formattedNotifications = await fetchNotificationData();
+      console.log('Notifications fetched in useNotificationSystem:', formattedNotifications.length);
       setPendingNotifications(formattedNotifications);
       setHasAttemptedFetch(true);
     } catch (err) {
@@ -74,6 +77,7 @@ export function useNotificationSystem() {
 
   // Load notifications on component mount
   useEffect(() => {
+    console.log('Initial fetch in useNotificationSystem');
     fetchNotifications().catch(err => {
       console.error('Failed to fetch notifications in initial load:', err);
     });
@@ -90,7 +94,7 @@ export function useNotificationSystem() {
           filter: 'sent_at=not.is.null',
         },
         (payload) => {
-          console.log('Notification updated:', payload);
+          console.log('Notification updated in real-time:', payload);
           fetchNotifications().catch(err => {
             console.error('Failed to fetch notifications after update:', err);
           });
