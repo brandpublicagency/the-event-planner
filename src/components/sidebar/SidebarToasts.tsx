@@ -10,7 +10,7 @@ interface SidebarToastsProps {
 }
 
 export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
-  const { toasts, dismissToast } = useToast();
+  const { toasts, dismiss } = useToast();
   // Keep track of visible toasts in local state
   const [visibleToasts, setVisibleToasts] = useState<any[]>([]);
 
@@ -31,8 +31,8 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
     // Set timeouts to auto-dismiss each toast
     const timeouts = visibleToasts.map(toast => {
       return setTimeout(() => {
-        if (toast && toast.id && dismissToast) {
-          dismissToast(toast.id);
+        if (toast && toast.id && dismiss) {
+          dismiss(toast.id);
         }
       }, 5000); // Auto-dismiss after 5 seconds
     });
@@ -41,7 +41,7 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
     return () => {
       timeouts.forEach(timeout => clearTimeout(timeout));
     };
-  }, [visibleToasts, dismissToast]);
+  }, [visibleToasts, dismiss]);
 
   if (visibleToasts.length === 0) return null;
   
@@ -82,7 +82,7 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
                 >
                   <IconComponent className="h-5 w-5" />
                   <button 
-                    onClick={() => dismissToast && dismissToast(id)} 
+                    onClick={() => dismiss && dismiss(id)} 
                     className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm hover:bg-gray-100"
                   >
                     <X className="h-3 w-3 text-gray-500" />
@@ -105,7 +105,7 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
                       {description && <div className="text-xs opacity-90">{description}</div>}
                     </div>
                     <button 
-                      onClick={() => dismissToast && dismissToast(id)} 
+                      onClick={() => dismiss && dismiss(id)} 
                       className="h-5 w-5 rounded hover:bg-white/50 flex items-center justify-center"
                     >
                       <X className="h-3 w-3" />

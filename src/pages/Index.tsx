@@ -77,8 +77,14 @@ const Index = () => {
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
-        <div className="md:col-span-6 flex flex-col order-3 md:order-1 h-full overflow-hidden">
+      <div className="grid grid-cols-1 gap-6 p-6">
+        {/* Full width greeting message */}
+        <div className="col-span-full">
+          <DashboardMessage />
+        </div>
+        
+        {/* Events section below greeting */}
+        <div className="md:col-span-6 flex flex-col h-full overflow-hidden">
           <div 
             className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
             style={{ 
@@ -134,9 +140,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="md:col-span-6 order-1 md:order-2 flex flex-col space-y-6">
-          <DashboardMessage />
-          
+        <div className="md:col-span-6 flex flex-col space-y-6">
           <div>
             <div 
               className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
@@ -169,7 +173,7 @@ const Index = () => {
         </div>
         
         {/* Add full width Recent Activity Widget at the bottom */}
-        <div className="col-span-full order-4">
+        <div className="col-span-full">
           <RecentActivityWidget limit={7} />
         </div>
       </div>
