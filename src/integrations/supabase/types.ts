@@ -573,7 +573,7 @@ export type Database = {
           {
             foreignKeyName: "notification_triggers_template_type_fkey"
             columns: ["template_type"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "notification_templates"
             referencedColumns: ["type"]
           },
