@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
@@ -88,7 +87,7 @@ const Notifications = () => {
       <div className="p-6 flex-1">
         <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Recent Notifications</h2>
+            <div></div> {/* Empty div to maintain flex layout */}
             <div className="flex gap-2">
               <Button 
                 variant="outline"
