@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Trigger the notification processing edge function
+ * This now only processes immediate notifications and actionable reminders (close to event date)
  */
 export const triggerNotificationProcessing = async () => {
   try {

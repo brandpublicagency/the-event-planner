@@ -1,13 +1,13 @@
 
 export type NotificationType = 
   | "event_created" 
-  | "event_created_unified"  // Unified notification type
+  | "event_created_unified"  
   | "task_overdue" 
   | "task_upcoming" 
   | "event_incomplete"
   | "proforma_reminder" 
-  | "final_payment_reminder"  // Added new notification type for final payments
-  | "document_due_reminder"   // Document due reminder type
+  | "final_payment_reminder"  
+  | "document_due_reminder"   
   | "task_created";
 
 export interface Notification {
@@ -19,7 +19,7 @@ export interface Notification {
   read: boolean;
   actionType?: "review" | "approve";
   relatedId?: string; // event_code or task_id
-  status?: "pending" | "sent" | "read" | "completed";
+  status?: "sent" | "read" | "completed";
 }
 
 export interface NotificationContextType {

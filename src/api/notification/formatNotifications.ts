@@ -6,6 +6,7 @@ import { formatNotificationTitle } from "./notificationUtils";
 
 /**
  * Format notification data with templates
+ * Simplified to remove scheduled status and only show read/unread/completed
  */
 export const formatNotifications = async (notificationsData: any[]): Promise<Notification[]> => {
   try {
@@ -27,12 +28,12 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
         id: item.id,
         title: formatNotificationTitle(item.notification_type) || 'Notification',
         description: `${item.notification_type} for ${item.events?.name || 'Event'}`,
-        createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
+        createdAt: new Date(item.sent_at || item.created_at),
         type: item.notification_type as any,
         read: item.is_read,
         actionType: 'review' as any,
         relatedId: item.event_code,
-        status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
+        status: item.is_completed ? 'completed' : item.is_read ? 'read' : 'sent'
       }));
     }
 
@@ -77,12 +78,12 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
         id: item.id,
         title: title,
         description: description,
-        createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
+        createdAt: new Date(item.sent_at || item.created_at),
         type: item.notification_type as any,
         read: item.is_read,
         actionType: template?.action_type as any || 'review',
         relatedId: item.event_code,
-        status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
+        status: item.is_completed ? 'completed' : item.is_read ? 'read' : 'sent'
       };
     });
   } catch (error) {
@@ -92,12 +93,12 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
       id: item.id,
       title: formatNotificationTitle(item.notification_type) || 'Notification',
       description: `Notification for ${item.events?.name || 'Event'}`,
-      createdAt: new Date(item.sent_at || item.scheduled_for || item.created_at),
+      createdAt: new Date(item.sent_at || item.created_at),
       type: item.notification_type as any,
       read: item.is_read,
       actionType: 'review' as any,
       relatedId: item.event_code,
-      status: item.is_completed ? 'completed' : item.is_read ? 'read' : item.sent_at ? 'sent' : 'pending'
+      status: item.is_completed ? 'completed' : item.is_read ? 'read' : 'sent'
     }));
   }
 };

@@ -8,19 +8,19 @@ import { removeDuplicateNotifications } from "./notificationUtils";
 /**
  * Fetches notification data from Supabase and formats it for display
  * This is the SINGLE SOURCE OF TRUTH for notifications
+ * Simplified to fetch only active notifications (not scheduled for future)
  */
 export const fetchNotificationData = async (): Promise<Notification[]> => {
   try {
     console.log('Fetching notifications data from API...');
     
-    // Query event notifications with updated filtering to include pending notifications
+    // Query event notifications with updated filtering to only include sent notifications
     const { data: notificationsData, error: notificationsError } = await supabase
       .from('event_notifications')
       .select(`
         id,
         event_code,
         notification_type,
-        scheduled_for,
         sent_at,
         is_read,
         is_completed,
@@ -28,7 +28,8 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
         events:events!inner(name, event_type, primary_name, event_date)
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
-      .order('scheduled_for', { ascending: false })
+      .not('sent_at', 'is', null)       // Only include notifications that have been sent
+      .order('sent_at', { ascending: false })
       .limit(20);
 
     if (notificationsError) {
@@ -42,7 +43,7 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
     if (!notificationsData || notificationsData.length === 0) {
       console.log('No notifications found in database, triggering notification processing');
       
-      // Trigger notification processing to create pending notifications
+      // Trigger notification processing to create any immediate notifications
       await triggerNotificationProcessing();
       
       // Try fetching again after creating notifications
@@ -52,7 +53,6 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
           id,
           event_code,
           notification_type,
-          scheduled_for,
           sent_at,
           is_read,
           is_completed,
@@ -60,7 +60,8 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
           events:events!inner(name, event_type, primary_name, event_date)
         `)
         .not('is_completed', 'eq', true)  // Exclude completed notifications
-        .order('scheduled_for', { ascending: false })
+        .not('sent_at', 'is', null)       // Only include notifications that have been sent
+        .order('sent_at', { ascending: false })
         .limit(20);
         
       if (retryError || !retryData || retryData.length === 0) {

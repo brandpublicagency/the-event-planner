@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Notification } from "@/types/notification";
-import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard, Clock, Info, Bell } from "lucide-react";
+import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard, Info, Bell } from "lucide-react";
 import { NotificationActions } from "./NotificationActions";
 
 interface NotificationItemProps {
@@ -17,9 +18,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onView, 
   onComplete 
 }) => {
-  // Determine if the notification needs special styling based on status or type
-  const isUrgent = notification.type === 'task_overdue' || 
-                  (notification.status === 'pending' && new Date(notification.createdAt) < new Date());
+  // Determine if the notification needs special styling based on type
+  const isUrgent = notification.type === 'task_overdue';
   
   return (
     <div 
@@ -27,23 +27,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       className={cn(
         "p-4 mb-3 rounded-lg border shadow-sm bg-white",
         !notification.read && "border-zinc-200"
-        // Removed the colored left borders
       )}
     >
       <div className="flex gap-3">
-        {/* Removed the icon container div */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
             <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>
-            {notification.status === 'pending' && (
-              <Badge 
-                variant="outline" 
-                className="text-[10px] py-0 h-4 text-orange-700 font-normal rounded px-[6px] bg-orange-50 border-orange-200"
-              >
-                <Clock className="h-3 w-3 mr-1" />
-                Scheduled
-              </Badge>
-            )}
             {notification.status === 'completed' && (
               <Badge 
                 variant="outline" 
@@ -52,7 +41,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
                 Completed
               </Badge>
             )}
-            {!notification.read && notification.status !== 'pending' && notification.status !== 'completed' && (
+            {!notification.read && notification.status !== 'completed' && (
               <Badge 
                 variant="default" 
                 className="text-[10px] py-0 h-4 text-white font-normal rounded px-[6px] bg-zinc-900"
@@ -60,12 +49,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
                 New
               </Badge>
             )}
-            {isUrgent && notification.status === 'pending' && (
+            {isUrgent && (
               <Badge 
                 variant="outline" 
                 className="text-[10px] py-0 h-4 text-red-700 font-normal rounded px-[6px] bg-red-50 border-red-200"
               >
-                Overdue
+                Urgent
               </Badge>
             )}
           </div>
@@ -88,52 +77,5 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         </div>
       </div>
     </div>
-  );
-};
-
-// Removed the NotificationIcon component since it's no longer needed
-
-const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type }) => {
-  if (type === "event_created" || type === "event_created_unified") {
-    return (
-      <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-green-200 bg-green-50 text-green-700">
-        <Calendar className="h-3 w-3 mr-1" />
-        Event
-      </Badge>
-    );
-  }
-  
-  if (type === "event_incomplete") {
-    return (
-      <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-orange-200 bg-orange-50 text-orange-700">
-        <FileText className="h-3 w-3 mr-1" />
-        Document
-      </Badge>
-    );
-  }
-  
-  if (type === "proforma_reminder") {
-    return (
-      <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-blue-200 bg-blue-50 text-blue-700">
-        <CreditCard className="h-3 w-3 mr-1" />
-        Invoice
-      </Badge>
-    );
-  }
-  
-  if (type === "task_upcoming" || type === "task_overdue") {
-    return (
-      <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-blue-200 bg-blue-50 text-blue-700">
-        <AlarmClock className="h-3 w-3 mr-1" />
-        Reminder
-      </Badge>
-    );
-  }
-  
-  return (
-    <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 border-purple-200 bg-purple-50 text-purple-700">
-      <AlertTriangle className="h-3 w-3 mr-1" />
-      Alert
-    </Badge>
   );
 };
