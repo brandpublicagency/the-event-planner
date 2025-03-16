@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
@@ -18,7 +17,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onView, 
   onComplete 
 }) => {
-  // Determine if the notification needs a special border based on status or type
+  // Determine if the notification needs special styling based on status or type
   const isUrgent = notification.type === 'task_overdue' || 
                   (notification.status === 'pending' && new Date(notification.createdAt) < new Date());
   
@@ -27,15 +26,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       key={notification.id} 
       className={cn(
         "p-4 mb-3 rounded-lg border shadow-sm bg-white",
-        !notification.read && "border-zinc-200",
-        notification.status === 'pending' && "border-l-4 border-l-orange-400",
-        isUrgent && "border-l-4 border-l-red-500"
+        !notification.read && "border-zinc-200"
+        // Removed the colored left borders
       )}
     >
       <div className="flex gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          <NotificationIcon type={notification.type} />
-        </div>
+        {/* Removed the icon container div */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
             <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>
@@ -95,55 +91,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   );
 };
 
-// New component to display notification icon with appropriate color
-const NotificationIcon: React.FC<{ type: Notification['type'] }> = ({ type }) => {
-  // Define the icon and color for each notification type
-  switch (type) {
-    case "event_created":
-    case "event_created_unified":
-      return (
-        <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-          <Calendar className="h-4 w-4" />
-        </div>
-      );
-    case "event_incomplete":
-      return (
-        <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-          <FileText className="h-4 w-4" />
-        </div>
-      );
-    case "proforma_reminder":
-      return (
-        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-          <CreditCard className="h-4 w-4" />
-        </div>
-      );
-    case "task_upcoming":
-      return (
-        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-          <AlarmClock className="h-4 w-4" />
-        </div>
-      );
-    case "task_overdue":
-      return (
-        <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-          <AlarmClock className="h-4 w-4" />
-        </div>
-      );
-    case "task_created":
-      return (
-        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-          <Info className="h-4 w-4" />
-        </div>
-      );
-    default:
-      return (
-        <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
-          <Bell className="h-4 w-4" />
-        </div>
-      );
-  }
-};
+// Removed the NotificationIcon component since it's no longer needed
 
 const NotificationTypeBadge: React.FC<{ type: Notification['type'] }> = ({ type }) => {
   if (type === "event_created" || type === "event_created_unified") {

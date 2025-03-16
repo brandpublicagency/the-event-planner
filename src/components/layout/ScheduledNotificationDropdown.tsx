@@ -89,7 +89,7 @@ export function ScheduledNotificationDropdown() {
             {notifications.slice(0, 5).map((notification) => (
               <Card
                 key={notification.id}
-                className={`mx-2 my-1.5 p-3 ${!notification.read ? 'border-l-4 border-l-amber-500' : 'opacity-70'} border-zinc-200`}
+                className={`mx-2 my-1.5 p-3 ${!notification.read ? '' : 'opacity-70'} border-zinc-200`}
               >
                 <div className="flex justify-between items-start gap-1">
                   <div className="flex-1">
