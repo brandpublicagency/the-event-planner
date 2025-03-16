@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Notification } from '@/types/notification';
 import { useToast } from '@/hooks/use-toast';
@@ -14,9 +13,8 @@ export function useNotificationSystem() {
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const { toast } = useToast();
   
-  // Use separate hooks for specialized functionality
-  // Create a setNotifications function to pass to useNotificationActions
-  const { markAsRead, markAsCompleted } = useNotificationActions(setPendingNotifications);
+  // Use the combined useNotificationActions hook
+  const { markAsRead, markAsCompleted } = useNotificationActions();
   const { triggerNotificationProcessing } = useNotificationProcessing();
 
   // Fetch notifications from the database

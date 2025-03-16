@@ -5,6 +5,7 @@ import { Notification, NotificationContextType } from "@/types/notification";
 import { useEventNotifications } from "@/hooks/notifications/useEventNotifications";
 import { useTaskNotifications } from "@/hooks/notifications/useTaskNotifications";
 import { useEventStatusNotifications } from "@/hooks/notifications/useEventStatusNotifications";
+import { useNotificationActions } from "@/hooks/notifications/useNotificationActions";
 
 // Re-export types from the types file
 export type { NotificationType, Notification } from "@/types/notification";
@@ -24,37 +25,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   useEventNotifications(setNotifications);
   useEventStatusNotifications(setNotifications);
   
-  // Mark a notification as read
-  const markAsRead = useCallback(async (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true } 
-          : notification
-      )
-    );
-    return Promise.resolve();
-  }, []);
-  
-  // Mark all notifications as read
-  const markAllAsRead = useCallback(() => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  }, []);
-  
-  // Clear all notifications
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
-  
-  // Mark a notification as completed (optional)
-  const markAsCompleted = useCallback(async (id: string) => {
-    setNotifications(prev => 
-      prev.filter(notification => notification.id !== id)
-    );
-    return Promise.resolve();
-  }, []);
+  // Use the combined notification actions hook
+  const { markAsRead, markAllAsRead, clearNotifications, markAsCompleted } = 
+    useNotificationActions(setNotifications);
   
   return (
     <NotificationContext.Provider 
