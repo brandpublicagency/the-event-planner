@@ -80,6 +80,38 @@ export default function Events() {
     });
   }
 
+  const handleDeleteEvent = async (eventCode: string) => {
+    try {
+      console.log("Starting deletion of event:", eventCode);
+      
+      // Show loading toast
+      toast({
+        title: "Deleting event...",
+        description: "Please wait while the event is being deleted.",
+      });
+      
+      await deleteEvent(eventCode);
+      
+      // Success toast
+      toast({
+        title: "Event deleted",
+        description: "Event has been successfully deleted",
+      });
+      
+      // Refresh the events list
+      refetch();
+    } catch (error: any) {
+      console.error("Error in handleDeleteEvent:", error);
+      
+      // Error toast with more detailed message
+      toast({
+        variant: "destructive",
+        title: "Error deleting event",
+        description: error.message || "Failed to delete event. Please try again.",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <Header 
@@ -127,22 +159,7 @@ export default function Events() {
         ) : (
           <EventsTable 
             groupedEvents={groupedEvents} 
-            handleDelete={async (eventCode: string) => {
-              try {
-                await deleteEvent(eventCode);
-                toast({
-                  title: "Event deleted",
-                  description: "Event has been deleted successfully",
-                });
-                refetch();
-              } catch (error: any) {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: error.message || "Failed to delete event",
-                });
-              }
-            }}
+            handleDelete={handleDeleteEvent}
             className="flex-1"
           />
         )}

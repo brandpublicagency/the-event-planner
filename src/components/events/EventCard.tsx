@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { Trash, Copy, Pencil } from "lucide-react";
+import { Trash, Copy, Pencil, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,21 +8,24 @@ import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { getVenueNames } from "@/utils/venueUtils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useState } from "react";
+
 interface EventCardProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
 }
+
 export const EventCard = ({
   event,
   handleDelete,
   isDashboard = false
 }: EventCardProps) => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const location = useLocation();
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
     e.stopPropagation();
     navigator.clipboard.writeText(eventCode);
@@ -30,7 +34,22 @@ export const EventCard = ({
       description: "Event code copied to clipboard"
     });
   };
-  return <div key={event.event_code} className="">
+  
+  const onDelete = async () => {
+    if (!handleDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await handleDelete(event.event_code);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+  
+  return (
+    <div key={event.event_code} className="">
       <div className="rounded-none px-[15px] py-[15px]">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -64,8 +83,12 @@ export const EventCard = ({
             
             {handleDelete && <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-white hover:bg-red-600">
-                    <Trash className="h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-white hover:bg-red-600" disabled={isDeleting}>
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash className="h-4 w-4" />
+                    )}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="border-red-100 bg-white">
@@ -80,8 +103,17 @@ export const EventCard = ({
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2">
                     <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete(event.event_code)} className="bg-red-600 hover:bg-red-700 rounded-full text-white">
-                      Delete Permanently
+                    <AlertDialogAction 
+                      onClick={() => onDelete()} 
+                      className="bg-red-600 hover:bg-red-700 rounded-full text-white"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : "Delete Permanently"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -89,5 +121,6 @@ export const EventCard = ({
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

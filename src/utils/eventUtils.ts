@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
-import { createEvent as createEventService } from "@/services/eventService";
+import { createEvent as createEventService, deleteEvent as deleteEventService } from "@/services/eventService";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
@@ -22,36 +21,8 @@ export const groupEventsByMonth = (events: Event[]) => {
 
 export const deleteEvent = async (eventCode: string) => {
   try {
-    // Check if there are related menu selections
-    const { count, error: countError } = await supabase
-      .from('menu_selections')
-      .select('event_code', { count: 'exact', head: true })
-      .eq('event_code', eventCode);
-    
-    if (!countError && count && count > 0) {
-      const { error: menuError } = await supabase
-        .from('menu_selections')
-        .delete()
-        .eq('event_code', eventCode);
-      
-      if (menuError) {
-        console.error('Error deleting menu selections:', menuError);
-        throw menuError;
-      }
-    }
-    
-    // Permanently delete the event
-    const { error } = await supabase
-      .from('events')
-      .delete()
-      .eq('event_code', eventCode);
-
-    if (error) {
-      console.error('Error deleting event:', error);
-      throw new Error("Failed to delete event");
-    }
-    
-    return true;
+    console.log('Deleting event with code:', eventCode);
+    return await deleteEventService(eventCode);
   } catch (error: any) {
     console.error('Delete event error:', error);
     throw error;

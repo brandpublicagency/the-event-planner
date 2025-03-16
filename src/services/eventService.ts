@@ -66,40 +66,59 @@ export const createEvent = async (eventData: EventCreate) => {
 };
 
 export const deleteEvent = async (eventCode: string) => {
-  // First check if there are any related menu selections
-  const { data: menuSelections, error: menuCheckError } = await supabase
-    .from('menu_selections')
-    .select('event_code')
-    .eq('event_code', eventCode);
+  console.log('Deleting event with code:', eventCode);
   
-  if (menuCheckError) {
-    console.error('Error checking menu selections:', menuCheckError);
-    throw menuCheckError;
-  }
-  
-  // If there are menu selections, delete them first
-  if (menuSelections && menuSelections.length > 0) {
-    const { error: deleteMenuError } = await supabase
-      .from('menu_selections')
+  try {
+    // First delete related event notifications to avoid foreign key constraint errors
+    const { error: notificationsError } = await supabase
+      .from('event_notifications')
       .delete()
       .eq('event_code', eventCode);
     
-    if (deleteMenuError) {
-      console.error('Error deleting menu selections:', deleteMenuError);
-      throw deleteMenuError;
+    if (notificationsError) {
+      console.error('Error deleting event notifications:', notificationsError);
+      throw notificationsError;
     }
+
+    // Check if there are any related menu selections
+    const { data: menuSelections, error: menuCheckError } = await supabase
+      .from('menu_selections')
+      .select('event_code')
+      .eq('event_code', eventCode);
+    
+    if (menuCheckError) {
+      console.error('Error checking menu selections:', menuCheckError);
+      throw menuCheckError;
+    }
+    
+    // If there are menu selections, delete them first
+    if (menuSelections && menuSelections.length > 0) {
+      const { error: deleteMenuError } = await supabase
+        .from('menu_selections')
+        .delete()
+        .eq('event_code', eventCode);
+      
+      if (deleteMenuError) {
+        console.error('Error deleting menu selections:', deleteMenuError);
+        throw deleteMenuError;
+      }
+    }
+    
+    // Permanently delete the event
+    const { error: deleteEventError } = await supabase
+      .from('events')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (deleteEventError) {
+      console.error('Error deleting event:', deleteEventError);
+      throw deleteEventError;
+    }
+    
+    console.log('Event deleted successfully:', eventCode);
+    return true;
+  } catch (error) {
+    console.error('Error in deleteEvent function:', error);
+    throw error;
   }
-  
-  // Permanently delete the event
-  const { error: deleteEventError } = await supabase
-    .from('events')
-    .delete()
-    .eq('event_code', eventCode);
-  
-  if (deleteEventError) {
-    console.error('Error deleting event:', deleteEventError);
-    throw deleteEventError;
-  }
-  
-  return true;
 };

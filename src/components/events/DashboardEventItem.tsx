@@ -1,8 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Users, Copy, Edit, Trash } from "lucide-react";
+import { MapPin, Users, Copy, Edit, Trash, Loader2 } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,6 +21,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const venueStr = getVenueNames(event);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const copyEventCode = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -39,6 +40,19 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
         duration: 3000
       });
     });
+  };
+  
+  const onDelete = async () => {
+    if (!handleDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await handleDelete(event.event_code);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
   
   const eventDate = event.event_date ? new Date(event.event_date) : null;
@@ -114,11 +128,16 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                     size="icon" 
                     onClick={e => e.stopPropagation()} 
                     className="h-8 w-8 rounded-full"
+                    disabled={isDeleting}
                   >
-                    <Trash className="h-4 w-4 text-zinc-400" />
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 text-zinc-400 animate-spin" />
+                    ) : (
+                      <Trash className="h-4 w-4 text-zinc-400" />
+                    )}
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="border-red-100 bg-white">
+                <AlertDialogContent className="border-red-100 bg-white" onClick={e => e.stopPropagation()}>
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-red-600">Permanently Delete Event</AlertDialogTitle>
                     <AlertDialogDescription className="text-zinc-600">
@@ -129,16 +148,21 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2">
-                    <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="rounded-full" onClick={e => e.stopPropagation()}>Cancel</AlertDialogCancel>
                     <AlertDialogAction 
-                      onClick={() => {
-                        if (handleDelete) {
-                          handleDelete(event.event_code);
-                        }
+                      onClick={e => {
+                        e.stopPropagation();
+                        onDelete();
                       }} 
                       className="bg-red-600 hover:bg-red-700 rounded-full text-white"
+                      disabled={isDeleting}
                     >
-                      Delete Permanently
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : "Delete Permanently"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
