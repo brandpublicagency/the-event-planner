@@ -83,65 +83,67 @@ const Index = () => {
           <DashboardMessage />
         </div>
         
-        {/* Events section below greeting */}
-        <div className="md:col-span-6 flex flex-col h-full overflow-hidden">
-          <div 
-            className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
-            style={{ 
-              backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              marginBottom: '15px'
-            }}
-          >
-            <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
-            
-            <div className="flex items-center gap-2 relative z-10">
-              <CalendarClock className="h-5 w-5 text-zinc-700" />
-              <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
+        {/* Two-column layout underneath greeting */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column - Upcoming Events */}
+          <div className="flex flex-col h-full overflow-hidden">
+            <div 
+              className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
+              style={{ 
+                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: '15px'
+              }}
+            >
+              <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
+              
+              <div className="flex items-center gap-2 relative z-10">
+                <CalendarClock className="h-5 w-5 text-zinc-700" />
+                <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
+              </div>
+              <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full relative z-10">
+                <Plus className="h-4 w-4 mr-1.5" />
+                New Event
+              </Button>
             </div>
-            <Button onClick={() => navigate('/events/new')} size="sm" variant="outline" className="rounded-full relative z-10">
-              <Plus className="h-4 w-4 mr-1.5" />
-              New Event
-            </Button>
+            
+            <div className="flex-1 overflow-auto">
+              {isEventsLoading ? (
+                <div className="flex items-center justify-center h-40">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : events.length === 0 ? (
+                <div className="flex items-center justify-center h-40 text-muted-foreground">
+                  No upcoming events found
+                </div>
+              ) : (
+                <EventsTable 
+                  groupedEvents={groupedEvents}
+                  isDashboard={true}
+                  handleDelete={async (eventCode: string) => {
+                    try {
+                      await deleteEvent(eventCode);
+                      toast({
+                        title: "Event deleted",
+                        description: "Event has been deleted successfully",
+                      });
+                      refetch();
+                    } catch (error: any) {
+                      toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: error.message || "Failed to delete event",
+                      });
+                    }
+                  }}
+                />
+              )}
+            </div>
           </div>
-          
-          <div className="flex-1 overflow-auto">
-            {isEventsLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : events.length === 0 ? (
-              <div className="flex items-center justify-center h-40 text-muted-foreground">
-                No upcoming events found
-              </div>
-            ) : (
-              <EventsTable 
-                groupedEvents={groupedEvents}
-                isDashboard={true}
-                handleDelete={async (eventCode: string) => {
-                  try {
-                    await deleteEvent(eventCode);
-                    toast({
-                      title: "Event deleted",
-                      description: "Event has been deleted successfully",
-                    });
-                    refetch();
-                  } catch (error: any) {
-                    toast({
-                      variant: "destructive",
-                      title: "Error",
-                      description: error.message || "Failed to delete event",
-                    });
-                  }
-                }}
-              />
-            )}
-          </div>
-        </div>
 
-        <div className="md:col-span-6 flex flex-col space-y-6">
-          <div>
+          {/* Right column - Upcoming Tasks */}
+          <div className="flex flex-col h-full">
             <div 
               className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
               style={{ 
