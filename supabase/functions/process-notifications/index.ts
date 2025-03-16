@@ -280,37 +280,25 @@ async function createMissingNotifications(supabase, notificationTriggers) {
   try {
     console.log('Checking for missing notifications...');
     
-    // Get recent events with specific event codes to check
+    // Replace the existing specific event code query with the requested query
+    // Get recent events created in the last 30 days
+    const daysToLookBack = 30;
+    const lookBackDate = new Date();
+    lookBackDate.setDate(lookBackDate.getDate() - daysToLookBack);
+
     const { data: recentEvents, error: recentEventsError } = await supabase
       .from('events')
       .select('event_code, name, event_type, primary_name, event_date, created_at')
-      .or('event_code.eq.EVENT-163-5038,event_code.eq.EVENT-163-1567')
-      .is('deleted_at', null);
+      .gte('created_at', lookBackDate.toISOString())
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(50);  // Set a reasonable limit
 
     if (recentEventsError) {
       console.error('Error fetching recent events:', recentEventsError);
       throw recentEventsError;
     }
     
-    if (!recentEvents || recentEvents.length === 0) {
-      // Get other recent events if specific ones not found
-      const { data: otherEvents, error: otherEventsError } = await supabase
-        .from('events')
-        .select('event_code, name, event_type, primary_name, event_date, created_at')
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false })
-        .limit(20);
-        
-      if (otherEventsError) {
-        console.error('Error fetching other recent events:', otherEventsError);
-        return 0;
-      }
-      
-      if (otherEvents && otherEvents.length > 0) {
-        recentEvents.push(...otherEvents);
-      }
-    }
-
     console.log(`Checking ${recentEvents?.length || 0} events for missing notifications...`);
     
     let createdCount = 0;
@@ -422,7 +410,7 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     
     // For each event, create any missing notifications
     for (const event of recentEvents || []) {
-      console.log(`Checking notifications for event ${event.event_code}`);
+      console.log(`Checking notifications for event ${event.event_code} (${event.name})`);
       
       // Get existing notifications for this event
       const { data: existingNotifications, error: notificationError } = await supabase
@@ -505,10 +493,12 @@ async function createMissingNotifications(supabase, notificationTriggers) {
           
           // Calculate scheduled time based on notification type
           let scheduledFor = new Date().toISOString();
+          let shouldMarkAsSent = false;
           
           if (notificationType === 'event_created_unified') {
             // Event created unified notifications are scheduled immediately
             scheduledFor = new Date().toISOString();
+            shouldMarkAsSent = true; // Always send event created notifications immediately
           } else if (notificationType === 'proforma_reminder' && event.event_date) {
             // Pro-forma reminders scheduled 14 days before event
             const eventDate = new Date(event.event_date);
@@ -548,7 +538,9 @@ async function createMissingNotifications(supabase, notificationTriggers) {
           }
           
           // Mark as sent immediately if scheduled date is in the past
-          const shouldMarkAsSent = new Date(scheduledFor) <= new Date();
+          if (new Date(scheduledFor) <= new Date()) {
+            shouldMarkAsSent = true;
+          }
           
           // Insert the notification with proper scheduling
           const { error: insertError } = await supabase
@@ -603,3 +595,4 @@ async function createMissingNotifications(supabase, notificationTriggers) {
     return 0;
   }
 }
+
