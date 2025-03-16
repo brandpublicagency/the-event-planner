@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { createFallbackNotifications } from "./notificationUtils";
 
 /**
  * Trigger the notification processing edge function
@@ -90,7 +91,7 @@ async function createDirectNotifications() {
     // Get the most recent events
     const { data: recentEvents, error: eventsError } = await supabase
       .from('events')
-      .select('event_code, name, created_at')
+      .select('event_code, name, event_type, created_at')
       .order('created_at', { ascending: false })
       .limit(10);
       

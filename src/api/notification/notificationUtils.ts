@@ -1,3 +1,4 @@
+
 import { Notification } from "@/types/notification";
 
 /**
@@ -48,6 +49,21 @@ export const removeDuplicateNotifications = (notifications: Notification[]): Not
   }
   
   return Array.from(uniqueMap.values());
+};
+
+/**
+ * Determine toast variant based on notification type
+ */
+export const getToastVariantFromNotificationType = (type: string): "default" | "destructive" | "success" | "info" => {
+  if (type.includes('error') || type.includes('overdue') || type.includes('incomplete')) {
+    return "destructive";
+  } else if (type.includes('created') || type.includes('completed')) {
+    return "success";
+  } else if (type.includes('reminder') || type.includes('upcoming')) {
+    return "info";
+  } else {
+    return "default";
+  }
 };
 
 /**

@@ -33,14 +33,24 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
       const unreadNotifications = notifications.filter(n => !n.read).slice(0, 2);
       
       if (unreadNotifications.length > 0) {
-        const toasts = unreadNotifications.map(notification => ({
-          id: notification.id,
-          title: notification.title,
-          description: notification.description,
-          variant: notification.type.includes('error') ? 'destructive' : 
-                  (notification.type.includes('created') ? 'success' : 'default'),
-          createdAt: notification.createdAt
-        }));
+        const toasts = unreadNotifications.map(notification => {
+          // Ensure variant is one of the allowed types
+          let variantType: "default" | "destructive" | "success" = "default";
+          
+          if (notification.type.includes('error')) {
+            variantType = "destructive";
+          } else if (notification.type.includes('created')) {
+            variantType = "success";
+          }
+          
+          return {
+            id: notification.id,
+            title: notification.title,
+            description: notification.description,
+            variant: variantType,
+            createdAt: notification.createdAt
+          };
+        });
         
         setSidebarToasts(prev => {
           // Deduplicate by id
