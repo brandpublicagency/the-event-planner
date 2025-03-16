@@ -11,7 +11,6 @@ import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
 import { CalendarX, Calendar, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TestToastButton } from "@/components/ui/test-toast-button";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -135,11 +134,7 @@ export default function Events() {
     <div className="flex flex-col h-full">
       <Header 
         pageTitle="Events" 
-        actionButton={{
-          label: "New Event",
-          icon: <PlusCircle className="h-4 w-4 mr-2" />,
-          onClick: () => navigate('/events/new')
-        }}
+        // Removed actionButton prop
       />
       
       <div className="flex-1 p-6 flex flex-col gap-4">
@@ -154,7 +149,7 @@ export default function Events() {
               variant="outline"
               size="sm"
               className="text-zinc-700"
-              onClick={() => navigate('/events/passed')}
+              onClick={() => navigate('/passed-events')}
             >
               <CalendarX className="h-4 w-4 mr-1.5" />
               Past Events
@@ -171,8 +166,7 @@ export default function Events() {
           </div>
         </div>
         
-        {/* Test Toast Section */}
-        <TestToastButton />
+        {/* Removed TestToastButton component */}
         
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
