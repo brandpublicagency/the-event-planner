@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { Bell } from "lucide-react";
 
 export const NotificationButton = () => {
   const { unreadCount } = useNotifications();
@@ -32,6 +33,7 @@ export const NotificationButton = () => {
             setOpen(!open);
           }}
         >
+          <Bell className="h-5 w-5 text-zinc-700" />
           <span className="text-sm font-medium">Notifications</span>
           {unreadCount > 0 && (
             <span className="flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-[4px] w-5 h-5 min-w-[20px]">

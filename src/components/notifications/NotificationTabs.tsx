@@ -34,9 +34,9 @@ export const NotificationTabs = ({
     <Tabs 
       defaultValue={activeTab} 
       onValueChange={onTabChange} 
-      className="mt-6"
+      className="mt-2"
     >
-      <TabsList className="w-full max-w-md mx-auto mb-8 grid grid-cols-2">
+      <TabsList className="w-full max-w-md mx-auto mb-6 grid grid-cols-2">
         <TabsTrigger 
           value="general" 
           className="flex items-center gap-1.5"

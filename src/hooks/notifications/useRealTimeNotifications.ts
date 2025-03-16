@@ -53,10 +53,29 @@ export function useRealTimeNotifications() {
         console.log('Notification subscription status:', status);
       });
       
+    // Also subscribe to new event_notifications insertions
+    const insertChannel = supabase
+      .channel('scheduled-notifications-insert')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'event_notifications'
+        },
+        (payload) => {
+          console.log('New notification created:', payload);
+        }
+      )
+      .subscribe((status) => {
+        console.log('Notification insert subscription status:', status);
+      });
+      
     // Cleanup subscription
     return () => {
       console.log('Cleaning up notification subscription');
       supabase.removeChannel(channel);
+      supabase.removeChannel(insertChannel);
     };
   }, [toast]);
 }

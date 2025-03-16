@@ -42,6 +42,8 @@ export function useNotificationSystem() {
         return;
       }
 
+      console.log('Fetched notifications:', notificationsData);
+
       // Get notification templates separately
       const { data: templatesData, error: templatesError } = await supabase
         .from('notification_templates')
@@ -148,7 +150,14 @@ export function useNotificationSystem() {
   // Trigger manual notification processing (primarily for testing)
   const triggerNotificationProcessing = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('trigger-notifications');
+      toast({
+        title: 'Processing notifications',
+        description: 'Checking for scheduled notifications...',
+        variant: 'default',
+        showProgress: true,
+      });
+      
+      const { data, error } = await supabase.functions.invoke('process-notifications');
       
       if (error) {
         console.error('Error triggering notifications:', error);
@@ -160,9 +169,11 @@ export function useNotificationSystem() {
         return;
       }
       
+      console.log('Notification processing response:', data);
+      
       toast({
         title: 'Notifications processed',
-        description: `Processed ${data.processed || 0} notifications.`,
+        description: `Processed ${data?.processed || 0} notifications.`,
         variant: 'success',
       });
       
