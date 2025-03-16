@@ -48,11 +48,28 @@ export const useActionHandler = () => {
         }
       }
       
+      // Show action in progress toast
+      toast({
+        title: "Processing action...",
+        description: "Please wait while we execute your request",
+        variant: "info",
+        showProgress: true,
+        duration: 10000,
+      });
+      
       await handleChatAction(
         pendingAction,
         (message) => {
           addSystemMessage(message);
           setPendingAction(null);
+          
+          // Success toast
+          toast({
+            title: "Action completed",
+            description: message || "Your request was processed successfully",
+            variant: "success",
+            showProgress: true,
+          });
           
           // Invalidate queries to refresh UI data
           console.log('Action completed, invalidating queries');
@@ -61,17 +78,29 @@ export const useActionHandler = () => {
         (error) => {
           console.error('Error executing action:', error);
           addSystemMessage("Sorry, I encountered an error while executing the action: " + error.message);
+          
+          // Error toast
           toast({
             title: "Action failed",
             description: error.message || "Failed to execute the requested action",
             variant: "destructive",
+            showProgress: true,
           });
+          
           setPendingAction(null);
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in action handler:', error);
       addSystemMessage("An error occurred while processing your request.");
+      
+      toast({
+        title: "Error occurred",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+        showProgress: true,
+      });
+      
       setPendingAction(null);
     }
   };

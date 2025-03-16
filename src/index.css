@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -80,23 +81,27 @@
 /* Toast styles */
 @layer components {
   .toast-gradient-default {
-    background: linear-gradient(to right, #2563eb, #3b82f6);
-    color: white;
+    @apply bg-blue-600 text-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: toast-in 0.3s ease forwards;
   }
   
   .toast-gradient-destructive {
-    background: linear-gradient(to right, #dc2626, #ef4444);
-    color: white;
+    @apply bg-red-600 text-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: toast-in 0.3s ease forwards;
   }
   
   .toast-gradient-success {
-    background: linear-gradient(to right, #16a34a, #22c55e);
-    color: white;
+    @apply bg-green-600 text-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: toast-in 0.3s ease forwards;
   }
   
   .toast-gradient-info {
-    background: linear-gradient(to right, #0284c7, #0ea5e9);
-    color: white;
+    @apply bg-blue-500 text-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: toast-in 0.3s ease forwards;
   }
   
   .toast-progress-bar {
@@ -108,6 +113,17 @@
     width: 100%;
     transform-origin: left;
     animation: toast-progress-animation linear forwards;
+  }
+  
+  @keyframes toast-in {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
   
   @keyframes toast-progress-animation {

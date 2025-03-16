@@ -8,11 +8,11 @@ export function useRealTimeNotifications() {
 
   // Set up real-time subscription for new notifications
   useEffect(() => {
-    console.log('Setting up scheduled notification subscription');
+    console.log('Setting up real-time notification subscription');
     
     // Subscribe to event_notifications table for real-time updates
     const channel = supabase
-      .channel('scheduled-notifications')
+      .channel('real-time-notifications')
       .on(
         'postgres_changes',
         {
@@ -26,15 +26,15 @@ export function useRealTimeNotifications() {
           if (payload.new && 
               payload.new.sent_at && 
               (!payload.old || !payload.old.sent_at)) {
-            console.log('New notification sent:', payload);
+            console.log('New notification received:', payload);
             
             // Show more prominent toast with long duration
             toast({
               title: "Important Notification",
               description: "You have a new notification that requires attention",
-              variant: "default",
+              variant: "info",
               showProgress: true,
-              duration: 10000 // 10 seconds for more visibility
+              duration: 8000 // 8 seconds for more visibility
             });
             
             // Also trigger browser notification if supported
@@ -50,12 +50,12 @@ export function useRealTimeNotifications() {
         }
       )
       .subscribe((status) => {
-        console.log('Notification subscription status:', status);
+        console.log('Real-time notification subscription status:', status);
       });
       
     // Also subscribe to new event_notifications insertions
     const insertChannel = supabase
-      .channel('scheduled-notifications-insert')
+      .channel('real-time-notifications-insert')
       .on(
         'postgres_changes',
         {
@@ -65,6 +65,14 @@ export function useRealTimeNotifications() {
         },
         (payload) => {
           console.log('New notification created:', payload);
+          
+          // Show toast for new notification
+          toast({
+            title: "New Notification",
+            description: "A new notification has been created",
+            variant: "default",
+            showProgress: true,
+          });
         }
       )
       .subscribe((status) => {

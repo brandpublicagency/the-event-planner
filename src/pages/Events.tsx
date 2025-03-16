@@ -11,6 +11,7 @@ import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
 import { CalendarX, Calendar, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TestToastButton } from "@/components/ui/test-toast-button";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -23,7 +24,10 @@ export default function Events() {
       description: "The events page has loaded successfully",
       variant: "info",
       showProgress: true,
+      duration: 5000,
     });
+    
+    console.log("Toast notification triggered in Events component");
   }, [toast]);
 
   const { data: events, isLoading, error, refetch } = useQuery({
@@ -99,6 +103,7 @@ export default function Events() {
         title: "Deleting event...",
         description: "Please wait while the event is being deleted.",
         showProgress: true,
+        duration: 10000, // Longer duration for operation feedback
       });
       
       await deleteEvent(eventCode);
@@ -165,6 +170,9 @@ export default function Events() {
             </Button>
           </div>
         </div>
+        
+        {/* Test Toast Section */}
+        <TestToastButton />
         
         {isLoading ? (
           <div className="flex items-center justify-center h-32">

@@ -20,11 +20,12 @@ export function TestToastButton() {
       description: variant.description,
       variant: variant.variant as any,
       showProgress: true,
+      duration: 5000,
     });
   };
   
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className="flex flex-col gap-2 p-4 border border-gray-200 rounded-md">
       <h3 className="text-lg font-semibold mb-2">Test Toast Notifications</h3>
       <div className="flex flex-wrap gap-2">
         {variants.map((variant, index) => (
@@ -33,10 +34,22 @@ export function TestToastButton() {
             onClick={() => showToast(index)}
             variant={variant.variant === 'default' ? 'default' : 
                     variant.variant === 'destructive' ? 'destructive' : 'outline'}
+            size="sm"
           >
             Show {variant.variant} Toast
           </Button>
         ))}
+        <Button 
+          onClick={() => {
+            for (let i = 0; i < variants.length; i++) {
+              setTimeout(() => showToast(i), i * 300);
+            }
+          }}
+          variant="default"
+          size="sm"
+        >
+          Show All Toasts
+        </Button>
       </div>
     </div>
   );

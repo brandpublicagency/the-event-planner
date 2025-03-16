@@ -28,14 +28,15 @@ export function useScheduledNotifications(
           if (payload.new && 
               payload.new.sent_at && 
               (!payload.old || !payload.old.sent_at)) {
-            console.log('New notification sent:', payload);
+            console.log('New scheduled notification sent:', payload);
             
-            // Show toast
+            // Show toast with clear styling and progress
             toast({
               title: "New notification",
               description: "You have a new notification to review",
-              variant: "default",
-              showProgress: true
+              variant: "info",
+              showProgress: true,
+              duration: 5000
             });
             
             // Call the callback to refresh notifications
@@ -44,12 +45,12 @@ export function useScheduledNotifications(
         }
       )
       .subscribe((status) => {
-        console.log('Notification subscription status:', status);
+        console.log('Scheduled notification subscription status:', status);
       });
       
     // Cleanup subscription
     return () => {
-      console.log('Cleaning up notification subscription');
+      console.log('Cleaning up scheduled notification subscription');
       supabase.removeChannel(channel);
     };
   }, [toast, onNewNotification]);

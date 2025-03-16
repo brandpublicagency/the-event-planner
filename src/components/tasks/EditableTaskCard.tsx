@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { Task, TaskUpdate } from "@/contexts/TaskContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface EditableTaskCardProps {
   task: Task;
@@ -42,6 +43,8 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
       toast({
         title: "Task updated",
         description: "Your task has been updated successfully.",
+        variant: "success",
+        showProgress: true,
       });
       onSave();
     },
@@ -50,11 +53,18 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
         title: "Error updating task",
         description: error.message,
         variant: "destructive",
+        showProgress: true,
       });
     },
   });
 
   const handleSave = () => {
+    toast({
+      title: "Saving task...",
+      description: "Please wait while we save your changes.",
+      showProgress: true,
+    });
+    
     updateTaskMutation.mutate({
       title,
       due_date: dueDate?.toISOString(),
