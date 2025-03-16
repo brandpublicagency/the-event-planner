@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
+import { format } from "date-fns";
 
 /**
  * Fetches notification data from Supabase and formats it for display
@@ -21,7 +23,7 @@ export const fetchNotificationData = async () => {
         is_read,
         is_completed,
         created_at,
-        events:events!inner(name, event_type, primary_name)
+        events:events!inner(name, event_type, primary_name, event_date)
       `)
       .not('is_completed', 'eq', true)  // Exclude completed notifications
       .order('scheduled_for', { ascending: false })
@@ -53,7 +55,7 @@ export const fetchNotificationData = async () => {
           is_read,
           is_completed,
           created_at,
-          events:events!inner(name, event_type, primary_name)
+          events:events!inner(name, event_type, primary_name, event_date)
         `)
         .not('is_completed', 'eq', true)  // Exclude completed notifications
         .order('scheduled_for', { ascending: false })
@@ -136,6 +138,14 @@ const formatNotifications = async (notificationsData) => {
         description = description.replace(/{event_name}/g, item.events?.name || 'Untitled Event');
         description = description.replace(/{event_type}/g, item.events?.event_type || 'Event');
         description = description.replace(/{primary_contact}/g, item.events?.primary_name || 'Client');
+        
+        // Format and replace event_date if it exists
+        if (item.events?.event_date && description.includes('{event_date}')) {
+          const formattedDate = format(new Date(item.events.event_date), 'dd MMMM yyyy');
+          description = description.replace(/{event_date}/g, formattedDate);
+        } else {
+          description = description.replace(/{event_date}/g, 'upcoming date');
+        }
       } catch (e) {
         console.error('Error processing notification template:', e);
       }

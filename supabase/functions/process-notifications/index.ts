@@ -1,6 +1,6 @@
-
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.5';
+import { format } from 'https://esm.sh/date-fns@3.6.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -201,6 +201,19 @@ function processTemplate(template: NotificationTemplate, event: Event): string {
   description = description.replace(/{event_name}/g, event.name || 'Untitled Event');
   description = description.replace(/{event_type}/g, event.event_type || 'Event');
   description = description.replace(/{primary_contact}/g, event.primary_name || 'Client');
+  
+  // Format and replace event_date if it exists
+  if (event.event_date && description.includes('{event_date}')) {
+    try {
+      const formattedDate = format(new Date(event.event_date), 'dd MMMM yyyy');
+      description = description.replace(/{event_date}/g, formattedDate);
+    } catch (error) {
+      console.error('Error formatting event date:', error);
+      description = description.replace(/{event_date}/g, event.event_date || 'upcoming date');
+    }
+  } else {
+    description = description.replace(/{event_date}/g, 'upcoming date');
+  }
   
   return description;
 }
