@@ -3,20 +3,11 @@ import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { CalendarClock, CheckSquare, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun } from "lucide-react";
+import { CalendarClock, CheckSquare, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun, AlertCircle } from "lucide-react";
 
 const DashboardMessage = () => {
-  const { dashboardMessage, isLoading } = useDashboardMessage();
+  const { dashboardMessage, isLoading, error } = useDashboardMessage();
   
-  if (isLoading) {
-    return (
-      <Card className="p-6 mb-6 bg-white shadow-sm">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-2/3 mt-2" />
-      </Card>
-    );
-  }
-
   // Determine greeting based on time of day
   const now = new Date();
   const hour = now.getHours();
@@ -29,6 +20,15 @@ const DashboardMessage = () => {
   // Format today's date
   const todayFormatted = format(now, "EEEE, MMMM d");
   
+  if (isLoading) {
+    return (
+      <Card className="p-6 mb-6 bg-white shadow-sm">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-2/3 mt-2" />
+      </Card>
+    );
+  }
+
   // Choose appropriate icon based on message type
   let icon;
   switch (dashboardMessage.type) {
@@ -56,10 +56,17 @@ const DashboardMessage = () => {
           <span className="text-sm text-gray-500">{todayFormatted}</span>
         </div>
         
-        <div className="flex items-start space-x-3">
-          <div className="mt-1">{icon}</div>
-          <p className="text-gray-700">{dashboardMessage.message}</p>
-        </div>
+        {error ? (
+          <div className="flex items-start space-x-3 text-amber-600">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <p>Unable to load personalized updates. Check your connection and try again.</p>
+          </div>
+        ) : (
+          <div className="flex items-start space-x-3">
+            <div className="mt-1">{icon}</div>
+            <p className="text-gray-700">{dashboardMessage.message}</p>
+          </div>
+        )}
         
         {dashboardMessage.weatherData && dashboardMessage.type !== 'weather' && (
           <div className="flex items-center mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded-md">

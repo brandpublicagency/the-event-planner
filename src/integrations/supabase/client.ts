@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -17,6 +18,18 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
     },
+    // Set reasonable timeouts for all requests including Function invocations
+    fetch: (url, options) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+      }).finally(() => {
+        clearTimeout(timeoutId);
+      });
+    }
   },
   db: {
     schema: 'public'

@@ -22,11 +22,41 @@ serve(async (req) => {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Fetch all context data
-    const todayEvents = await fetchTodayEvents();
-    const tasks = await fetchTasks();
-    const upcomingEvents = await fetchUpcomingEvents();
-    const weatherData = await fetchWeatherForecast();
+    console.log("Dashboard message request received");
+
+    // Fetch all context data with better error handling
+    let todayEvents = [];
+    let tasks = [];
+    let upcomingEvents = [];
+    let weatherData = null;
+
+    try {
+      todayEvents = await fetchTodayEvents();
+      console.log(`Fetched ${todayEvents.length} today events`);
+    } catch (error) {
+      console.error("Error fetching today's events:", error);
+    }
+
+    try {
+      tasks = await fetchTasks();
+      console.log(`Fetched ${tasks.length} tasks`);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+
+    try {
+      upcomingEvents = await fetchUpcomingEvents();
+      console.log(`Fetched ${upcomingEvents.length} upcoming events`);
+    } catch (error) {
+      console.error("Error fetching upcoming events:", error);
+    }
+
+    try {
+      weatherData = await fetchWeatherForecast();
+      console.log("Weather data fetched:", weatherData ? "success" : "failed");
+    } catch (error) {
+      console.error("Error fetching weather forecast:", error);
+    }
     
     // Determine message type and prepare context for OpenAI
     const { messageType, contextData, systemPrompt } = determineMessageContext(
@@ -36,8 +66,17 @@ serve(async (req) => {
       weatherData
     );
     
+    console.log(`Message type determined: ${messageType}`);
+    
     // Generate the personalized message
-    const message = await generatePersonalizedMessage(systemPrompt, contextData);
+    let message;
+    try {
+      message = await generatePersonalizedMessage(systemPrompt, contextData);
+      console.log("Message generated successfully");
+    } catch (error) {
+      console.error("Error generating message:", error);
+      message = "Welcome to your dashboard. Have a great day!";
+    }
     
     // Prepare the final response
     const response = prepareDashboardResponse(
@@ -49,9 +88,10 @@ serve(async (req) => {
       weatherData
     );
     
+    console.log("Responding with dashboard message");
     return createJsonResponse(response);
   } catch (error) {
-    console.error("Error generating dashboard message:", error);
+    console.error("Error in dashboard message generation:", error);
     return createErrorResponse(
       "Welcome to your dashboard. Have a great day!",
       500

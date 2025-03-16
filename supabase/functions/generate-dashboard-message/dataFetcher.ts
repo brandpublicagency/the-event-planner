@@ -10,20 +10,28 @@ export const fetchTodayEvents = async () => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
   
-  const { data, error } = await supabaseClient
-    .from("events")
-    .select("*")
-    .eq("event_date", todayStr)
-    .is("deleted_at", null)
-    .eq("completed", false)
-    .order("start_time", { ascending: true })
-    .limit(1);
+  console.log(`Fetching events for today: ${todayStr}`);
   
-  if (error) {
-    throw error;
+  try {
+    const { data, error } = await supabaseClient
+      .from("events")
+      .select("*")
+      .eq("event_date", todayStr)
+      .is("deleted_at", null)
+      .eq("completed", false)
+      .order("start_time", { ascending: true })
+      .limit(1);
+    
+    if (error) {
+      console.error("Error fetching today's events:", error);
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchTodayEvents:", error);
+    return [];
   }
-  
-  return data;
 };
 
 /**
@@ -34,19 +42,27 @@ export const fetchTasks = async () => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
   
-  const { data, error } = await supabaseClient
-    .from("tasks")
-    .select("*")
-    .eq("completed", false)
-    .lte("due_date", todayStr)
-    .order("priority", { ascending: true })
-    .limit(3);
+  console.log(`Fetching tasks for today: ${todayStr}`);
   
-  if (error) {
-    throw error;
+  try {
+    const { data, error } = await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("completed", false)
+      .lte("due_date", todayStr)
+      .order("priority", { ascending: true })
+      .limit(3);
+    
+    if (error) {
+      console.error("Error fetching tasks:", error);
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchTasks:", error);
+    return [];
   }
-  
-  return data;
 };
 
 /**
@@ -60,21 +76,29 @@ export const fetchUpcomingEvents = async () => {
   nextWeek.setDate(today.getDate() + 7);
   const nextWeekStr = format(nextWeek, "yyyy-MM-dd");
   
-  const { data, error } = await supabaseClient
-    .from("events")
-    .select("*")
-    .gt("event_date", todayStr)
-    .lte("event_date", nextWeekStr)
-    .is("deleted_at", null)
-    .eq("completed", false)
-    .order("event_date", { ascending: true })
-    .limit(1);
+  console.log(`Fetching upcoming events from ${todayStr} to ${nextWeekStr}`);
   
-  if (error) {
-    throw error;
+  try {
+    const { data, error } = await supabaseClient
+      .from("events")
+      .select("*")
+      .gt("event_date", todayStr)
+      .lte("event_date", nextWeekStr)
+      .is("deleted_at", null)
+      .eq("completed", false)
+      .order("event_date", { ascending: true })
+      .limit(1);
+    
+    if (error) {
+      console.error("Error fetching upcoming events:", error);
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchUpcomingEvents:", error);
+    return [];
   }
-  
-  return data;
 };
 
 /**
@@ -82,67 +106,82 @@ export const fetchUpcomingEvents = async () => {
  */
 export const fetchWeatherForecast = async () => {
   try {
-    // Get company location - default to Cape Town if not found
-    const supabaseClient = createSupabaseClient();
-    const { data: profiles } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .limit(1);
+    console.log("Attempting to fetch weather forecast");
+    
+    // Get API key with error handling
+    const apiKey = Deno.env.get("OPENWEATHER_API_KEY");
+    if (!apiKey) {
+      console.log("OpenWeather API key not found in environment variables");
+      return null;
+    }
     
     // Default location for weather (can be improved to use company's address)
     const location = "Cape Town,ZA";
     
-    // OpenWeatherMap API
-    const apiKey = Deno.env.get("OPENWEATHER_API_KEY") || "";
-    if (!apiKey) {
-      console.log("OpenWeather API key not found");
-      return null;
-    }
-    
     // Get tomorrow's forecast
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Weather API returned status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    // Find tomorrow's forecast around midday
     const tomorrowDate = format(tomorrow, "yyyy-MM-dd");
-    const tomorrowMidDay = `${tomorrowDate} 12:00:00`;
     
-    // Find the forecast closest to tomorrow midday
-    let closestForecast = data.list[0];
-    let smallestDiff = Number.MAX_SAFE_INTEGER;
+    console.log(`Fetching weather for ${location} on ${tomorrowDate}`);
     
-    for (const forecast of data.list) {
-      const diff = Math.abs(new Date(forecast.dt_txt).getTime() - new Date(tomorrowMidDay).getTime());
-      if (diff < smallestDiff) {
-        smallestDiff = diff;
-        closestForecast = forecast;
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`,
+        { signal: controller.signal }
+      );
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.error(`Weather API returned status: ${response.status}`);
+        return null;
       }
+      
+      const data = await response.json();
+      
+      // Find tomorrow's forecast around midday
+      const tomorrowMidDay = `${tomorrowDate} 12:00:00`;
+      
+      // Find the forecast closest to tomorrow midday
+      let closestForecast = data.list[0];
+      let smallestDiff = Number.MAX_SAFE_INTEGER;
+      
+      for (const forecast of data.list) {
+        const diff = Math.abs(new Date(forecast.dt_txt).getTime() - new Date(tomorrowMidDay).getTime());
+        if (diff < smallestDiff) {
+          smallestDiff = diff;
+          closestForecast = forecast;
+        }
+      }
+      
+      // Extract relevant weather data
+      console.log("Weather data successfully fetched");
+      return {
+        date: tomorrowDate,
+        temp: Math.round(closestForecast.main.temp),
+        feels_like: Math.round(closestForecast.main.feels_like),
+        humidity: closestForecast.main.humidity,
+        wind_speed: closestForecast.wind?.speed || 0,
+        condition: closestForecast.weather[0].main,
+        description: closestForecast.weather[0].description,
+        icon: closestForecast.weather[0].icon
+      };
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        console.error("Weather API request timed out");
+      } else {
+        console.error("Error during weather API request:", error);
+      }
+      return null;
     }
-    
-    // Extract relevant weather data
-    return {
-      date: tomorrowDate,
-      temp: Math.round(closestForecast.main.temp),
-      feels_like: Math.round(closestForecast.main.feels_like),
-      humidity: closestForecast.main.humidity,
-      wind_speed: closestForecast.wind?.speed || 0,
-      condition: closestForecast.weather[0].main,
-      description: closestForecast.weather[0].description,
-      icon: closestForecast.weather[0].icon
-    };
-    
   } catch (error) {
-    console.error("Error fetching weather forecast:", error);
+    console.error("Error in fetchWeatherForecast:", error);
     return null;
   }
 };
