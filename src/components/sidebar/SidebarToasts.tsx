@@ -1,30 +1,49 @@
-
 import * as React from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Toast, 
-  ToastClose, 
-  ToastDescription, 
-  ToastTitle
-} from "@/components/ui/toast";
 import { AnimatePresence, motion } from "framer-motion";
-import { InfoIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, InfoIcon, X } from "lucide-react";
 
 interface SidebarToastsProps {
   isCollapsed: boolean;
 }
 
 export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
-  const { toast, toasts } = useToast();
-  
-  // Safely check if toasts exist and is an array
-  if (!toasts || !Array.isArray(toasts) || toasts.length === 0) {
-    return null;
-  }
-  
-  // Only show a limited number of toasts in the sidebar
-  const visibleToasts = toasts.slice(0, 2);
+  const { toast, toasts, dismissToast } = useToast();
+  // Keep track of visible toasts in local state
+  const [visibleToasts, setVisibleToasts] = useState<any[]>([]);
+
+  // Update visible toasts when toasts prop changes
+  useEffect(() => {
+    if (!toasts || !Array.isArray(toasts)) {
+      setVisibleToasts([]);
+      return;
+    }
+    // Only show up to 2 most recent toasts
+    setVisibleToasts(toasts.slice(0, 2));
+  }, [toasts]);
+
+  // Set up auto-dismissal of toasts
+  useEffect(() => {
+    if (visibleToasts.length === 0) return;
+    
+    // Set timeouts to auto-dismiss each toast
+    const timeouts = visibleToasts.map(toast => {
+      return setTimeout(() => {
+        if (toast && toast.id && dismissToast) {
+          dismissToast(toast.id);
+        }
+      }, 5000); // Auto-dismiss after 5 seconds
+    });
+    
+    // Clean up timeouts
+    return () => {
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [visibleToasts, dismissToast]);
+
+  if (visibleToasts.length === 0) return null;
   
   return (
     <div className={cn(
@@ -45,10 +64,10 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
           return (
             <motion.div
               key={id}
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.3 }}
               className="mb-2"
             >
               {isCollapsed ? (
@@ -62,6 +81,12 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
                   )}
                 >
                   <IconComponent className="h-5 w-5" />
+                  <button 
+                    onClick={() => dismissToast && dismissToast(id)} 
+                    className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm hover:bg-gray-100"
+                  >
+                    <X className="h-3 w-3 text-gray-500" />
+                  </button>
                 </div>
               ) : (
                 // Expanded sidebar - show full toast
@@ -79,6 +104,12 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
                       {title && <div className="text-sm font-medium">{title}</div>}
                       {description && <div className="text-xs opacity-90">{description}</div>}
                     </div>
+                    <button 
+                      onClick={() => dismissToast && dismissToast(id)} 
+                      className="h-5 w-5 rounded hover:bg-white/50 flex items-center justify-center"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               )}
