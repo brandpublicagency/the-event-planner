@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { MapPin, Droplet, Cloud, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog, Moon, Sunrise, Sunset } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface WeatherCardProps {
   date?: string;
