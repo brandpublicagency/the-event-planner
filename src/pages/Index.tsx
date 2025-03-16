@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,33 +13,37 @@ import { Plus, Loader2, CalendarClock, CheckSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import DashboardMessage from "@/components/dashboard/DashboardMessage";
 import type { Event } from "@/types/event";
-
 const Index = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const { tasks, isLoading: isTasksLoading } = useTaskContext();
-
-  const { data: allEvents = [], refetch, isLoading: isEventsLoading, error: eventsError } = useQuery({
+  const {
+    tasks,
+    isLoading: isTasksLoading
+  } = useTaskContext();
+  const {
+    data: allEvents = [],
+    refetch,
+    isLoading: isEventsLoading,
+    error: eventsError
+  } = useQuery({
     queryKey: ['upcoming_events'],
     queryFn: async () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-
       try {
-        const { data, error } = await supabase
-          .from('events')
-          .select(`*`)
-          .eq('completed', false)
-          .is('deleted_at', null)
-          .gt('event_date', today.toISOString().split('T')[0])
-          .order('event_date', { ascending: true });
-
+        const {
+          data,
+          error
+        } = await supabase.from('events').select(`*`).eq('completed', false).is('deleted_at', null).gt('event_date', today.toISOString().split('T')[0]).order('event_date', {
+          ascending: true
+        });
         if (error) {
           console.error('Error fetching events:', error);
           throw error;
         }
-
         console.log('Fetched dashboard events:', data);
         return data || [] as Event[];
       } catch (error) {
@@ -48,34 +51,27 @@ const Index = () => {
         throw error;
       }
     },
-    retry: 1,
+    retry: 1
   });
-
   const events = allEvents.slice(0, 10);
-
   useEffect(() => {
     if (eventsError) {
       toast({
         title: "Error loading events",
         description: "There was a problem loading upcoming events.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   }, [eventsError, toast]);
-
   const upcomingTasks = tasks.filter(task => !task.completed);
-
   const handleTaskSelect = (id: string) => {
     navigate(`/tasks?selected=${id}`);
   };
-
   const groupedEvents = groupEventsByMonth(events);
-
-  return (
-    <div className="flex flex-col h-full">
+  return <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
-      <div className="grid grid-cols-1 gap-6 p-6">
+      <div className="grid grid-cols-1 gap-1 p-6">
         {/* Full width greeting message */}
         <div className="col-span-full">
           <DashboardMessage />
@@ -85,15 +81,12 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left column - Upcoming Events */}
           <div className="flex flex-col h-full overflow-hidden">
-            <div 
-              className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
-              style={{ 
-                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                marginBottom: '15px'
-              }}
-            >
+            <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
+            backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            marginBottom: '15px'
+          }}>
               <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
               
               <div className="flex items-center gap-2 relative z-10">
@@ -107,50 +100,37 @@ const Index = () => {
             </div>
             
             <div className="flex-1 overflow-auto">
-              {isEventsLoading ? (
-                <div className="flex items-center justify-center h-40">
+              {isEventsLoading ? <div className="flex items-center justify-center h-40">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : events.length === 0 ? (
-                <div className="flex items-center justify-center h-40 text-muted-foreground">
+                </div> : events.length === 0 ? <div className="flex items-center justify-center h-40 text-muted-foreground">
                   No upcoming events found
-                </div>
-              ) : (
-                <EventsTable 
-                  groupedEvents={groupedEvents}
-                  isDashboard={true}
-                  handleDelete={async (eventCode: string) => {
-                    try {
-                      await deleteEvent(eventCode);
-                      toast({
-                        title: "Event deleted",
-                        description: "Event has been deleted successfully",
-                      });
-                      refetch();
-                    } catch (error: any) {
-                      toast({
-                        variant: "destructive",
-                        title: "Error",
-                        description: error.message || "Failed to delete event",
-                      });
-                    }
-                  }}
-                />
-              )}
+                </div> : <EventsTable groupedEvents={groupedEvents} isDashboard={true} handleDelete={async (eventCode: string) => {
+              try {
+                await deleteEvent(eventCode);
+                toast({
+                  title: "Event deleted",
+                  description: "Event has been deleted successfully"
+                });
+                refetch();
+              } catch (error: any) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: error.message || "Failed to delete event"
+                });
+              }
+            }} />}
             </div>
           </div>
 
           {/* Right column - Upcoming Tasks */}
           <div className="flex flex-col h-full">
-            <div 
-              className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
-              style={{ 
-                backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                marginBottom: '15px'
-              }}
-            >
+            <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
+            backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            marginBottom: '15px'
+          }}>
               <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
               
               <div className="flex items-center gap-2 relative z-10">
@@ -162,18 +142,10 @@ const Index = () => {
                 New Task
               </Button>
             </div>
-            <TaskList 
-              tasks={upcomingTasks}
-              onTaskSelect={handleTaskSelect}
-              selectedTaskId={selectedTaskId}
-              hideHeader={true}
-              isDashboard={true}
-            />
+            <TaskList tasks={upcomingTasks} onTaskSelect={handleTaskSelect} selectedTaskId={selectedTaskId} hideHeader={true} isDashboard={true} />
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
+    </div>;
+};
 export default Index;
