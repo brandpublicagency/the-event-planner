@@ -1,6 +1,7 @@
 
 export type NotificationType = 
   | "event_created" 
+  | "event_created_unified"  // New unified notification type
   | "task_overdue" 
   | "task_upcoming" 
   | "event_incomplete"

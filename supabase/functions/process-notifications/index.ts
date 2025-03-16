@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.5';
 
@@ -297,15 +298,23 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       }
     }
 
-    console.log(`Checking ${recentEvents?.length || 0} events for missing notifications, including EVENT-163-5038 and EVENT-163-1567...`);
+    console.log(`Checking ${recentEvents?.length || 0} events for missing notifications...`);
     
     let createdCount = 0;
     
+    // Look up the unified notification trigger
+    const unifiedTrigger = notificationTriggers.find(trigger => 
+      trigger.template_type === 'event_created_unified'
+    );
+    
+    console.log('Found unified trigger:', unifiedTrigger ? 'yes' : 'no');
+    
     // Required notification types that should exist for each event
+    // Note: We now have 'event_created_unified' instead of the separate ones
     const requiredTypes = [
-      'event_created', 
-      'proforma_reminder', 
-      'event_incomplete'
+      'event_created_unified', // This is our new unified type
+      'event_incomplete',      // Keep this one
+      'proforma_reminder'      // Keep this as a separate reminder for 14 days before
     ];
     
     // For each event, create any missing notifications
@@ -327,15 +336,69 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       const existingTypes = new Set(existingNotifications?.map(n => n.notification_type) || []);
       console.log(`Event ${event.event_code} has notifications: ${Array.from(existingTypes).join(', ')}`);
       
+      // Check if we need to create the unified notification
+      if (!existingTypes.has('event_created_unified')) {
+        // If the event has any of the old notification types but not the unified one,
+        // we'll create the unified one
+        if (existingTypes.has('event_created') || 
+            existingTypes.has('document_send_reminder') || 
+            existingTypes.has('invoice_reminder')) {
+          
+          console.log(`Creating unified notification for event ${event.event_code} to replace old types`);
+          
+          // Insert the unified notification
+          const { error: insertError } = await supabase
+            .from('event_notifications')
+            .insert({
+              event_code: event.event_code,
+              notification_type: 'event_created_unified',
+              scheduled_for: new Date().toISOString(),
+              sent_at: new Date().toISOString(), // Mark as sent immediately
+            });
+            
+          if (insertError) {
+            console.error(`Error creating unified notification for event ${event.event_code}:`, insertError);
+          } else {
+            createdCount++;
+            console.log(`Created unified notification for event ${event.event_code}`);
+            
+            // Mark old notification types as completed to hide them
+            if (existingTypes.has('event_created') || 
+                existingTypes.has('document_send_reminder') || 
+                existingTypes.has('invoice_reminder')) {
+              
+              const { error: updateError } = await supabase
+                .from('event_notifications')
+                .update({ is_completed: true })
+                .eq('event_code', event.event_code)
+                .in('notification_type', ['event_created', 'document_send_reminder', 'invoice_reminder']);
+                
+              if (updateError) {
+                console.error(`Error marking old notifications as completed for event ${event.event_code}:`, updateError);
+              } else {
+                console.log(`Successfully marked old notifications as completed for event ${event.event_code}`);
+              }
+            }
+          }
+        }
+      }
+      
+      // Now check for other required notification types
       for (const notificationType of requiredTypes) {
+        // Skip event_created_unified if we just added it
+        if (notificationType === 'event_created_unified' && 
+            (existingTypes.has('event_created_unified') || createdCount > 0)) {
+          continue;
+        }
+        
         if (!existingTypes.has(notificationType)) {
           console.log(`Creating missing ${notificationType} notification for event ${event.event_code}`);
           
           // Calculate scheduled time based on notification type
           let scheduledFor = new Date().toISOString();
           
-          if (notificationType === 'event_created') {
-            // Event created notifications are scheduled immediately
+          if (notificationType === 'event_created_unified') {
+            // Event created unified notifications are scheduled immediately
             scheduledFor = new Date().toISOString();
           } else if (notificationType === 'proforma_reminder' && event.event_date) {
             // Pro-forma reminders scheduled 14 days before event

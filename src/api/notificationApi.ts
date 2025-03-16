@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -178,6 +179,8 @@ const formatNotificationTitle = (notificationType: string | null): string => {
   // Handle specific notification types
   switch (notificationType) {
     case 'event_created':
+      return 'New Event Created';
+    case 'event_created_unified':
       return 'New Event Created';
     case 'proforma_reminder':
       return 'Pro-forma Invoice Reminder';
