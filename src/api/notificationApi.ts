@@ -141,8 +141,13 @@ const formatNotifications = async (notificationsData) => {
         
         // Format and replace event_date if it exists
         if (item.events?.event_date && description.includes('{event_date}')) {
-          const formattedDate = format(new Date(item.events.event_date), 'dd MMMM yyyy');
-          description = description.replace(/{event_date}/g, formattedDate);
+          try {
+            const formattedDate = format(new Date(item.events.event_date), 'dd MMMM yyyy');
+            description = description.replace(/{event_date}/g, formattedDate);
+          } catch (dateError) {
+            console.error('Error formatting date:', dateError, item.events.event_date);
+            description = description.replace(/{event_date}/g, item.events.event_date || 'upcoming date');
+          }
         } else {
           description = description.replace(/{event_date}/g, 'upcoming date');
         }

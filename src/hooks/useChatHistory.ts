@@ -1,91 +1,117 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { ChatMessage } from "@/types/chat";
-import { useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useCallback, useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { ChatMessage } from '@/types/chat';
+import { v4 as uuidv4 } from 'uuid';
+import { SaveChatMessageParams, SavedChatMessage } from '@/types/chat';
 
-type SavedChatMessage = {
-  id: string;
-  message_id: string;
-  conversation_id: string;
-  created_at: string;
-  content: string;
-  is_user: boolean;
-}
+/**
+ * Hook to manage chat history persistence in Supabase
+ */
+export function useChatHistory(conversationId: string) {
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-export function useChatHistory() {
-  const queryClient = useQueryClient();
-  const conversationId = localStorage.getItem('conversation_id') || createNewConversation();
-  
-  // Create a new conversation ID and save it
-  function createNewConversation() {
-    const newId = uuidv4();
-    localStorage.setItem('conversation_id', newId);
-    return newId;
-  }
-  
-  // Reset the conversation
-  const resetConversation = useCallback(() => {
-    createNewConversation();
-    queryClient.invalidateQueries({ queryKey: ['chat-history'] });
-  }, [queryClient]);
-  
-  // Fetch chat history
-  const { data: chatHistory, isLoading } = useQuery({
-    queryKey: ['chat-history', conversationId],
-    queryFn: async () => {
-      const { data, error } = await supabase
+  // Load chat history from Supabase
+  const loadChatHistory = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Use a typecast to handle the table not being in the TypeScript definitions
+      // This is a workaround until the full database types are regenerated
+      const { data, error } = await (supabase as any)
         .from('chat_history')
         .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
-        
-      if (error) {
-        console.error('Error fetching chat history:', error);
-        return [];
-      }
-      
-      return (data || []).map((msg: SavedChatMessage): ChatMessage => ({
-        id: msg.message_id,
-        text: msg.content,
-        isUser: msg.is_user
-      }));
-    },
-    staleTime: 30000
-  });
-  
-  // Save a message to history
-  const { mutate: saveMessage } = useMutation({
-    mutationFn: async (message: ChatMessage) => {
-      // Don't save thinking/loading messages
-      if (message.text === "Thinking..." || 
-          message.text === "Processing..." ||
-          message.text.includes("Retrying...")) {
-        return;
-      }
-      
-      const { error } = await supabase
-        .from('chat_history')
-        .insert({
-          message_id: message.id,
-          conversation_id: conversationId,
-          content: message.text,
-          is_user: message.isUser
-        });
-        
+
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chat-history', conversationId] });
+
+      // Convert database format to application format
+      const messages = (data as SavedChatMessage[]).map((msg: SavedChatMessage): ChatMessage => ({
+        id: msg.message_id,
+        content: msg.content,
+        role: msg.is_user ? 'user' : 'assistant',
+        createdAt: new Date(msg.created_at),
+      }));
+
+      setHistory(messages);
+    } catch (err) {
+      console.error('Error loading chat history:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load chat history'));
+    } finally {
+      setLoading(false);
     }
-  });
-  
+  }, [conversationId]);
+
+  // Save a message to Supabase
+  const saveMessage = useCallback(async (message: ChatMessage) => {
+    try {
+      const messageParams: SaveChatMessageParams = {
+        message_id: message.id,
+        conversation_id: conversationId,
+        content: message.content,
+        is_user: message.role === 'user',
+      };
+
+      // Use a typecast to handle the table not being in the TypeScript definitions
+      const { error } = await (supabase as any)
+        .from('chat_history')
+        .insert(messageParams);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error saving chat message:', err);
+      setError(err instanceof Error ? err : new Error('Failed to save chat message'));
+    }
+  }, [conversationId]);
+
+  // Load history on mount and when conversation ID changes
+  useEffect(() => {
+    if (conversationId) {
+      loadChatHistory();
+    }
+  }, [conversationId, loadChatHistory]);
+
+  // Add new message to state and save to Supabase
+  const addMessage = useCallback(async (content: string, role: 'user' | 'assistant') => {
+    const newMessage: ChatMessage = {
+      id: uuidv4(),
+      content,
+      role,
+      createdAt: new Date(),
+    };
+
+    setHistory(prev => [...prev, newMessage]);
+    await saveMessage(newMessage);
+    return newMessage;
+  }, [saveMessage]);
+
+  // Clear all messages for this conversation
+  const clearHistory = useCallback(async () => {
+    try {
+      // Use a typecast to handle the table not being in the TypeScript definitions
+      const { error } = await (supabase as any)
+        .from('chat_history')
+        .delete()
+        .eq('conversation_id', conversationId);
+
+      if (error) throw error;
+      setHistory([]);
+    } catch (err) {
+      console.error('Error clearing chat history:', err);
+      setError(err instanceof Error ? err : new Error('Failed to clear chat history'));
+    }
+  }, [conversationId]);
+
   return {
-    chatHistory: chatHistory || [], 
-    isLoading,
-    saveMessage,
-    resetConversation,
-    conversationId
+    history,
+    loading,
+    error,
+    addMessage,
+    clearHistory,
+    loadChatHistory
   };
 }
