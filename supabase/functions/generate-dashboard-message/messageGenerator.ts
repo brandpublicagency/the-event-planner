@@ -1,5 +1,3 @@
-
-import OpenAI from "https://esm.sh/openai@4.28.0";
 import { format } from "https://esm.sh/date-fns@2.30.0";
 
 export interface DashboardMessage {
@@ -20,51 +18,44 @@ export const determineMessageContext = (
   upcomingEvents: any[],
   weatherData: any
 ) => {
+  console.log("Determining message context with data:", {
+    hasEvents: todayEvents?.length > 0,
+    hasTasks: tasks?.length > 0,
+    hasUpcomingEvents: upcomingEvents?.length > 0,
+    hasWeather: !!weatherData
+  });
+  
   // Initialize with default message type
   let messageType = 'default';
-  let contextData = {};
+  let contextData: any = {
+    timeOfDay: getTimeOfDay(),
+    weatherData
+  };
   
   // Check for events happening today (highest priority)
   if (todayEvents && todayEvents.length > 0) {
     messageType = 'event';
-    contextData = {
-      event: todayEvents[0],
-      weatherData
-    };
+    contextData.event = todayEvents[0];
   }
   // Otherwise check for important tasks (next priority)
   else if (tasks && tasks.length > 0) {
     messageType = 'task';
-    contextData = {
-      tasks,
-      weatherData
-    };
+    contextData.tasks = tasks;
   }
   // Otherwise check for upcoming events (third priority)
   else if (upcomingEvents && upcomingEvents.length > 0) {
     messageType = 'upcoming_event';
-    contextData = {
-      upcomingEvent: upcomingEvents[0],
-      weatherData
-    };
+    contextData.upcomingEvent = upcomingEvents[0];
   }
   // Weather-only message (fourth priority)
   else if (weatherData) {
     messageType = 'weather';
-    contextData = {
-      weatherData
-    };
-  }
-  // If nothing else, use default message
-  else {
-    contextData = {
-      currentTime: new Date().toISOString()
-    };
   }
   
   // Create the system prompt for OpenAI
   const systemPrompt = createSystemPrompt(messageType, contextData);
   
+  console.log(`Message type determined: ${messageType}`);
   return { messageType, contextData, systemPrompt };
 };
 
@@ -72,11 +63,9 @@ export const determineMessageContext = (
  * Create the system prompt for OpenAI based on the message context
  */
 const createSystemPrompt = (messageType: string, contextData: any) => {
-  const timeOfDay = getTimeOfDay();
-  const basePrompt = `You are an AI assistant for an event planning company. Write a friendly, personalized message for the user's dashboard. Always structure your message in 3 parts:
-1. Start with "Welcome to your dashboard."
-2. In the middle, include relevant information based on the context below.
-3. End with "Have a pleasant ${timeOfDay}!"
+  const timeOfDay = contextData.timeOfDay || getTimeOfDay();
+  const basePrompt = `You are an AI assistant for an event planning company. Write a friendly, personalized message for the user's dashboard. Always structure your message in exactly this format:
+"Welcome to your dashboard. [SPECIFIC CONTEXT INFORMATION]. Have a pleasant ${timeOfDay}!"
 
 Keep the entire message concise (under 150 characters). Don't add any prefixes like 'Good morning' (the UI will handle that).`;
   
@@ -105,24 +94,24 @@ Keep the entire message concise (under 150 characters). Don't add any prefixes l
     case 'weather':
       contextPrompt = `
         Focus on tomorrow's weather forecast: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
-        Provide a weather-appropriate suggestion for tomorrow.
+        Format your message as: "Welcome to your dashboard. Tomorrow's forecast shows [weather description] with a high of [temp]°C. Have a pleasant ${timeOfDay}!"
       `;
       break;
     default:
       contextPrompt = `
-        Provide a simple, friendly greeting to start the user's day.
+        Provide a simple, friendly greeting: "Welcome to your dashboard. Have a pleasant ${timeOfDay}!"
       `;
   }
   
-  // Always include weather data in all message types
-  if (contextData.weatherData && contextData.weatherData.description) {
-    if (messageType !== 'weather') {
-      contextPrompt += `
-        Also, include tomorrow's weather forecast: ${contextData.weatherData.description}, temperature: ${contextData.weatherData.temp}°C.
-      `;
-    }
+  // Always include weather data if available
+  if (contextData.weatherData && contextData.weatherData.description && messageType !== 'weather') {
+    contextPrompt += `
+      Also, include tomorrow's weather forecast in this format: 
+      "Tomorrow's forecast shows ${contextData.weatherData.description} with a high of ${contextData.weatherData.temp}°C"
+    `;
   }
   
+  console.log("Creating system prompt for message type:", messageType);
   return `${basePrompt}\n\n${contextPrompt}`;
 };
 
@@ -134,12 +123,15 @@ export const generatePersonalizedMessage = async (systemPrompt: string, contextD
     // Import the OpenAI service dynamically to avoid issues with Deno
     const { getChatCompletion } = await import('../../_shared/openai.ts');
     
+    console.log("Generating message with OpenAI using prompt:", systemPrompt.substring(0, 150) + "...");
+    
     // Generate the message using OpenAI
     const message = await getChatCompletion(systemPrompt);
     
     // If message couldn't be generated, return a fallback with weather if available
     if (!message) {
-      const timeOfDay = getTimeOfDay();
+      console.log("No message received from OpenAI, using fallback");
+      const timeOfDay = contextData.timeOfDay || getTimeOfDay();
       
       if (contextData.weatherData) {
         return `Welcome to your dashboard. Tomorrow's forecast shows ${contextData.weatherData.description} with a high of ${contextData.weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
@@ -148,10 +140,11 @@ export const generatePersonalizedMessage = async (systemPrompt: string, contextD
       return `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
     }
     
+    console.log("Generated message:", message);
     return message;
   } catch (error) {
     console.error("Error generating message with OpenAI:", error);
-    const timeOfDay = getTimeOfDay();
+    const timeOfDay = contextData.timeOfDay || getTimeOfDay();
     
     if (contextData.weatherData) {
       return `Welcome to your dashboard. Tomorrow's forecast shows ${contextData.weatherData.description} with a high of ${contextData.weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
@@ -191,10 +184,12 @@ export const prepareDashboardResponse = (
     response.upcomingEvents = upcomingEvents;
   }
   
+  // Always include weather data if available
   if (weatherData) {
     response.weatherData = weatherData;
   }
   
+  console.log("Prepared dashboard response with message type:", messageType);
   return response;
 };
 

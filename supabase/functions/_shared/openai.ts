@@ -11,6 +11,8 @@ export const getChatCompletion = async (systemPrompt: string) => {
   }
   
   try {
+    console.log("Making OpenAI request with system prompt:", systemPrompt.substring(0, 100) + "...");
+    
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -39,7 +41,9 @@ export const getChatCompletion = async (systemPrompt: string) => {
     }
     
     const data = await response.json();
-    return data.choices[0]?.message?.content;
+    const content = data.choices[0]?.message?.content;
+    console.log("Received content from OpenAI:", content);
+    return content;
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
     throw error;

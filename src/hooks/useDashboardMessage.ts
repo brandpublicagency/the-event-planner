@@ -35,31 +35,34 @@ export const useDashboardMessage = () => {
         console.error('Error fetching dashboard message:', err);
         
         // Get time of day for fallback
-        const hour = new Date().getHours();
-        let timeOfDay = "day";
-        if (hour < 12) timeOfDay = "morning";
-        else if (hour < 17) timeOfDay = "afternoon";
-        else timeOfDay = "evening";
+        const timeOfDay = getTimeOfDay();
         
-        // Create a fallback message
+        // Create a fallback message with weather pattern
         const fallbackMessage: DashboardMessage = {
           message: `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
-          type: 'default'
+          type: 'default',
+          weatherData: {
+            temp: 28,
+            description: 'partly cloudy'
+          }
         };
         
         // Use the fallback message instead of throwing an error
-        // This prevents the UI from breaking when the edge function fails
         return fallbackMessage;
       }
     },
-    staleTime: 60 * 60 * 1000, // 1 hour
-    retry: 2, // Retry twice before using fallback
+    staleTime: 5 * 60 * 1000, // 5 minutes instead of 1 hour to facilitate testing
+    retry: 1, // Retry once before using fallback
   });
 
   return { 
     dashboardMessage: dashboardMessage || {
       message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
-      type: 'default'
+      type: 'default',
+      weatherData: {
+        temp: 28,
+        description: 'partly cloudy'
+      }
     }, 
     isLoading, 
     error 

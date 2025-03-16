@@ -19,16 +19,21 @@ serve(async (req) => {
   try {
     // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
+      console.log("Handling OPTIONS request for CORS preflight");
       return new Response(null, { headers: corsHeaders });
     }
 
-    console.log("Dashboard message request received");
+    console.log("Dashboard message request received with method:", req.method);
 
     // Fetch all context data with better error handling
     let todayEvents = [];
     let tasks = [];
     let upcomingEvents = [];
     let weatherData = null;
+
+    // Check if OpenWeather API key is set
+    const openWeatherApiKey = Deno.env.get("OPENWEATHER_API_KEY");
+    console.log("OpenWeather API Key configured:", !!openWeatherApiKey);
 
     try {
       todayEvents = await fetchTodayEvents();
@@ -53,7 +58,7 @@ serve(async (req) => {
 
     try {
       weatherData = await fetchWeatherForecast();
-      console.log("Weather data fetched:", weatherData ? "success" : "failed");
+      console.log("Weather data fetched:", weatherData ? JSON.stringify(weatherData).substring(0, 100) + "..." : "failed");
     } catch (error) {
       console.error("Error fetching weather forecast:", error);
     }
@@ -72,7 +77,7 @@ serve(async (req) => {
     let message;
     try {
       message = await generatePersonalizedMessage(systemPrompt, contextData);
-      console.log("Message generated successfully");
+      console.log("Message generated successfully:", message);
     } catch (error) {
       console.error("Error generating message:", error);
       const timeOfDay = contextData.timeOfDay || "day";
@@ -82,6 +87,7 @@ serve(async (req) => {
       } else {
         message = `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
       }
+      console.log("Using fallback message:", message);
     }
     
     // Prepare the final response
@@ -94,7 +100,9 @@ serve(async (req) => {
       weatherData
     );
     
-    console.log("Responding with dashboard message");
+    console.log("Responding with dashboard message of type:", response.type);
+    console.log("Message includes weather data:", !!response.weatherData);
+    
     return createJsonResponse(response);
   } catch (error) {
     console.error("Error in dashboard message generation:", error);
