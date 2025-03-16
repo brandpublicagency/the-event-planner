@@ -21,10 +21,8 @@ const SidebarNavigation = ({
 }: SidebarNavigationProps) => {
   const location = useLocation();
   return <div className={cn("overflow-hidden", isCollapsed && "w-full flex flex-col items-center")}>
-      {sectionTitle && <div className={cn("text-xs font-medium mb-4", isCollapsed ? "text-center w-full" : "", "text-gray-500 uppercase tracking-wider px-3")}>
-          {sectionTitle}
-        </div>}
-      <nav className="my-[10px]">
+      {sectionTitle}
+      <nav className="my-[10px] py-0">
         {items.map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
