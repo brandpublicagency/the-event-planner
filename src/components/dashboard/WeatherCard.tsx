@@ -163,9 +163,16 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
         <div className="mb-2 flex justify-between items-start">
           <div>
             <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
-            <div className="flex items-center mt-1 text-xs text-white/90">
-              <MapPin className="h-3 w-3 mr-1" />
-              <span>{location}</span>
+            <div className="flex items-center mt-1 text-xs">
+              <div className="flex items-center text-white/90">
+                <MapPin className="h-3 w-3 mr-1" />
+                <span>{location}</span>
+              </div>
+              {/* Moved last updated indicator here */}
+              <div className="text-white/60 flex items-center ml-2 pl-2 border-l border-white/20">
+                <RefreshCcw className="h-2.5 w-2.5 mr-1" />
+                <span className="text-[10px]">Updated {getLastUpdated()}</span>
+              </div>
             </div>
           </div>
           
@@ -196,13 +203,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           </div>
         </div>
         
-        {/* Last Updated Indicator */}
-        <div className="mt-auto pt-2 flex justify-end items-center">
-          <div className="text-xs text-white/60 flex items-center">
-            <RefreshCcw className="h-3 w-3 mr-1" />
-            <span>Updated {getLastUpdated()}</span>
-          </div>
-        </div>
+        {/* Removed the last updated section from here */}
       </div>
     </div>
   );
