@@ -7,7 +7,6 @@ import { AppRoutes } from './routes/AppRoutes';
 import { TaskProvider } from './contexts/TaskContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ScheduledNotificationProvider } from './contexts/ScheduledNotificationContext';
-import { TestToast } from './components/TestToast';
 
 const queryClient = new QueryClient();
 
@@ -20,7 +19,6 @@ function App() {
           <NotificationProvider>
             <ScheduledNotificationProvider>
               <AppRoutes />
-              <TestToast />
               <Toaster />
             </ScheduledNotificationProvider>
           </NotificationProvider>
