@@ -1,3 +1,4 @@
+
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { AlertCircle } from "lucide-react";
 import WeatherCard from "./WeatherCard";
+
 const DashboardMessage = () => {
   const {
     dashboardMessage,
@@ -98,13 +100,15 @@ const DashboardMessage = () => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowFormatted = format(tomorrow, "EEEE, d MMMM yyyy").toUpperCase();
   return <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-      <Card className={`p-4 col-span-4 shadow-sm border ${borderColorClass} h-full bg-transparent rounded-xl`}>
-        <h2 className="font-semibold text-gray-800 text-xl">{personalizedGreeting}</h2>
-        
-        {error ? <div className="flex items-start space-x-3 text-amber-600 mt-2">
-            <AlertCircle className="h-5 w-5 mt-0.5" />
-            <p>Unable to load personalized updates. Check your connection and try again.</p>
-          </div> : <p className="text-gray-600 mt-1 text-sm">{dashboardMessage.message}</p>}
+      <Card className={`p-4 col-span-4 shadow-sm border ${borderColorClass} h-full bg-transparent rounded-xl flex flex-col justify-center`}>
+        <div className="flex flex-col justify-center">
+          <h2 className="font-semibold text-gray-800 text-xl">{personalizedGreeting}</h2>
+          
+          {error ? <div className="flex items-start space-x-3 text-amber-600 mt-2">
+              <AlertCircle className="h-5 w-5 mt-0.5" />
+              <p>Unable to load personalized updates. Check your connection and try again.</p>
+            </div> : <p className="text-gray-600 mt-1 text-sm">{dashboardMessage.message}</p>}
+        </div>
         
         <div className={`inline-block rounded-md px-3 py-1 mt-3 text-sm text-white/90 uppercase tracking-wide font-medium ${gradientClass}`}>
           {todayFormatted.toUpperCase()}
