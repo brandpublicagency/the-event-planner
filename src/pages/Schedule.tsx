@@ -1,6 +1,5 @@
 
 import { Header } from "@/components/layout/Header";
-import { Card } from "@/components/ui/card";
 
 const Schedule = () => {
   return (
@@ -13,7 +12,7 @@ const Schedule = () => {
       <div className="flex-1">
         <div className="w-full h-full">
           <iframe
-            src="https://cal.com/warmkaroo/site-visit?date=2025-03-17&embed=true"
+            src="https://cal.com/warmkaroo/management-booking?embed=true"
             width="100%"
             height="100%"
             frameBorder="0"
