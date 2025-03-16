@@ -19,19 +19,20 @@ export default function Events() {
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      // Get today's date at the start of the day in ISO format (YYYY-MM-DD)
+      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
       
       console.log("Today's ISO date for filtering:", todayIso);
+      console.log("Current date object:", today);
 
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
         .is('completed', false)  // Ensure only non-completed events are shown
-        .gte('event_date', todayIso) // Get today's and future events
+        .gt('event_date', todayIso) // Changed from gte to gt to exclude today's events
         .order('event_date', { ascending: true });
 
       if (error) {
@@ -50,6 +51,8 @@ export default function Events() {
       const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
       if (specificEvent) {
         console.log('EVENT-001-113 found in upcoming events:', specificEvent);
+      } else {
+        console.log('EVENT-001-113 NOT found in upcoming events');
       }
       
       return data || [];

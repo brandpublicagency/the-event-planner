@@ -22,18 +22,19 @@ const PassedEvents = () => {
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['passed-events'],
     queryFn: async () => {
-      // Get today's date in ISO format (YYYY-MM-DD)
+      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
       
       console.log("Today's ISO date for filtering passed events:", todayIso);
+      console.log("Current date object for passed events:", today);
       
       const { data, error } = await supabase
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .or(`completed.eq.true,event_date.lt.${todayIso}`)
+        .or(`completed.eq.true,event_date.lte.${todayIso}`) // Changed lt to lte to include today's events as passed
         .order('event_date', { ascending: false });
 
       if (error) {
@@ -51,6 +52,8 @@ const PassedEvents = () => {
       const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
       if (specificEvent) {
         console.log('EVENT-001-113 found in passed events:', specificEvent);
+      } else {
+        console.log('EVENT-001-113 NOT found in passed events');
       }
       
       return data as Event[];
