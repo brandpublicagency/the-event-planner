@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 
@@ -62,9 +61,22 @@ export const fetchNotificationData = async () => {
       }
       
       console.log('Fetched notifications after creating basic ones:', retryData);
-      notificationsData = retryData;
+      return formatNotifications(retryData);
     }
 
+    return formatNotifications(notificationsData);
+  } catch (err) {
+    console.error('Error in notification system:', err);
+    // Instead of throwing, return an empty array to not break the UI
+    return [];
+  }
+};
+
+/**
+ * Format notification data with templates if available
+ */
+const formatNotifications = async (notificationsData) => {
+  try {
     // Get notification templates separately
     const { data: templatesData, error: templatesError } = await supabase
       .from('notification_templates')
@@ -126,12 +138,21 @@ export const fetchNotificationData = async () => {
         relatedId: item.event_code
       };
     });
-  } catch (err) {
-    console.error('Error in notification system:', err);
-    // Instead of throwing, return an empty array to not break the UI
-    return [];
+  } catch (error) {
+    console.error('Error formatting notifications:', error);
+    // Provide a basic format if there's an error
+    return notificationsData.map(item => ({
+      id: item.id,
+      title: item.notification_type || 'Notification',
+      description: `Notification for ${item.events?.name || 'Event'}`,
+      createdAt: new Date(item.sent_at || item.created_at),
+      type: item.notification_type as any,
+      read: item.is_read,
+      actionType: 'review' as any,
+      relatedId: item.event_code
+    }));
   }
-};
+}
 
 /**
  * Creates some basic notification records if none exist
