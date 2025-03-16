@@ -1,12 +1,25 @@
 
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
+import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { CalendarClock, CheckSquare, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun, AlertCircle } from "lucide-react";
+import { 
+  CalendarClock, 
+  CheckSquare, 
+  Cloud, 
+  CloudDrizzle, 
+  CloudFog, 
+  CloudLightning, 
+  CloudRain, 
+  CloudSnow, 
+  Sun, 
+  AlertCircle 
+} from "lucide-react";
 
 const DashboardMessage = () => {
   const { dashboardMessage, isLoading, error } = useDashboardMessage();
+  const { profile, isLoading: isProfileLoading } = useProfile();
   
   // Determine greeting based on time of day
   const now = new Date();
@@ -20,7 +33,13 @@ const DashboardMessage = () => {
   // Format today's date
   const todayFormatted = format(now, "EEEE, MMMM d");
   
-  if (isLoading) {
+  // Get the user's first name to display in the greeting
+  const firstName = profile?.full_name?.split(' ')[0] || '';
+
+  // Combine greeting with user's name if available
+  const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
+  
+  if (isLoading || isProfileLoading) {
     return (
       <Card className="p-6 mb-6 bg-white shadow-sm">
         <Skeleton className="h-6 w-3/4" />
@@ -52,7 +71,7 @@ const DashboardMessage = () => {
     <Card className="p-6 mb-6 bg-white shadow-sm">
       <div className="flex flex-col space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-gray-800">{greeting}</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">{personalizedGreeting}</h2>
           <span className="text-sm text-gray-500">{todayFormatted}</span>
         </div>
         
@@ -62,8 +81,7 @@ const DashboardMessage = () => {
             <p>Unable to load personalized updates. Check your connection and try again.</p>
           </div>
         ) : (
-          <div className="flex items-start space-x-3">
-            <div className="mt-1">{icon}</div>
+          <div className="flex items-start">
             <p className="text-gray-700">{dashboardMessage.message}</p>
           </div>
         )}
