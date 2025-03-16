@@ -30,7 +30,7 @@ export function Toaster() {
             {...(showProgress && { progressDuration: duration || 5000 })}
             {...props}
           >
-            <div className="space-y-1">
+            <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
                 <ToastDescription>{description}</ToastDescription>

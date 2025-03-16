@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -90,6 +91,7 @@ export default function Events() {
       title: "Error",
       description: "Failed to load events. Please try again.",
       variant: "destructive",
+      position: "sidebar"
     });
   }
 
@@ -102,7 +104,8 @@ export default function Events() {
         title: "Deleting event...",
         description: "Please wait while the event is being deleted.",
         showProgress: true,
-        duration: 10000, // Longer duration for operation feedback
+        duration: 10000,
+        position: "sidebar"
       });
       
       await deleteEvent(eventCode);
@@ -113,6 +116,7 @@ export default function Events() {
         description: "Event has been successfully deleted",
         variant: "success",
         showProgress: true,
+        position: "sidebar"
       });
       
       // Refresh the events list
@@ -126,6 +130,7 @@ export default function Events() {
         title: "Error deleting event",
         description: error.message || "Failed to delete event. Please try again.",
         showProgress: true,
+        position: "sidebar"
       });
     }
   };
