@@ -1,14 +1,25 @@
 
+import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TestToastButton } from '@/components/ui/test-toast-button';
+import { Header } from '@/components/layout/Header';
+import { useNavigate } from 'react-router-dom';
 
 export default function DocumentsHeader() {
+  const navigate = useNavigate();
+  
+  const handleCreateDocument = () => {
+    navigate('/documents?newDocument=true');
+  };
+
   return (
-    <div className="flex items-center justify-between border-b px-6 py-3 bg-white dark:bg-gray-950">
-      <div className="font-semibold text-lg">Documents</div>
-      <div>
-        <TestToastButton />
-      </div>
-    </div>
+    <Header 
+      pageTitle="Documents"
+      actionButton={{
+        label: "New Document",
+        icon: <Plus className="h-4 w-4 mr-1" />,
+        onClick: handleCreateDocument,
+        variant: "default"
+      }}
+    />
   );
 }
