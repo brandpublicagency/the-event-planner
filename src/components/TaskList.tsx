@@ -8,8 +8,6 @@ import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
 import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface TaskListProps {
@@ -107,10 +105,6 @@ export function TaskList({
             <CheckSquare className="h-5 w-5 text-zinc-700" />
             <h3 className="text-lg font-medium text-zinc-900">Tasks</h3>
           </div>
-          <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full relative z-10">
-            <Plus className="h-4 w-4 mr-1.5" />
-            New Task
-          </Button>
         </div>
       )}
       
