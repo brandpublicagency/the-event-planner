@@ -1,11 +1,8 @@
 
 import React from 'react';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
 
 import { AppRoutes } from './routes/AppRoutes';
 import { TaskProvider } from './contexts/TaskContext';
@@ -23,6 +20,7 @@ function App() {
           <NotificationProvider>
             <ScheduledNotificationProvider>
               <AppRoutes />
+              <Toaster />
             </ScheduledNotificationProvider>
           </NotificationProvider>
         </TaskProvider>
