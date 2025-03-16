@@ -48,6 +48,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     setNotifications([]);
   }, []);
   
+  // Mark a notification as completed (optional)
+  const markAsCompleted = useCallback(async (id: string) => {
+    setNotifications(prev => 
+      prev.filter(notification => notification.id !== id)
+    );
+    return Promise.resolve();
+  }, []);
+  
   return (
     <NotificationContext.Provider 
       value={{ 
@@ -55,7 +63,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         unreadCount,
         markAsRead, 
         markAllAsRead,
-        clearNotifications
+        clearNotifications,
+        markAsCompleted
       }}
     >
       {children}

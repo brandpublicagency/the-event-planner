@@ -13,7 +13,8 @@ export function useNotificationSystem() {
   const { toast } = useToast();
   
   // Use separate hooks for specialized functionality
-  const { markAsRead, markAsCompleted } = useNotificationActions();
+  // Create a setNotifications function to pass to useNotificationActions
+  const { markAsRead, markAsCompleted } = useNotificationActions(setPendingNotifications);
   const { triggerNotificationProcessing } = useNotificationProcessing();
 
   // Fetch notifications from the database
