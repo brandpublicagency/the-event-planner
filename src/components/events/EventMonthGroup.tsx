@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,12 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
     return (
       <>
         {events.map(event => (
-          <DashboardEventItem key={event.event_code} event={event} handleDelete={handleDelete} />
+          <DashboardEventItem 
+            key={event.event_code} 
+            event={event} 
+            handleDelete={handleDelete} 
+            isDashboard={isDashboard} 
+          />
         ))}
       </>
     );

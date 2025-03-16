@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Users, Copy, Edit, Trash, Loader2 } from "lucide-react";
+import { MapPin, Users, Copy, Loader2 } from "lucide-react";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,11 +12,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface DashboardEventItemProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
+  isDashboard?: boolean;
 }
 
 export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   event,
-  handleDelete
+  handleDelete,
+  isDashboard = true // Default to true since this is DashboardEventItem
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,7 +31,8 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
       toast({
         title: "Copied to clipboard",
         description: `Event code ${event.event_code} copied to clipboard`,
-        duration: 3000
+        duration: 3000,
+        position: "sidebar"
       });
     }).catch(err => {
       console.error('Could not copy text: ', err);
@@ -37,7 +40,8 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
         variant: "destructive",
         title: "Failed to copy",
         description: "Could not copy event code to clipboard",
-        duration: 3000
+        duration: 3000,
+        position: "sidebar"
       });
     });
   };
@@ -106,21 +110,21 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
             </div>
           </div>
           
-          {/* Actions - vertical layout */}
-          <div className="flex flex-col justify-center px-3 border-l border-zinc-50">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={e => {
-                e.stopPropagation();
-                navigate(`/events/${event.event_code}/edit`);
-              }} 
-              className="h-8 w-8 rounded-full mb-1"
-            >
-              <Edit className="h-4 w-4 text-zinc-400" />
-            </Button>
-            
-            {handleDelete && (
+          {/* Actions column - only show if NOT on dashboard */}
+          {!isDashboard && handleDelete && (
+            <div className="flex flex-col justify-center px-3 border-l border-zinc-50">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={e => {
+                  e.stopPropagation();
+                  navigate(`/events/${event.event_code}/edit`);
+                }} 
+                className="h-8 w-8 rounded-full mb-1"
+              >
+                <Edit className="h-4 w-4 text-zinc-400" />
+              </Button>
+              
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
@@ -167,8 +171,8 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </button>
     </div>
