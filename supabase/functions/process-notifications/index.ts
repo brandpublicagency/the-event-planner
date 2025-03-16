@@ -33,6 +33,11 @@ serve(async (req: Request) => {
   }
 
   try {
+    console.log('Starting notification processing with URL:', SUPABASE_URL);
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Missing required environment variables for Supabase connection');
+    }
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     console.log('Processing scheduled notifications...');
 
@@ -66,56 +71,38 @@ serve(async (req: Request) => {
       throw notificationsError;
     }
 
+    // Debug log existing notifications
+    const { data: existingNotifications, error: existingError } = await supabase
+      .from('event_notifications')
+      .select('id, event_code, notification_type, scheduled_for, sent_at, is_read')
+      .not('sent_at', 'is', null)
+      .limit(5);
+
+    if (!existingError && existingNotifications) {
+      console.log(`Found ${existingNotifications.length} existing processed notifications for reference:`);
+      existingNotifications.forEach(n => {
+        console.log(`- ${n.notification_type} for ${n.event_code}, sent: ${n.sent_at}, read: ${n.is_read}`);
+      });
+    }
+
     if (!pendingNotifications || pendingNotifications.length === 0) {
       console.log('No pending notifications to process');
       
       // Check if there are any notifications that should have been created but weren't
       // This is useful to debug issues like the missing proforma_reminder
-      const { data: recentEvents, error: recentEventsError } = await supabase
-        .from('events')
-        .select('event_code, name, event_type, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5);
-        
-      if (recentEventsError) {
-        console.error('Error fetching recent events:', recentEventsError);
-      } else {
-        console.log(`Found ${recentEvents?.length || 0} recent events to check for missing notifications`);
-        
-        // For each recent event, check if all expected notifications were created
-        for (const event of recentEvents || []) {
-          console.log(`Checking notifications for event: ${event.name} (${event.event_code})`);
-          
-          const { data: eventNotifications, error: eventNotificationsError } = await supabase
-            .from('event_notifications')
-            .select('notification_type, scheduled_for, sent_at')
-            .eq('event_code', event.event_code);
-            
-          if (eventNotificationsError) {
-            console.error(`Error checking notifications for event ${event.event_code}:`, eventNotificationsError);
-            continue;
-          }
-          
-          console.log(`Found ${eventNotifications?.length || 0} notifications for event ${event.event_code}`);
-          
-          // Check which notification types are missing for this event
-          const existingTypes = new Set(eventNotifications?.map(n => n.notification_type) || []);
-          const expectedTypes = notificationTriggers?.map(t => t.template_type) || [];
-          
-          const missingTypes = expectedTypes.filter(type => !existingTypes.has(type));
-          if (missingTypes.length > 0) {
-            console.log(`Missing notification types for event ${event.event_code}: ${missingTypes.join(', ')}`);
-          }
-        }
-      }
+      await createMissingNotifications(supabase, notificationTriggers);
       
       return new Response(
-        JSON.stringify({ message: 'No pending notifications to process' }),
+        JSON.stringify({ 
+          message: 'No pending notifications to process',
+          created: 0,
+          processed: 0
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Found ${pendingNotifications.length} pending notifications`);
+    console.log(`Found ${pendingNotifications.length} pending notifications to process`);
 
     // Process each notification
     const results = await Promise.allSettled(
@@ -183,58 +170,13 @@ serve(async (req: Request) => {
       })
     );
 
-    // Check if any pro-forma notifications are missing and should be created
-    try {
-      const { data: recentEvents, error: recentEventsError } = await supabase
-        .from('events')
-        .select('event_code, name, event_type, primary_name, event_date, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (!recentEventsError && recentEvents && recentEvents.length > 0) {
-        console.log('Checking for missing pro-forma notifications...');
-        
-        for (const event of recentEvents) {
-          // Check if a pro-forma notification exists for this event
-          const { data: existingNotifications, error: notificationError } = await supabase
-            .from('event_notifications')
-            .select('id')
-            .eq('event_code', event.event_code)
-            .eq('notification_type', 'proforma_reminder')
-            .limit(1);
-            
-          if (notificationError) {
-            console.error(`Error checking proforma notification for event ${event.event_code}:`, notificationError);
-            continue;
-          }
-          
-          // If no pro-forma notification exists for this event, create one
-          if (!existingNotifications || existingNotifications.length === 0) {
-            console.log(`Creating missing pro-forma notification for event: ${event.name} (${event.event_code})`);
-            
-            const { error: insertError } = await supabase
-              .from('event_notifications')
-              .insert({
-                event_code: event.event_code,
-                notification_type: 'proforma_reminder',
-                scheduled_for: new Date().toISOString(), // Schedule it for immediate processing
-              });
-              
-            if (insertError) {
-              console.error(`Error creating proforma notification for event ${event.event_code}:`, insertError);
-            } else {
-              console.log(`Created proforma notification for event ${event.event_code}`);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error checking for missing pro-forma notifications:', error);
-    }
+    // Check for and create missing notifications
+    const createdCount = await createMissingNotifications(supabase, notificationTriggers);
 
     return new Response(
       JSON.stringify({ 
         processed: results.length,
+        created: createdCount,
         results 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -242,7 +184,14 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error('Error in processing notifications:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack,
+        environment: {
+          supabaseUrl: SUPABASE_URL ? 'Set' : 'Not Set',
+          serviceKey: SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not Set'
+        }
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -261,4 +210,71 @@ function processTemplate(template: NotificationTemplate, event: Event): string {
   description = description.replace(/{primary_contact}/g, event.primary_name || 'Client');
   
   return description;
+}
+
+// Function to check for and create missing notifications
+async function createMissingNotifications(supabase, notificationTriggers) {
+  try {
+    const { data: recentEvents, error: recentEventsError } = await supabase
+      .from('events')
+      .select('event_code, name, event_type, primary_name, event_date, created_at')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (recentEventsError) {
+      console.error('Error fetching recent events:', recentEventsError);
+      return 0;
+    }
+
+    console.log(`Checking ${recentEvents?.length || 0} recent events for missing notifications...`);
+    
+    let createdCount = 0;
+    
+    // For each recent event, create any missing notification types
+    for (const event of recentEvents || []) {
+      // Get existing notifications for this event
+      const { data: existingNotifications, error: notificationError } = await supabase
+        .from('event_notifications')
+        .select('notification_type')
+        .eq('event_code', event.event_code);
+        
+      if (notificationError) {
+        console.error(`Error checking notifications for event ${event.event_code}:`, notificationError);
+        continue;
+      }
+      
+      // Create a set of existing notification types
+      const existingTypes = new Set(existingNotifications?.map(n => n.notification_type) || []);
+      
+      // Always ensure the basic types exist - don't rely on triggers alone
+      const requiredTypes = ['event_created', 'proforma_reminder', 'event_incomplete'];
+      
+      for (const notificationType of requiredTypes) {
+        if (!existingTypes.has(notificationType)) {
+          console.log(`Creating missing ${notificationType} notification for event ${event.event_code}`);
+          
+          // Insert the notification
+          const { error: insertError } = await supabase
+            .from('event_notifications')
+            .insert({
+              event_code: event.event_code,
+              notification_type: notificationType,
+              scheduled_for: new Date().toISOString(),
+            });
+            
+          if (insertError) {
+            console.error(`Error creating ${notificationType} notification for event ${event.event_code}:`, insertError);
+          } else {
+            createdCount++;
+          }
+        }
+      }
+    }
+    
+    console.log(`Created ${createdCount} missing notifications`);
+    return createdCount;
+  } catch (error) {
+    console.error('Error creating missing notifications:', error);
+    return 0;
+  }
 }

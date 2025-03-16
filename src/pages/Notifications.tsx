@@ -29,6 +29,7 @@ const Notifications = () => {
     notifications,
     loading,
     error,
+    hasAttemptedFetch,
     handleViewEvent,
     handleMarkAllRead,
     handleCompleteTask,
@@ -39,15 +40,19 @@ const Notifications = () => {
 
   // Log notifications for debugging
   console.log('Current notifications:', notifications);
+  console.log('Loading state:', loading, 'Has attempted fetch:', hasAttemptedFetch);
   
-  // Only trigger processing when there are no notifications and no errors
+  // Only trigger processing once when there are no notifications, no errors, and we've completed a fetch
   useEffect(() => {
-    // Only trigger if there are no notifications and we're not already loading
-    if (notifications.length === 0 && !loading && !error) {
-      console.log('No notifications found, triggering processing...');
-      handleRefresh(); // Use handleRefresh instead of triggering processing to avoid errors
+    // Only trigger if there are no notifications, we're not already loading, we have attempted a fetch, and there's no error
+    if (notifications.length === 0 && !loading && hasAttemptedFetch && !error) {
+      console.log('No notifications found after fetching, triggering processing once...');
+      // Using a more controlled approach with a flag to prevent multiple triggers
+      handleTriggerProcess().catch(err => {
+        console.error('Error triggering notification process:', err);
+      });
     }
-  }, [notifications.length, loading, error, handleRefresh]);
+  }, [hasAttemptedFetch, notifications.length, loading, error, handleTriggerProcess]);
 
   return (
     <div className="flex flex-col h-full">

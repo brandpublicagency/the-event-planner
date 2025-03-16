@@ -49,6 +49,21 @@ export const fetchNotificationData = async () => {
       throw new Error(templatesError.message);
     }
 
+    if (!templatesData || templatesData.length === 0) {
+      console.log('No notification templates found in database');
+      // Return basic notifications without template data
+      return notificationsData.map(item => ({
+        id: item.id,
+        title: 'Notification',
+        description: `${item.notification_type} for ${item.events?.name || 'Event'}`,
+        createdAt: new Date(item.sent_at || item.created_at),
+        type: item.notification_type as any,
+        read: item.is_read,
+        actionType: 'review' as any,
+        relatedId: item.event_code
+      }));
+    }
+
     // Create a map of templates for easy lookup
     const templatesMap = templatesData.reduce((acc, template) => {
       acc[template.type] = template;
@@ -66,9 +81,9 @@ export const fetchNotificationData = async () => {
       
       // Safely replace template placeholders
       try {
-        description = description.replace('{event_name}', item.events?.name || 'Untitled Event');
-        description = description.replace('{event_type}', item.events?.event_type || 'Event');
-        description = description.replace('{primary_contact}', item.events?.primary_name || 'Client');
+        description = description.replace(/{event_name}/g, item.events?.name || 'Untitled Event');
+        description = description.replace(/{event_type}/g, item.events?.event_type || 'Event');
+        description = description.replace(/{primary_contact}/g, item.events?.primary_name || 'Client');
       } catch (e) {
         console.error('Error processing notification template:', e);
       }

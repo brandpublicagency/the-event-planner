@@ -11,6 +11,7 @@ export function useNotificationSystem() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const { toast } = useToast();
   
   // Use separate hooks for specialized functionality
@@ -25,6 +26,7 @@ export function useNotificationSystem() {
       setError(null);
       const formattedNotifications = await fetchNotificationData();
       setPendingNotifications(formattedNotifications);
+      setHasAttemptedFetch(true);
     } catch (err) {
       console.error('Error in notification system:', err);
       setError(err instanceof Error ? err : new Error('Failed to load notifications'));
@@ -33,6 +35,8 @@ export function useNotificationSystem() {
         description: 'There was a problem fetching your notifications.',
         variant: 'destructive',
       });
+      // Still mark as attempted even if there was an error
+      setHasAttemptedFetch(true);
     } finally {
       setLoading(false);
     }
@@ -108,6 +112,7 @@ export function useNotificationSystem() {
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,
     refreshNotifications: fetchNotifications,
-    triggerNotificationProcessing
+    triggerNotificationProcessing,
+    hasAttemptedFetch
   };
 }
