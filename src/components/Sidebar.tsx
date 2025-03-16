@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -157,9 +156,6 @@ const Sidebar = ({
       <div className="flex flex-col h-full">
         <SidebarProfile isCollapsed={isCollapsed} />
         
-        {/* Add SidebarToasts component here, between profile and navigation */}
-        <SidebarToasts isCollapsed={isCollapsed} />
-        
         <div className={cn(
           "flex-1 overflow-y-auto overflow-x-hidden py-4",
           isCollapsed ? "px-2" : "px-3"
@@ -169,6 +165,9 @@ const Sidebar = ({
             items={mainNavItems} 
           />
         </div>
+        
+        {/* Toast notifications positioned above action buttons */}
+        <SidebarToasts isCollapsed={isCollapsed} />
         
         <div className={cn(
           "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-3 pb-4",

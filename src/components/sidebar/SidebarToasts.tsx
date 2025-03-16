@@ -1,261 +1,90 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { 
-  LayoutGrid, 
-  FileText, 
-  Archive, 
-  Wallet, 
-  ListTodo, 
-  Users, 
-  Plus, 
-  FilePlus, 
-  CheckSquare, 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar 
-} from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { useLocation, useNavigate } from "react-router-dom";
-import SidebarProfile from "./sidebar/SidebarProfile";
-import SidebarNavigation from "./sidebar/SidebarNavigation";
-import { SidebarToasts } from "./sidebar/SidebarToasts";
-import { motion } from "framer-motion";
+  Toast, 
+  ToastClose, 
+  ToastDescription, 
+  ToastTitle
+} from "@/components/ui/toast";
+import { AnimatePresence, motion } from "framer-motion";
+import { Bell, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react";
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SidebarToastsProps {
   isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-const Sidebar = ({
-  className,
-  isCollapsed,
-  setIsCollapsed
-}: SidebarProps) => {
-  const { toast } = useToast();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const getGradientByPath = () => {
-    switch (location.pathname) {
-      case '/':
-        return 'bg-gradient-to-br from-blue-50 via-indigo-50/80 to-sky-100 backdrop-blur-sm border-r border-blue-100/50';
-      case '/events':
-        return 'bg-gradient-to-br from-emerald-50 via-green-50/80 to-teal-100 backdrop-blur-sm border-r border-emerald-100/50';
-      case '/passed-events':
-        return 'bg-gradient-to-br from-violet-50 via-purple-50/80 to-fuchsia-100 backdrop-blur-sm border-r border-violet-100/50';
-      case '/calendar':
-        return 'bg-gradient-to-br from-rose-50 via-pink-50/80 to-red-100 backdrop-blur-sm border-r border-rose-100/50';
-      case '/tasks':
-        return 'bg-gradient-to-br from-amber-50 via-yellow-50/80 to-orange-100 backdrop-blur-sm border-r border-amber-100/50';
-      case '/contacts':
-        return 'bg-gradient-to-br from-orange-50 via-orange-50/80 to-amber-100 backdrop-blur-sm border-r border-orange-100/50';
-      case '/documents':
-        return 'bg-gradient-to-br from-cyan-50 via-sky-50/80 to-blue-100 backdrop-blur-sm border-r border-cyan-100/50';
-      case '/schedule':
-        return 'bg-gradient-to-br from-purple-50 via-indigo-50/80 to-violet-100 backdrop-blur-sm border-r border-purple-100/50';
-      default:
-        return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
-    }
-  };
-
-  const { data: taskCount = 0 } = useQuery({
-    queryKey: ['taskCount'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('tasks')
-        .select('*', {
-          count: 'exact',
-          head: true
-        })
-        .eq('completed', false);
-      
-      if (error) throw error;
-      return count || 0;
-    }
-  });
-
-  const mainNavItems = [
-    {
-      icon: LayoutGrid,
-      path: "/",
-      label: "Dashboard"
-    }, 
-    {
-      icon: FileText,
-      path: "/events",
-      label: "Events"
-    }, 
-    {
-      icon: Archive,
-      path: "/passed-events",
-      label: "Passed Events"
-    }, 
-    {
-      icon: Wallet,
-      path: "/calendar",
-      label: "Calendar"
-    }, 
-    {
-      icon: ListTodo,
-      path: "/tasks",
-      label: "To-do list",
-      badge: taskCount > 0 ? taskCount : undefined
-    }, 
-    {
-      icon: Users,
-      path: "/contacts",
-      label: "Contacts"
-    }, 
-    {
-      icon: FileText,
-      path: "/documents",
-      label: "Documents"
-    }, 
-    {
-      icon: Calendar,
-      path: "/schedule",
-      label: "Schedule Meeting"
-    }
-  ];
-
-  const handleAddDocument = () => {
-    if (location.pathname === '/documents') {
-      if (location.search.includes('newDocument=true')) {
-        return;
-      }
-      navigate('/documents?newDocument=true', {
-        replace: true
-      });
-    } else {
-      navigate('/documents?newDocument=true');
-    }
-  };
-
-  const sidebarVariants = {
-    expanded: { width: 256 },
-    collapsed: { width: 70 }
-  };
-
+export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
+  const { toast, toasts } = useToast();
+  
+  // Safely check if toasts exist and is an array
+  if (!toasts || !Array.isArray(toasts) || toasts.length === 0) {
+    return null;
+  }
+  
+  // Only show a limited number of toasts in the sidebar
+  const visibleToasts = toasts.slice(0, 2);
+  
   return (
-    <motion.div 
-      className={cn(
-        "relative h-full transition-all duration-300 ease-in-out overflow-hidden",
-        getGradientByPath(),
-        className
-      )}
-      initial={isCollapsed ? "collapsed" : "expanded"}
-      animate={isCollapsed ? "collapsed" : "expanded"}
-      variants={sidebarVariants}
-      transition={{ 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30 
-      }}
-    >
-      <div className="flex flex-col h-full">
-        <SidebarProfile isCollapsed={isCollapsed} />
-        
-        <div className={cn(
-          "flex-1 overflow-y-auto overflow-x-hidden py-4",
-          isCollapsed ? "px-2" : "px-3"
-        )}>
-          <SidebarNavigation 
-            isCollapsed={isCollapsed} 
-            items={mainNavItems} 
-          />
-        </div>
-        
-        {/* Toast notifications positioned above action buttons */}
-        <SidebarToasts isCollapsed={isCollapsed} />
-        
-        <div className={cn(
-          "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-3 pb-4",
-          isCollapsed ? "px-2" : "px-3"
-        )}>
-          <div className={cn(
-            "flex",
-            isCollapsed ? "flex-col items-center gap-3" : "flex-col gap-1"
-          )}>
-            {/* Quick action buttons */}
-            {isCollapsed ? (
-              <>
-                <button 
-                  onClick={() => navigate('/events/new')} 
-                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
-                  title="Add Event"
+    <div className={cn(
+      "relative py-2",
+      isCollapsed ? "px-2" : "px-3"
+    )}>
+      <AnimatePresence>
+        {visibleToasts.map((toast) => {
+          if (!toast || !toast.id) return null;
+          
+          const { id, title, description, variant } = toast;
+          
+          // Choose icon based on variant
+          let IconComponent = InfoIcon;
+          if (variant === "destructive") IconComponent = AlertCircle;
+          else if (variant === "success") IconComponent = CheckCircle2;
+          
+          return (
+            <motion.div
+              key={id}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mb-2"
+            >
+              {isCollapsed ? (
+                // Collapsed sidebar - show just an icon
+                <div 
+                  className={cn(
+                    "w-10 h-10 rounded-md p-0 flex items-center justify-center relative",
+                    variant === "destructive" ? "bg-red-100 text-red-700" : 
+                    variant === "success" ? "bg-green-100 text-green-700" : 
+                    "bg-blue-100 text-blue-700"
+                  )}
                 >
-                  <Plus className="h-5 w-5 transition-transform group-hover:scale-110" />
-                </button>
-                
-                <button 
-                  onClick={() => navigate('/tasks?newTask=true')} 
-                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
-                  title="Add Task"
+                  <IconComponent className="h-5 w-5" />
+                </div>
+              ) : (
+                // Expanded sidebar - show full toast
+                <div 
+                  className={cn(
+                    "w-full rounded-md px-3 py-2 relative",
+                    variant === "destructive" ? "bg-red-100 text-red-700" : 
+                    variant === "success" ? "bg-green-100 text-green-700" : 
+                    "bg-blue-100 text-blue-700"
+                  )}
                 >
-                  <CheckSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
-                </button>
-                
-                <button 
-                  onClick={handleAddDocument} 
-                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
-                  title="Add Document"
-                >
-                  <FilePlus className="h-5 w-5 transition-transform group-hover:scale-110" />
-                </button>
-                
-                <div className="my-2 w-8 border-t border-gray-200/50"></div>
-                
-                <button 
-                  onClick={() => setIsCollapsed(!isCollapsed)} 
-                  className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
-                  title="Expand Sidebar"
-                >
-                  <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
-                </button>
-              </>
-            ) : (
-              <>
-                <button 
-                  onClick={() => navigate('/events/new')} 
-                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
-                >
-                  <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
-                  <span className="text-sm font-medium">Add Event</span>
-                </button>
-                
-                <button 
-                  onClick={() => navigate('/tasks?newTask=true')} 
-                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
-                >
-                  <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
-                  <span className="text-sm font-medium">Add Task</span>
-                </button>
-                
-                <button 
-                  onClick={handleAddDocument} 
-                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
-                >
-                  <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
-                  <span className="text-sm font-medium">Add Document</span>
-                </button>
-                
-                <div className="my-2 border-t border-gray-200/50"></div>
-                
-                <button 
-                  onClick={() => setIsCollapsed(!isCollapsed)} 
-                  className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
-                >
-                  <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-                  <span className="text-sm font-medium">Collapse Sidebar</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </motion.div>
+                  <div className="flex items-start gap-2">
+                    <IconComponent className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      {title && <div className="text-sm font-medium">{title}</div>}
+                      {description && <div className="text-xs opacity-90">{description}</div>}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    </div>
   );
-};
-
-export default Sidebar;
+}
