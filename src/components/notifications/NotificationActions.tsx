@@ -26,9 +26,9 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
         View
       </Button>
       <Button 
-        variant="success" 
+        variant="outline" 
         size="sm" 
-        className="text-xs h-7 px-2 flex items-center gap-1"
+        className="text-xs h-7 px-2 flex items-center gap-1 text-black border border-green-500 hover:bg-green-500 hover:text-white transition-colors"
         onClick={(e) => onComplete(notification, e)}
       >
         <Check className="h-3 w-3" />
