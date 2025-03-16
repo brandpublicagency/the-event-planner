@@ -43,7 +43,8 @@ export const useDashboardMessage = () => {
           type: 'default',
           weatherData: {
             temp: 28,
-            description: 'partly cloudy'
+            description: 'partly cloudy',
+            condition: 'Clouds'
           }
         };
         
@@ -61,7 +62,8 @@ export const useDashboardMessage = () => {
       type: 'default',
       weatherData: {
         temp: 28,
-        description: 'partly cloudy'
+        description: 'partly cloudy',
+        condition: 'Clouds'
       }
     }, 
     isLoading, 
