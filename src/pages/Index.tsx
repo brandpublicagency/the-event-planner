@@ -208,9 +208,9 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="overflow-auto max-h-[400px]">
+              <div className="h-auto">
                 <NotificationsList 
-                  notifications={notifications.slice(0, 5)} 
+                  notifications={notifications.slice(0, 3)} 
                   onViewDetail={handleNotificationView}
                   onCompleteTask={handleNotificationComplete}
                 />

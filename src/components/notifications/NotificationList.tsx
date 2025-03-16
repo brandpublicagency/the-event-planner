@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Notification } from "@/types/notification";
 import { NotificationItem } from "./NotificationItem";
