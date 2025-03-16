@@ -1,11 +1,12 @@
 
 export type NotificationType = 
   | "event_created" 
-  | "event_created_unified"  // New unified notification type
+  | "event_created_unified"  // Unified notification type
   | "task_overdue" 
   | "task_upcoming" 
   | "event_incomplete"
   | "proforma_reminder" 
+  | "final_payment_reminder"  // Added new notification type for final payments
   | "task_created";
 
 export interface Notification {

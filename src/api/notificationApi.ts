@@ -192,6 +192,8 @@ const formatNotificationTitle = (notificationType: string | null): string => {
       return 'Upcoming Task';
     case 'task_created':
       return 'New Task Created';
+    case 'final_payment_reminder':
+      return 'Final Payment Reminder';
     default:
       // Format other types by converting snake_case to Title Case
       return notificationType

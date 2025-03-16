@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.5';
 
@@ -306,14 +307,20 @@ async function createMissingNotifications(supabase, notificationTriggers) {
       trigger.template_type === 'event_created_unified'
     );
     
+    // Look up the final payment reminder trigger
+    const paymentReminderTrigger = notificationTriggers.find(trigger => 
+      trigger.template_type === 'final_payment_reminder'
+    );
+    
     console.log('Found unified trigger:', unifiedTrigger ? 'yes' : 'no');
+    console.log('Found payment reminder trigger:', paymentReminderTrigger ? 'yes' : 'no');
     
     // Required notification types that should exist for each event
-    // Note: We now have 'event_created_unified' instead of the separate ones
     const requiredTypes = [
-      'event_created_unified', // This is our new unified type
+      'event_created_unified', // Unified type
       'event_incomplete',      // Keep this one
-      'proforma_reminder'      // Keep this as a separate reminder for 14 days before
+      'proforma_reminder',     // Keep this as a separate reminder for 14 days before
+      'final_payment_reminder' // Add the new final payment reminder type
     ];
     
     // For each event, create any missing notifications
@@ -407,6 +414,12 @@ async function createMissingNotifications(supabase, notificationTriggers) {
             scheduledFor = reminderDate.toISOString();
           } else if (notificationType === 'event_incomplete' && event.event_date) {
             // Event incomplete reminders scheduled 7 days before event
+            const eventDate = new Date(event.event_date);
+            const reminderDate = new Date(eventDate);
+            reminderDate.setDate(eventDate.getDate() - 7);
+            scheduledFor = reminderDate.toISOString();
+          } else if (notificationType === 'final_payment_reminder' && event.event_date) {
+            // Final payment reminders scheduled 7 days before event
             const eventDate = new Date(event.event_date);
             const reminderDate = new Date(eventDate);
             reminderDate.setDate(eventDate.getDate() - 7);
