@@ -20,7 +20,7 @@ export const fetchTodayEvents = async () => {
       .is("deleted_at", null)
       .eq("completed", false)
       .order("start_time", { ascending: true })
-      .limit(1);
+      .limit(3); // Get up to 3 events for today for more context
     
     if (error) {
       console.error("Error fetching today's events:", error);
@@ -51,7 +51,7 @@ export const fetchTasks = async () => {
       .eq("completed", false)
       .lte("due_date", todayStr)
       .order("priority", { ascending: true })
-      .limit(3);
+      .limit(5); // Get up to 5 tasks for more context
     
     if (error) {
       console.error("Error fetching tasks:", error);
@@ -87,7 +87,7 @@ export const fetchUpcomingEvents = async () => {
       .is("deleted_at", null)
       .eq("completed", false)
       .order("event_date", { ascending: true })
-      .limit(1);
+      .limit(3); // Get up to 3 upcoming events for more context
     
     if (error) {
       console.error("Error fetching upcoming events:", error);

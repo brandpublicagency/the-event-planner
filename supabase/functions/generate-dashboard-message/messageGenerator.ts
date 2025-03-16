@@ -1,3 +1,4 @@
+
 import { format } from "https://esm.sh/date-fns@2.30.0";
 
 export interface DashboardMessage {
@@ -76,19 +77,26 @@ Keep the entire message concise (under 150 characters). Don't add any prefixes l
       contextPrompt = `
         Today, there is an event: "${contextData.event.name}" (${contextData.event.event_type}). 
         Mention this event happening today and include a relevant detail like the venue, time, or number of guests (${contextData.event.pax} people).
+        Make the message enthusiastic and action-oriented, since this is happening today.
       `;
       break;
     case 'task':
       contextPrompt = `
         The user has ${contextData.tasks.length} important tasks to complete. 
         Mention the most important task first: "${contextData.tasks[0].title}".
-        Encourage the user to stay on top of their tasks.
+        Use urgent but supportive language to encourage the user to stay on top of their tasks.
       `;
       break;
     case 'upcoming_event':
+      const eventDate = new Date(contextData.upcomingEvent.event_date);
+      const today = new Date();
+      const diffTime = Math.abs(eventDate.getTime() - today.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
       contextPrompt = `
         The next upcoming event is "${contextData.upcomingEvent.name}" (${contextData.upcomingEvent.event_type}).
-        Mention this upcoming event and when it's happening.
+        It's happening in ${diffDays} days on ${format(eventDate, 'EEEE, MMMM d')}.
+        Make the message focus on preparation and planning for this upcoming event.
       `;
       break;
     case 'weather':
@@ -99,7 +107,9 @@ Keep the entire message concise (under 150 characters). Don't add any prefixes l
       break;
     default:
       contextPrompt = `
-        Provide a simple, friendly greeting: "Welcome to your dashboard. Have a pleasant ${timeOfDay}!"
+        Provide a simple, motivational greeting about planning successful events, and being ready for the day ahead.
+        Vary your message with each call - do not use generic statements repeatedly.
+        Some examples of context you can use: preparing for success, creating memorable experiences, attention to detail, teamwork, etc.
       `;
   }
   
