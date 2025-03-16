@@ -41,7 +41,8 @@ export function useScheduledNotifications(
                 : "You have a new notification to review",
               variant: "info",
               showProgress: true,
-              duration: 5000
+              duration: 5000,
+              position: "sidebar" // Set position to sidebar
             });
             
             // Call the callback to refresh notifications

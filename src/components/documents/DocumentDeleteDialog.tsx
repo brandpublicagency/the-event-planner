@@ -59,6 +59,7 @@ export function DocumentDeleteDialog({
       toast({
         title: "Document deleted",
         description: `The document "${documentTitle || 'Untitled'}" has been deleted.`,
+        position: "sidebar" // Set position to sidebar
       });
       
       if (onDeleteComplete) {
@@ -76,6 +77,7 @@ export function DocumentDeleteDialog({
         title: "Error deleting document",
         description: error.message,
         variant: "destructive",
+        position: "sidebar" // Set position to sidebar
       });
     },
   });

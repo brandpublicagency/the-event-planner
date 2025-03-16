@@ -43,7 +43,8 @@ export function useRealTimeNotifications() {
               description,
               variant: "info",
               showProgress: true,
-              duration: 5000
+              duration: 5000,
+              position: "sidebar" // Set position to sidebar
             });
             
             // Also trigger browser notification if supported
@@ -81,6 +82,7 @@ export function useRealTimeNotifications() {
             description: "A new notification has been created",
             variant: "default",
             showProgress: true,
+            position: "sidebar" // Set position to sidebar
           });
         }
       )

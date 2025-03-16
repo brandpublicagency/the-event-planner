@@ -21,6 +21,7 @@ export function TestToastButton() {
       variant: variant.variant as any,
       showProgress: true,
       duration: 5000,
+      position: "sidebar" // Set position to sidebar
     });
   };
   

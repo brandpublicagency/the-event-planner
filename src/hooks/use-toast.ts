@@ -147,6 +147,9 @@ interface ToastOptions extends Partial<ToasterToast> {
 function toast(options: ToastOptions) {
   const id = genId()
 
+  // Default position to sidebar instead of default
+  const position = options.position ?? "sidebar"
+
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
@@ -158,6 +161,7 @@ function toast(options: ToastOptions) {
     type: "ADD_TOAST",
     toast: {
       ...options,
+      position,
       id,
       open: true,
       onOpenChange: (open) => {
