@@ -1,14 +1,13 @@
 
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardMessage {
   message: string;
-  type: 'event' | 'holiday' | 'task' | 'upcoming_event' | 'motivational' | 'default';
+  type: 'event' | 'task' | 'upcoming_event' | 'weather' | 'default';
   eventDetails?: any;
   tasks?: any[];
-  holidayName?: string;
+  weatherData?: any;
 }
 
 export const useDashboardMessage = () => {

@@ -4,10 +4,9 @@ import { corsHeaders } from "../_shared/cors.ts";
 import { createJsonResponse, createErrorResponse } from "../_shared/response.ts";
 import { 
   fetchTodayEvents,
-  fetchHolidays,
   fetchTasks,
   fetchUpcomingEvents,
-  fetchMotivationalMessages
+  fetchWeatherForecast
 } from "./dataFetcher.ts";
 import { 
   determineMessageContext,
@@ -25,18 +24,16 @@ serve(async (req) => {
 
     // Fetch all context data
     const todayEvents = await fetchTodayEvents();
-    const holidays = await fetchHolidays();
     const tasks = await fetchTasks();
     const upcomingEvents = await fetchUpcomingEvents();
-    const motivationalMessages = await fetchMotivationalMessages();
+    const weatherData = await fetchWeatherForecast();
     
     // Determine message type and prepare context for OpenAI
     const { messageType, contextData, systemPrompt } = determineMessageContext(
       todayEvents,
-      holidays,
       tasks,
       upcomingEvents,
-      motivationalMessages
+      weatherData
     );
     
     // Generate the personalized message
@@ -47,9 +44,9 @@ serve(async (req) => {
       message,
       messageType,
       todayEvents,
-      holidays,
       tasks,
-      upcomingEvents
+      upcomingEvents,
+      weatherData
     );
     
     return createJsonResponse(response);

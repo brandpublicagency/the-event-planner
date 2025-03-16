@@ -4,10 +4,10 @@ import { format } from "https://esm.sh/date-fns@2.30.0";
 
 export interface DashboardMessage {
   message: string;
-  type: 'event' | 'holiday' | 'task' | 'upcoming_event' | 'motivational' | 'default';
+  type: 'event' | 'task' | 'upcoming_event' | 'weather' | 'default';
   eventDetails?: any;
   tasks?: any[];
-  holidayName?: string;
+  weatherData?: any;
 }
 
 /**
@@ -15,10 +15,9 @@ export interface DashboardMessage {
  */
 export const determineMessageContext = (
   todayEvents: any[], 
-  holidays: any[], 
   tasks: any[], 
   upcomingEvents: any[],
-  motivationalMessages: any[]
+  weatherData: any
 ) => {
   const today = new Date();
   let messageType = 'default';
@@ -40,25 +39,15 @@ export const determineMessageContext = (
         start_time: event.start_time ? formatTime(event.start_time) : 'Not specified',
         pax: event.pax || 'Not specified',
         client_name: event.primary_name || 'the client'
-      }
+      },
+      weather: weatherData ? {
+        temp: weatherData.temp,
+        condition: weatherData.condition,
+        description: weatherData.description
+      } : null
     };
     
-    systemPrompt += "\n\nToday there is an event happening that requires attention. For weddings, mention the couple's names (if available) and express excitement about their special day. For corporate events, emphasize professionalism and readiness. For other events, highlight the importance of making the event successful and memorable for the client. Mention specific details like the event name, venue, start time, or number of guests to make the message feel personalized. Convey a sense of excitement and readiness.";
-  } else if (holidays && holidays.length > 0) {
-    messageType = 'holiday';
-    const holiday = holidays[0];
-    
-    contextData = {
-      holiday: holiday,
-      message_type: 'holiday',
-      time_of_day: getTimeOfDay(),
-      holiday_details: {
-        name: holiday.holiday_name,
-        message: holiday.message_text
-      }
-    };
-    
-    systemPrompt += "\n\nToday is a holiday. Mention the holiday name specifically and add a brief relevant message for the occasion. Make it festive and celebratory while acknowledging that the user might still be checking their dashboard on a holiday. Express appreciation for their dedication.";
+    systemPrompt += "\n\nToday there is an event happening that requires attention. For weddings, mention the couple's names (if available) and express excitement about their special day. For corporate events, emphasize professionalism and readiness. For other events, highlight the importance of making the event successful and memorable for the client. Mention specific details like the event name, venue, start time, or number of guests to make the message feel personalized. Convey a sense of excitement and readiness. If weather data is available, mention tomorrow's weather forecast briefly, especially if it might impact the event.";
   } else if (tasks && tasks.length > 0) {
     messageType = 'task';
     
@@ -76,10 +65,15 @@ export const determineMessageContext = (
       time_of_day: getTimeOfDay(),
       task_count: tasks.length,
       task_details: taskDetails,
-      highest_priority: getHighestPriority(tasks)
+      highest_priority: getHighestPriority(tasks),
+      weather: weatherData ? {
+        temp: weatherData.temp,
+        condition: weatherData.condition,
+        description: weatherData.description
+      } : null
     };
     
-    systemPrompt += "\n\nThere are priority tasks that need attention. Mention how many tasks are pending and emphasize the importance of the highest priority ones. If any tasks are overdue, gently emphasize their urgency without sounding demanding. Be encouraging and supportive, suggesting that tackling these tasks will lead to a more productive day. Mention a specific task by name to make the message feel more personalized.";
+    systemPrompt += "\n\nThere are priority tasks that need attention. Mention how many tasks are pending and emphasize the importance of the highest priority ones. If any tasks are overdue, gently emphasize their urgency without sounding demanding. Be encouraging and supportive, suggesting that tackling these tasks will lead to a more productive day. Mention a specific task by name to make the message feel more personalized. If weather data is available, mention tomorrow's weather forecast briefly at the end of the message.";
   } else if (upcomingEvents && upcomingEvents.length > 0) {
     messageType = 'upcoming_event';
     const event = upcomingEvents[0];
@@ -100,25 +94,31 @@ export const determineMessageContext = (
         venue: event.venues && event.venues.length > 0 ? event.venues.join(', ') : 'Not specified',
         client_name: event.primary_name || 'the client',
         pax: event.pax || 'Not specified'
+      },
+      weather: weatherData ? {
+        temp: weatherData.temp,
+        condition: weatherData.condition,
+        description: weatherData.description
+      } : null
+    };
+    
+    systemPrompt += "\n\nThere is an upcoming event in the next few days. Emphasize preparation and planning for this specific event. Mention the event by name, the exact date, and how many days away it is to create a sense of timeline. If it's very soon (1-2 days away), create a sense of gentle urgency. Suggest that early preparation will lead to a successful event. Mention specific details like the venue or client name to make the message feel personalized. If weather data is available, mention tomorrow's weather forecast briefly, especially if it might impact the event preparation.";
+  } else if (weatherData) {
+    messageType = 'weather';
+    
+    contextData = {
+      message_type: 'weather',
+      time_of_day: getTimeOfDay(),
+      day_of_week: format(today, 'EEEE'),
+      date: format(today, 'MMMM d, yyyy'),
+      weather: {
+        temp: weatherData.temp,
+        condition: weatherData.condition,
+        description: weatherData.description
       }
     };
     
-    systemPrompt += "\n\nThere is an upcoming event in the next few days. Emphasize preparation and planning for this specific event. Mention the event by name, the exact date, and how many days away it is to create a sense of timeline. If it's very soon (1-2 days away), create a sense of gentle urgency. Suggest that early preparation will lead to a successful event. Mention specific details like the venue or client name to make the message feel personalized.";
-  } else if (motivationalMessages && motivationalMessages.length > 0) {
-    messageType = 'motivational';
-    
-    // Select a random motivational message
-    const randomIndex = Math.floor(Math.random() * motivationalMessages.length);
-    const message = motivationalMessages[randomIndex];
-    
-    contextData = {
-      motivational_message: message,
-      message_type: 'motivational',
-      time_of_day: getTimeOfDay(),
-      day_of_week: format(today, 'EEEE')
-    };
-    
-    systemPrompt += "\n\nDeliver a motivational message to start the day. Acknowledge the current day of the week and time of day to make it feel relevant to the moment. Focus on productivity, positivity, and work excellence specific to event planning. For Mondays, emphasize fresh starts; for Fridays, acknowledge the upcoming weekend while maintaining focus; for other days, focus on momentum and progress. Make the message inspiring but realistic, avoiding clichés.";
+    systemPrompt += "\n\nProvide a default welcome message that acknowledges the specific day and focuses on tomorrow's weather forecast. Highlight the temperature and weather conditions, mentioning if they're favorable for outdoor events or if there's anything to be cautious about. Keep the tone positive, even if the forecast isn't ideal, suggesting ways to make the most of the day regardless of weather.";
   } else {
     messageType = 'default';
     contextData = {
@@ -166,9 +166,9 @@ export const prepareDashboardResponse = (
   message: string,
   messageType: string,
   todayEvents: any[],
-  holidays: any[],
   tasks: any[],
-  upcomingEvents: any[]
+  upcomingEvents: any[],
+  weatherData: any
 ): DashboardMessage => {
   let response: DashboardMessage = {
     message,
@@ -178,12 +178,17 @@ export const prepareDashboardResponse = (
   // Add additional details based on message type
   if (messageType === 'event' && todayEvents && todayEvents.length > 0) {
     response.eventDetails = todayEvents[0];
-  } else if (messageType === 'holiday' && holidays && holidays.length > 0) {
-    response.holidayName = holidays[0].holiday_name;
   } else if (messageType === 'task' && tasks && tasks.length > 0) {
     response.tasks = tasks;
   } else if (messageType === 'upcoming_event' && upcomingEvents && upcomingEvents.length > 0) {
     response.eventDetails = upcomingEvents[0];
+  } else if (messageType === 'weather' && weatherData) {
+    response.weatherData = weatherData;
+  }
+  
+  // Add weather data to all response types
+  if (weatherData) {
+    response.weatherData = weatherData;
   }
   
   return response;

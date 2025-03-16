@@ -2,7 +2,7 @@
 import React from 'react';
 import { useDashboardMessage } from '@/hooks/useDashboardMessage';
 import { useProfile } from '@/hooks/useProfile';
-import { CalendarClock, Calendar, CheckSquare, Gift, Quote } from 'lucide-react';
+import { CalendarClock, Calendar, CheckSquare, Cloud, Sun, Quote } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
@@ -51,10 +51,6 @@ const DashboardMessage = () => {
       Icon = CalendarClock;
       iconColor = 'text-pink-500';
       break;
-    case 'holiday':
-      Icon = Gift;
-      iconColor = 'text-purple-500';
-      break;
     case 'task':
       Icon = CheckSquare;
       iconColor = 'text-amber-500';
@@ -62,6 +58,10 @@ const DashboardMessage = () => {
     case 'upcoming_event':
       Icon = Calendar;
       iconColor = 'text-blue-500';
+      break;
+    case 'weather':
+      Icon = dashboardMessage.weatherData?.condition?.toLowerCase().includes('cloud') ? Cloud : Sun;
+      iconColor = 'text-sky-500';
       break;
     default:
       Icon = Quote;
@@ -105,6 +105,25 @@ const DashboardMessage = () => {
     );
   }
   
+  // Weather info to display if available
+  let weatherInfo = null;
+  if (dashboardMessage.weatherData) {
+    const { temp, condition, description } = dashboardMessage.weatherData;
+    weatherInfo = (
+      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1.5 text-sm text-gray-600">
+        <div className="flex items-center">
+          {condition?.toLowerCase().includes('cloud') ? (
+            <Cloud className="h-4 w-4 text-sky-500 mr-1" />
+          ) : (
+            <Sun className="h-4 w-4 text-amber-500 mr-1" />
+          )}
+          <span className="font-medium">Tomorrow:</span>
+        </div>
+        <span>{temp}°C, {description}</span>
+      </div>
+    );
+  }
+  
   // Get user's first name from profile
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : '';
   
@@ -114,13 +133,12 @@ const DashboardMessage = () => {
         <div className="flex items-center gap-2 mb-1">
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
           <h2 className="text-xl font-semibold text-gray-800">
-            {dashboardMessage.type === 'holiday' && dashboardMessage.holidayName 
-              ? `Hi ${firstName}, it's ${dashboardMessage.holidayName}!` 
-              : `Hi ${firstName},`}
+            {`Hi ${firstName},`}
           </h2>
         </div>
         <p className="text-gray-700">{dashboardMessage.message}</p>
         {additionalDetails}
+        {weatherInfo}
       </div>
     </Card>
   );
