@@ -101,7 +101,7 @@ export function TaskList({
             marginBottom: '15px'
           }}
         >
-          <div className="absolute inset-0 bg-white/85 rounded-xl border border-gray-100"></div>
+          <div className="absolute inset-0 bg-white/85 rounded-xl"></div>
           
           <div className="flex items-center gap-2 relative z-10">
             <CheckSquare className="h-5 w-5 text-zinc-700" />
