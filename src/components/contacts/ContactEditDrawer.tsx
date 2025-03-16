@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -43,7 +42,6 @@ const ContactEditDrawer = ({
   
   const onSubmit = async (values: ContactFormValues) => {
     try {
-      // Determine which fields were changed
       const originalValues = {
         name: contact.name,
         email: contact.email || "",
@@ -57,12 +55,9 @@ const ContactEditDrawer = ({
         key => values[key as keyof ContactFormValues] !== originalValues[key as keyof typeof originalValues]
       );
       
-      // Update the contact first
       const updatedContact = await updateContact(contact, values);
       
-      // Log the contact update if there are changed fields and we have an updated contact
       if (changedFields.length > 0 && updatedContact) {
-        // Remove the await as logContactUpdated returns void
         logContactUpdated(updatedContact, changedFields);
       }
       
@@ -86,17 +81,10 @@ const ContactEditDrawer = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
           <div className="flex-1 space-y-5">
-            {/* Personal Information */}
             <PersonalInfoSection form={form} />
-            
-            {/* Business Information */}
             <BusinessInfoSection form={form} />
-            
-            {/* Events Booked Section */}
             <EventsBookedSection contact={contact} />
           </div>
-          
-          {/* Action Buttons - Now at the bottom */}
           <ActionButtons onClose={onClose} isSubmitting={form.formState.isSubmitting} />
         </form>
       </Form>
