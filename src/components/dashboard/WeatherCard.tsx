@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { MapPin, CloudRain, Cloud, CloudSnow, CloudLightning, Sun, CloudFog, Droplet } from 'lucide-react';
+import { MapPin, Droplet, Cloud, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog, Moon, Sunrise, Sunset } from 'lucide-react';
 
 interface WeatherCardProps {
   date?: string;
@@ -10,6 +10,10 @@ interface WeatherCardProps {
   highTemp?: number;
   chanceOfRain?: string;
   weatherData?: any;
+  // Optional props for customization
+  className?: string;
+  // Optional override for time-based styling (for demonstration)
+  timeOverride?: number;
 }
 
 const WeatherCard: React.FC<WeatherCardProps> = ({
@@ -18,7 +22,9 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   lowTemp,
   highTemp,
   chanceOfRain = "HIGH",
-  weatherData
+  weatherData,
+  className = '',
+  timeOverride,
 }) => {
   // Use provided props or extract from weatherData if available
   const tomorrow = new Date();
@@ -29,7 +35,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   const displayHighTemp = highTemp || (weatherData?.temp || 27);
   
   // Determine time-based gradient based on current hour
-  const currentHour = new Date().getHours();
+  const currentHour = timeOverride !== undefined ? timeOverride : new Date().getHours();
   let gradientClass = "";
   
   // Early Morning (5:00 AM - 7:59 AM)
@@ -57,68 +63,107 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
     gradientClass = "bg-gradient-to-r from-gray-700 to-blue-800";
   }
   
-  // Determine appropriate weather icon based on weather data or chance of rain
+  // Determine the weather icon to display based on time of day and weather conditions
   const getWeatherIcon = () => {
+    // First check if we have weather data with description
     if (weatherData?.description) {
       const desc = weatherData.description.toLowerCase();
       if (desc.includes('rain') || desc.includes('shower') || desc.includes('drizzle')) {
-        return <CloudRain className="h-8 w-8 opacity-80" />;
+        return <CloudRain className="h-5 w-5" />;
       } else if (desc.includes('snow')) {
-        return <CloudSnow className="h-8 w-8 opacity-80" />;
+        return <CloudSnow className="h-5 w-5" />;
       } else if (desc.includes('lightning') || desc.includes('thunder')) {
-        return <CloudLightning className="h-8 w-8 opacity-80" />;
+        return <CloudLightning className="h-5 w-5" />;
       } else if (desc.includes('fog') || desc.includes('mist')) {
-        return <CloudFog className="h-8 w-8 opacity-80" />;
+        return <CloudFog className="h-5 w-5" />;
       } else if (desc.includes('cloud')) {
-        return <Cloud className="h-8 w-8 opacity-80" />;
-      } else {
-        return <Sun className="h-8 w-8 opacity-80" />;
+        return <Cloud className="h-5 w-5" />;
       }
     }
     
-    // Default icon based on chance of rain if no weather data description
-    if (chanceOfRain === "HIGH") {
-      return <CloudRain className="h-8 w-8 opacity-80" />;
-    } else if (chanceOfRain === "MEDIUM") {
-      return <Cloud className="h-8 w-8 opacity-80" />;
-    } else {
-      return <Sun className="h-8 w-8 opacity-80" />;
+    // Fallback to time-based icons
+    // Nighttime (7 PM - 5 AM)
+    if (currentHour >= 19 || currentHour < 5) {
+      return <Moon className="h-5 w-5" />;
+    }
+    // Early morning or late afternoon
+    else if ((currentHour >= 5 && currentHour < 8) || (currentHour >= 16 && currentHour < 19)) {
+      return chanceOfRain === "HIGH" ? <Cloud className="h-5 w-5" /> : 
+             (currentHour < 12 ? <Sunrise className="h-5 w-5" /> : <Sunset className="h-5 w-5" />);
+    }
+    // Daytime
+    else {
+      return chanceOfRain === "HIGH" ? <Cloud className="h-5 w-5" /> : <Sun className="h-5 w-5" />;
     }
   };
   
+  // Determine the color for the chance of rain text
+  const rainColorClass = 
+    chanceOfRain === "HIGH" ? "text-white" :
+    chanceOfRain === "MEDIUM" ? "text-yellow-100" : "text-green-100";
+  
+  // Get time period description for accessibility
+  const getTimePeriodDescription = (hour: number) => {
+    if (hour >= 5 && hour < 8) return "Early Morning";
+    if (hour >= 8 && hour < 12) return "Morning";
+    if (hour >= 12 && hour < 16) return "Midday";
+    if (hour >= 16 && hour < 19) return "Late Afternoon";
+    if (hour >= 19 && hour < 22) return "Evening";
+    return "Night";
+  };
+
   return (
-    <div className={`flex-shrink-0 w-full md:w-auto overflow-hidden rounded-lg text-white shadow-md ${gradientClass}`}>
-      <div className="relative h-full p-4 flex flex-row items-center justify-between w-full md:w-80">
-        {/* Left side - temperatures and icon */}
-        <div className="flex flex-col justify-center">
-          <div className="flex items-start">
-            <div className="mr-3">
-              {getWeatherIcon()}
-            </div>
-            <div>
-              <div className="flex items-baseline">
-                <span className="text-3xl font-semibold">{displayHighTemp}</span>
-                <span className="text-lg ml-1">°</span>
-              </div>
-              <div className="flex items-baseline mt-1">
-                <span className="text-xl font-normal opacity-90">{displayLowTemp}</span>
-                <span className="text-sm ml-1">°</span>
-              </div>
-            </div>
+    <div 
+      className={`rounded-xl overflow-hidden shadow-sm ${className}`} 
+      aria-label={`Weather for ${location}, ${getTimePeriodDescription(currentHour)}`}
+    >
+      <div className={`${gradientClass} text-white p-5 flex flex-col h-full relative`}>
+        {/* Large weather icon in background */}
+        <div className="absolute top-3 right-3 opacity-10">
+          {getWeatherIcon()}
+          <div className="h-24 w-24" />
+        </div>
+        
+        {/* Header section with date and location */}
+        <div className="mb-4 z-10">
+          <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
+          <div className="flex items-center mt-1.5 text-xs text-white/90">
+            <MapPin className="h-3 w-3 mr-1.5" />
+            <span>{location}</span>
           </div>
         </div>
         
-        {/* Right side - date, location, rain chance */}
-        <div className="flex flex-col items-end justify-between h-full">
-          <div className="text-xs mb-2">{displayDate}</div>
-          <div className="flex items-center mb-3 text-xs">
-            <MapPin className="h-3 w-3 mr-1" />
-            <span>{location}</span>
+        {/* Clear divider */}
+        <div className="border-t border-white/10 my-2"></div>
+        
+        {/* Temperature display section */}
+        <div className="grid grid-cols-2 gap-3 my-3 z-10">
+          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
+            <span className="text-xs text-white/80 mb-1">Low</span>
+            <span className="text-4xl font-light">{displayLowTemp}°</span>
           </div>
-          <div className="flex items-center text-xs">
-            <Droplet className="h-3 w-3 mr-1" />
-            <span>{chanceOfRain}</span>
+          
+          <div className="flex flex-col items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-md">
+            <span className="text-xs text-white/80 mb-1">High</span>
+            <span className="text-4xl font-light">{displayHighTemp}°</span>
           </div>
+        </div>
+        
+        {/* Clear divider */}
+        <div className="border-t border-white/10 my-2"></div>
+        
+        {/* Chance of rain indicator - bottom section */}
+        <div className="mt-auto z-10">
+          <div className="text-xs uppercase tracking-wider font-medium text-white/80 mb-1">Chance of rain</div>
+          <div className="flex items-center">
+            <Droplet className="h-4 w-4 mr-2 text-white/70" />
+            <span className={`font-semibold text-sm ${rainColorClass}`}>{chanceOfRain}</span>
+          </div>
+        </div>
+        
+        {/* Small weather icon indicator */}
+        <div className="absolute bottom-4 right-4 z-10 bg-white/20 rounded-full p-1.5">
+          {getWeatherIcon()}
         </div>
       </div>
     </div>
