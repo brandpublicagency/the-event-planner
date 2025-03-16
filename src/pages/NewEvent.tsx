@@ -23,6 +23,7 @@ const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eventCode, setEventCode] = useState<string | null>(null);
   const queryClient = useQueryClient();
   
   const form = useForm<EventFormSchema>({
@@ -53,10 +54,11 @@ const NewEvent = () => {
 
       await ensureUserProfile(user.id);
       
-      const eventCode = generateEventCode();
+      const newEventCode = generateEventCode();
+      setEventCode(newEventCode);
       
       const eventData = {
-        event_code: eventCode,
+        event_code: newEventCode,
         name: data.name,
         description: data.description || null,
         event_type: data.event_type,
@@ -83,19 +85,61 @@ const NewEvent = () => {
       const eventCodeResult = await createEvent(eventData, user.id);
       console.log('Event created with code:', eventCodeResult);
 
-      // Explicitly trigger notification processing to create immediate notifications
-      try {
-        console.log('Explicitly triggering notification processing after event creation');
-        await triggerNotificationProcessing();
-      } catch (notificationError) {
-        console.error('Error triggering notifications, but continuing:', notificationError);
-        // Don't fail the event creation if notification processing fails
+      // Explicitly trigger notification processing multiple times with backoff retry
+      let notificationSuccess = false;
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (!notificationSuccess && attempts < maxAttempts) {
+        try {
+          attempts++;
+          const delay = attempts * 200; // Increasing delay for each retry
+          
+          // Small delay before first attempt
+          if (attempts > 1) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+          
+          console.log(`Attempt ${attempts}: Triggering notification processing after event creation`);
+          const result = await triggerNotificationProcessing();
+          console.log(`Notification processing result:`, result);
+          notificationSuccess = true;
+          
+          // Try to directly create a notification for this event to be extra sure
+          try {
+            // Add a direct notification in the database
+            const { error: directNotifError } = await supabase
+              .from('event_notifications')
+              .upsert(
+                {
+                  event_code: newEventCode,
+                  notification_type: 'event_created_unified',
+                  scheduled_for: new Date().toISOString(),
+                  sent_at: new Date().toISOString(), // Mark as sent immediately
+                },
+                { onConflict: 'event_code,notification_type' }
+              );
+              
+            if (directNotifError) {
+              console.error('Error creating direct notification:', directNotifError);
+            } else {
+              console.log('Successfully created direct notification');
+            }
+          } catch (directErr) {
+            console.error('Error in direct notification creation:', directErr);
+          }
+          
+        } catch (notificationError) {
+          console.error(`Attempt ${attempts} failed:`, notificationError);
+          // Continue to next attempt, but don't fail event creation
+        }
       }
 
       // Explicitly trigger a refresh of data for realtime updates to work reliably
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
       await queryClient.invalidateQueries({ queryKey: ['chat-context'] });
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
       toast({
         title: "Success",
@@ -109,7 +153,7 @@ const NewEvent = () => {
       setTimeout(() => {
         console.log('Navigating to events page');
         navigate('/events');
-      }, 1000);
+      }, 1500);
     } catch (error: any) {
       console.error('Error creating event:', error);
       toast({
