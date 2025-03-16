@@ -1,5 +1,3 @@
 
 // Forward exports from the correct location
-import { useToast, toast } from "@/hooks/use-toast";
-
-export { useToast, toast };
+export { useToast, toast } from "@/hooks/use-toast";

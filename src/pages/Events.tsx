@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
 import { CalendarX, Calendar, PlusCircle } from "lucide-react";
@@ -15,6 +15,16 @@ import { Button } from "@/components/ui/button";
 export default function Events() {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Show a toast when the component mounts to verify the toast system works
+    toast({
+      title: "Events Loaded",
+      description: "The events page has loaded successfully",
+      variant: "info",
+      showProgress: true,
+    });
+  }, [toast]);
 
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
@@ -88,6 +98,7 @@ export default function Events() {
       toast({
         title: "Deleting event...",
         description: "Please wait while the event is being deleted.",
+        showProgress: true,
       });
       
       await deleteEvent(eventCode);
@@ -96,6 +107,8 @@ export default function Events() {
       toast({
         title: "Event deleted",
         description: "Event has been successfully deleted",
+        variant: "success",
+        showProgress: true,
       });
       
       // Refresh the events list
@@ -108,6 +121,7 @@ export default function Events() {
         variant: "destructive",
         title: "Error deleting event",
         description: error.message || "Failed to delete event. Please try again.",
+        showProgress: true,
       });
     }
   };

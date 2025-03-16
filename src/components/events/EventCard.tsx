@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Trash, Copy, Pencil, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { getVenueNames } from "@/utils/venueUtils";
