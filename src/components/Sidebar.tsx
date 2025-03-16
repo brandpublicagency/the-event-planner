@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -87,12 +88,7 @@ const Sidebar = ({
     {
       icon: FileText,
       path: "/events",
-      label: "Events"
-    }, 
-    {
-      icon: Archive,
-      path: "/passed-events",
-      label: "Passed Events"
+      label: "Upcoming Events"
     }, 
     {
       icon: Wallet,
@@ -104,31 +100,47 @@ const Sidebar = ({
       path: "/tasks",
       label: "To-do list",
       badge: taskCount > 0 ? taskCount : undefined
-    }, 
-    {
-      icon: Users,
-      path: "/contacts",
-      label: "Contacts"
-    }, 
-    {
-      icon: FileText,
-      path: "/documents",
-      label: "Documents"
-    }
-  ];
-  
-  const scheduleNavItems = [
-    {
-      icon: UsersIcon,
-      path: "/schedule/meeting",
-      label: "Meeting"
     },
     {
       icon: Building,
       path: "/schedule/site-visit",
-      label: "Site Visit"
+      label: "Schedule Site Visit"
+    },
+    {
+      icon: UsersIcon,
+      path: "/schedule/meeting",
+      label: "Schedule Meeting"
+    },
+    {
+      icon: FileText,
+      path: "/documents",
+      label: "Documents"
+    },
+    {
+      icon: Users,
+      path: "/contacts",
+      label: "Contacts"
+    },
+    {
+      icon: Archive,
+      path: "/passed-events",
+      label: "Past Events"
     }
   ];
+  
+  // This section is no longer needed as we've incorporated these items into the main navigation
+  // const scheduleNavItems = [
+  //   {
+  //     icon: UsersIcon,
+  //     path: "/schedule/meeting",
+  //     label: "Meeting"
+  //   },
+  //   {
+  //     icon: Building,
+  //     path: "/schedule/site-visit",
+  //     label: "Site Visit"
+  //   }
+  // ];
 
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
@@ -174,11 +186,6 @@ const Sidebar = ({
           <SidebarNavigation 
             isCollapsed={isCollapsed} 
             items={mainNavItems} 
-          />
-          
-          <SidebarNavigation 
-            isCollapsed={isCollapsed} 
-            items={scheduleNavItems} 
           />
         </div>
         
