@@ -102,11 +102,11 @@ export const fetchUpcomingEvents = async () => {
 };
 
 /**
- * Fetches tomorrow's weather forecast using a weather API
+ * Fetches current weather forecast using OpenWeather API
  */
 export const fetchWeatherForecast = async () => {
   try {
-    console.log("Attempting to fetch weather forecast");
+    console.log("Fetching current weather forecast");
     
     // Get API key with error handling
     const apiKey = Deno.env.get("OPENWEATHER_API_KEY");
@@ -127,22 +127,19 @@ export const fetchWeatherForecast = async () => {
     }
     
     // Default location for weather (can be improved to use company's address)
-    const location = "Cape Town,ZA";
+    const location = "Bloemfontein,ZA";
     
-    // Get tomorrow's forecast
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = format(tomorrow, "yyyy-MM-dd");
-    
-    console.log(`Fetching weather for ${location} on ${tomorrowDate}`);
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
     
     // Add timeout to prevent hanging
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
     try {
+      // Use current weather API for real-time weather
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric&t=${timestamp}`,
         { signal: controller.signal }
       );
       
@@ -152,7 +149,7 @@ export const fetchWeatherForecast = async () => {
         console.error(`Weather API returned status: ${response.status}`);
         // Return mock data on error
         return {
-          date: tomorrowDate,
+          date: format(new Date(), "yyyy-MM-dd"),
           temp: 28,
           feels_like: 30,
           humidity: 65,
@@ -164,22 +161,7 @@ export const fetchWeatherForecast = async () => {
       }
       
       const data = await response.json();
-      console.log("Weather API response received:", JSON.stringify(data).substring(0, 200) + "...");
-      
-      // Find tomorrow's forecast around midday
-      const tomorrowMidDay = `${tomorrowDate} 12:00:00`;
-      
-      // Find the forecast closest to tomorrow midday
-      let closestForecast = data.list[0];
-      let smallestDiff = Number.MAX_SAFE_INTEGER;
-      
-      for (const forecast of data.list) {
-        const diff = Math.abs(new Date(forecast.dt_txt).getTime() - new Date(tomorrowMidDay).getTime());
-        if (diff < smallestDiff) {
-          smallestDiff = diff;
-          closestForecast = forecast;
-        }
-      }
+      console.log("Current weather data received:", JSON.stringify(data).substring(0, 200) + "...");
       
       // Map weather descriptions to more user-friendly terms
       const weatherMapping = {
@@ -205,14 +187,14 @@ export const fetchWeatherForecast = async () => {
       };
       
       // Get friendly description
-      let friendlyDescription = closestForecast.weather[0].description;
-      const mainCondition = closestForecast.weather[0].main;
+      let friendlyDescription = data.weather[0].description;
+      const mainCondition = data.weather[0].main;
       
       if (weatherMapping[mainCondition]) {
         if (typeof weatherMapping[mainCondition] === 'object') {
-          friendlyDescription = weatherMapping[mainCondition][closestForecast.weather[0].description] || 
-                                weatherMapping[mainCondition]['default'] || 
-                                closestForecast.weather[0].description;
+          friendlyDescription = weatherMapping[mainCondition][data.weather[0].description] || 
+                              weatherMapping[mainCondition]['default'] || 
+                              data.weather[0].description;
         } else {
           friendlyDescription = weatherMapping[mainCondition];
         }
@@ -220,15 +202,22 @@ export const fetchWeatherForecast = async () => {
       
       // Extract relevant weather data
       console.log("Weather data successfully processed with condition:", mainCondition, "and description:", friendlyDescription);
+      
+      // Get tomorrow's date for the forecast portion
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowDate = format(tomorrow, "yyyy-MM-dd");
+      
       return {
         date: tomorrowDate,
-        temp: Math.round(closestForecast.main.temp),
-        feels_like: Math.round(closestForecast.main.feels_like),
-        humidity: closestForecast.main.humidity,
-        wind_speed: closestForecast.wind?.speed || 0,
-        condition: closestForecast.weather[0].main,
+        temp: Math.round(data.main.temp),
+        feels_like: Math.round(data.main.feels_like),
+        humidity: data.main.humidity,
+        wind_speed: data.wind?.speed || 0,
+        condition: data.weather[0].main,
         description: friendlyDescription,
-        icon: closestForecast.weather[0].icon
+        icon: data.weather[0].icon,
+        timestamp: new Date().toISOString() // Add timestamp to track freshness
       };
     } catch (error) {
       clearTimeout(timeoutId);
@@ -239,7 +228,7 @@ export const fetchWeatherForecast = async () => {
       }
       // Return mock data on error
       return {
-        date: tomorrowDate,
+        date: format(new Date(), "yyyy-MM-dd"),
         temp: 28,
         feels_like: 30,
         humidity: 65,
@@ -253,7 +242,7 @@ export const fetchWeatherForecast = async () => {
     console.error("Error in fetchWeatherForecast:", error);
     // Return mock data on error
     return {
-      date: format(new Date(new Date().setDate(new Date().getDate() + 1)), "yyyy-MM-dd"),
+      date: format(new Date(), "yyyy-MM-dd"),
       temp: 28,
       feels_like: 30,
       humidity: 65,

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Droplet, Cloud, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog, Moon, Sunrise, Sunset } from 'lucide-react';
+import { MapPin, Droplet, Cloud, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog, Moon, Sunrise, Sunset, RefreshCcw } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface WeatherCardProps {
@@ -143,6 +143,15 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   const rainColorClass = 
     chanceOfRain === "HIGH" ? "text-white" :
     chanceOfRain === "MEDIUM" ? "text-yellow-100" : "text-green-100";
+    
+  // Calculate timestamp for when the weather data was last updated
+  const getLastUpdated = () => {
+    if (weatherData?.timestamp) {
+      const updatedTime = new Date(weatherData.timestamp);
+      return format(updatedTime, 'HH:mm');
+    }
+    return format(new Date(), 'HH:mm');
+  };
 
   return (
     <div className={`rounded-xl overflow-hidden shadow-sm h-full ${className}`}>
@@ -184,6 +193,14 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
               <span className="text-xs text-white/80">Rain</span>
             </div>
             <span className={`text-sm font-semibold ${rainColorClass}`}>{chanceOfRain}</span>
+          </div>
+        </div>
+        
+        {/* Last Updated Indicator */}
+        <div className="mt-auto pt-2 flex justify-end items-center">
+          <div className="text-xs text-white/60 flex items-center">
+            <RefreshCcw className="h-3 w-3 mr-1" />
+            <span>Updated {getLastUpdated()}</span>
           </div>
         </div>
       </div>
