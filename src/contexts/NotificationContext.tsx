@@ -26,9 +26,20 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   useEventStatusNotifications(setNotifications);
   
   // Use the combined notification actions hook
-  const { markAsRead, markAllAsRead, clearNotifications, markAsCompleted } = 
+  const { markAsRead: markAsReadAction, markAllAsRead, clearNotifications, markAsCompleted: markAsCompletedAction } = 
     useNotificationActions(setNotifications);
   
+  // Create wrapper functions that return void promises to match the expected types
+  const markAsRead = useCallback(async (id: string): Promise<void> => {
+    await markAsReadAction(id);
+    return Promise.resolve();
+  }, [markAsReadAction]);
+  
+  const markAsCompleted = useCallback(async (id: string): Promise<void> => {
+    await markAsCompletedAction(id);
+    return Promise.resolve();
+  }, [markAsCompletedAction]);
+
   return (
     <NotificationContext.Provider 
       value={{ 
