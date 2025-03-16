@@ -34,6 +34,23 @@ export const NotificationList = ({
     );
   }
 
+  if (!Array.isArray(notifications)) {
+    console.error('Expected notifications to be an array but got:', notifications);
+    return (
+      <Card>
+        <CardContent className="py-10 text-center">
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <AlertTriangle className="h-10 w-10 text-amber-500" />
+            <h3 className="text-lg font-medium text-zinc-900">Error loading notifications</h3>
+            <p className="text-sm text-zinc-500 max-w-sm">
+              There was a problem loading your notifications. Please try refreshing the page.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (notifications.length === 0) {
     return (
       <Card>
