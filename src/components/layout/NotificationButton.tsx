@@ -9,6 +9,7 @@ import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
 import { Bell } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const NotificationButton = () => {
   const { unreadCount: generalUnreadCount } = useNotifications();
@@ -32,7 +33,7 @@ export const NotificationButton = () => {
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div 
-          className={`flex items-center gap-2 cursor-pointer relative ${animate ? 'animate-pulse' : ''}`}
+          className={`relative flex items-center gap-2 cursor-pointer ${animate ? 'animate-pulse' : ''}`}
           onClick={(e) => {
             e.preventDefault();
             setOpen(!open);
@@ -41,9 +42,9 @@ export const NotificationButton = () => {
           <Bell className="h-5 w-5 text-zinc-700" />
           <span className="text-sm font-medium">Notifications</span>
           {totalUnreadCount > 0 && (
-            <span className="flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-[4px] w-5 h-5 min-w-[20px]">
+            <Badge variant="notification" className="absolute -top-1 -right-1">
               {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
-            </span>
+            </Badge>
           )}
         </div>
       </DropdownMenuTrigger>
