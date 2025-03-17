@@ -37,7 +37,7 @@ export const WeatherStatCard: React.FC<WeatherStatCardProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className={cn(
-          "text-sm sm:text-sm md:text-base font-semibold", 
+          "text-sm sm:text-sm md:text-base font-semibold text-gray-300", 
           className
         )}
       >
