@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { getWeatherGradientStyles } from './weatherGradientStyles';
 import { WeatherIcon } from './WeatherIcon';
 import { WeatherStatCard } from './WeatherStatCard';
+import { motion } from 'framer-motion';
 
 interface WeatherCardProps {
   date?: string;
@@ -52,49 +53,57 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   };
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-sm h-full ${className}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`rounded-xl overflow-hidden shadow-lg h-full transform transition-all hover:shadow-xl duration-300 ${className}`}
+    >
       <div 
-        className={`text-white p-3 flex flex-col h-full ${fallbackGradientClass}`} 
+        className={`text-white p-4 flex flex-col h-full ${fallbackGradientClass}`} 
         style={gradientStyle}
       >
         {/* Header section with date, location, and weather icon */}
-        <div className="mb-2 flex justify-between items-start">
+        <div className="mb-3 flex justify-between items-start">
           <div>
-            <div className="uppercase font-medium tracking-wide text-sm">{displayDate}</div>
-            <div className="flex items-center mt-1 text-xs">
+            <div className="uppercase font-semibold tracking-wide text-sm">{displayDate}</div>
+            <div className="flex items-center mt-1.5 text-xs">
               <div className="flex items-center text-white/90">
                 <MapPin className="h-3 w-3 mr-1" />
-                <span>{location}</span>
+                <span className="font-medium">{location}</span>
               </div>
               {/* Last updated indicator */}
-              <div className="text-white/60 flex items-center ml-2 pl-2 border-l border-white/20">
-                <RefreshCcw className="h-2.5 w-2.5 mr-1" />
-                <span className="text-[10px]">Updated {getLastUpdated()}</span>
+              <div className="text-white/70 flex items-center ml-3 pl-2 border-l border-white/30">
+                <RefreshCcw className="h-3 w-3 mr-1 animate-spin-slow" />
+                <span className="text-[10px] font-medium">Updated {getLastUpdated()}</span>
               </div>
             </div>
           </div>
           
           {/* Weather icon indicator */}
-          <div className="bg-white/20 rounded-full p-1.5">
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="bg-white/30 rounded-full p-2 shadow-md"
+          >
             <WeatherIcon weatherData={weatherData} currentHour={currentHour} chanceOfRain={chanceOfRain} />
-          </div>
+          </motion.div>
         </div>
         
         {/* Temperature and rain info section in a single row */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-3 mt-2">
           <WeatherStatCard label="Low" value={`${displayLowTemp}°`} />
           <WeatherStatCard label="High" value={`${displayHighTemp}°`} />
           <WeatherStatCard 
             label={<div className="flex items-center">
-              <Droplet className="h-3 w-3 mr-1 text-white/80" />
+              <Droplet className="h-3 w-3 mr-1 text-sky-300" />
               <span>Rain</span>
             </div>} 
             value={chanceOfRain} 
-            className="text-white" 
+            className={chanceOfRain === "HIGH" ? "text-sky-300" : chanceOfRain === "MEDIUM" ? "text-sky-200" : "text-white"} 
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

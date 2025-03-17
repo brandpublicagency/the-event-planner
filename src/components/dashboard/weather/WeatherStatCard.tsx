@@ -28,19 +28,27 @@ export const WeatherStatCard: React.FC<WeatherStatCardProps> = ({
     }
   }, [value, hasChanged]);
 
-  return <div className="flex flex-col items-center justify-center p-2 backdrop-blur-sm rounded-md transition-colors bg-[#000a0e]/[0.23]">
-      <span className="text-xs sm:text-xs md:text-sm text-white/80 mb-1">{label}</span>
-      <motion.span key={value} initial={hasChanged ? {
-      opacity: 0,
-      y: -8
-    } : false} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.4,
-      ease: 'easeOut'
-    }} className={cn("text-sm sm:text-sm md:text-base font-bold text-gray-300", className)}>
+  return (
+    <div className="flex flex-col items-center justify-center p-3 backdrop-blur-sm rounded-lg shadow-inner transition-all hover:scale-105 duration-300 bg-[#000a0e]/[0.35]">
+      <span className="text-xs sm:text-sm md:text-sm text-white/90 mb-1 font-medium">{label}</span>
+      <motion.span 
+        key={value} 
+        initial={hasChanged ? {
+          opacity: 0,
+          y: -8
+        } : false} 
+        animate={{
+          opacity: 1,
+          y: 0
+        }} 
+        transition={{
+          duration: 0.4,
+          ease: 'easeOut'
+        }} 
+        className={cn("text-sm sm:text-base md:text-lg font-bold text-white", className)}
+      >
         {value}
       </motion.span>
-    </div>;
+    </div>
+  );
 };

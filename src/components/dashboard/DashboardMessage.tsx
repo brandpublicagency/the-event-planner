@@ -1,10 +1,12 @@
+
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Sun, Cloud, CloudRain } from "lucide-react";
 import { WeatherCard } from "./weather";
+import { motion } from "framer-motion";
 
 const DashboardMessage = () => {
   const {
@@ -28,39 +30,61 @@ const DashboardMessage = () => {
 
   let borderColorClass = "";
   let textColorClass = "";
+  let glowClass = "";
 
   if (hour >= 20 && hour < 22) {
-    borderColorClass = "border-slate-300";
+    borderColorClass = "border-slate-300/30";
     textColorClass = "text-indigo-300";
+    glowClass = "glow-indigo";
   }
   else if (hour >= 22 || hour < 2) {
-    borderColorClass = "border-slate-400";
+    borderColorClass = "border-slate-400/30";
     textColorClass = "text-slate-300";
+    glowClass = "glow-slate";
   }
   else if (hour >= 2 && hour < 4) {
-    borderColorClass = "border-slate-400";
+    borderColorClass = "border-slate-400/30";
     textColorClass = "text-slate-300"; 
+    glowClass = "glow-slate";
   }
   else if (hour >= 4 && hour < 6) {
-    borderColorClass = "border-indigo-200";
+    borderColorClass = "border-indigo-200/30";
     textColorClass = "text-indigo-300";
+    glowClass = "glow-indigo";
   }
   else if (hour >= 6 && hour < 8) {
-    borderColorClass = "border-indigo-100";
+    borderColorClass = "border-indigo-100/30";
     textColorClass = "text-indigo-400";
+    glowClass = "glow-indigo";
   } 
   else if (hour >= 8 && hour < 12) {
-    borderColorClass = "border-sky-100";
+    borderColorClass = "border-sky-100/30";
     textColorClass = "text-sky-400";
+    glowClass = "glow-sky";
   } 
   else if (hour >= 12 && hour < 16) {
-    borderColorClass = "border-cyan-100";
+    borderColorClass = "border-cyan-100/30";
     textColorClass = "text-cyan-400";
+    glowClass = "glow-cyan";
   } 
   else if (hour >= 16 && hour < 20) {
-    borderColorClass = "border-amber-100";
+    borderColorClass = "border-amber-100/30";
     textColorClass = "text-amber-400";
+    glowClass = "glow-amber";
   }
+
+  // Get weather icon based on weather data
+  const getWeatherIcon = () => {
+    if (!dashboardMessage.weatherData?.description) return <Sun className="h-5 w-5" />;
+    
+    const desc = dashboardMessage.weatherData.description.toLowerCase();
+    if (desc.includes('rain') || desc.includes('shower') || desc.includes('drizzle')) {
+      return <CloudRain className="h-5 w-5" />;
+    } else if (desc.includes('cloud') || desc.includes('overcast')) {
+      return <Cloud className="h-5 w-5" />;
+    }
+    return <Sun className="h-5 w-5" />;
+  };
 
   if (isLoading || isProfileLoading) {
     return <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
@@ -92,26 +116,65 @@ const DashboardMessage = () => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowFormatted = format(tomorrow, "EEEE, d MMMM yyyy").toUpperCase();
 
-  return <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-      <Card className={`p-4 col-span-4 shadow-sm border ${borderColorClass} h-full bg-transparent rounded-xl flex flex-col justify-between`}>
-        <div className="flex flex-col justify-center">
-          <h2 className="font-semibold text-gray-800 text-xl">{personalizedGreeting}</h2>
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="col-span-4"
+      >
+        <Card className={`p-5 h-full shadow-md border ${borderColorClass} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 rounded-xl flex flex-col justify-between backdrop-blur-sm`}>
+          <div className="flex flex-col justify-center">
+            <h2 className="font-bold text-gray-800 dark:text-gray-100 text-2xl flex items-center">
+              {personalizedGreeting}
+              <motion.span 
+                initial={{ rotate: 0 }}
+                animate={{ rotate: [0, 10, 0] }}
+                transition={{ duration: 1, repeat: Infinity, repeatDelay: 5 }}
+                className="ml-2"
+              >
+                {getWeatherIcon()}
+              </motion.span>
+            </h2>
+            
+            {error ? (
+              <div className="flex items-start space-x-3 text-amber-600 mt-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+                <AlertCircle className="h-5 w-5 mt-0.5" />
+                <p>Unable to load personalized updates. Check your connection and try again.</p>
+              </div>
+            ) : (
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed">
+                {dashboardMessage.message}
+              </p>
+            )}
+          </div>
           
-          {error ? <div className="flex items-start space-x-3 text-amber-600 mt-2">
-              <AlertCircle className="h-5 w-5 mt-0.5" />
-              <p>Unable to load personalized updates. Check your connection and try again.</p>
-            </div> : <p className="text-gray-600 mt-1 text-sm">{dashboardMessage.message}</p>}
-        </div>
-        
-        <div className={`${textColorClass} text-xl font-medium tracking-wide mt-4`}>
-          {todayFormatted.toUpperCase()}
-        </div>
-      </Card>
+          <div className={`${textColorClass} text-xl font-semibold tracking-wide mt-5 ${glowClass}`}>
+            {todayFormatted.toUpperCase()}
+          </div>
+        </Card>
+      </motion.div>
       
-      {weatherData && <div className="col-span-2 h-full">
-          <WeatherCard date={tomorrowFormatted} location="Warm Karoo, Bloemfontein" lowTemp={lowTemp} highTemp={highTemp} chanceOfRain={chanceOfRain} weatherData={weatherData} />
-        </div>}
-    </div>;
+      {weatherData && (
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="col-span-2 h-full"
+        >
+          <WeatherCard 
+            date={tomorrowFormatted} 
+            location="Warm Karoo, Bloemfontein" 
+            lowTemp={lowTemp} 
+            highTemp={highTemp} 
+            chanceOfRain={chanceOfRain} 
+            weatherData={weatherData} 
+          />
+        </motion.div>
+      )}
+    </div>
+  );
 };
 
 export default DashboardMessage;

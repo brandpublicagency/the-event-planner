@@ -136,4 +136,39 @@
       transform: scaleX(0);
     }
   }
+
+  /* Glow effects for time-based colors */
+  .glow-indigo {
+    text-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
+  }
+  
+  .glow-slate {
+    text-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
+  }
+  
+  .glow-sky {
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+  
+  .glow-cyan {
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+  }
+  
+  .glow-amber {
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+  }
+  
+  /* Slow animation for the refresh icon */
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
