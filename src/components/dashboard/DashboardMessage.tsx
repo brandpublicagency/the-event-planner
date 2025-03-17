@@ -1,11 +1,10 @@
-
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { AlertCircle } from "lucide-react";
-import WeatherCard from "./WeatherCard";
+import { WeatherCard } from "./weather";
 
 const DashboardMessage = () => {
   const {
@@ -27,46 +26,37 @@ const DashboardMessage = () => {
   const firstName = profile?.full_name?.split(' ')[0] || '';
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
 
-  // Updated border colors to more pastel variants
   let borderColorClass = "";
   let textColorClass = "";
 
-  // Late Evening (8:00 PM - 9:59 PM)
   if (hour >= 20 && hour < 22) {
     borderColorClass = "border-slate-300";
     textColorClass = "text-indigo-300";
   }
-  // Night (10:00 PM - 1:59 AM)
   else if (hour >= 22 || hour < 2) {
     borderColorClass = "border-slate-400";
     textColorClass = "text-slate-300";
   }
-  // Deep Night (2:00 AM - 3:59 AM)
   else if (hour >= 2 && hour < 4) {
     borderColorClass = "border-slate-400";
     textColorClass = "text-slate-300"; 
   }
-  // Pre-Dawn (4:00 AM - 5:59 AM)
   else if (hour >= 4 && hour < 6) {
     borderColorClass = "border-indigo-200";
     textColorClass = "text-indigo-300";
   }
-  // Early Morning (6:00 AM - 7:59 AM)
   else if (hour >= 6 && hour < 8) {
     borderColorClass = "border-indigo-100";
     textColorClass = "text-indigo-400";
   } 
-  // Morning (8:00 AM - 11:59 AM)
   else if (hour >= 8 && hour < 12) {
     borderColorClass = "border-sky-100";
     textColorClass = "text-sky-400";
   } 
-  // Midday (12:00 PM - 3:59 PM)
   else if (hour >= 12 && hour < 16) {
     borderColorClass = "border-cyan-100";
     textColorClass = "text-cyan-400";
   } 
-  // Late Afternoon (4:00 PM - 7:59 PM)
   else if (hour >= 16 && hour < 20) {
     borderColorClass = "border-amber-100";
     textColorClass = "text-amber-400";
