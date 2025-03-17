@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import EventsTable from "@/components/events/EventsTable";
@@ -9,7 +8,7 @@ import type { Event } from "@/types/event";
 import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
 import { Header } from "@/components/layout/Header";
 import { format } from "date-fns";
-import { Search, CalendarCheck, Calendar } from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,6 @@ const PassedEvents = () => {
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['passed-events'],
     queryFn: async () => {
-      // Get today's date at the start of the day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
@@ -34,7 +32,7 @@ const PassedEvents = () => {
         .from('events')
         .select(`*`)
         .is('deleted_at', null)
-        .or(`completed.eq.true,event_date.lte.${todayIso}`) // Changed lt to lte to include today's events as passed
+        .or(`completed.eq.true,event_date.lte.${todayIso}`)
         .order('event_date', { ascending: false });
 
       if (error) {
@@ -48,7 +46,6 @@ const PassedEvents = () => {
 
       console.log('Fetched passed events:', data);
       
-      // Log the event with code EVENT-001-113 if it exists
       const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
       if (specificEvent) {
         console.log('EVENT-001-113 found in passed events:', specificEvent);
@@ -62,7 +59,6 @@ const PassedEvents = () => {
     refetchOnMount: true,
   });
 
-  // Group events by month for display
   const groupedEvents = events.reduce((acc: Record<string, Event[]>, event) => {
     if (!event.event_date) return acc;
     const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
@@ -108,11 +104,6 @@ const PassedEvents = () => {
       
       <div className="flex-1 p-6 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5">
-            <CalendarCheck className="h-5 w-5 text-zinc-600" />
-            <h2 className="text-lg font-medium">Past Events</h2>
-          </div>
-          
           <div className="flex w-full sm:w-auto gap-2">
             <div className="relative flex-1 sm:flex-initial">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
