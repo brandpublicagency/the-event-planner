@@ -57,7 +57,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`rounded-xl overflow-hidden shadow-lg h-full transform transition-all hover:shadow-xl duration-300 ${className}`}
+      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 ${className}`}
     >
       <div 
         className={`text-white p-4 flex flex-col h-full ${fallbackGradientClass}`} 
@@ -83,7 +83,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           {/* Weather icon indicator */}
           <motion.div 
             whileHover={{ scale: 1.1, rotate: 5 }}
-            className="bg-white/30 rounded-full p-2 shadow-md"
+            className="bg-white/20 rounded-full p-2"
           >
             <WeatherIcon weatherData={weatherData} currentHour={currentHour} chanceOfRain={chanceOfRain} />
           </motion.div>
@@ -95,11 +95,11 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           <WeatherStatCard label="High" value={`${displayHighTemp}°`} />
           <WeatherStatCard 
             label={<div className="flex items-center">
-              <Droplet className="h-3 w-3 mr-1 text-sky-300" />
+              <Droplet className="h-3 w-3 mr-1 text-sky-300/80" />
               <span>Rain</span>
             </div>} 
             value={chanceOfRain} 
-            className={chanceOfRain === "HIGH" ? "text-sky-300" : chanceOfRain === "MEDIUM" ? "text-sky-200" : "text-white"} 
+            className={chanceOfRain === "HIGH" ? "text-sky-300/80" : chanceOfRain === "MEDIUM" ? "text-sky-200/80" : "text-white/80"} 
           />
         </div>
       </div>
