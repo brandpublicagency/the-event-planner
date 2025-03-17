@@ -159,10 +159,10 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
     }
   };
   
-  // Determine the color for the chance of rain text
+  // Determine the color for the chance of rain text - Changed to all white
   const rainColorClass = 
     chanceOfRain === "HIGH" ? "text-white" :
-    chanceOfRain === "MEDIUM" ? "text-yellow-100" : "text-green-100";
+    chanceOfRain === "MEDIUM" ? "text-white" : "text-white";
     
   // Calculate timestamp for when the weather data was last updated
   const getLastUpdated = () => {
