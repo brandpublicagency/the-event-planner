@@ -1,9 +1,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { CheckCircle, ArrowRight } from "lucide-react";
 import { Notification } from "@/types/notification";
-import { useNavigate } from "react-router-dom";
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -16,40 +15,38 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   onView,
   onComplete
 }) => {
-  const navigate = useNavigate();
-  
-  const handleViewClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Navigate to edit event page if relatedId exists
-    if (notification.relatedId) {
-      navigate(`/events/${notification.relatedId}/edit`);
-    } else {
-      // Fall back to original onView handler if no relatedId
-      onView(notification, e);
-    }
-  };
+  // Determine if we should show the complete button
+  const showCompleteButton = (
+    (notification.type === 'task_overdue' || 
+     notification.type === 'task_upcoming' ||
+     notification.type === 'document_due_reminder' ||
+     notification.type === 'payment_reminder') &&
+    !notification.read
+  );
   
   return (
-    <div className="flex items-center gap-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="text-xs h-7 px-2 border-zinc-200 flex items-center gap-1"
-        onClick={handleViewClick}
+    <div className="flex space-x-2">
+      <Button
+        variant="ghost"
+        size="xs"
+        className="h-7 text-xs"
+        onClick={(e) => onView(notification, e)}
       >
+        <ArrowRight className="mr-1 h-3.5 w-3.5" />
         View
       </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="text-xs h-7 px-2 flex items-center gap-1 text-black border border-green-500 hover:bg-green-500 hover:text-white transition-colors"
-        onClick={(e) => onComplete(notification, e)}
-      >
-        <Check className="h-3 w-3" />
-        Mark as done
-      </Button>
+      
+      {showCompleteButton && (
+        <Button
+          variant="outline"
+          size="xs"
+          className="h-7 text-xs border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+          onClick={(e) => onComplete(notification, e)}
+        >
+          <CheckCircle className="mr-1 h-3.5 w-3.5" />
+          Complete
+        </Button>
+      )}
     </div>
   );
 };

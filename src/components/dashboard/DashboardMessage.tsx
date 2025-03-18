@@ -1,3 +1,4 @@
+
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
@@ -6,6 +7,8 @@ import { format } from "date-fns";
 import { AlertCircle, Sun, Cloud, CloudRain } from "lucide-react";
 import { WeatherCard } from "./weather";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 const DashboardMessage = () => {
   const {
@@ -17,6 +20,14 @@ const DashboardMessage = () => {
     profile,
     isLoading: isProfileLoading
   } = useProfile();
+  const { refreshNotifications } = useNotifications();
+
+  // Refresh notifications when the dashboard loads
+  useEffect(() => {
+    refreshNotifications().catch(err => {
+      console.error('Error refreshing notifications from dashboard:', err);
+    });
+  }, [refreshNotifications]);
 
   const now = new Date();
   const hour = now.getHours();

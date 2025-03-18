@@ -14,7 +14,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log('Starting notification processing');
+    console.log('Starting notification processing at', new Date().toISOString());
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error('Missing required environment variables for Supabase connection');
     }
@@ -27,16 +27,26 @@ serve(async (req: Request) => {
       try {
         const body = await req.json();
         options = body || {};
+        console.log('Request options:', JSON.stringify(options));
       } catch (error) {
         console.error('Error parsing request body:', error);
       }
     }
     
-    // Handle the notification processing
+    // Handle the notification processing with detailed logging
+    console.log('Starting notification processing with options:', JSON.stringify(options));
+    const startTime = Date.now();
     const result = await handleProcessNotifications(supabase, options);
+    const endTime = Date.now();
+    console.log(`Notification processing completed in ${endTime - startTime}ms`);
+    console.log(`Results: ${JSON.stringify(result)}`);
     
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({
+        ...result,
+        processedAt: new Date().toISOString(),
+        processingTimeMs: endTime - startTime
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
@@ -44,7 +54,8 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack
+        details: error.stack,
+        timestamp: new Date().toISOString()
       }),
       { 
         status: 500,
