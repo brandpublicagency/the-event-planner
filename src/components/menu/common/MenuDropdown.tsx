@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   DropdownMenu,
@@ -14,9 +15,6 @@ interface MenuDropdownProps {
   options: { 
     value: string; 
     label: string; 
-    price?: number; 
-    priceRange?: { min: number; max: number };
-    priceType?: string 
   }[];
   placeholder: string;
 }
@@ -29,16 +27,6 @@ const MenuDropdown = ({
 }: MenuDropdownProps) => {
   const selectedOption = options.find(opt => opt.value === value);
 
-  const formatPrice = (option: typeof options[0]) => {
-    if (option.priceRange) {
-      return ` - R ${option.priceRange.min.toFixed(2)} - R ${option.priceRange.max.toFixed(2)}${option.priceType === 'per_person' ? ' per person' : ' per item'}`;
-    }
-    if (option.price) {
-      return ` - R ${option.price.toFixed(2)}${option.priceType === 'per_person' ? ' per person' : ' per item'}`;
-    }
-    return '';
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -49,7 +37,6 @@ const MenuDropdown = ({
           {selectedOption ? (
             <span className="flex-1 text-left">
               {selectedOption.label}
-              {formatPrice(selectedOption)}
             </span>
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>
@@ -70,7 +57,6 @@ const MenuDropdown = ({
           >
             <span>
               {option.label}
-              {formatPrice(option)}
             </span>
             {value === option.value && (
               <Check className="h-4 w-4 ml-2" />

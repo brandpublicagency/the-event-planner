@@ -1,10 +1,11 @@
+
 import { MenuOption } from './baseTypes';
 
 export const dessertTypes: MenuOption[] = [
-  { value: 'traditional', label: 'Traditional Baked Desserts', price: 95.00, priceType: 'per_person' },
-  { value: 'canapes', label: 'Dessert Canapés', price: 100.00, priceType: 'per_person' },
-  { value: 'cakes', label: 'Individual Cakes', price: 750.00, priceType: 'per_item' },
-  { value: 'bar', label: 'Dessert Bar', price: 120.00, priceType: 'per_person' },
+  { value: 'traditional', label: 'Traditional Baked Desserts' },
+  { value: 'canapes', label: 'Dessert Canapés' },
+  { value: 'cakes', label: 'Individual Cakes' },
+  { value: 'bar', label: 'Dessert Bar' },
 ];
 
 export const traditionalDessertOptions = [

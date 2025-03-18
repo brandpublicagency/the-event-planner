@@ -1,10 +1,11 @@
+
 import { CanapePackage, CanapeOption, PlatedStarterOption } from './baseTypes';
 
 export const canapePackages: CanapePackage[] = [
-  { value: '3', label: 'Choice of 3 Canapés', price: 120.00 },
-  { value: '4', label: 'Choice of 4 Canapés', price: 150.00 },
-  { value: '5', label: 'Choice of 5 Canapés', price: 185.00 },
-  { value: '6', label: 'Choice of 6 Canapés', price: 220.00 },
+  { value: '3', label: 'Choice of 3 Canapés' },
+  { value: '4', label: 'Choice of 4 Canapés' },
+  { value: '5', label: 'Choice of 5 Canapés' },
+  { value: '6', label: 'Choice of 6 Canapés' },
 ];
 
 export const canapeOptions: CanapeOption[] = [
@@ -56,7 +57,7 @@ export const platedStarterOptions: PlatedStarterOption[] = [
 ];
 
 export const starterTypes = [
-  { value: 'harvest', label: 'Harvest Table', price: 130.00, priceType: 'per_person' },
-  { value: 'canapes', label: 'Canapés', price: 120.00, priceRange: { min: 120.00, max: 220.00 }, priceType: 'per_person' },
-  { value: 'plated', label: 'Plated Starter', price: 120.00, priceType: 'per_person' },
+  { value: 'harvest', label: 'Harvest Table' },
+  { value: 'canapes', label: 'Canapés' },
+  { value: 'plated', label: 'Plated Starter' },
 ];

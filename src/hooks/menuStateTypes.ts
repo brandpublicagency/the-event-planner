@@ -1,3 +1,4 @@
+
 export interface MenuState {
   isCustomMenu: boolean;
   customMenuDetails: string;
@@ -53,10 +54,6 @@ export interface SaveMenuData {
   other_selections: string[];
   other_selections_quantities: Record<string, number>;
   notes: string;
-  starter_price: number;
-  main_course_price: number;
-  dessert_price: number;
-  other_total_price: number;
 }
 
 export interface MenuSelectionResponse {

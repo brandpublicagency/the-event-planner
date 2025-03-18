@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Check } from 'lucide-react';
-import { calculatePrices } from './menuPriceCalculator';
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
 
 export const useMenuState = (eventCode: string, toast: any) => {
@@ -107,8 +107,6 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
   const saveMenuSelections = async () => {
     try {
-      const prices = calculatePrices(menuState);
-      
       const menuData: SaveMenuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
@@ -136,10 +134,6 @@ export const useMenuState = (eventCode: string, toast: any) => {
         other_selections: menuState.otherSelections,
         other_selections_quantities: menuState.otherSelectionsQuantities,
         notes: menuState.notes,
-        starter_price: prices.starterPrice,
-        main_course_price: prices.mainCoursePrice,
-        dessert_price: prices.dessertPrice,
-        other_total_price: prices.otherTotalPrice
       };
 
       console.log('Saving menu data:', menuData);

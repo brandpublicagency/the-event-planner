@@ -1,9 +1,10 @@
+
 import { MenuOption } from './baseTypes';
 
 export const mainCourseTypes: MenuOption[] = [
-  { value: 'buffet', label: 'Buffet Menu', price: 380.00, priceType: 'per_person' },
-  { value: 'karoo', label: 'Warm Karoo Feast', price: 400.00, priceType: 'per_person' },
-  { value: 'plated', label: 'Plated Menu', price: 390.00, priceType: 'per_person' },
+  { value: 'buffet', label: 'Buffet Menu' },
+  { value: 'karoo', label: 'Warm Karoo Feast' },
+  { value: 'plated', label: 'Plated Menu' },
 ];
 
 export const buffetMeatOptions = [
