@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -76,12 +77,9 @@ export const useContactsQuery = () => {
           }
         });
 
-        // Sort by date (newest first)
+        // Sort contacts alphabetically by name (A to Z)
         return processedContacts.sort((a, b) => {
-          if (!a.eventDate && !b.eventDate) return 0;
-          if (!a.eventDate) return 1;
-          if (!b.eventDate) return -1;
-          return new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime();
+          return a.name.localeCompare(b.name);
         });
       } catch (error: any) {
         console.error('Error fetching contacts:', error);
