@@ -57,7 +57,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 ${className}`}
+      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 shadow-md hover:shadow-lg ${className}`}
     >
       <div 
         className={`text-white p-4 flex flex-col h-full ${fallbackGradientClass}`} 
@@ -68,12 +68,12 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           <div>
             <div className="uppercase font-semibold tracking-wide text-sm">{displayDate}</div>
             <div className="flex items-center mt-1.5 text-xs">
-              <div className="flex items-center text-white/90">
+              <div className="flex items-center text-white">
                 <MapPin className="h-3 w-3 mr-1" />
                 <span className="font-medium">{location}</span>
               </div>
               {/* Last updated indicator */}
-              <div className="text-white/70 flex items-center ml-3 pl-2 border-l border-white/30">
+              <div className="text-white/80 flex items-center ml-3 pl-2 border-l border-white/40">
                 <RefreshCcw className="h-3 w-3 mr-1 animate-spin-slow" />
                 <span className="text-[10px] font-medium">Updated {getLastUpdated()}</span>
               </div>
@@ -83,7 +83,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           {/* Weather icon indicator */}
           <motion.div 
             whileHover={{ scale: 1.1, rotate: 5 }}
-            className="bg-white/20 rounded-full p-2"
+            className="bg-white/30 rounded-full p-2"
           >
             <WeatherIcon weatherData={weatherData} currentHour={currentHour} chanceOfRain={chanceOfRain} />
           </motion.div>
@@ -95,11 +95,11 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           <WeatherStatCard label="High" value={`${displayHighTemp}°`} />
           <WeatherStatCard 
             label={<div className="flex items-center">
-              <Droplet className="h-3 w-3 mr-1 text-sky-300/80" />
+              <Droplet className="h-3 w-3 mr-1 text-sky-300" />
               <span>Rain</span>
             </div>} 
             value={chanceOfRain} 
-            className={chanceOfRain === "HIGH" ? "text-sky-300/80" : chanceOfRain === "MEDIUM" ? "text-sky-200/80" : "text-white/80"} 
+            className={chanceOfRain === "HIGH" ? "text-sky-300" : chanceOfRain === "MEDIUM" ? "text-sky-200" : "text-white/90"} 
           />
         </div>
       </div>

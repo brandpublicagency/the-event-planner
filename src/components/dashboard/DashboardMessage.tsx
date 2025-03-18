@@ -1,4 +1,3 @@
-
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
@@ -73,7 +72,6 @@ const DashboardMessage = () => {
     glowClass = "";
   }
 
-  // Get weather icon based on weather data
   const getWeatherIcon = () => {
     if (!dashboardMessage.weatherData?.description) return <Sun className="h-5 w-5" />;
     
@@ -150,7 +148,7 @@ const DashboardMessage = () => {
             )}
           </div>
           
-          <div className={`${textColorClass} text-xl font-semibold tracking-wide mt-5`}>
+          <div className="text-gray-400 dark:text-gray-500 text-xl font-semibold tracking-wide mt-5">
             {todayFormatted.toUpperCase()}
           </div>
         </Card>
