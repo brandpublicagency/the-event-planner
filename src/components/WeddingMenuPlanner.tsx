@@ -27,9 +27,8 @@ const WeddingMenuPlanner = ({
     menuState, 
     error,
     isLoading,
-    handleCustomMenuToggle,
-    handleCanapeSelection,
     handleMenuStateChange,
+    handleCanapeSelection,
     saveMenuSelections
   } = useMenuState(eventCode, toast);
 
@@ -38,7 +37,7 @@ const WeddingMenuPlanner = ({
     if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu) {
       handleMenuStateChange('isCustomMenu', isCustomMenu);
     }
-  }, [isCustomMenu]);
+  }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange]);
 
   // Sync menu state changes back to parent
   React.useEffect(() => {
@@ -50,7 +49,7 @@ const WeddingMenuPlanner = ({
     if (onMenuStateChange) {
       onMenuStateChange(menuState);
     }
-  }, [menuState]);
+  }, [menuState, onCustomMenuToggle, onMenuStateChange, isCustomMenu]);
 
   if (isLoading) {
     return (
