@@ -44,7 +44,6 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course Types
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated': 'Plated Menu',
     
     // Main Course - Karoo Meat
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -53,7 +52,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course - Buffet Meat
     'chicken_pie': 'Homemade chicken pie',
     'chicken_thighs': 'Roasted lemon & herb chicken thighs with chimichurri',
-    'leg_of_lamb': 'Leg of lamb with a rich jus',
+    'lamb_leg': 'Leg of lamb with a rich jus',
     'beef_fillet': 'Beef fillet medallions in creamy wild mushroom sauce',
     'oxtail_pie': 'Slow roasted oxtail pie',
     'glazed_gammon': 'Glazed gammon with sticky mustard & apple sauce',
@@ -375,7 +374,6 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const { toast } = useToast();
   
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
     documentTitle: `Menu - ${event.name}`,
     onBeforePrint: () => {
       console.log("Preparing to print menu...");
@@ -400,7 +398,11 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   return (
     <>
       <Button 
-        onClick={handlePrint}
+        onClick={() => {
+          if (componentRef.current) {
+            handlePrint();
+          }
+        }}
         className="rounded-full" 
         variant="outline"
         size="sm"

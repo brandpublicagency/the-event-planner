@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { dessertTypes, traditionalDessertOptions, dessertCanapeOptions, individualCakeOptions } from './MenuTypes';
 import { Input } from "@/components/ui/input";
@@ -62,7 +63,7 @@ const DessertSection = ({
           />
         ) : (
           <SelectionDisplay
-            label={`${dessertTypes.find(type => type.value === selectedDessert)?.label} - R ${dessertTypes.find(type => type.value === selectedDessert)?.price.toFixed(2)} ${dessertTypes.find(type => type.value === selectedDessert)?.priceType === 'per_person' ? 'per person' : 'per item'}`}
+            label={`${dessertTypes.find(type => type.value === selectedDessert)?.label || ''}`}
             onRemove={() => onDessertChange('')}
             actionLabel="Change"
           />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { starterTypes } from './MenuTypes';
 import SelectionDisplay from './SelectionDisplay';
@@ -20,25 +21,15 @@ const StarterTypeSelect = ({
         <MenuDropdown
           value={selectedStarterType}
           onValueChange={onStarterTypeChange}
-          options={starterTypes.map(type => ({
-            value: type.value,
-            label: type.label,
-            price: type.price,
-            priceRange: type.priceRange,
-            priceType: 'per_person'
-          }))}
+          options={starterTypes}
           placeholder="Choose starter option"
         />
       ) : (
         <SelectionDisplay
           label={selectedType?.label || ''}
-          price={selectedType ? {
-            value: selectedType.priceRange?.min || selectedType.price,
-            type: 'per_person'
-          } : undefined}
           onRemove={() => onStarterTypeChange('')}
           actionLabel="Change"
-          showPrice={true}
+          isBold={false}
         />
       )}
     </div>

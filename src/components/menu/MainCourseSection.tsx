@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { mainCourseTypes } from './MenuTypes';
 import BuffetSection from './BuffetSection';
@@ -67,7 +68,7 @@ const MainCourseSection = ({
           />
         ) : (
           <SelectionDisplay
-            label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label} - R ${mainCourseTypes.find(type => type.value === selectedMainCourse)?.price.toFixed(2)} per person`}
+            label={`${mainCourseTypes.find(type => type.value === selectedMainCourse)?.label || ''}`}
             onRemove={() => onMainCourseChange('')}
             actionLabel="Change"
           />

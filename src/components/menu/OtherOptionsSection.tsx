@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { otherOptions } from './MenuTypes';
+import { otherOptions } from './types/otherOptions';
 import { Input } from "@/components/ui/input";
 
 interface OtherOptionsSectionProps {
@@ -20,7 +21,7 @@ const OtherOptionsSection = ({
 
   const getOptionLabel = (value: string) => {
     const option = otherOptions.find(opt => opt.value === value);
-    return option ? `${option.label} - R ${option.price.toFixed(2)} ${option.priceType === 'per_person' ? 'per person' : 'per item'}` : '';
+    return option ? option.label : '';
   };
 
   return (

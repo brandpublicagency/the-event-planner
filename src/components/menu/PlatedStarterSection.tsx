@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { platedStarterOptions } from './MenuTypes';
 import MenuDropdown from './common/MenuDropdown';
@@ -28,7 +29,6 @@ const PlatedStarterSection = ({
           label={selectedOption?.label || ''}
           onRemove={() => onPlatedStarterChange('')}
           actionLabel="Change"
-          showPrice={false}
         />
       )}
     </div>

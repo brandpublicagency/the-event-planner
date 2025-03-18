@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { canapePackages, canapeOptions } from './MenuTypes';
 import SelectionDisplay from './SelectionDisplay';
@@ -23,18 +24,13 @@ const CanapeSection = ({
           <MenuDropdown
             value={selectedCanapePackage}
             onValueChange={onCanapePackageChange}
-            options={canapePackages.map(pkg => ({
-              value: pkg.value,
-              label: pkg.label,
-              price: pkg.price,
-              priceType: 'per_person'
-            }))}
+            options={canapePackages}
             placeholder="Select number of canapés"
           />
         ) : (
           <div>
             <SelectionDisplay
-              label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label} - R ${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.price.toFixed(2)} per person`}
+              label={`${canapePackages.find(pkg => pkg.value === selectedCanapePackage)?.label || ''}`}
               onRemove={() => onCanapePackageChange('')}
               actionLabel="Change"
               isBold={true}
