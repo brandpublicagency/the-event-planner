@@ -1,3 +1,4 @@
+
 const formatSelection = (selection: string) => {
   if (!selection) return '';
   
@@ -17,7 +18,7 @@ const formatSelection = (selection: string) => {
     
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated': 'Plated Menu',
+    'plated_menu': 'Plated Menu',  // Changed key from 'plated' to 'plated_menu'
     
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
     'oxtail_chicken': 'Homemade oxtail pie and golden-brown chickens',
@@ -36,7 +37,7 @@ const formatSelection = (selection: string) => {
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'canapes': 'Dessert Canapés',
+    'dessert_canapes': 'Dessert Canapés',  // Changed key from 'canapes' to 'dessert_canapes'
     
     'chocolate_pudding': 'Self-saucing chocolate pudding',
     'date_pudding': 'Date & nut brandy pudding',
@@ -147,7 +148,7 @@ export const formatMenuDetails = (menu: any) => {
   if (menu.dessert_type) {
     sections.push(`Dessert: ${formatSelection(menu.dessert_type)}`);
     
-    if (menu.dessert_type === 'canapes' && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
+    if (menu.dessert_type === 'dessert_canapes' && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
       sections.push('Dessert Canapés:');
       menu.dessert_canapes.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
     } else if (menu.dessert_type === 'individual' && menu.individual_cakes && menu.individual_cakes.length > 0) {

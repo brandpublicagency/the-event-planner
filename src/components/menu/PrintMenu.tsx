@@ -44,6 +44,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course Types
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
+    'plated_main': 'Plated Menu',  // Changed key from 'plated' to 'plated_main'
     
     // Main Course - Karoo Meat
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -100,7 +101,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'canapes': 'Dessert Canapés',
+    'dessert_canapes': 'Dessert Canapés',  // Changed key from 'canapes' to 'dessert_canapes'
     
     // Traditional Desserts
     'chocolate_pudding': 'Self-saucing chocolate pudding',
@@ -306,7 +307,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                   <p className="mt-1 text-sm">{getDisplayName(menuState.traditionalDessert)}</p>
                 )}
                 
-                {menuState.dessertType === 'canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
+                {menuState.dessertType === 'dessert_canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
                   <div className="mt-2">
                     <ul className="list-disc pl-5 space-y-1">
                       {menuState.dessertCanapes.map((item, idx) => (
