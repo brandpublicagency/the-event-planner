@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -7,59 +7,80 @@ import { ExternalLink } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { NotificationsList } from "@/components/notifications/NotificationList";
+import { toast } from 'sonner';
+import { Notification } from '@/types/notification';
 
 export function NotificationDropdown() {
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAsCompleted } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   // Log notifications for debugging
   console.log('NotificationDropdown rendering with notifications:', notifications.length, 'Unread:', unreadCount);
 
-  const handleViewNotification = async (id: string, relatedId?: string) => {
+  // Handler for viewing a notification
+  const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
     try {
       await markAsRead(id);
-      toast.success(`Notification marked as read!`);
+      
+      // Close dropdown
+      setIsOpen(false);
+
+      // Find the notification to determine navigation
+      const notification = notifications.find(n => n.id === id);
+      if (notification) {
+        if (relatedId) {
+          // Handle different types of related IDs
+          if (relatedId.startsWith('event_')) {
+            navigate(`/events/${relatedId}`);
+          } else if (relatedId.startsWith('task_')) {
+            navigate(`/tasks?selected=${relatedId}`);
+          } else if (relatedId.startsWith('doc_')) {
+            navigate(`/documents?document=${relatedId.replace('doc_', '')}`);
+          } else {
+            navigate(`/${relatedId}`);
+          }
+        } else {
+          // Default navigation based on notification type
+          if (notification.type === "task_overdue" || notification.type === "task_upcoming") {
+            navigate(`/tasks`);
+          } else if (notification.type === "document_due_reminder") {
+            navigate(`/documents`);
+          } else if (notification.type === "final_payment_reminder") {
+            navigate(`/events`);
+          } else {
+            navigate(`/`);
+          }
+        }
+      }
+
+      toast.success(`Notification marked as read`);
     } catch (error) {
       console.error("Error marking notification as read:", error);
-      toast.error("Failed to mark notification as read.");
+      toast.error("Failed to mark notification as read");
     }
+  }, [markAsRead, navigate, notifications]);
 
-    setIsOpen(false);
-
-    // Find the notification to determine where to navigate
-    const notification = notifications.find(n => n.id === id);
-    if (notification) {
-      if (notification.type === "event_created" && relatedId) {
-        navigate(`/events/${relatedId}`);
-      } else if (notification.type === "task_overdue" || notification.type === "task_upcoming") {
-        navigate(`/tasks`);
-      } else {
-        navigate(`/`);
-      }
-    }
-  };
-
-  const handleCompleteTask = async (id: string) => {
+  // Handler for completing a task
+  const handleCompleteTask = useCallback(async (id: string) => {
     try {
-      await markAsRead(id);
+      await markAsCompleted(id);
       toast.success(`Task marked as complete!`);
+      
+      // Close dropdown and navigate to tasks
+      setIsOpen(false);
+      navigate(`/tasks`);
     } catch (error) {
       console.error("Error marking task as complete:", error);
-      toast.error("Failed to mark task as complete.");
+      toast.error("Failed to mark task as complete");
     }
+  }, [markAsCompleted, navigate]);
 
-    setIsOpen(false);
-    navigate(`/tasks`);
-  };
-
-  const handleViewAll = () => {
+  const handleViewAll = useCallback(() => {
     setIsOpen(false);
     navigate('/notifications');
-  };
+  }, [navigate]);
 
   return (
     <div className="w-full">

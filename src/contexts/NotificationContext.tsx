@@ -69,26 +69,47 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [handleRefreshNotifications]);
   
-  // Add markAllAsRead functionality
-  const markAllAsRead = useCallback(() => {
-    pendingNotifications.forEach(notification => {
-      if (!notification.read) {
-        markAsRead(notification.id).catch(err => {
-          console.error('Error marking notification as read:', err);
-        });
-      }
-    });
-  }, [pendingNotifications, markAsRead]);
+  // Add markAllAsRead functionality that properly updates the database
+  const markAllAsRead = useCallback(async () => {
+    const promises = pendingNotifications
+      .filter(notification => !notification.read)
+      .map(notification => markAsRead(notification.id));
+    
+    try {
+      await Promise.all(promises);
+      toast({
+        title: 'All notifications marked as read',
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to mark all notifications as read',
+        variant: 'destructive',
+      });
+    }
+  }, [pendingNotifications, markAsRead, toast]);
   
   // Add clearNotifications functionality
-  const clearNotifications = useCallback(() => {
-    console.log('Clearing all notifications - marking as completed');
-    pendingNotifications.forEach(notification => {
-      markAsCompleted(notification.id).catch(err => {
-        console.error('Error clearing notification:', err);
+  const clearNotifications = useCallback(async () => {
+    const promises = pendingNotifications.map(notification => markAsCompleted(notification.id));
+    
+    try {
+      await Promise.all(promises);
+      toast({
+        title: 'All notifications cleared',
+        variant: 'success',
       });
-    });
-  }, [pendingNotifications, markAsCompleted]);
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to clear all notifications',
+        variant: 'destructive',
+      });
+    }
+  }, [pendingNotifications, markAsCompleted, toast]);
 
   useEffect(() => {
     // Refresh notifications when component mounts
