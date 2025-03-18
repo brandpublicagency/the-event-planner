@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MapPin, Droplet, RefreshCcw } from 'lucide-react';
 import { format } from 'date-fns';
@@ -30,7 +29,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   className = '',
   timeOverride,
 }) => {
-  // Use provided props or extract from weatherData if available
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   
@@ -38,12 +36,10 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   const displayLowTemp = lowTemp || (weatherData?.temp ? Math.max(weatherData.temp - 10, 5) : 9);
   const displayHighTemp = highTemp || (weatherData?.temp || 27);
   
-  // Determine time-based gradient based on current hour
   const currentHour = timeOverride !== undefined ? timeOverride : new Date().getHours();
   
   const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(currentHour);
   
-  // Calculate timestamp for when the weather data was last updated
   const getLastUpdated = () => {
     if (weatherData?.timestamp) {
       const updatedTime = new Date(weatherData.timestamp);
@@ -54,8 +50,8 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
       className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 shadow-lg hover:shadow-xl ${className}`}
       style={{ boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)' }}
@@ -68,7 +64,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
             (gradientStyle.background as string).replace(/rgb\((\d+), (\d+), (\d+), (0\.\d+)\)/g, 'rgb($1, $2, $3, 0.8)') : undefined
         }}
       >
-        {/* Header section with date, location, and weather icon */}
         <div className="mb-4 flex justify-between items-start">
           <div>
             <div className="uppercase font-bold tracking-wide text-sm text-white">
@@ -79,7 +74,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
                 <MapPin className="h-3.5 w-3.5 mr-1.5 text-sky-200" />
                 <span className="font-semibold">{location}</span>
               </div>
-              {/* Last updated indicator */}
               <div className="text-white flex items-center ml-3 pl-2 border-l border-white/60">
                 <RefreshCcw className="h-3 w-3 mr-1.5 animate-spin-slow text-sky-200" />
                 <span className="text-[10px] font-medium">Updated {getLastUpdated()}</span>
@@ -87,7 +81,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
             </div>
           </div>
           
-          {/* Weather icon indicator */}
           <motion.div 
             whileHover={{ scale: 1.1, rotate: 5 }}
             className="bg-white/40 rounded-full p-2.5 shadow-lg"
@@ -97,7 +90,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
           </motion.div>
         </div>
         
-        {/* Temperature and rain info section in a single row */}
         <div className="grid grid-cols-3 gap-3 mt-2">
           <WeatherStatCard label="Low" value={`${displayLowTemp}°`} />
           <WeatherStatCard label="High" value={`${displayHighTemp}°`} />
