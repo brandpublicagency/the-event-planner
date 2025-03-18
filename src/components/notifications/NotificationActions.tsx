@@ -26,9 +26,9 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   return (
     <div className="flex space-x-2">
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
-        className="px-3 py-1 h-7 text-xs"
+        className="px-3 py-1 h-7 text-xs border border-zinc-200"
         onClick={(e) => onView(notification, e)}
       >
         View
