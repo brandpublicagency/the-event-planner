@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { format, parse, isValid } from "date-fns";
 
 interface SearchResult {
   id: string; 
@@ -21,6 +22,47 @@ export const SearchBar = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Parse date from search query
+  const parseDateFromQuery = (query: string): Date | null => {
+    // Try different date formats
+    const dateFormats = [
+      'd MMMM', // 5 April
+      'd MMM',  // 5 Apr
+      'MMMM d', // April 5
+      'MMM d',  // Apr 5
+      'd/M',    // 5/4
+      'M/d',    // 4/5
+      'd-M',    // 5-4
+      'M-d',    // 4-5
+    ];
+
+    const year = new Date().getFullYear();
+    
+    for (const dateFormat of dateFormats) {
+      try {
+        // Add the current year for proper parsing
+        const dateWithYear = query.includes(String(year)) 
+          ? query 
+          : `${query} ${year}`;
+        
+        const parsedDate = parse(
+          dateWithYear,
+          `${dateFormat} yyyy`,
+          new Date()
+        );
+        
+        if (isValid(parsedDate)) {
+          return parsedDate;
+        }
+      } catch (e) {
+        // Try next format if this one fails
+        continue;
+      }
+    }
+    
+    return null;
+  };
+
   // Perform search when query changes
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -32,6 +74,53 @@ export const SearchBar = () => {
       setIsLoading(true);
       
       try {
+        // Check if the search query might be a date
+        const possibleDate = parseDateFromQuery(searchQuery);
+        
+        if (possibleDate && isValid(possibleDate)) {
+          // Format the date to ISO format for database query (YYYY-MM-DD)
+          const formattedDate = format(possibleDate, 'yyyy-MM-dd');
+          
+          // Fetch events by date
+          const { data: dateEvents, error: dateError } = await supabase
+            .from('events')
+            .select('event_code, name, event_type, event_date')
+            .eq('event_date', formattedDate)
+            .is('deleted_at', null)
+            .order('event_date', { ascending: true });
+            
+          if (dateError) throw dateError;
+          
+          // Format date search results
+          const formattedDateEvents = dateEvents?.map(event => ({
+            id: event.event_code,
+            title: `${event.name} (${event.event_type})`,
+            path: `/events/${event.event_code}`,
+            type: 'event' as const
+          })) || [];
+          
+          // If we found date results, return them directly
+          if (formattedDateEvents.length > 0) {
+            setSearchResults(formattedDateEvents);
+            setIsLoading(false);
+            return;
+          } 
+          
+          // If no events on that date, show a "no events" result
+          if (possibleDate) {
+            const displayDate = format(possibleDate, 'd MMMM yyyy');
+            setSearchResults([{
+              id: 'no-events',
+              title: `No events scheduled on ${displayDate}`,
+              path: `/calendar`,
+              type: 'event' as const
+            }]);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // Continue with regular search if no date was found or no events on that date
         // Fetch events
         const { data: events, error: eventsError } = await supabase
           .from('events')
