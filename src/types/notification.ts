@@ -7,7 +7,8 @@ export type NotificationType =
   | "event_incomplete"
   | "final_payment_reminder"  
   | "document_due_reminder"   
-  | "task_created";
+  | "task_created"
+  | "payment_reminder";
 
 export interface Notification {
   id: string;

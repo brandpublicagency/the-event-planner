@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Notification } from "@/types/notification";
-import { Calendar, AlertTriangle, AlarmClock, FileText, CreditCard, Info, Bell, CheckCircle } from "lucide-react";
 import { NotificationActions } from "./NotificationActions";
 
 interface NotificationItemProps {
@@ -21,27 +20,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   // Determine if the notification needs special styling based on type
   const isUrgent = notification.type === 'task_overdue' || 
                    notification.type === 'document_due_reminder' ||
-                   notification.type === 'payment_reminder';
-  
-  // Get the appropriate icon based on notification type
-  const getNotificationIcon = () => {
-    switch(notification.type) {
-      case 'event_created':
-      case 'event_created_unified':
-        return <Calendar className="h-4 w-4 text-emerald-500" />;
-      case 'task_overdue':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'task_upcoming':
-        return <AlarmClock className="h-4 w-4 text-amber-500" />;
-      case 'document_due_reminder':
-        return <FileText className="h-4 w-4 text-blue-500" />;
-      case 'payment_reminder':
-      case 'final_payment_reminder':
-        return <CreditCard className="h-4 w-4 text-violet-500" />;
-      default:
-        return <Info className="h-4 w-4 text-gray-500" />;
-    }
-  };
+                   (notification.type === 'final_payment_reminder');
   
   return (
     <div 
@@ -54,9 +33,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       )}
     >
       <div className="flex gap-3">
-        <div className="flex-shrink-0 flex items-start pt-0.5">
-          {getNotificationIcon()}
-        </div>
+        {/* Removed the icon container div completely */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>
