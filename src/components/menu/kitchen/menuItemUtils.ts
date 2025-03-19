@@ -25,9 +25,12 @@ export const formatTimeDisplay = (startTime: string | null, endTime: string | nu
 
 // Format notes
 export const formatNotes = (notes: string): React.ReactNode[] => {
-  return notes.split('\n').map((line, i) => (
-    <p key={i} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{line}</p>
-  ));
+  return notes.split('\n').map((line, i) => 
+    React.createElement('p', {
+      key: i,
+      style: { fontSize: '12px', margin: '0', marginBottom: '4px' }
+    }, line)
+  );
 };
 
 // Helper function to get readable description
