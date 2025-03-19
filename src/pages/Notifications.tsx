@@ -105,26 +105,6 @@ const Notifications = () => {
     <div className="flex flex-col h-full">
       <Header 
         pageTitle="Notifications"
-        secondaryAction={
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={refreshWithState}
-            disabled={isRefreshing || loading}
-          >
-            {isRefreshing || loading ? (
-              <>
-                <Spinner className="mr-2 h-4 w-4" />
-                Refreshing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-1" />
-                Refresh
-              </>
-            )}
-          </Button>
-        }
       />
       
       <div className="p-6 flex-1">
