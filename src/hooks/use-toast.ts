@@ -1,3 +1,5 @@
 
-// Forward exports from the correct location
-export { useToast, toast } from "@/components/ui/use-toast";
+// Re-export from the correct location
+import { useToast, toast } from "@/components/ui/toast";
+
+export { useToast, toast };

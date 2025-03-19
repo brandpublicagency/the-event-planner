@@ -36,6 +36,12 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
         const eventName = item?.events?.name || 'Untitled Event';
         const createdDate = item?.sent_at || item?.created_at || new Date().toISOString();
         
+        // Ensure status is one of the allowed values
+        const status: "completed" | "read" | "sent" = 
+          item?.is_completed ? 'completed' : 
+          item?.is_read ? 'read' : 
+          'sent';
+        
         return {
           id: item?.id || `generated-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           title: formatNotificationTitle(notificationType) || 'Notification',
@@ -45,7 +51,7 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
           read: Boolean(item?.is_read),
           actionType: 'review' as any,
           relatedId: item?.event_code,
-          status: item?.is_completed ? 'completed' : item?.is_read ? 'read' : 'sent'
+          status: status
         };
       });
     }
@@ -105,6 +111,12 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
         description = `Notification for ${eventName}`;
       }
 
+      // Ensure status is one of the allowed values
+      const status: "completed" | "read" | "sent" = 
+        item?.is_completed ? 'completed' : 
+        item?.is_read ? 'read' : 
+        'sent';
+
       // Create the notification object with safe values
       return {
         id: item?.id || `generated-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -115,7 +127,7 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
         read: Boolean(item?.is_read),
         actionType: template?.action_type as any || 'review',
         relatedId: item?.event_code,
-        status: item?.is_completed ? 'completed' : item?.is_read ? 'read' : 'sent'
+        status: status
       };
     }).filter(Boolean) as Notification[]; // Filter out null entries
   } catch (error) {
@@ -135,17 +147,25 @@ export const formatNotifications = async (notificationsData: any[]): Promise<Not
     // Also try to format what we can from the original data
     const basicNotifications = notificationsData
       .filter(item => item && typeof item === 'object')
-      .map(item => ({
-        id: item.id || `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        title: formatNotificationTitle(item.notification_type) || 'Notification',
-        description: `Notification for ${item.events?.name || 'Event'}`,
-        createdAt: new Date(item.sent_at || item.created_at || Date.now()),
-        type: item.notification_type as any,
-        read: Boolean(item.is_read),
-        actionType: 'review' as any,
-        relatedId: item.event_code,
-        status: item.is_completed ? 'completed' : item.is_read ? 'read' : 'sent'
-      }));
+      .map(item => {
+        // Ensure status is one of the allowed values
+        const status: "completed" | "read" | "sent" = 
+          item.is_completed ? 'completed' : 
+          item.is_read ? 'read' : 
+          'sent';
+        
+        return {
+          id: item.id || `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          title: formatNotificationTitle(item.notification_type) || 'Notification',
+          description: `Notification for ${item.events?.name || 'Event'}`,
+          createdAt: new Date(item.sent_at || item.created_at || Date.now()),
+          type: item.notification_type as any,
+          read: Boolean(item.is_read),
+          actionType: 'review' as any,
+          relatedId: item.event_code,
+          status: status
+        };
+      });
     
     return [errorNotification, ...basicNotifications];
   }
