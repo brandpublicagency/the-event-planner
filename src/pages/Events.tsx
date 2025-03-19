@@ -1,34 +1,18 @@
-
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
-import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/services/eventService";
 import { Header } from "@/components/layout/Header";
 import { CalendarX, Calendar, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Events() {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Show a toast when the component mounts to verify the toast system works
-    toast({
-      title: "Events Loaded",
-      description: "The events page has loaded successfully",
-      variant: "info",
-      showProgress: true,
-      duration: 5000,
-      position: "sidebar"
-    });
-    
-    console.log("Toast notification triggered in Events component");
-  }, [toast]);
 
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],

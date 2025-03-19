@@ -2,7 +2,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -11,7 +10,6 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { toast } = useToast();
   const location = useLocation();
 
   useEffect(() => {
@@ -21,14 +19,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (!session) {
           setIsAuthenticated(false);
-          // Only show toast if not on login page
-          if (location.pathname !== '/login') {
-            toast({
-              title: "Authentication required",
-              description: "Please sign in to access this page",
-              variant: "destructive",
-            });
-          }
+          // Removed toast notification
         } else {
           setIsAuthenticated(true);
         }
@@ -49,7 +40,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [toast, location.pathname]);
+  }, [location.pathname]);
 
   if (isLoading) {
     return (

@@ -3,7 +3,7 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import { ToastOptions } from "./use-toast";
 
 export interface ToastContextValue {
-  toast: (options: ToastOptions) => void;
+  toast: (options: ToastOptions) => { id: string };
   dismiss: (toastId?: string) => void;
   toasts: Array<{
     id: string;
@@ -59,6 +59,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         },
       ];
     });
+
+    return { id };
   };
 
   const dismiss = (toastId?: string) => {
