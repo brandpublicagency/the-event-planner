@@ -1,4 +1,3 @@
-
 const formatSelection = (selection: string) => {
   if (!selection) return '';
   
@@ -18,7 +17,7 @@ const formatSelection = (selection: string) => {
     
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated_menu': 'Plated Menu',  // Changed key from 'plated' to 'plated_menu'
+    'plated': 'Plated Menu',
     
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
     'oxtail_chicken': 'Homemade oxtail pie and golden-brown chickens',
@@ -37,7 +36,7 @@ const formatSelection = (selection: string) => {
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'dessert_canapes': 'Dessert Canapés',  // Changed key from 'canapes' to 'dessert_canapes'
+    'canapes': 'Dessert Canapés',
     
     'chocolate_pudding': 'Self-saucing chocolate pudding',
     'date_pudding': 'Date & nut brandy pudding',
@@ -70,7 +69,7 @@ export const formatMenuDetails = (menu: any) => {
 
   // Starter section with specific handling for canapés
   if (menu.starter_type) {
-    if (menu.starter_type === 'canapes' || menu.canape_package) {
+    if (menu.starter_type === 'canapes') {
       sections.push('Starter: Canapés');
       
       if (menu.canape_package) {
@@ -80,7 +79,7 @@ export const formatMenuDetails = (menu: any) => {
       if (menu.canape_selections && menu.canape_selections.length > 0) {
         sections.push('Selections:');
         menu.canape_selections.forEach((canape: string) => {
-          sections.push(`- ${formatSelection(canape)}`);
+          if (canape) sections.push(`- ${formatSelection(canape)}`);
         });
       } else {
         sections.push('No specific canapés selected yet');
@@ -90,6 +89,8 @@ export const formatMenuDetails = (menu: any) => {
     } else {
       sections.push(`Starter: ${formatSelection(menu.starter_type)}`);
     }
+    
+    sections.push('');
   }
 
   // Main course section with type-specific details
@@ -97,16 +98,10 @@ export const formatMenuDetails = (menu: any) => {
     sections.push(`Main Course: ${formatSelection(menu.main_course_type)}`);
     
     // Add type-specific details
-    if (menu.main_course_type === 'buffet' && menu.buffet_meat_selections) {
-      sections.push('Buffet Selections:');
+    if (menu.main_course_type === 'buffet') {
       if (menu.buffet_meat_selections && menu.buffet_meat_selections.length > 0) {
         sections.push('Meat:');
         menu.buffet_meat_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
-      }
-      
-      if (menu.buffet_vegetable_selections && menu.buffet_vegetable_selections.length > 0) {
-        sections.push('Vegetables:');
-        menu.buffet_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
       }
       
       if (menu.buffet_starch_selections && menu.buffet_starch_selections.length > 0) {
@@ -114,11 +109,18 @@ export const formatMenuDetails = (menu: any) => {
         menu.buffet_starch_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
       }
       
+      if (menu.buffet_vegetable_selections && menu.buffet_vegetable_selections.length > 0) {
+        sections.push('Vegetables:');
+        menu.buffet_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+      }
+      
       if (menu.buffet_salad_selection) {
         sections.push(`Salad: ${formatSelection(menu.buffet_salad_selection)}`);
       }
-    } else if (menu.main_course_type === 'plated' && menu.plated_main_selection) {
-      sections.push(`Plated Selection: ${formatSelection(menu.plated_main_selection)}`);
+    } else if (menu.main_course_type === 'plated') {
+      if (menu.plated_main_selection) {
+        sections.push(`Plated Selection: ${formatSelection(menu.plated_main_selection)}`);
+      }
       
       if (menu.plated_salad_selection) {
         sections.push(`Salad: ${formatSelection(menu.plated_salad_selection)}`);
@@ -128,52 +130,58 @@ export const formatMenuDetails = (menu: any) => {
         sections.push(`Karoo Meat: ${formatSelection(menu.karoo_meat_selection)}`);
       }
       
-      if (menu.karoo_vegetable_selections && menu.karoo_vegetable_selections.length > 0) {
-        sections.push('Karoo Vegetables:');
-        menu.karoo_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
-      }
-      
       if (menu.karoo_starch_selection && menu.karoo_starch_selection.length > 0) {
         sections.push('Karoo Starch:');
         menu.karoo_starch_selection.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+      }
+      
+      if (menu.karoo_vegetable_selections && menu.karoo_vegetable_selections.length > 0) {
+        sections.push('Karoo Vegetables:');
+        menu.karoo_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
       }
       
       if (menu.karoo_salad_selection) {
         sections.push(`Karoo Salad: ${formatSelection(menu.karoo_salad_selection)}`);
       }
     }
+    
+    sections.push('');
   }
 
   // Dessert section
   if (menu.dessert_type) {
     sections.push(`Dessert: ${formatSelection(menu.dessert_type)}`);
     
-    if (menu.dessert_type === 'dessert_canapes' && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
+    if (menu.dessert_type === 'canapes' && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
       sections.push('Dessert Canapés:');
       menu.dessert_canapes.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
     } else if (menu.dessert_type === 'individual' && menu.individual_cakes && menu.individual_cakes.length > 0) {
       sections.push('Individual Cakes:');
       menu.individual_cakes.forEach((item: string) => {
-        const quantity = menu.individual_cake_quantities?.[item] || '';
-        sections.push(`- ${formatSelection(item)}${quantity ? ` (x${quantity})` : ''}`);
+        const quantity = menu.individual_cake_quantities?.[item] || 1;
+        sections.push(`- ${formatSelection(item)}${quantity > 1 ? ` (x${quantity})` : ''}`);
       });
     } else if (menu.dessert_type === 'traditional' && menu.traditional_dessert) {
       sections.push(`Traditional Dessert: ${formatSelection(menu.traditional_dessert)}`);
     }
+    
+    sections.push('');
   }
 
   // Other selections
   if (menu.other_selections && menu.other_selections.length > 0) {
     sections.push('Additional Options:');
     menu.other_selections.forEach((item: string) => {
-      const quantity = menu.other_selections_quantities?.[item] || '';
-      sections.push(`- ${formatSelection(item)}${quantity ? ` (x${quantity})` : ''}`);
+      const quantity = menu.other_selections_quantities?.[item] || 1;
+      sections.push(`- ${formatSelection(item)}${quantity > 1 ? ` (x${quantity})` : ''}`);
     });
+    
+    sections.push('');
   }
 
   // Notes
   if (menu.notes) {
-    sections.push('\nNotes:', menu.notes);
+    sections.push('Notes:', menu.notes);
   }
 
   return sections.join('\n');

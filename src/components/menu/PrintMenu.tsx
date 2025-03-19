@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course Types
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated_main': 'Plated Menu',  // Changed key from 'plated' to 'plated_main'
+    'plated': 'Plated Menu',
     
     // Main Course - Karoo Meat
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -100,7 +101,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'dessert_canapes': 'Dessert Canapés',  // Changed key from 'canapes' to 'dessert_canapes'
+    'canapes': 'Dessert Canapés',
     
     // Traditional Desserts
     'chocolate_pudding': 'Self-saucing chocolate pudding',
@@ -132,6 +133,12 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     return menuItems[key] || key.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  };
+
+  // Format quantities to show only if greater than 1
+  const formatQuantity = (quantity?: number): string => {
+    if (!quantity || quantity <= 1) return '';
+    return ` (x${quantity})`;
   };
 
   return (
@@ -170,8 +177,8 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                     
                     {menuState.selectedCanapes && menuState.selectedCanapes.length > 0 ? (
                       <ul className="list-disc pl-5 space-y-1">
-                        {menuState.selectedCanapes.map((canape, idx) => (
-                          canape && <li key={idx} className="text-sm">{getDisplayName(canape)}</li>
+                        {menuState.selectedCanapes.filter(Boolean).map((canape, idx) => (
+                          <li key={idx} className="text-sm">{getDisplayName(canape)}</li>
                         ))}
                       </ul>
                     ) : (
@@ -205,22 +212,22 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                       </div>
                     )}
                     
-                    {menuState.buffetVegetableSelections && menuState.buffetVegetableSelections.length > 0 && (
+                    {menuState.buffetStarchSelections && menuState.buffetStarchSelections.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm">Vegetables</p>
+                        <p className="font-medium text-sm">Starch</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          {menuState.buffetVegetableSelections.map((item, idx) => (
+                          {menuState.buffetStarchSelections.map((item, idx) => (
                             <li key={idx} className="text-sm">{getDisplayName(item)}</li>
                           ))}
                         </ul>
                       </div>
                     )}
                     
-                    {menuState.buffetStarchSelections && menuState.buffetStarchSelections.length > 0 && (
+                    {menuState.buffetVegetableSelections && menuState.buffetVegetableSelections.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm">Starch</p>
+                        <p className="font-medium text-sm">Vegetables</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          {menuState.buffetStarchSelections.map((item, idx) => (
+                          {menuState.buffetVegetableSelections.map((item, idx) => (
                             <li key={idx} className="text-sm">{getDisplayName(item)}</li>
                           ))}
                         </ul>
@@ -245,22 +252,22 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                       </div>
                     )}
                     
-                    {menuState.karooVegetableSelections && menuState.karooVegetableSelections.length > 0 && (
+                    {menuState.karooStarchSelection && menuState.karooStarchSelection.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm">Vegetables</p>
+                        <p className="font-medium text-sm">Starch</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          {menuState.karooVegetableSelections.map((item, idx) => (
+                          {menuState.karooStarchSelection.map((item, idx) => (
                             <li key={idx} className="text-sm">{getDisplayName(item)}</li>
                           ))}
                         </ul>
                       </div>
                     )}
                     
-                    {menuState.karooStarchSelection && menuState.karooStarchSelection.length > 0 && (
+                    {menuState.karooVegetableSelections && menuState.karooVegetableSelections.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm">Starch</p>
+                        <p className="font-medium text-sm">Vegetables</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          {menuState.karooStarchSelection.map((item, idx) => (
+                          {menuState.karooVegetableSelections.map((item, idx) => (
                             <li key={idx} className="text-sm">{getDisplayName(item)}</li>
                           ))}
                         </ul>
@@ -306,7 +313,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                   <p className="mt-1 text-sm">{getDisplayName(menuState.traditionalDessert)}</p>
                 )}
                 
-                {menuState.dessertType === 'dessert_canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
+                {menuState.dessertType === 'canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
                   <div className="mt-2">
                     <ul className="list-disc pl-5 space-y-1">
                       {menuState.dessertCanapes.map((item, idx) => (
@@ -320,10 +327,10 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                   <div className="mt-2">
                     <ul className="list-disc pl-5 space-y-1">
                       {menuState.individualCakes.map((item, idx) => {
-                        const quantity = menuState.individual_cake_quantities[item] || 1;
+                        const quantity = menuState.individual_cake_quantities[item];
                         return (
                           <li key={idx} className="text-sm">
-                            {getDisplayName(item)} {quantity > 1 ? `(x${quantity})` : ''}
+                            {getDisplayName(item)}{formatQuantity(quantity)}
                           </li>
                         );
                       })}
@@ -339,10 +346,10 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                 <h3 className="text-md font-medium border-b pb-1 mb-3">Additional Options</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   {menuState.otherSelections.map((option, idx) => {
-                    const quantity = menuState.otherSelectionsQuantities[option] || 1;
+                    const quantity = menuState.otherSelectionsQuantities[option];
                     return (
                       <li key={idx} className="text-sm">
-                        {getDisplayName(option)} {quantity > 1 ? `(x${quantity})` : ''}
+                        {getDisplayName(option)}{formatQuantity(quantity)}
                       </li>
                     );
                   })}

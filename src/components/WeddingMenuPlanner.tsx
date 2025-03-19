@@ -42,7 +42,7 @@ const WeddingMenuPlanner = ({
     }
   }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange, isInternalUpdate]);
 
-  // Sync menu state changes back to parent - only for user-initiated changes
+  // Sync menu state changes back to parent component for other components to use
   useEffect(() => {
     if (onMenuStateChange) {
       onMenuStateChange(menuState);
@@ -99,7 +99,7 @@ const WeddingMenuPlanner = ({
           onCanapeSelection={handleCanapeSelection}
           saveMenuSelections={saveMenuSelections}
         />
-        <Separator className="my-4 separator" />
+        <Separator className="my-4 separator print:hidden" />
         <div className="notes-section">
           <NotesSection 
             notes={menuState.notes}
@@ -107,7 +107,7 @@ const WeddingMenuPlanner = ({
           />
         </div>
         <div className="flex justify-end print:hidden">
-          <Button onClick={saveMenuSelections}>
+          <Button onClick={saveMenuSelections} className="bg-primary hover:bg-primary/90">
             Save Menu
           </Button>
         </div>
