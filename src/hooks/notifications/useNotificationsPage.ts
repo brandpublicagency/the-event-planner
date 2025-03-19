@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useNotificationSystem } from './useNotificationSystem';
 import { useTabState } from './useTabState';
 import { useNotificationPageActions } from './useNotificationPageActions';
@@ -10,6 +10,9 @@ export function useNotificationsPage() {
   const tabState = useTabState();
   const activeTab = tabState.activeTab;
   const setActiveTab = tabState.handleTabChange;
+  
+  // Track if we're currently navigating or loading
+  const isInitialLoadRef = useRef(true);
   
   // Get notification data from the centralized system
   const {
@@ -46,26 +49,34 @@ export function useNotificationsPage() {
 
   // Wrap handleRefresh to manage loading state
   const handleRefresh = useCallback(async () => {
+    // Don't trigger multiple refreshes simultaneously
+    if (isActionLoading) {
+      console.log('Skipping refresh as another action is already in progress');
+      return;
+    }
+    
     console.log('Refreshing notifications from page...');
     setIsActionLoading(true);
     setError(null);
+    
     try {
       await baseHandleRefresh();
+      isInitialLoadRef.current = false;
     } catch (error) {
       console.error('Error refreshing notifications:', error);
       setError(error instanceof Error ? error : new Error('Failed to refresh notifications'));
     } finally {
       setIsActionLoading(false);
     }
-  }, [baseHandleRefresh, setIsActionLoading, setError]);
+  }, [baseHandleRefresh, setIsActionLoading, setError, isActionLoading]);
 
-  // Ensure we load notifications when this hook mounts
+  // Only attempt a fetch if we've never loaded data and we're not currently loading
   useEffect(() => {
-    if (!hasAttemptedFetch && !systemLoading) {
-      console.log('Initial load in useNotificationsPage');
-      handleRefresh();
+    if (isInitialLoadRef.current && !hasAttemptedFetch && !systemLoading && !isActionLoading) {
+      console.log('Initial load in useNotificationsPage - deferring to page component');
+      isInitialLoadRef.current = false;
     }
-  }, [hasAttemptedFetch, systemLoading, handleRefresh]);
+  }, [hasAttemptedFetch, systemLoading, isActionLoading]);
 
   return {
     activeTab,

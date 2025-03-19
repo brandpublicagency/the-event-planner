@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
 import { NotificationsList } from '@/components/notifications/NotificationList';
@@ -9,6 +9,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
@@ -38,12 +39,36 @@ const Notifications = () => {
   
   const { toast } = useToast();
   const location = useLocation();
+  const initialLoadComplete = useRef(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Refresh notifications when the page is loaded
+  // Controlled refresh function
+  const refreshWithState = async () => {
+    if (isRefreshing) return;
+    
+    setIsRefreshing(true);
+    try {
+      await handleRefresh();
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to refresh notifications',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Refresh notifications only once when the page is initially loaded
   useEffect(() => {
-    console.log('Notifications page mounted - refreshing notifications');
-    handleRefresh();
-  }, [handleRefresh]);
+    if (!initialLoadComplete.current && !loading) {
+      console.log('Notifications page mounted - performing initial refresh');
+      initialLoadComplete.current = true;
+      refreshWithState();
+    }
+  }, [loading]);
 
   // Log notifications for debugging
   console.log('Notifications page rendering with notifications:', notifications.length);
@@ -53,11 +78,30 @@ const Notifications = () => {
     <div className="flex flex-col h-full">
       <Header 
         pageTitle="Notifications"
-        // No secondary action buttons as per request
+        secondaryAction={
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={refreshWithState}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Refreshing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Refresh
+              </>
+            )}
+          </Button>
+        }
       />
       
       <div className="p-6 flex-1">
-        <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
+        <ErrorBoundary FallbackComponent={ErrorFallback} onReset={refreshWithState}>
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
@@ -68,19 +112,22 @@ const Notifications = () => {
             </Alert>
           )}
           
-          {loading && (
-            <div className="text-center py-8">
+          {(loading || isRefreshing) && (
+            <div className="text-center py-8 flex flex-col items-center">
+              <Spinner className="h-8 w-8 mb-2" />
               <p className="text-muted-foreground">Loading notifications...</p>
             </div>
           )}
           
-          <NotificationsList 
-            notifications={notifications}
-            error={error}
-            onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-            onCompleteTask={(id) => handleCompleteTask('unified', id)}
-            listType="unified"
-          />
+          {!loading && !isRefreshing && (
+            <NotificationsList 
+              notifications={notifications}
+              error={error}
+              onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+              onCompleteTask={(id) => handleCompleteTask('unified', id)}
+              listType="unified"
+            />
+          )}
         </ErrorBoundary>
       </div>
     </div>

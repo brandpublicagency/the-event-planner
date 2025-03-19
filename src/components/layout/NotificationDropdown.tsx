@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -15,16 +15,26 @@ export function NotificationDropdown() {
   const { notifications, unreadCount, markAsRead, markAsCompleted } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const isNavigatingRef = useRef(false);
 
   // Log notifications for debugging
   console.log('NotificationDropdown rendering with notifications:', notifications.length, 'Unread:', unreadCount);
 
+  // Reset navigation flag when dropdown opens/closes
+  useEffect(() => {
+    isNavigatingRef.current = false;
+  }, [isOpen]);
+
   // Handler for viewing a notification
   const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
     try {
+      if (isNavigatingRef.current) return;
+      isNavigatingRef.current = true;
+      
+      // First mark as read
       await markAsRead(id);
       
-      // Close dropdown
+      // Close dropdown before navigation
       setIsOpen(false);
 
       // Find the notification to determine navigation
@@ -59,27 +69,40 @@ export function NotificationDropdown() {
     } catch (error) {
       console.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
+      isNavigatingRef.current = false;
     }
   }, [markAsRead, navigate, notifications]);
 
   // Handler for completing a task
   const handleCompleteTask = useCallback(async (id: string) => {
     try {
+      if (isNavigatingRef.current) return;
+      
       await markAsCompleted(id);
       toast.success(`Task marked as complete!`);
       
       // Close dropdown and navigate to tasks
       setIsOpen(false);
+      isNavigatingRef.current = true;
       navigate(`/tasks`);
     } catch (error) {
       console.error("Error marking task as complete:", error);
       toast.error("Failed to mark task as complete");
+      isNavigatingRef.current = false;
     }
   }, [markAsCompleted, navigate]);
 
   const handleViewAll = useCallback(() => {
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+    
+    // Close dropdown with a small delay to ensure state updates complete
     setIsOpen(false);
-    navigate('/notifications');
+    
+    // Add a small delay before navigation to ensure clean state
+    setTimeout(() => {
+      navigate('/notifications');
+    }, 50);
   }, [navigate]);
 
   return (

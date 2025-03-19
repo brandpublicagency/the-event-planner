@@ -1,7 +1,7 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
-// Use WeakSet to track which errors have been shown
+// Use WeakMap to track which errors have been shown
 const shownErrorsMap = new WeakMap();
 
 export function useNotificationSetup(
@@ -14,6 +14,30 @@ export function useNotificationSetup(
 ) {
   // Track if we've already shown the error toast for this specific error instance
   const hasShownErrorToast = useRef(false);
+  const lastRefreshTime = useRef<number>(0);
+  const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
+  
+  // Safe refresh function that respects mount state and prevents rapid calls
+  const safeRefresh = useCallback(async () => {
+    if (!isMounted.current) return;
+    
+    const now = Date.now();
+    if (now - lastRefreshTime.current < MIN_REFRESH_INTERVAL) {
+      console.log('Skipping refresh, too soon after last refresh');
+      return;
+    }
+    
+    lastRefreshTime.current = now;
+    
+    try {
+      console.log('Performing safe notification refresh');
+      await refreshNotifications();
+    } catch (err) {
+      if (isMounted.current) {
+        console.error('Failed to refresh notifications:', err);
+      }
+    }
+  }, [refreshNotifications, isMounted]);
   
   // Display error toast if there's an error from the notification system
   // But only show it once per error instance
@@ -55,11 +79,7 @@ export function useNotificationSetup(
     // Refresh notifications when component mounts (but only if connected or no subscription)
     if (!isSubscribed || isSubscribed) {
       console.log('Initial notification refresh');
-      refreshNotifications().catch(err => {
-        if (isMounted.current) {
-          console.error('Failed to refresh notifications on mount:', err);
-        }
-      });
+      safeRefresh();
     }
     
     // Set up a periodic refresh every 5 minutes
@@ -67,11 +87,7 @@ export function useNotificationSetup(
     refreshIntervalRef.current = window.setInterval(() => {
       if (isMounted.current) {
         console.log('Periodic notification refresh');
-        refreshNotifications().catch(err => {
-          if (isMounted.current) {
-            console.error('Failed to refresh notifications on interval:', err);
-          }
-        });
+        safeRefresh();
       }
     }, 300000); // 5 minutes
     
@@ -84,5 +100,5 @@ export function useNotificationSetup(
         refreshIntervalRef.current = null;
       }
     };
-  }, [refreshNotifications, isMounted, refreshIntervalRef, isSubscribed]);
+  }, [safeRefresh, isMounted, refreshIntervalRef, isSubscribed]);
 }
