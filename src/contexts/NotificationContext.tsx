@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { Notification, NotificationContextType } from "@/types/notification";
 import { useNotificationSystem } from "@/hooks/notifications/useNotificationSystem";
 import { useToast } from "@/hooks/use-toast";
@@ -14,12 +14,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const {
     pendingNotifications,
     loading,
+    error,
     markAsRead: handleMarkAsRead,
     markAsCompleted: handleMarkAsCompleted,
     refreshNotifications: handleRefreshNotifications,
   } = useNotificationSystem();
   
   const { toast } = useToast();
+  const refreshIntervalRef = useRef<number | null>(null);
+  
+  // Display error toast if there's an error from the notification system
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Notification System Error',
+        description: error.message || 'Failed to load notifications',
+        variant: 'destructive',
+      });
+    }
+  }, [error, toast]);
   
   // Calculate unread count based on the actual notifications array
   const unreadCount = pendingNotifications.filter(n => !n.read).length;
@@ -111,6 +124,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [pendingNotifications, markAsCompleted, toast]);
 
+  // Set up periodic refresh and cleanup properly
   useEffect(() => {
     // Refresh notifications when component mounts
     refreshNotifications().catch(err => {
@@ -118,14 +132,20 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     });
     
     // Set up a periodic refresh every 5 minutes
-    const interval = setInterval(() => {
+    refreshIntervalRef.current = window.setInterval(() => {
       console.log('Periodic notification refresh');
       refreshNotifications().catch(err => {
         console.error('Failed to refresh notifications on interval:', err);
       });
     }, 300000); // 5 minutes
     
-    return () => clearInterval(interval);
+    // Clean up the interval on unmount
+    return () => {
+      if (refreshIntervalRef.current !== null) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    };
   }, [refreshNotifications]);
 
   return (

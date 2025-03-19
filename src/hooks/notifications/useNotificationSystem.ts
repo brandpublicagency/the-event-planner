@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Notification } from '@/types/notification';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,12 @@ export function useNotificationSystem() {
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const { toast } = useToast();
   
+  // Use a ref to cancel stale requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Track the latest fetch request ID to prevent race conditions
+  const fetchIdRef = useRef<number>(0);
+  
   // Use the notification actions hook
   const { markAsRead, markAsCompleted } = useNotificationActions();
 
@@ -20,9 +26,29 @@ export function useNotificationSystem() {
   const fetchNotifications = useCallback(async () => {
     try {
       console.log('Fetching notifications in useNotificationSystem...');
+      
+      // Cancel any in-flight requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // Create a new abort controller for this request
+      abortControllerRef.current = new AbortController();
+      
+      // Generate a unique ID for this fetch request
+      const thisFetchId = ++fetchIdRef.current;
+      
       setLoading(true);
       setError(null);
+      
       const formattedNotifications = await fetchNotificationData();
+      
+      // Check if this is still the latest request
+      if (thisFetchId !== fetchIdRef.current) {
+        console.log('Ignoring stale fetch response');
+        return [];
+      }
+      
       console.log('Notifications fetched in useNotificationSystem:', formattedNotifications.length);
       setPendingNotifications(formattedNotifications);
       setHasAttemptedFetch(true);
@@ -122,7 +148,11 @@ export function useNotificationSystem() {
       )
       .subscribe();
     
+    // Clean up subscription and abort any in-flight requests on unmount
     return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       supabase.removeChannel(subscription);
     };
   }, [fetchNotifications]);
