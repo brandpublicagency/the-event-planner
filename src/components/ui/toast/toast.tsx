@@ -30,8 +30,9 @@ export interface ToastProps {
 
 export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Action>
 
-// Track toasts we've shown in the current session to prevent duplicates
-const shownToasts = new Set<string>();
+// Global store for tracking toasts we've shown to prevent duplicates
+const shownToasts = new Map<string, number>();
+const MAX_TRACKED_TOASTS = 20; // Limit memory usage
 
 // This is a client-side only function
 export const toast = ({
@@ -55,20 +56,33 @@ export const toast = ({
   }
   
   // Create a deduplication key
-  const toastKey = `${title}:${description}`;
+  const toastKey = `${title}:${description}:${variant}`;
   
-  // Skip this toast if it's identical to one we've shown in this session
+  const now = Date.now();
+  // Skip this toast if it's identical to one we've shown recently (last 10 seconds)
   if (shownToasts.has(toastKey)) {
-    return { id: "duplicate-toast" };
+    const lastShown = shownToasts.get(toastKey) || 0;
+    if (now - lastShown < 10000) {
+      console.log(`Skipping duplicate toast: ${toastKey}`);
+      return { id: "duplicate-toast" };
+    }
   }
   
-  // Remember this toast
-  shownToasts.add(toastKey);
+  // Limit the size of our tracking Map
+  if (shownToasts.size > MAX_TRACKED_TOASTS) {
+    // Delete the oldest entries when we reach capacity
+    const entries = Array.from(shownToasts.entries());
+    const oldestEntries = entries
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, Math.floor(MAX_TRACKED_TOASTS / 2));
+    
+    for (const [key] of oldestEntries) {
+      shownToasts.delete(key);
+    }
+  }
   
-  // Clean up old entries after the duration
-  setTimeout(() => {
-    shownToasts.delete(toastKey);
-  }, duration + 5000); // Add 5 seconds buffer
+  // Update tracking with current timestamp
+  shownToasts.set(toastKey, now);
   
   return clientToast({
     variant,

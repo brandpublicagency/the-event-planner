@@ -1,12 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 export function useRealTimeNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
-  const { toast } = useToast();
 
   useEffect(() => {
     // Set up a subscription to notifications table
@@ -46,14 +44,8 @@ export function useRealTimeNotifications() {
         } else if (status === 'CHANNEL_ERROR') {
           setIsSubscribed(false);
           setConnectionStatus('error');
-          
-          // Show toast for real-time connection error
-          toast({
-            title: 'Real-time Connection Issue',
-            description: 'Could not establish a real-time connection. Notifications may be delayed.',
-            variant: 'info',  // Changed from 'warning' to 'info' to match allowed variants
-            duration: 5000,
-          });
+          // Don't show toast for real-time connection issues
+          console.warn('Real-time connection issue. Falling back to periodic refreshes.');
         }
       });
 
@@ -61,7 +53,7 @@ export function useRealTimeNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [toast]);
+  }, []);
 
   return {
     isSubscribed,

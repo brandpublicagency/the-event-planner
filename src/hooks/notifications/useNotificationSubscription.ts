@@ -4,6 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { debounce } from 'lodash';
 import { triggerNotificationProcessing } from '@/api/notificationApi';
 
+// Track last processing time to prevent excessive API calls
+const lastProcessingTime = { timestamp: 0 };
+const PROCESSING_COOLDOWN = 60000; // 1 minute cooldown between processing calls
+
 export function useNotificationSubscription(
   state: ReturnType<typeof import('./useNotificationState').useNotificationState>,
   fetchNotifications: () => Promise<any>
@@ -24,15 +28,26 @@ export function useNotificationSubscription(
   // Trigger notification processing and then fetch the latest
   const refreshNotifications = useCallback(async () => {
     try {
-      console.log('Refreshing notifications with processing...');
       if (!isMounted.current) return [];
       
       state.setLoading(true);
       
-      // First trigger notification processing
-      await triggerNotificationProcessing().catch(err => {
-        console.log('Notification processing failed, continuing with fetch:', err);
-      });
+      // Check cooldown before triggering processing
+      const now = Date.now();
+      const shouldProcessNotifications = now - lastProcessingTime.timestamp > PROCESSING_COOLDOWN;
+      
+      if (shouldProcessNotifications) {
+        console.log('Refreshing notifications with processing...');
+        // Update timestamp
+        lastProcessingTime.timestamp = now;
+        
+        // First trigger notification processing
+        await triggerNotificationProcessing().catch(err => {
+          console.log('Notification processing failed, continuing with fetch:', err);
+        });
+      } else {
+        console.log('Skipping notification processing (cooldown active), fetching directly...');
+      }
       
       // Then fetch the latest notifications
       return await fetchNotifications();

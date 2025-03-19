@@ -27,24 +27,8 @@ export function useNotificationSetup(
     }
   }, [error, toast, isMounted]);
   
-  // Warn user if real-time updates aren't available
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!isSubscribed && isMounted.current && !hasShownSubWarning.current) {
-        console.warn('Real-time notifications are not available');
-        toast({
-          title: 'Notification Warning',
-          description: 'Real-time updates may not be available. Refresh to see new notifications.',
-          variant: 'info',
-          duration: 10000,
-        });
-        // Remember we've shown this warning
-        hasShownSubWarning.current = true;
-      }
-    }, 15000); // Check after 15 seconds
-    
-    return () => clearTimeout(timeoutId);
-  }, [isSubscribed, toast, isMounted]);
+  // Don't show warning about real-time updates - disable this feature
+  // Users will still get periodic refreshes from the interval
 
   // Set up periodic refresh and cleanup properly
   useEffect(() => {
@@ -57,7 +41,7 @@ export function useNotificationSetup(
       }
     });
     
-    // Set up a periodic refresh every 5 minutes
+    // Set up a periodic refresh every 2 minutes (reduced from 5 minutes)
     refreshIntervalRef.current = window.setInterval(() => {
       if (isMounted.current) {
         console.log('Periodic notification refresh');
@@ -67,7 +51,7 @@ export function useNotificationSetup(
           }
         });
       }
-    }, 300000); // 5 minutes
+    }, 120000); // 2 minutes
     
     // Clean up the interval on unmount
     return () => {
