@@ -44,6 +44,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course Types
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
+    'plated_main': 'Plated Menu',
     
     // Main Course - Karoo Meat
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -52,7 +53,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course - Buffet Meat
     'chicken_pie': 'Homemade chicken pie',
     'chicken_thighs': 'Roasted lemon & herb chicken thighs with chimichurri',
-    'lamb_leg': 'Leg of lamb with a rich jus',
+    'leg_of_lamb': 'Leg of lamb with a rich jus',
     'beef_fillet': 'Beef fillet medallions in creamy wild mushroom sauce',
     'oxtail_pie': 'Slow roasted oxtail pie',
     'glazed_gammon': 'Glazed gammon with sticky mustard & apple sauce',
@@ -101,6 +102,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
     'canapes_dessert': 'Dessert Canapés',
+    'cakes': 'Individual Cakes',
     
     // Traditional Desserts
     'chocolate_pudding': 'Self-saucing chocolate pudding',
@@ -139,9 +141,8 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
 
   return (
     <div ref={ref} className="print-container p-8 max-w-[210mm] mx-auto">
-      {/* Print header */}
+      {/* Print header - removed the "MENU SELECTION" heading as requested */}
       <div className="text-center mb-6 print-header">
-        <h1 className="text-xl uppercase font-normal text-gray-600 mb-2">Menu Selection</h1>
         <h2 className="text-lg font-medium">{event.name || 'Event'}</h2>
         <p className="text-sm text-gray-600">
           {formatDate(event.event_date)} | {event.pax} Guests | {getVenueNames(event)}
@@ -299,7 +300,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
               </section>
             )}
 
-            {/* Dessert Section */}
+            {/* Dessert Section - Fixed to properly display dessert types and quantities */}
             {menuState.dessertType && (
               <section className="mb-6">
                 <h3 className="text-md font-medium border-b pb-1 mb-3">Dessert</h3>
@@ -309,7 +310,9 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                   <p className="mt-1 text-sm">{getDisplayName(menuState.traditionalDessert)}</p>
                 )}
                 
-                {menuState.dessertType === 'canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
+                {/* Fix for dessert canapés display */}
+                {(menuState.dessertType === 'canapes' || menuState.dessertType === 'canapes_dessert') && 
+                  menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
                   <div className="mt-2">
                     <ul className="list-disc pl-5 space-y-1">
                       {menuState.dessertCanapes.map((item, idx) => (
@@ -319,11 +322,13 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                   </div>
                 )}
                 
-                {menuState.dessertType === 'individual' && menuState.individualCakes && menuState.individualCakes.length > 0 && (
+                {/* Fix for individual cakes display - support both 'individual' and 'cakes' types */}
+                {(menuState.dessertType === 'individual' || menuState.dessertType === 'cakes') && 
+                  menuState.individualCakes && menuState.individualCakes.length > 0 && (
                   <div className="mt-2">
                     <ul className="list-disc pl-5 space-y-1">
                       {menuState.individualCakes.map((item, idx) => {
-                        const quantity = menuState.individual_cake_quantities[item];
+                        const quantity = menuState.individual_cake_quantities[item] || 1;
                         return (
                           <li key={idx} className="text-sm">
                             {getDisplayName(item)}{formatQuantity(quantity)}
@@ -342,7 +347,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
                 <h3 className="text-md font-medium border-b pb-1 mb-3">Additional Options</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   {menuState.otherSelections.map((option, idx) => {
-                    const quantity = menuState.otherSelectionsQuantities[option];
+                    const quantity = menuState.otherSelectionsQuantities[option] || 1;
                     return (
                       <li key={idx} className="text-sm">
                         {getDisplayName(option)}{formatQuantity(quantity)}

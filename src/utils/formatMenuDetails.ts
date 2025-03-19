@@ -1,3 +1,4 @@
+
 const formatSelection = (selection: string) => {
   if (!selection) return '';
   
@@ -37,6 +38,7 @@ const formatSelection = (selection: string) => {
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
     'canapes_dessert': 'Dessert Canapés',
+    'cakes': 'Individual Cakes',
     
     'chocolate_pudding': 'Self-saucing chocolate pudding',
     'date_pudding': 'Date & nut brandy pudding',
@@ -148,14 +150,14 @@ export const formatMenuDetails = (menu: any) => {
     sections.push('');
   }
 
-  // Dessert section
+  // Dessert section - Handle both 'canapes' and 'cakes' types
   if (menu.dessert_type) {
     sections.push(`Dessert: ${formatSelection(menu.dessert_type)}`);
     
-    if (menu.dessert_type === 'canapes' && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
+    if ((menu.dessert_type === 'canapes' || menu.dessert_type === 'canapes_dessert') && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
       sections.push('Dessert Canapés:');
       menu.dessert_canapes.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
-    } else if (menu.dessert_type === 'individual' && menu.individual_cakes && menu.individual_cakes.length > 0) {
+    } else if ((menu.dessert_type === 'individual' || menu.dessert_type === 'cakes') && menu.individual_cakes && menu.individual_cakes.length > 0) {
       sections.push('Individual Cakes:');
       menu.individual_cakes.forEach((item: string) => {
         const quantity = menu.individual_cake_quantities?.[item] || 1;
