@@ -21,7 +21,13 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
   // Format date
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'No date';
+    // Format: "29 March 2025"
     return format(new Date(dateString), 'dd MMMM yyyy');
+  };
+
+  // Get event type
+  const getEventType = (event: Event) => {
+    return event.event_type || 'Event';
   };
 
   // Format menu details using the utility function
@@ -29,11 +35,11 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
 
   return (
     <div ref={ref} className="print-container p-8 max-w-[210mm] mx-auto">
-      {/* Print header - without "MENU SELECTION" heading */}
-      <div className="text-center mb-6 print-header">
-        <h2 className="text-lg font-medium">{event.name || 'Event'}</h2>
-        <p className="text-sm text-gray-600">
-          {formatDate(event.event_date)} | {event.pax} Guests | {getVenueNames(event)}
+      {/* Print header - LEFT ALIGNED as requested */}
+      <div className="print-header">
+        <h2>{event.name || 'Event'}</h2>
+        <p>
+          {formatDate(event.event_date)} / {event.pax} Guests / {getEventType(event)} / {getVenueNames(event)}
         </p>
       </div>
 

@@ -38,17 +38,32 @@
     visibility: hidden !important;
   }
 
-  /* Header styles */
+  /* Header styles - LEFT ALIGNED as requested */
   .print-header {
-    text-align: center;
-    margin-bottom: 1.5rem !important;
+    text-align: left !important;
+    margin-bottom: 1rem !important;
   }
 
   .print-header h2 {
     font-size: 16px !important;
     font-weight: 600 !important;
     color: black !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .print-header p {
+    font-size: 12px !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* Header divider */
+  .print-header:after {
+    content: "" !important;
+    display: block !important;
+    width: 100% !important;
+    border-bottom: 0.75px solid #000 !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
   }
 
   /* Event info styles */
@@ -57,40 +72,41 @@
     font-weight: 600 !important;
   }
 
-  /* Section headers - use all caps, bold */
-  .print-container .menu-content {
-    line-height: 1.6 !important;
-  }
-
-  /* Set section headers to uppercase, bold and with spacing */
-  .menu-content > div > p:first-child {
+  /* Section headers - uppercase, bold, 10px */
+  .print-container .menu-section-header {
     text-transform: uppercase !important;
     font-weight: bold !important;
-    margin-top: 15px !important;
-    margin-bottom: 5px !important;
-    font-size: 13px !important;
+    font-size: 10px !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.25rem !important;
   }
 
   /* Add line under section headers */
-  .menu-content > div > p:first-child:after {
+  .print-container .menu-section-header:after {
     content: "" !important;
     display: block !important;
     width: 100% !important;
-    border-bottom: 1px solid #333 !important;
-    margin-top: 4px !important;
-    margin-bottom: 8px !important;
+    border-bottom: 0.25px solid #000 !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Menu item styles */
+  .print-container .menu-item {
+    font-size: 12px !important;
+    margin-bottom: 0.25rem !important;
   }
 
   /* Bullet points and list items */
   .print-container ul {
     margin-left: 1.25rem !important;
     padding-left: 0 !important;
-    margin-top: 0.5rem !important;
+    margin-top: 0.25rem !important;
     list-style-type: none !important;
   }
 
   .print-container li,
-  .print-container p:not(.menu-content > div > p:first-child) {
+  .print-container p:not(.menu-section-header) {
     text-align: left !important;
     break-inside: avoid !important;
     margin-bottom: 0.25rem !important;
@@ -102,16 +118,11 @@
     text-align: left !important;
   }
 
-  /* Spacing for menu sections */
-  .menu-content > div {
-    margin-bottom: 8px !important;
-  }
-
   /* Category labels (Meat, Starch, etc.) */
   .print-container .category-label {
     font-weight: 600 !important;
-    margin-top: 8px !important;
-    margin-bottom: 4px !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
   }
 
   /* Notes section */
