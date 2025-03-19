@@ -7,7 +7,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -38,17 +37,32 @@ const Notifications = () => {
   } = useNotificationsPage();
   
   const { toast } = useToast();
-  const location = useLocation();
   const initialLoadComplete = useRef(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimeoutRef = useRef<number | null>(null);
+  const isInitialRender = useRef(true);
 
-  // Controlled refresh function
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current !== null) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Controlled refresh function with debounce
   const refreshWithState = async () => {
     if (isRefreshing) return;
     
     setIsRefreshing(true);
     try {
       await handleRefresh();
+      toast({
+        title: 'Success',
+        description: 'Notifications refreshed successfully',
+        variant: 'default',
+      });
     } catch (error) {
       console.error('Error refreshing notifications:', error);
       toast({
@@ -57,16 +71,29 @@ const Notifications = () => {
         variant: 'destructive',
       });
     } finally {
-      setIsRefreshing(false);
+      // Delay setting isRefreshing to false to prevent rapid clicks
+      refreshTimeoutRef.current = window.setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500);
     }
   };
 
-  // Refresh notifications only once when the page is initially loaded
+  // Only do initial refresh if we've never loaded before and component is mounted
   useEffect(() => {
-    if (!initialLoadComplete.current && !loading) {
-      console.log('Notifications page mounted - performing initial refresh');
-      initialLoadComplete.current = true;
-      refreshWithState();
+    // Skip initial refresh on first render to avoid race condition with navigation
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    
+    if (!initialLoadComplete.current && !loading && !isRefreshing) {
+      console.log('Notifications page mounted - performing initial refresh after delay');
+      
+      // Add a small delay to avoid conflicting with other operations
+      refreshTimeoutRef.current = window.setTimeout(() => {
+        initialLoadComplete.current = true;
+        refreshWithState();
+      }, 300);
     }
   }, [loading]);
 
@@ -83,9 +110,9 @@ const Notifications = () => {
             size="sm" 
             variant="outline" 
             onClick={refreshWithState}
-            disabled={isRefreshing}
+            disabled={isRefreshing || loading}
           >
-            {isRefreshing ? (
+            {isRefreshing || loading ? (
               <>
                 <Spinner className="mr-2 h-4 w-4" />
                 Refreshing...
@@ -119,7 +146,7 @@ const Notifications = () => {
             </div>
           )}
           
-          {!loading && !isRefreshing && (
+          {!loading && !isRefreshing && notifications.length > 0 && (
             <NotificationsList 
               notifications={notifications}
               error={error}
@@ -127,6 +154,21 @@ const Notifications = () => {
               onCompleteTask={(id) => handleCompleteTask('unified', id)}
               listType="unified"
             />
+          )}
+          
+          {!loading && !isRefreshing && notifications.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No notifications found</p>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={refreshWithState}
+                className="mt-4"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Refresh
+              </Button>
+            </div>
           )}
         </ErrorBoundary>
       </div>

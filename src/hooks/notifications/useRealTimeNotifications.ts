@@ -51,7 +51,6 @@ export function useRealTimeNotifications() {
     
     lastConnectionAttempt = now;
     console.log('Setting up real-time notification subscription with ID:', instanceId.current);
-    activeSubscription = true;
     
     try {
       // Clean up any existing channel first
@@ -59,7 +58,7 @@ export function useRealTimeNotifications() {
       
       // Set up a subscription to notifications table
       channelRef.current = supabase
-        .channel('notification-changes')
+        .channel(`notification-changes-${instanceId.current}`)
         .on('postgres_changes', 
           { 
             event: '*', 
@@ -77,6 +76,7 @@ export function useRealTimeNotifications() {
           if (!isMounted.current) return;
           
           if (status === 'SUBSCRIBED') {
+            activeSubscription = true;
             setIsSubscribed(true);
             setConnectionStatus('connected');
             console.log('Real-time notification subscription established');
@@ -104,7 +104,7 @@ export function useRealTimeNotifications() {
       cleanupChannel();
       
       // Only reset the global flag if this is the instance that set it
-      if (activeSubscription) {
+      if (activeSubscription && channelRef.current) {
         activeSubscription = false;
       }
     };

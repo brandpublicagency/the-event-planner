@@ -3,6 +3,9 @@ import { useCallback } from 'react';
 import { fetchNotificationData } from '@/api/notificationApi';
 import { useToast } from '@/hooks/use-toast';
 
+// Minimum time between fetches in milliseconds
+const MIN_FETCH_INTERVAL = 5000;
+
 export function useNotificationFetch(state: ReturnType<typeof import('./useNotificationState').useNotificationState>) {
   const { toast } = useToast();
   const {
@@ -19,18 +22,26 @@ export function useNotificationFetch(state: ReturnType<typeof import('./useNotif
   // Fetch notifications from the database - this is the SINGLE SOURCE OF TRUTH
   const fetchNotifications = useCallback(async () => {
     try {
-      // Don't fetch if we've fetched recently (within last 2 seconds)
+      // Don't fetch if we've fetched recently
       const now = Date.now();
-      if (now - lastFetchTime.current < 2000) {
-        console.log('Skipping fetch, last fetch was too recent');
+      if (now - lastFetchTime.current < MIN_FETCH_INTERVAL) {
+        console.log(`Skipping fetch, last fetch was too recent (${now - lastFetchTime.current}ms ago)`);
         return [];
       }
+      
+      // Don't fetch if component is unmounted
+      if (!isMounted.current) {
+        console.log('Skipping fetch, component not mounted');
+        return [];
+      }
+      
       lastFetchTime.current = now;
       
-      console.log('Fetching notifications in useNotificationSystem...');
+      console.log('Fetching notifications in useNotificationFetch...');
       
       // Cancel any in-flight requests
       if (abortControllerRef.current) {
+        console.log('Aborting previous fetch request');
         abortControllerRef.current.abort();
       }
       
@@ -40,7 +51,10 @@ export function useNotificationFetch(state: ReturnType<typeof import('./useNotif
       // Generate a unique ID for this fetch request
       const thisFetchId = ++fetchIdRef.current;
       
-      if (!isMounted.current) return [];
+      if (!isMounted.current) {
+        console.log('Component unmounted during fetch setup');
+        return [];
+      }
       
       setLoading(true);
       setError(null);
@@ -72,7 +86,7 @@ export function useNotificationFetch(state: ReturnType<typeof import('./useNotif
         return [];
       }
       
-      console.log('Notifications fetched in useNotificationSystem:', formattedNotifications.length);
+      console.log('Notifications fetched in useNotificationFetch:', formattedNotifications.length);
       
       // Validate notifications before setting state
       const validNotifications = formattedNotifications.filter(notification => {
@@ -95,34 +109,38 @@ export function useNotificationFetch(state: ReturnType<typeof import('./useNotif
       
       return validNotifications;
     } catch (err) {
-      console.error('Error in notification system:', err);
-      
-      if (isMounted.current) {
-        // Specific error handling
-        if (err instanceof Error) {
-          if (err.message.includes('timeout')) {
-            setError(new Error('The request took too long to complete. Please try again.'));
-          } else if (err.message.includes('network')) {
-            setError(new Error('Network connection issue. Please check your internet connection.'));
-          } else if (err.message.includes('auth') || err.message.includes('401')) {
-            setError(new Error('Authentication error. Please sign in again.'));
-          } else {
-            setError(err);
-          }
-        } else {
-          setError(new Error('Failed to load notifications'));
-        }
-        
-        toast({
-          title: 'Error loading notifications',
-          description: err instanceof Error ? err.message : 'There was a problem fetching your notifications.',
-          variant: 'destructive',
-        });
-        
-        // Still mark as attempted even if there was an error
-        setHasAttemptedFetch(true);
-        setLoading(false);
+      // Don't update state or show errors if component unmounted
+      if (!isMounted.current) {
+        console.log('Component unmounted during fetch, ignoring error');
+        return [];
       }
+      
+      console.error('Error in notification fetch:', err);
+      
+      // Specific error handling
+      if (err instanceof Error) {
+        if (err.message.includes('timeout')) {
+          setError(new Error('The request took too long to complete. Please try again.'));
+        } else if (err.message.includes('network')) {
+          setError(new Error('Network connection issue. Please check your internet connection.'));
+        } else if (err.message.includes('auth') || err.message.includes('401')) {
+          setError(new Error('Authentication error. Please sign in again.'));
+        } else {
+          setError(err);
+        }
+      } else {
+        setError(new Error('Failed to load notifications'));
+      }
+      
+      toast({
+        title: 'Error loading notifications',
+        description: err instanceof Error ? err.message : 'There was a problem fetching your notifications.',
+        variant: 'destructive',
+      });
+      
+      // Still mark as attempted even if there was an error
+      setHasAttemptedFetch(true);
+      setLoading(false);
       
       throw err;
     }

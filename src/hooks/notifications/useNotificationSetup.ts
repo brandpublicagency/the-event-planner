@@ -16,10 +16,14 @@ export function useNotificationSetup(
   const hasShownErrorToast = useRef(false);
   const lastRefreshTime = useRef<number>(0);
   const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
+  const refreshLock = useRef(false);
   
   // Safe refresh function that respects mount state and prevents rapid calls
   const safeRefresh = useCallback(async () => {
-    if (!isMounted.current) return;
+    if (!isMounted.current || refreshLock.current) {
+      console.log('Skipping safe refresh - component not mounted or refresh in progress');
+      return;
+    }
     
     const now = Date.now();
     if (now - lastRefreshTime.current < MIN_REFRESH_INTERVAL) {
@@ -28,6 +32,7 @@ export function useNotificationSetup(
     }
     
     lastRefreshTime.current = now;
+    refreshLock.current = true;
     
     try {
       console.log('Performing safe notification refresh');
@@ -36,6 +41,8 @@ export function useNotificationSetup(
       if (isMounted.current) {
         console.error('Failed to refresh notifications:', err);
       }
+    } finally {
+      refreshLock.current = false;
     }
   }, [refreshNotifications, isMounted]);
   
@@ -76,16 +83,16 @@ export function useNotificationSetup(
     
     isMounted.current = true;
     
-    // Refresh notifications when component mounts (but only if connected or no subscription)
-    if (!isSubscribed || isSubscribed) {
-      console.log('Initial notification refresh');
+    // Refresh notifications when component mounts (only if no refresh is in progress)
+    if (!refreshLock.current) {
+      console.log('Initial notification refresh in setup');
       safeRefresh();
     }
     
     // Set up a periodic refresh every 5 minutes
     console.log('Setting up periodic notification refresh interval');
     refreshIntervalRef.current = window.setInterval(() => {
-      if (isMounted.current) {
+      if (isMounted.current && !refreshLock.current) {
         console.log('Periodic notification refresh');
         safeRefresh();
       }

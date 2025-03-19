@@ -13,6 +13,7 @@ export function useNotificationsPage() {
   
   // Track if we're currently navigating or loading
   const isInitialLoadRef = useRef(true);
+  const navigationCompleteRef = useRef(false);
   
   // Get notification data from the centralized system
   const {
@@ -70,13 +71,34 @@ export function useNotificationsPage() {
     }
   }, [baseHandleRefresh, setIsActionLoading, setError, isActionLoading]);
 
-  // Only attempt a fetch if we've never loaded data and we're not currently loading
+  // Mark navigation as complete after a delay
   useEffect(() => {
-    if (isInitialLoadRef.current && !hasAttemptedFetch && !systemLoading && !isActionLoading) {
-      console.log('Initial load in useNotificationsPage - deferring to page component');
+    if (!navigationCompleteRef.current) {
+      const timer = setTimeout(() => {
+        navigationCompleteRef.current = true;
+        console.log('Navigation to notifications page complete');
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Only attempt a fetch if navigation is complete and we have not attempted a fetch yet
+  useEffect(() => {
+    // Skip initial load if we already have notifications
+    if (isInitialLoadRef.current && navigationCompleteRef.current && !loading && !isActionLoading) {
+      console.log('Initial load in useNotificationsPage after navigation complete');
+      
+      if (!hasAttemptedFetch || pendingNotifications.length === 0) {
+        console.log('No notifications fetched yet, triggering refresh');
+        handleRefresh();
+      } else {
+        console.log('Already have notifications, skipping initial refresh');
+      }
+      
       isInitialLoadRef.current = false;
     }
-  }, [hasAttemptedFetch, systemLoading, isActionLoading]);
+  }, [hasAttemptedFetch, loading, isActionLoading, handleRefresh, pendingNotifications.length, navigationCompleteRef]);
 
   return {
     activeTab,
