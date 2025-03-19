@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
 
-export function SidebarToasts() {
+interface SidebarToastsProps {
+  isCollapsed?: boolean;
+}
+
+export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
   const { toasts } = useToast()
 
   // Only show toasts that should appear in the sidebar
@@ -30,7 +34,7 @@ export function SidebarToasts() {
         return (
           <ToastComponent 
             key={id} 
-            variant={variant} 
+            variant={variant as "default" | "destructive" | "success" | "info"} 
             {...(showProgress && { progressDuration: duration })}
             {...props}
           >

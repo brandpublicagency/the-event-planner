@@ -1,6 +1,5 @@
 
 import * as React from "react"
-import { type VariantProps } from "class-variance-authority"
 import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import * as ToastPrimitives from "@radix-ui/react-toast"

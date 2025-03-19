@@ -30,6 +30,7 @@ const toastVariants = cva(
         destructive: "toast-gradient-destructive",
         success: "toast-gradient-success",
         info: "toast-gradient-info",
+        warning: "toast-gradient-info",
       },
     },
     defaultVariants: {
@@ -112,7 +113,7 @@ const ToastDescription = React.forwardRef<
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
 interface ToastIconProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "destructive" | "success" | "info";
+  variant?: "default" | "destructive" | "success" | "info" | "warning";
 }
 
 const ToastIcon = React.forwardRef<
@@ -123,7 +124,8 @@ const ToastIcon = React.forwardRef<
     default: InfoIcon,
     destructive: AlertCircle,
     success: CheckCircle2,
-    info: InfoIcon
+    info: InfoIcon,
+    warning: AlertCircle
   }[variant];
 
   return (
