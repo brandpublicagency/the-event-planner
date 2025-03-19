@@ -1,5 +1,6 @@
 
-// Re-export from the correct location
-import { useToast, toast } from "@/components/ui/toast";
+// Re-export from the ui component path
+import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 export { useToast, toast };
