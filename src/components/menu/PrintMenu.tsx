@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
 import { useToast } from '@/components/ui/use-toast';
 import { getVenueNames } from '@/utils/venueUtils';
-import { formatMenuDetails } from '@/utils/formatMenuDetails';
+import { formatMenuDetails } from '@/utils/menu';
 
 // Define interface for the print props
 interface PrintMenuProps {
