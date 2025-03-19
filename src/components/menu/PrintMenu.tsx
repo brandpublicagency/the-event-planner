@@ -16,6 +16,38 @@ interface PrintMenuProps {
   menuState: MenuState;
 }
 
+// Helper function to format the menu text with proper HTML structure
+const formatMenuText = (text: string): JSX.Element => {
+  if (!text) return <></>;
+  
+  const lines = text.split('\n');
+  return (
+    <>
+      {lines.map((line, index) => {
+        if (line.startsWith('*')) {
+          // This is a section header
+          const headerText = line.replace('*', '').trim();
+          return (
+            <div key={index} className="menu-section-header">
+              {headerText}
+            </div>
+          );
+        } else if (line.startsWith('•')) {
+          // This is a bullet point item
+          return <p key={index} className="menu-item">{line}</p>;
+        } else if (line.trim().endsWith(':')) {
+          // This is a category label
+          return <p key={index} className="category-label">{line}</p>;
+        } else if (line.trim()) {
+          // This is a regular item
+          return <p key={index} className="menu-item">{line}</p>;
+        }
+        return line.trim() ? <p key={index}>{line}</p> : <br key={index} />;
+      })}
+    </>
+  );
+};
+
 // Component that will be printed
 const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, menuState }, ref) => {
   // Format date
@@ -46,7 +78,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
       <div className="menu-content">
         {/* Display formatted menu content */}
         <div className="whitespace-pre-line">
-          {formattedMenu}
+          {formatMenuText(formattedMenu)}
         </div>
       </div>
     </div>
