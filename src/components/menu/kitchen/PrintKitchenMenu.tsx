@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -18,6 +18,11 @@ interface PrintMenuProps {
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Log when the component ref is available
+  useEffect(() => {
+    console.log("Component mounted, ref status:", !!componentRef.current);
+  }, []);
   
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
@@ -43,8 +48,8 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     },
     pageStyle: `
       @page {
-        margin: 15mm !important;
         size: A4;
+        margin: 15mm !important;
       }
       @media print {
         body {
@@ -65,64 +70,33 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
           margin: 0 !important;
           text-align: left;
         }
-        
-        /* Print header - LEFT ALIGNED as requested */
-        .print-header h2 {
-          font-size: 16px !important;
-          font-weight: bold !important;
-          text-align: left !important;
-          margin-bottom: 4px !important;
+        h1 {
+          font-size: 16px;
+          font-weight: normal;
+          margin-bottom: 16px;
+          text-align: left;
         }
-        
-        .print-header p {
-          font-size: 12px !important;
-          text-align: left !important;
-          margin-bottom: 0 !important;
+        h2 {
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 4px;
+          text-align: left;
         }
-        
-        /* Header divider - 0.75px black line */
-        .print-header:after {
-          content: "" !important;
-          display: block !important;
-          width: 100% !important;
-          border-bottom: 0.75px solid #000 !important;
-          margin-top: 16px !important;
-          margin-bottom: 16px !important;
+        h3 {
+          font-size: 14px;
+          font-weight: normal;
+          margin-bottom: 8px;
+          text-align: left;
         }
-        
-        /* Section headers - UPPERCASE, BOLD, 10PX */
-        .section-header {
-          text-transform: uppercase !important;
-          font-weight: bold !important;
-          font-size: 10px !important;
-          margin-top: 16px !important;
-          margin-bottom: 4px !important;
-          text-align: left !important;
+        p {
+          font-size: 12px;
+          margin: 0;
+          margin-bottom: 4px;
+          text-align: left;
         }
-        
-        /* Add 0.25px black divider after section headers */
-        .section-header:after {
-          content: "" !important;
-          display: block !important;
-          width: 100% !important;
-          border-bottom: 0.25px solid #000 !important;
-          margin-top: 4px !important;
-          margin-bottom: 8px !important;
-        }
-        
-        /* Menu items */
-        .menu-item {
-          font-size: 12px !important;
-          margin-bottom: 4px !important;
-          text-align: left !important;
-        }
-        
-        /* Category labels (e.g., "Meat Selections:") */
-        .category-label {
-          font-weight: 600 !important;
-          margin-top: 8px !important;
-          margin-bottom: 4px !important;
-          text-align: left !important;
+        hr {
+          margin: 16px 0;
+          border-color: #ddd;
         }
       }
     `,
@@ -130,6 +104,14 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
 
   const onPrintClick = () => {
     console.log("Print button clicked, component ref:", componentRef.current);
+    if (!componentRef.current) {
+      toast({
+        title: "Print error",
+        description: "Could not prepare the menu for printing. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
     handlePrint();
   };
 
