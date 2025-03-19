@@ -112,10 +112,10 @@ export function NotificationDropdown() {
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
     
-    // Close dropdown with a small delay to ensure state updates complete
+    // Close dropdown
     setIsOpen(false);
     
-    // Add a small delay before navigation to ensure clean state
+    // Add a small delay before navigation to ensure state updates complete
     navigationTimeoutRef.current = window.setTimeout(() => {
       navigate('/notifications');
     }, 100);
@@ -141,6 +141,8 @@ export function NotificationDropdown() {
       <button
         onClick={handleViewAll}
         className="w-full flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer"
+        type="button"
+        aria-label="View all notifications"
       >
         <ExternalLink className="h-4 w-4" />
         <span className="text-sm">View all notifications</span>
