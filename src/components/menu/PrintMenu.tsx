@@ -393,17 +393,14 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
         description: "There was a problem printing your menu. Please try again.",
         variant: "destructive"
       });
-    }
+    },
+    content: () => componentRef.current // Fixed: This is the correct approach
   });
 
   return (
     <>
       <Button 
-        onClick={() => {
-          if (componentRef.current) {
-            handlePrint();
-          }
-        }}
+        onClick={handlePrint} // Fixed: No need for additional checks or inline functions
         className="rounded-full" 
         variant="outline"
         size="sm"

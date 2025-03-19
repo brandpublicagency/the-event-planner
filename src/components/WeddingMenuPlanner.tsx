@@ -35,6 +35,7 @@ const WeddingMenuPlanner = ({
   // Sync external isCustomMenu state with menu state
   React.useEffect(() => {
     if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu) {
+      console.log("Updating isCustomMenu in menu state:", isCustomMenu);
       handleMenuStateChange('isCustomMenu', isCustomMenu);
     }
   }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange]);
@@ -42,6 +43,7 @@ const WeddingMenuPlanner = ({
   // Sync menu state changes back to parent
   React.useEffect(() => {
     if (onCustomMenuToggle && menuState.isCustomMenu !== isCustomMenu) {
+      console.log("Notifying parent of custom menu toggle:", menuState.isCustomMenu);
       onCustomMenuToggle(menuState.isCustomMenu);
     }
     

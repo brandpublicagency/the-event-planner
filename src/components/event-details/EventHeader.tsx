@@ -22,6 +22,14 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   isCustomMenu = false,
   onCustomMenuToggle
 }) => {
+  // Handler to ensure toggle changes are properly dispatched
+  const handleToggleChange = (checked: boolean) => {
+    console.log("Custom menu toggle changed:", checked);
+    if (onCustomMenuToggle) {
+      onCustomMenuToggle(checked);
+    }
+  };
+  
   return (
     <Card className="bg-white shadow-sm">
       <CardContent className="p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -36,7 +44,7 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
               <Switch 
                 id="custom-menu-toggle" 
                 checked={isCustomMenu} 
-                onCheckedChange={onCustomMenuToggle}
+                onCheckedChange={handleToggleChange}
               />
               <Label htmlFor="custom-menu-toggle">Custom Menu</Label>
             </div>
