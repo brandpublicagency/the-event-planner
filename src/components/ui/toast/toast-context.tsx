@@ -25,11 +25,41 @@ interface ToastProviderProps {
   children: ReactNode;
 }
 
+// Track recently shown toast contents to avoid duplicates
+const recentToasts = new Map<string, number>();
+
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastContextValue["toasts"]>([]);
 
+  // Clean up old entries from recentToasts every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      recentToasts.forEach((timestamp, key) => {
+        // Remove entries older than 10 seconds
+        if (now - timestamp > 10000) {
+          recentToasts.delete(key);
+        }
+      });
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const toast = (options: ToastOptions) => {
     const id = options.id || String(Date.now());
+    
+    // Create a deduplication key based on title and description
+    const dedupeKey = `${options.title}:${options.description}`;
+    
+    // Check if we've shown this toast recently (within the last 10 seconds)
+    if (recentToasts.has(dedupeKey)) {
+      // Return existing ID without showing duplicate toast
+      return { id };
+    }
+    
+    // Remember this toast to prevent duplicates
+    recentToasts.set(dedupeKey, Date.now());
     
     setToasts((prevToasts) => {
       const existingToastIndex = prevToasts.findIndex((toast) => toast.id === id);
@@ -46,9 +76,14 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         return updatedToasts;
       }
       
+      // Limit total number of toasts to 3 at a time
+      const filteredPrevToasts = prevToasts.length >= 3 
+        ? prevToasts.slice(-2) // Keep only the 2 most recent toasts
+        : prevToasts;
+      
       // Add new toast
       return [
-        ...prevToasts,
+        ...filteredPrevToasts,
         {
           ...options,
           id,

@@ -30,6 +30,9 @@ export interface ToastProps {
 
 export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Action>
 
+// Track toasts we've shown in the current session to prevent duplicates
+const shownToasts = new Set<string>();
+
 // This is a client-side only function
 export const toast = ({
   variant = "default",
@@ -50,6 +53,22 @@ export const toast = ({
     console.error("Toast provider not found. Make sure ToastProvider is mounted.");
     return { id: "error-toast" };
   }
+  
+  // Create a deduplication key
+  const toastKey = `${title}:${description}`;
+  
+  // Skip this toast if it's identical to one we've shown in this session
+  if (shownToasts.has(toastKey)) {
+    return { id: "duplicate-toast" };
+  }
+  
+  // Remember this toast
+  shownToasts.add(toastKey);
+  
+  // Clean up old entries after the duration
+  setTimeout(() => {
+    shownToasts.delete(toastKey);
+  }, duration + 5000); // Add 5 seconds buffer
   
   return clientToast({
     variant,
