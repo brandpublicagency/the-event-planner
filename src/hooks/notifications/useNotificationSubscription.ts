@@ -6,7 +6,7 @@ import { triggerNotificationProcessing } from '@/api/notificationApi';
 
 // Track last processing time to prevent excessive API calls
 const lastProcessingTime = { timestamp: 0 };
-const PROCESSING_COOLDOWN = 60000; // 1 minute cooldown between processing calls
+const PROCESSING_COOLDOWN = 300000; // 5 minute cooldown between processing calls
 
 export function useNotificationSubscription(
   state: ReturnType<typeof import('./useNotificationState').useNotificationState>,
@@ -21,7 +21,7 @@ export function useNotificationSubscription(
       fetchNotifications().catch(err => {
         console.error('Error in debounced fetch:', err);
       });
-    }, 300),
+    }, 500),
     [fetchNotifications]
   );
 
@@ -77,19 +77,12 @@ export function useNotificationSubscription(
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'event_notifications',
         },
         (payload) => {
-          // Validate payload
-          if (!payload || !payload.new || typeof payload.new !== 'object') {
-            console.error('Invalid real-time payload:', payload);
-            return;
-          }
-          
-          console.log('Notification database change detected:', payload);
-          
+          console.log('New notification detected:', payload);
           // Use debounce to prevent multiple fetches for batch updates
           if (isMounted.current) {
             debouncedFetch();

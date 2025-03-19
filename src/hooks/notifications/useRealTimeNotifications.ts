@@ -9,24 +9,7 @@ export function useRealTimeNotifications() {
   useEffect(() => {
     // Set up a subscription to notifications table
     const channel = supabase
-      .channel('notification-status')
-      .on('presence', { event: 'sync' }, () => {
-        setIsSubscribed(true);
-        setConnectionStatus('connected');
-        console.log('Real-time notification subscription established');
-      })
-      .on('presence', { event: 'join' }, () => {
-        setIsSubscribed(true);
-        setConnectionStatus('connected');
-      })
-      .on('presence', { event: 'leave' }, () => {
-        setConnectionStatus('disconnected');
-      })
-      .on('system', { event: 'disconnect' }, () => {
-        setIsSubscribed(false);
-        setConnectionStatus('disconnected');
-        console.warn('Disconnected from real-time notifications');
-      })
+      .channel('notification-changes')
       .on('postgres_changes', 
         { 
           event: '*', 
@@ -35,22 +18,24 @@ export function useRealTimeNotifications() {
         }, 
         (payload) => {
           console.log('Real-time notification change detected:', payload);
+          // We only log the change - the actual fetch will be handled elsewhere
         }
       )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           setIsSubscribed(true);
           setConnectionStatus('connected');
+          console.log('Real-time notification subscription established');
         } else if (status === 'CHANNEL_ERROR') {
           setIsSubscribed(false);
           setConnectionStatus('error');
-          // Don't show toast for real-time connection issues
           console.warn('Real-time connection issue. Falling back to periodic refreshes.');
         }
       });
 
     // Clean up
     return () => {
+      console.log('Cleaning up real-time notification subscription');
       supabase.removeChannel(channel);
     };
   }, []);

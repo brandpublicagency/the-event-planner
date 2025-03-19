@@ -11,10 +11,9 @@ export function useNotificationSetup(
 ) {
   // Track if we've already shown the error toast
   const hasShownErrorToast = useRef(false);
-  // Track if we've already shown the subscription warning
-  const hasShownSubWarning = useRef(false);
 
   // Display error toast if there's an error from the notification system
+  // But only show it once per session
   useEffect(() => {
     if (error && isMounted.current && !hasShownErrorToast.current) {
       toast({
@@ -27,9 +26,6 @@ export function useNotificationSetup(
     }
   }, [error, toast, isMounted]);
   
-  // Don't show warning about real-time updates - disable this feature
-  // Users will still get periodic refreshes from the interval
-
   // Set up periodic refresh and cleanup properly
   useEffect(() => {
     isMounted.current = true;
@@ -41,7 +37,7 @@ export function useNotificationSetup(
       }
     });
     
-    // Set up a periodic refresh every 2 minutes (reduced from 5 minutes)
+    // Set up a periodic refresh every 3 minutes
     refreshIntervalRef.current = window.setInterval(() => {
       if (isMounted.current) {
         console.log('Periodic notification refresh');
@@ -51,7 +47,7 @@ export function useNotificationSetup(
           }
         });
       }
-    }, 120000); // 2 minutes
+    }, 180000); // 3 minutes
     
     // Clean up the interval on unmount
     return () => {

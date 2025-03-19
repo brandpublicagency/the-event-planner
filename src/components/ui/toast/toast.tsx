@@ -32,7 +32,7 @@ export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Actio
 
 // Global store for tracking toasts we've shown to prevent duplicates
 const shownToasts = new Map<string, number>();
-const MAX_TRACKED_TOASTS = 20; // Limit memory usage
+const MAX_TRACKED_TOASTS = 10; // Limit memory usage
 
 // This is a client-side only function
 export const toast = ({
@@ -55,14 +55,14 @@ export const toast = ({
     return { id: "error-toast" };
   }
   
-  // Create a deduplication key
-  const toastKey = `${title}:${description}:${variant}`;
+  // Create a deduplication key that includes all important properties
+  const toastKey = `${variant}:${String(title)}:${String(description)}`;
   
   const now = Date.now();
-  // Skip this toast if it's identical to one we've shown recently (last 10 seconds)
+  // Skip this toast if it's identical to one we've shown in the last 5 seconds
   if (shownToasts.has(toastKey)) {
     const lastShown = shownToasts.get(toastKey) || 0;
-    if (now - lastShown < 10000) {
+    if (now - lastShown < 5000) {
       console.log(`Skipping duplicate toast: ${toastKey}`);
       return { id: "duplicate-toast" };
     }
@@ -72,12 +72,9 @@ export const toast = ({
   if (shownToasts.size > MAX_TRACKED_TOASTS) {
     // Delete the oldest entries when we reach capacity
     const entries = Array.from(shownToasts.entries());
-    const oldestEntries = entries
-      .sort((a, b) => a[1] - b[1])
-      .slice(0, Math.floor(MAX_TRACKED_TOASTS / 2));
-    
-    for (const [key] of oldestEntries) {
-      shownToasts.delete(key);
+    const oldestEntry = entries.sort((a, b) => a[1] - b[1])[0];
+    if (oldestEntry) {
+      shownToasts.delete(oldestEntry[0]);
     }
   }
   

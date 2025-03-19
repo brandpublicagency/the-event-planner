@@ -26,7 +26,7 @@ interface ToastProviderProps {
 }
 
 // Define the maximum number of toasts to show at once
-const MAX_TOASTS = 2;
+const MAX_TOASTS = 1;
 
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastContextValue["toasts"]>([]);
@@ -59,7 +59,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       
       // Limit total number of toasts
       const filteredPrevToasts = activeToasts.length >= MAX_TOASTS 
-        ? activeToasts.slice(-1) // Only keep the most recent toast
+        ? [] // Clear all toasts if we've reached the limit
         : activeToasts;
       
       // Add new toast
