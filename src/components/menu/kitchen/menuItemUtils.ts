@@ -5,6 +5,7 @@
 import { format, parseISO } from 'date-fns';
 import { Event } from '@/types/event';
 import { getVenueNames } from '@/utils/venueUtils';
+import React from 'react';
 
 // Format date
 export const formatDate = (dateString: string | null) => {
@@ -23,7 +24,7 @@ export const formatTimeDisplay = (startTime: string | null, endTime: string | nu
 };
 
 // Format notes
-export const formatNotes = (notes: string) => {
+export const formatNotes = (notes: string): React.ReactNode[] => {
   return notes.split('\n').map((line, i) => (
     <p key={i} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{line}</p>
   ));
