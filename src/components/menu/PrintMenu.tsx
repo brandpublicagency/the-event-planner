@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -394,13 +393,17 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
         variant: "destructive"
       });
     },
-    content: () => componentRef.current // Fixed: This is the correct approach
+    contentRef: componentRef,
   });
 
   return (
     <>
       <Button 
-        onClick={handlePrint} // Fixed: No need for additional checks or inline functions
+        onClick={() => {
+          if (componentRef.current) {
+            handlePrint();
+          }
+        }}
         className="rounded-full" 
         variant="outline"
         size="sm"

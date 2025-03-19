@@ -24,7 +24,6 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
 }) => {
   // Handler to ensure toggle changes are properly dispatched
   const handleToggleChange = (checked: boolean) => {
-    console.log("Custom menu toggle changed:", checked);
     if (onCustomMenuToggle) {
       onCustomMenuToggle(checked);
     }

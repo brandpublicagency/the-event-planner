@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -31,27 +31,36 @@ const WeddingMenuPlanner = ({
     handleCanapeSelection,
     saveMenuSelections
   } = useMenuState(eventCode, toast);
+  
+  // Flag to prevent feedback loop
+  const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 
-  // Sync external isCustomMenu state with menu state
-  React.useEffect(() => {
-    if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu) {
-      console.log("Updating isCustomMenu in menu state:", isCustomMenu);
+  // Sync external isCustomMenu state with menu state - only when prop changes
+  useEffect(() => {
+    if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu && !isInternalUpdate) {
       handleMenuStateChange('isCustomMenu', isCustomMenu);
     }
-  }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange]);
+  }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange, isInternalUpdate]);
 
-  // Sync menu state changes back to parent
-  React.useEffect(() => {
-    if (onCustomMenuToggle && menuState.isCustomMenu !== isCustomMenu) {
-      console.log("Notifying parent of custom menu toggle:", menuState.isCustomMenu);
-      onCustomMenuToggle(menuState.isCustomMenu);
-    }
-    
-    // Send menu state to parent component for print functionality
+  // Sync menu state changes back to parent - only for user-initiated changes
+  useEffect(() => {
     if (onMenuStateChange) {
       onMenuStateChange(menuState);
     }
-  }, [menuState, onCustomMenuToggle, onMenuStateChange, isCustomMenu]);
+    
+    // Notify parent of custom menu changes, but only if it was changed internally
+    // and not as a result of a prop change from the parent
+    if (onCustomMenuToggle && isInternalUpdate) {
+      onCustomMenuToggle(menuState.isCustomMenu);
+      setIsInternalUpdate(false);
+    }
+  }, [menuState, onCustomMenuToggle, onMenuStateChange, isInternalUpdate]);
+
+  // Handle internal changes to the custom menu toggle
+  const handleInternalCustomMenuToggle = (value: boolean) => {
+    setIsInternalUpdate(true);
+    handleMenuStateChange('isCustomMenu', value);
+  };
 
   if (isLoading) {
     return (
@@ -80,7 +89,13 @@ const WeddingMenuPlanner = ({
       <div className="space-y-4">
         <MenuContent 
           menuState={menuState}
-          onMenuStateChange={handleMenuStateChange}
+          onMenuStateChange={(field, value) => {
+            if (field === 'isCustomMenu') {
+              handleInternalCustomMenuToggle(value);
+            } else {
+              handleMenuStateChange(field, value);
+            }
+          }}
           onCanapeSelection={handleCanapeSelection}
           saveMenuSelections={saveMenuSelections}
         />
