@@ -4,7 +4,7 @@ import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 
-// Define ToastProps separately without extending Radix props to avoid the circular reference
+// Define ToastProps separately to avoid the circular reference
 export interface ToastProps {
   id?: string;
   title?: React.ReactNode;
@@ -14,7 +14,7 @@ export interface ToastProps {
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;
   variant?: "default" | "destructive" | "success" | "info" | "warning";
-  // Add other needed props from RadixUI without extending
+  // Add other needed props
   className?: string;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
@@ -34,7 +34,7 @@ export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Actio
 // Use a Map with timestamps to track when toasts were shown
 const shownToasts = new Map<string, number>();
 const MAX_TRACKED_TOASTS = 10; // Limit memory usage
-const DEDUPE_WINDOW = 5000; // 5 second window for deduplication
+const DEDUPE_WINDOW = 10000; // 10 second window for deduplication
 
 // This is a client-side only function
 export const toast = ({
@@ -61,7 +61,7 @@ export const toast = ({
   const toastKey = `${variant}:${String(title)}:${String(description)}`;
   
   const now = Date.now();
-  // Skip this toast if it's identical to one we've shown in the last 5 seconds
+  // Skip this toast if it's identical to one we've shown in the last window period
   if (shownToasts.has(toastKey)) {
     const lastShown = shownToasts.get(toastKey) || 0;
     if (now - lastShown < DEDUPE_WINDOW) {
@@ -81,14 +81,19 @@ export const toast = ({
   // Update tracking with current timestamp
   shownToasts.set(toastKey, now);
   
-  return clientToast({
-    variant,
-    title,
-    description,
-    duration,
-    action,
-    position,
-    showProgress,
-    ...props,
-  });
+  try {
+    return clientToast({
+      variant,
+      title,
+      description,
+      duration,
+      action,
+      position,
+      showProgress,
+      ...props,
+    });
+  } catch (err) {
+    console.error("Error showing toast:", err);
+    return { id: "error-toast" };
+  }
 };

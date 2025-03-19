@@ -28,38 +28,45 @@ interface ToastProviderProps {
 // Define the maximum number of toasts to show at once
 const MAX_TOASTS = 1;
 
-// Global tracking to ensure only one provider instance is active
-let isProviderInitialized = false;
-
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastContextValue["toasts"]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
   const toastTimeoutsRef = useRef<Map<string, number>>(new Map());
+  const instanceIdRef = useRef<string>(String(Date.now()));
   
   // Initialize provider once
   useEffect(() => {
-    if (isProviderInitialized) {
-      console.warn('Multiple ToastProvider instances detected. Only one should be used.');
-      return;
+    // Only expose toast API to window once
+    if (typeof window !== "undefined" && !(window as any).__TOAST_PROVIDER__) {
+      console.log('Setting up toast provider with ID:', instanceIdRef.current);
+      (window as any).__TOAST_PROVIDER__ = { 
+        toast: (options: ToastOptions) => toast(options),
+        dismiss: (toastId?: string) => dismiss(toastId),
+        instanceId: instanceIdRef.current 
+      };
     }
     
-    isProviderInitialized = true;
-    setIsInitialized(true);
-    
     return () => {
-      isProviderInitialized = false;
-      
+      console.log('Cleaning up toast provider:', instanceIdRef.current);
       // Clear all timeouts
       toastTimeoutsRef.current.forEach((timeoutId) => {
         window.clearTimeout(timeoutId);
       });
       toastTimeoutsRef.current.clear();
+      
+      // Only remove window reference if this is the current instance
+      if (typeof window !== "undefined" && 
+          (window as any).__TOAST_PROVIDER__?.instanceId === instanceIdRef.current) {
+        delete (window as any).__TOAST_PROVIDER__;
+      }
     };
   }, []);
 
   const toast = (options: ToastOptions) => {
     const id = options.id || String(Date.now());
     
+    // Create a hash key for deduplication
+    const toastKey = `${options.variant || 'default'}:${String(options.title)}:${String(options.description)}`;
+
     setToasts((prevToasts) => {
       // If this exact toast already exists, don't add it again
       const existingToastIndex = prevToasts.findIndex(
@@ -149,29 +156,6 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       toastTimeoutsRef.current.set('animation-all', animationTimeout);
     }
   };
-
-  // Expose toast API to window for global usage, but ensure it's only done once
-  useEffect(() => {
-    if (!isInitialized) return;
-    
-    if (typeof window !== "undefined") {
-      // Check if the API is already exposed
-      if (!(window as any).__TOAST_PROVIDER__) {
-        console.log('Exposing toast API to window');
-        (window as any).__TOAST_PROVIDER__ = { toast, dismiss };
-      }
-    }
-    
-    return () => {
-      if (typeof window !== "undefined" && isProviderInitialized === false) {
-        delete (window as any).__TOAST_PROVIDER__;
-      }
-    };
-  }, [isInitialized]);
-
-  if (!isInitialized) {
-    return <>{children}</>;
-  }
 
   return (
     <ToastContext.Provider value={{ toast, dismiss, toasts }}>

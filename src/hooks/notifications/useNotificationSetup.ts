@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Use WeakMap to track which errors have been shown for which components
+// Use WeakSet to track which errors have been shown
 const shownErrorsMap = new WeakMap();
 
 export function useNotificationSetup(
@@ -19,22 +19,26 @@ export function useNotificationSetup(
   // But only show it once per error instance
   useEffect(() => {
     if (error && isMounted.current && !hasShownErrorToast.current) {
-      // Check if we've already shown this exact error message
-      const errorKey = error.message || 'unknown-error';
-      const shownErrors = shownErrorsMap.get(error) || new Set();
-      
-      if (!shownErrors.has(errorKey)) {
-        console.log('Showing notification error toast:', errorKey);
-        toast({
-          title: 'Notification System',
-          description: error.message || 'Failed to load notifications',
-          variant: 'destructive',
-        });
+      try {
+        // Check if we've already shown this exact error message
+        const errorKey = error.message || 'unknown-error';
+        const shownErrors = shownErrorsMap.get(error) || new Set();
         
-        // Remember we've shown this error
-        shownErrors.add(errorKey);
-        shownErrorsMap.set(error, shownErrors);
-        hasShownErrorToast.current = true;
+        if (!shownErrors.has(errorKey)) {
+          console.log('Showing notification error toast:', errorKey);
+          toast({
+            title: 'Notification System',
+            description: error.message || 'Failed to load notifications',
+            variant: 'destructive',
+          });
+          
+          // Remember we've shown this error
+          shownErrors.add(errorKey);
+          shownErrorsMap.set(error, shownErrors);
+          hasShownErrorToast.current = true;
+        }
+      } catch (err) {
+        console.error('Error showing notification error toast:', err);
       }
     }
   }, [error, toast, isMounted]);
