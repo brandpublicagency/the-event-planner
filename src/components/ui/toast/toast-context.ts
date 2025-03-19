@@ -10,6 +10,10 @@ export interface ToastContextValue {
     title?: React.ReactNode;
     description?: React.ReactNode;
     action?: React.ReactElement;
+    variant?: "default" | "destructive" | "success" | "info" | "warning";
+    position?: "top" | "bottom" | "sidebar";
+    showProgress?: boolean;
+    duration?: number;
     open: boolean;
     onOpenChange: (open: boolean) => void;
   }>;

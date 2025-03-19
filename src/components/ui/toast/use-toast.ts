@@ -11,6 +11,7 @@ export interface ToastOptions extends ToastProps {
   duration?: number;
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;
+  variant?: "default" | "destructive" | "success" | "info" | "warning";
 }
 
 export const useToast = () => {

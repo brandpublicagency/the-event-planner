@@ -5,7 +5,8 @@ import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 
-export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> {
+// Define ToastProps separately without extending Radix props to avoid the circular reference
+export interface ToastProps {
   id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -14,6 +15,18 @@ export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastP
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;
   variant?: "default" | "destructive" | "success" | "info" | "warning";
+  // Add other needed props from RadixUI without extending
+  className?: string;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onPause?: () => void;
+  onResume?: () => void;
+  onSwipeStart?: (event: React.TouchEvent | MouseEvent) => void;
+  onSwipeMove?: (event: React.TouchEvent | MouseEvent) => void;
+  onSwipeEnd?: (event: React.TouchEvent | MouseEvent) => void;
+  forceMount?: true;
+  altText?: string;
 }
 
 export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Action>

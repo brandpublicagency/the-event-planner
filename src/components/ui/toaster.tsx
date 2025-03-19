@@ -20,14 +20,14 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {defaultToasts.map(function ({ id, title, description, action, variant, showProgress, duration, ...props }) {
+      {defaultToasts.map(function ({ id, title, description, action, variant = "default", showProgress = false, duration = 5000, ...props }) {
         const ToastComponent = showProgress ? ToastWithProgress : ToastWithIcon;
         
         return (
           <ToastComponent 
             key={id} 
             variant={variant} 
-            {...(showProgress && { progressDuration: duration || 5000 })}
+            {...(showProgress && { progressDuration: duration })}
             {...props}
           >
             <div className="grid gap-1">
