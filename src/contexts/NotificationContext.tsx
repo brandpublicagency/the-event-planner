@@ -47,7 +47,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         toast({
           title: 'Notification Warning',
           description: 'Real-time updates may not be available. Refresh to see new notifications.',
-          variant: 'warning',
+          variant: 'info', // Changed from 'warning' to 'info' to match allowed variants
           duration: 10000,
         });
       }

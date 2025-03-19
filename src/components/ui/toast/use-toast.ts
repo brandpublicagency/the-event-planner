@@ -1,14 +1,7 @@
 
 import { useContext } from "react";
-import { ToastActionElement, ToastProps } from "@/components/ui/toast/toast";
 import { ToastContext } from "@/components/ui/toast/toast-context";
-
-export interface UseToastOptions {
-  duration?: number;
-  position?: "top" | "bottom" | "sidebar";
-  variant?: "default" | "destructive" | "success" | "warning" | "info";
-  showProgress?: boolean;
-}
+import { ToastProps, ToastActionElement } from "@/components/ui/toast/toast";
 
 export interface ToastOptions extends ToastProps {
   id?: string;

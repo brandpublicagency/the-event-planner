@@ -1,7 +1,11 @@
 
-import { type ToastActionElement, type ToastProps as PrimitiveToastProps } from "@/components/ui/toast";
+import * as React from "react"
+import { type VariantProps } from "class-variance-authority"
+import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import * as ToastPrimitives from "@radix-ui/react-toast"
 
-export interface ToastProps extends PrimitiveToastProps {
+export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> {
   id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -9,7 +13,10 @@ export interface ToastProps extends PrimitiveToastProps {
   duration?: number;
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;
+  variant?: "default" | "destructive" | "success" | "info" | "warning";
 }
+
+export type ToastActionElement = React.ReactElement<typeof ToastPrimitives.Action>
 
 // This is a client-side only function
 export const toast = ({
