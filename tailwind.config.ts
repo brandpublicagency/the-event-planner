@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
@@ -79,6 +80,13 @@ export default {
       },
       animation: {
         'gradient-x': 'gradient-x 15s ease infinite',
+        'spin-slow': 'spin 8s linear infinite',
+        'rain': 'rain 1.5s linear infinite',
+        'snow': 'snow 6s linear infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'wind': 'wind 3s ease-in-out infinite',
+        'lightning': 'lightning 8s ease-in-out infinite',
       },
       keyframes: {
         'gradient-x': {
@@ -88,6 +96,34 @@ export default {
           '50%': {
             'background-position': '100% 50%',
           },
+        },
+        'rain': {
+          '0%': { transform: 'translateY(-10px)' },
+          '100%': { transform: 'translateY(100px)', opacity: '0' },
+        },
+        'snow': {
+          '0%': { transform: 'translate(0, 0)' },
+          '25%': { transform: 'translate(5px, 15px)' },
+          '50%': { transform: 'translate(-5px, 30px)' },
+          '75%': { transform: 'translate(5px, 45px)' },
+          '100%': { transform: 'translate(0, 60px)', opacity: '0' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.6' },
+          '50%': { opacity: '1' },
+        },
+        'wind': {
+          '0%': { transform: 'translateX(0)' },
+          '50%': { transform: 'translateX(10px)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        'lightning': {
+          '0%, 91%, 93%, 95%, 100%': { opacity: '0' },
+          '92%, 94%, 96%': { opacity: '1' },
         },
       },
     },
