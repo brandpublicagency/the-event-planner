@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -7,7 +6,6 @@ import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
 import { useToast } from '@/components/ui/use-toast';
 import KitchenMenuContent from './KitchenMenuContent';
-import { getPageStyle } from './printStyles';
 
 // Define interface for the print props
 interface PrintMenuProps {
@@ -19,11 +17,6 @@ interface PrintMenuProps {
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  
-  // Log when the component ref is available
-  useEffect(() => {
-    console.log("Component mounted, ref status:", !!componentRef.current);
-  }, []);
   
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
@@ -47,7 +40,91 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         variant: "destructive"
       });
     },
-    pageStyle: getPageStyle(),
+    pageStyle: `
+      @page {
+        margin: 15mm !important;
+        size: A4;
+      }
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        * {
+          box-sizing: border-box;
+          text-align: left;
+        }
+        h1, h2, h3, h4, h5, h6 {
+          text-align: left;
+        }
+        .print-container {
+          width: 210mm;
+          height: auto;
+          padding: 15mm;
+          margin: 0 !important;
+          text-align: left;
+        }
+        
+        /* Print header - LEFT ALIGNED as requested */
+        .print-header h2 {
+          font-size: 16px !important;
+          font-weight: bold !important;
+          text-align: left !important;
+          margin-bottom: 4px !important;
+        }
+        
+        .print-header p {
+          font-size: 12px !important;
+          text-align: left !important;
+          margin-bottom: 0 !important;
+        }
+        
+        /* Header divider - 0.75px black line */
+        .print-header:after {
+          content: "" !important;
+          display: block !important;
+          width: 100% !important;
+          border-bottom: 0.75px solid #000 !important;
+          margin-top: 16px !important;
+          margin-bottom: 16px !important;
+        }
+        
+        /* Section headers - UPPERCASE, BOLD, 10PX */
+        .section-header {
+          text-transform: uppercase !important;
+          font-weight: bold !important;
+          font-size: 10px !important;
+          margin-top: 16px !important;
+          margin-bottom: 4px !important;
+          text-align: left !important;
+        }
+        
+        /* Add 0.25px black divider after section headers */
+        .section-header:after {
+          content: "" !important;
+          display: block !important;
+          width: 100% !important;
+          border-bottom: 0.25px solid #000 !important;
+          margin-top: 4px !important;
+          margin-bottom: 8px !important;
+        }
+        
+        /* Menu items */
+        .menu-item {
+          font-size: 12px !important;
+          margin-bottom: 4px !important;
+          text-align: left !important;
+        }
+        
+        /* Category labels (e.g., "Meat Selections:") */
+        .category-label {
+          font-weight: 600 !important;
+          margin-top: 8px !important;
+          margin-bottom: 4px !important;
+          text-align: left !important;
+        }
+      }
+    `,
   });
 
   const onPrintClick = () => {
