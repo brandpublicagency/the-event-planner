@@ -1,59 +1,98 @@
-
-/**
- * Styles for the kitchen menu printing
- */
-
-export const getPageStyle = () => `
+@media print {
   @page {
+    margin: 15mm;
     size: A4;
-    margin: 15mm !important;
   }
-  @media print {
-    body {
-      margin: 0;
-      padding: 0;
-    }
-    * {
-      box-sizing: border-box;
-      text-align: left;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      text-align: left;
-    }
-    .print-container {
-      width: 210mm;
-      height: auto;
-      padding: 15mm;
-      margin: 0 !important;
-      text-align: left;
-    }
-    h1 {
-      font-size: 16px;
-      font-weight: normal;
-      margin-bottom: 16px;
-      text-align: left;
-    }
-    h2 {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 4px;
-      text-align: left;
-    }
-    h3 {
-      font-size: 14px;
-      font-weight: normal;
-      margin-bottom: 8px;
-      text-align: left;
-    }
-    p {
-      font-size: 12px;
-      margin: 0;
-      margin-bottom: 4px;
-      text-align: left;
-    }
-    hr {
-      margin: 16px 0;
-      border-color: #ddd;
-    }
+
+  /* Hide everything first */
+  body * {
+    visibility: hidden !important;
   }
-`;
+
+  /* Show print container */
+  .print-container,
+  .print-container * {
+    visibility: visible !important;
+  }
+
+  /* Position the print container */
+  .print-container {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    padding: 15mm !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    color: black !important;
+  }
+
+  /* Hide specific elements even inside print container */
+  .print-container .print\:hidden,
+  .print-container button,
+  .flex.justify-end {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Event header - LEFT ALIGNED */
+  .print-header h2 {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    margin-bottom: 4px !important;
+  }
+
+  .print-header p {
+    font-size: 12px !important;
+    text-align: left !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Header divider - 0.75px black line */
+  .print-header:after {
+    content: "" !important;
+    display: block !important;
+    width: 100% !important;
+    border-bottom: 0.75px solid #000 !important;
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Section headers - UPPERCASE, BOLD, 10PX */
+  .section-header {
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    font-size: 10px !important;
+    margin-top: 16px !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+  }
+
+  /* Add 0.25px black divider after section headers */
+  .section-header:after {
+    content: "" !important;
+    display: block !important;
+    width: 100% !important;
+    border-bottom: 0.25px solid #000 !important;
+    margin-top: 4px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Menu items */
+  .menu-item {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+  }
+
+  /* Category labels (e.g., "Meat Selections:") */
+  .category-label {
+    font-weight: 600 !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+  }
+}
