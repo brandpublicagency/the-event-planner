@@ -17,7 +17,7 @@ const formatSelection = (selection: string) => {
     
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated': 'Plated Menu',
+    'plated_main': 'Plated Menu',
     
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
     'oxtail_chicken': 'Homemade oxtail pie and golden-brown chickens',
@@ -36,7 +36,7 @@ const formatSelection = (selection: string) => {
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'canapes': 'Dessert Canapés',
+    'canapes_dessert': 'Dessert Canapés',
     
     'chocolate_pudding': 'Self-saucing chocolate pudding',
     'date_pudding': 'Date & nut brandy pudding',

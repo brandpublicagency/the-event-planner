@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
+import { MenuState } from '../hooks/menuStateTypes';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -89,9 +90,9 @@ const WeddingMenuPlanner = ({
       <div className="space-y-4">
         <MenuContent 
           menuState={menuState}
-          onMenuStateChange={(field, value) => {
+          onMenuStateChange={(field: keyof MenuState, value: any) => {
             if (field === 'isCustomMenu') {
-              handleInternalCustomMenuToggle(value);
+              handleInternalCustomMenuToggle(value as boolean);
             } else {
               handleMenuStateChange(field, value);
             }

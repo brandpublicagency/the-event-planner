@@ -44,7 +44,6 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     // Main Course Types
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
-    'plated': 'Plated Menu',
     
     // Main Course - Karoo Meat
     'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -101,7 +100,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     'traditional': 'Traditional Baked Desserts',
     'individual': 'Individual Cakes',
     'bar': 'Dessert Bar',
-    'canapes': 'Dessert Canapés',
+    'canapes_dessert': 'Dessert Canapés',
     
     // Traditional Desserts
     'chocolate_pudding': 'Self-saucing chocolate pudding',
@@ -125,9 +124,6 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
     'midnight_snack': 'Midnight Snack'
   };
 
-  // Get venue names
-  const venueNames = getVenueNames(event);
-
   // Format descriptive name
   const getDisplayName = (key: string): string => {
     return menuItems[key] || key.split('_').map(word => 
@@ -148,7 +144,7 @@ const MenuContent = React.forwardRef<HTMLDivElement, PrintMenuProps>(({ event, m
         <h1 className="text-xl uppercase font-normal text-gray-600 mb-2">Menu Selection</h1>
         <h2 className="text-lg font-medium">{event.name || 'Event'}</h2>
         <p className="text-sm text-gray-600">
-          {formatDate(event.event_date)} | {event.pax} Guests | {venueNames}
+          {formatDate(event.event_date)} | {event.pax} Guests | {getVenueNames(event)}
         </p>
       </div>
 
