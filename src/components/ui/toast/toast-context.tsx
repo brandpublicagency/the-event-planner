@@ -1,5 +1,5 @@
 
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode, useRef } from "react";
 import { ToastOptions } from "./use-toast";
 
 export interface ToastContextValue {
@@ -28,8 +28,34 @@ interface ToastProviderProps {
 // Define the maximum number of toasts to show at once
 const MAX_TOASTS = 1;
 
+// Global tracking to ensure only one provider instance is active
+let isProviderInitialized = false;
+
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastContextValue["toasts"]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const toastTimeoutsRef = useRef<Map<string, number>>(new Map());
+  
+  // Initialize provider once
+  useEffect(() => {
+    if (isProviderInitialized) {
+      console.warn('Multiple ToastProvider instances detected. Only one should be used.');
+      return;
+    }
+    
+    isProviderInitialized = true;
+    setIsInitialized(true);
+    
+    return () => {
+      isProviderInitialized = false;
+      
+      // Clear all timeouts
+      toastTimeoutsRef.current.forEach((timeoutId) => {
+        window.clearTimeout(timeoutId);
+      });
+      toastTimeoutsRef.current.clear();
+    };
+  }, []);
 
   const toast = (options: ToastOptions) => {
     const id = options.id || String(Date.now());
@@ -62,6 +88,19 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         ? [] // Clear all toasts if we've reached the limit
         : activeToasts;
       
+      // Set auto-dismiss timeout
+      const duration = options.duration || 5000;
+      if (toastTimeoutsRef.current.has(id)) {
+        window.clearTimeout(toastTimeoutsRef.current.get(id));
+      }
+      
+      const timeoutId = window.setTimeout(() => {
+        dismiss(id);
+        toastTimeoutsRef.current.delete(id);
+      }, duration);
+      
+      toastTimeoutsRef.current.set(id, timeoutId);
+      
       // Add new toast
       return [
         ...filteredPrevToasts,
@@ -89,9 +128,12 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       );
       
       // Remove after animation (300ms)
-      setTimeout(() => {
+      const animationTimeout = window.setTimeout(() => {
         setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== toastId));
       }, 300);
+      
+      // Store the animation timeout
+      toastTimeoutsRef.current.set(`animation-${toastId}`, animationTimeout);
     } else {
       // Close all toasts
       setToasts((prevToasts) =>
@@ -99,24 +141,37 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       );
       
       // Remove all after animation
-      setTimeout(() => {
+      const animationTimeout = window.setTimeout(() => {
         setToasts([]);
       }, 300);
+      
+      // Store the animation timeout
+      toastTimeoutsRef.current.set('animation-all', animationTimeout);
     }
   };
 
-  // Expose toast API to window for global usage
+  // Expose toast API to window for global usage, but ensure it's only done once
   useEffect(() => {
+    if (!isInitialized) return;
+    
     if (typeof window !== "undefined") {
-      (window as any).__TOAST_PROVIDER__ = { toast, dismiss };
+      // Check if the API is already exposed
+      if (!(window as any).__TOAST_PROVIDER__) {
+        console.log('Exposing toast API to window');
+        (window as any).__TOAST_PROVIDER__ = { toast, dismiss };
+      }
     }
     
     return () => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && isProviderInitialized === false) {
         delete (window as any).__TOAST_PROVIDER__;
       }
     };
-  }, []);
+  }, [isInitialized]);
+
+  if (!isInitialized) {
+    return <>{children}</>;
+  }
 
   return (
     <ToastContext.Provider value={{ toast, dismiss, toasts }}>

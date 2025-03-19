@@ -1,77 +1,43 @@
-/* toast.css - Create this file and import it in your global CSS */
 
-/* Toast gradients - Apply gradient backgrounds based on toast type */
+/* Toast gradient backgrounds */
 .toast-gradient-default {
-  background: linear-gradient(to right, #3b82f6, #2563eb);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to right, #1a1a1a 0%, #2a2a2a 100%);  
 }
 
 .toast-gradient-destructive {
-  background: linear-gradient(to right, #ef4444, #b91c1c);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to right, #e11d48 0%, #f43f5e 100%);
 }
 
 .toast-gradient-success {
-  background: linear-gradient(to right, #10b981, #059669);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to right, #10b981 0%, #34d399 100%);
 }
 
 .toast-gradient-info {
-  background: linear-gradient(to right, #6366f1, #4f46e5);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to right, #0ea5e9 0%, #38bdf8 100%);
 }
 
-/* Toast progress bar styling and animation */
-.toast-progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background-color: rgba(255, 255, 255, 0.5);
-  width: 100%;
-  transform-origin: left;
-  animation: toast-progress-animation linear forwards;
-}
-
+/* Progress bar animation */
 @keyframes toast-progress-animation {
-  0% {
+  from {
     transform: scaleX(1);
   }
-  100% {
+  to {
     transform: scaleX(0);
   }
 }
 
-/* Enhance toast animations */
-@keyframes slideInFromBottom {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-/* Apply animations to toast states */
-[data-state="open"].data-[state=open]:animate-in {
-  animation: slideInFromBottom 0.3s ease-out;
-}
-
-[data-state="closed"].data-[state=closed]:animate-out {
-  animation: fadeOut 0.2s ease-in;
+.toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform-origin: left;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }

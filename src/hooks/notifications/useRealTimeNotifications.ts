@@ -1,14 +1,23 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useRealTimeNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
+    // Prevent duplicate subscriptions
+    if (channelRef.current) {
+      console.log('Real-time notification subscription already exists, skipping setup');
+      return () => {};
+    }
+
+    console.log('Setting up real-time notification subscription');
+    
     // Set up a subscription to notifications table
-    const channel = supabase
+    channelRef.current = supabase
       .channel('notification-changes')
       .on('postgres_changes', 
         { 
@@ -36,7 +45,10 @@ export function useRealTimeNotifications() {
     // Clean up
     return () => {
       console.log('Cleaning up real-time notification subscription');
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, []);
 
