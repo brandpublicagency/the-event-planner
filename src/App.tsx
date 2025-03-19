@@ -7,6 +7,7 @@ import { AppRoutes } from './routes/AppRoutes';
 import { TaskProvider } from './contexts/TaskContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ScheduledNotificationProvider } from './contexts/ScheduledNotificationContext';
+import { ToastProvider } from '@/components/ui/toast/toast-context';
 
 const queryClient = new QueryClient();
 
@@ -14,16 +15,18 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <QueryClientProvider client={queryClient}>
-        <TaskProvider>
-          <NotificationProvider>
-            <ScheduledNotificationProvider>
-              <AppRoutes />
-              <Toaster />
-            </ScheduledNotificationProvider>
-          </NotificationProvider>
-        </TaskProvider>
-      </QueryClientProvider>
+      <ToastProvider>
+        <QueryClientProvider client={queryClient}>
+          <TaskProvider>
+            <NotificationProvider>
+              <ScheduledNotificationProvider>
+                <AppRoutes />
+                <Toaster />
+              </ScheduledNotificationProvider>
+            </NotificationProvider>
+          </TaskProvider>
+        </QueryClientProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
