@@ -1,4 +1,3 @@
-
 const formatSelection = (selection: string) => {
   if (!selection) return '';
   
@@ -15,6 +14,7 @@ const formatSelection = (selection: string) => {
     'prawn_cocktail': 'Prawn Cocktail',
     'mushroom_soup': 'Creamy Mushroom Soup',
     'beetroot_carpaccio': 'Beetroot Carpaccio',
+    'halloumi_grape': 'Grilled halloumi and grape salad with rocket and a balsamic reduction',
     
     'buffet': 'Buffet Menu',
     'karoo': 'Warm Karoo Feast',
@@ -65,85 +65,107 @@ export const formatMenuDetails = (menu: any) => {
   const sections = [];
   
   if (menu.is_custom) {
-    sections.push('Custom Menu:', menu.custom_menu_details || 'Custom menu details not specified');
-    return sections.join('\n');
+    sections.push('Custom Menu', menu.custom_menu_details || 'Custom menu details not specified');
+    return sections.join('\n\n');
   }
 
   // Starter section with specific handling for canapés
-  if (menu.starter_type) {
-    if (menu.starter_type === 'canapes') {
-      sections.push('Starter: Canapés');
+  if (menu.selectedStarterType) {
+    sections.push('ARRIVAL & STARTER');
+    
+    if (menu.selectedStarterType === 'canapes') {
+      sections.push(`${formatSelection(menu.selectedStarterType)}`);
       
-      if (menu.canape_package) {
-        sections.push(`Package: ${formatSelection(menu.canape_package)}`);
+      if (menu.selectedCanapePackage) {
+        sections.push(`Package: ${formatSelection(menu.selectedCanapePackage)}`);
       }
       
-      if (menu.canape_selections && menu.canape_selections.length > 0) {
-        sections.push('Selections:');
-        menu.canape_selections.forEach((canape: string) => {
-          if (canape) sections.push(`- ${formatSelection(canape)}`);
-        });
+      if (menu.selectedCanapes && menu.selectedCanapes.length > 0) {
+        const canapeItems = menu.selectedCanapes
+          .filter((canape: string) => canape)
+          .map((canape: string) => `• ${formatSelection(canape)}`)
+          .join('\n');
+        
+        if (canapeItems) {
+          sections.push(canapeItems);
+        }
       } else {
         sections.push('No specific canapés selected yet');
       }
-    } else if (menu.plated_starter) {
-      sections.push(`Starter: ${formatSelection(menu.starter_type)} - ${formatSelection(menu.plated_starter)}`);
+    } else if (menu.selectedStarterType === 'plated' && menu.selectedPlatedStarter) {
+      sections.push(`${formatSelection(menu.selectedStarterType)}`, `• ${formatSelection(menu.selectedPlatedStarter)}`);
     } else {
-      sections.push(`Starter: ${formatSelection(menu.starter_type)}`);
+      sections.push(`${formatSelection(menu.selectedStarterType)}`);
     }
     
     sections.push('');
   }
 
   // Main course section with type-specific details
-  if (menu.main_course_type) {
-    sections.push(`Main Course: ${formatSelection(menu.main_course_type)}`);
+  if (menu.mainCourseType) {
+    sections.push('MAIN COURSE');
+    sections.push(`${formatSelection(menu.mainCourseType)}`);
     
     // Add type-specific details
-    if (menu.main_course_type === 'buffet') {
-      if (menu.buffet_meat_selections && menu.buffet_meat_selections.length > 0) {
+    if (menu.mainCourseType === 'buffet') {
+      if (menu.buffetMeatSelections && menu.buffetMeatSelections.length > 0) {
         sections.push('Meat:');
-        menu.buffet_meat_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+        const meatItems = menu.buffetMeatSelections
+          .map((item: string) => `• ${formatSelection(item)}`)
+          .join('\n');
+        sections.push(meatItems);
       }
       
-      if (menu.buffet_starch_selections && menu.buffet_starch_selections.length > 0) {
+      if (menu.buffetStarchSelections && menu.buffetStarchSelections.length > 0) {
         sections.push('Starch:');
-        menu.buffet_starch_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+        const starchItems = menu.buffetStarchSelections
+          .map((item: string) => `• ${formatSelection(item)}`)
+          .join('\n');
+        sections.push(starchItems);
       }
       
-      if (menu.buffet_vegetable_selections && menu.buffet_vegetable_selections.length > 0) {
+      if (menu.buffetVegetableSelections && menu.buffetVegetableSelections.length > 0) {
         sections.push('Vegetables:');
-        menu.buffet_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+        const vegItems = menu.buffetVegetableSelections
+          .map((item: string) => `• ${formatSelection(item)}`)
+          .join('\n');
+        sections.push(vegItems);
       }
       
-      if (menu.buffet_salad_selection) {
-        sections.push(`Salad: ${formatSelection(menu.buffet_salad_selection)}`);
+      if (menu.buffetSaladSelection) {
+        sections.push(`Salad:\n• ${formatSelection(menu.buffetSaladSelection)}`);
       }
-    } else if (menu.main_course_type === 'plated') {
-      if (menu.plated_main_selection) {
-        sections.push(`Plated Selection: ${formatSelection(menu.plated_main_selection)}`);
-      }
-      
-      if (menu.plated_salad_selection) {
-        sections.push(`Salad: ${formatSelection(menu.plated_salad_selection)}`);
-      }
-    } else if (menu.main_course_type === 'karoo') {
-      if (menu.karoo_meat_selection) {
-        sections.push(`Karoo Meat: ${formatSelection(menu.karoo_meat_selection)}`);
+    } else if (menu.mainCourseType === 'plated_main') {
+      if (menu.platedMainSelection) {
+        sections.push(`Main Selection:\n• ${formatSelection(menu.platedMainSelection)}`);
       }
       
-      if (menu.karoo_starch_selection && menu.karoo_starch_selection.length > 0) {
-        sections.push('Karoo Starch:');
-        menu.karoo_starch_selection.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+      if (menu.platedSaladSelection) {
+        sections.push(`Salad:\n• ${formatSelection(menu.platedSaladSelection)}`);
+      }
+    } else if (menu.mainCourseType === 'karoo') {
+      if (menu.karooMeatSelection) {
+        sections.push(`Meat:\n• ${formatSelection(menu.karooMeatSelection)}`);
       }
       
-      if (menu.karoo_vegetable_selections && menu.karoo_vegetable_selections.length > 0) {
-        sections.push('Karoo Vegetables:');
-        menu.karoo_vegetable_selections.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
+      if (menu.karooStarchSelection && menu.karooStarchSelection.length > 0) {
+        sections.push('Starch:');
+        const starchItems = menu.karooStarchSelection
+          .map((item: string) => `• ${formatSelection(item)}`)
+          .join('\n');
+        sections.push(starchItems);
       }
       
-      if (menu.karoo_salad_selection) {
-        sections.push(`Karoo Salad: ${formatSelection(menu.karoo_salad_selection)}`);
+      if (menu.karooVegetableSelections && menu.karooVegetableSelections.length > 0) {
+        sections.push('Vegetables:');
+        const vegItems = menu.karooVegetableSelections
+          .map((item: string) => `• ${formatSelection(item)}`)
+          .join('\n');
+        sections.push(vegItems);
+      }
+      
+      if (menu.karooSaladSelection) {
+        sections.push(`Salad:\n• ${formatSelection(menu.karooSaladSelection)}`);
       }
     }
     
@@ -151,39 +173,47 @@ export const formatMenuDetails = (menu: any) => {
   }
 
   // Dessert section - Handle both 'canapes' and 'cakes' types
-  if (menu.dessert_type) {
-    sections.push(`Dessert: ${formatSelection(menu.dessert_type)}`);
+  if (menu.dessertType) {
+    sections.push('DESSERT');
+    sections.push(`${formatSelection(menu.dessertType)}`);
     
-    if ((menu.dessert_type === 'canapes' || menu.dessert_type === 'canapes_dessert') && menu.dessert_canapes && menu.dessert_canapes.length > 0) {
-      sections.push('Dessert Canapés:');
-      menu.dessert_canapes.forEach((item: string) => sections.push(`- ${formatSelection(item)}`));
-    } else if ((menu.dessert_type === 'individual' || menu.dessert_type === 'cakes') && menu.individual_cakes && menu.individual_cakes.length > 0) {
-      sections.push('Individual Cakes:');
-      menu.individual_cakes.forEach((item: string) => {
-        const quantity = menu.individual_cake_quantities?.[item] || 1;
-        sections.push(`- ${formatSelection(item)}${quantity > 1 ? ` (x${quantity})` : ''}`);
-      });
-    } else if (menu.dessert_type === 'traditional' && menu.traditional_dessert) {
-      sections.push(`Traditional Dessert: ${formatSelection(menu.traditional_dessert)}`);
+    if ((menu.dessertType === 'canapes' || menu.dessertType === 'canapes_dessert') && menu.dessertCanapes && menu.dessertCanapes.length > 0) {
+      const canapeItems = menu.dessertCanapes
+        .map((item: string) => `• ${formatSelection(item)}`)
+        .join('\n');
+      sections.push(canapeItems);
+    } else if ((menu.dessertType === 'individual' || menu.dessertType === 'cakes') && menu.individualCakes && menu.individualCakes.length > 0) {
+      const cakeItems = menu.individualCakes
+        .map((item: string) => {
+          // Don't show quantities in the printed version as per the new design
+          return `• ${formatSelection(item)}`;
+        })
+        .join('\n');
+      sections.push(cakeItems);
+    } else if (menu.dessertType === 'traditional' && menu.traditionalDessert) {
+      sections.push(`• ${formatSelection(menu.traditionalDessert)}`);
     }
     
     sections.push('');
   }
 
   // Other selections
-  if (menu.other_selections && menu.other_selections.length > 0) {
-    sections.push('Additional Options:');
-    menu.other_selections.forEach((item: string) => {
-      const quantity = menu.other_selections_quantities?.[item] || 1;
-      sections.push(`- ${formatSelection(item)}${quantity > 1 ? ` (x${quantity})` : ''}`);
-    });
+  if (menu.otherSelections && menu.otherSelections.length > 0) {
+    sections.push('ADDITIONAL OPTIONS');
+    const otherItems = menu.otherSelections
+      .map((item: string) => {
+        // Show items without quantities in the printed version
+        return `• ${formatSelection(item)}`;
+      })
+      .join('\n');
+    sections.push(otherItems);
     
     sections.push('');
   }
 
   // Notes
   if (menu.notes) {
-    sections.push('Notes:', menu.notes);
+    sections.push('NOTES', menu.notes);
   }
 
   return sections.join('\n');

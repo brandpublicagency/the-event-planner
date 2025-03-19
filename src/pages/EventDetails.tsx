@@ -107,7 +107,7 @@ const EventDetails = () => {
       </div>;
   }
   
-  const formattedDate = event.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
+  const formattedDate = event?.event_date ? format(new Date(event.event_date), 'dd MMMM yyyy') : 'No date';
   
   return <div className="flex flex-col h-full">
       <Header 
@@ -118,25 +118,25 @@ const EventDetails = () => {
       <div className="flex-1 p-6 bg-gray-100">
         <div className="max-w-4xl mx-auto">
           <div className="print:hidden mb-6">
-            <EventHeader 
+            {event && <EventHeader 
               eventCode={event.event_code} 
               event={event}
               menuState={menuState}
               isCustomMenu={isCustomMenu} 
               onCustomMenuToggle={setIsCustomMenu} 
-            />
+            />}
           </div>
           
           <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
-            <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />
+            {event && <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />}
             
-            <WeddingMenuPlanner 
-              eventCode={event.event_code} 
-              eventName={event.name} 
+            {id && <WeddingMenuPlanner 
+              eventCode={id} 
+              eventName={event?.name} 
               isCustomMenu={isCustomMenu} 
               onCustomMenuToggle={setIsCustomMenu}
               onMenuStateChange={setMenuState}
-            />
+            />}
           </div>
         </div>
       </div>

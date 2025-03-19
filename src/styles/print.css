@@ -57,80 +57,61 @@
     font-weight: 600 !important;
   }
 
-  /* Improve print readability */
-  .print-container h3 {
-    color: #333 !important;
-    font-weight: 600 !important;
-    break-after: avoid !important;
-    font-size: 15px !important;
-    margin-top: 1.25rem !important;
-    margin-bottom: 0.75rem !important;
-    text-align: left !important;
-  }
-  
-  /* Force text colors for better printing */
-  .print-container * {
-    color: black !important;
-    text-align: left !important;
+  /* Section headers - use all caps, bold */
+  .print-container .menu-content {
+    line-height: 1.6 !important;
   }
 
-  .print-container .text-sm {
-    font-size: 12px !important;
+  /* Set section headers to uppercase, bold and with spacing */
+  .menu-content > div > p:first-child {
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    margin-top: 15px !important;
+    margin-bottom: 5px !important;
+    font-size: 13px !important;
   }
 
-  .print-container .font-medium {
-    font-weight: 500 !important;
-    color: #333 !important;
-  }
-  
-  /* Fix section breaks */
-  .print-container section {
-    margin-bottom: 1.25rem !important;
-    break-inside: avoid !important;
+  /* Add line under section headers */
+  .menu-content > div > p:first-child:after {
+    content: "" !important;
+    display: block !important;
+    width: 100% !important;
+    border-bottom: 1px solid #333 !important;
+    margin-top: 4px !important;
+    margin-bottom: 8px !important;
   }
 
-  /* List styling for print */
+  /* Bullet points and list items */
   .print-container ul {
     margin-left: 1.25rem !important;
+    padding-left: 0 !important;
     margin-top: 0.5rem !important;
+    list-style-type: none !important;
   }
 
-  .print-container li {
+  .print-container li,
+  .print-container p:not(.menu-content > div > p:first-child) {
     text-align: left !important;
     break-inside: avoid !important;
     margin-bottom: 0.25rem !important;
+    font-size: 12px !important;
   }
 
-  /* Border styling */
-  .print-container .border-b {
-    border-bottom: 1px solid #333 !important;
-    padding-bottom: 0.25rem !important;
-  }
-
-  .print-container .border-t {
-    border-top: 1px solid #ddd !important;
-    padding-top: 0.5rem !important;
-    margin-top: 1rem !important;
+  /* Make bullet points that start with "•" look nicer */
+  .print-container p {
+    text-align: left !important;
   }
 
   /* Spacing for menu sections */
-  .print-container .space-y-3 > * {
-    margin-top: 0.75rem !important;
+  .menu-content > div {
+    margin-bottom: 8px !important;
   }
 
-  .print-container .space-y-3 > *:first-child {
-    margin-top: 0 !important;
-  }
-
-  /* Menu section formatting */
-  .print-container .menu-content {
-    page-break-inside: auto !important;
-  }
-
-  /* Quantity formatting */
-  .print-container .quantity {
-    font-weight: normal !important;
-    color: #555 !important;
+  /* Category labels (Meat, Starch, etc.) */
+  .print-container .category-label {
+    font-weight: 600 !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
   }
 
   /* Notes section */
