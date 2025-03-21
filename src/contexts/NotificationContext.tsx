@@ -8,6 +8,8 @@ import { toast } from "sonner";
 const NotificationContext = createContext<NotificationContextType>({
   notifications: [],
   unreadCount: 0,
+  loading: false,
+  error: null,
   markAsRead: async () => {},
   markAsCompleted: async () => {},
   markAllAsRead: async () => {},
@@ -21,6 +23,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
   // Initial fetch of notifications
   useEffect(() => {
@@ -68,6 +71,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   // Fetch notifications from Supabase
   const fetchNotifications = async () => {
     setLoading(true);
+    setError(null);
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -81,6 +85,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       setUnreadCount(formattedNotifications.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
     } finally {
       setLoading(false);
     }
@@ -149,6 +154,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       value={{
         notifications,
         unreadCount,
+        loading,
+        error,
         markAsRead,
         markAsCompleted,
         markAllAsRead,

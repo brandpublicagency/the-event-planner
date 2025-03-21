@@ -4,7 +4,6 @@ import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useToast } from '@/hooks/use-toast';
-import { useNotificationStore } from '@/store/notificationStore';
 import { NotificationErrorFallback } from '@/components/notifications/NotificationErrorFallback';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { NotificationContent } from '@/components/notifications/NotificationContent';
@@ -14,10 +13,11 @@ const Notifications = () => {
     notifications,
     markAsRead,
     markAsCompleted,
-    refreshNotifications
+    refreshNotifications,
+    loading,
+    error
   } = useNotifications();
   
-  const { loading, error } = useNotificationStore();
   const { toast } = useToast();
 
   // Handle refresh button click

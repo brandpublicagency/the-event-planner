@@ -10,17 +10,17 @@ import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
-import { useNotificationStore } from '@/store/notificationStore';
 
 export function NotificationDropdown() {
   const { 
     notifications, 
     markAsRead, 
     markAsCompleted,
-    markAllAsRead 
+    markAllAsRead,
+    refreshNotifications,
+    loading
   } = useNotifications();
   
-  const { loading } = useNotificationStore();
   const navigate = useNavigate();
 
   // Use a limited number of notifications to prevent performance issues

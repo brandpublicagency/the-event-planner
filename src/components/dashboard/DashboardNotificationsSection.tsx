@@ -3,6 +3,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 const DashboardNotificationsSection = () => {
   const navigate = useNavigate();
@@ -10,7 +11,8 @@ const DashboardNotificationsSection = () => {
     notifications, 
     markAsRead, 
     markAsCompleted, 
-    refreshNotifications
+    refreshNotifications,
+    loading
   } = useNotifications();
   
   // Refresh notifications when component mounts
@@ -41,11 +43,17 @@ const DashboardNotificationsSection = () => {
   return (
     <div className="flex flex-col mt-2">
       <div className="h-auto">
-        <NotificationsList 
-          notifications={notifications.slice(0, 3)} 
-          onViewDetail={handleNotificationView}
-          onCompleteTask={handleNotificationComplete}
-        />
+        {loading ? (
+          <div className="flex justify-center items-center p-8">
+            <Spinner className="h-8 w-8 text-primary" />
+          </div>
+        ) : (
+          <NotificationsList 
+            notifications={notifications.slice(0, 3)} 
+            onViewDetail={handleNotificationView}
+            onCompleteTask={handleNotificationComplete}
+          />
+        )}
       </div>
     </div>
   );

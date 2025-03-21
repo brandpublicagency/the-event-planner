@@ -18,6 +18,8 @@ export interface Notification {
 export type NotificationContextType = {
   notifications: Notification[];
   unreadCount: number;
+  loading: boolean;
+  error: Error | null;
   markAsRead: (id: string) => Promise<void>;
   markAsCompleted: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
