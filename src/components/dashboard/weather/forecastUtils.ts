@@ -39,6 +39,7 @@ export const generateForecastFromWeatherData = (weatherData: any): ForecastDay[]
   const baseHumidity = weatherData.humidity || 50;
   const baseWind = weatherData.wind_speed || 10;
   const baseUv = weatherData.uv || 4;
+  const baseRainChance = weatherData.rainChance || 10; // Use provided rainChance or default to 10%
   
   // Generate data for 7 days starting from tomorrow
   for (let i = 1; i < 8; i++) {
@@ -63,7 +64,7 @@ export const generateForecastFromWeatherData = (weatherData: any): ForecastDay[]
                       Math.floor(Math.random() * 30); // 0-30% otherwise
     
     // Add more variation for humidity, wind and UV
-    const humidityVar = Math.floor(Math.random() * 20) - 10; // -10 to +9
+    const humidityVar = Math.floor(Math.random() * 20) - 10; // -10 to +10
     const windVar = Math.floor(Math.random() * 6) - 3; // -3 to +2
     const uvVar = Math.floor(Math.random() * 3) - 1; // -1 to +1
     

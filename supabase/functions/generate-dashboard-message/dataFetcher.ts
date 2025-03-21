@@ -252,6 +252,27 @@ function processWeatherData(data) {
     }
   }
   
+  // Calculate rain chance based on weather condition
+  let rainChance = 0;
+  if (mainCondition === 'Rain' || mainCondition === 'Drizzle') {
+    rainChance = 60 + Math.floor(Math.random() * 35); // 60-95% for rain
+  } else if (mainCondition === 'Thunderstorm') {
+    rainChance = 80 + Math.floor(Math.random() * 20); // 80-100% for thunderstorms
+  } else if (mainCondition === 'Clouds') {
+    // Higher chance for more cloud cover
+    if (data.weather[0].description.includes('overcast')) {
+      rainChance = 40 + Math.floor(Math.random() * 30); // 40-70%
+    } else if (data.weather[0].description.includes('broken')) {
+      rainChance = 30 + Math.floor(Math.random() * 20); // 30-50%
+    } else {
+      rainChance = 10 + Math.floor(Math.random() * 20); // 10-30%
+    }
+  } else if (mainCondition === 'Clear') {
+    rainChance = Math.floor(Math.random() * 10); // 0-10%
+  } else {
+    rainChance = 5 + Math.floor(Math.random() * 15); // 5-20% for other conditions
+  }
+  
   // Get tomorrow's date for the forecast portion
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -266,6 +287,7 @@ function processWeatherData(data) {
     condition: data.weather[0].main,
     description: friendlyDescription,
     icon: data.weather[0].icon,
+    rainChance: rainChance, // Add rain chance
     timestamp: new Date().toISOString() // Add timestamp to track freshness
   };
 }

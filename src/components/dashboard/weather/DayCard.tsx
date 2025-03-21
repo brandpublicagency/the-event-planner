@@ -2,6 +2,7 @@
 import React from 'react';
 import { ForecastDay } from './forecastUtils';
 import WeatherIcon from './WeatherIcon';
+import { Droplets } from 'lucide-react';
 
 interface DayCardProps {
   day: ForecastDay;
@@ -26,6 +27,12 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
       <div className="flex items-center space-x-1 text-2xs">
         <span className="text-white">{Math.round(day.high)}°</span>
         <span className="text-white/60">{Math.round(day.low)}°</span>
+      </div>
+      
+      {/* Rain chance indicator */}
+      <div className="flex items-center mt-1 text-2xs text-blue-300">
+        <Droplets className="h-3 w-3 mr-0.5" />
+        <span>{day.rainChance}%</span>
       </div>
     </div>
   );
