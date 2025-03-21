@@ -15,27 +15,21 @@ interface WeatherBackgroundProps {
 const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ weatherType }) => {
   const type = weatherType?.toLowerCase() || '';
   
-  if (type.includes('rain') || type.includes('shower') || type.includes('drizzle')) {
-    return <RainAnimation />;
-  }
-  
-  if (type.includes('snow')) {
-    return <SnowAnimation />;
-  }
-  
-  if (type.includes('thunder') || type.includes('lightning')) {
-    return <ThunderAnimation />;
-  }
-  
-  if (type.includes('fog') || type.includes('mist') || type.includes('haze')) {
-    return <FogAnimation />;
-  }
-  
-  if (type.includes('wind')) {
-    return <WindAnimation />;
-  }
-  
-  return null;
+  return (
+    <div className="absolute inset-0 z-0">
+      {type.includes('rain') || type.includes('shower') || type.includes('drizzle') ? (
+        <RainAnimation />
+      ) : type.includes('snow') ? (
+        <SnowAnimation />
+      ) : type.includes('thunder') || type.includes('lightning') ? (
+        <ThunderAnimation />
+      ) : type.includes('fog') || type.includes('mist') || type.includes('haze') ? (
+        <FogAnimation />
+      ) : type.includes('wind') ? (
+        <WindAnimation />
+      ) : null}
+    </div>
+  );
 };
 
 export default WeatherBackground;
