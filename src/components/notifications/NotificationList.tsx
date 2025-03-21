@@ -25,19 +25,6 @@ export const NotificationsList = ({
 
   return (
     <div className="bg-white shadow rounded-lg overflow-hidden">
-      <div className="p-3 border-b">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm font-medium text-zinc-900">
-              Notifications
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}
-            </p>
-          </div>
-        </div>
-      </div>
-      
       <div className="divide-y divide-gray-50 p-2">
         <AnimatePresence initial={false}>
           {notifications.map((notification) => (
@@ -56,14 +43,6 @@ export const NotificationsList = ({
             </motion.div>
           ))}
         </AnimatePresence>
-      </div>
-      
-      <div className="p-3 border-t bg-gray-50">
-        <p className="text-xs text-center text-muted-foreground">
-          {notifications.filter(n => !n.read).length > 0 
-            ? `You have ${notifications.filter(n => !n.read).length} unread notifications` 
-            : 'All caught up!'}
-        </p>
       </div>
     </div>
   );
