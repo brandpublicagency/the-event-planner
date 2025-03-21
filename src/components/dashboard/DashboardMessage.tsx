@@ -43,6 +43,8 @@ const DashboardMessage = () => {
   const currentTemp = weatherData?.temp || 25;
   const weatherCondition = weatherData?.condition || 'Clouds';
   const weatherDescription = weatherData?.description || 'partly cloudy';
+  const location = "Warm Karoo, Bloemfontein";
+  const shortDate = format(now, "EEE, MMM d");
 
   let borderColorClass = "";
   let textColorClass = "";
@@ -129,6 +131,10 @@ const DashboardMessage = () => {
             
             {!error && weatherData && (
               <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center gap-3 p-3 bg-white/10 dark:bg-gray-800/20 rounded-lg shrink-0">
+                <div className="flex flex-col items-end mr-2">
+                  <div className="text-xs font-medium text-gray-600 dark:text-gray-300">{location}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{shortDate}</div>
+                </div>
                 <div className="text-xl font-semibold text-gray-800 dark:text-white">
                   {currentTemp}°C
                 </div>
