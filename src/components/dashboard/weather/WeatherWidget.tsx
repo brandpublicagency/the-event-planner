@@ -6,7 +6,6 @@ import { getWeatherGradientStyles } from "./weatherGradientStyles";
 import CurrentWeather from './CurrentWeather';
 import ForecastGrid from './ForecastGrid';
 import WeatherBackground from './WeatherBackground';
-
 const useHoverStyles = () => {
   useEffect(() => {
     const style = document.createElement('style');
@@ -18,31 +17,31 @@ const useHoverStyles = () => {
       }
     `;
     document.head.appendChild(style);
-    
     return () => {
       document.head.removeChild(style);
     };
   }, []);
 };
-
 interface WeatherWidgetProps {
   forcedVisible?: boolean;
 }
-
-const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) => {
-  const { dashboardMessage, isLoading, error } = useDashboardMessage();
+const WeatherWidget: React.FC<WeatherWidgetProps> = ({
+  forcedVisible = false
+}) => {
+  const {
+    dashboardMessage,
+    isLoading,
+    error
+  } = useDashboardMessage();
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'day' | 'night'>('day');
   const [forecast, setForecast] = useState([]);
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
-  
   useHoverStyles();
-  
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       const hour = now.getHours();
       setCurrentHour(hour);
-      
       if (hour >= 5 && hour < 12) {
         setTimeOfDay('morning');
       } else if (hour >= 12 && hour < 18) {
@@ -51,13 +50,10 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
         setTimeOfDay('night');
       }
     };
-    
     updateTime();
     const interval = setInterval(updateTime, 60000);
-    
     return () => clearInterval(interval);
   }, []);
-  
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
       console.log("Weather data received in widget:", dashboardMessage.weatherData);
@@ -67,7 +63,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
       console.log("No weather data in dashboard message");
     }
   }, [dashboardMessage?.weatherData]);
-
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 25,
@@ -79,49 +74,37 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     icon: '01d',
     timestamp: new Date().toISOString()
   };
-
   const showWeather = dashboardMessage?.weatherData || forcedVisible;
   const weatherData = dashboardMessage?.weatherData || (forcedVisible ? mockWeatherData : null);
-
   if (isLoading) {
-    return (
-      <div className="w-full py-5">
+    return <div className="w-full py-5">
         <div className="w-full h-36 rounded-xl bg-blue-500 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error) {
     console.error("Dashboard message error:", error);
-    return (
-      <div className="w-full py-5">
+    return <div className="w-full py-5">
         <div className="w-full rounded-xl bg-red-50 border border-red-200 p-4 text-red-800">
           Unable to load weather information. Please try again later.
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!showWeather) {
     console.log("Weather widget is not visible");
     return null;
   }
-
   console.log("Rendering weather widget with data:", weatherData);
-
-  const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
-    timeOfDay,
-    weatherData?.condition?.toLowerCase() || 'clear'
-  );
-
-  return (
-    <div className="w-full py-5">
-      <div 
-        className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`}
-        style={{ background: gradientStyle.background, height: '100px' }}
-      >
+  const {
+    gradientStyle,
+    fallbackGradientClass
+  } = getWeatherGradientStyles(timeOfDay, weatherData?.condition?.toLowerCase() || 'clear');
+  return <div className="w-full py-[5px]">
+      <div className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`} style={{
+      background: gradientStyle.background,
+      height: '100px'
+    }}>
         <WeatherBackground weatherType={weatherData?.condition} />
         
         <div className="relative z-10 flex items-center w-full h-full p-2 py-5">
@@ -134,8 +117,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default WeatherWidget;
