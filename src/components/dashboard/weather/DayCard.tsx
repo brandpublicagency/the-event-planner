@@ -9,7 +9,7 @@ interface DayCardProps {
 
 const DayCard: React.FC<DayCardProps> = ({ day }) => {
   return (
-    <div className="day-card-hover flex flex-col items-center p-1 rounded-md transition-all duration-300">
+    <div className="day-card-hover flex flex-col items-center p-2 rounded-md transition-all duration-300">
       <div className="text-xs font-medium text-white mb-0.5">{day.day}</div>
       
       <WeatherIcon 

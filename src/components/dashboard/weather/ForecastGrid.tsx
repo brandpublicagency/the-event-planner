@@ -9,8 +9,8 @@ interface ForecastGridProps {
 
 const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
   return (
-    <div className="px-1 h-full">
-      <div className="flex space-x-1 h-full items-center">
+    <div className="px-2 h-full w-full">
+      <div className="flex justify-between w-full h-full items-center">
         {forecast.map((day, index) => (
           <DayCard key={index} day={day} />
         ))}

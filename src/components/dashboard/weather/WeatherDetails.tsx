@@ -12,7 +12,7 @@ interface WeatherDetailsProps {
 
 const WeatherDetails: React.FC<WeatherDetailsProps> = ({ weatherData }) => {
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-4 mt-1">
       <div className="flex items-center space-x-1">
         <Droplets className="h-3 w-3 text-blue-200" />
         <span className="text-xs text-white">{weatherData.humidity || '40'}%</span>

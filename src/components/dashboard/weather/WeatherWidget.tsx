@@ -132,12 +132,12 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="relative z-10 flex items-center w-full h-full">
-          <div className="flex-shrink-0">
+        <div className="relative z-10 flex items-center w-full h-full p-2">
+          <div className="flex-shrink-0 mr-2">
             <CurrentWeather weatherData={weatherData} />
           </div>
           
-          <div className="flex-grow overflow-x-auto">
+          <div className="flex-grow">
             <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData)} />
           </div>
         </div>
