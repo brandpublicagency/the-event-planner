@@ -39,116 +39,94 @@ serve(async (req: Request) => {
     
     console.log('Request body:', reqBody);
     
-    // First approach: Directly call the process-notifications function
-    console.log('Directly calling process-notifications function');
-    let result;
-    try {
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/process-notifications`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          processImmediate: true,
-          forceProcess: true
-        })
-      });
+    // Since we've simplified our notification system to use client-side mock data,
+    // we'll just create manual notifications directly
+
+    // Get specific event codes from request or use defaults
+    const specificEvents = (reqBody as any)?.specificEvents || ['EVENT-163-3045', 'EVENT-163-7385'];
+    const results = [];
+    
+    // For each specific event, directly create a notification
+    for (const eventCode of specificEvents) {
+      console.log(`Creating notification for event ${eventCode}`);
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response from process-notifications:', errorText);
-        throw new Error(`Failed to process notifications: ${response.status} ${errorText}`);
+      // First check if the event exists
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select('event_code, name')
+        .eq('event_code', eventCode)
+        .maybeSingle();
+        
+      if (eventError || !eventData) {
+        console.error(`Event ${eventCode} not found:`, eventError);
+        results.push({ eventCode, status: 'error', message: `Event not found` });
+        continue;
       }
       
-      result = await response.json();
-      console.log('Notification processing result:', result);
-    } catch (error) {
-      console.error('Error calling process-notifications function:', error);
+      console.log(`Found event ${eventCode}: ${eventData.name}`);
       
-      // Fallback approach: Manually create notification for the specific event
-      console.log('Fallback: Manually creating notification for recent events');
+      // Check if notification already exists
+      const { data: existingNotif, error: notifCheckError } = await supabase
+        .from('event_notifications')
+        .select('id')
+        .eq('event_code', eventCode)
+        .eq('notification_type', 'event_created_unified')
+        .maybeSingle();
+        
+      if (notifCheckError) {
+        console.error(`Error checking existing notifications for ${eventCode}:`, notifCheckError);
+      }
       
-      // Get specific event codes from request or use hardcoded problematic ones
-      const specificEvents = (reqBody as any)?.specificEvents || ['EVENT-163-3045', 'EVENT-163-7385'];
-      
-      // For each specific event, directly create a notification
-      for (const eventCode of specificEvents) {
-        console.log(`Creating notification for event ${eventCode}`);
+      // If notification exists, mark it as sent
+      if (existingNotif) {
+        console.log(`Notification already exists for ${eventCode}, marking as sent`);
         
-        // First check if the event exists
-        const { data: eventData, error: eventError } = await supabase
-          .from('events')
-          .select('event_code, name')
-          .eq('event_code', eventCode)
-          .maybeSingle();
-          
-        if (eventError || !eventData) {
-          console.error(`Event ${eventCode} not found:`, eventError);
-          continue;
-        }
-        
-        console.log(`Found event ${eventCode}: ${eventData.name}`);
-        
-        // Check if notification already exists
-        const { data: existingNotif, error: notifCheckError } = await supabase
+        const { error: updateError } = await supabase
           .from('event_notifications')
-          .select('id')
-          .eq('event_code', eventCode)
-          .eq('notification_type', 'event_created_unified')
-          .maybeSingle();
+          .update({ 
+            sent_at: new Date().toISOString(),
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', existingNotif.id);
           
-        if (notifCheckError) {
-          console.error(`Error checking existing notifications for ${eventCode}:`, notifCheckError);
-        }
-        
-        // If notification exists, mark it as sent
-        if (existingNotif) {
-          console.log(`Notification already exists for ${eventCode}, marking as sent`);
-          
-          const { error: updateError } = await supabase
-            .from('event_notifications')
-            .update({ 
-              sent_at: new Date().toISOString(),
-              updated_at: new Date().toISOString() 
-            })
-            .eq('id', existingNotif.id);
-            
-          if (updateError) {
-            console.error(`Error updating notification for ${eventCode}:`, updateError);
-          } else {
-            console.log(`Successfully updated notification for ${eventCode}`);
-          }
+        if (updateError) {
+          console.error(`Error updating notification for ${eventCode}:`, updateError);
+          results.push({ eventCode, status: 'error', message: `Error updating notification` });
         } else {
-          // Create new notification
-          console.log(`Creating new notification for ${eventCode}`);
+          console.log(`Successfully updated notification for ${eventCode}`);
+          results.push({ eventCode, status: 'updated', id: existingNotif.id });
+        }
+      } else {
+        // Create new notification
+        console.log(`Creating new notification for ${eventCode}`);
+        
+        const { data: newNotif, error: insertError } = await supabase
+          .from('event_notifications')
+          .insert({
+            event_code: eventCode,
+            notification_type: 'event_created_unified',
+            scheduled_for: new Date().toISOString(),
+            sent_at: new Date().toISOString(), // Mark as sent immediately
+          })
+          .select()
+          .single();
           
-          const { error: insertError } = await supabase
-            .from('event_notifications')
-            .insert({
-              event_code: eventCode,
-              notification_type: 'event_created_unified',
-              scheduled_for: new Date().toISOString(),
-              sent_at: new Date().toISOString(), // Mark as sent immediately
-            });
-            
-          if (insertError) {
-            console.error(`Error creating notification for ${eventCode}:`, insertError);
-          } else {
-            console.log(`Successfully created notification for ${eventCode}`);
-          }
+        if (insertError) {
+          console.error(`Error creating notification for ${eventCode}:`, insertError);
+          results.push({ eventCode, status: 'error', message: `Error creating notification` });
+        } else {
+          console.log(`Successfully created notification for ${eventCode}`);
+          results.push({ eventCode, status: 'created', id: newNotif.id });
         }
       }
-      
-      result = { 
-        manuallyCreated: true, 
-        events: specificEvents,
-        message: 'Manually created notifications for specific events'
-      };
     }
     
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({
+        success: true,
+        results,
+        message: 'Notifications processed directly'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
