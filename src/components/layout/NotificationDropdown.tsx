@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -11,115 +11,50 @@ import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 
 export function NotificationDropdown() {
-  const { notifications, unreadCount, markAsRead, markAsCompleted } = useNotifications();
-  const [isOpen, setIsOpen] = useState(false);
+  const { notifications, markAsRead, markAsCompleted } = useNotifications();
   const navigate = useNavigate();
-  const isNavigatingRef = useRef(false);
-  const navigationTimeoutRef = useRef<number | null>(null);
-
-  // Log notifications for debugging
-  console.log('NotificationDropdown rendering with notifications:', notifications.length, 'Unread:', unreadCount);
-
-  // Reset navigation flag when dropdown opens/closes
-  useEffect(() => {
-    isNavigatingRef.current = false;
-  }, [isOpen]);
-
-  // Clear navigation timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (navigationTimeoutRef.current !== null) {
-        clearTimeout(navigationTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Handler for viewing a notification
-  const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
+  const handleViewNotification = async (id: string, relatedId?: string) => {
     try {
-      if (isNavigatingRef.current) return;
-      isNavigatingRef.current = true;
-      
-      // First mark as read
+      // Mark as read
       await markAsRead(id);
       
-      // Close dropdown before navigation
-      setIsOpen(false);
-
-      // Allow some time for state updates before navigation
-      navigationTimeoutRef.current = window.setTimeout(() => {
-        // Find the notification to determine navigation
-        const notification = notifications.find(n => n.id === id);
-        if (notification) {
-          if (relatedId) {
-            // Handle different types of related IDs
-            if (relatedId.startsWith('event_')) {
-              navigate(`/events/${relatedId}`);
-            } else if (relatedId.startsWith('task_')) {
-              navigate(`/tasks?selected=${relatedId}`);
-            } else if (relatedId.startsWith('doc_')) {
-              navigate(`/documents?document=${relatedId.replace('doc_', '')}`);
-            } else {
-              navigate(`/${relatedId}`);
-            }
-          } else {
-            // Default navigation based on notification type
-            if (notification.type === "task_overdue" || notification.type === "task_upcoming") {
-              navigate(`/tasks`);
-            } else if (notification.type === "document_due_reminder") {
-              navigate(`/documents`);
-            } else if (notification.type === "final_payment_reminder") {
-              navigate(`/events`);
-            } else {
-              navigate(`/`);
-            }
-          }
+      // Navigate based on the notification type
+      if (relatedId) {
+        if (relatedId.startsWith('event_')) {
+          navigate(`/events/${relatedId}`);
+        } else if (relatedId.startsWith('task_')) {
+          navigate(`/tasks?selected=${relatedId}`);
+        } else {
+          navigate(`/${relatedId}`);
         }
-        
-        toast.success(`Notification marked as read`);
-      }, 100);
+      } else {
+        navigate(`/`);
+      }
+      
+      toast.success(`Notification marked as read`);
     } catch (error) {
       console.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
-      isNavigatingRef.current = false;
     }
-  }, [markAsRead, navigate, notifications]);
+  };
 
   // Handler for completing a task
-  const handleCompleteTask = useCallback(async (id: string) => {
+  const handleCompleteTask = async (id: string) => {
     try {
-      if (isNavigatingRef.current) return;
-      isNavigatingRef.current = true;
-      
       await markAsCompleted(id);
       toast.success(`Task marked as complete!`);
-      
-      // Close dropdown and navigate to tasks
-      setIsOpen(false);
-      
-      // Allow some time for state updates before navigation
-      navigationTimeoutRef.current = window.setTimeout(() => {
-        navigate(`/tasks`);
-      }, 100);
+      navigate(`/tasks`);
     } catch (error) {
       console.error("Error marking task as complete:", error);
       toast.error("Failed to mark task as complete");
-      isNavigatingRef.current = false;
     }
-  }, [markAsCompleted, navigate]);
+  };
 
-  const handleViewAll = useCallback(() => {
-    if (isNavigatingRef.current) return;
-    isNavigatingRef.current = true;
-    
-    // Close dropdown
-    setIsOpen(false);
-    
-    // Add a small delay before navigation to ensure state updates complete
-    navigationTimeoutRef.current = window.setTimeout(() => {
-      navigate('/notifications');
-    }, 100);
-  }, [navigate]);
+  const handleViewAll = () => {
+    navigate('/notifications');
+  };
 
   return (
     <div className="w-full">

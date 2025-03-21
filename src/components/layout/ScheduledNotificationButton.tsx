@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { AlarmClock } from "lucide-react";
 
-// This component is now deprecated - keeping minimal implementation for backward compatibility
 export function ScheduledNotificationButton() {
   const navigate = useNavigate();
   
