@@ -4,7 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Droplets, Wind, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
@@ -37,6 +37,12 @@ const DashboardMessage = () => {
   const todayFormatted = format(now, "EEEE, MMMM d");
   const firstName = profile?.full_name?.split(' ')[0] || '';
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
+
+  // Get current weather conditions for the inline display
+  const weatherData = dashboardMessage?.weatherData;
+  const currentTemp = weatherData?.temp || 25;
+  const weatherCondition = weatherData?.condition || 'Clouds';
+  const weatherDescription = weatherData?.description || 'partly cloudy';
 
   let borderColorClass = "";
   let textColorClass = "";
@@ -103,20 +109,39 @@ const DashboardMessage = () => {
         transition={{ duration: 0.5 }}
       >
         <Card className={`p-5 border ${borderColorClass} bg-gradient-to-br from-gray-50/40 to-gray-100/40 dark:from-gray-900/50 dark:to-gray-950/50 rounded-xl flex flex-col justify-between backdrop-blur-sm mb-4`}>
-          <div className="flex flex-col justify-center">
-            <h2 className="font-bold text-gray-800 dark:text-gray-100 text-2xl flex items-center">
-              {personalizedGreeting}
-            </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-bold text-gray-800 dark:text-gray-100 text-2xl flex items-center">
+                {personalizedGreeting}
+              </h2>
+              
+              {error ? (
+                <div className="flex items-start space-x-3 text-amber-600 mt-3 p-3 bg-amber-50/60 dark:bg-amber-950/20 rounded-lg">
+                  <AlertCircle className="h-5 w-5 mt-0.5" />
+                  <p>Unable to load personalized updates. Check your connection and try again.</p>
+                </div>
+              ) : (
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed">
+                  {dashboardMessage.message}
+                </p>
+              )}
+            </div>
             
-            {error ? (
-              <div className="flex items-start space-x-3 text-amber-600 mt-3 p-3 bg-amber-50/60 dark:bg-amber-950/20 rounded-lg">
-                <AlertCircle className="h-5 w-5 mt-0.5" />
-                <p>Unable to load personalized updates. Check your connection and try again.</p>
+            {!error && weatherData && (
+              <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center gap-3 p-3 bg-white/10 dark:bg-gray-800/20 rounded-lg shrink-0">
+                <div className="text-xl font-semibold text-gray-800 dark:text-white">
+                  {currentTemp}°C
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="capitalize">{weatherDescription}</div>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Droplets className="h-3 w-3" />
+                    <span>{weatherData.humidity || 45}%</span>
+                    <Wind className="h-3 w-3 ml-2" />
+                    <span>{weatherData.wind_speed || 18}km/h</span>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed">
-                {dashboardMessage.message}
-              </p>
             )}
           </div>
           
