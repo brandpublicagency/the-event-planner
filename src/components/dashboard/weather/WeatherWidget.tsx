@@ -93,7 +93,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   if (isLoading) {
     return (
       <div className="w-full">
-        <div className="w-full h-64 rounded-xl bg-blue-500 flex items-center justify-center">
+        <div className="w-full h-36 rounded-xl bg-blue-500 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
       </div>
@@ -128,11 +128,11 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     <div className="w-full">
       <div 
         className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`}
-        style={{ background: gradientStyle.background }}
+        style={{ background: gradientStyle.background, maxHeight: '220px' }}
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="p-4 relative z-10">
+        <div className="relative z-10">
           <CurrentWeather weatherData={weatherData} />
         </div>
         

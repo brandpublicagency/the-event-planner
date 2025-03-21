@@ -9,7 +9,7 @@ interface ForecastGridProps {
 
 const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
   return (
-    <div className="mt-2">
+    <div className="px-1 pb-1">
       <div className="grid grid-cols-7 gap-1">
         {forecast.map((day, index) => (
           <DayCard key={index} day={day} />

@@ -30,22 +30,22 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
   };
   
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="flex items-center justify-between p-2">
       <div className="flex items-center">
-        <div className="mr-4">
-          <WeatherIcon 
-            condition={safeData.condition}
-            className="h-16 w-16" 
-          />
-        </div>
+        <WeatherIcon 
+          condition={safeData.condition}
+          className="h-12 w-12 mr-3" 
+        />
         <div>
-          <h2 className="text-2xl font-bold text-white">
-            {Math.round(safeData.temp || 0)}°C
-          </h2>
-          <p className="text-white/80 capitalize">
-            {safeData.description || safeData.condition || 'Clear'}
-          </p>
-          <p className="text-sm text-white/60">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold text-white">
+              {Math.round(safeData.temp || 0)}°C
+            </h2>
+            <span className="text-sm text-white/80 capitalize">
+              {safeData.description || safeData.condition || 'Clear'}
+            </span>
+          </div>
+          <p className="text-xs text-white/60">
             {safeData.location || 'Your Location'}
           </p>
         </div>

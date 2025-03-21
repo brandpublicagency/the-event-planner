@@ -27,21 +27,22 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <div 
-            className="flex flex-col items-center justify-center p-2 rounded-md transition-all duration-300 day-card-hover"
+            className="flex flex-col items-center justify-center py-1 px-1 rounded-md transition-all duration-300 day-card-hover"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <span className="text-xs font-medium mb-1 text-white">{dayName}</span>
-            <WeatherIcon condition={day.condition} className="h-10 w-10 mb-1" />
-            <div className="flex items-center gap-1 text-xs">
+            <span className="text-[10px] font-medium text-white">{dayName}</span>
+            <WeatherIcon condition={day.condition} className="h-6 w-6 my-0.5" />
+            <div className="flex items-center gap-1 text-[10px]">
               <span className="font-medium text-white">{day.high}°</span>
               <span className="text-white/70">{day.low}°</span>
             </div>
-            <Badge variant="outline" className="mt-1 text-[10px] px-1 bg-white/10 text-white border-white/20">
+            <Badge variant="outline" className="mt-0.5 text-[8px] px-1 py-0 h-3 bg-white/10 text-white border-white/20">
               {day.rainChance}%
             </Badge>
           </div>
         </TooltipTrigger>
+        
         <TooltipContent side="bottom" className="p-0 max-w-[220px] overflow-hidden rounded-md border border-white/20 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm shadow-xl">
           <div className="flex flex-col">
             <div className="bg-white/10 py-2 px-3 border-b border-white/10">

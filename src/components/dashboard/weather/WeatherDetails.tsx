@@ -12,18 +12,18 @@ interface WeatherDetailsProps {
 
 const WeatherDetails: React.FC<WeatherDetailsProps> = ({ weatherData }) => {
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center gap-2">
-        <Droplets className="h-4 w-4 text-blue-200" />
-        <span className="text-sm text-white">{weatherData.humidity || '40'}%</span>
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1">
+        <Droplets className="h-3 w-3 text-blue-200" />
+        <span className="text-xs text-white">{weatherData.humidity || '40'}%</span>
       </div>
-      <div className="flex items-center gap-2">
-        <Wind className="h-4 w-4 text-white/70" />
-        <span className="text-sm text-white">{weatherData.wind_speed || '10'} km/h</span>
+      <div className="flex items-center gap-1">
+        <Wind className="h-3 w-3 text-white/70" />
+        <span className="text-xs text-white">{weatherData.wind_speed || '10'} km/h</span>
       </div>
-      <div className="flex items-center gap-2">
-        <Sun className="h-4 w-4 text-amber-300" />
-        <span className="text-sm text-white">UV {weatherData.uv || '4'}</span>
+      <div className="flex items-center gap-1">
+        <Sun className="h-3 w-3 text-amber-300" />
+        <span className="text-xs text-white">UV {weatherData.uv || '4'}</span>
       </div>
     </div>
   );

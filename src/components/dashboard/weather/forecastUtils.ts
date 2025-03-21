@@ -40,8 +40,8 @@ export const generateForecastFromWeatherData = (weatherData: any): ForecastDay[]
   const baseWind = weatherData.wind_speed || 10;
   const baseUv = weatherData.uv || 4;
   
-  // Generate data for 7 days
-  for (let i = 0; i < 7; i++) {
+  // Generate data for 7 days starting from tomorrow
+  for (let i = 1; i < 8; i++) {
     const date = addDays(today, i);
     
     // Create some variation in the weather - base it on the actual weather data
