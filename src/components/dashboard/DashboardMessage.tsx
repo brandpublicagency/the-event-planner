@@ -26,6 +26,13 @@ const DashboardMessage = () => {
     });
   }, [refreshNotifications]);
 
+  useEffect(() => {
+    if (dashboardMessage) {
+      console.log("Dashboard message received:", dashboardMessage);
+      console.log("Weather data available:", !!dashboardMessage.weatherData);
+    }
+  }, [dashboardMessage]);
+
   const hour = new Date().getHours();
   let greeting = "Good day";
   if (hour < 12) greeting = "Good morning";

@@ -45,9 +45,9 @@ export const useDashboardMessage = () => {
       }
     },
     // Retry more often and refetch more frequently to ensure we get data
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 3 * 60 * 1000, // 3 minutes
-    retry: 2, // Retry twice before using fallback
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchInterval: 2 * 60 * 1000, // 2 minutes
+    retry: 3, // Retry three times before using fallback
   });
 
   return { 

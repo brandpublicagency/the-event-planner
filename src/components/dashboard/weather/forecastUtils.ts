@@ -1,83 +1,85 @@
 
-import { addDays } from "date-fns";
+import { format, addDays } from 'date-fns';
 
+// Define the forecast day type
 export interface ForecastDay {
   date: Date;
+  day: string;
+  condition: string;
   high: number;
   low: number;
   rainChance: number;
-  condition: string;
   humidity: number;
   wind: number;
   uv: number;
 }
 
-export interface WeatherData {
-  temp?: number;
-  condition?: string;
-  description?: string;
-  humidity?: number;
-  wind?: number;
-  uv?: number;
-  location?: string;
-}
-
-export const generateForecastFromWeatherData = (weatherData?: WeatherData): ForecastDay[] => {
-  if (!weatherData) return [];
+// Generate random weather data for the next 7 days
+export const generateForecastFromWeatherData = (weatherData: any): ForecastDay[] => {
+  console.log("Generating forecast from weather data:", weatherData);
   
+  // If no weather data is provided, return an empty array
+  if (!weatherData) {
+    console.log("No weather data provided for forecast");
+    return [];
+  }
+  
+  const today = new Date();
+  const forecast: ForecastDay[] = [];
+  
+  // Weather conditions that might occur
+  const conditions = [
+    'Clear', 'Clouds', 'Rain', 'Drizzle', 
+    'Thunderstorm', 'Snow', 'Mist', 'Fog'
+  ];
+  
+  // Use the first day's weather as a base (today's weather from API)
   const baseTemp = weatherData.temp || 25;
-  const baseCondition = weatherData.condition || 'Clouds';
-  const baseDescription = weatherData.description || 'partly cloudy';
+  const baseCondition = weatherData.condition || 'Clear';
+  const baseHumidity = weatherData.humidity || 50;
+  const baseWind = weatherData.wind_speed || 10;
+  const baseUv = weatherData.uv || 4;
   
-  return Array.from({ length: 7 }).map((_, index) => {
-    const date = addDays(new Date(), index + 1);
+  // Generate data for 7 days
+  for (let i = 0; i < 7; i++) {
+    const date = addDays(today, i);
     
-    const tempVariation = Math.floor(Math.random() * 8) - 4;
-    const high = Math.max(10, Math.min(40, baseTemp + tempVariation));
-    const low = high - (5 + Math.floor(Math.random() * 10));
+    // Create some variation in the weather - base it on the actual weather data
+    // but with some randomization to make it look realistic
+    const tempVariation = Math.floor(Math.random() * 8) - 4; // -4 to +3 degrees
+    const highTemp = Math.round(baseTemp + tempVariation);
+    const lowTemp = Math.round(highTemp - (3 + Math.random() * 5)); // 3-8 degrees lower
     
-    let rainChance;
-    if (index === 0) {
-      rainChance = baseDescription.includes('rain') 
-        ? 60 + Math.floor(Math.random() * 30)
-        : baseDescription.includes('cloud') 
-          ? 30 + Math.floor(Math.random() * 30)
-          : Math.floor(Math.random() * 30);
-    } else {
-      const prevDayInfluence = Math.max(0, 7 - index) / 7;
-      const baseRainChance = baseDescription.includes('rain') ? 70 : 30;
-      rainChance = Math.floor(baseRainChance * prevDayInfluence + Math.random() * (100 - baseRainChance * prevDayInfluence));
+    // Randomize condition more as we get further into the forecast
+    let condition = baseCondition;
+    if (Math.random() < i * 0.08) { // More likely to change as days progress
+      condition = conditions[Math.floor(Math.random() * conditions.length)];
     }
     
-    let condition = baseCondition.toLowerCase();
-    if (rainChance > 70) condition = 'rain';
-    else if (rainChance > 50) condition = 'cloudy';
-    else if (rainChance > 30) condition = 'partly-cloudy';
-    else condition = 'sunny';
+    const rainChance = condition.toLowerCase().includes('rain') || 
+                      condition.toLowerCase().includes('shower') || 
+                      condition.toLowerCase().includes('thunder') ? 
+                      40 + Math.floor(Math.random() * 50) : // 40-90% if rainy condition
+                      Math.floor(Math.random() * 30); // 0-30% otherwise
     
-    const humidity = condition === 'rain' 
-      ? 70 + Math.floor(Math.random() * 25)
-      : condition === 'sunny' 
-        ? 20 + Math.floor(Math.random() * 40)
-        : 40 + Math.floor(Math.random() * 40);
+    // Add more variation for humidity, wind and UV
+    const humidityVar = Math.floor(Math.random() * 20) - 10; // -10 to +9
+    const windVar = Math.floor(Math.random() * 6) - 3; // -3 to +2
+    const uvVar = Math.floor(Math.random() * 3) - 1; // -1 to +1
     
-    const uv = condition === 'sunny' 
-      ? 6 + Math.floor(Math.random() * 5)
-      : condition === 'partly-cloudy' 
-        ? 3 + Math.floor(Math.random() * 4)
-        : 1 + Math.floor(Math.random() * 3);
-    
-    const wind = 5 + Math.floor(Math.random() * 30);
-    
-    return {
-      date,
-      high,
-      low,
-      rainChance,
-      condition,
-      humidity,
-      wind,
-      uv
-    };
-  });
+    forecast.push({
+      date: date,
+      day: format(date, 'EEE'),
+      condition: condition,
+      high: highTemp,
+      low: lowTemp,
+      rainChance: rainChance,
+      humidity: Math.min(Math.max(baseHumidity + humidityVar, 20), 95), // 20-95%
+      wind: Math.max(baseWind + windVar, 1), // min 1 km/h
+      uv: Math.min(Math.max(baseUv + uvVar, 1), 10) // 1-10 UV index
+    });
+  }
+  
+  console.log("Generated forecast:", forecast);
+  return forecast;
 };

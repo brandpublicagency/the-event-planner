@@ -61,8 +61,11 @@ const WeatherWidget = () => {
   // Generate forecast data when weather data changes
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
+      console.log("Weather data received:", dashboardMessage.weatherData);
       const generatedForecast = generateForecastFromWeatherData(dashboardMessage.weatherData);
       setForecast(generatedForecast);
+    } else {
+      console.log("No weather data in dashboard message");
     }
   }, [dashboardMessage?.weatherData]);
 
@@ -76,14 +79,20 @@ const WeatherWidget = () => {
     );
   }
 
-  if (error || !dashboardMessage?.weatherData) {
+  if (error) {
+    console.error("Dashboard message error:", error);
+    return null;
+  }
+
+  if (!dashboardMessage?.weatherData) {
+    console.log("No weather data available");
     return null;
   }
 
   // Get the gradient styles
   const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
     timeOfDay,
-    dashboardMessage.weatherData.condition?.toLowerCase()
+    dashboardMessage.weatherData.condition?.toLowerCase() || 'clear'
   );
 
   return (

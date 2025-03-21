@@ -60,7 +60,7 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-white/80">Chance of Rain</span>
                 <div className="flex items-center gap-1">
-                  <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-2 w-16 rounded-full bg-white/10 overflow-hidden">
                     <div 
                       className="h-full bg-blue-400" 
                       style={{ width: `${day.rainChance}%` }}

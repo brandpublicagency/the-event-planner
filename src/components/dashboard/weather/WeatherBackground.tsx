@@ -15,8 +15,11 @@ interface WeatherBackgroundProps {
 const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ weatherType }) => {
   const type = weatherType?.toLowerCase() || '';
   
+  // Debug logging to check what animation should display
+  console.log("Weather background type:", type);
+  
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0 pointer-events-none">
       {type.includes('rain') || type.includes('shower') || type.includes('drizzle') ? (
         <RainAnimation />
       ) : type.includes('snow') ? (
