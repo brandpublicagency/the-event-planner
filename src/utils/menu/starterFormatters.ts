@@ -1,6 +1,6 @@
 
 import { MenuState } from "@/hooks/menuStateTypes";
-import { formatSectionHeader } from "./formatHelpers";
+import { formatSectionHeader, cleanItemDescription } from "./formatHelpers";
 import { getMenuItemDescription } from "./menuItemDescriptions";
 
 /**
@@ -14,12 +14,12 @@ export const formatStarterSection = (menuState: MenuState): string => {
   if (menuState.selectedStarterType === 'canapes') {
     section += `${getMenuItemDescription('canapes')} - ${menuState.selectedCanapePackage}\n`;
     menuState.selectedCanapes.forEach(canape => {
-      if (canape) section += `• ${getMenuItemDescription(canape)}\n`;
+      if (canape) section += `• ${cleanItemDescription(getMenuItemDescription(canape))}\n`;
     });
   } else if (menuState.selectedStarterType === 'harvest') {
     section += `${getMenuItemDescription('harvest')}\n`;
   } else if (menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter) {
-    section += `${getMenuItemDescription('plated')} - ${getMenuItemDescription(menuState.selectedPlatedStarter)}\n`;
+    section += `${getMenuItemDescription('plated')} - ${cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}\n`;
   }
   
   return section;

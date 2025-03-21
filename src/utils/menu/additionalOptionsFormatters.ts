@@ -1,6 +1,6 @@
 
 import { MenuState } from "@/hooks/menuStateTypes";
-import { formatSectionHeader } from "./formatHelpers";
+import { formatSectionHeader, cleanItemDescription } from "./formatHelpers";
 import { getMenuItemDescription } from "./menuItemDescriptions";
 
 /**
@@ -13,7 +13,7 @@ export const formatAdditionalOptionsSection = (menuState: MenuState): string => 
   
   menuState.otherSelections.forEach(option => {
     const quantity = menuState.otherSelectionsQuantities[option] || 0;
-    section += `• ${getMenuItemDescription(option)}${quantity > 0 ? ` (${quantity})` : ''}\n`;
+    section += `• ${cleanItemDescription(getMenuItemDescription(option))}${quantity > 0 ? ` (${quantity})` : ''}\n`;
   });
   
   return section;

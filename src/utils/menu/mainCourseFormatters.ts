@@ -1,6 +1,6 @@
 
 import { MenuState } from "@/hooks/menuStateTypes";
-import { formatSectionHeader } from "./formatHelpers";
+import { formatSectionHeader, cleanItemDescription } from "./formatHelpers";
 import { getMenuItemDescription } from "./menuItemDescriptions";
 
 /**
@@ -34,27 +34,27 @@ const formatBuffetMainCourse = (menuState: MenuState): string => {
   if (menuState.buffetMeatSelections.length > 0) {
     result += "Meat Selections:\n";
     menuState.buffetMeatSelections.forEach(item => {
-      result += `• ${getMenuItemDescription(item)}\n`;
+      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetVegetableSelections.length > 0) {
     result += "Vegetable Selections:\n";
     menuState.buffetVegetableSelections.forEach(item => {
-      result += `• ${getMenuItemDescription(item)}\n`;
+      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetStarchSelections.length > 0) {
     result += "Starch Selections:\n";
     menuState.buffetStarchSelections.forEach(item => {
-      result += `• ${getMenuItemDescription(item)}\n`;
+      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${getMenuItemDescription(menuState.buffetSaladSelection)}\n`;
+    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}\n`;
   }
   
   return result;
@@ -68,26 +68,26 @@ const formatKarooMainCourse = (menuState: MenuState): string => {
   
   if (menuState.karooMeatSelection) {
     result += "Meat Selection:\n";
-    result += `• ${getMenuItemDescription(menuState.karooMeatSelection)}\n`;
+    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.karooMeatSelection))}\n`;
   }
   
   if (menuState.karooStarchSelection.length > 0) {
     result += "Starch Selections:\n";
     menuState.karooStarchSelection.forEach(item => {
-      result += `• ${getMenuItemDescription(item)}\n`;
+      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.karooVegetableSelections.length > 0) {
     result += "Vegetable Selections:\n";
     menuState.karooVegetableSelections.forEach(item => {
-      result += `• ${getMenuItemDescription(item)}\n`;
+      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.karooSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${getMenuItemDescription(menuState.karooSaladSelection)}\n`;
+    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}\n`;
   }
   
   return result;
@@ -101,12 +101,12 @@ const formatPlatedMainCourse = (menuState: MenuState): string => {
   
   if (menuState.platedMainSelection) {
     result += "Main Selection:\n";
-    result += `• ${getMenuItemDescription(menuState.platedMainSelection)}\n`;
+    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.platedMainSelection))}\n`;
   }
   
   if (menuState.platedSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${getMenuItemDescription(menuState.platedSaladSelection)}\n`;
+    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.platedSaladSelection))}\n`;
   }
   
   return result;

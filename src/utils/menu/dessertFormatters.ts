@@ -1,6 +1,6 @@
 
 import { MenuState } from "@/hooks/menuStateTypes";
-import { formatSectionHeader } from "./formatHelpers";
+import { formatSectionHeader, cleanItemDescription } from "./formatHelpers";
 import { getMenuItemDescription } from "./menuItemDescriptions";
 
 /**
@@ -14,14 +14,14 @@ export const formatDessertSection = (menuState: MenuState): string => {
   section += `${getMenuItemDescription(menuState.dessertType)}\n`;
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
-    section += `• ${getMenuItemDescription(menuState.traditionalDessert)}\n`;
+    section += `• ${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;
   } else if (menuState.dessertType === 'individual' && menuState.individualCakes.length > 0) {
     menuState.individualCakes.forEach(cake => {
-      section += `• ${getMenuItemDescription(cake)}\n`;
+      section += `• ${cleanItemDescription(getMenuItemDescription(cake))}\n`;
     });
   } else if (menuState.dessertType === 'bar' && menuState.dessertCanapes.length > 0) {
     menuState.dessertCanapes.forEach(item => {
-      section += `• ${getMenuItemDescription(item)}\n`;
+      section += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   

@@ -24,5 +24,13 @@ export const formatNotesSection = (notes: string | undefined): string => {
 export const formatCustomMenuDetails = (customMenuDetails: string | undefined): string => {
   if (!customMenuDetails) return '';
   
-  return customMenuDetails;
+  // Replace any underscores in the custom menu text
+  return customMenuDetails.replace(/_/g, ' ');
+};
+
+/**
+ * Clean item description by replacing underscores with spaces
+ */
+export const cleanItemDescription = (description: string): string => {
+  return description.replace(/_/g, ' ');
 };

@@ -6,6 +6,11 @@ import { MenuState } from '@/hooks/menuStateTypes';
 import { getVenueNames } from '@/utils/venueUtils';
 import { getMenuItemDescription } from '@/utils/menu/menuItemDescriptions';
 
+// Clean item descriptions by replacing underscores with spaces
+const cleanItemDescription = (description: string) => {
+  return description.replace(/_/g, ' ');
+};
+
 // Define interface for the print props
 interface KitchenMenuContentProps {
   event: Event;
@@ -84,14 +89,14 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.selectedCanapes.length > 0 && (
                     <div>
                       {menuState.selectedCanapes.map((canape, idx) => (
-                        canape && <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(canape)}</p>
+                        canape && <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(canape))}</p>
                       ))}
                     </div>
                   )}
                 </>
               )}
               {menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter && (
-                <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.selectedPlatedStarter)}</p>
+                <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}</p>
               )}
               {menuState.selectedStarterType === 'harvest' && (
                 <p style={{ fontSize: '12px', margin: '0' }}>Harvest Table</p>
@@ -103,7 +108,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
           {menuState.mainCourseType && (
             <div style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Main Course</h3>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '8px' }}>{getMenuItemDescription(menuState.mainCourseType)}</p>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '8px' }}>{cleanItemDescription(getMenuItemDescription(menuState.mainCourseType))}</p>
               
               {/* Buffet details */}
               {menuState.mainCourseType === 'buffet' && (
@@ -112,7 +117,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Meat Selections:</p>
                       {menuState.buffetMeatSelections.map((item, idx) => (
-                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                       ))}
                     </div>
                   )}
@@ -121,7 +126,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selections:</p>
                       {menuState.buffetVegetableSelections.map((item, idx) => (
-                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                       ))}
                     </div>
                   )}
@@ -130,7 +135,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Starch Selections:</p>
                       {menuState.buffetStarchSelections.map((item, idx) => (
-                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                       ))}
                     </div>
                   )}
@@ -138,7 +143,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.buffetSaladSelection && (
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
-                      <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.buffetSaladSelection)}</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}</p>
                     </div>
                   )}
                 </div>
@@ -150,7 +155,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.karooMeatSelection && (
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Meat Selection:</p>
-                      <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.karooMeatSelection)}</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooMeatSelection))}</p>
                     </div>
                   )}
                   
@@ -158,7 +163,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Starch Selections:</p>
                       {menuState.karooStarchSelection.map((item, idx) => (
-                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                       ))}
                     </div>
                   )}
@@ -167,7 +172,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selections:</p>
                       {menuState.karooVegetableSelections.map((item, idx) => (
-                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                        <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                       ))}
                     </div>
                   )}
@@ -175,7 +180,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.karooSaladSelection && (
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
-                      <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.karooSaladSelection)}</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}</p>
                     </div>
                   )}
                 </div>
@@ -187,14 +192,14 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.platedMainSelection && (
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Main Selection:</p>
-                      <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.platedMainSelection)}</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.platedMainSelection))}</p>
                     </div>
                   )}
                   
                   {menuState.platedSaladSelection && (
                     <div style={{ marginBottom: '12px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
-                      <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.platedSaladSelection)}</p>
+                      <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.platedSaladSelection))}</p>
                     </div>
                   )}
                 </div>
@@ -206,16 +211,16 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
           {menuState.dessertType && (
             <div style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Dessert</h3>
-              <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(menuState.dessertType)}</p>
+              <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.dessertType))}</p>
               
               {menuState.dessertType === 'traditional' && menuState.traditionalDessert && (
-                <p style={{ fontSize: '12px', margin: '0' }}>{getMenuItemDescription(menuState.traditionalDessert)}</p>
+                <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}</p>
               )}
               
               {menuState.dessertType === 'canapes' && menuState.dessertCanapes?.length > 0 && (
                 <div>
                   {menuState.dessertCanapes.map((item, idx) => (
-                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)}</p>
+                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
                   ))}
                 </div>
               )}
@@ -225,7 +230,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                   {menuState.individualCakes.map((item, idx) => {
                     const quantity = menuState.individual_cake_quantities?.[item] || 0;
                     return (
-                      <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(item)} x {quantity}</p>
+                      <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))} x {quantity}</p>
                     );
                   })}
                 </div>
@@ -241,7 +246,7 @@ const KitchenMenuContent = React.forwardRef<HTMLDivElement, KitchenMenuContentPr
                 {menuState.otherSelections.map((option, idx) => {
                   const quantity = menuState.otherSelectionsQuantities?.[option] || 0;
                   return (
-                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{getMenuItemDescription(option)} x {quantity}</p>
+                    <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(option))} x {quantity}</p>
                   );
                 })}
               </div>
