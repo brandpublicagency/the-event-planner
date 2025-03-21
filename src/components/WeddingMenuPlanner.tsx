@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
@@ -107,11 +106,7 @@ const WeddingMenuPlanner = ({
             onChange={(value) => handleMenuStateChange('notes', value)}
           />
         </div>
-        <div className="flex justify-end print:hidden">
-          <Button onClick={saveMenuSelections} className="bg-primary hover:bg-primary/90">
-            Save Menu
-          </Button>
-        </div>
+        {/* Removed the duplicate Save Menu button */}
       </div>
     </div>
   );
