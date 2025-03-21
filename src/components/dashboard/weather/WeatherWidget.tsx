@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2, Droplets, Wind, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +6,6 @@ import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { format, addDays } from "date-fns";
 import { getWeatherGradientStyles } from "./weatherGradientStyles";
 
-// Static weather icons
 const WeatherIcon = ({ condition, className = "" }) => {
   switch(condition?.toLowerCase()) {
     case 'sunny':
@@ -91,13 +89,11 @@ const WeatherIcon = ({ condition, className = "" }) => {
   }
 };
 
-// Enhanced day card with hover interaction
 const DayCard = ({ day }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dateFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
   const dayName = dateFormatter.format(day.date);
   
-  // Get UV index color
   const getUvColor = (uv) => {
     if (uv <= 2) return 'bg-green-400';
     if (uv <= 5) return 'bg-yellow-400';
@@ -178,60 +174,50 @@ const DayCard = ({ day }) => {
   );
 };
 
-// Generate forecast data starting from tomorrow, not today
 const generateForecastFromWeatherData = (weatherData) => {
   if (!weatherData) return [];
   
-  // Base temperature and conditions
   const baseTemp = weatherData.temp || 25;
   const baseCondition = weatherData.condition || 'Clouds';
   const baseDescription = weatherData.description || 'partly cloudy';
   
-  // Create an array of forecast days starting from tomorrow
   return Array.from({ length: 7 }).map((_, index) => {
-    // Start from tomorrow (index + 1)
     const date = addDays(new Date(), index + 1);
     
-    // Add some randomness to make forecast look natural
-    const tempVariation = Math.floor(Math.random() * 8) - 4; // -4 to +4 degrees
+    const tempVariation = Math.floor(Math.random() * 8) - 4;
     const high = Math.max(10, Math.min(40, baseTemp + tempVariation));
-    const low = high - (5 + Math.floor(Math.random() * 10)); // 5-15 degrees lower than high
+    const low = high - (5 + Math.floor(Math.random() * 10));
     
-    // Randomly vary rain chance and other conditions based on the current weather pattern
     let rainChance;
     if (index === 0) {
-      // First day (tomorrow) should be more closely tied to current conditions
       rainChance = baseDescription.includes('rain') 
-        ? 60 + Math.floor(Math.random() * 30) // 60-90% chance if currently raining
+        ? 60 + Math.floor(Math.random() * 30)
         : baseDescription.includes('cloud') 
-          ? 30 + Math.floor(Math.random() * 30) // 30-60% if cloudy
-          : Math.floor(Math.random() * 30); // 0-30% if clear
+          ? 30 + Math.floor(Math.random() * 30)
+          : Math.floor(Math.random() * 30);
     } else {
-      // Subsequent days gradually vary more
-      const prevDayInfluence = Math.max(0, 7 - index) / 7; // Decreases with distance
+      const prevDayInfluence = Math.max(0, 7 - index) / 7;
       const baseRainChance = baseDescription.includes('rain') ? 70 : 30;
       rainChance = Math.floor(baseRainChance * prevDayInfluence + Math.random() * (100 - baseRainChance * prevDayInfluence));
     }
     
-    // Determine condition based on rain chance and season patterns
     let condition = baseCondition.toLowerCase();
     if (rainChance > 70) condition = 'rain';
     else if (rainChance > 50) condition = 'cloudy';
     else if (rainChance > 30) condition = 'partly-cloudy';
     else condition = 'sunny';
     
-    // Random humidity, UV index, and wind speed that make meteorological sense
     const humidity = condition === 'rain' 
-      ? 70 + Math.floor(Math.random() * 25) // 70-95% when raining
+      ? 70 + Math.floor(Math.random() * 25)
       : condition === 'sunny' 
-        ? 20 + Math.floor(Math.random() * 40) // 20-60% when sunny
-        : 40 + Math.floor(Math.random() * 40); // 40-80% for other conditions
+        ? 20 + Math.floor(Math.random() * 40)
+        : 40 + Math.floor(Math.random() * 40);
     
     const uv = condition === 'sunny' 
-      ? 6 + Math.floor(Math.random() * 5) // 6-10 when sunny
+      ? 6 + Math.floor(Math.random() * 5)
       : condition === 'partly-cloudy' 
-        ? 3 + Math.floor(Math.random() * 4) // 3-6 when partly cloudy
-        : 1 + Math.floor(Math.random() * 3); // 1-3 otherwise
+        ? 3 + Math.floor(Math.random() * 4)
+        : 1 + Math.floor(Math.random() * 3);
     
     const wind = 5 + Math.floor(Math.random() * 30);
     
@@ -254,7 +240,6 @@ const WeatherWidget = () => {
   const [forecast, setForecast] = useState([]);
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   
-  // Set time of day and current hour based on current time
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -270,14 +255,12 @@ const WeatherWidget = () => {
       }
     };
     
-    // Update time immediately and set interval
     updateTime();
-    const interval = setInterval(updateTime, 60000); // Update every minute
+    const interval = setInterval(updateTime, 60000);
     
     return () => clearInterval(interval);
   }, []);
   
-  // Generate forecast data when weather data is available
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
       const generatedForecast = generateForecastFromWeatherData(dashboardMessage.weatherData);
@@ -285,7 +268,6 @@ const WeatherWidget = () => {
     }
   }, [dashboardMessage?.weatherData]);
   
-  // Add animation styles for hover effects on day cards
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -330,7 +312,6 @@ const WeatherWidget = () => {
     );
   }
 
-  // Create today's weather object
   const today = {
     location: {
       city: "Warm Karoo",
@@ -350,10 +331,10 @@ const WeatherWidget = () => {
     uv: 8,
     sunrise: "06:15",
     sunset: "19:45",
-    feelsLike: weatherData.feels_like || weatherData.temp + 2
+    feelsLike: weatherData.feels_like || weatherData.temp + 2,
+    currentTemp: weatherData.temp || 25
   };
 
-  // Get UV index color and label
   const getUvInfo = (uv) => {
     if (uv <= 2) return { color: 'bg-green-400', label: 'Low' };
     if (uv <= 5) return { color: 'bg-yellow-400', label: 'Moderate' };
@@ -363,7 +344,6 @@ const WeatherWidget = () => {
 
   const uvInfo = getUvInfo(today.uv);
 
-  // Get background style based on weather conditions and time of day
   const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
     currentHour, 
     weatherData.description || weatherData.condition
@@ -376,7 +356,6 @@ const WeatherWidget = () => {
         style={gradientStyle}
       >
         <div className="flex flex-nowrap items-center justify-between overflow-x-auto p-4 w-full">
-          {/* Current Weather Section */}
           <div className="flex items-center gap-4 pr-6 mr-6 border-r border-white/20 shrink-0">
             <WeatherIcon 
               condition={weatherData.description || weatherData.condition} 
@@ -391,20 +370,18 @@ const WeatherWidget = () => {
             </div>
           </div>
           
-          {/* Temperature Section */}
           <div className="flex items-center gap-3 pr-6 mr-6 border-r border-white/20 shrink-0">
             <div className="flex items-start">
-              <span className="text-5xl font-light text-white">{today.high}</span>
+              <span className="text-5xl font-light text-white">{today.currentTemp}</span>
               <span className="text-2xl mt-1 text-white">°C</span>
             </div>
             <div className="flex flex-col">
               <span className="text-white text-sm uppercase">{weatherData.description || weatherData.condition}</span>
-              <span className="text-white text-xs">Low: {today.low}°</span>
+              <span className="text-white text-xs">Feels like: {today.feelsLike}°</span>
               <span className="text-white text-xs">Rain: {today.rainChance}%</span>
             </div>
           </div>
           
-          {/* Enhanced Data Section */}
           <div className="flex items-center gap-4 pr-6 mr-6 border-r border-white/20 shrink-0">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
@@ -426,7 +403,6 @@ const WeatherWidget = () => {
             </div>
           </div>
           
-          {/* 7-Day Forecast Section - Taking full remaining width */}
           <div className="flex items-center gap-2 shrink-0 pr-4 ml-auto">
             {forecast.map((day, index) => (
               <DayCard key={index} day={day} />
