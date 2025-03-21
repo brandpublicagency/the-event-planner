@@ -10,6 +10,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [unreadCountState, setUnreadCountState] = useState<number>(0);
   const initialFetchDoneRef = useRef(false);
   const mountedRef = useRef(true);
+  const initialFetchTimeoutRef = useRef<number | null>(null);
 
   const {
     notifications,
@@ -30,24 +31,41 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     return () => {
       mountedRef.current = false;
       isMountedRef.current = false;
+      
+      // Clear any lingering timeouts
+      if (initialFetchTimeoutRef.current) {
+        window.clearTimeout(initialFetchTimeoutRef.current);
+      }
     };
   }, [isMountedRef]);
 
   // Set up initial fetch with a timeout to prevent blocking the UI
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Set a shorter timeout for the initial fetch
+    initialFetchTimeoutRef.current = window.setTimeout(() => {
       if (!initialFetchDoneRef.current && mountedRef.current) {
         initialFetchDoneRef.current = true;
         fetchNotifications().catch((err) => {
           console.error("Error in initial notification fetch:", err);
         });
       }
-    }, 500); // Small delay to let the UI render first
+    }, 300); // Small delay to let the UI render first
+    
+    // Set a fallback timeout to ensure we show something even if fetch is slow
+    const fallbackTimeout = window.setTimeout(() => {
+      if (mountedRef.current && notificationsState.length === 0) {
+        // If no notifications loaded after 5 seconds, initialize with empty array
+        setNotificationsState([]);
+      }
+    }, 5000);
     
     return () => {
-      clearTimeout(timer);
+      if (initialFetchTimeoutRef.current) {
+        window.clearTimeout(initialFetchTimeoutRef.current);
+      }
+      window.clearTimeout(fallbackTimeout);
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, notificationsState.length]);
 
   // Update local state when notifications change
   useEffect(() => {

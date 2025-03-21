@@ -3,19 +3,45 @@ import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Notification } from "@/types/notification";
 import { generateMockNotifications } from "@/api/notification/mockNotifications";
+import { createErrorNotification, createBasicNotifications } from "@/api/notification/notificationErrors";
 
 // Helper to format notification from database to our type
 export const formatNotification = (data: any): Notification => {
   return {
     id: data.id,
-    title: data.title,
-    description: data.description,
-    createdAt: new Date(data.created_at),
-    read: data.read,
+    title: data.title || formatTitleFromType(data.notification_type),
+    description: data.description || `Notification for ${data.event_name || 'event'}`,
+    createdAt: new Date(data.created_at || data.sent_at || new Date()),
+    read: Boolean(data.read),
     type: data.notification_type,
     relatedId: data.event_code,
     status: data.read ? "read" : "sent"
   };
+};
+
+// Helper to format title from notification type
+const formatTitleFromType = (type: string): string => {
+  switch (type) {
+    case 'event_created':
+      return 'New Event Created';
+    case 'event_created_unified':
+      return 'New Event';
+    case 'task_overdue':
+      return 'Task Overdue';
+    case 'task_upcoming':
+      return 'Upcoming Task';
+    case 'event_incomplete':
+      return 'Incomplete Event';
+    case 'final_payment_reminder':
+    case 'payment_reminder':
+      return 'Payment Reminder';
+    case 'document_due_reminder':
+      return 'Document Due';
+    case 'task_created':
+      return 'New Task';
+    default:
+      return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
 };
 
 export const useNotificationOperations = () => {
@@ -38,16 +64,15 @@ export const useNotificationOperations = () => {
 
     isRefreshingRef.current = true;
     setLoading(true);
-    setError(null);
     
     try {
       console.log("Fetching notifications...");
       fetchAttemptsRef.current += 1;
       
-      // Graceful handling for development environments where Supabase might not be configured
       let formattedNotifications: Notification[] = [];
       
       try {
+        // First attempt to fetch from Supabase
         const { data, error } = await supabase
           .from('notifications')
           .select('*')
@@ -56,11 +81,44 @@ export const useNotificationOperations = () => {
         if (error) throw error;
         
         console.log("Notifications fetched:", data?.length || 0);
-        formattedNotifications = data ? data.map(formatNotification) : [];
+        
+        if (data && data.length > 0) {
+          formattedNotifications = data.map(item => {
+            try {
+              return formatNotification(item);
+            } catch (itemError) {
+              console.warn("Error formatting notification item:", itemError);
+              // Provide a fallback formatted notification
+              return {
+                id: item.id || `error-${Date.now()}`,
+                title: item.title || 'Notification',
+                description: item.description || 'Notification content',
+                createdAt: new Date(item.created_at || item.sent_at || new Date()),
+                read: Boolean(item.read),
+                type: item.notification_type || 'unknown',
+                relatedId: item.event_code,
+                status: item.read ? "read" : "sent"
+              };
+            }
+          });
+        } else {
+          // If no data from Supabase, use mock data in development
+          if (process.env.NODE_ENV === 'development') {
+            console.log("No notifications found in database, using mock data");
+            formattedNotifications = generateMockNotifications();
+          }
+        }
       } catch (dbError) {
-        console.warn('Using mock notifications due to database error:', dbError);
+        console.warn('Database error when fetching notifications:', dbError);
+        
         // Fallback to mock notifications in development environment
-        formattedNotifications = generateMockNotifications();
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Using mock notifications due to database error");
+          formattedNotifications = generateMockNotifications();
+        } else {
+          // In production, add an error notification
+          formattedNotifications = [createErrorNotification(dbError)];
+        }
       }
 
       // Only update state if component is still mounted
