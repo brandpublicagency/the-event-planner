@@ -1,13 +1,13 @@
 
 import { useContext } from "react";
 import { ToastContext } from "@/components/ui/toast/toast-context";
-import { ToastProps, ToastActionElement } from "@/components/ui/toast/toast";
+import { ToastProps } from "@/components/ui/toast/toast";
 
-export interface ToastOptions extends ToastProps {
+export interface ToastOptions extends Partial<ToastProps> {
   id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
-  action?: ToastActionElement;
+  action?: React.ReactElement;
   duration?: number;
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;

@@ -1,11 +1,52 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Notification, NotificationContextType } from "@/types/notification";
-import { fetchNotificationData } from "@/api/notificationApi";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from 'uuid';
 
 // Create context with default values
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+// Mock API function for fetching notifications
+const fetchNotificationData = async (): Promise<Notification[]> => {
+  console.log('Fetching mock notifications data');
+  
+  // Generate some mock notifications
+  const mockNotifications: Notification[] = [
+    {
+      id: uuidv4(),
+      title: 'Task Created',
+      description: 'New task has been created for you',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      read: false,
+      type: 'task_created',
+      relatedId: `task_${uuidv4()}`,
+      actionType: 'review'
+    },
+    {
+      id: uuidv4(),
+      title: 'Event Created',
+      description: 'New wedding event has been scheduled',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      read: false,
+      type: 'event_created',
+      relatedId: `event_${uuidv4()}`,
+      actionType: 'review'
+    },
+    {
+      id: uuidv4(),
+      title: 'Document Reminder',
+      description: 'You have documents due soon',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+      read: true,
+      type: 'document_reminder',
+      relatedId: `event_${uuidv4()}`,
+      actionType: 'review'
+    }
+  ];
+  
+  return Promise.resolve(mockNotifications);
+};
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   children 
