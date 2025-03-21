@@ -42,28 +42,6 @@ const DashboardNotificationsSection = () => {
 
   return (
     <div className="flex flex-col mt-2">
-      <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
-        backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        marginBottom: '15px'
-      }}>
-        {/* Deleted the white overlay background div that was here */}
-        
-        <div className="flex items-center gap-2 relative z-10">
-          <Bell className="h-5 w-5 text-zinc-700" />
-          <h3 className="text-lg font-medium text-zinc-900">Latest Updates</h3>
-        </div>
-        <Button 
-          onClick={() => refreshNotifications()} 
-          size="sm" 
-          variant="outline" 
-          className="rounded-full relative z-10"
-        >
-          Refresh
-        </Button>
-      </div>
-      
       <div className="h-auto">
         <NotificationsList 
           notifications={notifications.slice(0, 3)} 
