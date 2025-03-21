@@ -17,12 +17,11 @@ import CompanyDetails from '@/components/forms/CompanyDetails';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { format } from 'date-fns';
-import { EventFormData } from '@/types/eventForm';
 import EventBasicInfo from '@/components/forms/EventBasicInfo';
+import { EventFormData } from '@/types/eventForm';
 
 // Define EventFormValues type to match the schema and EventFormData
-interface EventFormValues {
+type EventFormValues = {
   name: string;
   event_type: EventFormData['event_type'];
   event_date?: string;
@@ -61,7 +60,7 @@ const NewEvent = () => {
   const { toast } = useToast();
 
   const methods = useForm<EventFormValues>({
-    resolver: zodResolver(eventFormSchema),
+    resolver: zodResolver(eventFormSchema) as any,
     defaultValues: {
       name: '',
       event_type: 'Wedding',
@@ -184,25 +183,25 @@ const NewEvent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left column */}
               <div className="space-y-8">
-                <EventTypeSelect form={methods} />
-                <EventBasicInfo form={methods} />
-                <EventDateSelect form={methods} />
-                <PackageSelection form={methods} />
-                <VenueSelect form={methods} />
+                <EventTypeSelect form={methods as any} />
+                <EventBasicInfo form={methods as any} />
+                <EventDateSelect form={methods as any} />
+                <PackageSelection form={methods as any} />
+                <VenueSelect form={methods as any} />
               </div>
               
               {/* Right column */}
               <div className="space-y-8">
                 {eventType === 'Corporate' ? (
-                  <CompanyDetails form={methods} />
+                  <CompanyDetails form={methods as any} />
                 ) : eventType === 'Wedding' ? (
                   <>
-                    <ClientDetails form={methods} />
-                    <BrideDetails form={methods} />
-                    <GroomDetails form={methods} />
+                    <ClientDetails form={methods as any} />
+                    <BrideDetails form={methods as any} />
+                    <GroomDetails form={methods as any} />
                   </>
                 ) : (
-                  <ClientDetails form={methods} />
+                  <ClientDetails form={methods as any} />
                 )}
               </div>
             </div>
