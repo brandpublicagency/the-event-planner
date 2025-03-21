@@ -325,7 +325,7 @@ const WeatherWidget = () => {
         className={`relative overflow-hidden rounded-xl shadow-lg ${fallbackGradientClass}`}
         style={gradientStyle}
       >
-        <div className="flex flex-nowrap items-center overflow-x-auto p-4">
+        <div className="flex flex-nowrap items-center justify-between overflow-x-auto p-4 w-full">
           {/* Current Weather Section */}
           <div className="flex items-center gap-4 pr-6 mr-6 border-r border-white/20 shrink-0">
             <WeatherIcon 
@@ -333,8 +333,8 @@ const WeatherWidget = () => {
               className="h-16 w-16" 
             />
             <div>
-              <div className="text-white text-lg font-medium mb-0.5">{today.location.city}</div>
-              <div className="text-white text-sm mb-1">{today.location.region}</div>
+              <div className="text-white text-lg font-medium mb-0.5">Warm Karoo</div>
+              <div className="text-white text-sm mb-1">Bloemfontein</div>
               <div className="text-white text-xs">
                 {format(new Date(), 'EEE, MMM d')}
               </div>
@@ -376,8 +376,8 @@ const WeatherWidget = () => {
             </div>
           </div>
           
-          {/* 7-Day Forecast Section - Adding right padding */}
-          <div className="flex items-center gap-2 shrink-0 pr-4">
+          {/* 7-Day Forecast Section - Taking full remaining width */}
+          <div className="flex items-center gap-2 shrink-0 pr-4 ml-auto">
             {forecast.map((day, index) => (
               <DayCard key={index} day={day} />
             ))}
