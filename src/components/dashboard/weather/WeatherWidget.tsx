@@ -92,7 +92,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
 
   if (isLoading) {
     return (
-      <div className="w-full">
+      <div className="w-full py-5">
         <div className="w-full h-36 rounded-xl bg-blue-500 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
@@ -103,7 +103,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   if (error) {
     console.error("Dashboard message error:", error);
     return (
-      <div className="w-full">
+      <div className="w-full py-5">
         <div className="w-full rounded-xl bg-red-50 border border-red-200 p-4 text-red-800">
           Unable to load weather information. Please try again later.
         </div>
@@ -125,7 +125,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full py-5">
       <div 
         className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`}
         style={{ background: gradientStyle.background, height: '100px' }}
