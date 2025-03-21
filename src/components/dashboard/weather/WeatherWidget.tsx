@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { format } from "date-fns";
+import { getWeatherGradientStyles } from "./weatherGradientStyles";
 
 // Static weather icons
 const WeatherIcon = ({ condition, className = "" }) => {
@@ -202,17 +203,29 @@ const WeatherWidget = () => {
   const { dashboardMessage, isLoading, error } = useDashboardMessage();
   const [timeOfDay, setTimeOfDay] = useState('day');
   const [forecast, setForecast] = useState([]);
+  const [currentHour, setCurrentHour] = useState(new Date().getHours());
   
-  // Set time of day based on current hour
+  // Set time of day and current hour based on current time
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) {
-      setTimeOfDay('morning');
-    } else if (hour >= 12 && hour < 18) {
-      setTimeOfDay('day');
-    } else {
-      setTimeOfDay('night');
-    }
+    const updateTime = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      setCurrentHour(hour);
+      
+      if (hour >= 5 && hour < 12) {
+        setTimeOfDay('morning');
+      } else if (hour >= 12 && hour < 18) {
+        setTimeOfDay('day');
+      } else {
+        setTimeOfDay('night');
+      }
+    };
+    
+    // Update time immediately and set interval
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
   }, []);
   
   // Generate forecast data when weather data is available
@@ -270,15 +283,18 @@ const WeatherWidget = () => {
 
   // Create today's weather object
   const today = {
-    location: "Warm Karoo, Bloemfontein",
+    location: {
+      city: "Warm Karoo",
+      region: "Bloemfontein"
+    },
     date: new Date(),
     high: weatherData.temp || 25,
     low: Math.max(weatherData.temp - 10, 5),
     rainChance: weatherData.description?.includes('rain') ? 80 : 20,
     condition: weatherData.condition || 'Clouds',
-    humidity: 45,
+    humidity: weatherData.humidity || 45,
     wind: {
-      speed: 18,
+      speed: weatherData.wind_speed || 18,
       direction: "NE",
       gusts: 25
     },
@@ -288,32 +304,6 @@ const WeatherWidget = () => {
     feelsLike: weatherData.feels_like || weatherData.temp + 2
   };
 
-  // Determine background gradient based on time of day and weather
-  const getBackgroundGradient = () => {
-    if (timeOfDay === 'morning') {
-      return 'bg-gradient-to-r from-amber-400 to-blue-500';
-    } else if (timeOfDay === 'day') {
-      const condition = weatherData.condition?.toLowerCase() || 'clouds';
-      const description = weatherData.description?.toLowerCase() || '';
-      
-      if (description.includes('rain') || description.includes('shower') || description.includes('drizzle')) {
-        return 'bg-gradient-to-r from-blue-600 to-blue-800';
-      } else if (description.includes('thunder') || description.includes('storm')) {
-        return 'bg-gradient-to-r from-indigo-700 to-purple-900';
-      } else if (description.includes('snow')) {
-        return 'bg-gradient-to-r from-blue-200 to-blue-400';
-      } else if (description.includes('cloud') || description.includes('overcast')) {
-        return 'bg-gradient-to-r from-gray-400 to-gray-600';
-      } else if (description.includes('clear') || description.includes('sunny')) {
-        return 'bg-gradient-to-r from-blue-400 to-blue-600';
-      } else {
-        return 'bg-gradient-to-r from-blue-400 to-blue-600';
-      }
-    } else {
-      return 'bg-gradient-to-r from-indigo-900 to-purple-900';
-    }
-  };
-  
   // Get UV index color and label
   const getUvInfo = (uv) => {
     if (uv <= 2) return { color: 'bg-green-400', label: 'Low' };
@@ -324,9 +314,18 @@ const WeatherWidget = () => {
 
   const uvInfo = getUvInfo(today.uv);
 
+  // Get background style based on weather conditions and time of day
+  const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
+    currentHour, 
+    weatherData.description || weatherData.condition
+  );
+
   return (
     <div className="w-full">
-      <div className={`relative overflow-hidden rounded-xl ${getBackgroundGradient()} shadow-lg`}>
+      <div 
+        className={`relative overflow-hidden rounded-xl shadow-lg ${fallbackGradientClass}`}
+        style={gradientStyle}
+      >
         <div className="flex flex-nowrap items-center overflow-x-auto p-4">
           {/* Current Weather Section */}
           <div className="flex items-center gap-4 pr-6 mr-6 border-r border-white/20 shrink-0">
@@ -335,8 +334,9 @@ const WeatherWidget = () => {
               className="h-16 w-16" 
             />
             <div>
-              <div className="text-white text-lg font-medium">{today.location}</div>
-              <div className="text-white text-sm">
+              <div className="text-white text-lg font-medium mb-0.5">{today.location.city}</div>
+              <div className="text-white text-sm mb-1">{today.location.region}</div>
+              <div className="text-white text-xs">
                 {format(new Date(), 'EEE, MMM d')}
               </div>
             </div>
