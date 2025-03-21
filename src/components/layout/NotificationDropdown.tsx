@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export function NotificationDropdown() {
   const { 
@@ -22,6 +23,13 @@ export function NotificationDropdown() {
   } = useNotifications();
   
   const navigate = useNavigate();
+
+  // Only refresh when dropdown is opened to prevent unnecessary requests
+  useEffect(() => {
+    refreshNotifications().catch(err => {
+      console.error("Error refreshing notifications in dropdown:", err);
+    });
+  }, [refreshNotifications]);
 
   // Use a limited number of notifications to prevent performance issues
   const limitedNotifications = notifications.slice(0, 5);
@@ -92,7 +100,7 @@ export function NotificationDropdown() {
             variant="ghost"
             size="sm"
             className="h-8 px-2 text-xs"
-            disabled={!notifications.some(n => !n.read)}
+            disabled={!notifications.some(n => !n.read) || loading}
           >
             <Check className="h-3.5 w-3.5 mr-1" />
             Mark all read
@@ -102,7 +110,8 @@ export function NotificationDropdown() {
       
       <ScrollArea className="h-[350px] w-full">
         {loading ? (
-          <div className="p-8 text-center">
+          <div className="p-8 text-center flex flex-col items-center justify-center">
+            <Spinner className="h-6 w-6 mb-2 text-primary" />
             <p className="text-sm text-zinc-500">Loading notifications...</p>
           </div>
         ) : limitedNotifications.length > 0 ? (

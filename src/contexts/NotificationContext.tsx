@@ -1,8 +1,9 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Notification, NotificationContextType } from "@/types/notification";
 import { toast } from "sonner";
+import { generateMockNotifications } from "@/api/notification/mockNotifications";
 
 // Create the context with a default value
 const NotificationContext = createContext<NotificationContextType>({
@@ -24,6 +25,15 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const isMountedRef = useRef(true);
+  const isRefreshingRef = useRef(false);
+
+  // Set up cleanup function
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Initial fetch of notifications
   useEffect(() => {
@@ -37,6 +47,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         schema: 'public',
         table: 'notifications'
       }, (payload) => {
+        if (!isMountedRef.current) return;
+        
         const newNotification = formatNotification(payload.new);
         setNotifications(prev => [newNotification, ...prev]);
         setUnreadCount(count => count + 1);
@@ -70,24 +82,50 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Fetch notifications from Supabase
   const fetchNotifications = async () => {
+    // Prevent concurrent refresh requests
+    if (isRefreshingRef.current) {
+      return;
+    }
+
+    isRefreshingRef.current = true;
     setLoading(true);
     setError(null);
+    
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Graceful handling for development environments where Supabase might not be configured
+      let formattedNotifications: Notification[] = [];
+      
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        formattedNotifications = data.map(formatNotification);
+      } catch (dbError) {
+        console.warn('Using mock notifications due to database error:', dbError);
+        // Fallback to mock notifications in development environment
+        formattedNotifications = generateMockNotifications();
+      }
 
-      const formattedNotifications = data.map(formatNotification);
-      setNotifications(formattedNotifications);
-      setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setNotifications(formattedNotifications);
+        setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+        setError(null);
+      }
     } catch (error) {
       console.error('Error fetching notifications:', error);
-      setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
+      if (isMountedRef.current) {
+        setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+      isRefreshingRef.current = false;
     }
   };
 

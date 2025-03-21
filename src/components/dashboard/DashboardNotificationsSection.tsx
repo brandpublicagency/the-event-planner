@@ -4,6 +4,8 @@ import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const DashboardNotificationsSection = () => {
   const navigate = useNavigate();
@@ -12,10 +14,11 @@ const DashboardNotificationsSection = () => {
     markAsRead, 
     markAsCompleted, 
     refreshNotifications,
-    loading
+    loading,
+    error
   } = useNotifications();
   
-  // Refresh notifications when component mounts
+  // Refresh notifications when component mounts, but only once
   useEffect(() => {
     refreshNotifications().catch(err => {
       console.error('Error refreshing notifications:', err);
@@ -39,6 +42,17 @@ const DashboardNotificationsSection = () => {
   const handleNotificationComplete = (id: string) => {
     markAsCompleted(id).catch(err => console.error('Error marking notification as completed:', err));
   };
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mt-2 mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          There was a problem loading notifications
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="flex flex-col mt-2">
