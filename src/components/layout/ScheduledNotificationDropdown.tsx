@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useScheduledNotifications } from "@/contexts/ScheduledNotificationContext";
+import { useNotifications } from "@/contexts/NotificationContext";
 import { Button } from "@/components/ui/button";
 import { 
   Calendar, 
@@ -14,37 +14,31 @@ import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 
 export function ScheduledNotificationDropdown() {
+  // Using the regular notification context since we're rebuilding
   const { 
     notifications, 
     unreadCount, 
     markAsRead, 
     markAsCompleted,
-    loading,
     refreshNotifications
-  } = useScheduledNotifications();
-  
-  const { toast } = useToast();
+  } = useNotifications();
   
   const handleMarkAsRead = (id: string) => {
-    markAsRead(id);
-    toast({
-      title: "Notification marked as read",
-      variant: "success",
-      showProgress: true,
-      duration: 2000
+    markAsRead(id).then(() => {
+      toast.success("Notification marked as read", {
+        duration: 2000
+      });
     });
   };
   
   const handleMarkAsCompleted = (id: string) => {
-    markAsCompleted(id);
-    toast({
-      title: "Task marked as completed",
-      variant: "success",
-      showProgress: true,
-      duration: 2000
+    markAsCompleted(id).then(() => {
+      toast.success("Task marked as completed", {
+        duration: 2000
+      });
     });
   };
 
@@ -56,7 +50,7 @@ export function ScheduledNotificationDropdown() {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={refreshNotifications}
+            onClick={() => refreshNotifications()}
             className="h-7 px-2 text-xs"
           >
             <Clock className="h-3.5 w-3.5 mr-1" />
@@ -73,11 +67,7 @@ export function ScheduledNotificationDropdown() {
       </div>
 
       <ScrollArea className="h-[300px]">
-        {loading ? (
-          <div className="p-4 text-center text-zinc-500">
-            Loading...
-          </div>
-        ) : notifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="p-6 text-center text-zinc-500">
             <div className="flex flex-col items-center gap-2">
               <Clock className="h-6 w-6 text-zinc-300" />
@@ -104,7 +94,7 @@ export function ScheduledNotificationDropdown() {
                         </Badge>
                       )}
                       {notification.type === 'task_overdue' && (
-                        <Badge variant="red" className="text-[10px] py-0 h-4">
+                        <Badge variant="destructive" className="text-[10px] py-0 h-4">
                           Overdue
                         </Badge>
                       )}
@@ -125,7 +115,7 @@ export function ScheduledNotificationDropdown() {
                     <Clock className="h-3 w-3 mr-1" />
                     Mark Read
                   </Button>
-                  {notification.actionType === 'approve' && (
+                  {notification.actionType === "review" && (
                     <Button 
                       size="sm" 
                       variant="outline" 
@@ -142,7 +132,7 @@ export function ScheduledNotificationDropdown() {
                     asChild
                     className="h-7 px-2 text-xs ml-auto"
                   >
-                    <Link to={`/events/${notification.relatedId}`}>
+                    <Link to={notification.relatedId ? `/events/${notification.relatedId}` : '/events'}>
                       <Eye className="h-3 w-3 mr-1" />
                       View
                     </Link>

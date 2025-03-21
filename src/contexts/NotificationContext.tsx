@@ -1,30 +1,8 @@
 
-import React, { createContext, useContext, useState } from "react";
-import { toast } from "@/hooks/use-toast";
-
-// Basic notification type
-export type Notification = {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: Date;
-  read: boolean;
-  type: string;
-  relatedId?: string;
-  actionType?: string;
-  status?: "completed" | "read" | "sent";
-};
-
-// Context type
-type NotificationContextType = {
-  notifications: Notification[];
-  unreadCount: number;
-  markAsRead: (id: string) => Promise<void>;
-  markAsCompleted: (id: string) => Promise<void>;
-  markAllAsRead: () => void;
-  clearNotifications: () => void;
-  refreshNotifications: () => Promise<void>;
-};
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { Notification, NotificationContextType } from "@/types/notification";
+import { fetchNotificationData } from "@/api/notificationApi";
+import { toast } from "sonner";
 
 // Create context with default values
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -32,11 +10,29 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   children 
 }) => {
-  // Use simple state for notifications
+  // Use state for notifications
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   
   // Calculate unread count
   const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Fetch notifications on component mount
+  useEffect(() => {
+    const loadNotifications = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchNotificationData();
+        setNotifications(data);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadNotifications();
+  }, []);
   
   // Mark a notification as read
   const markAsRead = async (id: string): Promise<void> => {
@@ -63,25 +59,27 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     setNotifications(prev => 
       prev.map(notification => ({ ...notification, read: true }))
     );
-    toast({
-      title: 'All notifications marked as read',
-      variant: 'success',
-    });
+    toast('All notifications marked as read');
   };
   
   // Clear all notifications
   const clearNotifications = () => {
     setNotifications([]);
-    toast({
-      title: 'All notifications cleared',
-      variant: 'success',
-    });
+    toast('All notifications cleared');
   };
   
-  // Refresh notifications (placeholder for future implementation)
+  // Refresh notifications
   const refreshNotifications = async (): Promise<void> => {
-    // This will be implemented later
-    console.log('Refreshing notifications...');
+    setLoading(true);
+    try {
+      const data = await fetchNotificationData();
+      setNotifications(data);
+      toast('Notifications refreshed');
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+    } finally {
+      setLoading(false);
+    }
     return Promise.resolve();
   };
 

@@ -9,13 +9,26 @@ interface NotificationsListProps {
   notifications: Notification[];
   onViewDetail: (id: string, relatedId?: string) => void;
   onCompleteTask: (id: string) => void;
+  error?: Error;
+  listType?: string;
 }
 
 export function NotificationsList({ 
   notifications, 
   onViewDetail, 
-  onCompleteTask 
+  onCompleteTask,
+  error,
+  listType 
 }: NotificationsListProps) {
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 text-muted-foreground">
+        <AlertTriangle className="h-10 w-10 mb-2 text-red-500" />
+        <p className="text-sm">Error loading notifications: {error.message}</p>
+      </div>
+    );
+  }
+
   if (notifications.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-muted-foreground">

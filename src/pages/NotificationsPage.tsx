@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { Button } from '@/components/ui/button';
@@ -29,10 +28,13 @@ export function NotificationsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <PageHeader 
-        title="Notifications" 
-        description="Manage your notifications and alerts"
-      >
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
+          <p className="text-muted-foreground">
+            Manage your notifications and alerts
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
@@ -53,7 +55,7 @@ export function NotificationsPage() {
             Mark all as read
           </Button>
         </div>
-      </PageHeader>
+      </div>
 
       <div className="mt-6">
         <div className="bg-white rounded-md shadow">
