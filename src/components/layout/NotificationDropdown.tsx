@@ -1,18 +1,22 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, RefreshCw } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function NotificationDropdown() {
-  const { notifications, markAsRead, markAsCompleted } = useNotifications();
+  const { notifications, markAsRead, markAsCompleted, refreshNotifications } = useNotifications();
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
 
   // Handler for viewing a notification
   const handleViewNotification = async (id: string, relatedId?: string) => {
@@ -45,7 +49,6 @@ export function NotificationDropdown() {
     try {
       await markAsCompleted(id);
       toast.success(`Task marked as complete!`);
-      navigate(`/tasks`);
     } catch (error) {
       console.error("Error marking task as complete:", error);
       toast.error("Failed to mark task as complete");
@@ -56,32 +59,113 @@ export function NotificationDropdown() {
     navigate('/notifications');
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshNotifications();
+      toast.success('Notifications refreshed');
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+      toast.error('Failed to refresh notifications');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Filter notifications based on active tab
+  const filteredNotifications = React.useMemo(() => {
+    if (activeTab === 'unread') {
+      return notifications.filter(n => !n.read);
+    } 
+    if (activeTab === 'tasks') {
+      return notifications.filter(n => n.type.includes('task'));
+    }
+    return notifications;
+  }, [notifications, activeTab]);
+
   return (
-    <div className="w-full">
-      <div className="flex flex-col space-y-1 p-2">
-        <p className="text-sm font-medium leading-none">Notifications</p>
-        <p className="text-sm text-muted-foreground">
-          You have {notifications.length} notifications.
-        </p>
+    <div className="w-full min-w-[320px]">
+      <div className="flex items-center justify-between p-3 border-b">
+        <div className="flex flex-col">
+          <p className="text-sm font-medium text-zinc-900">Notifications</p>
+          <p className="text-xs text-muted-foreground">
+            {notifications.filter(n => !n.read).length > 0 
+              ? `You have ${notifications.filter(n => !n.read).length} unread notifications`
+              : 'All caught up!'}
+          </p>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="h-8 w-8 p-0"
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span className="sr-only">Refresh</span>
+        </Button>
       </div>
+      
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full grid grid-cols-3 p-1 h-auto">
+          <TabsTrigger value="all" className="text-xs h-8">All</TabsTrigger>
+          <TabsTrigger value="unread" className="text-xs h-8">
+            Unread
+            {notifications.filter(n => !n.read).length > 0 && (
+              <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                {notifications.filter(n => !n.read).length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="text-xs h-8">Tasks</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all" className="mt-0">
+          <ScrollArea className="h-[400px] w-full">
+            <NotificationsList
+              notifications={filteredNotifications}
+              onViewDetail={handleViewNotification}
+              onCompleteTask={handleCompleteTask}
+              listType="default"
+            />
+          </ScrollArea>
+        </TabsContent>
+        
+        <TabsContent value="unread" className="mt-0">
+          <ScrollArea className="h-[400px] w-full">
+            <NotificationsList
+              notifications={filteredNotifications}
+              onViewDetail={handleViewNotification}
+              onCompleteTask={handleCompleteTask}
+              listType="unread"
+            />
+          </ScrollArea>
+        </TabsContent>
+        
+        <TabsContent value="tasks" className="mt-0">
+          <ScrollArea className="h-[400px] w-full">
+            <NotificationsList
+              notifications={filteredNotifications}
+              onViewDetail={handleViewNotification}
+              onCompleteTask={handleCompleteTask}
+              listType="tasks"
+            />
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+      
       <DropdownMenuSeparator />
-      <ScrollArea className="h-[400px] w-full">
-        <NotificationsList
-          notifications={notifications}
-          onViewDetail={handleViewNotification}
-          onCompleteTask={handleCompleteTask}
-        />
-      </ScrollArea>
-      <DropdownMenuSeparator />
-      <button
-        onClick={handleViewAll}
-        className="w-full flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer"
-        type="button"
-        aria-label="View all notifications"
-      >
-        <ExternalLink className="h-4 w-4" />
-        <span className="text-sm">View all notifications</span>
-      </button>
+      <div className="p-2">
+        <Button
+          onClick={handleViewAll}
+          className="w-full flex items-center gap-2 justify-center"
+          variant="secondary"
+          size="sm"
+        >
+          <ExternalLink className="h-4 w-4" />
+          <span className="text-xs">View all notifications</span>
+        </Button>
+      </div>
     </div>
   );
 }

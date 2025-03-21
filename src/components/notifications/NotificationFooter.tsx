@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface NotificationFooterProps {
   unreadCount: number;
@@ -12,13 +13,17 @@ export const NotificationFooter: React.FC<NotificationFooterProps> = ({
   onViewAll
 }) => {
   return (
-    <div className="border-t p-2">
+    <div className="border-t p-3 bg-gray-50">
       <Button 
         variant="outline" 
         onClick={onViewAll}
-        className="w-full rounded text-zinc-800 bg-zinc-100 hover:bg-zinc-200 border-zinc-200"
+        size="sm"
+        className="w-full rounded-md text-zinc-700 bg-white hover:bg-zinc-100 border-zinc-200 transition-colors"
       >
-        {unreadCount > 5 ? `See all notifications (${unreadCount})` : 'See all notifications'}
+        <ExternalLink className="h-3.5 w-3.5 mr-2" />
+        {unreadCount > 0 
+          ? `See all notifications (${unreadCount} unread)` 
+          : 'See all notifications'}
       </Button>
     </div>
   );

@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Notification } from "@/types/notification";
+import { CheckCircle, Eye } from "lucide-react";
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -28,9 +29,10 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
       <Button
         variant="outline"
         size="sm"
-        className="px-3 py-1 h-7 text-xs border border-zinc-200"
+        className="px-3 py-1 h-7 text-xs border border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
         onClick={(e) => onView(notification, e)}
       >
+        <Eye className="h-3 w-3 mr-1.5" />
         View
       </Button>
       
@@ -38,9 +40,10 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
         <Button
           variant="outline"
           size="sm"
-          className="px-3 py-1 h-7 text-xs border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+          className="px-3 py-1 h-7 text-xs border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-colors"
           onClick={(e) => onComplete(notification, e)}
         >
+          <CheckCircle className="h-3 w-3 mr-1.5" />
           Complete
         </Button>
       )}

@@ -5,10 +5,12 @@ import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, Bell, CheckSquare, Calendar, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { motion } from 'framer-motion';
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
@@ -41,6 +43,7 @@ const Notifications = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimeoutRef = useRef<number | null>(null);
   const isInitialRender = useRef(true);
+  const [activeTab, setActiveTab] = useState('all');
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -97,61 +100,187 @@ const Notifications = () => {
     }
   }, [loading]);
 
-  // Log notifications for debugging
-  console.log('Notifications page rendering with notifications:', notifications.length);
-  console.log('Loading state:', loading, 'Has attempted fetch:', hasAttemptedFetch);
+  // Filter notifications based on active tab
+  const filteredNotifications = React.useMemo(() => {
+    if (activeTab === 'unread') {
+      return notifications.filter(n => !n.read);
+    }
+    if (activeTab === 'tasks') {
+      return notifications.filter(n => n.type.includes('task'));
+    }
+    if (activeTab === 'events') {
+      return notifications.filter(n => n.type.includes('event'));
+    }
+    return notifications;
+  }, [notifications, activeTab]);
 
   return (
-    <div className="flex flex-col h-full">
-      <Header 
-        pageTitle="Notifications"
-      />
+    <div className="flex flex-col min-h-screen bg-zinc-50">
+      <Header pageTitle="Notifications" />
       
-      <div className="p-6 flex-1">
-        <ErrorBoundary FallbackComponent={ErrorFallback} onReset={refreshWithState}>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Notification System Error</AlertTitle>
-              <AlertDescription>
-                {error.message}
-              </AlertDescription>
-            </Alert>
-          )}
+      <div className="container py-6 flex-1">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Bell className="h-6 w-6" />
+              Notifications
+            </h1>
+            <Button
+              onClick={refreshWithState}
+              disabled={isRefreshing}
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
           
-          {(loading || isRefreshing) && (
-            <div className="text-center py-8 flex flex-col items-center">
-              <Spinner className="h-8 w-8 mb-2" />
-              <p className="text-muted-foreground">Loading notifications...</p>
-            </div>
-          )}
-          
-          {!loading && !isRefreshing && notifications.length > 0 && (
-            <NotificationsList 
-              notifications={notifications}
-              error={error}
-              onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-              onCompleteTask={(id) => handleCompleteTask('unified', id)}
-              listType="unified"
-            />
-          )}
-          
-          {!loading && !isRefreshing && notifications.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No notifications found</p>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={refreshWithState}
-                className="mt-4"
-              >
-                <RefreshCw className="h-4 w-4 mr-1" />
-                Refresh
-              </Button>
-            </div>
-          )}
-        </ErrorBoundary>
+          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={refreshWithState}>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Notification System Error</AlertTitle>
+                <AlertDescription>
+                  {error.message}
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full md:w-auto grid md:inline-flex grid-cols-4 p-1">
+                <TabsTrigger value="all" className="flex items-center gap-1.5">
+                  <Bell className="h-4 w-4" />
+                  <span>All</span>
+                </TabsTrigger>
+                <TabsTrigger value="unread" className="flex items-center gap-1.5">
+                  <span>Unread</span>
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="tasks" className="flex items-center gap-1.5">
+                  <CheckSquare className="h-4 w-4" />
+                  <span>Tasks</span>
+                </TabsTrigger>
+                <TabsTrigger value="events" className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  <span>Events</span>
+                </TabsTrigger>
+              </TabsList>
+              
+              <div className="mt-4">
+                {(loading || isRefreshing) && (
+                  <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
+                    <Spinner className="h-8 w-8 mb-2 text-primary" />
+                    <p className="text-muted-foreground">Loading notifications...</p>
+                  </div>
+                )}
+                
+                {!loading && !isRefreshing && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <TabsContent value="all">
+                      {filteredNotifications.length > 0 ? (
+                        <NotificationsList 
+                          notifications={filteredNotifications}
+                          error={error}
+                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
+                          listType="unified"
+                        />
+                      ) : (
+                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="unread">
+                      {filteredNotifications.length > 0 ? (
+                        <NotificationsList 
+                          notifications={filteredNotifications}
+                          error={error}
+                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
+                          listType="unread"
+                        />
+                      ) : (
+                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="tasks">
+                      {filteredNotifications.length > 0 ? (
+                        <NotificationsList 
+                          notifications={filteredNotifications}
+                          error={error}
+                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
+                          listType="tasks"
+                        />
+                      ) : (
+                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="events">
+                      {filteredNotifications.length > 0 ? (
+                        <NotificationsList 
+                          notifications={filteredNotifications}
+                          error={error}
+                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
+                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
+                          listType="events"
+                        />
+                      ) : (
+                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
+                      )}
+                    </TabsContent>
+                  </motion.div>
+                )}
+              </div>
+            </Tabs>
+          </ErrorBoundary>
+        </div>
       </div>
+    </div>
+  );
+};
+
+// Empty state component to avoid repetition
+const EmptyState = ({ refreshWithState, activeTab }) => {
+  let message = "No notifications found";
+  let icon = <Bell className="h-10 w-10 text-zinc-300 mb-3" />;
+  
+  if (activeTab === 'unread') {
+    message = "No unread notifications";
+    icon = <Bell className="h-10 w-10 text-zinc-300 mb-3" />;
+  } else if (activeTab === 'tasks') {
+    message = "No task notifications";
+    icon = <CheckSquare className="h-10 w-10 text-zinc-300 mb-3" />;
+  } else if (activeTab === 'events') {
+    message = "No event notifications";
+    icon = <Calendar className="h-10 w-10 text-zinc-300 mb-3" />;
+  }
+  
+  return (
+    <div className="bg-white shadow rounded-lg text-center py-12">
+      {icon}
+      <p className="text-muted-foreground mb-4">{message}</p>
+      <Button 
+        size="sm" 
+        variant="outline" 
+        onClick={refreshWithState}
+        className="mx-auto"
+      >
+        <RefreshCw className="h-4 w-4 mr-1" />
+        Refresh
+      </Button>
     </div>
   );
 };

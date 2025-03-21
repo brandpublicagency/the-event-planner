@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Notification } from "@/types/notification";
 import { NotificationActions } from "./NotificationActions";
+import { AlertCircle, Bell, CheckCircle2, FileText, Calendar } from "lucide-react";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -17,6 +18,23 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onView, 
   onComplete 
 }) => {
+  // Determine notification icon based on type
+  const NotificationIcon = () => {
+    const iconProps = { className: "h-5 w-5" };
+    
+    if (notification.type.includes('task')) {
+      return <CheckCircle2 {...iconProps} className={cn(iconProps.className, "text-blue-500")} />;
+    } else if (notification.type.includes('event')) {
+      return <Calendar {...iconProps} className={cn(iconProps.className, "text-purple-500")} />;
+    } else if (notification.type.includes('document')) {
+      return <FileText {...iconProps} className={cn(iconProps.className, "text-orange-500")} />;
+    } else if (notification.type.includes('overdue') || isUrgent) {
+      return <AlertCircle {...iconProps} className={cn(iconProps.className, "text-red-500")} />;
+    } else {
+      return <Bell {...iconProps} className={cn(iconProps.className, "text-gray-500")} />;
+    }
+  };
+  
   // Determine if the notification needs special styling based on type
   const isUrgent = notification.type === 'task_overdue' || 
                    notification.type === 'document_due_reminder' ||
@@ -26,14 +44,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     <div 
       key={notification.id} 
       className={cn(
-        "p-4 mb-3 rounded-lg border shadow-sm",
+        "p-4 mb-3 rounded-lg border shadow-sm transition-all duration-150 hover:shadow-md",
         notification.read ? "bg-white" : "bg-white",
         !notification.read && "border-zinc-200",
         isUrgent && !notification.read && "border-l-4 border-l-red-500"
       )}
     >
       <div className="flex gap-3">
-        {/* Removed the icon container div completely */}
+        <div className="shrink-0 mt-0.5">
+          <NotificationIcon />
+        </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h4 className="font-medium text-sm text-zinc-900">{notification.title}</h4>

@@ -1,11 +1,13 @@
 
 import React from 'react';
+import { Bell } from 'lucide-react';
 
 export const EmptyNotifications: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-      <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-1">No notifications</h3>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-white rounded-lg border shadow-sm">
+      <Bell className="h-10 w-10 text-zinc-300 mb-3" strokeWidth={1.5} />
+      <h3 className="text-base font-medium text-zinc-900 mb-1">No notifications</h3>
+      <p className="text-sm text-zinc-500 max-w-md">
         You're all caught up! Any new notifications about events, tasks, or reminders will appear here.
       </p>
     </div>

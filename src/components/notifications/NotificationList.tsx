@@ -5,6 +5,7 @@ import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { EmptyNotifications } from '@/components/notifications/EmptyNotifications';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { NotificationFooter } from '@/components/notifications/NotificationFooter';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface NotificationsListProps {
   notifications: Notification[];
@@ -32,20 +33,29 @@ export const NotificationsList = ({
         listType={listType}
       />
       
-      <div className="divide-y">
-        {notifications.map((notification) => (
-          <NotificationItem
-            key={notification.id}
-            notification={notification}
-            onView={(notification, e) => onViewDetail(notification.id, notification.relatedId)}
-            onComplete={(notification, e) => onCompleteTask(notification.id)}
-          />
-        ))}
+      <div className="divide-y divide-gray-50 p-2">
+        <AnimatePresence initial={false}>
+          {notifications.map((notification) => (
+            <motion.div
+              key={notification.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <NotificationItem
+                notification={notification}
+                onView={(notification) => onViewDetail(notification.id, notification.relatedId)}
+                onComplete={(notification) => onCompleteTask(notification.id)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
       
       <NotificationFooter 
-        unreadCount={notifications.length}
-        onViewAll={(e) => { /* Handle view all click */ }}
+        unreadCount={notifications.filter(n => !n.read).length}
+        onViewAll={() => window.location.href = '/notifications'}
       />
     </div>
   );
