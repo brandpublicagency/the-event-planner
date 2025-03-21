@@ -17,8 +17,7 @@ export const NotificationsList = ({
   notifications,
   onViewDetail,
   onCompleteTask,
-  error,
-  listType = 'default'
+  error
 }: NotificationsListProps) => {
   if (notifications.length === 0) {
     return <EmptyNotifications />;
@@ -30,9 +29,7 @@ export const NotificationsList = ({
         <div className="flex justify-between items-center">
           <div>
             <p className="text-sm font-medium text-zinc-900">
-              {listType === 'events' ? 'Event Notifications' : 
-               listType === 'tasks' ? 'Task Notifications' :
-               listType === 'unread' ? 'Unread Notifications' : 'All Notifications'}
+              Notifications
             </p>
             <p className="text-xs text-muted-foreground">
               {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}

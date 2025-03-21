@@ -1,15 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Bell, CheckSquare, Calendar, RefreshCw } from 'lucide-react';
+import { AlertCircle, Bell, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { EmptyNotifications } from '@/components/notifications/EmptyNotifications';
 import { useNotificationStore } from '@/store/notificationStore';
@@ -39,7 +38,6 @@ const Notifications = () => {
   
   const { loading, error } = useNotificationStore();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('all');
 
   // Handle refresh button click
   const handleRefresh = async () => {
@@ -103,20 +101,6 @@ const Notifications = () => {
     }
   };
 
-  // Filter notifications based on active tab
-  const filteredNotifications = React.useMemo(() => {
-    if (activeTab === 'unread') {
-      return notifications.filter(n => !n.read);
-    }
-    if (activeTab === 'tasks') {
-      return notifications.filter(n => n.type.includes('task'));
-    }
-    if (activeTab === 'events') {
-      return notifications.filter(n => n.type.includes('event'));
-    }
-    return notifications;
-  }, [notifications, activeTab]);
-
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header pageTitle="Notifications" />
@@ -151,61 +135,34 @@ const Notifications = () => {
               </Alert>
             )}
             
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full md:w-auto grid md:inline-flex grid-cols-4 p-1">
-                <TabsTrigger value="all" className="flex items-center gap-1.5">
-                  <Bell className="h-4 w-4" />
-                  <span>All</span>
-                </TabsTrigger>
-                <TabsTrigger value="unread" className="flex items-center gap-1.5">
-                  <span>Unread</span>
-                  {notifications.filter(n => !n.read).length > 0 && (
-                    <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                      {notifications.filter(n => !n.read).length}
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex items-center gap-1.5">
-                  <CheckSquare className="h-4 w-4" />
-                  <span>Tasks</span>
-                </TabsTrigger>
-                <TabsTrigger value="events" className="flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" />
-                  <span>Events</span>
-                </TabsTrigger>
-              </TabsList>
+            <div className="mt-4">
+              {loading && (
+                <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
+                  <Spinner className="h-8 w-8 mb-2 text-primary" />
+                  <p className="text-muted-foreground">Loading notifications...</p>
+                </div>
+              )}
               
-              <div className="mt-4">
-                {loading && (
-                  <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
-                    <Spinner className="h-8 w-8 mb-2 text-primary" />
-                    <p className="text-muted-foreground">Loading notifications...</p>
-                  </div>
-                )}
-                
-                {!loading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <TabsContent value={activeTab}>
-                      {filteredNotifications.length > 0 ? (
-                        <NotificationsList 
-                          notifications={filteredNotifications}
-                          error={error}
-                          onViewDetail={handleViewDetail}
-                          onCompleteTask={handleCompleteTask}
-                          listType={activeTab}
-                        />
-                      ) : (
-                        <EmptyState refreshWithState={handleRefresh} activeTab={activeTab} />
-                      )}
-                    </TabsContent>
-                  </motion.div>
-                )}
-              </div>
-            </Tabs>
+              {!loading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {notifications.length > 0 ? (
+                    <NotificationsList 
+                      notifications={notifications}
+                      error={error}
+                      onViewDetail={handleViewDetail}
+                      onCompleteTask={handleCompleteTask}
+                      listType="all"
+                    />
+                  ) : (
+                    <EmptyState refreshWithState={handleRefresh} />
+                  )}
+                </motion.div>
+              )}
+            </div>
           </ErrorBoundary>
         </div>
       </div>
@@ -213,26 +170,12 @@ const Notifications = () => {
   );
 };
 
-// Empty state component to avoid repetition
-const EmptyState = ({ refreshWithState, activeTab }) => {
-  let message = "No notifications found";
-  let icon = <Bell className="h-10 w-10 text-zinc-300 mb-3" />;
-  
-  if (activeTab === 'unread') {
-    message = "No unread notifications";
-    icon = <Bell className="h-10 w-10 text-zinc-300 mb-3" />;
-  } else if (activeTab === 'tasks') {
-    message = "No task notifications";
-    icon = <CheckSquare className="h-10 w-10 text-zinc-300 mb-3" />;
-  } else if (activeTab === 'events') {
-    message = "No event notifications";
-    icon = <Calendar className="h-10 w-10 text-zinc-300 mb-3" />;
-  }
-  
+// Simplified empty state component
+const EmptyState = ({ refreshWithState }) => {
   return (
     <div className="bg-white shadow rounded-lg text-center py-12">
-      {icon}
-      <p className="text-muted-foreground mb-4">{message}</p>
+      <Bell className="h-10 w-10 text-zinc-300 mb-3" />
+      <p className="text-muted-foreground mb-4">No notifications found</p>
       <Button 
         size="sm" 
         variant="outline" 

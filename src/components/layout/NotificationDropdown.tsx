@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { ExternalLink, RefreshCw, Check } from 'lucide-react';
+import { ExternalLink, Check } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +24,7 @@ export function NotificationDropdown() {
   const navigate = useNavigate();
 
   // Use a limited number of notifications to prevent performance issues
-  const limitedNotifications = notifications.slice(0, 10);
+  const limitedNotifications = notifications.slice(0, 5);
 
   // Handle viewing a notification
   const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
@@ -110,7 +110,6 @@ export function NotificationDropdown() {
             notifications={limitedNotifications}
             onViewDetail={handleViewNotification}
             onCompleteTask={handleCompleteTask}
-            listType="default"
           />
         ) : (
           <div className="p-8 text-center">
