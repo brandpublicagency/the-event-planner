@@ -296,4 +296,67 @@ const WeatherWidget = () => {
 
   if (error || !dashboardMessage?.weatherData) {
     return null;
+  }
 
+  const gradientStyle = getWeatherGradientStyles(
+    timeOfDay,
+    dashboardMessage.weatherData.condition?.toLowerCase()
+  );
+
+  return (
+    <div className="w-full">
+      <div 
+        className="w-full rounded-xl overflow-hidden shadow-lg"
+        style={gradientStyle}
+      >
+        <div className="p-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="mr-4">
+                <WeatherIcon 
+                  condition={dashboardMessage.weatherData.condition}
+                  className="h-16 w-16" 
+                />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {Math.round(dashboardMessage.weatherData.temp)}°C
+                </h2>
+                <p className="text-white/80 capitalize">
+                  {dashboardMessage.weatherData.description || dashboardMessage.weatherData.condition}
+                </p>
+                <p className="text-sm text-white/60">
+                  {dashboardMessage.weatherData.location || 'Your Location'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col text-right">
+              <div className="flex items-center justify-end gap-2 mb-1">
+                <Droplets className="h-4 w-4 text-blue-200" />
+                <span className="text-sm text-white">{dashboardMessage.weatherData.humidity || '40'}%</span>
+              </div>
+              <div className="flex items-center justify-end gap-2 mb-1">
+                <Wind className="h-4 w-4 text-white/70" />
+                <span className="text-sm text-white">{dashboardMessage.weatherData.wind || '10'} km/h</span>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <Sun className="h-4 w-4 text-amber-300" />
+                <span className="text-sm text-white">UV {dashboardMessage.weatherData.uv || '4'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-2">
+          <div className="grid grid-cols-7 gap-1">
+            {forecast.map((day, index) => (
+              <DayCard key={index} day={day} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WeatherWidget;
