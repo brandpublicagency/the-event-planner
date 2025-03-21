@@ -333,6 +333,44 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          description: string
+          event_code: string | null
+          id: string
+          notification_type: string
+          read: boolean
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_code?: string | null
+          id?: string
+          notification_type: string
+          read?: boolean
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_code?: string | null
+          id?: string
+          notification_type?: string
+          read?: boolean
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_event_code_fkey"
+            columns: ["event_code"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_code"]
+          },
+        ]
+      }
       pdf_processed_content: {
         Row: {
           content: string | null

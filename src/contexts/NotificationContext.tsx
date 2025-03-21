@@ -1,55 +1,162 @@
 
-import React, { createContext, useContext, useEffect } from "react";
-import { NotificationContextType } from "@/types/notification";
-import { useNotificationStore } from "@/store/notificationStore";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Notification, NotificationContextType } from "@/types/notification";
+import { toast } from "sonner";
 
-// Create context
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+// Create the context with a default value
+const NotificationContext = createContext<NotificationContextType>({
+  notifications: [],
+  unreadCount: 0,
+  markAsRead: async () => {},
+  markAsCompleted: async () => {},
+  markAllAsRead: async () => {},
+  clearNotifications: async () => {},
+  refreshNotifications: async () => {},
+});
 
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
-  children 
-}) => {
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAsCompleted,
-    markAllAsRead,
-    clearNotifications,
-    fetchNotifications
-  } = useNotificationStore();
+export const useNotifications = () => useContext(NotificationContext);
 
-  // Set up initial data fetch
+export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Initial fetch of notifications
   useEffect(() => {
-    // Fetch notifications on initial load
-    fetchNotifications().catch(err => {
-      console.error('Error in initial notification fetch:', err);
-    });
-  }, [fetchNotifications]);
+    fetchNotifications();
 
-  // Create context value
-  const contextValue: NotificationContextType = {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAsCompleted,
-    markAllAsRead,
-    clearNotifications,
-    refreshNotifications: fetchNotifications
+    // Set up realtime subscription for new notifications
+    const channel = supabase
+      .channel('public:notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications'
+      }, (payload) => {
+        const newNotification = formatNotification(payload.new);
+        setNotifications(prev => [newNotification, ...prev]);
+        setUnreadCount(count => count + 1);
+        
+        // Show toast notification
+        toast("New notification", {
+          description: newNotification.title
+        });
+      })
+      .subscribe();
+
+    // Cleanup subscription
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Helper to format notification from database to our type
+  const formatNotification = (data: any): Notification => {
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      createdAt: new Date(data.created_at),
+      read: data.read,
+      type: data.notification_type,
+      relatedId: data.event_code,
+      status: data.read ? "read" : "sent"
+    };
+  };
+
+  // Fetch notifications from Supabase
+  const fetchNotifications = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedNotifications = data.map(formatNotification);
+      setNotifications(formattedNotifications);
+      setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mark a notification as read
+  const markAsRead = async (id: string) => {
+    try {
+      // Update locally first (optimistic update)
+      setNotifications(prev => 
+        prev.map(n => n.id === id ? { ...n, read: true, status: "read" } : n)
+      );
+      setUnreadCount(count => Math.max(0, count - 1));
+      
+      // Then update in the database
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      // Refresh on error to get correct state
+      fetchNotifications();
+    }
+  };
+
+  // Mark a notification as completed (we'll just mark it as read for simplicity)
+  const markAsCompleted = async (id: string) => {
+    return markAsRead(id);
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      // Update locally first
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, read: true, status: "read" }))
+      );
+      setUnreadCount(0);
+      
+      // Then update in the database
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('read', false);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      fetchNotifications();
+    }
+  };
+
+  // Clear all notifications (not implemented in database, just visual)
+  const clearNotifications = async () => {
+    // In a real implementation, we would delete notifications from the database
+    // For now, we'll just clear them from state
+    setNotifications([]);
+    setUnreadCount(0);
   };
 
   return (
-    <NotificationContext.Provider value={contextValue}>
+    <NotificationContext.Provider
+      value={{
+        notifications,
+        unreadCount,
+        markAsRead,
+        markAsCompleted,
+        markAllAsRead,
+        clearNotifications,
+        refreshNotifications: fetchNotifications,
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );
-};
-
-// Hook to use the notifications context
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (context === undefined) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
 };

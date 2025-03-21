@@ -1,10 +1,9 @@
 
-import { v4 as uuidv4 } from 'uuid';
-import { Notification } from "@/types/notification";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Trigger the notification processing
+ * Trigger the notification processing (simplified version)
+ * We now create notifications automatically via database triggers
  */
 export const triggerNotificationProcessing = async () => {
   try {
@@ -24,44 +23,19 @@ export const triggerNotificationProcessing = async () => {
     console.log('Notification processing result:', data);
     
     return { 
-      processed: data.results ? data.results.length : 0,
-      created: data.results ? data.results.filter(r => r.status === 'created').length : 0,
+      processed: 0,
+      created: 0,
       method: 'edge-function',
-      message: data.message || 'Successfully processed notifications'
+      message: data.message || 'Notifications are now handled automatically'
     };
   } catch (err) {
     console.error('Error triggering notification processing:', err);
     
-    // Fallback to mock processing if the edge function fails
-    console.log('Falling back to mock notification processing');
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
     return { 
-      processed: Math.floor(Math.random() * 5),
-      created: Math.floor(Math.random() * 3),
-      method: 'mock-fallback',
-      message: 'Successfully processed notifications (mock fallback)'
+      processed: 0,
+      created: 0,
+      method: 'error',
+      message: 'Error processing notifications'
     };
   }
 };
-
-/**
- * Direct approach to create notifications - MOCK implementation
- * This is kept as a fallback method
- */
-async function createDirectNotifications() {
-  try {
-    console.log('Creating direct notifications');
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const count = Math.floor(Math.random() * 3) + 1;
-    console.log(`Created ${count} mock notifications directly`);
-    
-    return count;
-  } catch (err) {
-    console.error('Error creating direct notifications:', err);
-    return 0;
-  }
-}

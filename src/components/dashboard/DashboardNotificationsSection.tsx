@@ -2,8 +2,6 @@
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
 import { useEffect } from "react";
 
 const DashboardNotificationsSection = () => {
@@ -28,7 +26,7 @@ const DashboardNotificationsSection = () => {
     
     // Navigate to related content if available
     if (relatedId) {
-      if (relatedId.includes('event_')) {
+      if (relatedId.startsWith('EVENT-')) {
         navigate(`/events/${relatedId}`);
       } else if (relatedId.includes('task_')) {
         navigate(`/tasks?selected=${relatedId}`);
