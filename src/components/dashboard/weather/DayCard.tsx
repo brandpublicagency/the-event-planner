@@ -15,7 +15,7 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
   const isCurrentlyNight = currentHour >= 19 || currentHour < 6;
   
   return (
-    <div className="day-card-hover flex flex-col items-center p-2 rounded-md transition-all duration-300">
+    <div className="day-card-hover flex flex-col items-center p-2 py-5 rounded-md transition-all duration-300">
       <div className="text-xs font-medium text-white mb-0.5">{day.day}</div>
       
       <WeatherIcon 
