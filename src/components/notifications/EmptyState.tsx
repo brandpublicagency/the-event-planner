@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
@@ -9,9 +9,9 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ refreshWithState }: EmptyStateProps) => {
   return (
-    <div className="bg-white shadow rounded-lg text-center py-12">
-      <Bell className="h-10 w-10 text-zinc-300 mb-3" />
-      <p className="text-muted-foreground mb-4">No notifications found</p>
+    <div className="bg-white shadow rounded-lg text-center py-16 px-6">
+      <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+      <p className="text-muted-foreground mb-6">You don't have any notifications at the moment</p>
       <Button 
         size="sm" 
         variant="outline" 

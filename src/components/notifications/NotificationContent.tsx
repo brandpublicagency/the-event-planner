@@ -5,7 +5,8 @@ import { Notification } from '@/types/notification';
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { EmptyState } from '@/components/notifications/EmptyState';
 import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertCircle, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface NotificationContentProps {
   notifications: Notification[];
