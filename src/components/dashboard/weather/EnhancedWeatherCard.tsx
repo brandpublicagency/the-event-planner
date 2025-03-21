@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MapPin, Droplet, Wind, Thermometer, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -212,7 +211,7 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
     >
       <div 
         className={`text-white p-5 flex flex-col h-full ${fallbackGradientClass}`} 
-        style={gradientStyle}
+        style={{ background: gradientStyle.background }}
       >
         {/* Weather background animations */}
         {getWeatherBackground()}
