@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function NotificationDropdown() {
@@ -26,21 +25,18 @@ export function NotificationDropdown() {
   
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [dropdownInitialized, setDropdownInitialized] = useState(false);
 
-  // Only refresh when dropdown is opened, with debounce
+  // Refresh when dropdown is opened, with debounce
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!dropdownInitialized) {
+      setDropdownInitialized(true);
+      console.log("Initializing notification dropdown");
       refreshNotifications().catch(err => {
         console.error("Error refreshing notifications in dropdown:", err);
-      }).finally(() => {
-        setIsRefreshing(false);
       });
-    }, 100);
-    
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [refreshNotifications]);
+    }
+  }, [refreshNotifications, dropdownInitialized]);
 
   // Handle manual refresh
   const handleRefresh = useCallback(() => {
@@ -50,7 +46,7 @@ export function NotificationDropdown() {
         console.error("Error refreshing notifications:", err);
       })
       .finally(() => {
-        setIsRefreshing(false);
+        setTimeout(() => setIsRefreshing(false), 500);
       });
   }, [refreshNotifications]);
 
@@ -178,6 +174,15 @@ export function NotificationDropdown() {
         ) : (
           <div className="p-4 text-center">
             <p className="text-sm text-zinc-500">No notifications to display</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              className="mt-2"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Refresh
+            </Button>
           </div>
         )}
       </ScrollArea>

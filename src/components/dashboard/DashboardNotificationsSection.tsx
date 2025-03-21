@@ -22,17 +22,17 @@ const DashboardNotificationsSection = () => {
   } = useNotifications();
   
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [initialLoadAttempted, setInitialLoadAttempted] = useState(false);
   
-  // Refresh notifications when component mounts, but only once and with a delay
+  // Refresh notifications when component mounts, but only once
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!initialLoadAttempted) {
+      setInitialLoadAttempted(true);
       refreshNotifications().catch(err => {
-        console.error('Error refreshing notifications:', err);
+        console.error('Error refreshing notifications in dashboard:', err);
       });
-    }, 600); // Delay to let other components load first
-    
-    return () => clearTimeout(timer);
-  }, [refreshNotifications]);
+    }
+  }, [refreshNotifications, initialLoadAttempted]);
   
   // Handle manual refresh
   const handleRefresh = useCallback(() => {
@@ -115,6 +115,7 @@ const DashboardNotificationsSection = () => {
     );
   }
 
+  // If we have notifications, show them
   return (
     <div className="flex flex-col mt-2">
       <div className="h-auto">
@@ -127,7 +128,7 @@ const DashboardNotificationsSection = () => {
         ) : (
           <div className="bg-white shadow rounded-lg p-4 text-center">
             <p className="text-sm text-zinc-500">
-              No notifications to display
+              {loading ? "Loading notifications..." : "No notifications to display"}
             </p>
             <Button
               variant="ghost"

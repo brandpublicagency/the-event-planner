@@ -4,6 +4,7 @@ import { NotificationContext } from "./NotificationContext";
 import { useNotificationOperations } from "./notificationOperations";
 import { useRealtimeNotifications } from "./useRealtimeNotifications";
 import { Notification } from "@/types/notification";
+import { toast } from "sonner";
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
@@ -28,6 +29,20 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   // Set up cleanup function
   useEffect(() => {
     mountedRef.current = true;
+    isMountedRef.current = true;
+    
+    // Fetch notifications immediately when component mounts
+    if (!initialFetchDoneRef.current) {
+      initialFetchDoneRef.current = true;
+      console.log("Initial notifications fetch");
+      fetchNotifications().catch((err) => {
+        console.error("Error in initial notification fetch:", err);
+        if (mountedRef.current) {
+          toast("Could not load notifications");
+        }
+      });
+    }
+    
     return () => {
       mountedRef.current = false;
       isMountedRef.current = false;
@@ -37,35 +52,27 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         window.clearTimeout(initialFetchTimeoutRef.current);
       }
     };
-  }, [isMountedRef]);
+  }, [fetchNotifications]);
 
   // Set up initial fetch with a timeout to prevent blocking the UI
   useEffect(() => {
-    // Set a shorter timeout for the initial fetch
-    initialFetchTimeoutRef.current = window.setTimeout(() => {
-      if (!initialFetchDoneRef.current && mountedRef.current) {
-        initialFetchDoneRef.current = true;
-        fetchNotifications().catch((err) => {
-          console.error("Error in initial notification fetch:", err);
-        });
-      }
-    }, 300); // Small delay to let the UI render first
-    
     // Set a fallback timeout to ensure we show something even if fetch is slow
     const fallbackTimeout = window.setTimeout(() => {
-      if (mountedRef.current && notificationsState.length === 0) {
-        // If no notifications loaded after 5 seconds, initialize with empty array
-        setNotificationsState([]);
+      if (mountedRef.current && notificationsState.length === 0 && loading) {
+        console.log("Fallback timeout triggered for notifications");
+        // Force loading to false after 5 seconds
+        if (isMountedRef.current) {
+          // Set empty notifications if nothing loaded after timeout
+          setNotificationsState([]);
+          setUnreadCountState(0);
+        }
       }
     }, 5000);
     
     return () => {
-      if (initialFetchTimeoutRef.current) {
-        window.clearTimeout(initialFetchTimeoutRef.current);
-      }
       window.clearTimeout(fallbackTimeout);
     };
-  }, [fetchNotifications, notificationsState.length]);
+  }, [loading, notificationsState.length]);
 
   // Update local state when notifications change
   useEffect(() => {

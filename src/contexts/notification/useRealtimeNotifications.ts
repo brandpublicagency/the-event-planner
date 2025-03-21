@@ -13,9 +13,7 @@ export const useRealtimeNotifications = (
   useEffect(() => {
     console.log("Setting up realtime notification subscription");
     
-    let channelSetup = false;
     let channel: any;
-    let cleanupTimeout: number | null = null;
     
     // Set up realtime subscription for new notifications
     try {
@@ -46,36 +44,20 @@ export const useRealtimeNotifications = (
         })
         .subscribe((status) => {
           console.log("Realtime subscription status:", status);
-          channelSetup = status === 'SUBSCRIBED';
         });
     } catch (error) {
       console.error("Error setting up realtime subscription:", error);
     }
 
-    // Cleanup subscription with fallback timeout
+    // Cleanup subscription
     return () => {
       console.log("Cleaning up realtime subscription");
       
-      // Set a fallback timeout to ensure channel is removed even if the normal removal fails
-      cleanupTimeout = window.setTimeout(() => {
-        if (channel) {
-          try {
-            console.log("Fallback channel cleanup activated");
-            supabase.removeChannel(channel);
-          } catch (error) {
-            console.error("Error in fallback channel cleanup:", error);
-          }
-        }
-      }, 1000);
-      
-      // Normal cleanup
       if (channel) {
         try {
           supabase.removeChannel(channel);
-          if (cleanupTimeout) window.clearTimeout(cleanupTimeout);
         } catch (error) {
           console.error("Error removing channel:", error);
-          // Fallback cleanup will handle this
         }
       }
     };
