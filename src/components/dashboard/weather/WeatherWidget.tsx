@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from "lucide-react";
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
@@ -85,7 +86,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
 
   if (isLoading) {
     return (
-      <div className="w-full py-5">
+      <div className="w-full py-6">
         <div className="w-full h-36 rounded-xl bg-blue-500 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
@@ -96,7 +97,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   if (error) {
     console.error("Dashboard message error:", error);
     return (
-      <div className="w-full py-5">
+      <div className="w-full py-6">
         <div className="w-full rounded-xl bg-red-50 border border-red-200 p-4 text-red-800">
           Unable to load weather information. Please try again later.
         </div>
@@ -117,15 +118,15 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   );
 
   return (
-    <div className="w-full py-5">
+    <div className="w-full py-6">
       <div 
         className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`}
-        style={{ background: gradientStyle.background, height: '100px' }}
+        style={{ background: gradientStyle.background, minHeight: '120px' }}
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="relative z-10 flex items-center w-full h-full p-2 py-5">
-          <div className="flex-shrink-0 mr-2">
+        <div className="relative z-10 flex items-center w-full h-full p-4 py-7">
+          <div className="flex-shrink-0 mr-3">
             <CurrentWeather weatherData={weatherData} />
           </div>
           
@@ -136,6 +137,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
       </div>
     </div>
   );
-};
+}
 
 export default WeatherWidget;
