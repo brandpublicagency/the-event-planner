@@ -32,7 +32,6 @@ export const getMenuItemDescription = (itemKey: string): string => {
     
     // Main course types
     'buffet': 'Buffet Menu',
-    'plated': 'Plated Menu',
     'karoo': 'Traditional Karoo Menu',
     
     // Buffet meat options
@@ -106,7 +105,6 @@ export const getMenuItemDescription = (itemKey: string): string => {
     'yellow_rice': 'Yellow rice with raisins',
     
     // Karoo vegetable options
-    'pumpkin_fritters': 'Cinnamon sugar pumpkin fritters',
     'braai_butternut': 'Braai butternut with honey and cinnamon',
     'corn_cobs': 'Grilled corn on the cob',
     'braai_mushrooms': 'Garlic braai mushrooms',
@@ -119,7 +117,6 @@ export const getMenuItemDescription = (itemKey: string): string => {
     'traditional': 'Traditional Dessert',
     'bar': 'Dessert Canapés',
     'cakes': 'Individual Cakes',
-    'canapes': 'Dessert Canapés',
     'individual': 'Individual Cakes',
     
     // Traditional desserts
@@ -166,6 +163,7 @@ export const getMenuItemDescription = (itemKey: string): string => {
     'sangria': 'Non-alcoholic Sangria',
     'smoothies': 'Assorted Fruit Smoothies',
     'minty_mojito': 'Minty Mojito',
+    'infused_water': 'Infused Water'
   };
   
   // Return the description if it exists, otherwise return the key with underscores replaced by spaces
