@@ -128,16 +128,18 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     <div className="w-full">
       <div 
         className={`w-full rounded-xl overflow-hidden shadow-lg relative ${fallbackGradientClass}`}
-        style={{ background: gradientStyle.background, maxHeight: '220px' }}
+        style={{ background: gradientStyle.background, height: '100px' }}
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="relative z-10">
-          <CurrentWeather weatherData={weatherData} />
-        </div>
-        
-        <div className="relative z-10">
-          <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData)} />
+        <div className="relative z-10 flex items-center w-full h-full">
+          <div className="flex-shrink-0">
+            <CurrentWeather weatherData={weatherData} />
+          </div>
+          
+          <div className="flex-grow overflow-x-auto">
+            <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData)} />
+          </div>
         </div>
       </div>
     </div>

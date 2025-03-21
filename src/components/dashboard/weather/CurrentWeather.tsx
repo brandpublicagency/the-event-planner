@@ -30,7 +30,7 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
   };
   
   return (
-    <div className="flex items-center justify-between p-2 space-x-3">
+    <div className="flex flex-col p-2 pr-4 border-r border-white/20">
       <div className="flex items-center space-x-3">
         <WeatherIcon 
           condition={safeData.condition}
