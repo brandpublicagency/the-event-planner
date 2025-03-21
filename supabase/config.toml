@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.event-contract-webhook]
 verify_jwt = false
+
+[functions.process-notifications]
+verify_jwt = false
