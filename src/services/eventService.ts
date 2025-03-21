@@ -1,124 +1,105 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import type { Event, EventCreate } from "@/types/event";
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
-// These values MUST match exactly what's expected in the database trigger
-const ALLOWED_VENUES = [
-  "The Kitchen",
-  "The Gallery",
-  "The Grand Hall",
-  "The Lawn",
-  "The Avenue",
-  "Package 1",
-  "Package 2",
-  "Package 3"
-];
-
-export const updateEvent = async (eventCode: string, updates: Partial<Event>) => {
-  // Validate venues if they are being updated
-  if (updates.venues) {
-    if (Array.isArray(updates.venues)) {
-      const validVenues = updates.venues.filter(venue => ALLOWED_VENUES.includes(venue));
+export const createEvent = async (eventData) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .insert(eventData)
+      .select()
+      .single();
       
-      if (validVenues.length === 0 && updates.venues.length > 0) {
-        throw new Error("Invalid venue values. Allowed values are: " + ALLOWED_VENUES.join(", "));
-      }
-      
-      updates.venues = validVenues;
-    } else if (typeof updates.venues === 'string') {
-      if (!ALLOWED_VENUES.includes(updates.venues)) {
-        throw new Error("Invalid venue value. Allowed values are: " + ALLOWED_VENUES.join(", "));
-      }
-      updates.venues = [updates.venues];
-    }
-  }
-
-  const { data, error } = await supabase
-    .from('events')
-    .update(updates)
-    .eq('event_code', eventCode)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
-export const createEvent = async (eventData: EventCreate) => {
-  console.log('Creating event with data:', eventData);
-  
-  // Remove client_address field if it exists in the data as it's not in the schema
-  const { client_address, ...validEventData } = eventData;
-  
-  const { data, error } = await supabase
-    .from('events')
-    .insert(validEventData)
-    .select()
-    .single();
-
-  if (error) {
+    if (error) throw error;
+    return data;
+  } catch (error) {
     console.error('Error creating event:', error);
     throw error;
   }
-  
-  console.log('Event created successfully:', data);
-  return data;
 };
 
-export const deleteEvent = async (eventCode: string) => {
-  console.log('Deleting event with code:', eventCode);
-  
+export const getEvent = async (eventCode) => {
   try {
-    // First delete related event notifications to avoid foreign key constraint errors
-    const { error: notificationsError } = await supabase
-      .from('event_notifications')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (notificationsError) {
-      console.error('Error deleting event notifications:', notificationsError);
-      throw notificationsError;
-    }
-
-    // Check if there are any related menu selections
-    const { data: menuSelections, error: menuCheckError } = await supabase
-      .from('menu_selections')
-      .select('event_code')
-      .eq('event_code', eventCode);
-    
-    if (menuCheckError) {
-      console.error('Error checking menu selections:', menuCheckError);
-      throw menuCheckError;
-    }
-    
-    // If there are menu selections, delete them first
-    if (menuSelections && menuSelections.length > 0) {
-      const { error: deleteMenuError } = await supabase
-        .from('menu_selections')
-        .delete()
-        .eq('event_code', eventCode);
-      
-      if (deleteMenuError) {
-        console.error('Error deleting menu selections:', deleteMenuError);
-        throw deleteMenuError;
-      }
-    }
-    
-    // Permanently delete the event
-    const { error: deleteEventError } = await supabase
+    const { data, error } = await supabase
       .from('events')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (deleteEventError) {
-      console.error('Error deleting event:', deleteEventError);
-      throw deleteEventError;
-    }
-    
-    console.log('Event deleted successfully:', eventCode);
-    return true;
+      .select(`
+        *,
+        menu_selections (*)
+      `)
+      .eq('event_code', eventCode)
+      .single();
+      
+    if (error) throw error;
+    return data;
   } catch (error) {
-    console.error('Error in deleteEvent function:', error);
+    console.error('Error fetching event:', error);
     throw error;
   }
+};
+
+export const getUpcomingEvents = async (limit = 5) => {
+  try {
+    const today = new Date();
+    const formattedDate = format(today, 'yyyy-MM-dd');
+    
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', formattedDate)
+      .is('deleted_at', null)
+      .order('event_date', { ascending: true })
+      .limit(limit);
+      
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching upcoming events:', error);
+    throw error;
+  }
+};
+
+export const updateEvent = async (eventCode, updateData) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update(updateData)
+      .eq('event_code', eventCode)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error updating event:', error);
+    throw error;
+  }
+};
+
+export const deleteEvent = async (eventCode) => {
+  try {
+    // Soft delete by setting deleted_at
+    const { data, error } = await supabase
+      .from('events')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('event_code', eventCode);
+      
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    throw error;
+  }
+};
+
+export const createEventNotification = async (eventCode, notificationType) => {
+  // This is now a mock function that doesn't actually access the database
+  console.log(`Mock: Creating ${notificationType} notification for event ${eventCode}`);
+  
+  // Return mock data
+  return {
+    id: `mock-notification-${Date.now()}`,
+    event_code: eventCode,
+    notification_type: notificationType,
+    created_at: new Date().toISOString()
+  };
 };

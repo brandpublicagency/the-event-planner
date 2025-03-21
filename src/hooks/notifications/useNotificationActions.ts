@@ -1,19 +1,17 @@
 
 import { Dispatch, SetStateAction, useCallback } from "react";
 import { Notification } from "@/types/notification";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 /**
- * Hook that provides actions for interacting with notifications
- * Combines local state management and database operations
+ * Hook that provides actions for interacting with notifications - MOCK version
  */
 export function useNotificationActions(
   setNotifications?: Dispatch<SetStateAction<Notification[]>>
 ) {
   const { toast } = useToast();
 
-  // Local state operations (from the .ts version)
+  // Local state operations for updating notifications
   const updateLocalState = useCallback((id: string, updates: Partial<Notification>) => {
     if (!setNotifications) return;
     
@@ -26,6 +24,7 @@ export function useNotificationActions(
     );
   }, [setNotifications]);
 
+  // Remove notification from local state
   const removeFromLocalState = useCallback((id: string) => {
     if (!setNotifications) return;
     
@@ -34,20 +33,15 @@ export function useNotificationActions(
     );
   }, [setNotifications]);
 
-  // Database operations (from the .tsx version)
+  // Mark as read - mock implementation
   const markAsRead = useCallback(async (id: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('event_notifications')
-        .update({ is_read: true, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error marking notification as read:', error);
-        return false;
-      }
+      console.log(`Marking notification ${id} as read`);
       
-      // Update local state if available
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Update local state
       updateLocalState(id, { read: true });
       
       return true;
@@ -57,23 +51,15 @@ export function useNotificationActions(
     }
   }, [updateLocalState]);
 
+  // Mark as completed - mock implementation
   const markAsCompleted = useCallback(async (id: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('event_notifications')
-        .update({ 
-          is_completed: true, 
-          is_read: true,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error marking notification as completed:', error);
-        return false;
-      }
-
-      // Remove from local state if available
+      console.log(`Marking notification ${id} as completed`);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Remove from local state
       removeFromLocalState(id);
       
       toast({
@@ -89,27 +75,35 @@ export function useNotificationActions(
     }
   }, [removeFromLocalState, toast]);
 
-  // Additional methods from the .ts version
+  // Mark all as read
   const markAllAsRead = useCallback((): void => {
     if (!setNotifications) return;
     
     setNotifications(prev => 
       prev.map(notification => ({ ...notification, read: true }))
     );
-  }, [setNotifications]);
+    
+    toast({
+      title: 'All notifications marked as read',
+      variant: 'default',
+    });
+  }, [setNotifications, toast]);
   
+  // Clear notifications
   const clearNotifications = useCallback((): void => {
     if (!setNotifications) return;
     
     setNotifications([]);
-  }, [setNotifications]);
+    
+    toast({
+      title: 'All notifications cleared',
+      variant: 'default',
+    });
+  }, [setNotifications, toast]);
 
   return {
-    // Database operations
     markAsRead,
     markAsCompleted,
-    
-    // Local state operations
     markAllAsRead,
     clearNotifications,
     updateLocalState,

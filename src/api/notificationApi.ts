@@ -1,6 +1,7 @@
 
 import { Notification } from "@/types/notification";
 import { v4 as uuidv4 } from 'uuid';
+import { generateMockNotifications } from "./notification/mockNotificationData";
 
 /**
  * Fetch notifications - returns mock data since we're rebuilding the system
@@ -9,38 +10,10 @@ export const fetchNotificationData = async (): Promise<Notification[]> => {
   console.log('Fetching mock notifications data');
   
   // Generate some mock notifications
-  const mockNotifications: Notification[] = [
-    {
-      id: uuidv4(),
-      title: 'Task Created',
-      description: 'New task has been created for you',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-      read: false,
-      type: 'task_created',
-      relatedId: `task_${uuidv4()}`,
-      actionType: 'review'
-    },
-    {
-      id: uuidv4(),
-      title: 'Event Created',
-      description: 'New wedding event has been scheduled',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      read: false,
-      type: 'event_created',
-      relatedId: `event_${uuidv4()}`,
-      actionType: 'review'
-    },
-    {
-      id: uuidv4(),
-      title: 'Document Reminder',
-      description: 'You have documents due soon',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      read: true,
-      type: 'document_reminder',
-      relatedId: `event_${uuidv4()}`,
-      actionType: 'review'
-    }
-  ];
+  const mockNotifications = generateMockNotifications();
+  
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   return mockNotifications;
 };

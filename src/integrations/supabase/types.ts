@@ -202,33 +202,6 @@ export type Database = {
           },
         ]
       }
-      holiday_messages: {
-        Row: {
-          created_at: string
-          holiday_date: string
-          holiday_name: string
-          id: string
-          message_text: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          holiday_date: string
-          holiday_name: string
-          id?: string
-          message_text: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          holiday_date?: string
-          holiday_name?: string
-          id?: string
-          message_text?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       menu_options: {
         Row: {
           category: string
@@ -359,30 +332,6 @@ export type Database = {
             referencedColumns: ["event_code"]
           },
         ]
-      }
-      motivational_messages: {
-        Row: {
-          created_at: string
-          id: string
-          message_text: string
-          message_type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message_text: string
-          message_type: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message_text?: string
-          message_type?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       pdf_processed_content: {
         Row: {
@@ -535,39 +484,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_activities: {
-        Row: {
-          action: string
-          details: Json | null
-          entity_id: string
-          entity_type: string
-          id: string
-          timestamp: string | null
-          user_id: string
-          user_name: string
-        }
-        Insert: {
-          action: string
-          details?: Json | null
-          entity_id: string
-          entity_type: string
-          id?: string
-          timestamp?: string | null
-          user_id: string
-          user_name: string
-        }
-        Update: {
-          action?: string
-          details?: Json | null
-          entity_id?: string
-          entity_type?: string
-          id?: string
-          timestamp?: string | null
-          user_id?: string
-          user_name?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -591,23 +507,6 @@ export type Database = {
         }
         Returns: string
       }
-      get_entity_history: {
-        Args: {
-          p_entity_type: string
-          p_entity_id: string
-          p_limit?: number
-        }
-        Returns: {
-          action: string
-          details: Json | null
-          entity_id: string
-          entity_type: string
-          id: string
-          timestamp: string | null
-          user_id: string
-          user_name: string
-        }[]
-      }
       get_pdf_content: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -616,21 +515,6 @@ export type Database = {
           content: string
           created_at: string
           updated_at: string
-        }[]
-      }
-      get_recent_activities: {
-        Args: {
-          p_limit?: number
-        }
-        Returns: {
-          action: string
-          details: Json | null
-          entity_id: string
-          entity_type: string
-          id: string
-          timestamp: string | null
-          user_id: string
-          user_name: string
         }[]
       }
       lca: {
