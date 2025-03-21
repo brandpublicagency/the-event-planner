@@ -37,13 +37,16 @@ export const NotificationsList = ({
           <NotificationItem
             key={notification.id}
             notification={notification}
-            onViewDetail={onViewDetail}
-            onCompleteTask={onCompleteTask}
+            onView={(notification, e) => onViewDetail(notification.id, notification.relatedId)}
+            onComplete={(notification, e) => onCompleteTask(notification.id)}
           />
         ))}
       </div>
       
-      <NotificationFooter count={notifications.length} />
+      <NotificationFooter 
+        unreadCount={notifications.length}
+        onViewAll={(e) => { /* Handle view all click */ }}
+      />
     </div>
   );
 };

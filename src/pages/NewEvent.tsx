@@ -2,23 +2,53 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { EventBasicInfo } from '@/components/forms/EventBasicInfo';
-import { EventTypeSelect } from '@/components/forms/EventTypeSelect';
-import { ClientDetails } from '@/components/forms/ClientDetails';
-import { BrideDetails } from '@/components/forms/BrideDetails';
-import { GroomDetails } from '@/components/forms/GroomDetails';
-import { PackageSelection } from '@/components/forms/PackageSelection';
+import EventBasicInfo from '@/components/forms/EventBasicInfo';
+import EventTypeSelect from '@/components/forms/EventTypeSelect';
+import ClientDetails from '@/components/forms/ClientDetails';
+import BrideDetails from '@/components/forms/BrideDetails';
+import GroomDetails from '@/components/forms/GroomDetails';
+import PackageSelection from '@/components/forms/PackageSelection';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { EventFormValues, eventFormSchema } from '@/schemas/eventFormSchema';
-import { EventDateSelect } from '@/components/forms/EventDateSelect';
-import { EventFormActions } from '@/components/forms/EventFormActions';
-import { VenueSelect } from '@/components/forms/VenueSelect';
-import { CompanyDetails } from '@/components/forms/CompanyDetails';
+import { eventFormSchema } from '@/schemas/eventFormSchema';
+import EventDateSelect from '@/components/forms/EventDateSelect';
+import EventFormActions from '@/components/forms/EventFormActions';
+import VenueSelect from '@/components/forms/VenueSelect';
+import CompanyDetails from '@/components/forms/CompanyDetails';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
+
+// Define EventFormValues type since it's missing from the schema
+interface EventFormValues {
+  name: string;
+  eventType: string;
+  eventDate?: Date;
+  startTime: string;
+  endTime: string;
+  clientAddress: string;
+  primaryName: string;
+  primaryEmail: string;
+  primaryPhone: string;
+  secondaryName: string;
+  secondaryEmail: string;
+  secondaryPhone: string;
+  pax?: number;
+  package: string;
+  description: string;
+  venues: string[];
+  company: string;
+  vatNumber: string;
+  companyDetails?: {
+    companyName: string;
+    companyVat: string;
+    companyAddress: string;
+    contactPerson: string;
+    contactEmail: string;
+    contactMobile: string;
+  }
+}
 
 const NewEvent = () => {
   const [eventType, setEventType] = useState('Wedding');
@@ -102,27 +132,8 @@ const NewEvent = () => {
         throw new Error(`Error creating event: ${eventError.message}`);
       }
 
-      // If this is a corporate event, add corporate details
-      if (data.eventType === 'Corporate' && data.companyDetails) {
-        const { error: corporateError } = await supabase
-          .from('corporate_details')
-          .insert({
-            event_code: eventCode,
-            company_name: data.companyDetails.companyName || null,
-            company_vat: data.companyDetails.companyVat || null,
-            company_address: data.companyDetails.companyAddress || null,
-            contact_person: data.companyDetails.contactPerson || null,
-            contact_email: data.companyDetails.contactEmail || null,
-            contact_mobile: data.companyDetails.contactMobile || null,
-          });
-
-        if (corporateError) {
-          console.error('Error adding corporate details:', corporateError);
-        }
-      }
-
-      // We'll use mock notification code instead of accessing event_notifications table
-      console.log(`Would create notification for new event ${eventCode}`);
+      // Using mock notification for event creation instead of trying to access the event_notifications table
+      console.log(`Created event ${eventCode} - would trigger notification in a real system`);
       
       setIsSubmissionComplete(true);
       
@@ -155,6 +166,10 @@ const NewEvent = () => {
     return `${prefix}-${uuidv4().substring(0, 8)}-${randomDigits}`;
   };
 
+  const handleCancel = () => {
+    navigate('/events');
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -167,32 +182,32 @@ const NewEvent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left column */}
               <div className="space-y-8">
-                <EventTypeSelect />
-                <EventBasicInfo />
-                <EventDateSelect />
-                <PackageSelection />
-                <VenueSelect />
+                <EventTypeSelect form={methods} />
+                <EventBasicInfo form={methods} />
+                <EventDateSelect form={methods} />
+                <PackageSelection form={methods} />
+                <VenueSelect form={methods} />
               </div>
               
               {/* Right column */}
               <div className="space-y-8">
                 {eventType === 'Corporate' ? (
-                  <CompanyDetails />
+                  <CompanyDetails form={methods} />
                 ) : eventType === 'Wedding' ? (
                   <>
-                    <ClientDetails />
-                    <BrideDetails />
-                    <GroomDetails />
+                    <ClientDetails form={methods} />
+                    <BrideDetails form={methods} />
+                    <GroomDetails form={methods} />
                   </>
                 ) : (
-                  <ClientDetails />
+                  <ClientDetails form={methods} />
                 )}
               </div>
             </div>
             
             <EventFormActions 
               isSubmitting={isSubmitting} 
-              isComplete={isSubmissionComplete}
+              onCancel={handleCancel}
             />
           </form>
         </FormProvider>
