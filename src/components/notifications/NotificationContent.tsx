@@ -27,9 +27,9 @@ export const NotificationContent = ({
 }: NotificationContentProps) => {
   if (loading) {
     return (
-      <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
-        <Spinner className="h-8 w-8 mb-2 text-primary" />
-        <p className="text-muted-foreground">Loading notifications...</p>
+      <div className="bg-white shadow rounded-lg text-center py-4 flex flex-col items-center">
+        <Spinner className="h-4 w-4 mb-2 text-primary" />
+        <p className="text-sm text-muted-foreground">Loading notifications...</p>
       </div>
     );
   }

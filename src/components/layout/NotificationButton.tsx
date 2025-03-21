@@ -12,7 +12,7 @@ import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const NotificationButton = () => {
-  const { unreadCount } = useNotifications();
+  const { unreadCount, loading } = useNotifications();
   const [open, setOpen] = useState(false);
 
   // Handle click on notification button
@@ -33,7 +33,7 @@ export const NotificationButton = () => {
             <span className="relative">
               <Bell className="h-5 w-5" />
               <AnimatePresence>
-                {unreadCount > 0 && (
+                {unreadCount > 0 && !loading && (
                   <motion.div 
                     className="absolute -top-1 -right-1" 
                     initial={{ scale: 0 }}
@@ -47,7 +47,7 @@ export const NotificationButton = () => {
               </AnimatePresence>
             </span>
             <span className="ms-1.5 text-sm font-medium">Notifications</span>
-            {unreadCount > 0 && (
+            {unreadCount > 0 && !loading && (
               <Badge 
                 variant="secondary" 
                 className="ml-1.5 bg-zinc-100 text-zinc-800 border border-zinc-200"

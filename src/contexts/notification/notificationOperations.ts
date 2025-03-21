@@ -21,14 +21,14 @@ export const formatNotification = (data: any): Notification => {
 export const useNotificationOperations = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const isMountedRef = useRef(true);
   const isRefreshingRef = useRef(false);
 
   // Fetch notifications from Supabase
   const fetchNotifications = useCallback(async () => {
-    // Prevent concurrent refresh requests
+    // Prevent concurrent refresh requests and additional fetches while loading
     if (isRefreshingRef.current) {
       return;
     }
@@ -38,6 +38,8 @@ export const useNotificationOperations = () => {
     setError(null);
     
     try {
+      console.log("Fetching notifications...");
+      
       // Graceful handling for development environments where Supabase might not be configured
       let formattedNotifications: Notification[] = [];
       
@@ -49,6 +51,7 @@ export const useNotificationOperations = () => {
 
         if (error) throw error;
         
+        console.log("Notifications fetched:", data?.length || 0);
         formattedNotifications = data.map(formatNotification);
       } catch (dbError) {
         console.warn('Using mock notifications due to database error:', dbError);
@@ -68,10 +71,14 @@ export const useNotificationOperations = () => {
         setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
       }
     } finally {
+      // Important: Always set loading to false regardless of outcome
       if (isMountedRef.current) {
         setLoading(false);
       }
-      isRefreshingRef.current = false;
+      // Small timeout to prevent immediate re-fetching
+      setTimeout(() => {
+        isRefreshingRef.current = false;
+      }, 300);
     }
   }, []);
 

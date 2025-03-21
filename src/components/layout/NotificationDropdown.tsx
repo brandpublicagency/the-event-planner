@@ -19,12 +19,13 @@ export function NotificationDropdown() {
     markAsCompleted,
     markAllAsRead,
     refreshNotifications,
-    loading
+    loading,
+    error
   } = useNotifications();
   
   const navigate = useNavigate();
 
-  // Only refresh when dropdown is opened to prevent unnecessary requests
+  // Only refresh when dropdown is opened
   useEffect(() => {
     refreshNotifications().catch(err => {
       console.error("Error refreshing notifications in dropdown:", err);
@@ -112,9 +113,21 @@ export function NotificationDropdown() {
       
       <ScrollArea className="h-[350px] w-full">
         {loading ? (
-          <div className="p-6 text-center flex flex-col items-center justify-center">
-            <Spinner className="h-5 w-5 mb-2 text-primary" />
-            <p className="text-sm text-zinc-500">Loading notifications...</p>
+          <div className="p-4 text-center flex flex-col items-center justify-center">
+            <Spinner className="h-4 w-4 mb-2 text-primary" />
+            <p className="text-sm text-zinc-500">Loading...</p>
+          </div>
+        ) : error ? (
+          <div className="p-4 text-center">
+            <p className="text-sm text-red-500">Failed to load notifications</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => refreshNotifications()}
+            >
+              Try again
+            </Button>
           </div>
         ) : limitedNotifications.length > 0 ? (
           <NotificationsList
@@ -123,7 +136,7 @@ export function NotificationDropdown() {
             onCompleteTask={handleCompleteTask}
           />
         ) : (
-          <div className="p-8 text-center">
+          <div className="p-4 text-center">
             <p className="text-sm text-zinc-500">No notifications to display</p>
           </div>
         )}
