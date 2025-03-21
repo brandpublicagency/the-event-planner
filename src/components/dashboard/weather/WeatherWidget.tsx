@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2, Droplets, Wind, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -377,8 +376,8 @@ const WeatherWidget = () => {
             </div>
           </div>
           
-          {/* 7-Day Forecast Section */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* 7-Day Forecast Section - Adding right padding */}
+          <div className="flex items-center gap-2 shrink-0 pr-4">
             {forecast.map((day, index) => (
               <DayCard key={index} day={day} />
             ))}
