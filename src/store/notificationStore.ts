@@ -1,7 +1,6 @@
 
 import { create } from 'zustand';
 import { Notification } from '@/types/notification';
-import { supabase } from '@/integrations/supabase/client';
 import { fetchNotificationData } from '@/api/notificationApi';
 import { toast } from 'sonner';
 
@@ -12,16 +11,12 @@ interface NotificationState {
   loading: boolean;
   error: Error | null;
   
-  // Subscription state
-  isSubscribed: boolean;
-  
   // Actions
   fetchNotifications: () => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
   markAsCompleted: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   clearNotifications: () => Promise<void>;
-  setupRealTimeSubscription: () => () => void; // Returns cleanup function
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
@@ -30,7 +25,6 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   unreadCount: 0,
   loading: false,
   error: null,
-  isSubscribed: false,
   
   // Action to fetch notifications
   fetchNotifications: async () => {
@@ -157,74 +151,5 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         description: 'Please try again later'
       });
     }
-  },
-  
-  // Setup real-time subscription
-  setupRealTimeSubscription: () => {
-    console.log('Setting up real-time subscription');
-    
-    // Set up Supabase channel for real-time updates
-    const channel = supabase
-      .channel('event-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'events'
-        },
-        (payload) => {
-          console.log('New event detected:', payload);
-          
-          if (!payload.new) {
-            console.error('Payload missing new event data');
-            return;
-          }
-          
-          // Create a notification for the new event
-          const newEvent = payload.new;
-          const notificationId = `event-created-${newEvent.event_code}-${Date.now()}`;
-          
-          const newNotification = {
-            id: notificationId,
-            title: "New Event Created",
-            description: `New event "${newEvent.name}" has been created`,
-            createdAt: new Date(),
-            type: "event_created",
-            read: false,
-            actionType: "review",
-            relatedId: newEvent.event_code
-          };
-          
-          // Add to state
-          set(state => {
-            // Check if notification already exists to prevent duplicates
-            if (state.notifications.some(n => n.id === notificationId)) {
-              return state;
-            }
-            
-            return {
-              notifications: [...state.notifications, newNotification],
-              unreadCount: state.unreadCount + 1
-            };
-          });
-          
-          // Show toast notification
-          toast("New Event Created", {
-            description: `Event "${newEvent.name}" has been added`,
-          });
-        }
-      )
-      .subscribe(status => {
-        console.log('Supabase subscription status:', status);
-        set({ isSubscribed: status === 'SUBSCRIBED' });
-      });
-      
-    // Return cleanup function
-    return () => {
-      console.log('Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
-      set({ isSubscribed: false });
-    };
   }
 }));

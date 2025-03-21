@@ -16,25 +16,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     markAsCompleted,
     markAllAsRead,
     clearNotifications,
-    fetchNotifications,
-    setupRealTimeSubscription
+    fetchNotifications
   } = useNotificationStore();
 
-  // Set up initial data fetch and real-time subscription
+  // Set up initial data fetch
   useEffect(() => {
     // Fetch notifications on initial load
     fetchNotifications().catch(err => {
       console.error('Error in initial notification fetch:', err);
     });
-    
-    // Set up real-time subscription
-    const cleanup = setupRealTimeSubscription();
-    
-    // Clean up on unmount
-    return () => {
-      cleanup();
-    };
-  }, [fetchNotifications, setupRealTimeSubscription]);
+  }, [fetchNotifications]);
 
   // Create context value
   const contextValue: NotificationContextType = {
