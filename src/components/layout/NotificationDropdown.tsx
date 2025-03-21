@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -18,8 +18,19 @@ export function NotificationDropdown() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Handler for viewing a notification
-  const handleViewNotification = async (id: string, relatedId?: string) => {
+  // Memoize filtered notifications to prevent unnecessary calculations
+  const filteredNotifications = useMemo(() => {
+    if (activeTab === 'unread') {
+      return notifications.filter(n => !n.read);
+    } 
+    if (activeTab === 'tasks') {
+      return notifications.filter(n => n.type.includes('task'));
+    }
+    return notifications.slice(0, 15); // Limit to 15 notifications to improve performance
+  }, [notifications, activeTab]);
+
+  // Use useCallback for event handlers to prevent unnecessary rerenders
+  const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
     try {
       // Mark as read
       await markAsRead(id);
@@ -42,10 +53,9 @@ export function NotificationDropdown() {
       console.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
     }
-  };
+  }, [markAsRead, navigate]);
 
-  // Handler for completing a task
-  const handleCompleteTask = async (id: string) => {
+  const handleCompleteTask = useCallback(async (id: string) => {
     try {
       await markAsCompleted(id);
       toast.success(`Task marked as complete!`);
@@ -53,13 +63,15 @@ export function NotificationDropdown() {
       console.error("Error marking task as complete:", error);
       toast.error("Failed to mark task as complete");
     }
-  };
+  }, [markAsCompleted]);
 
-  const handleViewAll = () => {
+  const handleViewAll = useCallback(() => {
     navigate('/notifications');
-  };
+  }, [navigate]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    
     setIsRefreshing(true);
     try {
       await refreshNotifications();
@@ -70,18 +82,7 @@ export function NotificationDropdown() {
     } finally {
       setIsRefreshing(false);
     }
-  };
-
-  // Filter notifications based on active tab
-  const filteredNotifications = React.useMemo(() => {
-    if (activeTab === 'unread') {
-      return notifications.filter(n => !n.read);
-    } 
-    if (activeTab === 'tasks') {
-      return notifications.filter(n => n.type.includes('task'));
-    }
-    return notifications;
-  }, [notifications, activeTab]);
+  }, [refreshNotifications, isRefreshing]);
 
   return (
     <div className="w-full min-w-[320px]">
@@ -121,35 +122,53 @@ export function NotificationDropdown() {
         </TabsList>
         
         <TabsContent value="all" className="mt-0">
-          <ScrollArea className="h-[400px] w-full">
-            <NotificationsList
-              notifications={filteredNotifications}
-              onViewDetail={handleViewNotification}
-              onCompleteTask={handleCompleteTask}
-              listType="default"
-            />
+          <ScrollArea className="h-[350px] w-full">
+            {filteredNotifications.length > 0 ? (
+              <NotificationsList
+                notifications={filteredNotifications}
+                onViewDetail={handleViewNotification}
+                onCompleteTask={handleCompleteTask}
+                listType="default"
+              />
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-sm text-zinc-500">No notifications to display</p>
+              </div>
+            )}
           </ScrollArea>
         </TabsContent>
         
         <TabsContent value="unread" className="mt-0">
-          <ScrollArea className="h-[400px] w-full">
-            <NotificationsList
-              notifications={filteredNotifications}
-              onViewDetail={handleViewNotification}
-              onCompleteTask={handleCompleteTask}
-              listType="unread"
-            />
+          <ScrollArea className="h-[350px] w-full">
+            {filteredNotifications.length > 0 ? (
+              <NotificationsList
+                notifications={filteredNotifications}
+                onViewDetail={handleViewNotification}
+                onCompleteTask={handleCompleteTask}
+                listType="unread"
+              />
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-sm text-zinc-500">No unread notifications</p>
+              </div>
+            )}
           </ScrollArea>
         </TabsContent>
         
         <TabsContent value="tasks" className="mt-0">
-          <ScrollArea className="h-[400px] w-full">
-            <NotificationsList
-              notifications={filteredNotifications}
-              onViewDetail={handleViewNotification}
-              onCompleteTask={handleCompleteTask}
-              listType="tasks"
-            />
+          <ScrollArea className="h-[350px] w-full">
+            {filteredNotifications.length > 0 ? (
+              <NotificationsList
+                notifications={filteredNotifications}
+                onViewDetail={handleViewNotification}
+                onCompleteTask={handleCompleteTask}
+                listType="tasks"
+              />
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-sm text-zinc-500">No task notifications</p>
+              </div>
+            )}
           </ScrollArea>
         </TabsContent>
       </Tabs>

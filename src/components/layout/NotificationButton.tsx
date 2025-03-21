@@ -15,15 +15,19 @@ export const NotificationButton = () => {
   const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
 
+  // Prevent entire dropdown state management on hover
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(!open);
+  };
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div 
           className="relative inline-flex items-center cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            setOpen(!open);
-          }}
+          onClick={handleTriggerClick}
         >
           <span className="relative inline-flex items-center px-3 py-1.5 rounded-md hover:bg-zinc-100 transition-colors">
             <span className="relative">
@@ -55,7 +59,7 @@ export const NotificationButton = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96 p-0" sideOffset={4}>
-        <NotificationDropdown />
+        {open && <NotificationDropdown />}
       </DropdownMenuContent>
     </DropdownMenu>
   );

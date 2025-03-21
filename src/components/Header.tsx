@@ -1,4 +1,5 @@
 
+import React, { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,8 +14,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Settings, LogOut } from "lucide-react";
+import { NotificationButton } from "./layout/NotificationButton";
 
-export default function Header() {
+// Memoize the Header component to prevent unnecessary re-renders
+const Header = memo(() => {
   const navigate = useNavigate();
 
   const { data: profile } = useQuery({
@@ -51,6 +54,8 @@ export default function Header() {
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="flex items-center gap-2">
+            {/* Add key to NotificationButton to force remount if needed */}
+            <NotificationButton key="notification-button" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -90,4 +95,9 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});
+
+// Add display name for React DevTools
+Header.displayName = 'Header';
+
+export default Header;
