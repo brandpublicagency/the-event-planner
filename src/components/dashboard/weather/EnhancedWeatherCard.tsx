@@ -3,7 +3,7 @@ import React from 'react';
 import { MapPin, Droplet, Wind, Thermometer, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { getWeatherGradientStyles } from './weatherGradientStyles';
-import { WeatherIcon } from './WeatherIcon';
+import WeatherIcon from './WeatherIcon';
 import { WeatherStatCard } from './WeatherStatCard';
 import { motion } from 'framer-motion';
 
@@ -237,11 +237,8 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
             style={{ boxShadow: '0 0 15px rgba(255,255,255,0.2)' }}
           >
             <WeatherIcon 
-              weatherData={weatherData} 
-              currentHour={currentHour} 
-              chanceOfRain={chanceOfRain} 
-              weatherType={weatherType}
-              className="text-white"
+              condition={weatherType || weatherData?.condition}
+              className="h-8 w-8 text-white"
             />
           </motion.div>
         </div>
