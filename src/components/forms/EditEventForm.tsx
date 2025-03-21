@@ -5,6 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import FormSection from "./FormSection";
 import EventBasicInfo from "./EventBasicInfo";
 import ContactDetails from "./ContactDetails";
+import { VenueSelect } from "./VenueSelect";
 
 interface EditEventFormProps {
   form: UseFormReturn<any>;
@@ -23,6 +24,13 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
           description="Update the basic information about the event."
         >
           <EventBasicInfo form={form} />
+        </FormSection>
+        
+        <FormSection
+          title="Venue Selection"
+          description="Select one or more venues for your event."
+        >
+          <VenueSelect form={form} />
         </FormSection>
 
         <FormSection 

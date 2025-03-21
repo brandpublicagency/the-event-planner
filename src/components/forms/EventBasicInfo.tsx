@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { EventDateSelect } from "./EventDateSelect";
-import { VenueSelect } from "./VenueSelect";
 
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];
