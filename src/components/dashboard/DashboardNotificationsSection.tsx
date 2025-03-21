@@ -58,8 +58,8 @@ const DashboardNotificationsSection = () => {
     <div className="flex flex-col mt-2">
       <div className="h-auto">
         {loading ? (
-          <div className="flex justify-center items-center p-8">
-            <Spinner className="h-8 w-8 text-primary" />
+          <div className="flex justify-center items-center p-4">
+            <Spinner className="h-6 w-6 text-primary" />
           </div>
         ) : (
           <NotificationsList 

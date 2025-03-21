@@ -42,8 +42,10 @@ export function NotificationDropdown() {
       
       // Navigate based on the notification type
       if (relatedId) {
-        if (relatedId.startsWith('event_')) {
+        if (relatedId.startsWith('EVENT-')) {
           navigate(`/events/${relatedId}`);
+        } else if (relatedId.startsWith('task_')) {
+          navigate(`/tasks?selected=${relatedId}`);
         } else {
           navigate(`/${relatedId}`);
         }
@@ -110,8 +112,8 @@ export function NotificationDropdown() {
       
       <ScrollArea className="h-[350px] w-full">
         {loading ? (
-          <div className="p-8 text-center flex flex-col items-center justify-center">
-            <Spinner className="h-6 w-6 mb-2 text-primary" />
+          <div className="p-6 text-center flex flex-col items-center justify-center">
+            <Spinner className="h-5 w-5 mb-2 text-primary" />
             <p className="text-sm text-zinc-500">Loading notifications...</p>
           </div>
         ) : limitedNotifications.length > 0 ? (
