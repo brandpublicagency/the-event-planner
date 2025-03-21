@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/Header';
-import { useNotificationsPage } from '@/hooks/notifications/useNotificationsPage';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -30,75 +30,81 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => (
 const Notifications = () => {
   const {
     notifications,
-    loading,
-    error,
-    hasAttemptedFetch,
-    handleViewEvent,
-    handleCompleteTask,
-    handleRefresh
-  } = useNotificationsPage();
+    markAsRead,
+    markAsCompleted,
+    refreshNotifications
+  } = useNotifications();
   
   const { toast } = useToast();
-  const initialLoadComplete = useRef(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const refreshTimeoutRef = useRef<number | null>(null);
-  const isInitialRender = useRef(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [error, setError] = useState<Error | null>(null);
 
-  // Clear timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (refreshTimeoutRef.current !== null) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Controlled refresh function with debounce
-  const refreshWithState = async () => {
-    if (isRefreshing) return;
-    
-    setIsRefreshing(true);
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    setLoading(true);
     try {
-      await handleRefresh();
+      await refreshNotifications();
       toast({
         title: 'Success',
         description: 'Notifications refreshed successfully',
-        variant: 'default',
       });
     } catch (error) {
       console.error('Error refreshing notifications:', error);
+      setError(error instanceof Error ? error : new Error('Failed to refresh notifications'));
       toast({
         title: 'Error',
         description: 'Failed to refresh notifications',
         variant: 'destructive',
       });
     } finally {
-      // Delay setting isRefreshing to false to prevent rapid clicks
-      refreshTimeoutRef.current = window.setTimeout(() => {
-        setIsRefreshing(false);
-      }, 500);
+      setLoading(false);
     }
   };
 
-  // Only do initial refresh if we've never loaded before and component is mounted
-  useEffect(() => {
-    // Skip initial refresh on first render to avoid race condition with navigation
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    
-    if (!initialLoadComplete.current && !loading && !isRefreshing) {
-      console.log('Notifications page mounted - performing initial refresh after delay');
+  // Handle viewing a notification detail
+  const handleViewDetail = async (id: string, relatedId?: string) => {
+    try {
+      await markAsRead(id);
       
-      // Add a small delay to avoid conflicting with other operations
-      refreshTimeoutRef.current = window.setTimeout(() => {
-        initialLoadComplete.current = true;
-        refreshWithState();
-      }, 300);
+      // Navigate based on notification type
+      if (relatedId) {
+        if (relatedId.startsWith('event_')) {
+          window.location.href = `/events/${relatedId}`;
+        } else {
+          window.location.href = `/${relatedId}`;
+        }
+      }
+      
+      toast({
+        title: "Notification marked as read",
+      });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive",
+      });
     }
-  }, [loading]);
+  };
+
+  // Handle completing a task
+  const handleCompleteTask = async (id: string) => {
+    try {
+      await markAsCompleted(id);
+      toast({
+        title: "Task marked as complete",
+      });
+    } catch (error) {
+      console.error("Error marking task as complete:", error);
+      toast({
+        title: "Error",
+        description: "Failed to mark task as complete",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Filter notifications based on active tab
   const filteredNotifications = React.useMemo(() => {
@@ -126,18 +132,18 @@ const Notifications = () => {
               Notifications
             </h1>
             <Button
-              onClick={refreshWithState}
-              disabled={isRefreshing}
+              onClick={handleRefresh}
+              disabled={loading}
               size="sm"
               variant="outline"
               className="gap-1.5"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
           
-          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={refreshWithState}>
+          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={handleRefresh}>
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
@@ -173,72 +179,30 @@ const Notifications = () => {
               </TabsList>
               
               <div className="mt-4">
-                {(loading || isRefreshing) && (
+                {loading && (
                   <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
                     <Spinner className="h-8 w-8 mb-2 text-primary" />
                     <p className="text-muted-foreground">Loading notifications...</p>
                   </div>
                 )}
                 
-                {!loading && !isRefreshing && (
+                {!loading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <TabsContent value="all">
+                    <TabsContent value={activeTab}>
                       {filteredNotifications.length > 0 ? (
                         <NotificationsList 
                           notifications={filteredNotifications}
                           error={error}
-                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
-                          listType="unified"
+                          onViewDetail={handleViewDetail}
+                          onCompleteTask={handleCompleteTask}
+                          listType={activeTab}
                         />
                       ) : (
-                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
-                      )}
-                    </TabsContent>
-                    
-                    <TabsContent value="unread">
-                      {filteredNotifications.length > 0 ? (
-                        <NotificationsList 
-                          notifications={filteredNotifications}
-                          error={error}
-                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
-                          listType="unread"
-                        />
-                      ) : (
-                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
-                      )}
-                    </TabsContent>
-                    
-                    <TabsContent value="tasks">
-                      {filteredNotifications.length > 0 ? (
-                        <NotificationsList 
-                          notifications={filteredNotifications}
-                          error={error}
-                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
-                          listType="tasks"
-                        />
-                      ) : (
-                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
-                      )}
-                    </TabsContent>
-                    
-                    <TabsContent value="events">
-                      {filteredNotifications.length > 0 ? (
-                        <NotificationsList 
-                          notifications={filteredNotifications}
-                          error={error}
-                          onViewDetail={(id, relatedId) => handleViewEvent('unified', id, relatedId)}
-                          onCompleteTask={(id) => handleCompleteTask('unified', id)}
-                          listType="events"
-                        />
-                      ) : (
-                        <EmptyState refreshWithState={refreshWithState} activeTab={activeTab} />
+                        <EmptyState refreshWithState={handleRefresh} activeTab={activeTab} />
                       )}
                     </TabsContent>
                   </motion.div>

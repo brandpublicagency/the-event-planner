@@ -3,8 +3,6 @@ import React from 'react';
 import { Notification } from '@/types/notification';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { EmptyNotifications } from '@/components/notifications/EmptyNotifications';
-import { NotificationHeader } from '@/components/notifications/NotificationHeader';
-import { NotificationFooter } from '@/components/notifications/NotificationFooter';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface NotificationsListProps {
@@ -28,10 +26,20 @@ export const NotificationsList = ({
 
   return (
     <div className="bg-white shadow rounded-lg overflow-hidden">
-      <NotificationHeader 
-        count={notifications.length} 
-        listType={listType}
-      />
+      <div className="p-3 border-b">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm font-medium text-zinc-900">
+              {listType === 'events' ? 'Event Notifications' : 
+               listType === 'tasks' ? 'Task Notifications' :
+               listType === 'unread' ? 'Unread Notifications' : 'All Notifications'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}
+            </p>
+          </div>
+        </div>
+      </div>
       
       <div className="divide-y divide-gray-50 p-2">
         <AnimatePresence initial={false}>
@@ -53,10 +61,13 @@ export const NotificationsList = ({
         </AnimatePresence>
       </div>
       
-      <NotificationFooter 
-        unreadCount={notifications.filter(n => !n.read).length}
-        onViewAll={() => window.location.href = '/notifications'}
-      />
+      <div className="p-3 border-t bg-gray-50">
+        <p className="text-xs text-center text-muted-foreground">
+          {notifications.filter(n => !n.read).length > 0 
+            ? `You have ${notifications.filter(n => !n.read).length} unread notifications` 
+            : 'All caught up!'}
+        </p>
+      </div>
     </div>
   );
 };
