@@ -1,12 +1,44 @@
-
 import React from 'react';
+import { Moon, CloudMoon } from 'lucide-react';
 
 interface WeatherIconProps {
   condition?: string;
   className?: string;
+  isNight?: boolean;
 }
 
-const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, className = "" }) => {
+const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, className = "", isNight = false }) => {
+  if (isNight) {
+    switch(condition?.toLowerCase()) {
+      case 'sunny':
+      case 'clear':
+      case 'clear skies':
+        return (
+          <div className={className}>
+            <Moon className="w-full h-full text-slate-200" strokeWidth={1.5} />
+          </div>
+        );
+      case 'partly-cloudy':
+      case 'partly cloudy':
+      case 'mostly sunny':
+      case 'cloudy':
+      case 'clouds':
+      case 'overcast':
+      case 'mostly cloudy':
+        return (
+          <div className={className}>
+            <CloudMoon className="w-full h-full text-slate-200" strokeWidth={1.5} />
+          </div>
+        );
+      default:
+        return (
+          <div className={className}>
+            <Moon className="w-full h-full text-slate-200" strokeWidth={1.5} />
+          </div>
+        );
+    }
+  }
+
   switch(condition?.toLowerCase()) {
     case 'sunny':
     case 'clear':

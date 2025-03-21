@@ -29,12 +29,17 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
     wind_speed: 10,
   };
   
+  // Determine if it's night time (between 7PM and 6AM)
+  const currentHour = new Date().getHours();
+  const isNight = currentHour >= 19 || currentHour < 6;
+  
   return (
     <div className="flex flex-col p-3 pr-4 border-r border-white/20">
       <div className="flex items-center space-x-3">
         <WeatherIcon 
           condition={safeData.condition}
-          className="h-8 w-8" 
+          className="h-8 w-8"
+          isNight={isNight}
         />
         <div className="flex items-center space-x-2">
           <h2 className="text-lg font-bold text-white">

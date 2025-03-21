@@ -8,13 +8,19 @@ interface DayCardProps {
 }
 
 const DayCard: React.FC<DayCardProps> = ({ day }) => {
+  // For forecast days, we'll determine if we should show night icons
+  // based on whether we're displaying evening/night hours
+  const currentHour = new Date().getHours();
+  const isCurrentlyNight = currentHour >= 19 || currentHour < 6;
+  
   return (
     <div className="day-card-hover flex flex-col items-center p-2 rounded-md transition-all duration-300">
       <div className="text-xs font-medium text-white mb-0.5">{day.day}</div>
       
       <WeatherIcon 
         condition={day.condition} 
-        className="h-6 w-6 my-0.5" 
+        className="h-6 w-6 my-0.5"
+        isNight={day.day === 'Today' && isCurrentlyNight} 
       />
       
       <div className="flex items-center space-x-1 text-2xs">
