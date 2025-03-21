@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -25,8 +26,6 @@ interface EventBasicInfoProps {
 const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
   return (
     <div className="space-y-6">
-      <EventTypeSelect form={form} />
-
       <div className="grid gap-6">
         <FormField
           control={form.control}
@@ -69,11 +68,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1">
-            <EventDateSelect form={form} />
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="col-span-1">
             <FormField
               control={form.control}
@@ -127,8 +122,6 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
           </div>
         </div>
       </div>
-
-      <VenueSelect form={form} />
     </div>
   );
 };

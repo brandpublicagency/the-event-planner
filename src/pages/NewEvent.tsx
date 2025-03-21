@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import EventBasicInfo from '@/components/forms/EventBasicInfo';
-import EventTypeSelect from '@/components/forms/EventTypeSelect';
+import { EventTypeSelect } from '@/components/forms/EventTypeSelect';
 import ClientDetails from '@/components/forms/ClientDetails';
 import BrideDetails from '@/components/forms/BrideDetails';
 import GroomDetails from '@/components/forms/GroomDetails';
@@ -11,43 +10,47 @@ import PackageSelection from '@/components/forms/PackageSelection';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { eventFormSchema } from '@/schemas/eventFormSchema';
-import EventDateSelect from '@/components/forms/EventDateSelect';
+import { EventDateSelect } from '@/components/forms/EventDateSelect';
 import EventFormActions from '@/components/forms/EventFormActions';
-import VenueSelect from '@/components/forms/VenueSelect';
+import { VenueSelect } from '@/components/forms/VenueSelect';
 import CompanyDetails from '@/components/forms/CompanyDetails';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
+import { EventFormData } from '@/types/eventForm';
+import EventBasicInfo from '@/components/forms/EventBasicInfo';
 
-// Define EventFormValues type since it's missing from the schema
+// Define EventFormValues type to match the schema and EventFormData
 interface EventFormValues {
   name: string;
-  eventType: string;
-  eventDate?: Date;
-  startTime: string;
-  endTime: string;
-  clientAddress: string;
-  primaryName: string;
-  primaryEmail: string;
-  primaryPhone: string;
-  secondaryName: string;
-  secondaryEmail: string;
-  secondaryPhone: string;
+  event_type: EventFormData['event_type'];
+  event_date?: string;
+  start_time: string;
+  end_time: string;
+  client_address: string;
+  venues: string[];
   pax?: number;
   package: string;
   description: string;
-  venues: string[];
   company: string;
-  vatNumber: string;
-  companyDetails?: {
-    companyName: string;
-    companyVat: string;
-    companyAddress: string;
-    contactPerson: string;
-    contactEmail: string;
-    contactMobile: string;
-  }
+  vat_number: string;
+  
+  // Wedding-specific fields
+  bride_name?: string;
+  bride_email?: string;
+  bride_mobile?: string;
+  groom_name?: string;
+  groom_email?: string;
+  groom_mobile?: string;
+  
+  // Corporate-specific fields
+  company_name?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_mobile?: string;
+  company_vat?: string;
+  company_address?: string;
 }
 
 const NewEvent = () => {
@@ -61,35 +64,34 @@ const NewEvent = () => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       name: '',
-      eventType: 'Wedding',
-      eventDate: undefined,
-      startTime: '',
-      endTime: '',
-      clientAddress: '',
-      primaryName: '',
-      primaryEmail: '',
-      primaryPhone: '',
-      secondaryName: '',
-      secondaryEmail: '',
-      secondaryPhone: '',
-      pax: undefined,
+      event_type: 'Wedding',
+      event_date: undefined,
+      start_time: '',
+      end_time: '',
+      client_address: '',
+      venues: [],
       package: '',
       description: '',
-      venues: [],
       company: '',
-      vatNumber: '',
-      companyDetails: {
-        companyName: '',
-        companyVat: '',
-        companyAddress: '',
-        contactPerson: '',
-        contactEmail: '',
-        contactMobile: '',
-      }
+      vat_number: '',
+      // Wedding-specific fields
+      bride_name: '',
+      bride_email: '',
+      bride_mobile: '',
+      groom_name: '',
+      groom_email: '',
+      groom_mobile: '',
+      // Corporate-specific fields
+      company_name: '',
+      contact_person: '',
+      contact_email: '',
+      contact_mobile: '',
+      company_vat: '',
+      company_address: '',
     }
   });
 
-  const watchEventType = methods.watch('eventType');
+  const watchEventType = methods.watch('event_type');
 
   useEffect(() => {
     if (watchEventType) {
@@ -101,7 +103,7 @@ const NewEvent = () => {
     try {
       setIsSubmitting(true);
       
-      const eventCode = generateEventCode(data.eventType || 'Event');
+      const eventCode = generateEventCode(data.event_type || 'Event');
       
       // First, create the event
       const { error: eventError } = await supabase
@@ -109,23 +111,23 @@ const NewEvent = () => {
         .insert({
           event_code: eventCode,
           name: data.name,
-          event_type: data.eventType,
-          event_date: data.eventDate ? format(data.eventDate, 'yyyy-MM-dd') : null,
-          start_time: data.startTime || null,
-          end_time: data.endTime || null,
+          event_type: data.event_type,
+          event_date: data.event_date || null,
+          start_time: data.start_time || null,
+          end_time: data.end_time || null,
           description: data.description || null,
-          client_address: data.clientAddress || null,
-          primary_name: data.primaryName || null,
-          primary_email: data.primaryEmail || null,
-          primary_phone: data.primaryPhone || null,
-          secondary_name: data.secondaryName || null,
-          secondary_email: data.secondaryEmail || null,
-          secondary_phone: data.secondaryPhone || null,
+          client_address: data.client_address || null,
+          primary_name: data.bride_name || data.contact_person || null,
+          primary_email: data.bride_email || data.contact_email || null,
+          primary_phone: data.bride_mobile || data.contact_mobile || null,
+          secondary_name: data.groom_name || null,
+          secondary_email: data.groom_email || null,
+          secondary_phone: data.groom_mobile || null,
           pax: data.pax || null,
           package_id: data.package || null,
           venues: data.venues && data.venues.length > 0 ? data.venues : null,
-          company: data.company || null,
-          vat_number: data.vatNumber || null,
+          company: data.company || data.company_name || null,
+          vat_number: data.vat_number || data.company_vat || null,
         });
 
       if (eventError) {
