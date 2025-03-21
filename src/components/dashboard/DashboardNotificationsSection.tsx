@@ -48,7 +48,7 @@ const DashboardNotificationsSection = () => {
         backgroundPosition: 'center',
         marginBottom: '15px'
       }}>
-        <div className="absolute inset-0 bg-white/75 rounded-xl"></div>
+        {/* Deleted the white overlay background div that was here */}
         
         <div className="flex items-center gap-2 relative z-10">
           <Bell className="h-5 w-5 text-zinc-700" />
