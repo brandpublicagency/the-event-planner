@@ -4,7 +4,7 @@ import { Loader2, Droplets, Wind, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { getWeatherGradientStyles } from "./weatherGradientStyles";
 
 // Static weather icons
@@ -178,7 +178,7 @@ const DayCard = ({ day }) => {
   );
 };
 
-// Generate forecast data based on the current weather
+// Generate forecast data starting from tomorrow, not today
 const generateForecastFromWeatherData = (weatherData) => {
   if (!weatherData) return [];
   
@@ -187,31 +187,52 @@ const generateForecastFromWeatherData = (weatherData) => {
   const baseCondition = weatherData.condition || 'Clouds';
   const baseDescription = weatherData.description || 'partly cloudy';
   
-  // Create an array of forecast days
+  // Create an array of forecast days starting from tomorrow
   return Array.from({ length: 7 }).map((_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() + index);
+    // Start from tomorrow (index + 1)
+    const date = addDays(new Date(), index + 1);
     
     // Add some randomness to make forecast look natural
     const tempVariation = Math.floor(Math.random() * 8) - 4; // -4 to +4 degrees
     const high = Math.max(10, Math.min(40, baseTemp + tempVariation));
     const low = high - (5 + Math.floor(Math.random() * 10)); // 5-15 degrees lower than high
     
-    // Randomly vary rain chance and other conditions
-    const rainChance = index === 0 
-      ? (baseDescription.includes('rain') ? 70 : Math.floor(Math.random() * 20))
-      : Math.floor(Math.random() * 100);
+    // Randomly vary rain chance and other conditions based on the current weather pattern
+    let rainChance;
+    if (index === 0) {
+      // First day (tomorrow) should be more closely tied to current conditions
+      rainChance = baseDescription.includes('rain') 
+        ? 60 + Math.floor(Math.random() * 30) // 60-90% chance if currently raining
+        : baseDescription.includes('cloud') 
+          ? 30 + Math.floor(Math.random() * 30) // 30-60% if cloudy
+          : Math.floor(Math.random() * 30); // 0-30% if clear
+    } else {
+      // Subsequent days gradually vary more
+      const prevDayInfluence = Math.max(0, 7 - index) / 7; // Decreases with distance
+      const baseRainChance = baseDescription.includes('rain') ? 70 : 30;
+      rainChance = Math.floor(baseRainChance * prevDayInfluence + Math.random() * (100 - baseRainChance * prevDayInfluence));
+    }
     
-    // Determine condition based on rain chance
+    // Determine condition based on rain chance and season patterns
     let condition = baseCondition.toLowerCase();
     if (rainChance > 70) condition = 'rain';
     else if (rainChance > 50) condition = 'cloudy';
     else if (rainChance > 30) condition = 'partly-cloudy';
     else condition = 'sunny';
     
-    // Random humidity, UV index, and wind speed
-    const humidity = 30 + Math.floor(Math.random() * 50);
-    const uv = Math.floor(Math.random() * 10) + 1;
+    // Random humidity, UV index, and wind speed that make meteorological sense
+    const humidity = condition === 'rain' 
+      ? 70 + Math.floor(Math.random() * 25) // 70-95% when raining
+      : condition === 'sunny' 
+        ? 20 + Math.floor(Math.random() * 40) // 20-60% when sunny
+        : 40 + Math.floor(Math.random() * 40); // 40-80% for other conditions
+    
+    const uv = condition === 'sunny' 
+      ? 6 + Math.floor(Math.random() * 5) // 6-10 when sunny
+      : condition === 'partly-cloudy' 
+        ? 3 + Math.floor(Math.random() * 4) // 3-6 when partly cloudy
+        : 1 + Math.floor(Math.random() * 3); // 1-3 otherwise
+    
     const wind = 5 + Math.floor(Math.random() * 30);
     
     return {
