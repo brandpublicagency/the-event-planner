@@ -15,7 +15,7 @@ export const NotificationButton = () => {
   const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
 
-  // Prevent entire dropdown state management on hover
+  // Handle click on notification button
   const handleTriggerClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -59,6 +59,7 @@ export const NotificationButton = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96 p-0" sideOffset={4}>
+        {/* Only render dropdown content when open to prevent unnecessary renders */}
         {open && <NotificationDropdown />}
       </DropdownMenuContent>
     </DropdownMenu>

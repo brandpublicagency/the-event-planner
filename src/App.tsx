@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { AppRoutes } from './routes/AppRoutes';
 import { TaskProvider } from './contexts/TaskContext';
 import { NotificationProvider } from './contexts/NotificationContext';
-import { ScheduledNotificationProvider } from './contexts/ScheduledNotificationContext';
 import { ToastProvider } from '@/components/ui/toast/toast-context';
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -45,10 +44,8 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TaskProvider>
               <NotificationProvider>
-                <ScheduledNotificationProvider>
-                  <AppRoutes />
-                  <Toaster />
-                </ScheduledNotificationProvider>
+                <AppRoutes />
+                <Toaster />
               </NotificationProvider>
             </TaskProvider>
           </QueryClientProvider>
