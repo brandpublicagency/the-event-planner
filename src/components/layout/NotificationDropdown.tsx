@@ -1,9 +1,9 @@
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { ExternalLink, Check } from 'lucide-react';
+import { ExternalLink, Check, RefreshCw } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NotificationDropdown() {
   const { 
@@ -24,12 +25,33 @@ export function NotificationDropdown() {
   } = useNotifications();
   
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Only refresh when dropdown is opened
+  // Only refresh when dropdown is opened, with debounce
   useEffect(() => {
-    refreshNotifications().catch(err => {
-      console.error("Error refreshing notifications in dropdown:", err);
-    });
+    const timer = setTimeout(() => {
+      refreshNotifications().catch(err => {
+        console.error("Error refreshing notifications in dropdown:", err);
+      }).finally(() => {
+        setIsRefreshing(false);
+      });
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [refreshNotifications]);
+
+  // Handle manual refresh
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    refreshNotifications()
+      .catch(err => {
+        console.error("Error refreshing notifications:", err);
+      })
+      .finally(() => {
+        setIsRefreshing(false);
+      });
   }, [refreshNotifications]);
 
   // Use a limited number of notifications to prevent performance issues
@@ -103,30 +125,48 @@ export function NotificationDropdown() {
             variant="ghost"
             size="sm"
             className="h-8 px-2 text-xs"
-            disabled={!notifications.some(n => !n.read) || loading}
+            disabled={!notifications.some(n => !n.read) || loading || isRefreshing}
           >
             <Check className="h-3.5 w-3.5 mr-1" />
             Mark all read
+          </Button>
+          <Button
+            onClick={handleRefresh}
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            disabled={loading || isRefreshing}
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="sr-only">Refresh</span>
           </Button>
         </div>
       </div>
       
       <ScrollArea className="h-[350px] w-full">
-        {loading ? (
-          <div className="p-4 text-center flex flex-col items-center justify-center">
-            <Spinner className="h-4 w-4 mb-2 text-primary" />
-            <p className="text-sm text-zinc-500">Loading...</p>
+        {(loading && notifications.length === 0) || isRefreshing ? (
+          <div className="p-3 space-y-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="flex items-start gap-3 p-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-full" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="p-4 text-center">
-            <p className="text-sm text-red-500">Failed to load notifications</p>
+            <p className="text-sm text-red-500 mb-2">Failed to load notifications</p>
             <Button 
               variant="outline" 
-              size="sm" 
-              className="mt-2"
-              onClick={() => refreshNotifications()}
+              size="sm"
+              onClick={handleRefresh}
+              className="inline-flex items-center gap-1"
             >
-              Try again
+              <RefreshCw className="h-3 w-3" />
+              <span>Try again</span>
             </Button>
           </div>
         ) : limitedNotifications.length > 0 ? (

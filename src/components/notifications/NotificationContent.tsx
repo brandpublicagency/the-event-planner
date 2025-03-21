@@ -25,7 +25,8 @@ export const NotificationContent = ({
   onCompleteTask,
   onRefresh
 }: NotificationContentProps) => {
-  if (loading) {
+  // If loading for first time (no notifications yet), show loading state
+  if (loading && notifications.length === 0) {
     return (
       <div className="bg-white shadow rounded-lg text-center py-4 flex flex-col items-center">
         <Spinner className="h-4 w-4 mb-2 text-primary" />
@@ -41,6 +42,14 @@ export const NotificationContent = ({
         <AlertTitle>Notification System Error</AlertTitle>
         <AlertDescription>
           {error.message}
+          <div className="mt-2">
+            <button 
+              onClick={onRefresh}
+              className="text-sm underline hover:no-underline"
+            >
+              Try again
+            </button>
+          </div>
         </AlertDescription>
       </Alert>
     );
@@ -62,6 +71,13 @@ export const NotificationContent = ({
         />
       ) : (
         <EmptyState refreshWithState={onRefresh} />
+      )}
+      
+      {/* Show a subtle loading indicator when refreshing with existing content */}
+      {loading && notifications.length > 0 && (
+        <div className="flex justify-center mt-2">
+          <Spinner className="h-3 w-3 text-muted-foreground" />
+        </div>
       )}
     </motion.div>
   );

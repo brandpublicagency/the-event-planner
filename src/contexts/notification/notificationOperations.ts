@@ -25,11 +25,14 @@ export const useNotificationOperations = () => {
   const [error, setError] = useState<Error | null>(null);
   const isMountedRef = useRef(true);
   const isRefreshingRef = useRef(false);
+  const fetchAttemptsRef = useRef(0);
+  const maxFetchAttempts = 3;
 
   // Fetch notifications from Supabase
   const fetchNotifications = useCallback(async () => {
     // Prevent concurrent refresh requests and additional fetches while loading
     if (isRefreshingRef.current) {
+      console.log("Already refreshing notifications, skipping");
       return;
     }
 
@@ -39,6 +42,7 @@ export const useNotificationOperations = () => {
     
     try {
       console.log("Fetching notifications...");
+      fetchAttemptsRef.current += 1;
       
       // Graceful handling for development environments where Supabase might not be configured
       let formattedNotifications: Notification[] = [];
@@ -52,7 +56,7 @@ export const useNotificationOperations = () => {
         if (error) throw error;
         
         console.log("Notifications fetched:", data?.length || 0);
-        formattedNotifications = data.map(formatNotification);
+        formattedNotifications = data ? data.map(formatNotification) : [];
       } catch (dbError) {
         console.warn('Using mock notifications due to database error:', dbError);
         // Fallback to mock notifications in development environment
@@ -64,11 +68,19 @@ export const useNotificationOperations = () => {
         setNotifications(formattedNotifications);
         setUnreadCount(formattedNotifications.filter(n => !n.read).length);
         setError(null);
+        fetchAttemptsRef.current = 0; // Reset counter on success
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
       if (isMountedRef.current) {
         setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
+        
+        // If we've reached max attempts, default to empty array to prevent infinite loading
+        if (fetchAttemptsRef.current >= maxFetchAttempts) {
+          console.warn('Max fetch attempts reached, defaulting to empty array');
+          setNotifications([]);
+          setUnreadCount(0);
+        }
       }
     } finally {
       // Important: Always set loading to false regardless of outcome

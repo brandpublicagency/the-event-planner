@@ -9,6 +9,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
   const [unreadCountState, setUnreadCountState] = useState<number>(0);
   const initialFetchDoneRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const {
     notifications,
@@ -25,27 +26,35 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Set up cleanup function
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       isMountedRef.current = false;
     };
   }, [isMountedRef]);
 
-  // Set up initial fetch
+  // Set up initial fetch with a timeout to prevent blocking the UI
   useEffect(() => {
-    const fetchData = async () => {
-      if (!initialFetchDoneRef.current) {
+    const timer = setTimeout(() => {
+      if (!initialFetchDoneRef.current && mountedRef.current) {
         initialFetchDoneRef.current = true;
-        await fetchNotifications();
+        fetchNotifications().catch((err) => {
+          console.error("Error in initial notification fetch:", err);
+        });
       }
-    };
+    }, 500); // Small delay to let the UI render first
     
-    fetchData();
+    return () => {
+      clearTimeout(timer);
+    };
   }, [fetchNotifications]);
 
   // Update local state when notifications change
   useEffect(() => {
-    setNotificationsState(notifications);
-    setUnreadCountState(unreadCount);
+    if (mountedRef.current) {
+      setNotificationsState(notifications);
+      setUnreadCountState(unreadCount);
+    }
   }, [notifications, unreadCount]);
 
   // Set up realtime notifications
