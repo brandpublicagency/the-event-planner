@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Loader2, Droplets, Wind, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -306,33 +307,34 @@ const WeatherWidget = () => {
   
   if (!weatherData) {
     return (
-      <div className="w-full p-4 text-center text-gray-500">
-        No weather data available.
+      <div className="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-center text-gray-500">
+        Real-time weather data is not available at the moment.
       </div>
     );
   }
 
+  // Only create today object if we have real weather data
   const today = {
     location: {
       city: "Warm Karoo",
       region: "Bloemfontein"
     },
     date: new Date(),
-    high: weatherData.temp || 25,
-    low: Math.max(weatherData.temp - 10, 5),
+    high: weatherData.temp || 0,
+    low: Math.max(weatherData.temp - 10, 0),
     rainChance: weatherData.description?.includes('rain') ? 80 : 20,
-    condition: weatherData.condition || 'Clouds',
-    humidity: weatherData.humidity || 45,
+    condition: weatherData.condition || '',
+    humidity: weatherData.humidity || 0,
     wind: {
-      speed: weatherData.wind_speed || 18,
+      speed: weatherData.wind_speed || 0,
       direction: "NE",
       gusts: 25
     },
     uv: 8,
     sunrise: "06:15",
     sunset: "19:45",
-    feelsLike: weatherData.feels_like || weatherData.temp + 2,
-    currentTemp: weatherData.temp || 25
+    feelsLike: weatherData.feels_like || 0,
+    currentTemp: weatherData.temp || 0
   };
 
   const getUvInfo = (uv) => {
@@ -348,6 +350,15 @@ const WeatherWidget = () => {
     currentHour, 
     weatherData.description || weatherData.condition
   );
+
+  // Only show weather widget if we have actual weather data with non-zero values
+  if (today.currentTemp === 0 && today.humidity === 0 && today.wind.speed === 0) {
+    return (
+      <div className="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-center text-gray-500">
+        Real-time weather data is not available at the moment.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

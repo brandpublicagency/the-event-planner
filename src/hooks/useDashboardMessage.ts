@@ -37,15 +37,10 @@ export const useDashboardMessage = () => {
         // Get time of day for fallback
         const timeOfDay = getTimeOfDay();
         
-        // Create a fallback message with weather pattern
+        // Create a fallback message without weather data
         const fallbackMessage: DashboardMessage = {
           message: `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
-          type: 'default',
-          weatherData: {
-            temp: 28,
-            description: 'partly cloudy',
-            condition: 'Clouds'
-          }
+          type: 'default'
         };
         
         // Use the fallback message instead of throwing an error
@@ -61,12 +56,7 @@ export const useDashboardMessage = () => {
   return { 
     dashboardMessage: dashboardMessage || {
       message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
-      type: 'default',
-      weatherData: {
-        temp: 28,
-        description: 'partly cloudy',
-        condition: 'Clouds'
-      }
+      type: 'default'
     }, 
     isLoading, 
     error 

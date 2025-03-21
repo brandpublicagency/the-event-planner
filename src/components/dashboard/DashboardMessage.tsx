@@ -40,10 +40,6 @@ const DashboardMessage = () => {
 
   // Get current weather conditions for the inline display
   const weatherData = dashboardMessage?.weatherData;
-  const currentTemp = weatherData?.temp || 25;
-  const weatherCondition = weatherData?.condition || 'Clouds';
-  const weatherDescription = weatherData?.description || 'partly cloudy';
-  const location = "Warm Karoo, Bloemfontein";
   const shortDate = format(now, "EEE, MMM d");
 
   let borderColorClass = "";
@@ -132,14 +128,14 @@ const DashboardMessage = () => {
             {!error && weatherData && (
               <div className="mt-4 sm:mt-0 sm:ml-6 flex items-center gap-3 p-3 bg-white/10 dark:bg-gray-800/20 rounded-lg shrink-0">
                 <div className="flex flex-col items-end mr-2">
-                  <div className="text-xs font-medium text-gray-600 dark:text-gray-300">{location}</div>
+                  <div className="text-xs font-medium text-gray-600 dark:text-gray-300">Warm Karoo</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">{shortDate}</div>
                 </div>
                 <div className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {currentTemp}°C
+                  {weatherData.temp}°C
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                  <div className="capitalize">{weatherDescription}</div>
+                  <div className="capitalize">{weatherData.description}</div>
                   <div className="flex items-center space-x-2 mt-1">
                     <Droplets className="h-3 w-3" />
                     <span>{weatherData.humidity || 45}%</span>
