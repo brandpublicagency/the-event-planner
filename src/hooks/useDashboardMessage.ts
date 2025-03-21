@@ -34,12 +34,9 @@ export const useDashboardMessage = () => {
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
-        // Get time of day for fallback
-        const timeOfDay = getTimeOfDay();
-        
         // Create a fallback message without weather data
         const fallbackMessage: DashboardMessage = {
-          message: `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
+          message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
           type: 'default'
         };
         
@@ -47,10 +44,10 @@ export const useDashboardMessage = () => {
         return fallbackMessage;
       }
     },
-    // Cache for 5 minutes since weather data is now cached server-side for 30 minutes
-    staleTime: 5 * 60 * 1000,
-    refetchInterval: 5 * 60 * 1000,
-    retry: 1, // Retry once before using fallback
+    // Retry more often and refetch more frequently to ensure we get data
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 3 * 60 * 1000, // 3 minutes
+    retry: 2, // Retry twice before using fallback
   });
 
   return { 

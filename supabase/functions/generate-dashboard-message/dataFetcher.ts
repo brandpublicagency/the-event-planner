@@ -102,11 +102,11 @@ export const fetchUpcomingEvents = async () => {
 
 /**
  * Fetches current weather forecast using OpenWeather API
- * Now with 30-minute caching to reduce API calls
+ * With improved error handling and timeout management
  */
 export const fetchWeatherForecast = async () => {
   try {
-    console.log("Checking if weather forecast needs to be updated");
+    console.log("Fetching weather forecast...");
     
     const supabaseClient = createSupabaseClient();
     
@@ -132,13 +132,11 @@ export const fetchWeatherForecast = async () => {
     // Otherwise, fetch fresh data from the API
     console.log("Cached weather data not found or expired, fetching from API");
     
-    // Get API key with error handling
+    // Get API key with improved error handling
     const apiKey = Deno.env.get("OPENWEATHER_API_KEY");
     if (!apiKey) {
       console.error("OpenWeather API key not found in environment variables");
-      // Return mock weather data for testing when API key is missing
-      console.log("Using mock weather data since API key is missing");
-      return getMockWeatherData();
+      return null; // Return null instead of mock data
     }
     
     // Default location for weather (can be improved to use company's address)
@@ -147,9 +145,9 @@ export const fetchWeatherForecast = async () => {
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
     
-    // Add timeout to prevent hanging
+    // Add timeout to prevent hanging with more reliable abort handling
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout
     
     try {
       // Use current weather API for real-time weather
@@ -161,9 +159,8 @@ export const fetchWeatherForecast = async () => {
       clearTimeout(timeoutId);
       
       if (!response.ok) {
-        console.error(`Weather API returned status: ${response.status}`);
-        // Return mock data on error
-        return getMockWeatherData();
+        console.error(`Weather API returned status: ${response.status} - ${response.statusText}`);
+        return null; // Return null instead of mock data
       }
       
       const data = await response.json();
@@ -206,13 +203,11 @@ export const fetchWeatherForecast = async () => {
       } else {
         console.error("Error during weather API request:", error);
       }
-      // Return mock data on error
-      return getMockWeatherData();
+      return null; // Return null instead of mock data
     }
   } catch (error) {
     console.error("Error in fetchWeatherForecast:", error);
-    // Return mock data on error
-    return getMockWeatherData();
+    return null; // Return null instead of mock data
   }
 };
 
@@ -272,22 +267,5 @@ function processWeatherData(data) {
     description: friendlyDescription,
     icon: data.weather[0].icon,
     timestamp: new Date().toISOString() // Add timestamp to track freshness
-  };
-}
-
-/**
- * Returns mock weather data for testing or when API calls fail
- */
-function getMockWeatherData() {
-  return {
-    date: format(new Date(new Date().setDate(new Date().getDate() + 1)), "yyyy-MM-dd"),
-    temp: 28,
-    feels_like: 30,
-    humidity: 65,
-    wind_speed: 12,
-    condition: "Clouds",
-    description: "partly cloudy",
-    icon: "03d",
-    timestamp: new Date().toISOString()
   };
 }
