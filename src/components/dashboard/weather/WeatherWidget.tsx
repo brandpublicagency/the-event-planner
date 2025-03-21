@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from "lucide-react";
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
@@ -8,7 +7,6 @@ import CurrentWeather from './CurrentWeather';
 import ForecastGrid from './ForecastGrid';
 import WeatherBackground from './WeatherBackground';
 
-// Custom style hook to handle hover effects
 const useHoverStyles = () => {
   useEffect(() => {
     const style = document.createElement('style');
@@ -37,10 +35,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
   const [forecast, setForecast] = useState([]);
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   
-  // Apply hover styles
   useHoverStyles();
   
-  // Update time of day based on current hour
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -62,7 +58,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     return () => clearInterval(interval);
   }, []);
   
-  // Generate forecast data when weather data changes
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
       console.log("Weather data received in widget:", dashboardMessage.weatherData);
@@ -73,7 +68,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     }
   }, [dashboardMessage?.weatherData]);
 
-  // Create fallback weather data if none is available
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 25,
@@ -86,7 +80,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
     timestamp: new Date().toISOString()
   };
 
-  // Determine if we should show weather (either real data or forced visibility)
   const showWeather = dashboardMessage?.weatherData || forcedVisible;
   const weatherData = dashboardMessage?.weatherData || (forcedVisible ? mockWeatherData : null);
 
@@ -118,7 +111,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
 
   console.log("Rendering weather widget with data:", weatherData);
 
-  // Get the gradient styles
   const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
     timeOfDay,
     weatherData?.condition?.toLowerCase() || 'clear'
@@ -132,7 +124,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="relative z-10 flex items-center w-full h-full p-2">
+        <div className="relative z-10 flex items-center w-full h-full p-2 py-5">
           <div className="flex-shrink-0 mr-2">
             <CurrentWeather weatherData={weatherData} />
           </div>
