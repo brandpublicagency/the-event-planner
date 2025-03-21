@@ -1,57 +1,51 @@
 
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { NotificationContextType } from "@/types/notification";
-import { useNotificationContextState } from "@/hooks/notifications/useNotificationContextState";
-import { useNotificationBatchActions } from "@/hooks/notifications/useNotificationBatchActions";
+import { useNotificationStore } from "@/store/notificationStore";
 
-// Create context with default values
+// Create context
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   children 
 }) => {
-  // Use our extracted state hook
-  const state = useNotificationContextState();
-  
-  // Use our batch actions hook
   const {
-    markAllAsRead,
-    clearNotifications
-  } = useNotificationBatchActions(
-    state.pendingNotifications,
-    state.markAsRead,
-    state.markAsCompleted,
-    state.toast
-  );
-
-  // Clean up resources on unmount
-  React.useEffect(() => {
-    return () => {
-      state.isMounted.current = false;
-      if (state.refreshIntervalRef.current) {
-        clearInterval(state.refreshIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Memoize context value to prevent unnecessary rerenders
-  const contextValue = useMemo(() => ({
-    notifications: state.pendingNotifications, 
-    unreadCount: state.unreadCount,
-    markAsRead: state.markAsRead, 
-    markAsCompleted: state.markAsCompleted,
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAsCompleted,
     markAllAsRead,
     clearNotifications,
-    refreshNotifications: state.refreshNotifications
-  }), [
-    state.pendingNotifications, 
-    state.unreadCount,
-    state.markAsRead,
-    state.markAsCompleted,
-    state.refreshNotifications,
+    fetchNotifications,
+    setupRealTimeSubscription
+  } = useNotificationStore();
+
+  // Set up initial data fetch and real-time subscription
+  useEffect(() => {
+    // Fetch notifications on initial load
+    fetchNotifications().catch(err => {
+      console.error('Error in initial notification fetch:', err);
+    });
+    
+    // Set up real-time subscription
+    const cleanup = setupRealTimeSubscription();
+    
+    // Clean up on unmount
+    return () => {
+      cleanup();
+    };
+  }, [fetchNotifications, setupRealTimeSubscription]);
+
+  // Create context value
+  const contextValue: NotificationContextType = {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAsCompleted,
     markAllAsRead,
-    clearNotifications
-  ]);
+    clearNotifications,
+    refreshNotifications: fetchNotifications
+  };
 
   return (
     <NotificationContext.Provider value={contextValue}>

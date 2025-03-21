@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationsList } from '@/components/notifications/NotificationList';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
+import { EmptyNotifications } from '@/components/notifications/EmptyNotifications';
+import { useNotificationStore } from '@/store/notificationStore';
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
@@ -35,14 +37,12 @@ const Notifications = () => {
     refreshNotifications
   } = useNotifications();
   
+  const { loading, error } = useNotificationStore();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-  const [error, setError] = useState<Error | null>(null);
 
   // Handle refresh button click
   const handleRefresh = async () => {
-    setLoading(true);
     try {
       await refreshNotifications();
       toast({
@@ -51,14 +51,11 @@ const Notifications = () => {
       });
     } catch (error) {
       console.error('Error refreshing notifications:', error);
-      setError(error instanceof Error ? error : new Error('Failed to refresh notifications'));
       toast({
         title: 'Error',
         description: 'Failed to refresh notifications',
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 

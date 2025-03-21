@@ -1,23 +1,30 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { ExternalLink, RefreshCw } from 'lucide-react';
+import { ExternalLink, RefreshCw, Check } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
+import { useNotificationStore } from '@/store/notificationStore';
 
 export function NotificationDropdown() {
-  const { notifications, markAsRead, markAsCompleted } = useNotifications();
+  const { 
+    notifications, 
+    markAsRead, 
+    markAsCompleted,
+    markAllAsRead 
+  } = useNotifications();
+  
+  const { loading } = useNotificationStore();
   const navigate = useNavigate();
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Use a limited number of notifications to prevent performance issues
-  const limitedNotifications = notifications.slice(0, 15);
+  const limitedNotifications = notifications.slice(0, 10);
 
   // Handle viewing a notification
   const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
@@ -57,6 +64,17 @@ export function NotificationDropdown() {
     navigate('/notifications');
   }, [navigate]);
 
+  // Handle marking all as read
+  const handleMarkAllAsRead = useCallback(async () => {
+    try {
+      await markAllAsRead();
+      toast("All notifications marked as read");
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+      toast("Failed to mark all as read");
+    }
+  }, [markAllAsRead]);
+
   return (
     <div className="w-full min-w-[320px]">
       <div className="flex items-center justify-between p-3 border-b">
@@ -68,10 +86,26 @@ export function NotificationDropdown() {
               : 'All caught up!'}
           </p>
         </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleMarkAllAsRead}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-xs"
+            disabled={!notifications.some(n => !n.read)}
+          >
+            <Check className="h-3.5 w-3.5 mr-1" />
+            Mark all read
+          </Button>
+        </div>
       </div>
       
       <ScrollArea className="h-[350px] w-full">
-        {limitedNotifications.length > 0 ? (
+        {loading ? (
+          <div className="p-8 text-center">
+            <p className="text-sm text-zinc-500">Loading notifications...</p>
+          </div>
+        ) : limitedNotifications.length > 0 ? (
           <NotificationsList
             notifications={limitedNotifications}
             onViewDetail={handleViewNotification}
