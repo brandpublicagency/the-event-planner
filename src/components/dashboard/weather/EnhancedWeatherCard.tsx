@@ -39,7 +39,12 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
   
   const currentHour = timeOverride !== undefined ? timeOverride : new Date().getHours();
   
-  const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(currentHour, weatherType);
+  // Convert currentHour to string before passing to getWeatherGradientStyles
+  const timeOfDay = typeof currentHour === 'number' ? 
+    (currentHour >= 5 && currentHour < 12 ? 'morning' : 
+     currentHour >= 12 && currentHour < 18 ? 'day' : 'night') : 'day';
+  
+  const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(timeOfDay, weatherType);
 
   return (
     <motion.div 

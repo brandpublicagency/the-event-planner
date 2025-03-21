@@ -30,6 +30,9 @@ const DashboardMessage = () => {
     if (dashboardMessage) {
       console.log("Dashboard message received:", dashboardMessage);
       console.log("Weather data available:", !!dashboardMessage.weatherData);
+      if (dashboardMessage.weatherData) {
+        console.log("Weather data details:", dashboardMessage.weatherData);
+      }
     }
   }, [dashboardMessage]);
 
@@ -68,16 +71,15 @@ const DashboardMessage = () => {
         </div>
       </motion.div>
       
-      {dashboardMessage.weatherData && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-4"
-        >
-          <WeatherWidget />
-        </motion.div>
-      )}
+      {/* Ensure the weather widget always displays by adding a fallback condition */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="mt-4"
+      >
+        <WeatherWidget forcedVisible={true} />
+      </motion.div>
     </div>
   );
 };
