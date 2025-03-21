@@ -79,7 +79,8 @@ const WeatherWidget = () => {
     return null;
   }
 
-  const gradientStyle = getWeatherGradientStyles(
+  // Get the gradient styles
+  const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(
     timeOfDay,
     dashboardMessage.weatherData.condition?.toLowerCase()
   );
@@ -87,8 +88,8 @@ const WeatherWidget = () => {
   return (
     <div className="w-full">
       <div 
-        className="w-full rounded-xl overflow-hidden shadow-lg"
-        style={gradientStyle}
+        className={`w-full rounded-xl overflow-hidden shadow-lg ${fallbackGradientClass}`}
+        style={{ background: gradientStyle.background }}
       >
         <div className="p-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">

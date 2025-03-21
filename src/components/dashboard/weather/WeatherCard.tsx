@@ -59,11 +59,7 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
     >
       <div 
         className={`text-white p-5 flex flex-col h-full ${fallbackGradientClass.replace(/\/40/g, '/70')}`} 
-        style={{
-          ...gradientStyle,
-          backgroundImage: gradientStyle.background ? 
-            (gradientStyle.background as string).replace(/rgb\((\d+), (\d+), (\d+), (0\.\d+)\)/g, 'rgb($1, $2, $3, 0.8)') : undefined
-        }}
+        style={{ background: gradientStyle.background }}
       >
         <div className="mb-4 flex justify-between items-start">
           <div>
