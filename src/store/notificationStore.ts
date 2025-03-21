@@ -76,7 +76,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       await get().fetchNotifications();
       
       toast('Failed to mark notification as read', {
-        variant: 'destructive',
+        description: 'Please try again later'
       });
     }
   },
@@ -103,7 +103,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       await get().fetchNotifications();
       
       toast('Failed to complete notification', {
-        variant: 'destructive',
+        description: 'Please try again later'
       });
     }
   },
@@ -130,7 +130,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       await get().fetchNotifications();
       
       toast('Failed to mark all notifications as read', {
-        variant: 'destructive',
+        description: 'Please try again later'
       });
     }
   },
@@ -154,7 +154,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       await get().fetchNotifications();
       
       toast('Failed to clear notifications', {
-        variant: 'destructive',
+        description: 'Please try again later'
       });
     }
   },
