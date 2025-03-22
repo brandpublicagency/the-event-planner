@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Trash, Copy, Pencil, Loader2, MapPin, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -62,16 +63,16 @@ export const EventCard = ({
   const getEventTypeColor = () => {
     switch (event.event_type?.toLowerCase()) {
       case 'wedding':
-        return 'bg-pink-50 text-pink-700 border-pink-200';
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
       case 'corporate':
         return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'celebration':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-violet-50 text-violet-700 border-violet-200';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
-  const eventCardContent = <div className="bg-white p-5 transition-all duration-200 hover:bg-zinc-50/70 py-[10px]">
+  const eventCardContent = <div className="bg-white p-5 transition-all duration-200 hover:bg-indigo-50/20 py-[10px]">
       <div className="flex items-start justify-between">
         <div className="space-y-3 flex-1">
           <div className="flex items-start justify-between">
@@ -89,7 +90,7 @@ export const EventCard = ({
             </div>
             
             {!isDashboard && <div className="flex items-center">
-                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-zinc-100 transition-colors flex items-center gap-1">
+                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors flex items-center gap-1">
                   {event.event_code}
                   <Copy className="h-3 w-3" />
                 </button>

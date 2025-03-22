@@ -37,8 +37,8 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 
   return (
     <div className="rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm">
-      <div className="flex items-center gap-2 p-4 border-b bg-zinc-50/80">
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50">
+      <div className="flex items-center gap-2 p-4 border-b bg-indigo-50/50">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100">
           <Calendar className="h-4 w-4 text-indigo-600" />
         </div>
         <h3 className="font-medium text-zinc-800">{monthYear}</h3>

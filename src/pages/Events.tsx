@@ -157,7 +157,7 @@ export default function Events() {
                 <Button
                   variant="default"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 shadow-sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 shadow-sm text-white"
                   onClick={() => navigate('/events/new')}
                 >
                   <PlusCircle className="h-4 w-4 mr-2" />
