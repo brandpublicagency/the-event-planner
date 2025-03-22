@@ -20,7 +20,7 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}</p>
       )}
       
-      {menuState.dessertType === 'canapes' && menuState.dessertCanapes?.length > 0 && (
+      {menuState.dessertType === 'canapes' && menuState.dessertCanapes && menuState.dessertCanapes.length > 0 && (
         <div>
           {menuState.dessertCanapes.map((item, idx) => (
             <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
@@ -28,12 +28,12 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         </div>
       )}
       
-      {menuState.dessertType === 'cakes' && menuState.individualCakes?.length > 0 && (
+      {menuState.dessertType === 'individual_cakes' && menuState.individualCakes && menuState.individualCakes.length > 0 && (
         <div>
           {menuState.individualCakes.map((item, idx) => {
             const quantity = menuState.individual_cake_quantities?.[item] || 0;
             return (
-              <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))} x {quantity}</p>
+              <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))} {quantity > 0 ? `x ${quantity}` : ''}</p>
             );
           })}
         </div>
