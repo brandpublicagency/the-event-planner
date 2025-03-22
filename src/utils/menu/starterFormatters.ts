@@ -14,7 +14,8 @@ export const formatStarterSection = (menuState: MenuState): string => {
   if (menuState.selectedStarterType === 'starter_canapes') {
     // Don't show "Canapés - 3" but just the full canapé descriptions directly
     menuState.selectedCanapes.forEach(canape => {
-      if (canape) section += `• ${cleanItemDescription(getMenuItemDescription(canape))}\n`;
+      // Remove bullet points
+      if (canape) section += `${cleanItemDescription(getMenuItemDescription(canape))}\n`;
     });
   } else if (menuState.selectedStarterType === 'harvest') {
     section += `${getMenuItemDescription('harvest')}\n`;

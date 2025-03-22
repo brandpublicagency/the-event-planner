@@ -28,6 +28,7 @@
     font-size: 12px !important;
     line-height: 1.5 !important;
     color: black !important;
+    text-align: left !important;
   }
 
   /* Hide specific elements even inside print container */
@@ -82,12 +83,19 @@
     margin-bottom: 8px !important;
   }
 
-  /* Menu items */
+  /* Menu items - REMOVE BULLETS AND ADJUST LEFT ALIGNMENT */
   .menu-item {
     font-size: 12px !important;
     margin-bottom: 6px !important;
     text-align: left !important;
-    padding-left: 5mm !important;
+    padding-left: 0 !important; /* Remove left padding/indentation */
+    list-style-type: none !important;
+  }
+
+  /* Override any bullet points */
+  .menu-item::before {
+    content: none !important;
+    display: none !important;
   }
 
   /* Category labels (e.g., "Table Salad:") */
@@ -97,9 +105,9 @@
     margin-bottom: 4px !important;
     text-align: left !important;
   }
-
-  /* Ensure bullet points display properly */
-  .menu-item::before {
-    display: inline !important;
+  
+  /* Ensure all paragraph elements are left aligned */
+  p, div, span, h1, h2, h3, h4, h5, h6 {
+    text-align: left !important;
   }
 }

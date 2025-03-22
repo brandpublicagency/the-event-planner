@@ -34,27 +34,31 @@ const formatBuffetMainCourse = (menuState: MenuState): string => {
   if (menuState.buffetMeatSelections.length > 0) {
     result += "Meat Selections:\n";
     menuState.buffetMeatSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      result += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetVegetableSelections.length > 0) {
     result += "Vegetable Selections:\n";
     menuState.buffetVegetableSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      result += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetStarchSelections.length > 0) {
     result += "Starch Selections:\n";
     menuState.buffetStarchSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      result += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.buffetSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}\n`;
+    // Remove bullet point
+    result += `${cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}\n`;
   }
   
   return result;
@@ -68,26 +72,30 @@ const formatKarooMainCourse = (menuState: MenuState): string => {
   
   if (menuState.karooMeatSelection) {
     result += "Meat Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.karooMeatSelection))}\n`;
+    // Remove bullet point
+    result += `${cleanItemDescription(getMenuItemDescription(menuState.karooMeatSelection))}\n`;
   }
   
   if (menuState.karooStarchSelection.length > 0) {
     result += "Starch Selections:\n";
     menuState.karooStarchSelection.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      result += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.karooVegetableSelections.length > 0) {
     result += "Vegetable Selections:\n";
     menuState.karooVegetableSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      result += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   
   if (menuState.karooSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}\n`;
+    // Remove bullet point
+    result += `${cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}\n`;
   }
   
   return result;
@@ -101,12 +109,14 @@ const formatPlatedMainCourse = (menuState: MenuState): string => {
   
   if (menuState.platedMainSelection) {
     result += "Main Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.platedMainSelection))}\n`;
+    // Remove bullet point
+    result += `${cleanItemDescription(getMenuItemDescription(menuState.platedMainSelection))}\n`;
   }
   
   if (menuState.platedSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.platedSaladSelection))}\n`;
+    // Remove bullet point
+    result += `${cleanItemDescription(getMenuItemDescription(menuState.platedSaladSelection))}\n`;
   }
   
   return result;

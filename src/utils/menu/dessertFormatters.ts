@@ -19,14 +19,17 @@ export const formatDessertSection = (menuState: MenuState): string => {
   }
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
-    section += `• ${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;
+    // Remove bullet point
+    section += `${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;
   } else if (menuState.dessertType === 'individual_cakes' && menuState.individualCakes.length > 0) {
     menuState.individualCakes.forEach(cake => {
-      section += `• ${cleanItemDescription(getMenuItemDescription(cake))}\n`;
+      // Remove bullet point
+      section += `${cleanItemDescription(getMenuItemDescription(cake))}\n`;
     });
   } else if (menuState.dessertType === 'canapes' && menuState.dessertCanapes.length > 0) {
     menuState.dessertCanapes.forEach(item => {
-      section += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      // Remove bullet point
+      section += `${cleanItemDescription(getMenuItemDescription(item))}\n`;
     });
   }
   

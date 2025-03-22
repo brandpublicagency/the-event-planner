@@ -34,8 +34,9 @@ const formatMenuText = (text: string): JSX.Element => {
             </div>
           );
         } else if (line.startsWith('•')) {
-          // This is a bullet point item
-          return <p key={index} className="menu-item">{line}</p>;
+          // This is a bullet point item - remove bullet and just show text
+          const itemText = line.replace('•', '').trim();
+          return <p key={index} className="menu-item">{itemText}</p>;
         } else if (line.trim().endsWith(':')) {
           // This is a category label
           return <p key={index} className="category-label">{line}</p>;

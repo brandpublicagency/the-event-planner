@@ -13,7 +13,8 @@ export const formatAdditionalOptionsSection = (menuState: MenuState): string => 
   
   menuState.otherSelections.forEach(option => {
     const quantity = menuState.otherSelectionsQuantities[option] || 0;
-    section += `• ${cleanItemDescription(getMenuItemDescription(option))}${quantity > 0 ? ` (${quantity})` : ''}\n`;
+    // Remove bullet point
+    section += `${cleanItemDescription(getMenuItemDescription(option))}${quantity > 0 ? ` (${quantity})` : ''}\n`;
   });
   
   return section;
