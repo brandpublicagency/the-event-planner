@@ -324,6 +324,7 @@ export const WeddingMenuPlanner = React.forwardRef<
 export const useSaveMenuSelections = (eventCode: string) => {
   const { menuState } = useMenuState();
   const { toast } = useToast();
+  const menuService = new MenuService();
 
   const saveMenuSelections = async (): Promise<void> => {
     try {
@@ -351,11 +352,11 @@ export const useGetMenuSelections = (eventCode: string) => {
   const { setMenuState } = useMenuState();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const menuService = new MenuService();
 
   const getMenuSelections = useCallback(async () => {
     setIsLoading(true);
     try {
-      const menuService = new MenuService();
       const existingMenu = await menuService.getMenuSelections(eventCode);
       if (existingMenu) {
         setMenuState(existingMenu);
