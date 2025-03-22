@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
@@ -33,19 +32,15 @@ const formatMenuText = (text: string): JSX.Element => {
               {headerText}
             </div>
           );
-        } else if (line.startsWith('•')) {
-          // This is a bullet point item - remove bullet and just show text
-          const itemText = line.replace('•', '').trim();
-          return <p key={index} className="menu-item">{itemText}</p>;
         } else if (line.trim().endsWith(':')) {
           // This is a category label
           return <p key={index} className="category-label">{line}</p>;
-        } else if (line.trim().startsWith('CANAPÉS') || 
-                  line.trim().startsWith('DESSERT CANAPÉS')) {
+        } else if (line.trim().startsWith('DESSERT CANAPÉS') || 
+                  line.trim().startsWith('CANAPÉS')) {
           // This is a subsection header
           return <p key={index} className="category-label" style={{ fontWeight: 'bold' }}>{line}</p>;
         } else if (line.trim()) {
-          // This is a regular item
+          // This is a regular item - no special bullet or indentation
           return <p key={index} className="menu-item">{line}</p>;
         }
         return line.trim() ? <p key={index}>{line}</p> : <br key={index} />;
