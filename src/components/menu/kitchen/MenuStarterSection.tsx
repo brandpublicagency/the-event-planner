@@ -14,7 +14,7 @@ const MenuStarterSection: React.FC<MenuStarterSectionProps> = ({ menuState }) =>
   return (
     <div style={{ marginBottom: '16px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Arrival & Starter</h3>
-      {menuState.selectedStarterType === 'canapes' && (
+      {menuState.selectedStarterType === 'starter_canapes' && (
         <>
           {menuState.selectedCanapes.length > 0 && (
             <div>

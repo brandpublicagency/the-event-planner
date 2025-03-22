@@ -68,7 +68,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'strawberry_beetroot': 'Strawberry, beetroot & pecan nut salad with balsamic glaze',
   'greek': 'Traditional greek salad',
   'beetroot': 'Traditional pickled baby beetroot salad',
-  'watermelon_feta': 'Watermelon, feta & mint salad',
+  'watermelon_feta': 'Watermelon, feta & mint salad (s)',
   
   // Traditional Desserts
   'chocolate_pudding': 'Self-saucing chocolate pudding',
@@ -84,8 +84,10 @@ export const menuItemDescriptions: Record<string, string> = {
   'carrot_cake': 'Carrot cake with cream cheese frosting',
   'lemon_cake': 'Lemon & poppyseed cake with cream and mascarpone',
   
-  // Canapés
-  'canapes': 'Canapés',
+  // Canapés - Generic description (not starter type)
+  'canapes_description': 'Canapés',
+  
+  // Starter Canapés
   'slider': 'Beef & brie sliders with caramelised onion & tomato chutney',
   'melon': 'Melon & parma ham skewers (S)',
   'ricotta': 'Ricotta and Roasted Grape Crostini (V)',
@@ -93,7 +95,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'bruschetta': 'Bruschetta with roasted peppers, tomato & basil (V)',
   'bobotie': 'Bobotie Springroll served with Homemade Chutney',
   'kofta': 'Koftas with cucumber and mint yoghurt',
-  'caprese': 'Tomato, mozzarella & basil skewers (V)',
+  'caprese_skewers': 'Tomato, mozzarella & basil skewers (V)',
   'prawn': 'Crumbed prawn with sweet Asian dipping sauce',
   'pork': 'Pulled pork mini pitas with sour cream & pickled onion',
   
