@@ -89,7 +89,7 @@ export function TaskList({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {!hideHeader && (
         <div 
           className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
@@ -129,7 +129,7 @@ export function TaskList({
         />
       )}
       
-      <div className="bg-white border border-zinc-100">
+      <div className="mt-2">
         <TaskListContent 
           tasks={filteredTasks} 
           editingTaskId={editingTaskId} 
