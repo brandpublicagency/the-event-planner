@@ -11,7 +11,6 @@ import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { SaveButton } from "@/components/ui/save-button";
 import { Edit } from "lucide-react";
-import { toast } from "sonner";
 
 interface EventDetailsContentProps {
   event: Event;
@@ -42,7 +41,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   onSaveMenuSelections,
   onSaveMenu,
 }) => {
-  // Handler to log any save button errors
+  // Handler with improved error catching
   const handleSaveClick = async () => {
     try {
       console.log("Save button clicked, save function available:", !!saveMenuFunction);

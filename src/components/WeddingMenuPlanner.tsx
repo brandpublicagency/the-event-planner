@@ -6,7 +6,6 @@ import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
 import { MenuState } from '../hooks/menuStateTypes';
-import { toast } from "sonner";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -63,14 +62,16 @@ const WeddingMenuPlanner = ({
     }
   }, [isLoading]);
 
-  // Pass the save function to the parent component
+  // Register save function with parent component - critical for menu saving
   useEffect(() => {
-    // Ensure we have a save function and it's not already registered
-    if (saveMenuSelections && saveMenu && !isLoading && initialLoadComplete.current && !saveRegistered.current) {
+    if (saveMenuSelections && saveMenu && !isLoading && menuState) {
       console.log('Registering save menu function with parent');
       
-      // Create a wrapped save function to handle errors and state
+      // Don't re-register if already done
+      if (saveRegistered.current) return;
+      
       const wrappedSaveFunction = async () => {
+        console.log("Save menu function called");
         try {
           if (!saveMenu) {
             throw new Error("Save menu function is not available");
@@ -80,7 +81,7 @@ const WeddingMenuPlanner = ({
           return Promise.resolve();
         } catch (error: any) {
           console.error('Error saving menu from WeddingMenuPlanner:', error);
-          return Promise.reject(error);
+          throw error; // Re-throw to let parent handle
         }
       };
       
@@ -105,11 +106,7 @@ const WeddingMenuPlanner = ({
 
   // Sync menu state changes back to parent component for other components to use
   useEffect(() => {
-    if (onMenuStateChange) {
-      // Prevent excessive logging
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Sending menu state to parent');
-      }
+    if (onMenuStateChange && menuState) {
       onMenuStateChange(menuState);
     }
     
