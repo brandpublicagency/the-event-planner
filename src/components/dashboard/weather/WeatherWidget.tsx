@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { generateForecastFromWeatherData } from './forecastUtils';
 import { getWeatherGradientStyles } from "./weatherGradientStyles";
-import CurrentWeather from './CurrentWeather';
 import ForecastGrid from './ForecastGrid';
 import WeatherBackground from './WeatherBackground';
 
@@ -124,12 +123,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         {/* Add a semi-transparent overlay to improve text readability */}
         <div className="absolute inset-0 bg-black/15 z-[1]"></div>
         
-        <div className="relative z-10 flex items-center w-full h-full p-4 py-3">
-          <div className="flex-shrink-0 mr-3">
-            <CurrentWeather weatherData={weatherData} />
-          </div>
-          
-          <div className="flex-grow">
+        <div className="relative z-10 flex items-center w-full h-full p-4">
+          <div className="w-full">
             <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData)} />
           </div>
         </div>
