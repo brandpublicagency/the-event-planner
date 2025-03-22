@@ -2,7 +2,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 import { EventFormData } from '@/types/eventForm';
-import { useToast } from '@/hooks/use-toast';
 
 export const generateEventCode = (type: string) => {
   const prefix = type ? type.substring(0, 3).toUpperCase() : 'EVT';
@@ -34,7 +33,7 @@ export const createNewEvent = async (data: EventFormData) => {
       venues: data.venues && data.venues.length > 0 ? data.venues : null,
       company: data.company || null,
       vat_number: data.vat_number || null,
-      address: data.address || null,
+      client_address: data.address || null, // Map address to client_address in the database
     });
 
   if (eventError) {
