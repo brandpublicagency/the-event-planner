@@ -6,12 +6,8 @@ import { format, parseISO } from 'date-fns';
 import { Event } from '@/types/event';
 import { getVenueNames } from '@/utils/venueUtils';
 import React from 'react';
-import { getMenuItemDescription } from './menuItemDescriptions';
-
-// Clean item descriptions by replacing underscores with spaces
-export const cleanItemDescription = (description: string) => {
-  return description.replace(/_/g, ' ');
-};
+import { getMenuItemDescription } from '@/utils/menu/menuItemDescriptions';
+import { cleanItemDescription } from '@/utils/menu/formatHelpers';
 
 // Format date
 export const formatDate = (dateString: string | null) => {

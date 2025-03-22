@@ -19,20 +19,31 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   const componentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  // Log when the component ref is available
+  // Log when the component mounts with debug info
   useEffect(() => {
-    console.log("Component mounted, ref status:", !!componentRef.current);
-  }, []);
+    console.log("Kitchen Print component mounted");
+    console.log("Print ref initialized:", !!componentRef.current);
+    console.log("Event data:", event.name, event.event_code);
+    console.log("Menu state summary:", {
+      isCustom: menuState.isCustomMenu,
+      mainCourseType: menuState.mainCourseType,
+      starterType: menuState.selectedStarterType,
+      dessertType: menuState.dessertType
+    });
+  }, [event, menuState]);
   
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
     documentTitle: `Kitchen Menu - ${event.name}`,
     onBeforePrint: () => {
-      console.log("Preparing to print...");
+      console.log("Preparing to print kitchen menu...");
+      if (!componentRef.current) {
+        console.error("Print ref is not available!");
+      }
       return Promise.resolve();
     },
     onAfterPrint: () => {
-      console.log("Print completed or canceled");
+      console.log("Kitchen menu print completed or canceled");
       toast({
         title: "Print action completed",
         description: "Your menu has been sent to the printer or saved as PDF."
@@ -103,8 +114,11 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
   });
 
   const onPrintClick = () => {
-    console.log("Print button clicked, component ref:", componentRef.current);
+    console.log("Kitchen Print button clicked");
+    console.log("Print component ref available:", !!componentRef.current);
+    
     if (!componentRef.current) {
+      console.error("Print component ref is not available!");
       toast({
         title: "Print error",
         description: "Could not prepare the menu for printing. Please try again.",
@@ -112,6 +126,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
       });
       return;
     }
+    
     handlePrint();
   };
 
@@ -124,7 +139,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         size="sm"
       >
         <Printer className="h-4 w-4 mr-2" />
-        Print Menu
+        Print Kitchen Menu
       </Button>
       <div style={{ 
         position: "absolute", 
@@ -132,6 +147,7 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
         top: 0,
         width: "210mm",
         height: "auto",
+        overflow: "visible", // Ensure content isn't cut off
       }}>
         <KitchenMenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>

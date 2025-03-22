@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { MenuState } from '@/hooks/menuStateTypes';
-import { cleanItemDescription } from './menuItemUtils';
-import { getMenuItemDescription } from './menuItemDescriptions';
+import { cleanItemDescription } from '@/utils/menu/formatHelpers';
+import { getMenuItemDescription } from '@/utils/menu/menuItemDescriptions';
 
 interface MenuMainCourseSectionProps {
   menuState: MenuState;

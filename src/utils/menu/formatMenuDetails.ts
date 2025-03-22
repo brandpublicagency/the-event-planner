@@ -10,6 +10,14 @@ import { formatNotesSection, formatCustomMenuDetails } from "./formatHelpers";
  * Main export function that formats all menu details
  */
 export const formatMenuDetails = (menuState: MenuState): string => {
+  // Debug log for menu formatting
+  console.log("Formatting menu details:", {
+    isCustom: menuState.isCustomMenu,
+    mainCourseType: menuState.mainCourseType,
+    starterType: menuState.selectedStarterType,
+    dessertType: menuState.dessertType
+  });
+
   if (menuState.isCustomMenu) {
     return formatCustomMenuDetails(menuState.customMenuDetails);
   }
