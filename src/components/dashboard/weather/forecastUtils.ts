@@ -1,86 +1,125 @@
 
-import { format, addDays } from 'date-fns';
+// Generate forecast data from weather information
 
-// Define the forecast day type
-export interface ForecastDay {
-  date: Date;
-  day: string;
-  condition: string;
-  high: number;
-  low: number;
-  rainChance: number;
-  humidity: number;
-  wind: number;
-  uv: number;
-}
-
-// Generate random weather data for the next 7 days
-export const generateForecastFromWeatherData = (weatherData: any): ForecastDay[] => {
-  console.log("Generating forecast from weather data:", weatherData);
-  
-  // If no weather data is provided, return an empty array
+export const generateForecastFromWeatherData = (weatherData: any) => {
   if (!weatherData) {
-    console.log("No weather data provided for forecast");
-    return [];
+    console.log("No weather data provided to generate forecast");
+    return generateMockForecast();
   }
+
+  // Get current date/time
+  const now = new Date();
+  const currentTemp = weatherData.temp;
+  const currentCondition = weatherData.condition || 'Clear';
+
+  // Generate a forecast for the next few hours
+  const forecast = [];
   
-  const today = new Date();
-  const forecast: ForecastDay[] = [];
-  
-  // Weather conditions that might occur
-  const conditions = [
-    'Clear', 'Clouds', 'Rain', 'Drizzle', 
-    'Thunderstorm', 'Snow', 'Mist', 'Fog'
-  ];
-  
-  // Use the first day's weather as a base (today's weather from API)
-  const baseTemp = weatherData.temp || 25;
-  const baseCondition = weatherData.condition || 'Clear';
-  const baseHumidity = weatherData.humidity || 50;
-  const baseWind = weatherData.wind_speed || 10;
-  const baseUv = weatherData.uv || 4;
-  const baseRainChance = weatherData.rainChance || 10; // Use provided rainChance or default to 10%
-  
-  // Generate data for 7 days starting from tomorrow
-  for (let i = 1; i < 8; i++) {
-    const date = addDays(today, i);
+  // Start with current hour
+  for (let i = 0; i < 5; i++) {
+    const forecastHour = new Date(now);
+    forecastHour.setHours(now.getHours() + i);
     
-    // Create some variation in the weather - base it on the actual weather data
-    // but with some randomization to make it look realistic
-    const tempVariation = Math.floor(Math.random() * 8) - 4; // -4 to +3 degrees
-    const highTemp = Math.round(baseTemp + tempVariation);
-    const lowTemp = Math.round(highTemp - (3 + Math.random() * 5)); // 3-8 degrees lower
+    // Generate a plausible temperature based on time of day
+    let tempVariation = 0;
+    const hour = forecastHour.getHours();
     
-    // Randomize condition more as we get further into the forecast
-    let condition = baseCondition;
-    if (Math.random() < i * 0.08) { // More likely to change as days progress
-      condition = conditions[Math.floor(Math.random() * conditions.length)];
+    if (hour >= 6 && hour < 12) {
+      // Morning - slowly warming up
+      tempVariation = i * 0.7;
+    } else if (hour >= 12 && hour < 15) {
+      // Midday - warmest
+      tempVariation = 0;
+    } else if (hour >= 15 && hour < 20) {
+      // Afternoon/evening - cooling down
+      tempVariation = -i * 0.5;
+    } else {
+      // Night - coolest
+      tempVariation = -i * 0.3;
     }
     
-    const rainChance = condition.toLowerCase().includes('rain') || 
-                      condition.toLowerCase().includes('shower') || 
-                      condition.toLowerCase().includes('thunder') ? 
-                      40 + Math.floor(Math.random() * 50) : // 40-90% if rainy condition
-                      Math.floor(Math.random() * 30); // 0-30% otherwise
+    // Add some randomness
+    tempVariation += (Math.random() - 0.5) * 2;
     
-    // Add more variation for humidity, wind and UV
-    const humidityVar = Math.floor(Math.random() * 20) - 10; // -10 to +10
-    const windVar = Math.floor(Math.random() * 6) - 3; // -3 to +2
-    const uvVar = Math.floor(Math.random() * 3) - 1; // -1 to +1
+    // Create forecast entry
+    const forecastTemp = Math.round(currentTemp + tempVariation);
     
     forecast.push({
-      date: date,
-      day: format(date, 'EEE'),
-      condition: condition,
-      high: highTemp,
-      low: lowTemp,
-      rainChance: rainChance,
-      humidity: Math.min(Math.max(baseHumidity + humidityVar, 20), 95), // 20-95%
-      wind: Math.max(baseWind + windVar, 1), // min 1 km/h
-      uv: Math.min(Math.max(baseUv + uvVar, 1), 10) // 1-10 UV index
+      time: formatHour(forecastHour),
+      temp: `${forecastTemp}°`,
+      condition: currentCondition,
+      icon: weatherData.icon || getWeatherIcon(currentCondition, hour)
     });
   }
   
-  console.log("Generated forecast:", forecast);
+  return forecast;
+};
+
+const formatHour = (date: Date) => {
+  return date.getHours().toString().padStart(2, '0') + ':00';
+};
+
+const getWeatherIcon = (condition: string, hour: number) => {
+  const isDay = hour >= 6 && hour < 18;
+  const suffix = isDay ? 'd' : 'n';
+  
+  condition = condition.toLowerCase();
+  
+  if (condition.includes('clear') || condition.includes('sunny')) {
+    return `01${suffix}`;
+  } else if (condition.includes('cloud')) {
+    return `02${suffix}`;
+  } else if (condition.includes('rain') || condition.includes('shower')) {
+    return `09${suffix}`;
+  } else if (condition.includes('thunder')) {
+    return `11${suffix}`;
+  } else if (condition.includes('snow')) {
+    return `13${suffix}`;
+  } else if (condition.includes('mist') || condition.includes('fog')) {
+    return `50${suffix}`;
+  }
+  
+  return `01${suffix}`;
+};
+
+const generateMockForecast = () => {
+  const now = new Date();
+  const forecast = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const forecastHour = new Date(now);
+    forecastHour.setHours(now.getHours() + i);
+    
+    const hour = forecastHour.getHours();
+    let temp = 22; // Default base temperature
+    
+    if (hour >= 6 && hour < 12) {
+      // Morning - warming up
+      temp = 18 + i;
+    } else if (hour >= 12 && hour < 17) {
+      // Midday - warmest
+      temp = 24 - Math.abs(i - 2);
+    } else if (hour >= 17 && hour < 22) {
+      // Evening - cooling down
+      temp = 20 - i;
+    } else {
+      // Night - coolest
+      temp = 16 - Math.floor(i/2);
+    }
+    
+    // Add some randomness
+    temp += Math.floor(Math.random() * 3) - 1;
+    
+    const conditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Sunny'];
+    const condition = conditions[Math.floor(Math.random() * conditions.length)];
+    
+    forecast.push({
+      time: formatHour(forecastHour),
+      temp: `${temp}°`,
+      condition: condition,
+      icon: getWeatherIcon(condition, hour)
+    });
+  }
+  
   return forecast;
 };
