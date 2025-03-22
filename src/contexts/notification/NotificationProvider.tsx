@@ -38,7 +38,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       fetchNotifications().catch((err) => {
         console.error("Error in initial notification fetch:", err);
         if (mountedRef.current) {
-          toast("Could not load notifications");
+          toast.error("Could not load notifications");
         }
       });
     }

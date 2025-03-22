@@ -1,4 +1,7 @@
 
+import React, { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,133 +11,89 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Trash2 } from "lucide-react";
 
 interface DocumentDeleteDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
   documentId: string;
   documentTitle: string;
-  onDeleteComplete?: () => void;
-  isButton?: boolean;
+  onDocumentDeleted: () => void;
 }
 
-export function DocumentDeleteDialog({ 
-  documentId, 
-  documentTitle, 
-  onDeleteComplete,
-  isButton = true
-}: DocumentDeleteDialogProps) {
-  const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
+  isOpen,
+  onOpenChange,
+  documentId,
+  documentTitle,
+  onDocumentDeleted,
+}) => {
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      console.log("Deleting document:", documentId);
-      
+  const handleDelete = async () => {
+    if (!documentId) return;
+    
+    setIsDeleting(true);
+    try {
+      // Soft delete the document (update the deleted_at field)
       const { error } = await supabase
         .from("documents")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("id", documentId)
-        .is("deleted_at", null);
+        .update({ 
+          deleted_at: new Date().toISOString(),
+          // Add any other fields that need to be updated on deletion
+        })
+        .eq("id", documentId);
 
-      if (error) {
-        console.error("Delete error:", error);
-        throw new Error(`Failed to delete document: ${error.message}`);
-      }
-      
-      return documentId;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-      
-      toast({
-        title: "Document deleted",
-        description: `The document "${documentTitle || 'Untitled'}" has been deleted.`,
-        position: "sidebar" // Set position to sidebar
+      if (error) throw error;
+
+      toast.success("Document deleted successfully", {
+        duration: 3000,
       });
       
-      if (onDeleteComplete) {
-        onDeleteComplete();
-      } else {
-        navigate('/documents');
-      }
-      
-      setOpen(false);
-    },
-    onError: (error: Error) => {
-      console.error("Delete mutation error:", error);
-      
-      toast({
-        title: "Error deleting document",
-        description: error.message,
-        variant: "destructive",
-        position: "sidebar" // Set position to sidebar
+      onDocumentDeleted();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast.error("Failed to delete document", {
+        duration: 5000,
       });
-    },
-  });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        {isButton ? (
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="flex items-center gap-1.5 h-8 px-2.5 min-w-[70px]"
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="h-3.5 w-3.5 text-zinc-500" />
-            )}
-            <span className="text-zinc-500">Delete</span>
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-destructive transition-colors" />
-            )}
-          </Button>
-        )}
-      </AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Document</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this document? This action cannot be undone.
+            This will delete the document "{documentTitle}". This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              deleteMutation.mutate();
-            }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            disabled={deleteMutation.isPending}
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <Button 
+            variant="destructive" 
+            onClick={handleDelete}
+            disabled={isDeleting}
           >
-            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-          </AlertDialogAction>
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </>
+            )}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
-}
+};

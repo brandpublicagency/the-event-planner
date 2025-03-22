@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { getMenuSelection, updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
 import { safeGetArray } from '@/utils/menu';
+import { toast } from "sonner";
 
-export const useMenuState = (eventCode: string, toast: any) => {
+export const useMenuState = (eventCode: string) => {
   const [menuState, setMenuState] = useState<MenuState>({
     isCustomMenu: false,
     customMenuDetails: '',
@@ -88,6 +89,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
           console.log('No existing menu data found for this event. Using defaults.');
         }
         
+        // Set initialized flag AFTER data has been completely processed
         setIsInitialized(true);
       } catch (err: any) {
         console.error('Error fetching menu selections:', err);
@@ -181,6 +183,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     error,
     isLoading,
     isSaving,
+    isInitialized,
     handleMenuStateChange,
     handleCustomMenuToggle,
     handleCanapeSelection,

@@ -8,12 +8,25 @@ export const useEventMenu = (eventId: string | undefined) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMenuFunction, setSaveMenuFunction] = useState<(() => Promise<void>) | null>(null);
   const [menuState, setMenuState] = useState<MenuState | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Update setMenuState to also set isInitialized flag
+  const updateMenuState = useCallback((newState: MenuState) => {
+    setMenuState(newState);
+    setIsInitialized(true);
+  }, []);
 
   const handleSaveMenu = async () => {
     if (!eventId || !menuState || !saveMenuFunction) {
       console.error("Cannot save: Missing id, menuState, or saveMenuFunction");
       toast.error("Cannot save menu: Required data is missing");
       return Promise.reject(new Error("Cannot save menu: Required data is missing"));
+    }
+    
+    if (!isInitialized) {
+      console.error("Cannot save: Menu state not fully initialized");
+      toast.error("Cannot save menu: Menu state not fully initialized");
+      return Promise.reject(new Error("Menu state not fully initialized"));
     }
     
     setIsSaving(true);
@@ -45,7 +58,8 @@ export const useEventMenu = (eventId: string | undefined) => {
     saveMenuFunction,
     setSaveMenuFunction,
     menuState,
-    setMenuState,
+    setMenuState: updateMenuState,
+    isInitialized,
     handleSaveMenu
   };
 };

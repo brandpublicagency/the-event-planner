@@ -45,7 +45,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
     <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
         <div className="print:hidden mb-6">
-          {event && (
+          {event && menuState && (
             <EventHeader 
               eventCode={event.event_code} 
               event={event}

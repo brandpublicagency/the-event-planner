@@ -1,164 +1,313 @@
 
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Edit, Plus, CalendarDays, Filter, Trash2, Calendar } from "lucide-react";
+import { format, isAfter, parseISO } from "date-fns";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import EventsTable from "@/components/events/EventsTable";
-import { format } from "date-fns";
-import type { Event } from "@/types/event";
-import { deleteEvent } from "@/services/eventService";
-import { Header } from "@/components/layout/Header";
-import { CalendarX, Calendar, PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-export default function Events() {
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventsTable } from "@/components/events/EventsTable";
+import { EventCard } from "@/components/events/EventCard";
+import { EventMonthGroup } from "@/components/events/EventMonthGroup";
+import { Header } from "@/components/layout/Header";
+import type { Event } from "@/types/event";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const Events = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [view, setView] = useState<"table" | "cards">("cards");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Get events
   const {
-    toast
-  } = useToast();
-  const {
-    data: events,
+    data: events = [],
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
-    queryKey: ['events'],
+    queryKey: ["events"],
     queryFn: async () => {
-      // Get today's date at the start of the day
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayIso = today.toISOString().split('T')[0];
-      console.log("Today's ISO date for filtering:", todayIso);
-      console.log("Current date object:", today);
-      const {
-        data,
-        error
-      } = await supabase.from('events').select(`*`).is('deleted_at', null).is('completed', false) // Ensure only non-completed events are shown
-      .gt('event_date', todayIso) // Changed from gte to gt to exclude today's events
-      .order('event_date', {
-        ascending: true
+      toast.info("Loading events...", { 
+        id: "loading-events",
+        duration: 0, // No auto dismiss 
       });
-      if (error) {
-        console.error('Error fetching events:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch events",
-          variant: "destructive"
+
+      try {
+        const { data, error } = await supabase
+          .from("events")
+          .select("*")
+          .is("deleted_at", null)
+          .order("event_date", { ascending: true });
+
+        if (error) throw error;
+
+        // Dismiss the loading toast on success
+        toast.success("Events loaded successfully", { 
+          id: "loading-events", 
+          duration: 1500 
         });
-        throw error;
+        
+        return data as Event[];
+      } catch (err) {
+        console.error("Error fetching events:", err);
+        
+        // Show error toast
+        toast.error("Failed to load events", { 
+          id: "loading-events", 
+          duration: 5000 
+        });
+        
+        return [];
       }
-      console.log('Fetched upcoming events:', data);
-
-      // Log the event with code EVENT-001-113 if it exists
-      const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
-      if (specificEvent) {
-        console.log('EVENT-001-113 found in upcoming events:', specificEvent);
-      } else {
-        console.log('EVENT-001-113 NOT found in upcoming events');
-      }
-      return data || [];
     },
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    retry: 1
   });
-  const groupedEvents = events?.reduce((acc: Record<string, Event[]>, event) => {
-    if (!event.event_date) return acc;
-    const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
-    if (!acc[monthYear]) {
-      acc[monthYear] = [];
-    }
-    acc[monthYear].push(event);
-    return acc;
-  }, {}) || {};
-  if (error) {
-    toast({
-      title: "Error",
-      description: "Failed to load events. Please try again.",
-      variant: "destructive",
-      position: "sidebar"
+
+  const handleDeleteEvent = (event: Event) => {
+    setEventToDelete(event);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!eventToDelete) return;
+
+    setIsDeleting(true);
+    
+    toast.info("Deleting event...", {
+      id: "delete-event",
+      duration: 0, // No auto dismiss
     });
-  }
-  const handleDeleteEvent = async (eventCode: string) => {
+
     try {
-      console.log("Starting deletion of event:", eventCode);
+      // Soft delete by updating the deleted_at field
+      const { error } = await supabase
+        .from("events")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("event_code", eventToDelete.event_code);
 
-      // Show loading toast
-      toast({
-        title: "Deleting event...",
-        description: "Please wait while the event is being deleted.",
-        showProgress: true,
-        duration: 10000,
-        position: "sidebar"
-      });
-      await deleteEvent(eventCode);
+      if (error) throw error;
 
-      // Success toast
-      toast({
-        title: "Event deleted",
-        description: "Event has been successfully deleted",
-        variant: "success",
-        showProgress: true,
-        position: "sidebar"
+      // Show success message
+      toast.success("Event deleted successfully", {
+        id: "delete-event",
+        duration: 3000,
       });
 
-      // Refresh the events list
-      refetch();
-    } catch (error: any) {
-      console.error("Error in handleDeleteEvent:", error);
+      // Close the dialog
+      setIsDeleteDialogOpen(false);
+      setEventToDelete(null);
 
-      // Error toast with more detailed message
-      toast({
-        variant: "destructive",
-        title: "Error deleting event",
-        description: error.message || "Failed to delete event. Please try again.",
-        showProgress: true,
-        position: "sidebar"
+      // Invalidate the events query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    } catch (err) {
+      console.error("Error deleting event:", err);
+      
+      // Show error message
+      toast.error("Failed to delete event", {
+        id: "delete-event",
+        duration: 5000,
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
-  return <div className="flex flex-col h-full bg-zinc-50/50">
-      <Header pageTitle="Events" />
-      
-      <div className="flex-1 p-6 flex flex-col gap-5 max-w-7xl mx-auto w-full">
-        <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50">
-                  <Calendar className="h-5 w-5 text-gray-600" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-zinc-900">Upcoming Events</h2>
-                  <p className="text-sm text-zinc-500 mt-0.5">
-                    {Object.values(groupedEvents).flat().length} events scheduled
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm" className="text-zinc-700 h-9 px-4 shadow-sm border-zinc-200 hover:bg-zinc-100" onClick={() => navigate('/passed-events')}>
-                  <CalendarX className="h-4 w-4 mr-2" />
-                  Past Events
-                </Button>
-                
-                <Button variant="default" size="sm" onClick={() => navigate('/events/new')} className="h-9 px-4 shadow-sm text-white bg-gray-500 hover:bg-gray-400">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  New Event
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {isLoading ? <div className="flex items-center justify-center h-60 bg-white rounded-xl border border-zinc-100 shadow-sm">
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-5 w-5 rounded-full border-2 border-gray-600 border-t-transparent animate-spin"></div>
-              <p className="text-sm text-zinc-500">Loading events...</p>
-            </div>
-          </div> : <div className="rounded-xl overflow-hidden shadow-sm">
-            <EventsTable groupedEvents={groupedEvents} handleDelete={handleDeleteEvent} className="flex-1" />
-          </div>}
+
+  // Filter events by upcoming/passed
+  const upcomingEvents = events.filter((event) => {
+    if (!event.event_date) return true; // If no date, show in upcoming
+    return isAfter(parseISO(event.event_date), new Date());
+  });
+
+  const passedEvents = events.filter((event) => {
+    if (!event.event_date) return false; // If no date, don't show in passed
+    return !isAfter(parseISO(event.event_date), new Date());
+  });
+
+  // Group events by month for card view
+  const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
+    if (!event.event_date) {
+      if (!groups["No Date"]) groups["No Date"] = [];
+      groups["No Date"].push(event);
+      return groups;
+    }
+
+    const month = format(parseISO(event.event_date), "MMMM yyyy");
+    if (!groups[month]) groups[month] = [];
+    groups[month].push(event);
+    return groups;
+  }, {} as Record<string, Event[]>);
+
+  // Content for each view type
+  const renderCardView = () => {
+    return (
+      <div className="space-y-8">
+        {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
+          <EventMonthGroup
+            key={month}
+            month={month}
+            events={monthEvents}
+            onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
+            onView={(eventCode) => navigate(`/events/${eventCode}`)}
+            onDelete={handleDeleteEvent}
+          />
+        ))}
+
+        {Object.keys(groupedUpcomingEvents).length === 0 && (
+          <Card>
+            <CardContent className="p-6 text-center text-muted-foreground">
+              No upcoming events found. Create your first event!
+            </CardContent>
+          </Card>
+        )}
       </div>
-    </div>;
-}
+    );
+  };
+
+  const renderTableView = () => {
+    return (
+      <EventsTable
+        events={upcomingEvents}
+        isLoading={isLoading}
+        onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
+        onView={(eventCode) => navigate(`/events/${eventCode}`)}
+        onDelete={handleDeleteEvent}
+      />
+    );
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <Header title="Events">
+        <Button
+          onClick={() => navigate("/calendar")}
+          variant="outline"
+          size="sm"
+          className="mr-2"
+        >
+          <Calendar className="h-4 w-4 mr-1" />
+          Calendar
+        </Button>
+        {view === "table" ? (
+          <Button
+            onClick={() => setView("cards")}
+            variant="outline"
+            size="sm"
+            className="mr-2"
+          >
+            <CalendarDays className="h-4 w-4 mr-1" />
+            Card View
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setView("table")}
+            variant="outline"
+            size="sm"
+            className="mr-2"
+          >
+            <Filter className="h-4 w-4 mr-1" />
+            Table View
+          </Button>
+        )}
+        <Button
+          onClick={() => navigate("/events/new")}
+          size="sm"
+          variant="default"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          New Event
+        </Button>
+      </Header>
+
+      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+        <div className="container max-w-5xl">
+          <Tabs defaultValue="upcoming">
+            <TabsList className="mb-6">
+              <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
+              <TabsTrigger value="passed">
+                <Link to="/events/passed">Passed Events</Link>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="upcoming" className="space-y-6">
+              {view === "cards" ? renderCardView() : renderTableView()}
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete the event "
+              {eventToDelete?.name || "Unknown Event"}". This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default Events;

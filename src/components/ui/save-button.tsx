@@ -63,9 +63,6 @@ export const SaveButton = ({
       setStatus('error');
       setErrorMessage(error.message || 'An error occurred');
       
-      // Display the error in a toast
-      toast.error(error.message || 'An error occurred');
-      
       // Auto-reset from error state after 3 seconds
       setTimeout(() => {
         setStatus('idle');

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import MenuContent from './menu/MenuContent';
@@ -39,6 +39,7 @@ const WeddingMenuPlanner = ({
   // Flag to prevent feedback loop
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const initialLoadComplete = useRef(false);
 
   // Simulate progress when loading
   useEffect(() => {
@@ -63,21 +64,24 @@ const WeddingMenuPlanner = ({
 
   // Pass the save function to the parent component
   useEffect(() => {
-    if (saveMenuSelections && saveMenu) {
+    if (saveMenuSelections && saveMenu && initialLoadComplete.current) {
       // Pass the function wrapped to handle any UI updates or state changes in this component
       saveMenuSelections(async () => {
         try {
           await saveMenu();
-          toast.success("Menu selections have been updated");
           return Promise.resolve();
         } catch (error: any) {
           console.error('Error saving menu from WeddingMenuPlanner:', error);
-          toast.error(`Failed to save menu selections: ${error.message || 'Unknown error'}`);
           return Promise.reject(error);
         }
       });
     }
-  }, [saveMenu, saveMenuSelections]);
+    
+    // Mark initial load as complete after first render
+    if (!initialLoadComplete.current && !isLoading) {
+      initialLoadComplete.current = true;
+    }
+  }, [saveMenu, saveMenuSelections, isLoading]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {

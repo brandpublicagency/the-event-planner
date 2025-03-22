@@ -1,108 +1,175 @@
-import { handleChatAction } from "@/utils/chatActionHandler";
-import { PendingAction } from "@/types/chat";
-import { useChatState } from "@/hooks/useChatState";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
 
-export const useActionHandler = () => {
-  const { addSystemMessage, setPendingAction } = useChatState();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+import React, { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { AIAction } from "@/utils/chatActionParser";
+import { createEvent } from "@/utils/createEventUtils";
+import { updateEvent } from "@/utils/eventUpdateUtils";
+import { handleWhatsAppAction } from "@/utils/whatsappUtils";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-  const handlePendingAction = async (
-    pendingAction: PendingAction,
-    isConfirmed: boolean
-  ) => {
-    if (!isConfirmed) {
-      addSystemMessage("Action cancelled.");
-      setPendingAction(null);
-      return;
-    }
+interface ActionHandlerProps {
+  action: AIAction;
+  onComplete: (success: boolean, message: string) => void;
+}
 
+export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [result, setResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+
+  const handleAction = useCallback(async () => {
+    setIsExecuting(true);
+    
     try {
-      console.log('Executing action:', pendingAction);
-      
-      // Fix nested updates structure - ensure we have a clean updates object
-      if (pendingAction.action === "update_event" && pendingAction.updates) {
-        // First, make a clean copy of the updates
-        const cleanUpdates = { ...pendingAction.updates };
-        
-        // Check if we have a nested structure and fix it
-        if (cleanUpdates.event_code && cleanUpdates.updates) {
-          console.log('Detected nested updates structure in ActionHandler, fixing...');
-          pendingAction.updates = { ...cleanUpdates.updates };
-          // Keep the event_code at the top level where it belongs
-          pendingAction.event_code = cleanUpdates.event_code;
-        }
-        
-        // Special handling for venues to ensure it's an array
-        if (pendingAction.updates.venues) {
-          console.log('Processing venues in ActionHandler:', pendingAction.updates.venues);
-          if (!Array.isArray(pendingAction.updates.venues)) {
-            if (typeof pendingAction.updates.venues === 'string') {
-              pendingAction.updates.venues = [pendingAction.updates.venues];
-              console.log('Converted venues to array:', pendingAction.updates.venues);
-            }
-          }
-        }
-      }
-      
-      // Show action in progress toast
-      toast({
-        title: "Processing action...",
-        description: "Please wait while we execute your request",
-        variant: "info",
-        showProgress: true,
-        duration: 10000,
-      });
-      
-      await handleChatAction(
-        pendingAction,
-        (message) => {
-          addSystemMessage(message);
-          setPendingAction(null);
-          
-          // Success toast
-          toast({
-            title: "Action completed",
-            description: message || "Your request was processed successfully",
-            variant: "success",
-            showProgress: true,
-          });
-          
-          // Invalidate queries to refresh UI data
-          console.log('Action completed, invalidating queries');
-          queryClient.invalidateQueries();
-        },
-        (error) => {
-          console.error('Error executing action:', error);
-          addSystemMessage("Sorry, I encountered an error while executing the action: " + error.message);
-          
-          // Error toast
-          toast({
-            title: "Action failed",
-            description: error.message || "Failed to execute the requested action",
-            variant: "destructive",
-            showProgress: true,
-          });
-          
-          setPendingAction(null);
-        }
-      );
-    } catch (error: any) {
-      console.error('Error in action handler:', error);
-      addSystemMessage("An error occurred while processing your request.");
-      
-      toast({
-        title: "Error occurred",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive",
-        showProgress: true,
-      });
-      
-      setPendingAction(null);
-    }
-  };
+      let success = false;
+      let message = "";
 
-  return { handlePendingAction };
+      // Handle different action types
+      switch (action.type) {
+        case "create_event":
+          toast.info("Creating event...", {
+            duration: 0, // No auto dismiss
+            id: "create-event", // Use ID for later reference
+          });
+          
+          const result = await createEvent(action.payload);
+          success = result.success;
+          message = result.message;
+          
+          if (success) {
+            toast.success(message, {
+              id: "create-event",
+              duration: 4000,
+            });
+          } else {
+            toast.error(message, {
+              id: "create-event",
+              duration: 4000,
+            });
+          }
+          break;
+
+        case "update_event":
+          toast.info("Updating event...", {
+            duration: 0,
+            id: "update-event",
+          });
+          
+          const updateResult = await updateEvent(action.payload);
+          success = updateResult.success;
+          message = updateResult.message;
+          
+          if (success) {
+            toast.success(message, {
+              id: "update-event",
+              duration: 4000,
+            });
+          } else {
+            toast.error(message, {
+              id: "update-event",
+              duration: 4000,
+            });
+          }
+          break;
+
+        case "send_whatsapp":
+          toast.info("Sending WhatsApp message...", {
+            duration: 0,
+            id: "send-whatsapp",
+          });
+          
+          const whatsappResult = await handleWhatsAppAction(action.payload);
+          success = whatsappResult.success;
+          message = whatsappResult.message;
+          
+          if (success) {
+            toast.success(message, {
+              id: "send-whatsapp",
+              duration: 4000,
+            });
+          } else {
+            toast.error(message, {
+              id: "send-whatsapp",
+              duration: 4000,
+            });
+          }
+          break;
+
+        default:
+          message = "Unknown action type";
+          success = false;
+          toast.error(message, {
+            duration: 4000,
+          });
+      }
+
+      setResult({ success, message });
+      onComplete(success, message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setResult({
+        success: false,
+        message: `Error: ${errorMessage}`,
+      });
+      onComplete(false, `Error: ${errorMessage}`);
+      console.error("Action execution error:", error);
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [action, onComplete]);
+
+  return (
+    <>
+      <Button 
+        onClick={() => setIsOpen(true)} 
+        variant="default" 
+        className="bg-blue-600 hover:bg-blue-700 text-white mb-2"
+        disabled={isExecuting}
+      >
+        {isExecuting ? "Processing..." : action.displayName || "Execute Action"}
+      </Button>
+
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Action</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to execute the action: {action.displayName}?
+              {action.description && (
+                <p className="mt-2 text-sm">{action.description}</p>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isExecuting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleAction();
+              }}
+              disabled={isExecuting}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isExecuting ? "Processing..." : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
+
+export default ActionHandler;

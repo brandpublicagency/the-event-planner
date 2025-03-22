@@ -1,5 +1,5 @@
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -26,6 +26,7 @@ const EventDetails = () => {
     setSaveMenuFunction,
     menuState,
     setMenuState,
+    isInitialized,
     handleSaveMenu
   } = useEventMenu(id);
   
