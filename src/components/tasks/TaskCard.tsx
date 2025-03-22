@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Task } from "@/contexts/TaskContext";
@@ -79,7 +80,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   return (
     <Card
       className={cn(
-        "hover:border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-sm group",
+        "hover:border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-sm group border-0 shadow-none",
         isSelected && "border-primary shadow-sm"
       )}
       onClick={onClick}

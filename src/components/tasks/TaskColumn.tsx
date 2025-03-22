@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Task } from "@/contexts/TaskContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,7 +14,7 @@ interface TaskColumnProps {
 
 export function TaskColumn({ title, tasks, status, onTaskSelect, selectedTaskId }: TaskColumnProps) {
   return (
-    <Card className="flex-1">
+    <Card className="flex-1 border-0 shadow-sm">
       <CardHeader className="py-3 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>

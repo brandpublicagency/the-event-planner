@@ -1,3 +1,4 @@
+
 import { Calendar, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -28,7 +29,7 @@ export function TaskItem({
     medium: "bg-yellow-100 text-yellow-800",
     low: "bg-green-100 text-green-800"
   };
-  return <div className={cn("group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg border bg-white cursor-pointer", isSelected && "border-primary bg-primary/5")} onClick={onClick}>
+  return <div className={cn("group flex items-center px-4 py-3 hover:bg-zinc-50/50 transition-colors rounded-lg cursor-pointer", isSelected && "border-primary bg-primary/5")} onClick={onClick}>
       <div className="flex items-center justify-between w-full gap-4 py-0">
         <div className="flex items-center gap-3">
           <Checkbox checked={task.completed} onCheckedChange={checked => {
