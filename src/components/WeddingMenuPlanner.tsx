@@ -49,7 +49,7 @@ const WeddingMenuPlanner = ({
           toast({
             title: "Menu saved successfully",
             description: "Your menu selections have been updated",
-            className: "bg-white border-green-500",
+            variant: "success",
             icon: <Check className="h-4 w-4 text-green-500" />,
           });
           return Promise.resolve();
