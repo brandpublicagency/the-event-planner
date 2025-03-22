@@ -1,4 +1,4 @@
-import { toast as sonnerToast, Toast } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 type ToastProps = {
   title?: string;
@@ -14,7 +14,7 @@ type ToastProps = {
 export function useToast() {
   const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
     const variantConfig = {
-      default: {},
+      default: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
       destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
       success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
       info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
@@ -41,7 +41,7 @@ export function useToast() {
 // Standalone toast function
 export const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
   const variantConfig = {
-    default: {},
+    default: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
     destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
     success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
     info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
