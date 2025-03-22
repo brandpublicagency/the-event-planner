@@ -6,6 +6,12 @@ import { format, parseISO } from 'date-fns';
 import { Event } from '@/types/event';
 import { getVenueNames } from '@/utils/venueUtils';
 import React from 'react';
+import { getMenuItemDescription } from './menuItemDescriptions';
+
+// Clean item descriptions by replacing underscores with spaces
+export const cleanItemDescription = (description: string) => {
+  return description.replace(/_/g, ' ');
+};
 
 // Format date
 export const formatDate = (dateString: string | null) => {
@@ -31,11 +37,6 @@ export const formatNotes = (notes: string): React.ReactNode[] => {
       style: { fontSize: '12px', margin: '0', marginBottom: '4px' }
     }, line)
   );
-};
-
-// Helper function to get readable description
-export const getMenuItemDescription = (code: string, descriptions: Record<string, string>): string => {
-  return descriptions[code] || code;
 };
 
 // Get event header info

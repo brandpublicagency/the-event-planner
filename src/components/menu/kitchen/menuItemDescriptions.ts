@@ -1,4 +1,3 @@
-
 /**
  * Menu item descriptions for kitchen menu
  */
@@ -90,4 +89,8 @@ export const menuItemDescriptions: Record<string, string> = {
   'fruit_juice': 'Fruit Juice (7L)',
   'minty_mojito': 'Minty Mojito (7L)',
   'midnight_snack': 'Midnight Snack'
+};
+
+export const getMenuItemDescription = (code: string): string => {
+  return menuItemDescriptions[code] || code;
 };
