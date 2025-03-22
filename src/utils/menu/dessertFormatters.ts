@@ -11,7 +11,12 @@ export const formatDessertSection = (menuState: MenuState): string => {
   
   let section = formatSectionHeader('DESSERT');
   
-  section += `${getMenuItemDescription(menuState.dessertType)}\n`;
+  // Include specific dessert type title with package info if applicable
+  if (menuState.dessertType === 'canapes') {
+    section += `DESSERT CANAPÉS (Choose ${menuState.dessertCanapes.length})\n`;
+  } else {
+    section += `${getMenuItemDescription(menuState.dessertType)}\n`;
+  }
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
     section += `• ${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;

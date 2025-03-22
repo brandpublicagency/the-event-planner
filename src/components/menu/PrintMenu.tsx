@@ -39,6 +39,10 @@ const formatMenuText = (text: string): JSX.Element => {
         } else if (line.trim().endsWith(':')) {
           // This is a category label
           return <p key={index} className="category-label">{line}</p>;
+        } else if (line.trim().startsWith('CANAPÉS') || 
+                  line.trim().startsWith('DESSERT CANAPÉS')) {
+          // This is a subsection header
+          return <p key={index} className="category-label" style={{ fontWeight: 'bold' }}>{line}</p>;
         } else if (line.trim()) {
           // This is a regular item
           return <p key={index} className="menu-item">{line}</p>;

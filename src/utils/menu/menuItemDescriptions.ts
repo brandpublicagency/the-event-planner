@@ -16,8 +16,8 @@ export const menuItemDescriptions: Record<string, string> = {
   
   // Dessert Types
   'traditional': 'Traditional Baked Desserts',
-  'individual': 'Individual Cakes',
-  'bar': 'Dessert Bar',
+  'individual_cakes': 'Individual Cakes',
+  'canapes': 'Dessert Canapés',
   
   // Main Course - Karoo Meat
   'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -83,6 +83,32 @@ export const menuItemDescriptions: Record<string, string> = {
   'chocolate_cake': 'Rich chocolate cake with dark chocolate ganache',
   'carrot_cake': 'Carrot cake with cream cheese frosting',
   'lemon_cake': 'Lemon & poppyseed cake with cream and mascarpone',
+  
+  // Canapés
+  'slider': 'Beef & brie sliders with caramelised onion & tomato chutney',
+  'melon': 'Melon & parma ham skewers (S)',
+  'ricotta': 'Ricotta and Roasted Grape Crostini (V)',
+  'chicken': 'Sticky ginger & soy chicken satay',
+  'bruschetta': 'Bruschetta with roasted peppers, tomato & basil (V)',
+  'bobotie': 'Bobotie Springroll served with Homemade Chutney',
+  'kofta': 'Koftas with cucumber and mint yoghurt',
+  'caprese': 'Tomato, mozzarella & basil skewers (V)',
+  'prawn': 'Crumbed prawn with sweet Asian dipping sauce',
+  'pork': 'Pulled pork mini pitas with sour cream & pickled onion',
+  
+  // Dessert Canapés
+  'carrot_cupcakes': 'Carrot cupcakes with mascarpone frosting',
+  'brownies': 'Chocolate brownies',
+  'chocolate_cupcakes': 'Dark chocolate ganache cupcakes',
+  'chocolate_mousse': 'Dark or white chocolate mousse',
+  'pavlovas': 'Lemon curd & berry pavlovas',
+  'meringues': 'Lemon meringues',
+  'milk_tartlets': 'Milk tartlets',
+  'pecan_pies': 'Pecan nut pies',
+  'peppermint_crisp': 'Peppermint crisp treat',
+  'red_velvet': 'Red velvet cupcakes with cream cheese frosting',
+  'koeksisters': 'Traditional koeksisters',
+  'vanilla_cupcakes': 'Vanilla cupcakes with sweet butter frosting',
   
   // Additional options
   'infused_water': 'Infused Water (7L)',
