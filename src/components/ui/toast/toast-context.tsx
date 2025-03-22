@@ -25,8 +25,8 @@ interface ToastProviderProps {
   children: ReactNode;
 }
 
-// Define the maximum number of toasts to show at once
-const MAX_TOASTS = 1;
+// Define the maximum number of toasts to show at once per position
+const MAX_TOASTS_PER_POSITION = 3;
 
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastContextValue["toasts"]>([]);
@@ -63,10 +63,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
 
   const toast = (options: ToastOptions) => {
     const id = options.id || String(Date.now());
+    const position = options.position || "bottom";
     
-    // Create a hash key for deduplication
-    const toastKey = `${options.variant || 'default'}:${String(options.title)}:${String(options.description)}`;
-
     setToasts((prevToasts) => {
       // If this exact toast already exists, don't add it again
       const existingToastIndex = prevToasts.findIndex(
@@ -90,10 +88,18 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       // Filter out closed toasts first
       const activeToasts = prevToasts.filter(toast => toast.open);
       
-      // Limit total number of toasts
-      const filteredPrevToasts = activeToasts.length >= MAX_TOASTS 
-        ? [] // Clear all toasts if we've reached the limit
-        : activeToasts;
+      // Count toasts by position
+      const positionCount = activeToasts.filter(t => (t.position || "bottom") === position).length;
+      
+      // Limit total number of toasts per position
+      let filteredToasts = [...activeToasts];
+      if (positionCount >= MAX_TOASTS_PER_POSITION) {
+        // Remove oldest toast with the same position
+        const oldestToastIndex = activeToasts.findIndex(t => (t.position || "bottom") === position);
+        if (oldestToastIndex !== -1) {
+          filteredToasts.splice(oldestToastIndex, 1);
+        }
+      }
       
       // Set auto-dismiss timeout
       const duration = options.duration || 5000;
@@ -110,7 +116,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       
       // Add new toast
       return [
-        ...filteredPrevToasts,
+        ...filteredToasts,
         {
           ...options,
           id,

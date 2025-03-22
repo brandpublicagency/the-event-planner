@@ -8,7 +8,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -70,10 +70,18 @@ export function NotificationDropdown() {
         }
       }
       
-      toast("Notification marked as read");
+      toast({
+        title: "Notification",
+        description: "Marked as read",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error marking notification as read:", error);
-      toast("Failed to mark notification as read");
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive"
+      });
     }
   }, [markAsRead, navigate]);
 
@@ -81,10 +89,18 @@ export function NotificationDropdown() {
   const handleCompleteTask = useCallback(async (id: string) => {
     try {
       await markAsCompleted(id);
-      toast("Task marked as complete!");
+      toast({
+        title: "Success",
+        description: "Task marked as complete!",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error marking task as complete:", error);
-      toast("Failed to mark task as complete");
+      toast({
+        title: "Error",
+        description: "Failed to mark task as complete",
+        variant: "destructive"
+      });
     }
   }, [markAsCompleted]);
 
@@ -97,10 +113,18 @@ export function NotificationDropdown() {
   const handleMarkAllAsRead = useCallback(async () => {
     try {
       await markAllAsRead();
-      toast("All notifications marked as read");
+      toast({
+        title: "Success",
+        description: "All notifications marked as read",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error marking all as read:", error);
-      toast("Failed to mark all as read");
+      toast({
+        title: "Error",
+        description: "Failed to mark all as read",
+        variant: "destructive"
+      });
     }
   }, [markAllAsRead]);
 

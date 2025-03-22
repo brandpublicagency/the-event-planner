@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Check } from 'lucide-react';
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
@@ -35,61 +35,77 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchAttempts, setFetchAttempts] = useState(0);
+
+  const fetchMenuSelections = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log(`Fetching menu selections for event ${eventCode}, attempt ${fetchAttempts + 1}`);
+
+      const { data, error } = await supabase
+        .from('menu_selections')
+        .select('*')
+        .eq('event_code', eventCode)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Supabase error fetching menu selections:", error);
+        throw error;
+      }
+
+      if (data) {
+        console.log("Menu data found:", data);
+        const menuData = data as unknown as MenuSelectionResponse;
+        setMenuState({
+          isCustomMenu: menuData.is_custom || false,
+          customMenuDetails: menuData.custom_menu_details || '',
+          selectedStarterType: menuData.starter_type || '',
+          selectedCanapePackage: menuData.canape_package || '',
+          selectedCanapes: menuData.canape_selections || [],
+          selectedPlatedStarter: menuData.plated_starter || '',
+          mainCourseType: menuData.main_course_type || '',
+          buffetMeatSelections: menuData.buffet_meat_selections || [],
+          buffetVegetableSelections: menuData.buffet_vegetable_selections || [],
+          buffetStarchSelections: menuData.buffet_starch_selections || [],
+          buffetSaladSelection: menuData.buffet_salad_selection || '',
+          karooMeatSelection: menuData.karoo_meat_selection || '',
+          karooStarchSelection: Array.isArray(menuData.karoo_starch_selection) ? menuData.karoo_starch_selection : [],
+          karooVegetableSelections: menuData.karoo_vegetable_selections || [],
+          karooSaladSelection: menuData.karoo_salad_selection || '',
+          platedMainSelection: menuData.plated_main_selection || '',
+          platedSaladSelection: menuData.plated_salad_selection || '',
+          dessertType: menuData.dessert_type || '',
+          traditionalDessert: menuData.traditional_dessert || '',
+          dessertCanapes: Array.isArray(menuData.dessert_canapes) ? menuData.dessert_canapes : [],
+          individualCakes: Array.isArray(menuData.individual_cakes) ? menuData.individual_cakes : [],
+          individual_cake_quantities: menuData.individual_cake_quantities || {},
+          otherSelections: menuData.other_selections || [],
+          otherSelectionsQuantities: menuData.other_selections_quantities || {},
+          notes: menuData.notes || '',
+        });
+      } else {
+        console.log("No menu data found for event", eventCode);
+      }
+    } catch (err) {
+      console.error('Error fetching menu selections:', err);
+      setError('Failed to load menu selections');
+      
+      // Retry once if we haven't already
+      if (fetchAttempts < 1) {
+        setFetchAttempts(prev => prev + 1);
+        setTimeout(() => fetchMenuSelections(), 1500);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventCode, fetchAttempts]);
 
   useEffect(() => {
-    const fetchMenuSelections = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const { data, error } = await supabase
-          .from('menu_selections')
-          .select('*')
-          .eq('event_code', eventCode)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          const menuData = data as unknown as MenuSelectionResponse;
-          setMenuState({
-            isCustomMenu: menuData.is_custom || false,
-            customMenuDetails: menuData.custom_menu_details || '',
-            selectedStarterType: menuData.starter_type || '',
-            selectedCanapePackage: menuData.canape_package || '',
-            selectedCanapes: menuData.canape_selections || [],
-            selectedPlatedStarter: menuData.plated_starter || '',
-            mainCourseType: menuData.main_course_type || '',
-            buffetMeatSelections: menuData.buffet_meat_selections || [],
-            buffetVegetableSelections: menuData.buffet_vegetable_selections || [],
-            buffetStarchSelections: menuData.buffet_starch_selections || [],
-            buffetSaladSelection: menuData.buffet_salad_selection || '',
-            karooMeatSelection: menuData.karoo_meat_selection || '',
-            karooStarchSelection: Array.isArray(menuData.karoo_starch_selection) ? menuData.karoo_starch_selection : [],
-            karooVegetableSelections: menuData.karoo_vegetable_selections || [],
-            karooSaladSelection: menuData.karoo_salad_selection || '',
-            platedMainSelection: menuData.plated_main_selection || '',
-            platedSaladSelection: menuData.plated_salad_selection || '',
-            dessertType: menuData.dessert_type || '',
-            traditionalDessert: menuData.traditional_dessert || '',
-            dessertCanapes: Array.isArray(menuData.dessert_canapes) ? menuData.dessert_canapes : [],
-            individualCakes: Array.isArray(menuData.individual_cakes) ? menuData.individual_cakes : [],
-            individual_cake_quantities: menuData.individual_cake_quantities || {},
-            otherSelections: menuData.other_selections || [],
-            otherSelectionsQuantities: menuData.other_selections_quantities || {},
-            notes: menuData.notes || '',
-          });
-        }
-      } catch (err) {
-        console.error('Error fetching menu selections:', err);
-        setError('Failed to load menu selections');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMenuSelections();
-  }, [eventCode]);
+    if (eventCode) {
+      fetchMenuSelections();
+    }
+  }, [eventCode, fetchMenuSelections]);
 
   const handleMenuStateChange = (field: keyof MenuState, value: any) => {
     setMenuState(prev => ({ ...prev, [field]: value }));
@@ -107,6 +123,8 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
   const saveMenuSelections = async () => {
     try {
+      console.log('Preparing to save menu selections for event:', eventCode);
+      
       const menuData: SaveMenuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
@@ -138,25 +156,30 @@ export const useMenuState = (eventCode: string, toast: any) => {
 
       console.log('Saving menu data:', menuData);
 
-      const { error } = await supabase
+      const { error: saveError } = await supabase
         .from('menu_selections')
         .upsert(menuData);
 
-      if (error) throw error;
+      if (saveError) {
+        console.error('Error from Supabase when saving menu:', saveError);
+        throw saveError;
+      }
 
       toast({
         title: "Menu saved successfully",
         description: "Your menu selections have been updated",
-        className: "bg-white border-green-500",
-        icon: <Check className="h-4 w-4 text-green-500" />,
+        variant: "success",
       });
-    } catch (err) {
+      
+      return true;
+    } catch (err: any) {
       console.error('Error saving menu selections:', err);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save menu selections",
+        description: "Failed to save menu selections: " + (err.message || "Unknown error"),
       });
+      throw err;
     }
   };
 
