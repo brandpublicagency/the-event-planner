@@ -23,7 +23,7 @@ const DashboardTasksSection = ({ selectedTaskId, onTaskSelect }: DashboardTasksS
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b py-5">
+      <div className="flex items-center justify-between p-4 py-5">
         <div className="flex items-center gap-2">
           <CheckSquare className="h-5 w-5 text-zinc-700" />
           <h3 className="text-lg font-medium text-zinc-900">Upcoming Tasks</h3>
