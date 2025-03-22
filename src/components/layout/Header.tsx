@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { UserMenu } from "./UserMenu";
@@ -68,7 +69,7 @@ export const Header = ({
             onClick={onBackButtonClick} 
           />}
           
-          {finalPageTitle}
+          <SearchBar />
         </div>
 
         {children}
@@ -81,7 +82,6 @@ export const Header = ({
               {actionButton.label}
             </Button>}
           
-          <SearchBar />
           <NotificationButton />
           <UserMenu />
         </div>
