@@ -66,7 +66,7 @@ const UpcomingEventsSection = () => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden mt-[10px]">
       <div className="flex items-center justify-between p-4 border-b rounded-t-lg py-[20px] rounded-md bg-slate-200">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-zinc-700" />
