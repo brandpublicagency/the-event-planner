@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { Header } from "@/components/layout/Header";
 import { CalendarX, Calendar, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -120,50 +122,67 @@ export default function Events() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-zinc-50/50">
       <Header 
         pageTitle="Events" 
       />
       
-      <div className="flex-1 p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-5 w-5 text-zinc-600" />
-            <h2 className="text-lg font-medium">Upcoming Events</h2>
-          </div>
-          
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-zinc-700"
-              onClick={() => navigate('/passed-events')}
-            >
-              <CalendarX className="h-4 w-4 mr-1.5" />
-              Past Events
-            </Button>
-            
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate('/events/new')}
-            >
-              <PlusCircle className="h-4 w-4 mr-1.5" />
-              New Event
-            </Button>
-          </div>
-        </div>
+      <div className="flex-1 p-6 flex flex-col gap-5 max-w-7xl mx-auto w-full">
+        <Card className="border-none shadow-sm bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50">
+                  <Calendar className="h-5 w-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-zinc-900">Upcoming Events</h2>
+                  <p className="text-sm text-zinc-500 mt-0.5">
+                    {Object.values(groupedEvents).flat().length} events scheduled
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-zinc-700 h-9 px-4 shadow-sm border-zinc-200 hover:bg-zinc-100"
+                  onClick={() => navigate('/passed-events')}
+                >
+                  <CalendarX className="h-4 w-4 mr-2" />
+                  Past Events
+                </Button>
+                
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 shadow-sm"
+                  onClick={() => navigate('/events/new')}
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  New Event
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
         {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <p className="text-sm text-muted-foreground">Loading events...</p>
+          <div className="flex items-center justify-center h-60 bg-white rounded-xl border border-zinc-100 shadow-sm">
+            <div className="flex flex-col items-center gap-2">
+              <div className="h-5 w-5 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div>
+              <p className="text-sm text-zinc-500">Loading events...</p>
+            </div>
           </div>
         ) : (
-          <EventsTable 
-            groupedEvents={groupedEvents} 
-            handleDelete={handleDeleteEvent}
-            className="flex-1"
-          />
+          <div className="rounded-xl overflow-hidden shadow-sm">
+            <EventsTable 
+              groupedEvents={groupedEvents} 
+              handleDelete={handleDeleteEvent}
+              className="flex-1"
+            />
+          </div>
         )}
       </div>
     </div>

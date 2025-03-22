@@ -1,8 +1,8 @@
 
 import { Button } from "@/components/ui/button";
-import { Trash, Copy, Pencil, Loader2 } from "lucide-react";
+import { Trash, Copy, Pencil, Loader2, MapPin, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { format, isToday } from "date-fns";
+import { format, isToday, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
@@ -52,41 +52,108 @@ export const EventCard = ({
   // Check if event is happening today
   const eventIsToday = event.event_date ? isToday(new Date(event.event_date)) : false;
   
+  // Get venue information
+  const venueStr = getVenueNames(event);
+  
+  // Get formatted event date
+  const eventDate = event.event_date ? parseISO(event.event_date) : null;
+  const formattedDate = eventDate ? format(eventDate, 'EEE, d MMM') : 'No date';
+  
+  // Get event time
+  const timeStr = event.start_time ? 
+    (event.end_time ? 
+      `${event.start_time.substring(0, 5)} - ${event.end_time.substring(0, 5)}` : 
+      event.start_time.substring(0, 5)) : 
+    null;
+  
+  // Get event type color
+  const getEventTypeColor = () => {
+    switch(event.event_type?.toLowerCase()) {
+      case 'wedding': return 'bg-pink-50 text-pink-700 border-pink-200';
+      case 'corporate': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'celebration': return 'bg-purple-50 text-purple-700 border-purple-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+  
   const eventCardContent = (
-    <div className="bg-white rounded-none px-[15px] py-[15px]">
+    <div className="bg-white p-5 transition-all duration-200 hover:bg-zinc-50/70">
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <button onClick={() => navigate(`/events/${event.event_code}`)} className="text-sm font-medium text-zinc-900 no-underline hover:no-underline">
-              {event.name}
-            </button>
-            {!isDashboard && <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center gap-1">
-                {event.event_code}
-                <Copy className="h-3 w-3" />
-              </button>}
+        <div className="space-y-3 flex-1">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-base font-medium text-zinc-900 hover:text-indigo-600 transition-colors">
+                {event.name}
+              </h3>
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-xs text-zinc-500">{formattedDate}</span>
+                {timeStr && (
+                  <>
+                    <span className="text-xs text-zinc-400">•</span>
+                    <span className="text-xs text-zinc-500">{timeStr}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {!isDashboard && (
+              <div className="flex items-center">
+                <button 
+                  onClick={e => copyEventCode(e, event.event_code)} 
+                  className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-zinc-100 transition-colors flex items-center gap-1"
+                >
+                  {event.event_code}
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-900">
-              <span className="font-medium">
-                {event.event_date ? format(new Date(event.event_date), 'dd MMMM') : 'No date'}
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {event.event_type && (
+              <span className={cn("text-xs px-2.5 py-1 rounded-full border", getEventTypeColor())}>
+                {event.event_type}
               </span>
-              <span className="ml-2 text-zinc-500">
-                {event.event_type} / <span className="text-zinc-900">{event.pax} Pax</span> / {getVenueNames(event)}
-              </span>
-            </span>
+            )}
+            
+            {venueStr && (
+              <div className="flex items-center text-xs text-zinc-600">
+                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                <span>{venueStr}</span>
+              </div>
+            )}
+            
+            {event.pax && (
+              <div className="flex items-center text-xs text-zinc-600">
+                <Users className="h-3 w-3 mr-1 flex-shrink-0" />
+                <span>{event.pax} guests</span>
+              </div>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={e => {
-          e.stopPropagation();
-          navigate(`/events/${event.event_code}/edit`);
-        }} className="text-zinc-600 hover:text-white hover:bg-zinc-900">
+        
+        <div className="flex items-center gap-1 ml-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={e => {
+              e.stopPropagation();
+              navigate(`/events/${event.event_code}/edit`);
+            }} 
+            className="text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full h-8 w-8 p-0"
+          >
             <Pencil className="h-4 w-4" />
           </Button>
           
-          {handleDelete && <AlertDialog>
+          {handleDelete && (
+            <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-white hover:bg-red-600" disabled={isDeleting}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 p-0" 
+                  disabled={isDeleting}
+                >
                   {isDeleting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -120,20 +187,25 @@ export const EventCard = ({
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
-            </AlertDialog>}
+            </AlertDialog>
+          )}
         </div>
       </div>
     </div>
   );
   
   return (
-    <div key={event.event_code} className="">
+    <div 
+      key={event.event_code} 
+      className="cursor-pointer" 
+      onClick={() => navigate(`/events/${event.event_code}`)}
+    >
       {eventIsToday ? (
-        <AnimatedBorder borderWidth={3} borderRadius={4} className="mb-2">
+        <AnimatedBorder borderWidth={3} borderRadius={0} className="mb-px">
           {eventCardContent}
         </AnimatedBorder>
       ) : (
-        <div className="border border-zinc-100 bg-white rounded-md mb-2">
+        <div>
           {eventCardContent}
         </div>
       )}
