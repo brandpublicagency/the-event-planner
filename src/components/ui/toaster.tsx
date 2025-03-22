@@ -1,4 +1,3 @@
-
 import { Toaster as SonnerToaster } from "sonner";
 
 export function Toaster() {
@@ -12,6 +11,7 @@ export function Toaster() {
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
+        duration: 5000,
       }}
     />
   );
