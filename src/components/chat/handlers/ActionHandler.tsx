@@ -80,8 +80,8 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
           try {
             const updateResult = await updateEvent(action.payload.event_code, action.payload.updates);
             success = updateResult.success;
-            // Ensure we have a message property, or use a default
-            message = updateResult.message || (updateResult.success ? "Event updated successfully" : "Failed to update event");
+            // Fix: Handle case where message property doesn't exist in updateResult
+            message = success ? "Event updated successfully" : "Failed to update event";
             
             if (success) {
               toast.success(message, {
