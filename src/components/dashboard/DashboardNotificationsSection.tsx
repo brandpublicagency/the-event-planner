@@ -90,7 +90,7 @@ const DashboardNotificationsSection = () => {
   const limitedNotifications = notifications.slice(0, 3);
   return <div className="flex flex-col">
       {/* Notification heading - using the same style as NotificationDropdown */}
-      <div className="flex items-center justify-between p-3 border-b rounded-t-lg shadow-sm rounded-md py-[20px] px-[15px] bg-slate-100">
+      <div className="flex items-centre justify-between p-3 border-b rounded-t-lg py-[20px] rounded-md bg-red-100">
         <div className="flex flex-col">
           <p className="text-zinc-900 text-xl font-semibold">Notifications</p>
           <p className="text-xs text-muted-foreground">
