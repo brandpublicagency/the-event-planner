@@ -15,7 +15,7 @@ export const formatDessertSection = (menuState: MenuState): string => {
   if (menuState.dessertType === 'canapes') {
     section += `DESSERT CANAPÉS (Choose ${menuState.dessertCanapes.length})\n`;
   } else if (menuState.dessertType === 'individual_cakes') {
-    // Fix: Change description for individual cakes to be more specific
+    // Fix: Change description for individual cakes to be more specific and include heading
     section += `INDIVIDUAL CAKES\n`;
   } else {
     section += `${getMenuItemDescription(menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType)}\n`;

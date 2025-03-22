@@ -20,7 +20,7 @@ export const formatStarterSection = (menuState: MenuState): string => {
   } else if (menuState.selectedStarterType === 'harvest') {
     section += `${getMenuItemDescription('harvest')}\n`;
   } else if (menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter) {
-    // Fix: Don't include "Plated Menu - " prefix, just show the description directly
+    // Fix: Don't include "Plated Menu - " prefix, just show the full description directly
     section += `${cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}\n`;
   }
   
