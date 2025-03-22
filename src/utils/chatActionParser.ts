@@ -93,6 +93,16 @@ export const identifyActionFromAI = (message: string): PendingAction | null => {
 };
 
 /**
+ * Define the AIAction interface that was missing
+ */
+export interface AIAction {
+  type: string;
+  payload: any;
+  displayName?: string;
+  description?: string;
+}
+
+/**
  * Prepares a PendingAction object with an appropriate confirmation message
  */
 const prepareActionWithConfirmation = (actionData: any): PendingAction => {

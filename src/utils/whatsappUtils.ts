@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
@@ -317,3 +316,26 @@ async function handleMenus() {
     };
   }
 }
+
+/**
+ * Handles WhatsApp related actions from AI
+ */
+export const handleWhatsAppAction = async (payload: any) => {
+  try {
+    console.log('WhatsApp action requested with payload:', payload);
+    
+    // This is a placeholder implementation until the actual WhatsApp
+    // functionality is implemented
+    
+    return {
+      success: false,
+      message: "WhatsApp functionality is not currently implemented"
+    };
+  } catch (error) {
+    console.error('Error handling WhatsApp action:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : String(error)
+    };
+  }
+};

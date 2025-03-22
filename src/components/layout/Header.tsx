@@ -20,6 +20,7 @@ export interface ActionButtonProps {
 export interface HeaderProps {
   contextTitle?: string;
   pageTitle?: string;
+  title?: string; // Added for backward compatibility
   actionButton?: ActionButtonProps;
   secondaryAction?: React.ReactNode;
   children?: React.ReactNode;
@@ -31,6 +32,7 @@ export interface HeaderProps {
 export const Header = ({
   contextTitle,
   pageTitle,
+  title, // Support the old title prop
   actionButton,
   secondaryAction,
   children,
@@ -53,21 +55,25 @@ export const Header = ({
     return 'Event Management';
   };
   
-  const finalPageTitle = pageTitle || getDefaultPageTitle();
+  // Use title as fallback for pageTitle for backward compatibility
+  const finalPageTitle = pageTitle || title || getDefaultPageTitle();
   
   const handleToggleMobileMenu = () => {
     document.documentElement.classList.toggle('sidebar-open');
   };
   
-  return <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
+  return (
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
       <div className="flex items-center h-16 px-6">
         <div className="flex gap-4 items-center">
           <MobileMenuToggle onClick={handleToggleMobileMenu} />
           
-          {showBackButton && <BackButton 
-            path={backButtonPath} 
-            onClick={onBackButtonClick} 
-          />}
+          {showBackButton && (
+            <BackButton 
+              path={backButtonPath} 
+              onClick={onBackButtonClick} 
+            />
+          )}
           
           <SearchBar />
         </div>
@@ -77,14 +83,23 @@ export const Header = ({
         <div className="ml-auto flex items-center gap-6">
           {secondaryAction}
           
-          {actionButton && <Button variant={actionButton.variant || "default"} size="sm" onClick={actionButton.onClick} disabled={actionButton.disabled} className="gap-1">
+          {actionButton && (
+            <Button 
+              variant={actionButton.variant || "default"} 
+              size="sm" 
+              onClick={actionButton.onClick} 
+              disabled={actionButton.disabled} 
+              className="gap-1"
+            >
               {actionButton.icon}
               {actionButton.label}
-            </Button>}
+            </Button>
+          )}
           
           <NotificationButton />
           <UserMenu />
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };

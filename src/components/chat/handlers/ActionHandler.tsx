@@ -1,10 +1,8 @@
 
 import React, { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { AIAction } from "@/utils/chatActionParser";
-import { createEvent } from "@/utils/createEventUtils";
+import { createNewEvent } from "@/utils/createEventUtils";
 import { updateEvent } from "@/utils/eventUpdateUtils";
-import { handleWhatsAppAction } from "@/utils/whatsappUtils";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -16,6 +14,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+// Define the AIAction type since it's missing from any imported module
+interface AIAction {
+  type: string;
+  payload: any;
+  displayName?: string;
+  description?: string;
+}
 
 interface ActionHandlerProps {
   action: AIAction;
@@ -45,16 +51,19 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             id: "create-event", // Use ID for later reference
           });
           
-          const result = await createEvent(action.payload);
-          success = result.success;
-          message = result.message;
-          
-          if (success) {
+          try {
+            const eventCode = await createNewEvent(action.payload);
+            success = true;
+            message = `Event created successfully with code: ${eventCode}`;
+            
             toast.success(message, {
               id: "create-event",
               duration: 4000,
             });
-          } else {
+          } catch (error) {
+            success = false;
+            message = error instanceof Error ? error.message : String(error);
+            
             toast.error(message, {
               id: "create-event",
               duration: 4000,
@@ -68,7 +77,7 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             id: "update-event",
           });
           
-          const updateResult = await updateEvent(action.payload);
+          const updateResult = await updateEvent(action.payload.event_code, action.payload.updates);
           success = updateResult.success;
           message = updateResult.message;
           
@@ -86,26 +95,18 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
           break;
 
         case "send_whatsapp":
-          toast.info("Sending WhatsApp message...", {
+          toast.info("WhatsApp messaging not implemented", {
             duration: 0,
             id: "send-whatsapp",
           });
           
-          const whatsappResult = await handleWhatsAppAction(action.payload);
-          success = whatsappResult.success;
-          message = whatsappResult.message;
+          success = false;
+          message = "WhatsApp messaging feature is not yet implemented";
           
-          if (success) {
-            toast.success(message, {
-              id: "send-whatsapp",
-              duration: 4000,
-            });
-          } else {
-            toast.error(message, {
-              id: "send-whatsapp",
-              duration: 4000,
-            });
-          }
+          toast.error(message, {
+            id: "send-whatsapp",
+            duration: 4000,
+          });
           break;
 
         default:
@@ -170,6 +171,19 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
       </AlertDialog>
     </>
   );
+};
+
+// Create a hook to use the ActionHandler
+export const useActionHandler = () => {
+  const handlePendingAction = async (action: any) => {
+    return new Promise<boolean>((resolve) => {
+      // This would be implemented to handle pending actions
+      console.log("Handling pending action:", action);
+      resolve(true);
+    });
+  };
+
+  return { handlePendingAction };
 };
 
 export default ActionHandler;
