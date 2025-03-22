@@ -46,7 +46,7 @@ const DashboardMessage = () => {
   const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
 
   if (isLoading || isProfileLoading) {
-    return <div className="mb-6">
+    return <div className="mb-6 mt-4">
         <div className="p-4">
           <Skeleton className="h-6 w-3/4" />
           <Skeleton className="h-4 w-2/3 mt-2" />
@@ -55,7 +55,7 @@ const DashboardMessage = () => {
   }
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 mt-4">
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
