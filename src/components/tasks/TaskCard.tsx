@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Task } from "@/contexts/TaskContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { TaskStatusBadges } from "./TaskStatusBadges";
 import { TaskActions } from "./TaskActions";
 import { cn } from "@/lib/utils";
@@ -19,7 +18,6 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -59,18 +57,10 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task deleted",
-        description: `"${task.title}" has been deleted.`,
-      });
+      console.log(`Task "${task.title}" has been deleted.`);
     },
     onError: (error: Error) => {
       console.error("Delete error:", error);
-      toast({
-        title: "Error deleting task",
-        description: error.message,
-        variant: "destructive",
-      });
     },
     onSettled: () => {
       setIsDeleting(false);

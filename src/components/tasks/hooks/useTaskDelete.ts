@@ -2,11 +2,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { Task } from "@/contexts/TaskContext";
 
 export function useTaskDelete(task: Task) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -46,18 +44,10 @@ export function useTaskDelete(task: Task) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task deleted",
-        description: `"${task.title}" has been deleted.`,
-      });
+      console.log(`Task "${task.title}" has been deleted.`);
     },
     onError: (error: Error) => {
       console.error("Delete error:", error);
-      toast({
-        title: "Error deleting task",
-        description: error.message,
-        variant: "destructive",
-      });
     },
     onSettled: () => {
       setIsDeleting(false);

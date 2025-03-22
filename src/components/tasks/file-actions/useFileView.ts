@@ -1,11 +1,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 export function useFileView() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleView = async (filePath: string) => {
     try {
@@ -25,11 +23,6 @@ export function useFileView() {
       
     } catch (error: any) {
       console.error('[View] Error:', error);
-      toast({
-        title: "Error viewing file",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }

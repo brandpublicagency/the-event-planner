@@ -1,9 +1,9 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserPlus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 interface AddTeamMemberFormProps {
   onAddMember: (email: string) => Promise<void>;
@@ -12,16 +12,14 @@ interface AddTeamMemberFormProps {
 const AddTeamMemberForm = ({ onAddMember }: AddTeamMemberFormProps) => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+    
     if (!email) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
+      setErrorMessage("Please enter an email address");
       return;
     }
 
@@ -29,12 +27,10 @@ const AddTeamMemberForm = ({ onAddMember }: AddTeamMemberFormProps) => {
     try {
       await onAddMember(email);
       setEmail("");
-      toast({
-        title: "Success",
-        description: "Team member invitation sent successfully",
-      });
+      console.log("Team member invitation sent successfully");
     } catch (error) {
       console.error('Error adding team member:', error);
+      setErrorMessage("Failed to send invitation. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -62,6 +58,9 @@ const AddTeamMemberForm = ({ onAddMember }: AddTeamMemberFormProps) => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"
             />
+            {errorMessage && (
+              <p className="text-sm text-red-500">{errorMessage}</p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             <UserPlus className="h-4 w-4 mr-2" />

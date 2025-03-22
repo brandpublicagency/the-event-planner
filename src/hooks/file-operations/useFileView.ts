@@ -1,11 +1,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 export function useFileView() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const viewFile = async (filePath: string, contentType: string) => {
     try {
@@ -92,11 +90,7 @@ export function useFileView() {
           
           imgContainer.appendChild(errorMsg);
           
-          toast({
-            title: "Error",
-            description: "Failed to load image. The file might not be a valid image.",
-            variant: "destructive",
-          });
+          console.error("Failed to load image. The file might not be a valid image.");
         };
         
         // Set source after attaching event handlers
@@ -111,11 +105,6 @@ export function useFileView() {
       }
     } catch (error: any) {
       console.error('[View] Error:', error);
-      toast({
-        title: "Error viewing file",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }

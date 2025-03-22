@@ -1,12 +1,10 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function useFileUpload() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const uploadFile = async (file: File, taskId: string) => {
@@ -50,18 +48,9 @@ export function useFileUpload() {
       if (dbError) throw dbError;
 
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
-      toast({
-        title: "File uploaded",
-        description: "File uploaded successfully",
-        variant: "success"
-      });
+      console.log("File uploaded successfully");
     } catch (error: any) {
       console.error('[Upload] Error:', error);
-      toast({
-        title: "Error uploading file",
-        description: error.message,
-        variant: "destructive",
-      });
       throw error;
     } finally {
       setIsLoading(false);

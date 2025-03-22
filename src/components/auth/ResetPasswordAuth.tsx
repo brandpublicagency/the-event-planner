@@ -1,8 +1,8 @@
+
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 interface ResetPasswordAuthProps {
   supabaseClient: SupabaseClient;
@@ -12,6 +12,7 @@ interface ResetPasswordAuthProps {
 
 export const ResetPasswordAuth = ({ supabaseClient, defaultEmail, redirectTo }: ResetPasswordAuthProps) => {
   const [formattedRedirectTo, setFormattedRedirectTo] = useState(redirectTo);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Ensure the redirect URL is properly encoded and includes the protocol
@@ -25,7 +26,7 @@ export const ResetPasswordAuth = ({ supabaseClient, defaultEmail, redirectTo }: 
         return urlObject.toString();
       } catch (error) {
         console.error('Error formatting URL:', error);
-        toast.error('Invalid redirect URL configuration');
+        setErrorMessage('Invalid redirect URL configuration');
         // Fallback to the current origin
         return window.location.origin;
       }
@@ -35,36 +36,43 @@ export const ResetPasswordAuth = ({ supabaseClient, defaultEmail, redirectTo }: 
   }, [redirectTo]);
 
   return (
-    <Auth
-      supabaseClient={supabaseClient}
-      view="forgotten_password"
-      appearance={{ 
-        theme: ThemeSupa,
-        variables: {
-          default: {
-            colors: {
-              brand: '#000000',
-              brandAccent: '#666666',
+    <div>
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
+          {errorMessage}
+        </div>
+      )}
+      <Auth
+        supabaseClient={supabaseClient}
+        view="forgotten_password"
+        appearance={{ 
+          theme: ThemeSupa,
+          variables: {
+            default: {
+              colors: {
+                brand: '#000000',
+                brandAccent: '#666666',
+              }
             }
           }
-        }
-      }}
-      theme="light"
-      showLinks={false}
-      providers={[]}
-      redirectTo={formattedRedirectTo}
-      {...(defaultEmail ? { defaultEmail } : {})}
-      localization={{
-        variables: {
-          forgotten_password: {
-            email_label: 'Email address',
-            button_label: 'Send Reset Instructions',
-            loading_button_label: 'Sending reset instructions...',
-            confirmation_text: 'Check your email for the password reset link',
-            email_input_placeholder: 'youremail@warmkaroo.com'
+        }}
+        theme="light"
+        showLinks={false}
+        providers={[]}
+        redirectTo={formattedRedirectTo}
+        {...(defaultEmail ? { defaultEmail } : {})}
+        localization={{
+          variables: {
+            forgotten_password: {
+              email_label: 'Email address',
+              button_label: 'Send Reset Instructions',
+              loading_button_label: 'Sending reset instructions...',
+              confirmation_text: 'Check your email for the password reset link',
+              email_input_placeholder: 'youremail@warmkaroo.com'
+            }
           }
-        }
-      }}
-    />
+        }}
+      />
+    </div>
   );
 };

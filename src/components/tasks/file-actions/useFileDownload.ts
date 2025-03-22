@@ -1,11 +1,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 export function useFileDownload() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
@@ -29,17 +27,8 @@ export function useFileDownload() {
       document.body.removeChild(link);
 
       console.log('[Download] File downloaded successfully');
-      toast({
-        title: "Success",
-        description: "File downloaded successfully",
-      });
     } catch (error: any) {
       console.error('[Download] Error:', error);
-      toast({
-        title: "Error downloading file",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }

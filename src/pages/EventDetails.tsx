@@ -14,7 +14,6 @@ import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
 import { updateEvent } from "@/services/eventService";
-import { useToast } from "@/hooks/use-toast";
 import { MenuState } from "@/hooks/menuStateTypes";
 
 const EventDetails = () => {
@@ -23,7 +22,6 @@ const EventDetails = () => {
   } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveMenuFunction, setSaveMenuFunction] = React.useState<() => Promise<void> | null>(null);
@@ -83,17 +81,11 @@ const EventDetails = () => {
       // Call the actual save function from WeddingMenuPlanner
       await saveMenuFunction();
       
-      toast({
-        title: "Success",
-        description: "Menu saved successfully",
-        variant: "success"
-      });
+      // Show success message in UI or console
+      console.log("Menu saved successfully");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to save menu",
-        variant: "destructive",
-      });
+      // Show error message in UI or console
+      console.error("Failed to save menu:", error.message);
     } finally {
       setIsSaving(false);
     }

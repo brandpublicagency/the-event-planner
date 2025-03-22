@@ -1,6 +1,11 @@
 
-// Re-export from the ui component path
-import { useToast } from "@/components/ui/use-toast";
-import { toast } from "@/components/ui/use-toast";
+export const useToast = () => {
+  // This is a placeholder that does nothing
+  return {
+    toast: () => ({ id: 'no-op' }),
+    dismiss: () => {},
+    toasts: []
+  };
+};
 
-export { useToast, toast };
+export const toast = () => ({ id: 'no-op' });

@@ -1,12 +1,10 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function useFileDelete() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const deleteFile = async (filePath: string, fileId: string, taskId: string) => {
@@ -35,11 +33,7 @@ export function useFileDelete() {
       if (storageError) {
         console.error('[Delete] Storage deletion error:', storageError);
         // Don't throw here as the database record is already deleted
-        toast({
-          title: "Warning",
-          description: `File record deleted but error removing file: ${storageError.message}`,
-          variant: "destructive",
-        });
+        console.warn(`File record deleted but error removing file: ${storageError.message}`);
       } else {
         console.log('[Delete] Storage deletion successful');
       }
@@ -47,20 +41,11 @@ export function useFileDelete() {
       // Always invalidate queries regardless of storage deletion success
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
       
-      toast({
-        title: "File deleted",
-        description: "File deleted successfully",
-        variant: "success",
-      });
+      console.log("File deleted successfully");
       
       return true;
     } catch (error: any) {
       console.error('[Delete] Error:', error);
-      toast({
-        title: "Error deleting file",
-        description: error.message,
-        variant: "destructive",
-      });
       throw error;
     } finally {
       setIsLoading(false);

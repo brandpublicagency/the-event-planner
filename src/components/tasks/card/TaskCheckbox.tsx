@@ -2,7 +2,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface TaskCheckboxProps {
   taskId: string;
@@ -11,7 +10,6 @@ interface TaskCheckboxProps {
 }
 
 export function TaskCheckbox({ taskId, completed, onClick }: TaskCheckboxProps) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const updateTaskMutation = useMutation({
@@ -27,11 +25,7 @@ export function TaskCheckbox({ taskId, completed, onClick }: TaskCheckboxProps) 
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error updating task:", error.message);
     },
   });
 

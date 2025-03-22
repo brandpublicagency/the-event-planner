@@ -1,11 +1,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { TaskUpdate } from "@/contexts/TaskContext";
 
 export function useTaskMutation(taskId: string) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -24,17 +22,10 @@ export function useTaskMutation(taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task updated",
-        description: "Your task has been updated successfully.",
-      });
+      console.log("Task updated successfully");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error updating task:", error.message);
     },
   });
 }

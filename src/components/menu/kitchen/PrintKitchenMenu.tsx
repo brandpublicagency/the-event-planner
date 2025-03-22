@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
-import { useToast } from '@/components/ui/use-toast';
 import KitchenMenuContent from './KitchenMenuContent';
 
 // Define interface for the print props
@@ -17,7 +16,6 @@ interface PrintMenuProps {
 // Print button component
 export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
   const componentRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
   
   // Log when the component mounts with debug info
   useEffect(() => {
@@ -44,18 +42,9 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     },
     onAfterPrint: () => {
       console.log("Kitchen menu print completed or canceled");
-      toast({
-        title: "Print action completed",
-        description: "Your menu has been sent to the printer or saved as PDF."
-      });
     },
     onPrintError: (errorLocation, error) => {
       console.error(`Print error (${errorLocation}):`, error);
-      toast({
-        title: "Print error",
-        description: "There was a problem printing your menu. Please try again.",
-        variant: "destructive"
-      });
     },
     pageStyle: `
       @page {
@@ -119,11 +108,6 @@ export const PrintKitchenMenu: React.FC<PrintMenuProps> = ({ event, menuState })
     
     if (!componentRef.current) {
       console.error("Print component ref is not available!");
-      toast({
-        title: "Print error",
-        description: "Could not prepare the menu for printing. Please try again.",
-        variant: "destructive"
-      });
       return;
     }
     

@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import { updateContact } from "@/services/contactService";
 import type { Contact } from "@/types/contact";
 
@@ -43,8 +42,6 @@ const ContactEditModal = ({
   onOpenChange,
   onUpdateSuccess,
 }: ContactEditModalProps) => {
-  const { toast } = useToast();
-  
   const form = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -60,11 +57,7 @@ const ContactEditModal = ({
       await updateContact(contact, values);
       onUpdateSuccess();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update contact",
-        variant: "destructive",
-      });
+      console.error("Failed to update contact:", error.message);
     }
   };
 

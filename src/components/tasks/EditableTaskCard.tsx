@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { Task, TaskUpdate } from "@/contexts/TaskContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface EditableTaskCardProps {
   task: Task;
@@ -21,7 +20,6 @@ interface EditableTaskCardProps {
 }
 
 export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardProps) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState(task.title);
   const [dueDate, setDueDate] = useState<Date | undefined>(
@@ -40,30 +38,16 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({
-        title: "Task updated",
-        description: "Your task has been updated successfully.",
-        variant: "success",
-        showProgress: true,
-      });
+      console.log("Task updated successfully");
       onSave();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error updating task",
-        description: error.message,
-        variant: "destructive",
-        showProgress: true,
-      });
+      console.error("Error updating task:", error.message);
     },
   });
 
   const handleSave = () => {
-    toast({
-      title: "Saving task...",
-      description: "Please wait while we save your changes.",
-      showProgress: true,
-    });
+    console.log("Saving task...");
     
     updateTaskMutation.mutate({
       title,

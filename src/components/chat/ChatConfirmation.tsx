@@ -4,7 +4,6 @@ import { useChatState } from "@/hooks/useChatState";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import type { PendingAction } from "@/types/chat";
-import { useToast } from "@/hooks/use-toast";
 
 interface ChatConfirmationProps {
   pendingAction: PendingAction;
@@ -12,7 +11,6 @@ interface ChatConfirmationProps {
 
 const ChatConfirmation = ({ pendingAction }: ChatConfirmationProps) => {
   const { addSystemMessage, setPendingAction } = useChatState();
-  const { toast } = useToast();
 
   const handleConfirm = async () => {
     await handleConfirmation({
@@ -22,11 +20,6 @@ const ChatConfirmation = ({ pendingAction }: ChatConfirmationProps) => {
       onError: (error) => {
         console.error('Error during action confirmation:', error);
         addSystemMessage(`Error: ${error.message}`);
-        toast({
-          title: "Action failed",
-          description: error.message,
-          variant: "destructive",
-        });
       }
     });
   };

@@ -3,7 +3,6 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 interface MagicLinkAuthProps {
   supabaseClient: SupabaseClient;
@@ -15,6 +14,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState(defaultEmail || "");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Use the current window location as the redirect URL
@@ -54,12 +54,13 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
     
     if (isSubmitting) return;
     
-    // Reset error state
+    // Reset error and success states
     setErrorMessage(null);
+    setSuccessMessage(null);
     
     // Validate email format
     if (!validateEmail(email)) {
-      toast.error(errorMessage || "Invalid email format");
+      console.error(errorMessage || "Invalid email format");
       return;
     }
     
@@ -76,21 +77,17 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
         console.error('Auth error:', error);
         if (error.message.includes('rate_limit')) {
           setErrorMessage('Please wait a moment before requesting another magic link');
-          toast.error('Please wait a moment before requesting another magic link');
         } else if (error.message.includes('Database error') || error.message.includes('@warmkaroo.com')) {
           setErrorMessage('Authentication error. Ensure you are using a valid @warmkaroo.com email address.');
-          toast.error('Authentication error. Ensure you are using a valid @warmkaroo.com email address.');
         } else {
           setErrorMessage(`Error sending magic link: ${error.message}`);
-          toast.error(`Error sending magic link: ${error.message}`);
         }
       } else {
-        toast.success('Check your email for the magic link');
+        setSuccessMessage('Check your email for the magic link');
       }
     } catch (error) {
       console.error('Auth error:', error);
       setErrorMessage('Error sending magic link. Please try again.');
-      toast.error('Error sending magic link. Please try again.');
     } finally {
       setIsSubmitting(false);
       // Add a delay before allowing another submission
@@ -116,6 +113,9 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
           />
           {errorMessage && (
             <p className="text-sm text-red-500">{errorMessage}</p>
+          )}
+          {successMessage && (
+            <p className="text-sm text-green-500">{successMessage}</p>
           )}
         </div>
         <button

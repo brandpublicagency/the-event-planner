@@ -1,10 +1,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useFileDelete() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -45,18 +43,10 @@ export function useFileDelete() {
     },
     onSuccess: (taskId) => {
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
+      console.log("File deleted successfully");
     },
     onError: (error: Error) => {
       console.error('[Delete] Error:', error);
-      toast({
-        title: "Error deleting file",
-        description: error.message,
-        variant: "destructive",
-      });
     }
   });
 
