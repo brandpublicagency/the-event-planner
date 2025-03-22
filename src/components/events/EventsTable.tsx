@@ -1,10 +1,10 @@
-
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
+import { format, parseISO } from "date-fns";
 
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
@@ -90,11 +90,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         )}
       </div>
     );
-  }
-
-  // Import format from date-fns if it's used
-  if (typeof format === 'undefined') {
-    const { format, parseISO } = require('date-fns');
   }
 
   return (

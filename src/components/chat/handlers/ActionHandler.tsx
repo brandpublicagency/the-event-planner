@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Define the AIAction type since it's missing from any imported module
+// Define the AIAction type
 interface AIAction {
   type: string;
   payload: any;
@@ -77,16 +77,27 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             id: "update-event",
           });
           
-          const updateResult = await updateEvent(action.payload.event_code, action.payload.updates);
-          success = updateResult.success;
-          message = updateResult.message;
-          
-          if (success) {
-            toast.success(message, {
-              id: "update-event",
-              duration: 4000,
-            });
-          } else {
+          try {
+            const updateResult = await updateEvent(action.payload.event_code, action.payload.updates);
+            success = updateResult.success;
+            // Ensure we have a message property, or use a default
+            message = updateResult.message || (updateResult.success ? "Event updated successfully" : "Failed to update event");
+            
+            if (success) {
+              toast.success(message, {
+                id: "update-event",
+                duration: 4000,
+              });
+            } else {
+              toast.error(message, {
+                id: "update-event",
+                duration: 4000,
+              });
+            }
+          } catch (error) {
+            success = false;
+            message = error instanceof Error ? error.message : String(error);
+            
             toast.error(message, {
               id: "update-event",
               duration: 4000,

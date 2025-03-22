@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,7 +32,6 @@ const Events = () => {
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Get events
   const {
     data: events = [],
     isLoading,
@@ -56,7 +54,6 @@ const Events = () => {
 
         if (error) throw error;
 
-        // Dismiss the loading toast on success
         toast.success("Events loaded successfully", { 
           id: "loading-events", 
           duration: 1500 
@@ -66,7 +63,6 @@ const Events = () => {
       } catch (err) {
         console.error("Error fetching events:", err);
         
-        // Show error toast
         toast.error("Failed to load events", { 
           id: "loading-events", 
           duration: 5000 
@@ -93,7 +89,6 @@ const Events = () => {
     });
 
     try {
-      // Soft delete by updating the deleted_at field
       const { error } = await supabase
         .from("events")
         .update({ deleted_at: new Date().toISOString() })
@@ -101,22 +96,18 @@ const Events = () => {
 
       if (error) throw error;
 
-      // Show success message
       toast.success("Event deleted successfully", {
         id: "delete-event",
         duration: 3000,
       });
 
-      // Close the dialog
       setIsDeleteDialogOpen(false);
       setEventToDelete(null);
 
-      // Invalidate the events query to refresh the list
       queryClient.invalidateQueries({ queryKey: ["events"] });
     } catch (err) {
       console.error("Error deleting event:", err);
       
-      // Show error message
       toast.error("Failed to delete event", {
         id: "delete-event",
         duration: 5000,
@@ -126,18 +117,16 @@ const Events = () => {
     }
   };
 
-  // Filter events by upcoming/passed
   const upcomingEvents = events.filter((event) => {
-    if (!event.event_date) return true; // If no date, show in upcoming
+    if (!event.event_date) return true;
     return isAfter(parseISO(event.event_date), new Date());
   });
 
   const passedEvents = events.filter((event) => {
-    if (!event.event_date) return false; // If no date, don't show in passed
+    if (!event.event_date) return false;
     return !isAfter(parseISO(event.event_date), new Date());
   });
 
-  // Group events by month for card view
   const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
     if (!event.event_date) {
       if (!groups["No Date"]) groups["No Date"] = [];
@@ -151,28 +140,19 @@ const Events = () => {
     return groups;
   }, {} as Record<string, Event[]>);
 
-  // Content for each view type
   const renderCardView = () => {
     return (
       <div className="space-y-8">
         {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
           <EventMonthGroup
             key={month}
-            month={month}
+            monthYear={month}
             events={monthEvents}
             onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
             onView={(eventCode) => navigate(`/events/${eventCode}`)}
             onDelete={handleDeleteEvent}
           />
         ))}
-
-        {Object.keys(groupedUpcomingEvents).length === 0 && (
-          <Card>
-            <CardContent className="p-6 text-center text-muted-foreground">
-              No upcoming events found. Create your first event!
-            </CardContent>
-          </Card>
-        )}
       </div>
     );
   };
@@ -180,7 +160,7 @@ const Events = () => {
   const renderTableView = () => {
     return (
       <EventsTable
-        events={upcomingEvents}
+        groupedEvents={groupedUpcomingEvents}
         isLoading={isLoading}
         onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
         onView={(eventCode) => navigate(`/events/${eventCode}`)}
