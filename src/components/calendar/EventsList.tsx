@@ -1,9 +1,10 @@
 
 import React from "react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isToday } from "date-fns";
 import { Loader2 } from "lucide-react";
 import type { Event } from "@/types/event";
 import { EventCard } from "@/components/events/EventCard";
+import { AnimatedBorder } from "@/components/ui/animated-border";
 
 interface EventsListProps {
   date?: Date;
@@ -32,6 +33,8 @@ export const EventsList: React.FC<EventsListProps> = ({
       </div>
     );
   }
+
+  const dateIsToday = date ? isToday(date) : false;
 
   return (
     <div className="space-y-2">
