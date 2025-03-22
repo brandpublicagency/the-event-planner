@@ -89,7 +89,7 @@ export const EventCard = ({
             </div>
             
             {!isDashboard && <div className="flex items-center">
-                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded hover:border-rose-300 transition-colors flex items-center gap-1 my-[6px] bg-white text-gray-600">
+                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border hover:border-rose-300 transition-colors flex items-center gap-1 my-[6px] bg-white text-gray-600 rounded-sm">
                   {event.event_code}
                   <Copy className="h-3 w-3" />
                 </button>
