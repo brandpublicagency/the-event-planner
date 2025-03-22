@@ -24,12 +24,12 @@ export const EventCardWrapper: React.FC<EventCardWrapperProps> = ({
           borderRadius={12} 
           className="mb-3"
         >
-          <div className="rounded-xl border border-zinc-100 bg-white hover:border-zinc-200 transition-colors overflow-hidden">
+          <div className="rounded-xl border border-zinc-100 hover:border-zinc-200 transition-colors overflow-hidden">
             {children}
           </div>
         </AnimatedBorder>
       ) : (
-        <div className="rounded-xl border border-zinc-100 bg-white mb-3 hover:border-zinc-200 transition-colors overflow-hidden">
+        <div className="rounded-xl border border-zinc-100 mb-3 hover:border-zinc-200 transition-colors overflow-hidden">
           {children}
         </div>
       )}

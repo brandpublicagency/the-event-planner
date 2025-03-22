@@ -39,7 +39,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     : groupedEvents;
 
   if (isDashboard) {
-    // Keep the dashboard view unchanged
+    // Keep the dashboard view unchanged but remove background
     return (
       <div className="space-y-3">
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
