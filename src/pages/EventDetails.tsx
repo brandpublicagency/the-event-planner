@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Edit, Save } from "lucide-react";
-import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
+import { WeddingMenuPlanner } from "@/components/WeddingMenuPlanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Event } from "@/types/event";

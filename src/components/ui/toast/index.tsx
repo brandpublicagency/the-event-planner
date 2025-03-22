@@ -7,11 +7,13 @@ import { ToastIcon } from "./components/ToastIcon"
 import { ToastProvider, ToastViewport } from "./components/ToastProvider"
 import { ToastWithIcon, ToastWithProgress } from "./components/ToastVariants"
 
-export type ToastActionElement = React.ReactElement<typeof ToastAction>
+// Define ToastActionElement without conflicting with the export
+import type { ReactElement } from "react"
+import { ToastAction as ToastActionType } from "./components/ToastAction"
+type ToastActionElement = ReactElement<typeof ToastActionType>
 
 export {
   type ToastProps,
-  type ToastActionElement,
   ToastProvider,
   ToastViewport,
   Toast,
@@ -23,4 +25,6 @@ export {
   ToastWithIcon,
   ToastWithProgress,
   toastVariants,
+  // Export the type, not as a named export to avoid conflict
+  type ToastActionElement,
 }
