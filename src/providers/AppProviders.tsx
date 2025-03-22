@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { SidebarToasts } from '@/components/sidebar/SidebarToasts';
 import { ToastProvider } from '@/components/ui/toast/toast-context';
 import { MenuProvider } from '@/contexts/MenuContext';
+import { TaskProvider } from '@/contexts/TaskContext';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -14,9 +15,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <MenuProvider>
-            {children}
-            <Toaster />
-            <SidebarToasts />
+            <TaskProvider>
+              {children}
+              <Toaster />
+              <SidebarToasts />
+            </TaskProvider>
           </MenuProvider>
         </ToastProvider>
       </QueryClientProvider>

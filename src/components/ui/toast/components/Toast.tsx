@@ -28,10 +28,8 @@ export const toastVariants = cva(
   }
 )
 
-// Create a separate interface that doesn't extend ToastPrimitives.Root props directly
-// to avoid circular reference issues
-export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>,
-  VariantProps<typeof toastVariants> {
+// Avoid the circular reference by creating a clean interface
+export interface ToastProps {
   id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -39,6 +37,13 @@ export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastP
   duration?: number;
   position?: "top" | "bottom" | "sidebar";
   showProgress?: boolean;
+  variant?: VariantProps<typeof toastVariants>["variant"];
+  className?: string;
+  // Include remaining properties from Radix Toast primitive
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  forceMount?: true;
+  altText?: string;
 }
 
 const Toast = React.forwardRef<
