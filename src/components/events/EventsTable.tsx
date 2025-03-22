@@ -39,9 +39,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     : groupedEvents;
 
   if (isDashboard) {
-    // Keep the dashboard view unchanged but remove background
+    // Keep the dashboard view unchanged but reduce spacing between cards
     return (
-      <div className="space-y-3">
+      <div className="space-y-1.5">
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
           <EventMonthGroup
             key={monthYear}
