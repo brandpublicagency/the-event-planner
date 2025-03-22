@@ -39,6 +39,7 @@ export interface ToastProps {
   showProgress?: boolean;
   variant?: VariantProps<typeof toastVariants>["variant"];
   className?: string;
+  children?: React.ReactNode;
   // Include remaining properties from Radix Toast primitive
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -48,7 +49,8 @@ export interface ToastProps {
 
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
-  ToastProps
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & 
+  VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => (
   <ToastPrimitives.Root
     ref={ref}
