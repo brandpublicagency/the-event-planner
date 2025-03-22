@@ -7,14 +7,16 @@ import EventBasicInfo from "./EventBasicInfo";
 import ContactDetails from "./ContactDetails";
 import { VenueSelect } from "./VenueSelect";
 import { EventTypeSelect } from "./EventTypeSelect";
+import { Loader2 } from "lucide-react";
 
 interface EditEventFormProps {
   form: UseFormReturn<any>;
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
-const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
+const EditEventForm = ({ form, onSubmit, onCancel, isSubmitting = false }: EditEventFormProps) => {
   const eventType = form.watch('event_type');
   
   return (
@@ -44,15 +46,21 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
           <ContactDetails form={form} eventType={eventType} />
         </FormSection>
 
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 sticky bottom-0 bg-zinc-50/80 backdrop-blur-sm p-4 -mx-4">
           <Button 
             variant="outline" 
             onClick={onCancel}
             type="button"
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit">Save Changes</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Save Changes
+          </Button>
         </div>
       </form>
     </Form>

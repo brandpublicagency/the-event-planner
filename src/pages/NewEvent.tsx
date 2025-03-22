@@ -1,65 +1,22 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { EventTypeSelect } from '@/components/forms/EventTypeSelect';
-import ClientDetails from '@/components/forms/ClientDetails';
-import BrideDetails from '@/components/forms/BrideDetails';
-import GroomDetails from '@/components/forms/GroomDetails';
-import PackageSelection from '@/components/forms/PackageSelection';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { eventFormSchema } from '@/schemas/eventFormSchema';
-import { EventDateSelect } from '@/components/forms/EventDateSelect';
-import EventFormActions from '@/components/forms/EventFormActions';
-import { VenueSelect } from '@/components/forms/VenueSelect';
-import CompanyDetails from '@/components/forms/CompanyDetails';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import EventBasicInfo from '@/components/forms/EventBasicInfo';
+import { supabase } from '@/integrations/supabase/client';
 import { EventFormData } from '@/types/eventForm';
-
-// Define EventFormValues type to match the schema and EventFormData
-type EventFormValues = {
-  name: string;
-  event_type: EventFormData['event_type'];
-  event_date?: string;
-  start_time: string;
-  end_time: string;
-  client_address: string;
-  venues: string[];
-  pax?: number;
-  package: string;
-  description: string;
-  company: string;
-  vat_number: string;
-  
-  // Wedding-specific fields
-  bride_name?: string;
-  bride_email?: string;
-  bride_mobile?: string;
-  groom_name?: string;
-  groom_email?: string;
-  groom_mobile?: string;
-  
-  // Corporate-specific fields
-  company_name?: string;
-  contact_person?: string;
-  contact_email?: string;
-  contact_mobile?: string;
-  company_vat?: string;
-  company_address?: string;
-}
+import EditEventForm from '@/components/forms/EditEventForm';
 
 const NewEvent = () => {
-  const [eventType, setEventType] = useState('Wedding');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmissionComplete, setIsSubmissionComplete] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const methods = useForm<EventFormValues>({
+  const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as any,
     defaultValues: {
       name: '',
@@ -69,36 +26,23 @@ const NewEvent = () => {
       end_time: '',
       client_address: '',
       venues: [],
-      package: '',
+      pax: undefined,
       description: '',
+      
+      // Contact fields
+      primary_name: '',
+      primary_email: '',
+      primary_phone: '',
+      secondary_name: '',
+      secondary_email: '',
+      secondary_phone: '',
       company: '',
       vat_number: '',
-      // Wedding-specific fields
-      bride_name: '',
-      bride_email: '',
-      bride_mobile: '',
-      groom_name: '',
-      groom_email: '',
-      groom_mobile: '',
-      // Corporate-specific fields
-      company_name: '',
-      contact_person: '',
-      contact_email: '',
-      contact_mobile: '',
-      company_vat: '',
-      company_address: '',
+      address: '',
     }
   });
 
-  const watchEventType = methods.watch('event_type');
-
-  useEffect(() => {
-    if (watchEventType) {
-      setEventType(watchEventType);
-    }
-  }, [watchEventType]);
-
-  const handleSubmit = async (data: EventFormValues) => {
+  const handleSubmit = async (data: EventFormData) => {
     try {
       setIsSubmitting(true);
       
@@ -116,27 +60,21 @@ const NewEvent = () => {
           end_time: data.end_time || null,
           description: data.description || null,
           client_address: data.client_address || null,
-          primary_name: data.bride_name || data.contact_person || null,
-          primary_email: data.bride_email || data.contact_email || null,
-          primary_phone: data.bride_mobile || data.contact_mobile || null,
-          secondary_name: data.groom_name || null,
-          secondary_email: data.groom_email || null,
-          secondary_phone: data.groom_mobile || null,
+          primary_name: data.primary_name || null,
+          primary_email: data.primary_email || null,
+          primary_phone: data.primary_phone || null,
+          secondary_name: data.secondary_name || null,
+          secondary_email: data.secondary_email || null,
+          secondary_phone: data.secondary_phone || null,
           pax: data.pax || null,
-          package_id: data.package || null,
           venues: data.venues && data.venues.length > 0 ? data.venues : null,
-          company: data.company || data.company_name || null,
-          vat_number: data.vat_number || data.company_vat || null,
+          company: data.company || null,
+          vat_number: data.vat_number || null,
         });
 
       if (eventError) {
         throw new Error(`Error creating event: ${eventError.message}`);
       }
-
-      // Using mock notification for event creation instead of trying to access the event_notifications table
-      console.log(`Created event ${eventCode} - would trigger notification in a real system`);
-      
-      setIsSubmissionComplete(true);
       
       toast({
         title: 'Success!',
@@ -172,46 +110,20 @@ const NewEvent = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      
-      <div className="flex-1 container mx-auto py-6 px-4">
-        <h1 className="text-2xl font-bold mb-6">Create New Event</h1>
-        
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left column */}
-              <div className="space-y-8">
-                <EventTypeSelect form={methods as any} />
-                <EventBasicInfo form={methods as any} />
-                <EventDateSelect form={methods as any} />
-                <PackageSelection form={methods as any} />
-                <VenueSelect form={methods as any} />
-              </div>
-              
-              {/* Right column */}
-              <div className="space-y-8">
-                {eventType === 'Corporate' ? (
-                  <CompanyDetails form={methods as any} />
-                ) : eventType === 'Wedding' ? (
-                  <>
-                    <ClientDetails form={methods as any} />
-                    <BrideDetails form={methods as any} />
-                    <GroomDetails form={methods as any} />
-                  </>
-                ) : (
-                  <ClientDetails form={methods as any} />
-                )}
-              </div>
-            </div>
-            
-            <EventFormActions 
-              isSubmitting={isSubmitting} 
-              onCancel={handleCancel}
-            />
-          </form>
-        </FormProvider>
+    <div className="flex flex-col h-full">
+      <Header 
+        pageTitle="Create New Event" 
+        showBackButton 
+        backButtonPath="/events"
+      />
+      <div className="flex-1 space-y-8 p-8 pt-6">
+        <div className="max-w-5xl">
+          <EditEventForm 
+            form={form} 
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        </div>
       </div>
     </div>
   );
