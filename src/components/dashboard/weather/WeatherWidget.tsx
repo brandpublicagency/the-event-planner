@@ -125,7 +125,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ forcedVisible = false }) 
       >
         <WeatherBackground weatherType={weatherData?.condition} />
         
-        <div className="relative z-10 flex items-center w-full h-full p-4 py-7">
+        <div className="relative z-10 flex items-center w-full h-full p-4 py-3">
           <div className="flex-shrink-0 mr-3">
             <CurrentWeather weatherData={weatherData} />
           </div>
