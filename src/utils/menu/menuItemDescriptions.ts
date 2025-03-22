@@ -18,6 +18,8 @@ export const menuItemDescriptions: Record<string, string> = {
   'traditional': 'Traditional Baked Desserts',
   'individual': 'Individual Cakes',
   'bar': 'Dessert Bar',
+  'cakes': 'Individual Cakes',
+  'canapes': 'Dessert Canapés',
   
   // Main Course - Karoo Meat
   'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -83,6 +85,20 @@ export const menuItemDescriptions: Record<string, string> = {
   'chocolate_cake': 'Rich chocolate cake with dark chocolate ganache',
   'carrot_cake': 'Carrot cake with cream cheese frosting',
   'lemon_cake': 'Lemon & poppyseed cake with cream and mascarpone',
+  
+  // Dessert Canapés 
+  'carrot_cupcakes': 'Carrot cupcakes with mascarpone frosting',
+  'brownies': 'Chocolate brownies',
+  'chocolate_cupcakes': 'Dark chocolate ganache cupcakes', 
+  'chocolate_mousse': 'Dark or white chocolate mousse',
+  'pavlovas': 'Lemon curd & berry pavlovas',
+  'meringues': 'Lemon meringues',
+  'milk_tartlets': 'Milk tartlets',
+  'pecan_pies': 'Pecan nut pies',
+  'peppermint_crisp': 'Peppermint crisp treat',
+  'red_velvet': 'Red velvet cupcakes with cream cheese frosting',
+  'koeksisters': 'Traditional koeksisters',
+  'vanilla_cupcakes': 'Vanilla cupcakes with sweet butter frosting',
   
   // Additional options
   'infused_water': 'Infused Water (7L)',

@@ -15,7 +15,9 @@ export const formatMenuDetails = (menuState: MenuState): string => {
     isCustom: menuState.isCustomMenu,
     mainCourseType: menuState.mainCourseType,
     starterType: menuState.selectedStarterType,
-    dessertType: menuState.dessertType
+    dessertType: menuState.dessertType,
+    dessertCanapes: menuState.dessertCanapes?.length || 0,
+    individualCakes: menuState.individualCakes?.length || 0
   });
 
   if (menuState.isCustomMenu) {
@@ -24,12 +26,17 @@ export const formatMenuDetails = (menuState: MenuState): string => {
   
   let formattedDetails = '';
   
-  // Add each section to the formatted details
-  formattedDetails += formatStarterSection(menuState);
-  formattedDetails += formatMainCourseSection(menuState);
-  formattedDetails += formatDessertSection(menuState);
-  formattedDetails += formatAdditionalOptionsSection(menuState);
-  formattedDetails += formatNotesSection(menuState.notes);
+  try {
+    // Add each section to the formatted details
+    formattedDetails += formatStarterSection(menuState);
+    formattedDetails += formatMainCourseSection(menuState);
+    formattedDetails += formatDessertSection(menuState);
+    formattedDetails += formatAdditionalOptionsSection(menuState);
+    formattedDetails += formatNotesSection(menuState.notes);
+  } catch (error) {
+    console.error("Error formatting menu details:", error);
+    formattedDetails += "\n* ERROR FORMATTING MENU - Please check the console logs";
+  }
   
   return formattedDetails;
 };

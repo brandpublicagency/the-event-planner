@@ -11,6 +11,12 @@ interface MenuAdditionalOptionsSectionProps {
 const MenuAdditionalOptionsSection: React.FC<MenuAdditionalOptionsSectionProps> = ({ menuState }) => {
   if (!menuState.otherSelections || menuState.otherSelections.length === 0) return null;
   
+  // Debug log to help troubleshoot
+  console.log("Rendering additional options:", {
+    options: menuState.otherSelections,
+    quantities: menuState.otherSelectionsQuantities
+  });
+  
   return (
     <div style={{ marginBottom: '16px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Additional Options</h3>
