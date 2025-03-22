@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMenuSelection, updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
 import { safeGetArray } from '@/utils/menu';
@@ -36,6 +36,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const fetchMenuSelections = async () => {
@@ -83,10 +84,11 @@ export const useMenuState = (eventCode: string, toast: any) => {
             otherSelectionsQuantities: menuData.other_selections_quantities || {},
             notes: menuData.notes || '',
           });
-          console.log('Menu state initialized:', menuState);
         } else {
           console.log('No existing menu data found for this event. Using defaults.');
         }
+        
+        setIsInitialized(true);
       } catch (err: any) {
         console.error('Error fetching menu selections:', err);
         setError('Failed to load menu selections. Please try refreshing the page.');
@@ -98,25 +100,34 @@ export const useMenuState = (eventCode: string, toast: any) => {
     fetchMenuSelections();
   }, [eventCode]);
 
-  const handleMenuStateChange = (field: keyof MenuState, value: any) => {
-    console.log(`Updating menu state: ${field} = `, value);
+  const handleMenuStateChange = useCallback((field: keyof MenuState, value: any) => {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Updating menu state: ${String(field)}`);
+    }
     setMenuState(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleCustomMenuToggle = (checked: boolean) => {
+  const handleCustomMenuToggle = useCallback((checked: boolean) => {
     handleMenuStateChange('isCustomMenu', checked);
-  };
+  }, [handleMenuStateChange]);
 
-  const handleCanapeSelection = (position: number, value: string) => {
-    const newCanapes = [...menuState.selectedCanapes];
-    newCanapes[position - 1] = value;
-    handleMenuStateChange('selectedCanapes', newCanapes);
-  };
+  const handleCanapeSelection = useCallback((position: number, value: string) => {
+    setMenuState(prev => {
+      const newCanapes = [...(prev.selectedCanapes || [])];
+      newCanapes[position - 1] = value;
+      return { ...prev, selectedCanapes: newCanapes };
+    });
+  }, []);
 
-  const saveMenuSelections = async (): Promise<void> => {
+  const saveMenuSelections = useCallback(async (): Promise<void> => {
     if (!eventCode) {
       console.error('Cannot save: Event code is missing');
       throw new Error('Event code is required');
+    }
+
+    if (!isInitialized) {
+      console.error('Cannot save: Menu state not fully initialized');
+      throw new Error('Menu state not fully initialized');
     }
 
     try {
@@ -163,7 +174,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [eventCode, menuState, isInitialized]);
 
   return {
     menuState,

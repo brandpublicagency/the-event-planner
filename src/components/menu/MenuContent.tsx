@@ -12,7 +12,7 @@ interface MenuContentProps {
   menuState: MenuState;
   onMenuStateChange: (field: string, value: any) => void;
   onCanapeSelection: (position: number, value: string) => void;
-  saveMenuSelections: () => Promise<void>;
+  saveMenuSelections?: () => Promise<void>;
 }
 
 const MenuContent = ({

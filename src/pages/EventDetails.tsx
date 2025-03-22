@@ -46,10 +46,12 @@ const EventDetails = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased timeout to 30s
       try {
-        const {
-          data,
-          error
-        } = await supabase.from('events').select('*').eq('event_code', id).maybeSingle();
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('event_code', id)
+          .maybeSingle();
+        
         clearTimeout(timeoutId);
         if (error) throw error;
         if (!data) throw new Error('Event not found');
@@ -62,7 +64,7 @@ const EventDetails = () => {
         throw err;
       }
     },
-    retry: 2, // Increased retry count
+    retry: 2,
     retryDelay: 1000
   });
   

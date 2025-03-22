@@ -99,7 +99,10 @@ const WeddingMenuPlanner = ({
   // Sync menu state changes back to parent component for other components to use
   useEffect(() => {
     if (onMenuStateChange) {
-      console.log('Sending menu state to parent:', menuState);
+      // Prevent excessive logging
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Sending menu state to parent');
+      }
       onMenuStateChange(menuState);
     }
     
