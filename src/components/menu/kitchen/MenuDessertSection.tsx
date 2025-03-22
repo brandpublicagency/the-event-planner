@@ -11,27 +11,16 @@ interface MenuDessertSectionProps {
 const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) => {
   if (!menuState.dessertType) return null;
   
-  // Debug log to help troubleshoot
-  console.log("Rendering dessert section with:", {
-    type: menuState.dessertType,
-    traditionalDessert: menuState.traditionalDessert,
-    dessertCanapes: menuState.dessertCanapes,
-    individualCakes: menuState.individualCakes
-  });
-  
-  // Map 'canapes' to 'dessert_canapes' for description lookup
-  const dessertTypeKey = menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType;
-  
   return (
     <div style={{ marginBottom: '16px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Dessert</h3>
-      <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(dessertTypeKey))}</p>
+      <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.dessertType))}</p>
       
       {menuState.dessertType === 'traditional' && menuState.traditionalDessert && (
         <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}</p>
       )}
       
-      {(menuState.dessertType === 'canapes' || menuState.dessertType === 'bar') && menuState.dessertCanapes?.length > 0 && (
+      {menuState.dessertType === 'canapes' && menuState.dessertCanapes?.length > 0 && (
         <div>
           {menuState.dessertCanapes.map((item, idx) => (
             <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
@@ -39,7 +28,7 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         </div>
       )}
       
-      {(menuState.dessertType === 'cakes' || menuState.dessertType === 'individual') && menuState.individualCakes?.length > 0 && (
+      {menuState.dessertType === 'cakes' && menuState.individualCakes?.length > 0 && (
         <div>
           {menuState.individualCakes.map((item, idx) => {
             const quantity = menuState.individual_cake_quantities?.[item] || 0;

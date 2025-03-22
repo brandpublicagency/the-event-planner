@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Edit, Save } from "lucide-react";
-import { WeddingMenuPlanner } from "@/components/WeddingMenuPlanner";
+import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Event } from "@/types/event";
@@ -14,7 +14,7 @@ import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
 import { updateEvent } from "@/services/eventService";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
   const {
@@ -66,7 +66,6 @@ const EventDetails = () => {
   });
   
   const [menuState, setMenuState] = React.useState<any>(null);
-  const [saveMenuSelections, setSaveMenuSelections] = React.useState<(() => Promise<void>) | null>(null);
   
   const handleEditEvent = () => {
     if (id) {
@@ -75,13 +74,11 @@ const EventDetails = () => {
   };
 
   const handleSaveMenu = async () => {
-    if (!id || !menuState || !saveMenuSelections) return;
+    if (!id || !menuState) return;
     
     setIsSaving(true);
     try {
-      // Call the saveMenuSelections function from WeddingMenuPlanner
-      await saveMenuSelections();
-      
+      // The menuState will be saved by the WeddingMenuPlanner component
       toast({
         title: "Success",
         description: "Menu saved successfully",
@@ -178,7 +175,6 @@ const EventDetails = () => {
               isCustomMenu={isCustomMenu} 
               onCustomMenuToggle={setIsCustomMenu}
               onMenuStateChange={setMenuState}
-              onSaveMenuCallback={setSaveMenuSelections}
             />}
             
             <div className="flex justify-end mt-6 print:hidden">

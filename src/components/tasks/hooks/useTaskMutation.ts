@@ -27,7 +27,6 @@ export function useTaskMutation(taskId: string) {
       toast({
         title: "Task updated",
         description: "Your task has been updated successfully.",
-        variant: "success",
       });
     },
     onError: (error: Error) => {

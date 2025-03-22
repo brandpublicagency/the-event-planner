@@ -34,7 +34,7 @@ export function SidebarToasts({ isCollapsed }: SidebarToastsProps) {
         return (
           <ToastComponent 
             key={id} 
-            variant={variant} 
+            variant={variant as "default" | "destructive" | "success" | "info"} 
             {...(showProgress && { progressDuration: duration })}
             {...props}
           >

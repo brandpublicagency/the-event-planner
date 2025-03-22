@@ -1,4 +1,3 @@
-
 export const platedMainOptions = [
   { value: 'lamb_shank', label: 'Fall-off-the-bone lamb shank with demi-glace and creamy mashed potato served with crisp broccoli stems and honey-roasted carrots. (+ R 35.00 PP)' },
   { value: 'beef_cut', label: "Chef's cut of beef, whole green beans and potatoes wedges roasted in duck fat with parmesan & thyme. Served with mushroom or pepper sauce." },
@@ -14,5 +13,5 @@ export const saladOptions = [
   { value: 'strawberry_beetroot', label: 'Strawberry, beetroot & pecan nut salad with balsamic glaze' },
   { value: 'greek', label: 'Traditional greek salad' },
   { value: 'beetroot', label: 'Traditional pickled baby beetroot salad' },
-  { value: 'watermelon_feta', label: 'Watermelon, feta & mint salad' },
+  { value: 'watermelon', label: 'Watermelon, feta & mint salad (s)' },
 ];

@@ -47,31 +47,3 @@
   display: flex !important;
   opacity: 1 !important;
 }
-
-/* Add positioning classes to prevent jumping */
-[data-radix-toast-viewport] {
-  position: fixed !important;
-  z-index: 100 !important;
-  width: 100% !important;
-  max-width: 420px !important;
-  padding: 1rem !important;
-  margin: 0 !important;
-}
-
-[data-radix-toast-viewport][data-side="bottom"] {
-  bottom: 0 !important;
-  right: 0 !important;
-  top: auto !important;
-  left: auto !important;
-  display: flex !important;
-  flex-direction: column-reverse !important;
-}
-
-[data-radix-toast-viewport][data-side="top"] {
-  top: 0 !important;
-  right: 0 !important;
-  bottom: auto !important;
-  left: auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-}

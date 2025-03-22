@@ -1,3 +1,202 @@
+import * as React from "react"
+import * as ToastPrimitives from "@radix-ui/react-toast"
+import { cva, type VariantProps } from "class-variance-authority"
+import { X, CheckCircle2, AlertCircle, InfoIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-// Re-export the toast components from the organized module
-export * from "./toast/index";
+const ToastProvider = ToastPrimitives.Provider
+
+const ToastViewport = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Viewport>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Viewport
+    ref={ref}
+    className={cn(
+      "fixed bottom-0 right-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      className
+    )}
+    {...props}
+  />
+))
+ToastViewport.displayName = ToastPrimitives.Viewport.displayName
+
+const toastVariants = cva(
+  "group pointer-events-auto relative flex w-full items-center justify-between overflow-hidden rounded-xl p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full",
+  {
+    variants: {
+      variant: {
+        default: "toast-gradient-default",
+        destructive: "toast-gradient-destructive",
+        success: "toast-gradient-success",
+        info: "toast-gradient-info",
+        warning: "toast-gradient-info",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+const Toast = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Root>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
+    VariantProps<typeof toastVariants>
+>(({ className, variant, ...props }, ref) => {
+  return (
+    <ToastPrimitives.Root
+      ref={ref}
+      className={cn(toastVariants({ variant }), className)}
+      duration={props.duration || 5000}
+      {...props}
+    />
+  )
+})
+Toast.displayName = ToastPrimitives.Root.displayName
+
+const ToastAction = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Action>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Action
+    ref={ref}
+    className={cn(
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/10 px-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none focus:ring-1 focus:ring-white/30 disabled:pointer-events-none disabled:opacity-50",
+      className
+    )}
+    {...props}
+  />
+))
+ToastAction.displayName = ToastPrimitives.Action.displayName
+
+const ToastClose = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Close>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Close
+    ref={ref}
+    className={cn(
+      "absolute right-2 top-2 rounded-md p-1 text-white/70 opacity-0 transition-opacity hover:text-white focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100",
+      className
+    )}
+    toast-close=""
+    {...props}
+  >
+    <X className="h-4 w-4" />
+  </ToastPrimitives.Close>
+))
+ToastClose.displayName = ToastPrimitives.Close.displayName
+
+const ToastTitle = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Title>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Title
+    ref={ref}
+    className={cn("text-white font-semibold text-base", className)}
+    {...props}
+  />
+))
+ToastTitle.displayName = ToastPrimitives.Title.displayName
+
+const ToastDescription = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Description>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Description
+    ref={ref}
+    className={cn("text-sm text-white/90", className)}
+    {...props}
+  />
+))
+ToastDescription.displayName = ToastPrimitives.Description.displayName
+
+interface ToastIconProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "destructive" | "success" | "info" | "warning";
+}
+
+const ToastIcon = React.forwardRef<
+  HTMLDivElement,
+  ToastIconProps
+>(({ className, variant = "default", ...props }, ref) => {
+  const IconComponent = {
+    default: InfoIcon,
+    destructive: AlertCircle,
+    success: CheckCircle2,
+    info: InfoIcon,
+    warning: AlertCircle
+  }[variant];
+
+  return (
+    <div
+      ref={ref}
+      className={cn("mr-3 flex-shrink-0", className)}
+      {...props}
+    >
+      <IconComponent className="h-5 w-5 text-white" />
+    </div>
+  );
+});
+ToastIcon.displayName = "ToastIcon";
+
+const ToastWithIcon = React.forwardRef<
+  React.ElementRef<typeof Toast>,
+  React.ComponentPropsWithoutRef<typeof Toast>
+>(({ children, variant, ...props }, ref) => {
+  return (
+    <Toast ref={ref} variant={variant} {...props}>
+      <div className="flex items-center">
+        <ToastIcon variant={variant} />
+        <div className="flex flex-col gap-1">
+          {children}
+        </div>
+      </div>
+    </Toast>
+  );
+});
+ToastWithIcon.displayName = "ToastWithIcon";
+
+const ToastWithProgress = React.forwardRef<
+  React.ElementRef<typeof Toast>,
+  React.ComponentPropsWithoutRef<typeof Toast> & { 
+    progressDuration?: number 
+  }
+>(({ children, variant, progressDuration = 5000, ...props }, ref) => {
+  return (
+    <Toast ref={ref} variant={variant} {...props}>
+      <div className="flex items-center w-full">
+        <ToastIcon variant={variant} />
+        <div className="flex flex-col gap-1 w-full">
+          {children}
+        </div>
+      </div>
+      <div 
+        className="toast-progress-bar" 
+        style={{ 
+          animationDuration: `${progressDuration}ms`,
+          animationName: 'toast-progress-animation'
+        }}
+      />
+    </Toast>
+  );
+});
+ToastWithProgress.displayName = "ToastWithProgress";
+
+type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+type ToastActionElement = React.ReactElement<typeof ToastAction>
+
+export {
+  type ToastProps,
+  type ToastActionElement,
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+  ToastAction,
+  ToastIcon,
+  ToastWithIcon,
+  ToastWithProgress,
+}

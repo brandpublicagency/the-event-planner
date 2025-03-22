@@ -4,7 +4,7 @@ import { NotificationContext } from "./NotificationContext";
 import { useNotificationOperations } from "./notificationOperations";
 import { useRealtimeNotifications } from "./useRealtimeNotifications";
 import { Notification } from "@/types/notification";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
@@ -38,11 +38,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       fetchNotifications().catch((err) => {
         console.error("Error in initial notification fetch:", err);
         if (mountedRef.current) {
-          toast({
-            title: "Error",
-            description: "Could not load notifications",
-            variant: "destructive"
-          });
+          toast("Could not load notifications");
         }
       });
     }

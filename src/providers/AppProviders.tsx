@@ -1,28 +1,45 @@
 
-import React from 'react';
-import { ThemeProvider } from '@/components/theme-provider';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '@/lib/react-query';
-import { Toaster } from '@/components/ui/toaster';
-import { SidebarToasts } from '@/components/sidebar/SidebarToasts';
-import { ToastProvider } from '@/components/ui/toast/toast-context';
-import { MenuProvider } from '@/contexts/MenuContext';
-import { TaskProvider } from '@/contexts/TaskContext';
+import { ThemeProvider } from "@/components/theme-provider";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/react-query";
+import { TaskProvider } from "@/contexts/TaskContext";
+import { Toaster } from "@/components/ui/toaster";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ToastProvider } from "@/components/ui/toast/toast-context";
+import { ErrorBoundary } from "react-error-boundary";
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+function ErrorFallback({ error, resetErrorBoundary }) {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <MenuProvider>
-            <TaskProvider>
-              {children}
-              <Toaster />
-              <SidebarToasts />
-            </TaskProvider>
-          </MenuProvider>
-        </ToastProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+      <h2 className="text-xl font-bold text-red-600 mb-4">Something went wrong:</h2>
+      <pre className="bg-gray-100 p-4 rounded mb-4 overflow-auto max-w-lg text-sm">
+        {error.message}
+      </pre>
+      <button
+        onClick={resetErrorBoundary}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Try again
+      </button>
+    </div>
   );
 }
+
+export const AppProviders = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+        <ToastProvider>
+          <QueryClientProvider client={queryClient}>
+            <TaskProvider>
+              <NotificationProvider>
+                {children}
+                <Toaster />
+              </NotificationProvider>
+            </TaskProvider>
+          </QueryClientProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+};
