@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMenuState } from '@/hooks/useMenuState';
 import { MenuState } from '@/hooks/menuStateTypes';
 import { useMenuPlanner } from './hooks/useMenuPlanner';
@@ -37,10 +37,11 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     saveMenuSelections: saveMenu
   } = useMenuState(eventCode);
   
+  // Define all React hooks before any conditional logic
+  const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+  
   const {
     loadingProgress,
-    isInternalUpdate,
-    setIsInternalUpdate,
     handleInternalCustomMenuToggle,
     saveRegistered
   } = useMenuPlanner(
@@ -49,11 +50,13 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     isLoading,
     onMenuStateChange,
     saveMenuSelections,
-    saveMenu
+    saveMenu,
+    isInternalUpdate,
+    setIsInternalUpdate
   );
 
   // Debug logging for important state
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('WeddingMenuPlanner debug state:', {
       eventCode,
       isInitialized,
@@ -66,7 +69,7 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
   }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu && !isInternalUpdate) {
       console.log('External custom menu update:', isCustomMenu);
       handleMenuStateChange('isCustomMenu', isCustomMenu);
@@ -74,7 +77,7 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
   }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange, isInternalUpdate]);
 
   // Notify parent of custom menu changes from internal updates
-  React.useEffect(() => {
+  useEffect(() => {
     if (onCustomMenuToggle && isInternalUpdate) {
       console.log('Internal custom menu update:', menuState.isCustomMenu);
       onCustomMenuToggle(menuState.isCustomMenu);
@@ -92,30 +95,6 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     return <MenuPlannerError error={error} />;
   }
 
-  // Verify save function is registered
-  React.useEffect(() => {
-    if (!saveRegistered && !isLoading && isInitialized && saveMenuSelections && saveMenu) {
-      console.log('Save function not registered yet, ensuring registration is attempted');
-      // Force a re-registration attempt
-      const saveFn = async () => {
-        try {
-          await saveMenu();
-          return Promise.resolve();
-        } catch (error: any) {
-          console.error('Error in save function:', error);
-          throw error;
-        }
-      };
-      
-      saveMenuSelections(saveFn);
-    }
-  }, [saveRegistered, isLoading, isInitialized, saveMenuSelections, saveMenu]);
-
-  // Custom menu toggle handler that marks updates as internal
-  const internalCustomMenuToggleHandler = (value: boolean) => {
-    return handleInternalCustomMenuToggle(value);
-  };
-
   // Render main content when data is loaded
   return (
     <MenuPlannerContent
@@ -123,7 +102,7 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
       isSaving={isSaving}
       onMenuStateChange={handleMenuStateChange}
       onCanapeSelection={handleCanapeSelection}
-      handleInternalCustomMenuToggle={internalCustomMenuToggleHandler}
+      handleInternalCustomMenuToggle={handleInternalCustomMenuToggle}
     />
   );
 };

@@ -9,11 +9,14 @@ export const useMenuPlanner = (
   isLoading: boolean,
   onMenuStateChange?: (menuState: MenuState) => void,
   saveMenuSelections?: (saveFn: () => Promise<void>) => void,
-  saveMenu?: () => Promise<void>
+  saveMenu?: () => Promise<void>,
+  isInternalUpdate?: boolean,
+  setIsInternalUpdate?: (value: boolean) => void
 ) => {
-  // Flag to prevent feedback loop
-  const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+  // Loading progress state
   const [loadingProgress, setLoadingProgress] = useState(0);
+  
+  // Refs for tracking state
   const initialLoadComplete = useRef(false);
   const saveRegistered = useRef(false);
   const lastRegistrationAttempt = useRef(0);
@@ -102,14 +105,14 @@ export const useMenuPlanner = (
   // Handle internal changes to the custom menu toggle
   const handleInternalCustomMenuToggle = (value: boolean) => {
     console.log('Handling internal custom menu toggle:', value);
-    setIsInternalUpdate(true);
+    if (setIsInternalUpdate) {
+      setIsInternalUpdate(true);
+    }
     return value;
   };
 
   return {
     loadingProgress,
-    isInternalUpdate,
-    setIsInternalUpdate,
     handleInternalCustomMenuToggle,
     saveRegistered: saveRegistered.current
   };
