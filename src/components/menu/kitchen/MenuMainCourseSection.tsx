@@ -48,7 +48,7 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
           
           {menuState.buffetSaladSelection && (
             <div style={{ marginBottom: '12px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Table Salad:</p>
               <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}</p>
             </div>
           )}
@@ -85,7 +85,7 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
           
           {menuState.karooSaladSelection && (
             <div style={{ marginBottom: '12px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Table Salad:</p>
               <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}</p>
             </div>
           )}
@@ -104,7 +104,7 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
           
           {menuState.platedSaladSelection && (
             <div style={{ marginBottom: '12px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Table Salad:</p>
               <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.platedSaladSelection))}</p>
             </div>
           )}

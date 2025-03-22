@@ -11,13 +11,12 @@ export const menuItemDescriptions: Record<string, string> = {
   'plated': 'Plated Menu',
   
   // Starter Types
-  'canapes': 'Canapés',
   'harvest': 'Harvest Table',
   
   // Dessert Types
   'traditional': 'Traditional Baked Desserts',
   'individual_cakes': 'Individual Cakes',
-  'canapes': 'Dessert Canapés',
+  'dessert_canapes': 'Dessert Canapés',
   
   // Main Course - Karoo Meat
   'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',
@@ -85,6 +84,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'lemon_cake': 'Lemon & poppyseed cake with cream and mascarpone',
   
   // Canapés
+  'canapes': 'Canapés',
   'slider': 'Beef & brie sliders with caramelised onion & tomato chutney',
   'melon': 'Melon & parma ham skewers (S)',
   'ricotta': 'Ricotta and Roasted Grape Crostini (V)',

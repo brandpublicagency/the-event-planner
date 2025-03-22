@@ -16,9 +16,6 @@ const MenuStarterSection: React.FC<MenuStarterSectionProps> = ({ menuState }) =>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Arrival & Starter</h3>
       {menuState.selectedStarterType === 'canapes' && (
         <>
-          <p style={{ fontSize: '12px', marginBottom: '4px', fontWeight: 'bold' }}>
-            Canapés {menuState.selectedCanapePackage ? `(${menuState.selectedCanapePackage})` : ''}
-          </p>
           {menuState.selectedCanapes.length > 0 && (
             <div>
               {menuState.selectedCanapes.map((canape, idx) => (

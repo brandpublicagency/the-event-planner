@@ -12,14 +12,7 @@ export const formatStarterSection = (menuState: MenuState): string => {
   let section = formatSectionHeader('ARRIVAL & STARTER');
   
   if (menuState.selectedStarterType === 'canapes') {
-    // Don't show "Canapés - 3" but just show the package name directly
-    if (menuState.selectedCanapePackage) {
-      section += `CANAPÉS (${menuState.selectedCanapePackage})\n`;
-    } else {
-      section += `CANAPÉS\n`;
-    }
-    
-    // Show full descriptions for each canapé
+    // Don't show "Canapés - 3" but just the full canapé descriptions directly
     menuState.selectedCanapes.forEach(canape => {
       if (canape) section += `• ${cleanItemDescription(getMenuItemDescription(canape))}\n`;
     });

@@ -15,7 +15,7 @@ export const formatDessertSection = (menuState: MenuState): string => {
   if (menuState.dessertType === 'canapes') {
     section += `DESSERT CANAPÉS (Choose ${menuState.dessertCanapes.length})\n`;
   } else {
-    section += `${getMenuItemDescription(menuState.dessertType)}\n`;
+    section += `${getMenuItemDescription(menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType)}\n`;
   }
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
