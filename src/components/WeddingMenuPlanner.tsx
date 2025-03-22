@@ -5,6 +5,7 @@ import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
 import { MenuState } from '../hooks/menuStateTypes';
+import { useToast } from "@/hooks/use-toast";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -23,6 +24,8 @@ const WeddingMenuPlanner = ({
   onMenuStateChange,
   saveMenuSelections
 }: WeddingMenuPlannerProps) => {
+  const { toast } = useToast();
+  
   const { 
     menuState, 
     error,
@@ -30,7 +33,7 @@ const WeddingMenuPlanner = ({
     handleMenuStateChange,
     handleCanapeSelection,
     saveMenuSelections: saveMenu
-  } = useMenuState(eventCode);
+  } = useMenuState(eventCode, toast);
   
   // Flag to prevent feedback loop
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
