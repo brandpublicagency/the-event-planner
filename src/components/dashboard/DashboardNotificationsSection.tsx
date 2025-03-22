@@ -90,9 +90,9 @@ const DashboardNotificationsSection = () => {
   const limitedNotifications = notifications.slice(0, 3);
   return <div className="flex flex-col">
       {/* Notification heading - using the same style as NotificationDropdown */}
-      <div className="flex items-center justify-between p-3 border-b bg-white rounded-t-lg shadow-sm rounded">
+      <div className="flex items-center justify-between p-3 border-b rounded-t-lg shadow-sm rounded-md py-[20px] px-[15px] bg-slate-100">
         <div className="flex flex-col">
-          <p className="text-sm font-medium text-zinc-900">Notifications</p>
+          <p className="text-zinc-900 text-xl font-semibold">Notifications</p>
           <p className="text-xs text-muted-foreground">
             {notifications.filter(n => !n.read).length > 0 ? `You have ${notifications.filter(n => !n.read).length} unread notifications` : 'All caught up!'}
           </p>
