@@ -20,9 +20,16 @@ export const BackButton = ({ path = "/", onClick }: BackButtonProps) => {
       // Check if we're on an edit page and get the event ID to return to the detail page
       const currentPath = location.pathname;
       if (currentPath.includes('/edit') && currentPath.includes('/events/')) {
-        // Extract the event ID and navigate to event details page
-        const eventId = currentPath.split('/edit')[0];
-        navigate(eventId);
+        // Extract the event ID from the path
+        const pathParts = currentPath.split('/');
+        const eventIdIndex = pathParts.findIndex(part => part === 'events') + 1;
+        
+        if (eventIdIndex > 0 && eventIdIndex < pathParts.length) {
+          const eventId = pathParts[eventIdIndex];
+          navigate(`/events/${eventId}`);
+        } else {
+          navigate(path);
+        }
       } else {
         navigate(path);
       }

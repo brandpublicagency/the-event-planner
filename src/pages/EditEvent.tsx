@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -111,14 +112,8 @@ const EditEvent = () => {
         description: "Event updated successfully",
       });
 
-      const today = new Date();
-      const eventDate = data.event_date ? new Date(data.event_date) : null;
-      
-      if (eventDate && eventDate >= today && !event?.completed) {
-        navigate('/events');
-      } else {
-        navigate('/passed-events');
-      }
+      // Always navigate back to the event details page instead of the events list
+      navigate(`/events/${id}`);
     } catch (error: any) {
       console.error('Update error:', error);
       toast({
@@ -152,23 +147,14 @@ const EditEvent = () => {
       <Header 
         pageTitle="Edit Event" 
         showBackButton 
-        backButtonPath="/events"
+        backButtonPath={`/events/${id}`}
       />
       <div className="flex-1 space-y-8 p-8 pt-6">
         <div className="max-w-5xl">
           <EditEventForm 
             form={form} 
             onSubmit={onSubmit}
-            onCancel={() => {
-              const today = new Date();
-              const eventDate = event?.event_date ? new Date(event.event_date) : null;
-              
-              if (eventDate && eventDate >= today && !event.completed) {
-                navigate("/events");
-              } else {
-                navigate("/passed-events");
-              }
-            }}
+            onCancel={() => navigate(`/events/${id}`)}
           />
         </div>
       </div>
