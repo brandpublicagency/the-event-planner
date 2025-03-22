@@ -1,16 +1,15 @@
 
 import React from 'react';
-import StarterTypeSelect from './StarterTypeSelect';
-import CanapeSection from './CanapeSection';
-import PlatedStarterSection from './PlatedStarterSection';
 import CustomMenuSection from './CustomMenuSection';
-import MainCourseSection from './MainCourseSection';
-import DessertSection from './DessertSection';
-import OtherOptionsSection from './OtherOptionsSection';
+import StarterSection from './sections/StarterSection';
+import MainCourseSectionContainer from './sections/MainCourseSection';
+import DessertSectionContainer from './sections/DessertSectionContainer';
+import AdditionalOptionsSectionContainer from './sections/AdditionalOptionsContainer';
 import { Separator } from '@/components/ui/separator';
+import { MenuState } from '@/hooks/menuStateTypes';
 
 interface MenuContentProps {
-  menuState: any;
+  menuState: MenuState;
   onMenuStateChange: (field: string, value: any) => void;
   onCanapeSelection: (position: number, value: string) => void;
   saveMenuSelections: () => Promise<void>;
@@ -38,135 +37,26 @@ const MenuContent = ({
     <div className="space-y-6 print:space-y-2">
       <Separator className="h-[0.5px] bg-zinc-200 mb-6 mt-1 print:hidden" />
       
-      <div className="space-y-4 menu-section">
-        <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Arrival & Starter</h3>
-          <StarterTypeSelect 
-            selectedStarterType={menuState.selectedStarterType} 
-            onStarterTypeChange={value => {
-              onMenuStateChange('selectedStarterType', value);
-              onMenuStateChange('selectedCanapePackage', '');
-              onMenuStateChange('selectedCanapes', []);
-              onMenuStateChange('selectedPlatedStarter', '');
-            }} 
-          />
-        </div>
+      <StarterSection
+        menuState={menuState}
+        onMenuStateChange={onMenuStateChange}
+        onCanapeSelection={onCanapeSelection}
+      />
 
-        {menuState.selectedStarterType === 'canapes' && (
-          <div>
-            <CanapeSection 
-              selectedCanapePackage={menuState.selectedCanapePackage} 
-              selectedCanapes={menuState.selectedCanapes} 
-              onCanapePackageChange={value => {
-                onMenuStateChange('selectedCanapePackage', value);
-                onMenuStateChange('selectedCanapes', []);
-              }} 
-              onCanapeSelection={onCanapeSelection} 
-            />
-          </div>
-        )}
+      <MainCourseSectionContainer
+        menuState={menuState}
+        onMenuStateChange={onMenuStateChange}
+      />
 
-        {menuState.selectedStarterType === 'plated' && (
-          <div>
-            <PlatedStarterSection 
-              selectedPlatedStarter={menuState.selectedPlatedStarter} 
-              onPlatedStarterChange={value => {
-                onMenuStateChange('selectedPlatedStarter', value);
-              }} 
-            />
-          </div>
-        )}
-      </div>
+      <DessertSectionContainer
+        menuState={menuState}
+        onMenuStateChange={onMenuStateChange}
+      />
 
-      <div className="space-y-4 menu-section">
-        <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Main Course</h3>
-          <MainCourseSection 
-            selectedMainCourse={menuState.mainCourseType} 
-            buffetMeatSelections={menuState.buffetMeatSelections} 
-            buffetVegetableSelections={menuState.buffetVegetableSelections} 
-            buffetStarchSelections={menuState.buffetStarchSelections} 
-            buffetSaladSelection={menuState.buffetSaladSelection} 
-            karooMeatSelection={menuState.karooMeatSelection} 
-            karooStarchSelection={menuState.karooStarchSelection || []} 
-            karooVegetableSelections={menuState.karooVegetableSelections} 
-            karooSaladSelection={menuState.karooSaladSelection} 
-            platedMainSelection={menuState.platedMainSelection} 
-            platedSaladSelection={menuState.platedSaladSelection} 
-            onMainCourseChange={value => {
-              onMenuStateChange('mainCourseType', value);
-              onMenuStateChange('buffetMeatSelections', []);
-              onMenuStateChange('buffetVegetableSelections', []);
-              onMenuStateChange('buffetStarchSelections', []);
-              onMenuStateChange('buffetSaladSelection', '');
-              onMenuStateChange('karooMeatSelection', '');
-              onMenuStateChange('karooStarchSelection', []);
-              onMenuStateChange('karooVegetableSelections', []);
-              onMenuStateChange('karooSaladSelection', '');
-              onMenuStateChange('platedMainSelection', '');
-              onMenuStateChange('platedSaladSelection', '');
-            }} 
-            onBuffetMeatSelectionsChange={value => onMenuStateChange('buffetMeatSelections', value)} 
-            onBuffetVegetableSelectionsChange={value => onMenuStateChange('buffetVegetableSelections', value)} 
-            onBuffetStarchSelectionsChange={value => onMenuStateChange('buffetStarchSelections', value)} 
-            onBuffetSaladSelectionChange={value => onMenuStateChange('buffetSaladSelection', value)} 
-            onKarooMeatSelectionChange={value => onMenuStateChange('karooMeatSelection', value)} 
-            onKarooStarchSelectionChange={value => onMenuStateChange('karooStarchSelection', value)} 
-            onKarooVegetableSelectionsChange={value => onMenuStateChange('karooVegetableSelections', value)} 
-            onKarooSaladSelectionChange={value => onMenuStateChange('karooSaladSelection', value)} 
-            onPlatedMainSelectionChange={value => onMenuStateChange('platedMainSelection', value)} 
-            onPlatedSaladSelectionChange={value => onMenuStateChange('platedSaladSelection', value)} 
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4 menu-section">
-        <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Dessert</h3>
-          <DessertSection 
-            selectedDessert={menuState.dessertType} 
-            selectedTraditionalDessert={menuState.traditionalDessert} 
-            selectedDessertCanapes={menuState.dessertCanapes} 
-            selectedIndividualCakes={menuState.individualCakes} 
-            individualCakeQuantities={menuState.individual_cake_quantities} 
-            onDessertChange={value => {
-              onMenuStateChange('dessertType', value);
-              onMenuStateChange('traditionalDessert', '');
-              onMenuStateChange('dessertCanapes', []);
-              onMenuStateChange('individualCakes', []);
-              onMenuStateChange('individual_cake_quantities', {});
-            }} 
-            onTraditionalDessertChange={value => onMenuStateChange('traditionalDessert', value)} 
-            onDessertCanapesChange={value => onMenuStateChange('dessertCanapes', value)} 
-            onIndividualCakesChange={(cakes, quantities) => {
-              onMenuStateChange('individualCakes', cakes);
-              if (quantities) {
-                onMenuStateChange('individual_cake_quantities', quantities);
-              }
-            }} 
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4 menu-section">
-        <div>
-          <h3 className="font-semibold text-base mb-3 text-zinc-900 section-header">Additional Options</h3>
-          <OtherOptionsSection 
-            quantities={menuState.otherSelectionsQuantities || {}} 
-            onQuantityChange={(optionId, quantity) => {
-              const newQuantities = {
-                ...menuState.otherSelectionsQuantities,
-                [optionId]: quantity
-              };
-              onMenuStateChange('otherSelectionsQuantities', newQuantities);
-              const newOtherSelections = Object.entries(newQuantities)
-                .filter(([_, qty]) => qty as number > 0)
-                .map(([id]) => id);
-              onMenuStateChange('otherSelections', newOtherSelections);
-            }} 
-          />
-        </div>
-      </div>
+      <AdditionalOptionsSectionContainer
+        menuState={menuState}
+        onMenuStateChange={onMenuStateChange}
+      />
     </div>
   );
 };
