@@ -10,22 +10,23 @@ import { getVenueNames } from "@/utils/venueUtils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { AnimatedBorder } from "@/components/ui/animated-border";
+
 interface EventCardProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
 }
+
 export const EventCard = ({
   event,
   handleDelete,
   isDashboard = false
 }: EventCardProps) => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const location = useLocation();
   const [isDeleting, setIsDeleting] = useState(false);
+  
   const copyEventCode = (e: React.MouseEvent, eventCode: string) => {
     e.stopPropagation();
     navigator.clipboard.writeText(eventCode);
@@ -34,6 +35,7 @@ export const EventCard = ({
       description: "Event code copied to clipboard"
     });
   };
+  
   const onDelete = async () => {
     if (!handleDelete) return;
     try {
@@ -63,21 +65,23 @@ export const EventCard = ({
   const getEventTypeColor = () => {
     switch (event.event_type?.toLowerCase()) {
       case 'wedding':
-        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      case 'corporate':
         return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'corporate':
+        return 'bg-slate-50 text-slate-700 border-slate-200';
       case 'celebration':
-        return 'bg-violet-50 text-violet-700 border-violet-200';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
-  const eventCardContent = <div className="bg-white p-5 transition-all duration-200 hover:bg-indigo-50/20 py-[10px]">
+  
+  const eventCardContent = (
+    <div className="bg-white p-5 transition-all duration-200 hover:bg-slate-50/20 py-[10px]">
       <div className="flex items-start justify-between">
         <div className="space-y-3 flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-base font-medium text-zinc-900 hover:text-indigo-600 transition-colors">
+              <h3 className="text-base font-medium text-zinc-900 hover:text-blue-600 transition-colors">
                 {event.name}
               </h3>
               <div className="flex items-center gap-1 mt-1">
@@ -90,7 +94,7 @@ export const EventCard = ({
             </div>
             
             {!isDashboard && <div className="flex items-center">
-                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors flex items-center gap-1">
+                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors flex items-center gap-1">
                   {event.event_code}
                   <Copy className="h-3 w-3" />
                 </button>
@@ -118,7 +122,7 @@ export const EventCard = ({
           <Button variant="ghost" size="sm" onClick={e => {
           e.stopPropagation();
           navigate(`/events/${event.event_code}/edit`);
-        }} className="text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full h-8 w-8 p-0">
+        }} className="text-zinc-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-8 w-8 p-0">
             <Pencil className="h-4 w-4" />
           </Button>
           
@@ -151,12 +155,21 @@ export const EventCard = ({
             </AlertDialog>}
         </div>
       </div>
-    </div>;
-  return <div key={event.event_code} className="cursor-pointer" onClick={() => navigate(`/events/${event.event_code}`)}>
-      {eventIsToday ? <AnimatedBorder borderWidth={3} borderRadius={0} className="mb-px">
+    </div>
+  );
+  
+  return (
+    <div key={event.event_code} className="cursor-pointer" onClick={() => navigate(`/events/${event.event_code}`)}>
+      {/* Only show animated border on the dashboard, not on the events page */}
+      {isDashboard && eventIsToday ? (
+        <AnimatedBorder borderWidth={3} borderRadius={0} className="mb-px">
           {eventCardContent}
-        </AnimatedBorder> : <div>
+        </AnimatedBorder>
+      ) : (
+        <div>
           {eventCardContent}
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };

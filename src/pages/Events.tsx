@@ -132,8 +132,8 @@ export default function Events() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50">
-                  <Calendar className="h-5 w-5 text-indigo-600" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-50">
+                  <Calendar className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-zinc-900">Upcoming Events</h2>
@@ -157,7 +157,7 @@ export default function Events() {
                 <Button
                   variant="default"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 shadow-sm text-white"
+                  className="bg-blue-600 hover:bg-blue-700 h-9 px-4 shadow-sm text-white"
                   onClick={() => navigate('/events/new')}
                 >
                   <PlusCircle className="h-4 w-4 mr-2" />
@@ -171,7 +171,7 @@ export default function Events() {
         {isLoading ? (
           <div className="flex items-center justify-center h-60 bg-white rounded-xl border border-zinc-100 shadow-sm">
             <div className="flex flex-col items-center gap-2">
-              <div className="h-5 w-5 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div>
+              <div className="h-5 w-5 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
               <p className="text-sm text-zinc-500">Loading events...</p>
             </div>
           </div>
