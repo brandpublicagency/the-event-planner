@@ -66,20 +66,19 @@ export const getWeatherGradientStyles = (
     'clear': {
       background: timeOfDay === 'day' 
         ? 'linear-gradient(to right, rgb(3, 105, 161), rgb(56, 189, 248))' // Sunny Day 
-        : timeOfDay === 'morning'
-          ? 'linear-gradient(to right, #FF6B6B, #556270)' // Sunrise
+        : timeOfDay === 'morning' && isSunrise()
+          ? 'linear-gradient(to right, #FF6B6B, #556270)' // Sunrise (only during actual sunrise hours)
           : 'linear-gradient(to left, #29323c, #485563)', // Night
       fallbackClass: timeOfDay === 'day'
         ? 'bg-gradient-to-r from-sky-700 to-sky-400'
-        : timeOfDay === 'morning'
+        : timeOfDay === 'morning' && isSunrise()
           ? 'bg-gradient-to-r from-red-400 to-slate-600'
           : 'bg-gradient-to-l from-slate-800 to-slate-600'
     }
   };
   
-  // For evening/sunset specific treatment
-  if (timeOfDay === 'night' && condition.includes('clear') && 
-      new Date().getHours() >= 17 && new Date().getHours() <= 20) {
+  // For sunset specific treatment (17:00-20:00)
+  if (timeOfDay === 'night' && condition.includes('clear') && isSunset()) {
     return {
       gradientStyle: { background: 'linear-gradient(to left, #F29492, #114357)' }, // Sunset
       fallbackGradientClass: 'bg-gradient-to-l from-red-300 to-slate-800'
@@ -107,3 +106,15 @@ export const getWeatherGradientStyles = (
     fallbackGradientClass: matchedGradient.fallbackClass
   };
 };
+
+// Helper function to determine if it's sunrise time (5:00-7:59 AM)
+function isSunrise() {
+  const hour = new Date().getHours();
+  return hour >= 5 && hour < 8;
+}
+
+// Helper function to determine if it's sunset time (17:00-19:59 PM)
+function isSunset() {
+  const hour = new Date().getHours();
+  return hour >= 17 && hour < 20;
+}
