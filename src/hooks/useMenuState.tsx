@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { getMenuSelection, updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
@@ -87,13 +86,11 @@ export const useMenuState = (eventCode: string) => {
             notes: menuData.notes || '',
           });
           
-          // Save the initial state hash for comparison
           setLastSavedState(JSON.stringify(menuData));
         } else {
           console.log('No existing menu data found for this event. Using defaults.');
         }
         
-        // Set initialized flag AFTER data has been completely processed
         setIsInitialized(true);
       } catch (err: any) {
         console.error('Error fetching menu selections:', err);
@@ -138,7 +135,6 @@ export const useMenuState = (eventCode: string) => {
       console.log('Preparing menu data for saving...');
       setIsSaving(true);
       
-      // Prepare data for saving, ensuring all arrays are properly initialized
       const menuData: SaveMenuData = {
         event_code: eventCode,
         is_custom: menuState.isCustomMenu,
@@ -168,10 +164,14 @@ export const useMenuState = (eventCode: string) => {
         notes: menuState.notes,
       };
 
-      console.log('Saving menu data:', JSON.stringify(menuData, null, 2));
+      console.log('Saving menu data with dessert info:', {
+        dessertType: menuState.dessertType,
+        traditionalDessert: menuState.traditionalDessert,
+        menuData: menuData
+      });
+      
       const result = await updateMenuSelection(eventCode, menuData);
       
-      // Update the last saved state for comparison
       setLastSavedState(JSON.stringify(menuData));
       
       console.log('Menu saved successfully', result);
@@ -184,7 +184,6 @@ export const useMenuState = (eventCode: string) => {
     }
   }, [eventCode, menuState, isInitialized]);
 
-  // Helper function to check if the current state is different from the last saved state
   const hasUnsavedChanges = useCallback(() => {
     if (!lastSavedState) return true;
     
@@ -192,11 +191,29 @@ export const useMenuState = (eventCode: string) => {
       event_code: eventCode,
       is_custom: menuState.isCustomMenu,
       custom_menu_details: menuState.customMenuDetails,
-      // ... include all other fields that are saved to the database
       starter_type: menuState.selectedStarterType,
       canape_package: menuState.selectedCanapePackage,
       canape_selections: menuState.selectedCanapes || [],
-      // ... and so on
+      plated_starter: menuState.selectedPlatedStarter,
+      main_course_type: menuState.mainCourseType,
+      buffet_meat_selections: menuState.buffetMeatSelections || [],
+      buffet_vegetable_selections: menuState.buffetVegetableSelections || [],
+      buffet_starch_selections: menuState.buffetStarchSelections || [],
+      buffet_salad_selection: menuState.buffetSaladSelection,
+      karoo_meat_selection: menuState.karooMeatSelection,
+      karoo_starch_selection: menuState.karooStarchSelection || [],
+      karoo_vegetable_selections: menuState.karooVegetableSelections || [],
+      karoo_salad_selection: menuState.karooSaladSelection,
+      plated_main_selection: menuState.platedMainSelection,
+      plated_salad_selection: menuState.platedSaladSelection,
+      dessert_type: menuState.dessertType,
+      traditional_dessert: menuState.traditionalDessert,
+      dessert_canapes: menuState.dessertCanapes || [],
+      individual_cakes: menuState.individualCakes || [],
+      individual_cake_quantities: menuState.individual_cake_quantities || {},
+      other_selections: menuState.otherSelections || [],
+      other_selections_quantities: menuState.otherSelectionsQuantities || {},
+      notes: menuState.notes,
     });
     
     return currentStateString !== lastSavedState;

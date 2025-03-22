@@ -28,7 +28,7 @@ export const updateMenuSelection = async (eventCode: string, updates: any) => {
     
     // Use retry operation for more resilient network requests
     const result = await retryOperation(async () => {
-      console.log('Executing Supabase upsert operation');
+      console.log('Executing Supabase upsert operation for menu with data:', processedUpdates);
       const { data, error } = await supabase
         .from('menu_selections')
         .upsert({

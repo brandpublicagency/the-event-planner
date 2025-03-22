@@ -16,7 +16,8 @@ export const formatMenuDetails = (menuState: MenuState): string => {
     mainCourseType: menuState.mainCourseType,
     starterType: menuState.selectedStarterType,
     dessertType: menuState.dessertType,
-    dessertCanapes: menuState.dessertCanapes
+    dessertCanapes: menuState.dessertCanapes,
+    traditionalDessert: menuState.traditionalDessert // Add this for debugging
   });
 
   if (menuState.isCustomMenu) {
