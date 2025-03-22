@@ -6,6 +6,7 @@ import { useMenuPlanner } from './hooks/useMenuPlanner';
 import MenuPlannerLoading from './MenuPlannerLoading';
 import MenuPlannerError from './MenuPlannerError';
 import MenuPlannerContent from './MenuPlannerContent';
+import { toast } from "sonner";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -30,6 +31,7 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     error,
     isLoading,
     isSaving,
+    isInitialized,
     handleMenuStateChange,
     handleCanapeSelection,
     saveMenuSelections: saveMenu
@@ -39,7 +41,8 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     loadingProgress,
     isInternalUpdate,
     setIsInternalUpdate,
-    handleInternalCustomMenuToggle
+    handleInternalCustomMenuToggle,
+    saveRegistered
   } = useMenuPlanner(
     eventCode,
     menuState,
@@ -48,6 +51,19 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     saveMenuSelections,
     saveMenu
   );
+
+  // Debug logging for important state
+  React.useEffect(() => {
+    console.log('WeddingMenuPlanner debug state:', {
+      eventCode,
+      isInitialized,
+      isLoading,
+      saveRegistered,
+      hasMenuState: !!menuState,
+      hasSaveMenuFunction: !!saveMenu,
+      hasSaveMenuSelectionsProps: !!saveMenuSelections
+    });
+  }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   React.useEffect(() => {
@@ -75,6 +91,25 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
   if (error) {
     return <MenuPlannerError error={error} />;
   }
+
+  // Verify save function is registered
+  React.useEffect(() => {
+    if (!saveRegistered && !isLoading && isInitialized && saveMenuSelections && saveMenu) {
+      console.log('Save function not registered yet, ensuring registration is attempted');
+      // Force a re-registration attempt
+      const saveFn = async () => {
+        try {
+          await saveMenu();
+          return Promise.resolve();
+        } catch (error: any) {
+          console.error('Error in save function:', error);
+          throw error;
+        }
+      };
+      
+      saveMenuSelections(saveFn);
+    }
+  }, [saveRegistered, isLoading, isInitialized, saveMenuSelections, saveMenu]);
 
   // Custom menu toggle handler that marks updates as internal
   const internalCustomMenuToggleHandler = (value: boolean) => {

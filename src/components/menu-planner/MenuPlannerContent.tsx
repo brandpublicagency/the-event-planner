@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Separator } from "@/components/ui/separator";
 import MenuContent from '@/components/menu/MenuContent';
 import NotesSection from '@/components/menu/NotesSection';
@@ -20,6 +20,17 @@ const MenuPlannerContent: React.FC<MenuPlannerContentProps> = ({
   onCanapeSelection,
   handleInternalCustomMenuToggle
 }) => {
+  // Debug logging for menu updates
+  useEffect(() => {
+    console.log('MenuPlannerContent rendered with state:', {
+      isCustom: menuState.isCustomMenu,
+      starterType: menuState.selectedStarterType,
+      mainCourseType: menuState.mainCourseType,
+      dessertType: menuState.dessertType,
+      hasNotes: !!menuState.notes?.length
+    });
+  }, [menuState]);
+
   return (
     <div className="mt-4 print:mt-0">
       {isSaving && (
@@ -36,6 +47,7 @@ const MenuPlannerContent: React.FC<MenuPlannerContentProps> = ({
         <MenuContent 
           menuState={menuState}
           onMenuStateChange={(field: keyof MenuState, value: any) => {
+            console.log(`MenuContent changing ${String(field)} to:`, value);
             if (field === 'isCustomMenu') {
               const processedValue = handleInternalCustomMenuToggle(value as boolean);
               onMenuStateChange(field, processedValue);
@@ -50,7 +62,10 @@ const MenuPlannerContent: React.FC<MenuPlannerContentProps> = ({
         <div className="notes-section">
           <NotesSection 
             notes={menuState.notes}
-            onChange={(value) => onMenuStateChange('notes', value)}
+            onChange={(value) => {
+              console.log('Notes changing to:', value);
+              onMenuStateChange('notes', value);
+            }}
           />
         </div>
       </div>

@@ -38,6 +38,7 @@ export const useMenuState = (eventCode: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [lastSavedState, setLastSavedState] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMenuSelections = async () => {
@@ -85,6 +86,9 @@ export const useMenuState = (eventCode: string) => {
             otherSelectionsQuantities: menuData.other_selections_quantities || {},
             notes: menuData.notes || '',
           });
+          
+          // Save the initial state hash for comparison
+          setLastSavedState(JSON.stringify(menuData));
         } else {
           console.log('No existing menu data found for this event. Using defaults.');
         }
@@ -103,7 +107,7 @@ export const useMenuState = (eventCode: string) => {
   }, [eventCode]);
 
   const handleMenuStateChange = useCallback((field: keyof MenuState, value: any) => {
-    console.log(`Updating menu state: ${String(field)}`);
+    console.log(`Updating menu state: ${String(field)}`, value);
     setMenuState(prev => ({ ...prev, [field]: value }));
   }, []);
 
@@ -164,9 +168,13 @@ export const useMenuState = (eventCode: string) => {
         notes: menuState.notes,
       };
 
-      console.log('Saving menu data:', menuData);
-      await updateMenuSelection(eventCode, menuData);
-      console.log('Menu saved successfully');
+      console.log('Saving menu data:', JSON.stringify(menuData, null, 2));
+      const result = await updateMenuSelection(eventCode, menuData);
+      
+      // Update the last saved state for comparison
+      setLastSavedState(JSON.stringify(menuData));
+      
+      console.log('Menu saved successfully', result);
       return Promise.resolve();
     } catch (err) {
       console.error('Error saving menu selections:', err);
@@ -176,12 +184,31 @@ export const useMenuState = (eventCode: string) => {
     }
   }, [eventCode, menuState, isInitialized]);
 
+  // Helper function to check if the current state is different from the last saved state
+  const hasUnsavedChanges = useCallback(() => {
+    if (!lastSavedState) return true;
+    
+    const currentStateString = JSON.stringify({
+      event_code: eventCode,
+      is_custom: menuState.isCustomMenu,
+      custom_menu_details: menuState.customMenuDetails,
+      // ... include all other fields that are saved to the database
+      starter_type: menuState.selectedStarterType,
+      canape_package: menuState.selectedCanapePackage,
+      canape_selections: menuState.selectedCanapes || [],
+      // ... and so on
+    });
+    
+    return currentStateString !== lastSavedState;
+  }, [eventCode, lastSavedState, menuState]);
+
   return {
     menuState,
     error,
     isLoading,
     isSaving,
     isInitialized,
+    hasUnsavedChanges,
     handleMenuStateChange,
     handleCustomMenuToggle,
     handleCanapeSelection,

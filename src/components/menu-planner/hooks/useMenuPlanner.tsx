@@ -1,6 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MenuState } from '@/hooks/menuStateTypes';
+import { toast } from "sonner";
 
 export const useMenuPlanner = (
   eventCode: string,
@@ -15,6 +16,7 @@ export const useMenuPlanner = (
   const [loadingProgress, setLoadingProgress] = useState(0);
   const initialLoadComplete = useRef(false);
   const saveRegistered = useRef(false);
+  const lastRegistrationAttempt = useRef(0);
 
   // Simulate progress when loading
   useEffect(() => {
@@ -39,35 +41,54 @@ export const useMenuPlanner = (
 
   // Register save function with parent component - critical for menu saving
   useEffect(() => {
-    if (saveMenuSelections && saveMenu && !isLoading && menuState) {
-      console.log('Registering save menu function with parent');
-      
-      // Don't re-register if already done
-      if (saveRegistered.current) return;
-      
-      const wrappedSaveFunction = async () => {
-        console.log("Save menu function called");
-        try {
-          if (!saveMenu) {
-            throw new Error("Save menu function is not available");
-          }
-          
-          await saveMenu();
-          return Promise.resolve();
-        } catch (error: any) {
-          console.error('Error saving menu from menu planner:', error);
-          throw error; // Re-throw to let parent handle
-        }
-      };
-      
-      // Pass the wrapped function up to parent
-      saveMenuSelections(wrappedSaveFunction);
-      saveRegistered.current = true;
+    // Only proceed if all required parts are available
+    if (!saveMenuSelections || !saveMenu || isLoading || !menuState) {
+      if (!saveMenuSelections) console.log('SaveMenuSelections function not available yet');
+      if (!saveMenu) console.log('SaveMenu function not available yet');
+      if (isLoading) console.log('Still loading, not registering save function');
+      if (!menuState) console.log('Menu state not available yet');
+      return;
     }
+    
+    // Only re-register if we haven't already or if it's been some time since last attempt
+    const now = Date.now();
+    if (saveRegistered.current && (now - lastRegistrationAttempt.current < 5000)) {
+      return;
+    }
+    
+    console.log('Registering save menu function with parent');
+    lastRegistrationAttempt.current = now;
+    
+    const wrappedSaveFunction = async () => {
+      console.log("Save menu function called");
+      try {
+        if (!saveMenu) {
+          const error = new Error("Save menu function is not available");
+          console.error(error);
+          toast.error("Failed to save menu: Save function not available");
+          throw error;
+        }
+        
+        await saveMenu();
+        console.log("Menu saved successfully via wrapped function");
+        toast.success("Menu saved successfully");
+        return Promise.resolve();
+      } catch (error: any) {
+        console.error('Error saving menu from menu planner:', error);
+        toast.error(`Failed to save menu: ${error.message || 'Unknown error'}`);
+        throw error; // Re-throw to let parent handle
+      }
+    };
+    
+    // Pass the wrapped function up to parent
+    saveMenuSelections(wrappedSaveFunction);
+    saveRegistered.current = true;
+    console.log('Save function successfully registered');
     
     // Mark initial load as complete after first render with data
     if (!initialLoadComplete.current && !isLoading && menuState) {
       initialLoadComplete.current = true;
+      console.log('Initial load complete, menu data ready');
     }
   }, [saveMenu, saveMenuSelections, isLoading, menuState]);
 
@@ -89,6 +110,7 @@ export const useMenuPlanner = (
     loadingProgress,
     isInternalUpdate,
     setIsInternalUpdate,
-    handleInternalCustomMenuToggle
+    handleInternalCustomMenuToggle,
+    saveRegistered: saveRegistered.current
   };
 };

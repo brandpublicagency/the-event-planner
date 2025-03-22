@@ -11,6 +11,7 @@ import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { SaveButton } from "@/components/ui/save-button";
 import { Edit } from "lucide-react";
+import { toast } from "sonner";
 
 interface EventDetailsContentProps {
   event: Event;
@@ -41,13 +42,37 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   onSaveMenuSelections,
   onSaveMenu,
 }) => {
+  // Debug monitor for save functionality
+  React.useEffect(() => {
+    console.log('EventDetailsContent save state:', {
+      hasSaveFunction: !!saveMenuFunction,
+      isSaving,
+      hasMenuState: !!menuState
+    });
+  }, [saveMenuFunction, isSaving, menuState]);
+
   // Handler with improved error catching
   const handleSaveClick = async () => {
+    console.log("Save button clicked, save function available:", !!saveMenuFunction);
+    
+    if (!saveMenuFunction) {
+      console.error("No save function available");
+      toast.error("Unable to save menu: Save function not properly registered");
+      return;
+    }
+    
+    if (!menuState) {
+      console.error("No menu state available");
+      toast.error("Unable to save menu: Menu data not initialized");
+      return;
+    }
+    
     try {
-      console.log("Save button clicked, save function available:", !!saveMenuFunction);
       await onSaveMenu();
-    } catch (error) {
+      // Success toast is now handled in the wrapped save function
+    } catch (error: any) {
       console.error("Error in save button handler:", error);
+      // Error toast is now handled in the wrapped save function
     }
   };
 
