@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Event } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
+import WeddingMenuPlanner from "@/components/menu-planner/WeddingMenuPlanner";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
