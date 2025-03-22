@@ -8,9 +8,9 @@ const DashboardLayout = () => {
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard" />
       
-      <div className="grid grid-cols-1 gap-1 p-6">
+      <div className="px-6 pb-6">
         {/* Full width greeting message */}
-        <div className="col-span-full">
+        <div className="mb-2">
           <DashboardMessage />
         </div>
         
