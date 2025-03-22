@@ -21,13 +21,15 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         </p>
       )}
       
-      {menuState.dessertType === 'individual_cakes' && (
+      {(menuState.dessertType === 'individual_cakes' || menuState.dessertType === 'cakes') && (
         <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
           Individual Cakes
         </p>
       )}
       
-      {menuState.dessertType !== 'canapes' && menuState.dessertType !== 'individual_cakes' && (
+      {menuState.dessertType !== 'canapes' && 
+       menuState.dessertType !== 'individual_cakes' && 
+       menuState.dessertType !== 'cakes' && (
         <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.dessertType))}</p>
       )}
       
@@ -43,7 +45,8 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         </div>
       )}
       
-      {menuState.dessertType === 'individual_cakes' && menuState.individualCakes && menuState.individualCakes.length > 0 && (
+      {(menuState.dessertType === 'individual_cakes' || menuState.dessertType === 'cakes') && 
+        menuState.individualCakes && menuState.individualCakes.length > 0 && (
         <div>
           {menuState.individualCakes.map((item, idx) => {
             const quantity = menuState.individual_cake_quantities?.[item] || 0;

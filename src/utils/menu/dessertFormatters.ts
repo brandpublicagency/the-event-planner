@@ -14,17 +14,17 @@ export const formatDessertSection = (menuState: MenuState): string => {
   // Include specific dessert type title with package info if applicable
   if (menuState.dessertType === 'canapes') {
     section += `DESSERT CANAPÉS (Choose ${menuState.dessertCanapes.length})\n`;
-  } else if (menuState.dessertType === 'individual_cakes') {
-    // Fix: Change description for individual cakes to be more specific and include heading
+  } else if (menuState.dessertType === 'individual_cakes' || menuState.dessertType === 'cakes') {
+    // Add proper heading for individual cakes section
     section += `INDIVIDUAL CAKES\n`;
-  } else {
-    section += `${getMenuItemDescription(menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType)}\n`;
+  } else if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
+    section += `${getMenuItemDescription(menuState.dessertType)}\n`;
   }
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
     // Remove bullet point
     section += `${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;
-  } else if (menuState.dessertType === 'individual_cakes' && menuState.individualCakes.length > 0) {
+  } else if ((menuState.dessertType === 'individual_cakes' || menuState.dessertType === 'cakes') && menuState.individualCakes.length > 0) {
     menuState.individualCakes.forEach(cake => {
       const quantity = menuState.individual_cake_quantities?.[cake] || 0;
       if (quantity > 0) {

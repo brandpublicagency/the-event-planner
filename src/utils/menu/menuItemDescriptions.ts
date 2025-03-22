@@ -17,6 +17,7 @@ export const menuItemDescriptions: Record<string, string> = {
   // Dessert Types
   'traditional': 'Traditional Baked Desserts',
   'individual_cakes': 'Individual Cakes',
+  'cakes': 'Individual Cakes',
   'dessert_canapes': 'Dessert Canapés',
   
   // Main Course - Karoo Meat
@@ -35,6 +36,9 @@ export const menuItemDescriptions: Record<string, string> = {
   'lamb_shank': 'Fall-off-the-bone lamb shank with demi-glace and creamy mashed potato served with crisp broccoli stems and honey-roasted carrots',
   'beef_cut': 'Chef\'s cut of beef, whole green beans and potatoes wedges roasted in duck fat with parmesan & thyme. Served with mushroom or pepper sauce',
   'chicken_breast': 'Sun-dried tomato & feta-stuffed chicken breast in a basil cream sauce with mediterranean couscous & seasonal roast vegetables',
+  
+  // Starters - Plated
+  'philo_basket': 'Phyllo basket filled with creamy garlic mushrooms and topped with parmesan shavings',
   
   // Starch
   'roast_potatoes': 'Traditional roast potatoes',
@@ -80,6 +84,7 @@ export const menuItemDescriptions: Record<string, string> = {
   // Individual Cakes
   'cheesecake': 'Baked cheesecake',
   'pavlova': 'Lemon curd and berry pavlova',
+  'pavlova_cake': 'Lemon curd and berry pavlova',
   'chocolate_cake': 'Rich chocolate cake with dark chocolate ganache',
   'carrot_cake': 'Carrot cake with cream cheese frosting',
   'lemon_cake': 'Lemon & poppyseed cake with cream and mascarpone',

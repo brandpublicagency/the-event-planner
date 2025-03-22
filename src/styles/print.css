@@ -115,4 +115,15 @@
     padding-left: 0 !important;
     margin-left: 0 !important;
   }
+  
+  /* Additional styles for dessert section to ensure proper spacing */
+  .section-header + p.category-label,
+  .section-header + div p {
+    margin-top: 4px !important;
+  }
+  
+  /* Improve spacing between items */
+  .menu-item + .menu-item {
+    margin-top: 4px !important;
+  }
 }
