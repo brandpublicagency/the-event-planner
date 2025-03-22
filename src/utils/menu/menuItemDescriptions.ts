@@ -12,6 +12,7 @@ export const menuItemDescriptions: Record<string, string> = {
   
   // Starter Types
   'harvest': 'Harvest Table',
+  'starter_canapes': 'Canapés',
   
   // Dessert Types
   'traditional': 'Traditional Baked Desserts',
