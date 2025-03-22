@@ -27,7 +27,7 @@ export function useFileDelete() {
 
         // Then delete from storage
         const { error: storageError } = await supabase.storage
-          .from("task-files")
+          .from("taskmanager-files")
           .remove([file.file_path]);
 
         if (storageError) {

@@ -13,7 +13,7 @@ export function useFileDownload() {
       console.log('[Download] Getting file:', filePath);
 
       const { data } = supabase.storage
-        .from("task-files")
+        .from("taskmanager-files")
         .getPublicUrl(filePath);
 
       if (!data?.publicUrl) {
