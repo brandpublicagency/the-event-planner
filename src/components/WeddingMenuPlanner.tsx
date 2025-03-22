@@ -13,6 +13,7 @@ interface WeddingMenuPlannerProps {
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
   onMenuStateChange?: (menuState: any) => void;
+  onSaveMenuCallback?: (saveFunction: () => Promise<void>) => void;
 }
 
 const WeddingMenuPlanner = ({ 
@@ -20,7 +21,8 @@ const WeddingMenuPlanner = ({
   eventName, 
   isCustomMenu, 
   onCustomMenuToggle,
-  onMenuStateChange 
+  onMenuStateChange,
+  onSaveMenuCallback
 }: WeddingMenuPlannerProps) => {
   const { toast } = useToast();
   const { 
@@ -55,6 +57,13 @@ const WeddingMenuPlanner = ({
       setIsInternalUpdate(false);
     }
   }, [menuState, onCustomMenuToggle, onMenuStateChange, isInternalUpdate]);
+
+  // Provide the save function to the parent component
+  useEffect(() => {
+    if (onSaveMenuCallback) {
+      onSaveMenuCallback(saveMenuSelections);
+    }
+  }, [saveMenuSelections, onSaveMenuCallback]);
 
   // Handle internal changes to the custom menu toggle
   const handleInternalCustomMenuToggle = (value: boolean) => {
@@ -106,7 +115,6 @@ const WeddingMenuPlanner = ({
             onChange={(value) => handleMenuStateChange('notes', value)}
           />
         </div>
-        {/* Removed the duplicate Save Menu button */}
       </div>
     </div>
   );

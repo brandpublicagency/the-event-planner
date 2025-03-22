@@ -66,6 +66,7 @@ const EventDetails = () => {
   });
   
   const [menuState, setMenuState] = React.useState<any>(null);
+  const [saveMenuSelections, setSaveMenuSelections] = React.useState<(() => Promise<void>) | null>(null);
   
   const handleEditEvent = () => {
     if (id) {
@@ -74,11 +75,13 @@ const EventDetails = () => {
   };
 
   const handleSaveMenu = async () => {
-    if (!id || !menuState) return;
+    if (!id || !menuState || !saveMenuSelections) return;
     
     setIsSaving(true);
     try {
-      // The menuState will be saved by the WeddingMenuPlanner component
+      // Call the saveMenuSelections function from WeddingMenuPlanner
+      await saveMenuSelections();
+      
       toast({
         title: "Success",
         description: "Menu saved successfully",
@@ -175,6 +178,7 @@ const EventDetails = () => {
               isCustomMenu={isCustomMenu} 
               onCustomMenuToggle={setIsCustomMenu}
               onMenuStateChange={setMenuState}
+              onSaveMenuCallback={setSaveMenuSelections}
             />}
             
             <div className="flex justify-end mt-6 print:hidden">
