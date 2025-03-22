@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,8 +125,8 @@ export default function Events() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-50">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50">
+                  <Calendar className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-zinc-900">Upcoming Events</h2>
@@ -152,7 +153,7 @@ export default function Events() {
         
         {isLoading ? <div className="flex items-center justify-center h-60 bg-white rounded-xl border border-zinc-100 shadow-sm">
             <div className="flex flex-col items-center gap-2">
-              <div className="h-5 w-5 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+              <div className="h-5 w-5 rounded-full border-2 border-gray-600 border-t-transparent animate-spin"></div>
               <p className="text-sm text-zinc-500">Loading events...</p>
             </div>
           </div> : <div className="rounded-xl overflow-hidden shadow-sm">

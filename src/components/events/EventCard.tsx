@@ -65,11 +65,11 @@ export const EventCard = ({
   const getEventTypeColor = () => {
     switch (event.event_type?.toLowerCase()) {
       case 'wedding':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
       case 'corporate':
         return 'bg-slate-50 text-slate-700 border-slate-200';
       case 'celebration':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
@@ -81,7 +81,7 @@ export const EventCard = ({
         <div className="space-y-3 flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-base font-medium text-zinc-900 hover:text-blue-600 transition-colors">
+              <h3 className="text-base font-medium text-zinc-900 hover:text-gray-600 transition-colors">
                 {event.name}
               </h3>
               <div className="flex items-center gap-1 mt-1">
@@ -94,7 +94,7 @@ export const EventCard = ({
             </div>
             
             {!isDashboard && <div className="flex items-center">
-                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors flex items-center gap-1">
+                <button onClick={e => copyEventCode(e, event.event_code)} className="text-[11px] px-2 py-0.5 border rounded text-zinc-500 bg-zinc-50 hover:bg-gray-50 hover:text-gray-600 hover:border-gray-200 transition-colors flex items-center gap-1">
                   {event.event_code}
                   <Copy className="h-3 w-3" />
                 </button>
@@ -122,7 +122,7 @@ export const EventCard = ({
           <Button variant="ghost" size="sm" onClick={e => {
           e.stopPropagation();
           navigate(`/events/${event.event_code}/edit`);
-        }} className="text-zinc-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-8 w-8 p-0">
+        }} className="text-zinc-500 hover:text-gray-600 hover:bg-gray-50 rounded-full h-8 w-8 p-0">
             <Pencil className="h-4 w-4" />
           </Button>
           
