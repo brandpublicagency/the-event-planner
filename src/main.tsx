@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
-import './toast.css';
+// Note: toast.css is already imported in index.css
 
 // Make sure React is properly initialized
 const rootElement = document.getElementById("root");
