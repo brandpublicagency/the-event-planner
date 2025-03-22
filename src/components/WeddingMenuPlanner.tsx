@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
@@ -30,6 +31,7 @@ const WeddingMenuPlanner = ({
     menuState, 
     error,
     isLoading,
+    isSaving,
     handleMenuStateChange,
     handleCanapeSelection,
     saveMenuSelections: saveMenu
@@ -37,6 +39,28 @@ const WeddingMenuPlanner = ({
   
   // Flag to prevent feedback loop
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Simulate progress when loading
+  useEffect(() => {
+    if (isLoading) {
+      const interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          const newProgress = prev + (100 - prev) * 0.1;
+          return Math.min(newProgress, 95); // Cap at 95% until actual completion
+        });
+      }, 300);
+      
+      return () => {
+        clearInterval(interval);
+        if (!isLoading) {
+          setLoadingProgress(100);
+          // Reset after animation completes
+          setTimeout(() => setLoadingProgress(0), 500);
+        }
+      };
+    }
+  }, [isLoading]);
 
   // Pass the save function to the parent component
   useEffect(() => {
@@ -98,8 +122,13 @@ const WeddingMenuPlanner = ({
   if (isLoading) {
     return (
       <div className="mt-4 print:mt-0">
-        <div className="py-6">
-          <div className="text-center animate-pulse">Loading menu...</div>
+        <div className="py-6 space-y-4">
+          <div className="text-center animate-pulse mb-2">Loading menu data...</div>
+          <Progress 
+            value={loadingProgress} 
+            className="w-full max-w-md mx-auto h-2"
+            aria-label="Loading progress"
+          />
         </div>
       </div>
     );
@@ -111,6 +140,14 @@ const WeddingMenuPlanner = ({
         <div className="py-6">
           <div className="text-red-600 text-center animate-in fade-in slide-in-from-top-4">
             {error}
+            <div className="mt-2">
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Refresh page
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,6 +156,16 @@ const WeddingMenuPlanner = ({
 
   return (
     <div className="mt-4 print:mt-0">
+      {isSaving && (
+        <div className="fixed inset-0 bg-black/5 z-50 flex items-center justify-center pointer-events-none">
+          <div className="bg-white p-4 rounded-md shadow-lg">
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+              <p>Saving menu...</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="space-y-4">
         <MenuContent 
           menuState={menuState}

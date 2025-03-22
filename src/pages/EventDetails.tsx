@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -22,10 +22,10 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [isCustomMenu, setIsCustomMenu] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [saveMenuFunction, setSaveMenuFunction] = React.useState<(() => Promise<void>) | null>(null);
-  const [menuState, setMenuState] = React.useState<MenuState | null>(null);
+  const [isCustomMenu, setIsCustomMenu] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMenuFunction, setSaveMenuFunction] = useState<(() => Promise<void>) | null>(null);
+  const [menuState, setMenuState] = useState<MenuState | null>(null);
   
   const handleBackNavigation = () => {
     if (location.state?.previousPath === 'menu-selection') {
@@ -44,7 +44,7 @@ const EventDetails = () => {
     queryKey: ['events', id],
     queryFn: async () => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased timeout to 30s
       try {
         const {
           data,
@@ -62,7 +62,7 @@ const EventDetails = () => {
         throw err;
       }
     },
-    retry: 1,
+    retry: 2, // Increased retry count
     retryDelay: 1000
   });
   
@@ -75,16 +75,25 @@ const EventDetails = () => {
   const handleSaveMenu = async () => {
     if (!id || !menuState || !saveMenuFunction) {
       console.error("Cannot save: Missing id, menuState, or saveMenuFunction");
-      return;
+      return Promise.reject(new Error("Cannot save menu: Required data is missing"));
     }
     
+    setIsSaving(true);
     try {
-      // Call the actual save function from WeddingMenuPlanner
-      await saveMenuFunction();
+      // Call the actual save function from WeddingMenuPlanner with an increased timeout
+      await Promise.race([
+        saveMenuFunction(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Menu save operation timed out")), 30000)
+        )
+      ]);
       console.log("Menu saved successfully");
+      return Promise.resolve();
     } catch (error: any) {
       console.error("Failed to save menu:", error.message || 'Unknown error');
       throw error; // Let the SaveButton handle the error
+    } finally {
+      setIsSaving(false);
     }
   };
   
@@ -106,10 +115,15 @@ const EventDetails = () => {
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold text-red-700 mb-2">Error Loading Event</h2>
               <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'Failed to load event details'}</p>
-              <Button onClick={() => navigate('/events')} variant="outline" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Events
-              </Button>
+              <div className="flex space-x-3">
+                <Button onClick={() => navigate('/events')} variant="outline" className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Events
+                </Button>
+                <Button onClick={() => refetch()} variant="default" className="flex items-center gap-2">
+                  Try Again
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -175,10 +189,11 @@ const EventDetails = () => {
             <div className="flex justify-end mt-6 print:hidden">
               <SaveButton 
                 onClick={handleSaveMenu}
-                disabled={!menuState || !saveMenuFunction}
+                disabled={!menuState || !saveMenuFunction || isSaving}
                 defaultText="Save Menu"
                 loadingText="Saving Menu..."
                 successText="Menu Saved"
+                timeout={30000} // 30-second timeout
               />
             </div>
           </div>
