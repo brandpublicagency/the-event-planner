@@ -53,7 +53,7 @@ export const EventCard = ({
   const eventIsToday = event.event_date ? isToday(new Date(event.event_date)) : false;
   
   const eventCardContent = (
-    <div className="rounded-none px-[15px] py-[15px]">
+    <div className="bg-white rounded-none px-[15px] py-[15px]">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -133,7 +133,9 @@ export const EventCard = ({
           {eventCardContent}
         </AnimatedBorder>
       ) : (
-        eventCardContent
+        <div className="border border-zinc-100 bg-white rounded-md mb-2">
+          {eventCardContent}
+        </div>
       )}
     </div>
   );

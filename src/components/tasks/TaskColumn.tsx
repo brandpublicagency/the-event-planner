@@ -14,7 +14,7 @@ interface TaskColumnProps {
 
 export function TaskColumn({ title, tasks, status, onTaskSelect, selectedTaskId }: TaskColumnProps) {
   return (
-    <Card className="flex-1 border-0">
+    <Card className="flex-1 border-0 bg-transparent shadow-none">
       <CardHeader className="py-3 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>

@@ -31,7 +31,7 @@ export const DashboardEventItem: React.FC<DashboardEventItemProps> = ({
   const eventIsToday = eventDate ? isToday(eventDate) : false;
   
   const eventCardContent = (
-    <div className="flex items-stretch w-full">
+    <div className="flex items-stretch w-full bg-white">
       {/* Date column */}
       <EventDateColumn day={day} startTime={formattedStartTime} />
       
