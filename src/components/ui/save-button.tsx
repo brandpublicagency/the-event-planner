@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button, ButtonProps } from "./button";
 import { Check, Loader2, AlertTriangle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export interface SaveButtonProps extends Omit<ButtonProps, 'onClick'> {
   onClick: () => Promise<void>;
@@ -19,7 +20,7 @@ export const SaveButton = ({
   loadingText = "Saving...",
   defaultText = "Save",
   showIcon = true,
-  timeout = 5000, // Added longer timeout (5 seconds)
+  timeout = 5000,
   className,
   disabled,
   ...props
@@ -61,6 +62,13 @@ export const SaveButton = ({
       console.error('Save operation failed:', error);
       setStatus('error');
       setErrorMessage(error.message || 'An error occurred');
+      
+      // Display the error in a toast
+      toast({
+        title: "Error saving",
+        description: error.message || 'An error occurred',
+        variant: "destructive",
+      });
       
       // Auto-reset from error state after 3 seconds
       setTimeout(() => {

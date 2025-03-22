@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -77,6 +76,11 @@ const EventDetails = () => {
   const handleSaveMenu = async () => {
     if (!id || !menuState || !saveMenuFunction) {
       console.error("Cannot save: Missing id, menuState, or saveMenuFunction");
+      toast({
+        title: "Error",
+        description: "Cannot save menu: Required data is missing",
+        variant: "destructive"
+      });
       return Promise.reject(new Error("Cannot save menu: Required data is missing"));
     }
     
@@ -89,10 +93,21 @@ const EventDetails = () => {
           setTimeout(() => reject(new Error("Menu save operation timed out")), 30000)
         )
       ]);
+      
       console.log("Menu saved successfully");
+      toast({
+        title: "Success",
+        description: "Menu saved successfully",
+        variant: "success"
+      });
       return Promise.resolve();
     } catch (error: any) {
       console.error("Failed to save menu:", error.message || 'Unknown error');
+      toast({
+        title: "Error",
+        description: `Failed to save menu: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
       throw error; // Let the SaveButton handle the error
     } finally {
       setIsSaving(false);

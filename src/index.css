@@ -1,39 +1,31 @@
 
-@import './toast.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import "./toast.css";
+
+/* Global styles */
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
@@ -42,32 +34,23 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --ring: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -80,106 +63,10 @@
   }
 }
 
-/* Toast styles */
-@layer components {
-  .toast-gradient-default {
-    @apply bg-blue-600 text-white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: toast-in 0.3s ease forwards;
-  }
-  
-  .toast-gradient-destructive {
-    @apply bg-red-600 text-white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: toast-in 0.3s ease forwards;
-  }
-  
-  .toast-gradient-success {
-    @apply bg-green-600 text-white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: toast-in 0.3s ease forwards;
-  }
-  
-  .toast-gradient-info {
-    @apply bg-blue-500 text-white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: toast-in 0.3s ease forwards;
-  }
-  
-  .toast-progress-bar {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 3px;
-    background-color: rgba(255, 255, 255, 0.4);
-    width: 100%;
-    transform-origin: left;
-    animation: toast-progress-animation linear forwards;
-  }
-  
-  @keyframes toast-in {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes toast-progress-animation {
-    from {
-      transform: scaleX(1);
-    }
-    to {
-      transform: scaleX(0);
-    }
-  }
-
-  /* Glow effects for time-based colors */
-  .glow-indigo {
-    text-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
-  }
-  
-  .glow-slate {
-    text-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
-  }
-  
-  .glow-sky {
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-  }
-  
-  .glow-cyan {
-    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
-  }
-  
-  .glow-amber {
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-  }
-  
-  /* Slow animation for the refresh icon */
-  .animate-spin-slow {
-    animation: spin 3s linear infinite;
-  }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  /* Custom font size for weather */
-  .text-2xs {
-    font-size: 0.65rem;
-    line-height: 1rem;
-  }
-  
-  /* Text shadow for better readability on gradient backgrounds */
-  .text-shadow {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+/* Print styles */
+@media print {
+  .print-hide,
+  .print-hidden {
+    display: none !important;
   }
 }
