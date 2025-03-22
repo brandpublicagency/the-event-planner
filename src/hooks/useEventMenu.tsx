@@ -31,14 +31,8 @@ export const useEventMenu = (eventId: string | undefined) => {
     
     setIsSaving(true);
     try {
-      // Call the actual save function from WeddingMenuPlanner with an increased timeout
-      await Promise.race([
-        saveMenuFunction(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Menu save operation timed out")), 30000)
-        )
-      ]);
-      
+      // Call the actual save function that was passed from WeddingMenuPlanner
+      await saveMenuFunction();
       console.log("Menu saved successfully");
       toast.success("Menu saved successfully");
       return Promise.resolve();

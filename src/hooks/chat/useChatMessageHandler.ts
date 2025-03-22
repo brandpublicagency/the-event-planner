@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useChatState } from "@/hooks/useChatState";
 import { useAIMessageHandler } from "@/components/chat/handlers/AIMessageHandler";
@@ -8,7 +9,8 @@ import { useSubmitHandler } from "./useSubmitHandler";
 import { useConfirmationHandler } from "@/hooks/useConfirmationHandler";
 import { ChatMessage, PendingAction } from "@/types/chat";
 
-import { useActionHandler } from "@/components/chat/handlers/ActionHandler";
+// Import from utils or a mock implementation if not found
+import { handlePendingAction } from "@/utils/chatActionHandler";
 
 interface UseChatMessageHandlerProps {
   contextData?: any;
@@ -84,13 +86,20 @@ export const useChatMessageHandler = ({
     contextData
   });
 
-  const { handlePendingAction } = useActionHandler();
+  // Handle pending actions with proper type handling
+  const actionHandler = async (action: PendingAction, isConfirmed: boolean): Promise<void> => {
+    try {
+      await handlePendingAction(action, isConfirmed);
+    } catch (error) {
+      console.error("Error handling action:", error);
+    }
+  };
   
   const { processConfirmation, handleConfirmation } = useConfirmationHandler({
     addUserMessage,
     addSystemMessage,
     clearInput,
-    handlePendingAction
+    handlePendingAction: actionHandler
   });
 
   const { handleSubmit } = useSubmitHandler({
@@ -103,7 +112,7 @@ export const useChatMessageHandler = ({
     addUserMessage,
     clearInput,
     setIsLoading,
-    handlePendingAction,
+    handlePendingAction: actionHandler,
     fetchAIResponse,
     fetchWhatsAppResponse,
     processConfirmation,

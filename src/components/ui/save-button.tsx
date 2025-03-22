@@ -47,7 +47,7 @@ export const SaveButton = ({
       setErrorMessage(null);
       
       // Set up timeout to prevent indefinite loading state
-      const timeoutPromise = new Promise((_, reject) => {
+      const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error(`Operation timed out after ${timeout}ms`)), timeout);
       });
       

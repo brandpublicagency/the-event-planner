@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -12,6 +12,7 @@ import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoad
 import { EventDetailsError } from "@/components/event-details/EventDetailsError";
 import { EventDetailsEmpty } from "@/components/event-details/EventDetailsEmpty";
 import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
+import { toast } from "sonner";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -30,13 +31,13 @@ const EventDetails = () => {
     handleSaveMenu
   } = useEventMenu(id);
   
-  const handleBackNavigation = () => {
+  const handleBackNavigation = useCallback(() => {
     if (location.state?.previousPath === 'menu-selection') {
       navigate('/menu-selection');
     } else {
       navigate('/events');
     }
-  };
+  }, [location.state, navigate]);
   
   const {
     data: event,
@@ -71,11 +72,16 @@ const EventDetails = () => {
     retryDelay: 1000
   });
   
-  const handleEditEvent = () => {
+  const handleSaveMenuSelections = useCallback((saveFn: () => Promise<void>) => {
+    console.log("Registering save menu function");
+    setSaveMenuFunction(() => saveFn);
+  }, [setSaveMenuFunction]);
+  
+  const handleEditEvent = useCallback(() => {
     if (id) {
       navigate(`/events/${id}/edit`);
     }
-  };
+  }, [id, navigate]);
   
   if (isLoading) {
     return <EventDetailsLoading onBackButtonClick={handleBackNavigation} />;
@@ -119,7 +125,7 @@ const EventDetails = () => {
         onEditEvent={handleEditEvent}
         onCustomMenuToggle={setIsCustomMenu}
         onMenuStateChange={setMenuState}
-        onSaveMenuSelections={setSaveMenuFunction}
+        onSaveMenuSelections={handleSaveMenuSelections}
         onSaveMenu={handleSaveMenu}
       />
     </div>

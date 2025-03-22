@@ -11,6 +11,7 @@ import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { SaveButton } from "@/components/ui/save-button";
 import { Edit } from "lucide-react";
+import { toast } from "sonner";
 
 interface EventDetailsContentProps {
   event: Event;

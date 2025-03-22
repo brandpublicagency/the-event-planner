@@ -40,6 +40,7 @@ const WeddingMenuPlanner = ({
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const initialLoadComplete = useRef(false);
+  const saveRegistered = useRef(false);
 
   // Simulate progress when loading
   useEffect(() => {
@@ -64,7 +65,8 @@ const WeddingMenuPlanner = ({
 
   // Pass the save function to the parent component
   useEffect(() => {
-    if (saveMenuSelections && saveMenu && initialLoadComplete.current) {
+    if (saveMenuSelections && saveMenu && !isLoading && initialLoadComplete.current && !saveRegistered.current) {
+      console.log('Registering save menu function with parent');
       // Pass the function wrapped to handle any UI updates or state changes in this component
       saveMenuSelections(async () => {
         try {
@@ -75,6 +77,8 @@ const WeddingMenuPlanner = ({
           return Promise.reject(error);
         }
       });
+      
+      saveRegistered.current = true;
     }
     
     // Mark initial load as complete after first render
