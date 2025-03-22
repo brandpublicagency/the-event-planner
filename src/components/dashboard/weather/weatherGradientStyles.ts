@@ -12,80 +12,81 @@ export const getWeatherGradientStyles = (
   // Normalize condition for consistency
   const condition = weatherCondition?.toLowerCase() || 'clear';
   
-  // Default gradients by time of day
-  const defaultGradients = {
-    morning: {
-      background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)',
-      fallbackClass: 'bg-gradient-to-br from-amber-500 to-rose-500/40'
-    },
-    day: {
-      background: 'linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%)',
-      fallbackClass: 'bg-gradient-to-br from-sky-400 to-blue-600/40'
-    },
-    night: {
-      background: 'linear-gradient(135deg, #141E30 0%, #243B55 100%)',
-      fallbackClass: 'bg-gradient-to-br from-blue-900 to-slate-900/40'
-    }
-  };
-  
-  // Weather-specific gradients that override the defaults
+  // Weather-specific gradients that override the defaults based on time of day
   const weatherGradients: Record<string, {background: string, fallbackClass: string}> = {
     // Rain conditions
     'rain': {
-      background: 'linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%)',
-      fallbackClass: 'bg-gradient-to-br from-blue-600 to-cyan-400/40'
+      background: 'linear-gradient(to bottom, #616161, #9BC5C3)',
+      fallbackClass: 'bg-gradient-to-b from-neutral-600 to-emerald-200/70'
     },
     'drizzle': {
-      background: 'linear-gradient(135deg, #89F7FE 0%, #66A6FF 100%)',
-      fallbackClass: 'bg-gradient-to-br from-blue-300 to-blue-500/40'
+      background: 'linear-gradient(to bottom, #616161, #9BC5C3)',
+      fallbackClass: 'bg-gradient-to-b from-neutral-600 to-emerald-200/70'
     },
     'shower rain': {
-      background: 'linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%)',
-      fallbackClass: 'bg-gradient-to-br from-blue-600 to-cyan-400/40'
+      background: 'linear-gradient(to bottom, #616161, #9BC5C3)',
+      fallbackClass: 'bg-gradient-to-b from-neutral-600 to-emerald-200/70'
     },
     
     // Thunderstorm 
     'thunderstorm': {
-      background: 'linear-gradient(135deg, #4B79A1 0%, #283E51 100%)',
-      fallbackClass: 'bg-gradient-to-br from-gray-600 to-slate-800/40'
+      background: 'linear-gradient(to right, #232526, #414345)',
+      fallbackClass: 'bg-gradient-to-r from-neutral-800 to-neutral-700'
     },
     
     // Snow and winter conditions
     'snow': {
-      background: 'linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 100%)',
-      fallbackClass: 'bg-gradient-to-br from-blue-100 to-blue-200/40'
+      background: 'linear-gradient(to right, #E0EAFC, #CFDEF3)',
+      fallbackClass: 'bg-gradient-to-r from-blue-100 to-blue-200/80'
     },
     
     // Cloudy conditions
     'clouds': {
-      background: 'linear-gradient(135deg, #757F9A 0%, #D7DDE8 100%)',  
-      fallbackClass: 'bg-gradient-to-br from-gray-500 to-gray-300/40'
+      background: timeOfDay === 'night' 
+        ? 'linear-gradient(to left, #274046, #E6DADA)' // Cloudy Night
+        : 'linear-gradient(to left, #E4E5E6, #00416A)', // Cloudy Day
+      fallbackClass: timeOfDay === 'night' 
+        ? 'bg-gradient-to-l from-slate-800 to-gray-300' 
+        : 'bg-gradient-to-l from-gray-200 to-blue-900'
     },
     'mist': {
-      background: 'linear-gradient(135deg, #606c88 0%, #3f4c6b 100%)',
-      fallbackClass: 'bg-gradient-to-br from-gray-400 to-slate-600/40'
+      background: 'linear-gradient(to right, #757F9A, #D7DDE8)', // Foggy
+      fallbackClass: 'bg-gradient-to-r from-slate-500 to-slate-300'
     },
     'fog': {
-      background: 'linear-gradient(135deg, #757F9A 0%, #D7DDE8 100%)',
-      fallbackClass: 'bg-gradient-to-br from-gray-500 to-gray-300/40'
+      background: 'linear-gradient(to right, #757F9A, #D7DDE8)', // Foggy
+      fallbackClass: 'bg-gradient-to-r from-slate-500 to-slate-300'
+    },
+    'haze': {
+      background: 'linear-gradient(to right, #757F9A, #D7DDE8)', // Foggy
+      fallbackClass: 'bg-gradient-to-r from-slate-500 to-slate-300'
     },
     
     // Clear conditions (default)
     'clear': {
       background: timeOfDay === 'day' 
-        ? 'linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%)' 
+        ? 'linear-gradient(to right, rgb(3, 105, 161), rgb(56, 189, 248))' // Sunny Day 
         : timeOfDay === 'morning'
-          ? 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)'
-          : 'linear-gradient(135deg, #141E30 0%, #243B55 100%)',
+          ? 'linear-gradient(to right, #FF6B6B, #556270)' // Sunrise
+          : 'linear-gradient(to left, #29323c, #485563)', // Night
       fallbackClass: timeOfDay === 'day'
-        ? 'bg-gradient-to-br from-sky-400 to-blue-600/40'
+        ? 'bg-gradient-to-r from-sky-700 to-sky-400'
         : timeOfDay === 'morning'
-          ? 'bg-gradient-to-br from-amber-500 to-rose-500/40'
-          : 'bg-gradient-to-br from-blue-900 to-slate-900/40'
+          ? 'bg-gradient-to-r from-red-400 to-slate-600'
+          : 'bg-gradient-to-l from-slate-800 to-slate-600'
     }
   };
   
-  // Find matching weather gradient, fall back to default if none found
+  // For evening/sunset specific treatment
+  if (timeOfDay === 'night' && condition.includes('clear') && 
+      new Date().getHours() >= 17 && new Date().getHours() <= 20) {
+    return {
+      gradientStyle: { background: 'linear-gradient(to left, #F29492, #114357)' }, // Sunset
+      fallbackGradientClass: 'bg-gradient-to-l from-red-300 to-slate-800'
+    };
+  }
+  
+  // Find matching weather gradient based on condition
   let matchedGradient = null;
   
   // Check for partial matches in condition strings
@@ -96,9 +97,9 @@ export const getWeatherGradientStyles = (
     }
   }
   
-  // If no match, use time-of-day default
+  // If no match, use clear condition for the time of day
   if (!matchedGradient) {
-    matchedGradient = defaultGradients[timeOfDay];
+    matchedGradient = weatherGradients['clear'];
   }
   
   return {
