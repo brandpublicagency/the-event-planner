@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Edit, Save } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import WeddingMenuPlanner from "@/components/WeddingMenuPlanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { useToast } from "@/hooks/use-toast";
+import { SaveButton } from "@/components/ui/save-button";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -72,24 +73,18 @@ const EventDetails = () => {
   };
 
   const handleSaveMenu = async () => {
-    if (!id || !menuState || !saveMenuFunction) return;
+    if (!id || !menuState || !saveMenuFunction) {
+      console.error("Cannot save: Missing id, menuState, or saveMenuFunction");
+      return;
+    }
     
-    setIsSaving(true);
     try {
       // Call the actual save function from WeddingMenuPlanner
       await saveMenuFunction();
-      // Show success message in UI or console
       console.log("Menu saved successfully");
     } catch (error: any) {
-      // Show error message in UI or console
-      console.error("Failed to save menu:", error.message);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to save menu: ${error.message || 'Unknown error'}`
-      });
-    } finally {
-      setIsSaving(false);
+      console.error("Failed to save menu:", error.message || 'Unknown error');
+      throw error; // Let the SaveButton handle the error
     }
   };
   
@@ -178,18 +173,13 @@ const EventDetails = () => {
             />}
             
             <div className="flex justify-end mt-6 print:hidden">
-              <Button 
+              <SaveButton 
                 onClick={handleSaveMenu}
-                disabled={isSaving || !menuState || !saveMenuFunction}
-                className="flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-1"></div>
-                ) : (
-                  <Save className="h-4 w-4 mr-1" />
-                )}
-                Save Menu
-              </Button>
+                disabled={!menuState || !saveMenuFunction}
+                defaultText="Save Menu"
+                loadingText="Saving Menu..."
+                successText="Menu Saved"
+              />
             </div>
           </div>
         </div>

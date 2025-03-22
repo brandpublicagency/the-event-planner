@@ -6,7 +6,6 @@ import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
 import { MenuState } from '../hooks/menuStateTypes';
 import { useToast } from "@/hooks/use-toast";
-import { Check } from 'lucide-react';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -52,12 +51,12 @@ const WeddingMenuPlanner = ({
             variant: "success",
           });
           return Promise.resolve();
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error saving menu from WeddingMenuPlanner:', error);
           toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to save menu selections"
+            description: `Failed to save menu selections: ${error.message || 'Unknown error'}`
           });
           return Promise.reject(error);
         }
@@ -68,6 +67,7 @@ const WeddingMenuPlanner = ({
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {
     if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu && !isInternalUpdate) {
+      console.log('External custom menu update:', isCustomMenu);
       handleMenuStateChange('isCustomMenu', isCustomMenu);
     }
   }, [isCustomMenu, menuState.isCustomMenu, handleMenuStateChange, isInternalUpdate]);
@@ -75,12 +75,14 @@ const WeddingMenuPlanner = ({
   // Sync menu state changes back to parent component for other components to use
   useEffect(() => {
     if (onMenuStateChange) {
+      console.log('Sending menu state to parent:', menuState);
       onMenuStateChange(menuState);
     }
     
     // Notify parent of custom menu changes, but only if it was changed internally
     // and not as a result of a prop change from the parent
     if (onCustomMenuToggle && isInternalUpdate) {
+      console.log('Internal custom menu update:', menuState.isCustomMenu);
       onCustomMenuToggle(menuState.isCustomMenu);
       setIsInternalUpdate(false);
     }
@@ -88,6 +90,7 @@ const WeddingMenuPlanner = ({
 
   // Handle internal changes to the custom menu toggle
   const handleInternalCustomMenuToggle = (value: boolean) => {
+    console.log('Handling internal custom menu toggle:', value);
     setIsInternalUpdate(true);
     handleMenuStateChange('isCustomMenu', value);
   };
