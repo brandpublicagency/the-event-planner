@@ -14,6 +14,25 @@ const MenuStarterSection: React.FC<MenuStarterSectionProps> = ({ menuState }) =>
   return (
     <div style={{ marginBottom: '16px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Arrival & Starter</h3>
+      
+      {menuState.selectedStarterType === 'harvest' && (
+        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+          Harvest Table
+        </p>
+      )}
+      
+      {menuState.selectedStarterType === 'plated' && (
+        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+          Plated Starter
+        </p>
+      )}
+      
+      {menuState.selectedStarterType === 'starter_canapes' && (
+        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+          Canapés
+        </p>
+      )}
+      
       {menuState.selectedStarterType === 'starter_canapes' && (
         <>
           {menuState.selectedCanapes.length > 0 && (
@@ -25,11 +44,13 @@ const MenuStarterSection: React.FC<MenuStarterSectionProps> = ({ menuState }) =>
           )}
         </>
       )}
+      
       {menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter && (
         <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}</p>
       )}
+      
       {menuState.selectedStarterType === 'harvest' && (
-        <p style={{ fontSize: '12px', margin: '0' }}>Harvest Table</p>
+        <p style={{ fontSize: '12px', margin: '0' }}>Selection of breads, preserves, cheese and cold meats</p>
       )}
     </div>
   );

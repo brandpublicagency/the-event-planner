@@ -20,7 +20,8 @@ export const formatStarterSection = (menuState: MenuState): string => {
   } else if (menuState.selectedStarterType === 'harvest') {
     section += `${getMenuItemDescription('harvest')}\n`;
   } else if (menuState.selectedStarterType === 'plated' && menuState.selectedPlatedStarter) {
-    section += `${getMenuItemDescription('plated')} - ${cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}\n`;
+    // Fix: Don't include "Plated Menu - " prefix, just show the description directly
+    section += `${cleanItemDescription(getMenuItemDescription(menuState.selectedPlatedStarter))}\n`;
   }
   
   return section;
