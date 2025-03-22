@@ -19,7 +19,9 @@ export const formatDessertSection = (menuState: MenuState): string => {
   
   let section = formatSectionHeader('DESSERT');
   
-  section += `${getMenuItemDescription(menuState.dessertType)}\n`;
+  // Map 'canapes' to 'dessert_canapes' for description lookup
+  const dessertTypeKey = menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType;
+  section += `${getMenuItemDescription(dessertTypeKey)}\n`;
   
   if (menuState.dessertType === 'traditional' && menuState.traditionalDessert) {
     section += `• ${cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}\n`;

@@ -19,7 +19,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'individual': 'Individual Cakes',
   'bar': 'Dessert Bar',
   'cakes': 'Individual Cakes',
-  'canapes': 'Dessert Canapés',
+  'dessert_canapes': 'Dessert Canapés',
   
   // Main Course - Karoo Meat
   'lamb_chicken': 'Slow roasted leg of lamb and homemade chicken pie',

@@ -19,10 +19,13 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
     individualCakes: menuState.individualCakes
   });
   
+  // Map 'canapes' to 'dessert_canapes' for description lookup
+  const dessertTypeKey = menuState.dessertType === 'canapes' ? 'dessert_canapes' : menuState.dessertType;
+  
   return (
     <div style={{ marginBottom: '16px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: 'normal', marginBottom: '8px' }}>Dessert</h3>
-      <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.dessertType))}</p>
+      <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(dessertTypeKey))}</p>
       
       {menuState.dessertType === 'traditional' && menuState.traditionalDessert && (
         <p style={{ fontSize: '12px', margin: '0' }}>{cleanItemDescription(getMenuItemDescription(menuState.traditionalDessert))}</p>
