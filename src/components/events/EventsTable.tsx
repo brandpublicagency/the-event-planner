@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
@@ -41,7 +42,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   if (isDashboard) {
     // Keep the dashboard view unchanged
     return (
-      <div className="space-y-3">
+      <div className="bg-white">
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
           <EventMonthGroup
             key={monthYear}

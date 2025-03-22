@@ -67,7 +67,7 @@ const UpcomingEventsSection = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b py-5">
+      <div className="flex items-center justify-between p-4 border-b py-5 bg-slate-100">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-zinc-700" />
           <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
@@ -78,7 +78,7 @@ const UpcomingEventsSection = () => {
         </Button>
       </div>
       
-      <div className="flex-1 overflow-auto p-1">
+      <div className="flex-1 overflow-auto">
         {isEventsLoading ? (
           <div className="flex items-center justify-center h-40">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
