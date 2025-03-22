@@ -18,6 +18,8 @@ export const toastVariants = cva(
           "warning group border-amber-500 bg-amber-500 text-gray-50",
         success:
           "success group border-green-500 bg-green-500 text-gray-50",
+        info:
+          "info group border-blue-500 bg-blue-500 text-gray-50",
       },
     },
     defaultVariants: {
@@ -26,12 +28,17 @@ export const toastVariants = cva(
   }
 )
 
-// Define the ToastProps interface to match what's expected
-export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>, 
+// Create a separate interface that doesn't extend ToastPrimitives.Root props directly
+// to avoid circular reference issues
+export interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>,
   VariantProps<typeof toastVariants> {
+  id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactElement;
+  duration?: number;
+  position?: "top" | "bottom" | "sidebar";
+  showProgress?: boolean;
 }
 
 const Toast = React.forwardRef<

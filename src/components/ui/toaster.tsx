@@ -26,7 +26,7 @@ export function Toaster() {
         return (
           <ToastComponent 
             key={id} 
-            variant={variant as "default" | "destructive" | "success" | "info"} 
+            variant={variant} 
             {...(showProgress && { progressDuration: duration })}
             {...props}
           >

@@ -31,17 +31,22 @@ import { format } from "date-fns";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
+  eventName?: string;
   onSuccess?: () => void;
   readOnly?: boolean;
+  isCustomMenu?: boolean;
+  onCustomMenuToggle?: (isCustom: boolean) => void;
+  onMenuStateChange?: (menuState: any) => void;
+  onSaveMenuCallback?: (callback: () => Promise<void>) => void;
 }
 
 export const WeddingMenuPlanner = React.forwardRef<
   HTMLDivElement,
   WeddingMenuPlannerProps
->(({ eventCode, onSuccess, readOnly = false }, ref) => {
+>(({ eventCode, eventName, onSuccess, readOnly = false, isCustomMenu, onCustomMenuToggle, onMenuStateChange, onSaveMenuCallback }, ref) => {
   const { menuState, setMenuState } = useMenuState();
   const { toast } = useToast();
-  const [isCustom, setIsCustom] = useState(menuState.is_custom || false);
+  const [isCustom, setIsCustom] = useState(isCustomMenu || menuState.is_custom || false);
   const [customMenuDetails, setCustomMenuDetails] = useState(
     menuState.custom_menu_details || ""
   );
@@ -97,7 +102,7 @@ export const WeddingMenuPlanner = React.forwardRef<
 
   useEffect(() => {
     // Update the MenuContext when local state changes
-    setMenuState({
+    const updatedMenuState = {
       ...menuState,
       is_custom: isCustom,
       custom_menu_details: customMenuDetails,
@@ -107,7 +112,19 @@ export const WeddingMenuPlanner = React.forwardRef<
       main_course_type: mainCourseType,
       dessert_type: dessertType,
       notes: notes,
-    });
+    };
+    
+    setMenuState(updatedMenuState);
+    
+    // Notify parent component about menu state changes if callback provided
+    if (onMenuStateChange) {
+      onMenuStateChange(updatedMenuState);
+    }
+    
+    // Update custom menu toggle in parent if provided
+    if (onCustomMenuToggle && isCustomMenu !== isCustom) {
+      onCustomMenuToggle(isCustom);
+    }
   }, [
     isCustom,
     customMenuDetails,
@@ -119,7 +136,17 @@ export const WeddingMenuPlanner = React.forwardRef<
     notes,
     setMenuState,
     menuState,
+    onMenuStateChange,
+    onCustomMenuToggle,
+    isCustomMenu
   ]);
+
+  // Provide the save function to parent component if needed
+  useEffect(() => {
+    if (onSaveMenuCallback) {
+      onSaveMenuCallback(saveMenuSelections);
+    }
+  }, [onSaveMenuCallback, menuState]);
 
   // Fix the return type to match what the parent component expects
   const saveMenuSelections = async (): Promise<void> => {
@@ -320,7 +347,8 @@ export const WeddingMenuPlanner = React.forwardRef<
   );
 });
 
-// Fix the exported save function to match the expected return type
+WeddingMenuPlanner.displayName = "WeddingMenuPlanner";
+
 export const useSaveMenuSelections = (eventCode: string) => {
   const { menuState } = useMenuState();
   const { toast } = useToast();
