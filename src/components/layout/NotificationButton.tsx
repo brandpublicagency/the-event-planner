@@ -49,8 +49,8 @@ export const NotificationButton = () => {
             <span className="ms-1.5 text-sm font-medium">Notifications</span>
             {unreadCount > 0 && !loading && (
               <Badge 
-                variant="secondary" 
-                className="ml-1.5 bg-zinc-100 text-zinc-800 border border-zinc-200"
+                variant="notification" 
+                className="ml-1.5"
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
