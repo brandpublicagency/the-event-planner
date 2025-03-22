@@ -34,27 +34,47 @@ const formatBuffetMainCourse = (menuState: MenuState): string => {
   if (menuState.buffetMeatSelections.length > 0) {
     result += "Meat Selections:\n";
     menuState.buffetMeatSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      const description = getMenuItemDescription(item);
+      // Log if the item key doesn't match any description
+      if (description === item) {
+        console.warn(`Missing description for meat item: ${item}`);
+      }
+      result += `• ${cleanItemDescription(description)}\n`;
     });
   }
   
   if (menuState.buffetVegetableSelections.length > 0) {
     result += "Vegetable Selections:\n";
     menuState.buffetVegetableSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      const description = getMenuItemDescription(item);
+      // Log if the item key doesn't match any description
+      if (description === item) {
+        console.warn(`Missing description for vegetable item: ${item}`);
+      }
+      result += `• ${cleanItemDescription(description)}\n`;
     });
   }
   
   if (menuState.buffetStarchSelections.length > 0) {
     result += "Starch Selections:\n";
     menuState.buffetStarchSelections.forEach(item => {
-      result += `• ${cleanItemDescription(getMenuItemDescription(item))}\n`;
+      const description = getMenuItemDescription(item);
+      // Log if the item key doesn't match any description
+      if (description === item) {
+        console.warn(`Missing description for starch item: ${item}`);
+      }
+      result += `• ${cleanItemDescription(description)}\n`;
     });
   }
   
   if (menuState.buffetSaladSelection) {
     result += "Salad Selection:\n";
-    result += `• ${cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}\n`;
+    const description = getMenuItemDescription(menuState.buffetSaladSelection);
+    // Log if the item key doesn't match any description
+    if (description === menuState.buffetSaladSelection) {
+      console.warn(`Missing description for salad item: ${menuState.buffetSaladSelection}`);
+    }
+    result += `• ${cleanItemDescription(description)}\n`;
   }
   
   return result;

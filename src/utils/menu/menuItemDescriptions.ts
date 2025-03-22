@@ -29,6 +29,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'chicken_pie': 'Homemade chicken pie',
   'chicken_thighs': 'Roasted lemon & herb chicken thighs with chimichurri',
   'leg_of_lamb': 'Leg of lamb with a rich jus',
+  'lamb_leg': 'Leg of lamb with a rich jus', // Adding the alternative key that matches the form selection
   'beef_fillet': 'Beef fillet medallions in creamy wild mushroom sauce',
   'oxtail_pie': 'Slow roasted oxtail pie',
   'glazed_gammon': 'Glazed gammon with sticky mustard & apple sauce',
@@ -41,6 +42,7 @@ export const menuItemDescriptions: Record<string, string> = {
   // Starch
   'roast_potatoes': 'Traditional roast potatoes',
   'wedges': 'Parmesan roasted potato wedges',
+  'potato_wedges': 'Parmesan roasted potato wedges', // Adding the alternative key that matches the form selection
   'basmati': 'Basmati rice',
   'pepper_rice': 'Mixed pepper-flavoured basmati rice',
   'baby_potatoes': 'Baby potatoes in garlic & rosemary butter',
@@ -55,6 +57,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'sweet_potatoes': 'Traditional caramelised sweet potatoes',
   'cauliflower': 'Cauliflower and cheese sauce',
   'pumpkin': 'Pumpkin fritters in a sweet caramel custard',
+  'pumpkin_fritters': 'Pumpkin fritters in a sweet caramel custard', // Adding the alternative key that matches the form selection
   'seasonal_veg': 'Seasonal roast vegetables',
   'creamed_beans': 'Creamed green beans with potato and bacon',
   'sweet_potato_bake': 'Sweet potato bake with an almond & coconut crust',
@@ -71,6 +74,7 @@ export const menuItemDescriptions: Record<string, string> = {
   'greek': 'Traditional greek salad',
   'beetroot': 'Traditional pickled baby beetroot salad',
   'watermelon_feta': 'Watermelon, feta & mint salad',
+  'watermelon': 'Watermelon, feta & mint salad', // Adding the alternative key that matches the form selection
   
   // Traditional Desserts
   'chocolate_pudding': 'Self-saucing chocolate pudding',
