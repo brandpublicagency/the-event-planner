@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -18,11 +17,10 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
-import { SidebarToasts } from "./sidebar/SidebarToasts";
 import { motion } from "framer-motion";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -128,20 +126,6 @@ const Sidebar = ({
     }
   ];
   
-  // This section is no longer needed as we've incorporated these items into the main navigation
-  // const scheduleNavItems = [
-  //   {
-  //     icon: UsersIcon,
-  //     path: "/schedule/meeting",
-  //     label: "Meeting"
-  //   },
-  //   {
-  //     icon: Building,
-  //     path: "/schedule/site-visit",
-  //     label: "Site Visit"
-  //   }
-  // ];
-
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
       if (location.search.includes('newDocument=true')) {
@@ -188,8 +172,6 @@ const Sidebar = ({
             items={mainNavItems} 
           />
         </div>
-        
-        <SidebarToasts isCollapsed={isCollapsed} />
         
         <div className={cn(
           "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-3 pb-4",

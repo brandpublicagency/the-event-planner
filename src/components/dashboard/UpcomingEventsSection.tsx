@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EventsTable from "@/components/events/EventsTable";
 import { groupEventsByMonth } from "@/utils/eventUtils";
@@ -8,6 +8,7 @@ import { Loader2, CalendarClock, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { deleteEvent } from "@/services/eventService";
 import type { Event } from "@/types/event";
+
 const UpcomingEventsSection = () => {
   const {
     toast
@@ -82,4 +83,5 @@ const UpcomingEventsSection = () => {
       </div>
     </div>;
 };
+
 export default UpcomingEventsSection;

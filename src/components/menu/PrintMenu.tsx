@@ -6,7 +6,7 @@ import { Printer } from 'lucide-react';
 import { format } from 'date-fns';
 import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { getVenueNames } from '@/utils/venueUtils';
 import { formatMenuDetails } from '@/utils/menu/formatMenuDetails';
 import { cleanItemDescription } from '@/utils/menu/formatHelpers';
