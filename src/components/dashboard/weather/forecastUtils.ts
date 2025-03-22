@@ -1,6 +1,17 @@
 
 // Generate forecast data from weather information
 
+export interface ForecastDay {
+  time: string;
+  temp: string;
+  condition: string;
+  icon: string;
+  day?: string;
+  high?: number;
+  low?: number;
+  rainChance?: number;
+}
+
 export const generateForecastFromWeatherData = (weatherData: any) => {
   if (!weatherData) {
     console.log("No weather data provided to generate forecast");
@@ -44,11 +55,20 @@ export const generateForecastFromWeatherData = (weatherData: any) => {
     // Create forecast entry
     const forecastTemp = Math.round(currentTemp + tempVariation);
     
+    // Calculate mock high and low temperatures for the forecast
+    const high = forecastTemp + Math.floor(Math.random() * 2) + 1;
+    const low = forecastTemp - Math.floor(Math.random() * 3) - 1;
+    const rainChance = Math.floor(Math.random() * 30); // Random rain chance between 0-30%
+    
     forecast.push({
       time: formatHour(forecastHour),
       temp: `${forecastTemp}°`,
       condition: currentCondition,
-      icon: weatherData.icon || getWeatherIcon(currentCondition, hour)
+      icon: weatherData.icon || getWeatherIcon(currentCondition, hour),
+      day: i === 0 ? 'Today' : formatDay(forecastHour),
+      high: high,
+      low: low,
+      rainChance: rainChance
     });
   }
   
@@ -57,6 +77,11 @@ export const generateForecastFromWeatherData = (weatherData: any) => {
 
 const formatHour = (date: Date) => {
   return date.getHours().toString().padStart(2, '0') + ':00';
+};
+
+const formatDay = (date: Date) => {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[date.getDay()];
 };
 
 const getWeatherIcon = (condition: string, hour: number) => {
@@ -113,11 +138,20 @@ const generateMockForecast = () => {
     const conditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Sunny'];
     const condition = conditions[Math.floor(Math.random() * conditions.length)];
     
+    // Calculate mock high and low temperatures
+    const high = temp + Math.floor(Math.random() * 2) + 1;
+    const low = temp - Math.floor(Math.random() * 3) - 1;
+    const rainChance = Math.floor(Math.random() * 30); // Random rain chance between 0-30%
+    
     forecast.push({
       time: formatHour(forecastHour),
       temp: `${temp}°`,
       condition: condition,
-      icon: getWeatherIcon(condition, hour)
+      icon: getWeatherIcon(condition, hour),
+      day: i === 0 ? 'Today' : formatDay(forecastHour),
+      high: high,
+      low: low,
+      rainChance: rainChance
     });
   }
   
