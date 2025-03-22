@@ -4,6 +4,7 @@ import { format, parseISO } from "date-fns";
 import { Calendar, UserCircle, Building, Trash2, ArrowRight, Edit, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/types/event";
+import { Link } from "react-router-dom";
 
 interface EventCardProps {
   event: Event;
@@ -52,7 +53,14 @@ export const EventCard: React.FC<EventCardProps> = ({
     <div className="p-4 hover:bg-gray-50 transition-colors">
       <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
         <div className="space-y-1 flex-1">
-          <h4 className="font-medium text-zinc-900">{name}</h4>
+          <h4 className="font-medium text-zinc-900">
+            <Link 
+              to={`/events/${event_code}`} 
+              className="hover:text-primary cursor-pointer"
+            >
+              {name}
+            </Link>
+          </h4>
           <div className="flex items-center text-sm text-zinc-500">
             <Calendar className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
             <span>{formattedDate}</span>
