@@ -6,6 +6,8 @@ import FormSection from "./FormSection";
 import EventBasicInfo from "./EventBasicInfo";
 import ContactDetails from "./ContactDetails";
 import { VenueSelect } from "./VenueSelect";
+import { EventTypeSelect } from "./EventTypeSelect";
+import { EventDateSelect } from "./EventDateSelect";
 
 interface EditEventFormProps {
   form: UseFormReturn<any>;
@@ -23,7 +25,11 @@ const EditEventForm = ({ form, onSubmit, onCancel }: EditEventFormProps) => {
           title="Event Details" 
           description="Update the basic information about the event."
         >
-          <EventBasicInfo form={form} />
+          <div className="space-y-6">
+            <EventTypeSelect form={form} />
+            <EventDateSelect form={form} />
+            <EventBasicInfo form={form} />
+          </div>
         </FormSection>
         
         <FormSection

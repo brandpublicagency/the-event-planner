@@ -3,8 +3,6 @@ import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/f
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { EventTypeSelect } from "./EventTypeSelect";
-import { EventDateSelect } from "./EventDateSelect";
 
 const generateTimeOptions = (start: number, end: number) => {
   const options = [];
