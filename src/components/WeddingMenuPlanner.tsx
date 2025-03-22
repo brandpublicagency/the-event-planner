@@ -6,7 +6,7 @@ import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
 import { MenuState } from '../hooks/menuStateTypes';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -25,7 +25,6 @@ const WeddingMenuPlanner = ({
   onMenuStateChange,
   saveMenuSelections
 }: WeddingMenuPlannerProps) => {
-  const { toast } = useToast();
   
   const { 
     menuState, 
@@ -35,7 +34,7 @@ const WeddingMenuPlanner = ({
     handleMenuStateChange,
     handleCanapeSelection,
     saveMenuSelections: saveMenu
-  } = useMenuState(eventCode, toast);
+  } = useMenuState(eventCode);
   
   // Flag to prevent feedback loop
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
@@ -69,24 +68,16 @@ const WeddingMenuPlanner = ({
       saveMenuSelections(async () => {
         try {
           await saveMenu();
-          toast({
-            title: "Menu saved successfully",
-            description: "Your menu selections have been updated",
-            variant: "success",
-          });
+          toast.success("Menu selections have been updated");
           return Promise.resolve();
         } catch (error: any) {
           console.error('Error saving menu from WeddingMenuPlanner:', error);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: `Failed to save menu selections: ${error.message || 'Unknown error'}`
-          });
+          toast.error(`Failed to save menu selections: ${error.message || 'Unknown error'}`);
           return Promise.reject(error);
         }
       });
     }
-  }, [saveMenu, saveMenuSelections, toast]);
+  }, [saveMenu, saveMenuSelections]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {

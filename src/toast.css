@@ -1,3 +1,4 @@
+
 /* Sonner toast styling */
 [data-sonner-toast] {
   border-radius: 0.75rem !important;
@@ -51,5 +52,26 @@
 }
 
 [data-sonner-toast] [data-close-button]:hover {
+  color: white !important;
+}
+
+/* Toast variants */
+[data-sonner-toast][data-type="success"] {
+  background-color: rgb(22, 163, 74) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background-color: rgb(220, 38, 38) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  background-color: rgb(59, 130, 246) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  background-color: rgb(245, 158, 11) !important;
   color: white !important;
 }

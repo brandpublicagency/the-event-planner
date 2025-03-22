@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button, ButtonProps } from "./button";
 import { Check, Loader2, AlertTriangle } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface SaveButtonProps extends Omit<ButtonProps, 'onClick'> {
   onClick: () => Promise<void>;
@@ -64,11 +64,7 @@ export const SaveButton = ({
       setErrorMessage(error.message || 'An error occurred');
       
       // Display the error in a toast
-      toast({
-        title: "Error saving",
-        description: error.message || 'An error occurred',
-        variant: "destructive",
-      });
+      toast.error(error.message || 'An error occurred');
       
       // Auto-reset from error state after 3 seconds
       setTimeout(() => {

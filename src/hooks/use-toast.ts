@@ -1,3 +1,4 @@
+
 import { toast as sonnerToast } from "sonner";
 
 type ToastProps = {
@@ -13,22 +14,15 @@ type ToastProps = {
 
 export function useToast() {
   const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
-    const variantConfig = {
-      default: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
-      destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
-      success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
-      info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
-      warning: { style: { backgroundColor: 'rgb(245, 158, 11)', color: 'white' } }
-    };
-
-    return sonnerToast(title || '', {
+    const toastFn = getToastFunction(variant);
+    
+    return toastFn(title || '', {
       description,
       duration,
       action: action ? {
         label: action.label,
         onClick: action.onClick,
       } : undefined,
-      ...variantConfig[variant]
     });
   };
 
@@ -38,23 +32,32 @@ export function useToast() {
   };
 }
 
+// Get the appropriate toast function based on variant
+function getToastFunction(variant: ToastProps['variant']) {
+  switch (variant) {
+    case 'destructive':
+      return sonnerToast.error;
+    case 'success':
+      return sonnerToast.success;
+    case 'info':
+      return sonnerToast.info;
+    case 'warning':
+      return sonnerToast.warning;
+    default:
+      return sonnerToast;
+  }
+}
+
 // Standalone toast function
 export const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
-  const variantConfig = {
-    default: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
-    destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
-    success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
-    info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
-    warning: { style: { backgroundColor: 'rgb(245, 158, 11)', color: 'white' } }
-  };
-
-  return sonnerToast(title || '', {
+  const toastFn = getToastFunction(variant);
+  
+  return toastFn(title || '', {
     description,
     duration,
     action: action ? {
       label: action.label,
       onClick: action.onClick,
     } : undefined,
-    ...variantConfig[variant]
   });
 };
