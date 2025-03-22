@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { getMenuSelection, updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData, MenuSelectionResponse } from './menuStateTypes';
@@ -120,7 +121,7 @@ export const useMenuState = (eventCode: string, toast: any) => {
     handleMenuStateChange('selectedCanapes', newCanapes);
   };
 
-  const saveMenuSelections = async () => {
+  const saveMenuSelections = async (): Promise<void> => {
     if (!eventCode) {
       console.error('Cannot save: Event code is missing');
       throw new Error('Event code is required');
@@ -159,10 +160,11 @@ export const useMenuState = (eventCode: string, toast: any) => {
       };
 
       console.log('Saving menu data:', menuData);
-      const result = await updateMenuSelection(eventCode, menuData);
-      console.log('Menu saved successfully:', result);
+      await updateMenuSelection(eventCode, menuData);
+      console.log('Menu saved successfully');
       
-      return result;
+      // Return void instead of the data
+      return;
     } catch (err) {
       console.error('Error saving menu selections:', err);
       throw err;
