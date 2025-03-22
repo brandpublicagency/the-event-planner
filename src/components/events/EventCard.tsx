@@ -113,7 +113,7 @@ export const EventCard = ({
           </div>
         </div>
         
-        <div className="flex items-center gap-1 ml-4">
+        <div className="flex items-center gap-1 ml-4 my-[3px]">
           <Button variant="ghost" size="sm" onClick={e => {
           e.stopPropagation();
           navigate(`/events/${event.event_code}/edit`);
