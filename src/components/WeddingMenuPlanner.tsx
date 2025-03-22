@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import MenuContent from './menu/MenuContent';
 import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
@@ -12,7 +12,8 @@ interface WeddingMenuPlannerProps {
   eventName?: string;
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
-  onMenuStateChange?: (menuState: any) => void;
+  onMenuStateChange?: (menuState: MenuState) => void;
+  saveMenuSelections?: (saveFn: () => Promise<void>) => void;
 }
 
 const WeddingMenuPlanner = ({ 
@@ -20,7 +21,8 @@ const WeddingMenuPlanner = ({
   eventName, 
   isCustomMenu, 
   onCustomMenuToggle,
-  onMenuStateChange 
+  onMenuStateChange,
+  saveMenuSelections
 }: WeddingMenuPlannerProps) => {
   const { toast } = useToast();
   const { 
@@ -29,11 +31,18 @@ const WeddingMenuPlanner = ({
     isLoading,
     handleMenuStateChange,
     handleCanapeSelection,
-    saveMenuSelections
+    saveMenuSelections: saveMenu
   } = useMenuState(eventCode, toast);
   
   // Flag to prevent feedback loop
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+
+  // Pass the save function to the parent component
+  useEffect(() => {
+    if (saveMenuSelections) {
+      saveMenuSelections(saveMenu);
+    }
+  }, [saveMenu, saveMenuSelections]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {
@@ -97,7 +106,7 @@ const WeddingMenuPlanner = ({
             }
           }}
           onCanapeSelection={handleCanapeSelection}
-          saveMenuSelections={saveMenuSelections}
+          saveMenuSelections={saveMenu}
         />
         <Separator className="my-4 separator print:hidden" />
         <div className="notes-section">
@@ -106,7 +115,6 @@ const WeddingMenuPlanner = ({
             onChange={(value) => handleMenuStateChange('notes', value)}
           />
         </div>
-        {/* Removed the duplicate Save Menu button */}
       </div>
     </div>
   );

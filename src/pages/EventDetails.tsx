@@ -14,7 +14,8 @@ import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
 import { updateEvent } from "@/services/eventService";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { MenuState } from "@/hooks/menuStateTypes";
 
 const EventDetails = () => {
   const {
@@ -25,6 +26,7 @@ const EventDetails = () => {
   const { toast } = useToast();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [saveMenuFunction, setSaveMenuFunction] = React.useState<() => Promise<void> | null>(null);
   
   const handleBackNavigation = () => {
     if (location.state?.previousPath === 'menu-selection') {
@@ -65,7 +67,7 @@ const EventDetails = () => {
     retryDelay: 1000
   });
   
-  const [menuState, setMenuState] = React.useState<any>(null);
+  const [menuState, setMenuState] = React.useState<MenuState | null>(null);
   
   const handleEditEvent = () => {
     if (id) {
@@ -74,14 +76,17 @@ const EventDetails = () => {
   };
 
   const handleSaveMenu = async () => {
-    if (!id || !menuState) return;
+    if (!id || !menuState || !saveMenuFunction) return;
     
     setIsSaving(true);
     try {
-      // The menuState will be saved by the WeddingMenuPlanner component
+      // Call the actual save function from WeddingMenuPlanner
+      await saveMenuFunction();
+      
       toast({
         title: "Success",
         description: "Menu saved successfully",
+        variant: "success"
       });
     } catch (error: any) {
       toast({
@@ -175,12 +180,13 @@ const EventDetails = () => {
               isCustomMenu={isCustomMenu} 
               onCustomMenuToggle={setIsCustomMenu}
               onMenuStateChange={setMenuState}
+              saveMenuSelections={setSaveMenuFunction}
             />}
             
             <div className="flex justify-end mt-6 print:hidden">
               <Button 
                 onClick={handleSaveMenu}
-                disabled={isSaving || !menuState}
+                disabled={isSaving || !menuState || !saveMenuFunction}
                 className="flex items-center gap-2"
               >
                 {isSaving ? (
