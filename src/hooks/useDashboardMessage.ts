@@ -12,7 +12,7 @@ interface DashboardMessage {
 }
 
 export const useDashboardMessage = () => {
-  const { data: dashboardMessage, isLoading, error } = useQuery({
+  const { data: dashboardMessage, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard-message'],
     queryFn: async () => {
       try {
@@ -58,7 +58,8 @@ export const useDashboardMessage = () => {
       weatherData: createFallbackWeatherData()
     }, 
     isLoading, 
-    error 
+    error,
+    refetch
   };
 };
 

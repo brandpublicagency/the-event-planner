@@ -34,17 +34,21 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   const {
     dashboardMessage,
     isLoading,
-    error
+    error,
+    refetch
   } = useDashboardMessage();
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'day' | 'night'>('day');
   const [forecast, setForecast] = useState([]);
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   
   useHoverStyles();
   
+  // Update time of day and current hour every minute
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
+      setCurrentDateTime(now);
       const hour = now.getHours();
       setCurrentHour(hour);
       if (hour >= 5 && hour < 12) {
@@ -56,19 +60,34 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
       }
     };
     updateTime();
-    const interval = setInterval(updateTime, 60000);
+    const interval = setInterval(updateTime, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
   
+  // Refresh weather data every 15 minutes
+  useEffect(() => {
+    // Initial load
+    refetch();
+    
+    // Set up auto-refresh interval (every 15 minutes)
+    const refreshInterval = setInterval(() => {
+      console.log("Auto-refreshing weather data...");
+      refetch();
+    }, 15 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
+  }, [refetch]);
+  
+  // Generate forecast whenever weather data or current time changes
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
       console.log("Weather data received in widget:", dashboardMessage.weatherData);
-      const generatedForecast = generateForecastFromWeatherData(dashboardMessage.weatherData);
+      const generatedForecast = generateForecastFromWeatherData(dashboardMessage.weatherData, currentDateTime);
       setForecast(generatedForecast);
     } else {
       console.log("No weather data in dashboard message");
     }
-  }, [dashboardMessage?.weatherData]);
+  }, [dashboardMessage?.weatherData, currentDateTime]);
   
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
@@ -125,7 +144,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         
         <div className="relative z-10 flex items-center w-full h-full p-4">
           <div className="w-full">
-            <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData)} />
+            <ForecastGrid forecast={forecast.length > 0 ? forecast : generateForecastFromWeatherData(weatherData, currentDateTime)} />
           </div>
         </div>
       </div>

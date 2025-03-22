@@ -14,6 +14,9 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
   const currentHour = new Date().getHours();
   const isCurrentlyNight = currentHour >= 19 || currentHour < 6;
   
+  // Determine if this is today to show current conditions for today vs. forecast for future days
+  const isToday = day.day === 'Today';
+  
   return (
     <div className="day-card-hover flex flex-col items-center p-2 py-4 rounded-md transition-all duration-300 min-w-[60px] flex-1">
       <div className="text-xs font-medium text-white mb-0.5">{day.day}</div>
@@ -21,7 +24,7 @@ const DayCard: React.FC<DayCardProps> = ({ day }) => {
       <WeatherIcon 
         condition={day.condition} 
         className="h-6 w-6 my-0.5"
-        isNight={day.day === 'Today' && isCurrentlyNight} 
+        isNight={isToday && isCurrentlyNight} 
       />
       
       <div className="flex items-center space-x-1 text-2xs">

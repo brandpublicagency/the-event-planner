@@ -13,14 +13,14 @@ export interface ForecastDay {
   date?: Date;
 }
 
-export const generateForecastFromWeatherData = (weatherData: any) => {
+export const generateForecastFromWeatherData = (weatherData: any, currentDate: Date = new Date()) => {
   if (!weatherData) {
     console.log("No weather data provided to generate forecast");
-    return generateMockForecast();
+    return generateMockForecast(currentDate);
   }
 
-  // Get current date/time
-  const now = new Date();
+  // Get current date/time from the parameter or use current time
+  const now = currentDate;
   const currentTemp = weatherData.temp;
   const currentCondition = weatherData.condition || 'Clear';
 
@@ -115,8 +115,8 @@ const getWeatherIcon = (condition: string, hour: number) => {
   return `01${suffix}`;
 };
 
-const generateMockForecast = () => {
-  const now = new Date();
+const generateMockForecast = (currentDate: Date = new Date()) => {
+  const now = currentDate;
   const forecast = [];
   
   for (let i = 0; i < 8; i++) {
