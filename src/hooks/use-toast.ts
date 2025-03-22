@@ -1,60 +1,60 @@
+import { toast as sonnerToast, Toast } from "sonner";
 
-import { toast as sonnerToast } from "sonner";
-
-interface ToastProps {
+type ToastProps = {
   title?: string;
   description?: string;
   variant?: 'default' | 'destructive' | 'success' | 'info' | 'warning';
-  position?: 'top' | 'bottom' | 'sidebar';
   duration?: number;
-  action?: React.ReactNode;
-  showProgress?: boolean;
-}
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+};
 
-export const useToast = () => {
-  // Create a toast function that properly maps to sonner
-  const toast = (props: ToastProps) => {
-    const { title, description, variant = 'default', duration } = props;
-    
-    // Map our variant to sonner's type
-    const typeMap: Record<string, any> = {
-      'default': undefined,
-      'destructive': { style: { backgroundColor: 'rgb(220, 38, 38)' }, className: 'text-white' },
-      'success': { style: { backgroundColor: 'rgb(22, 163, 74)' }, className: 'text-white' },
-      'info': { style: { backgroundColor: 'rgb(59, 130, 246)' }, className: 'text-white' },
-      'warning': { style: { backgroundColor: 'rgb(245, 158, 11)' }, className: 'text-white' }
+export function useToast() {
+  const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
+    const variantConfig = {
+      default: {},
+      destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
+      success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
+      info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
+      warning: { style: { backgroundColor: 'rgb(245, 158, 11)', color: 'white' } }
     };
-    
-    return sonnerToast(title, {
+
+    return sonnerToast(title || '', {
       description,
       duration,
-      ...typeMap[variant]
+      action: action ? {
+        label: action.label,
+        onClick: action.onClick,
+      } : undefined,
+      ...variantConfig[variant]
     });
   };
 
   return {
     toast,
     dismiss: sonnerToast.dismiss,
-    toasts: [] // Sonner manages the toast list internally
   };
-};
+}
 
-// Also export a standalone toast function for use without the hook
-export const toast = (props: ToastProps) => {
-  const { title, description, variant = 'default', duration } = props;
-  
-  // Map our variant to sonner's type
-  const typeMap: Record<string, any> = {
-    'default': undefined,
-    'destructive': { style: { backgroundColor: 'rgb(220, 38, 38)' }, className: 'text-white' },
-    'success': { style: { backgroundColor: 'rgb(22, 163, 74)' }, className: 'text-white' },
-    'info': { style: { backgroundColor: 'rgb(59, 130, 246)' }, className: 'text-white' },
-    'warning': { style: { backgroundColor: 'rgb(245, 158, 11)' }, className: 'text-white' }
+// Standalone toast function
+export const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
+  const variantConfig = {
+    default: {},
+    destructive: { style: { backgroundColor: 'rgb(220, 38, 38)', color: 'white' } },
+    success: { style: { backgroundColor: 'rgb(22, 163, 74)', color: 'white' } },
+    info: { style: { backgroundColor: 'rgb(59, 130, 246)', color: 'white' } },
+    warning: { style: { backgroundColor: 'rgb(245, 158, 11)', color: 'white' } }
   };
-  
-  return sonnerToast(title, {
+
+  return sonnerToast(title || '', {
     description,
     duration,
-    ...typeMap[variant]
+    action: action ? {
+      label: action.label,
+      onClick: action.onClick,
+    } : undefined,
+    ...variantConfig[variant]
   });
 };
