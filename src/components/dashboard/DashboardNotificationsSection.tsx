@@ -90,19 +90,19 @@ const DashboardNotificationsSection = () => {
   const limitedNotifications = notifications.slice(0, 3);
   return <div className="flex flex-col">
       {/* Notification heading - using the same style as NotificationDropdown */}
-      <div className="flex items-centre justify-between p-3 border-b rounded-t-lg py-[20px] rounded-md bg-slate-200">
+      <div className="flex items-centre justify-between p-3 border-b rounded-t-lg rounded-md bg-slate-200 py-[17px]">
         <div className="flex flex-col">
           <p className="text-zinc-900 text-xl font-semibold">Notifications</p>
           <p className="text-xs text-muted-foreground">
             {notifications.filter(n => !n.read).length > 0 ? `You have ${notifications.filter(n => !n.read).length} unread notifications` : 'All caught up!'}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleMarkAllAsRead} variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled={!notifications.some(n => !n.read) || loading || isRefreshing}>
+        <div className="flex gap-2 my-[2px] py-[3px]">
+          <Button onClick={handleMarkAllAsRead} variant="ghost" size="sm" disabled={!notifications.some(n => !n.read) || loading || isRefreshing} className="h-8 text-xs bg-white rounded-full my-[5px] py-0 px-[12px]">
             <Check className="h-3.5 w-3.5 mr-1" />
             Mark all read
           </Button>
-          <Button onClick={handleRefresh} variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={loading || isRefreshing}>
+          <Button onClick={handleRefresh} variant="ghost" size="sm" disabled={loading || isRefreshing} className="h-8 w-8 p-0 my-[5px] bg-[#fcfcfc]/[0.37] rounded-lg">
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="sr-only">Refresh</span>
           </Button>
