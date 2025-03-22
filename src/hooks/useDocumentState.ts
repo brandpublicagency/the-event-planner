@@ -15,8 +15,10 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
 
     console.log("Loading document content:", document.content);
 
+    // Only set content if it has changed
     if (isDocumentContent(document.content)) {
       try {
+        // Set document content only once when it's first loaded
         editor.commands.setContent(document.content.html || '');
       } catch (err) {
         console.error("Error setting document content:", err);

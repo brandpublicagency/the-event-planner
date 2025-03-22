@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import { Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,12 +48,16 @@ export default function DocumentEditor({
     updateDocumentCategories
   } = useDocumentCategories(documentId);
 
+  // Fix: Add proper dependency array to prevent infinite loop
   useEffect(() => {
-    if (!documentCategories || !categories || categories.length === 0) return;
+    if (!documentCategories || !categories) return;
+    
+    // Only update when documentCategories or categories change
     const selected = documentCategories.map(docCat => {
       const fullCategory = categories.find(c => c.id === docCat.id);
       return fullCategory || docCat;
     });
+    
     setSelectedCategories(selected);
   }, [documentCategories, categories]);
 

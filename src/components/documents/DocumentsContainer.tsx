@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +53,21 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     retry: 1,
   });
 
+  // Reset document created when component unmounts
+  useEffect(() => {
+    return () => {
+      setDocumentCreated(false);
+    };
+  }, []);
+
+  // Reset document created when autoCreateDocument changes
+  useEffect(() => {
+    if (!autoCreateDocument) {
+      setDocumentCreated(false);
+    }
+  }, [autoCreateDocument]);
+
+  // Ensure selected document still exists in list
   useEffect(() => {
     if (documents && selectedDocId) {
       const selectedDocExists = documents.some(doc => doc.id === selectedDocId);
@@ -60,18 +76,6 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
       }
     }
   }, [documents, selectedDocId]);
-
-  useEffect(() => {
-    return () => {
-      setDocumentCreated(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!autoCreateDocument) {
-      setDocumentCreated(false);
-    }
-  }, [autoCreateDocument]);
 
   const createDocument = useMutation({
     mutationFn: async () => {
@@ -124,6 +128,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     },
   });
 
+  // Auto-create document if requested and not already done
   useEffect(() => {
     if (autoCreateDocument && !documentCreated && !createDocument.isPending && !isLoading) {
       console.log("Auto-creating document");
