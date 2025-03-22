@@ -1,0 +1,75 @@
+
+import { MenuSelectionResponse, MenuState } from "@/hooks/menuStateTypes";
+import { safeGetArray } from "@/utils/menu";
+
+/**
+ * Transforms the API response data into the internal MenuState format
+ */
+export const transformApiToMenuState = (
+  data: MenuSelectionResponse
+): MenuState => {
+  return {
+    isCustomMenu: data.is_custom || false,
+    customMenuDetails: data.custom_menu_details || '',
+    selectedStarterType: data.starter_type || '',
+    selectedCanapePackage: data.canape_package || '',
+    selectedCanapes: safeGetArray(data.canape_selections),
+    selectedPlatedStarter: data.plated_starter || '',
+    mainCourseType: data.main_course_type || '',
+    buffetMeatSelections: safeGetArray(data.buffet_meat_selections),
+    buffetVegetableSelections: safeGetArray(data.buffet_vegetable_selections),
+    buffetStarchSelections: safeGetArray(data.buffet_starch_selections),
+    buffetSaladSelection: data.buffet_salad_selection || '',
+    karooMeatSelection: data.karoo_meat_selection || '',
+    karooStarchSelection: safeGetArray(data.karoo_starch_selection),
+    karooVegetableSelections: safeGetArray(data.karoo_vegetable_selections),
+    karooSaladSelection: data.karoo_salad_selection || '',
+    platedMainSelection: data.plated_main_selection || '',
+    platedSaladSelection: data.plated_salad_selection || '',
+    dessertType: data.dessert_type || '',
+    traditionalDessert: data.traditional_dessert || '',
+    dessertCanapes: safeGetArray(data.dessert_canapes),
+    individualCakes: safeGetArray(data.individual_cakes),
+    individual_cake_quantities: data.individual_cake_quantities || {},
+    otherSelections: safeGetArray(data.other_selections),
+    otherSelectionsQuantities: data.other_selections_quantities || {},
+    notes: data.notes || '',
+  };
+};
+
+/**
+ * Transforms the internal MenuState to the format expected by the API for saving
+ */
+export const transformMenuStateToApi = (
+  eventCode: string,
+  menuState: MenuState
+) => {
+  return {
+    event_code: eventCode,
+    is_custom: menuState.isCustomMenu,
+    custom_menu_details: menuState.customMenuDetails,
+    starter_type: menuState.selectedStarterType,
+    canape_package: menuState.selectedCanapePackage,
+    canape_selections: menuState.selectedCanapes || [],
+    plated_starter: menuState.selectedPlatedStarter,
+    main_course_type: menuState.mainCourseType,
+    buffet_meat_selections: menuState.buffetMeatSelections || [],
+    buffet_vegetable_selections: menuState.buffetVegetableSelections || [],
+    buffet_starch_selections: menuState.buffetStarchSelections || [],
+    buffet_salad_selection: menuState.buffetSaladSelection,
+    karoo_meat_selection: menuState.karooMeatSelection,
+    karoo_starch_selection: menuState.karooStarchSelection || [],
+    karoo_vegetable_selections: menuState.karooVegetableSelections || [],
+    karoo_salad_selection: menuState.karooSaladSelection,
+    plated_main_selection: menuState.platedMainSelection,
+    plated_salad_selection: menuState.platedSaladSelection,
+    dessert_type: menuState.dessertType,
+    traditional_dessert: menuState.traditionalDessert,
+    dessert_canapes: menuState.dessertCanapes || [],
+    individual_cakes: menuState.individualCakes || [],
+    individual_cake_quantities: menuState.individual_cake_quantities || {},
+    other_selections: menuState.otherSelections || [],
+    other_selections_quantities: menuState.otherSelectionsQuantities || {},
+    notes: menuState.notes,
+  };
+};
