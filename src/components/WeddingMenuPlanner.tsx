@@ -6,6 +6,7 @@ import NotesSection from './menu/NotesSection';
 import { useMenuState } from '../hooks/useMenuState';
 import { MenuState } from '../hooks/menuStateTypes';
 import { useToast } from "@/hooks/use-toast";
+import { Check } from 'lucide-react';
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -40,10 +41,30 @@ const WeddingMenuPlanner = ({
 
   // Pass the save function to the parent component
   useEffect(() => {
-    if (saveMenuSelections) {
-      saveMenuSelections(saveMenu);
+    if (saveMenuSelections && saveMenu) {
+      // Pass the function wrapped to handle any UI updates or state changes in this component
+      saveMenuSelections(async () => {
+        try {
+          await saveMenu();
+          toast({
+            title: "Menu saved successfully",
+            description: "Your menu selections have been updated",
+            className: "bg-white border-green-500",
+            icon: <Check className="h-4 w-4 text-green-500" />,
+          });
+          return Promise.resolve();
+        } catch (error) {
+          console.error('Error saving menu from WeddingMenuPlanner:', error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to save menu selections"
+          });
+          return Promise.reject(error);
+        }
+      });
     }
-  }, [saveMenu, saveMenuSelections]);
+  }, [saveMenu, saveMenuSelections, toast]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {

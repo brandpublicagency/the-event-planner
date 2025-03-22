@@ -13,18 +13,18 @@ import type { Event } from "@/types/event";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Header } from "@/components/layout/Header";
-import { updateEvent } from "@/services/eventService";
 import { MenuState } from "@/hooks/menuStateTypes";
+import { useToast } from "@/hooks/use-toast";
 
 const EventDetails = () => {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [isCustomMenu, setIsCustomMenu] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [saveMenuFunction, setSaveMenuFunction] = React.useState<() => Promise<void> | null>(null);
+  const [saveMenuFunction, setSaveMenuFunction] = React.useState<(() => Promise<void>) | null>(null);
+  const [menuState, setMenuState] = React.useState<MenuState | null>(null);
   
   const handleBackNavigation = () => {
     if (location.state?.previousPath === 'menu-selection') {
@@ -65,8 +65,6 @@ const EventDetails = () => {
     retryDelay: 1000
   });
   
-  const [menuState, setMenuState] = React.useState<MenuState | null>(null);
-  
   const handleEditEvent = () => {
     if (id) {
       navigate(`/events/${id}/edit`);
@@ -80,12 +78,16 @@ const EventDetails = () => {
     try {
       // Call the actual save function from WeddingMenuPlanner
       await saveMenuFunction();
-      
       // Show success message in UI or console
       console.log("Menu saved successfully");
     } catch (error: any) {
       // Show error message in UI or console
       console.error("Failed to save menu:", error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to save menu: ${error.message || 'Unknown error'}`
+      });
     } finally {
       setIsSaving(false);
     }

@@ -6,14 +6,16 @@ export const updateMenuSelection = async (eventCode: string, updates: any) => {
     console.log('Saving menu selection for event:', eventCode);
     console.log('Menu updates:', updates);
     
+    // Use upsert to either insert a new record or update an existing one
     const { data, error } = await supabase
       .from('menu_selections')
       .upsert({
         event_code: eventCode,
         ...updates
+      }, {
+        onConflict: 'event_code'  // Ensure we update based on event_code conflict
       })
-      .select()
-      .maybeSingle();
+      .select();
 
     if (error) {
       console.error('Error updating menu selection:', error);
