@@ -103,9 +103,7 @@ export const useMenuState = (eventCode: string) => {
   }, [eventCode]);
 
   const handleMenuStateChange = useCallback((field: keyof MenuState, value: any) => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`Updating menu state: ${String(field)}`);
-    }
+    console.log(`Updating menu state: ${String(field)}`);
     setMenuState(prev => ({ ...prev, [field]: value }));
   }, []);
 

@@ -17,10 +17,22 @@ export const useEventMenu = (eventId: string | undefined) => {
   }, []);
 
   const handleSaveMenu = async () => {
-    if (!eventId || !menuState || !saveMenuFunction) {
-      console.error("Cannot save: Missing id, menuState, or saveMenuFunction");
-      toast.error("Cannot save menu: Required data is missing");
-      return Promise.reject(new Error("Cannot save menu: Required data is missing"));
+    if (!eventId) {
+      console.error("Cannot save: Missing event ID");
+      toast.error("Cannot save menu: Event ID is missing");
+      return Promise.reject(new Error("Event ID is missing"));
+    }
+    
+    if (!menuState) {
+      console.error("Cannot save: Menu state is not available");
+      toast.error("Cannot save menu: Menu state is not available");
+      return Promise.reject(new Error("Menu state is not available"));
+    }
+    
+    if (!saveMenuFunction || typeof saveMenuFunction !== 'function') {
+      console.error("Cannot save: Save function is not properly registered", { saveMenuFunction });
+      toast.error("Cannot save menu: Save function is not available");
+      return Promise.reject(new Error("Save function is not properly registered"));
     }
     
     if (!isInitialized) {

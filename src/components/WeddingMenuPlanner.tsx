@@ -65,27 +65,35 @@ const WeddingMenuPlanner = ({
 
   // Pass the save function to the parent component
   useEffect(() => {
+    // Ensure we have a save function and it's not already registered
     if (saveMenuSelections && saveMenu && !isLoading && initialLoadComplete.current && !saveRegistered.current) {
       console.log('Registering save menu function with parent');
-      // Pass the function wrapped to handle any UI updates or state changes in this component
-      saveMenuSelections(async () => {
+      
+      // Create a wrapped save function to handle errors and state
+      const wrappedSaveFunction = async () => {
         try {
+          if (!saveMenu) {
+            throw new Error("Save menu function is not available");
+          }
+          
           await saveMenu();
           return Promise.resolve();
         } catch (error: any) {
           console.error('Error saving menu from WeddingMenuPlanner:', error);
           return Promise.reject(error);
         }
-      });
+      };
       
+      // Pass the wrapped function up to parent
+      saveMenuSelections(wrappedSaveFunction);
       saveRegistered.current = true;
     }
     
-    // Mark initial load as complete after first render
-    if (!initialLoadComplete.current && !isLoading) {
+    // Mark initial load as complete after first render with data
+    if (!initialLoadComplete.current && !isLoading && menuState) {
       initialLoadComplete.current = true;
     }
-  }, [saveMenu, saveMenuSelections, isLoading]);
+  }, [saveMenu, saveMenuSelections, isLoading, menuState]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {

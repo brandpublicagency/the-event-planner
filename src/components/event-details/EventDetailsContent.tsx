@@ -42,6 +42,16 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   onSaveMenuSelections,
   onSaveMenu,
 }) => {
+  // Handler to log any save button errors
+  const handleSaveClick = async () => {
+    try {
+      console.log("Save button clicked, save function available:", !!saveMenuFunction);
+      await onSaveMenu();
+    } catch (error) {
+      console.error("Error in save button handler:", error);
+    }
+  };
+
   return (
     <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
@@ -73,7 +83,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
           
           <div className="flex justify-end mt-6 print:hidden">
             <SaveButton 
-              onClick={onSaveMenu}
+              onClick={handleSaveClick}
               disabled={!menuState || !saveMenuFunction || isSaving}
               defaultText="Save Menu"
               loadingText="Saving Menu..."
