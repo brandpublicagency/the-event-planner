@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ForecastDay } from './forecastUtils';
 import WeatherIcon from './WeatherIcon';
@@ -16,7 +15,7 @@ const DayCard: React.FC<DayCardProps> = ({
 
   // Determine if this is today to show current conditions for today vs. forecast for future days
   const isToday = day.day === 'Today';
-  return <div className="day-card-hover flex flex-col items-center p-2 rounded-md transition-all duration-300 min-w-[60px] flex-1 py-0 px-0">
+  return <div className="day-card-hover flex flex-col items-center p-2 transition-all duration-300 min-w-[60px] flex-1 py-0 px-0 mx-[10px] my-[5px] rounded-lg">
       <div className="text-xs font-medium text-white mb-0.5 my-[10px]">{day.day}</div>
       
       <WeatherIcon condition={day.condition} className="h-6 w-6 my-0.5" isNight={isToday && isCurrentlyNight} />
@@ -28,7 +27,7 @@ const DayCard: React.FC<DayCardProps> = ({
       
       {/* Rain chance indicator */}
       <div className="rounded-none my-0 flex items-center mt-1">
-        <Droplets className="h-3 w-3 mr-0.5 text-white" />
+        <Droplets className="h-3 w-3 mr-0.5 text-white my-[5px]" />
         <span className="text-white text-xs">{day.rainChance}%</span>
       </div>
     </div>;
