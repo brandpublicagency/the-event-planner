@@ -8,7 +8,6 @@ import { Loader2, CalendarClock, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { deleteEvent } from "@/services/eventService";
 import type { Event } from "@/types/event";
-
 const UpcomingEventsSection = () => {
   const {
     toast
@@ -63,7 +62,7 @@ const UpcomingEventsSection = () => {
     }
   };
   return <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center justify-between p-4 py-5 bg-slate-200 rounded-xl">
+      <div className="flex items-center justify-between p-4 py-5 rounded-xl bg-gray-200">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-zinc-700 bg-transparent" />
           <h3 className="text-lg font-medium text-zinc-900">Upcoming Events</h3>
@@ -83,5 +82,4 @@ const UpcomingEventsSection = () => {
       </div>
     </div>;
 };
-
 export default UpcomingEventsSection;
