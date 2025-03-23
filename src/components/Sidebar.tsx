@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, 
@@ -121,7 +122,7 @@ const Sidebar = ({
     },
     {
       icon: Archive,
-      path: "/passed-events",
+      path: "/events/passed",
       label: "Past Events"
     }
   ];
