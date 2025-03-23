@@ -47,15 +47,22 @@ export function useDocumentsData() {
       
       try {
         console.log("Creating new document");
-        // Use a placeholder user_id since RLS is disabled but the column is required by the database schema
-        const placeholderId = "00000000-0000-0000-0000-000000000000";
+        
+        // Get the user session first
+        const { data: sessionData } = await supabase.auth.getSession();
+        
+        // Use the actual user ID if available, otherwise use a placeholder
+        // Since RLS is disabled as per project instructions, this will work either way
+        const userId = sessionData?.session?.user?.id || "00000000-0000-0000-0000-000000000000";
+        
+        console.log("Using user ID for document creation:", userId);
         
         const { data, error } = await supabase
           .from("documents")
           .insert({
             title: "Untitled Document",
             content: { type: "doc", html: "", text: "" },
-            user_id: placeholderId // Add the required user_id field
+            user_id: userId
           })
           .select()
           .single();
