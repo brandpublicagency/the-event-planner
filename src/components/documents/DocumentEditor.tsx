@@ -14,7 +14,6 @@ import { DocumentActions } from "./DocumentActions";
 import type { Category } from "@/types/category";
 import { isDocumentContent } from "@/types/document";
 import { Spinner } from "@/components/ui/spinner";
-import { useNavigate } from "react-router-dom";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -23,8 +22,7 @@ interface DocumentEditorProps {
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading: isAuthLoading } = useDocumentAuth();
+  const { isAuthenticated } = useDocumentAuth();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -101,33 +99,6 @@ export default function DocumentEditor({
   const removeCategory = (categoryId: string) => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
-
-  const goToLogin = () => {
-    navigate("/login", { state: { from: "/documents" } });
-  };
-
-  if (isAuthLoading) {
-    return <div className="h-full flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Spinner className="h-8 w-8 text-primary" />
-        <p className="text-muted-foreground">Checking authentication...</p>
-      </div>
-    </div>;
-  }
-
-  if (!isAuthenticated) {
-    return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-        <div className="max-w-md">
-          <h3 className="text-lg font-medium mb-2">Authentication required</h3>
-          <p className="text-muted-foreground mb-4">
-            Please sign in to view and edit documents.
-          </p>
-          <Button onClick={goToLogin}>
-            Go to Login
-          </Button>
-        </div>
-      </div>;
-  }
 
   if (!documentId) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">

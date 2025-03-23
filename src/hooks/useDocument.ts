@@ -16,23 +16,9 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         return null;
       }
 
-      if (!isAuthenticated) {
-        console.log("User is not authenticated, aborting document fetch");
-        throw new Error("Authentication required");
-      }
-
       console.log("Fetching document:", documentId);
       
       try {
-        const { data: session } = await supabase.auth.getSession();
-        
-        if (!session?.session) {
-          console.error("No active session when fetching document");
-          throw new Error("Authentication required");
-        }
-
-        console.log("Active session found, user:", session.session.user.id);
-
         const { data, error } = await supabase
           .from("documents")
           .select()
@@ -57,7 +43,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw error;
       }
     },
-    enabled: !!documentId && isAuthenticated,
+    enabled: !!documentId,
     retry: 1,
   });
 
@@ -77,16 +63,7 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw new Error("Document ID is required for updates");
       }
 
-      if (!isAuthenticated) {
-        throw new Error("Authentication required");
-      }
-
       console.log("Updating document:", documentId);
-
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session) {
-        throw new Error("Authentication required");
-      }
 
       // First fetch the document to ensure it exists
       const { data: existingDoc, error: fetchError } = await supabase
