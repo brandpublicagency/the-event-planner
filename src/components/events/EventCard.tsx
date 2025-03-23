@@ -53,9 +53,9 @@ export const EventCard: React.FC<EventCardProps> = ({
   
   return (
     <div className="p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
+      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-start">
         <div className="space-y-1 flex-1">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <h4 className="font-medium text-zinc-900">
               <Link 
                 to={`/events/${event_code}`} 
@@ -65,30 +65,38 @@ export const EventCard: React.FC<EventCardProps> = ({
               </Link>
             </h4>
             <div 
-              className="text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" 
+              className="ml-2 text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" 
               onClick={(e) => copyEventCode(event_code, e)}
             >
-              <span>EVENT-{event_code}</span>
-              <Copy className="h-3.5 w-3.5 opacity-70" />
+              <span className="text-xs opacity-70">EVENT-{event_code}</span>
+              <Copy className="h-3 w-3 opacity-70" />
             </div>
           </div>
           
-          <div className="flex items-center text-sm text-zinc-500">
-            <Calendar className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-            <span>{formattedDate}</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500 mt-1.5">
+            <div className="flex items-center">
+              <Calendar className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
+              <span>{formattedDate}</span>
+            </div>
+            
+            {event_type && (
+              <div className="flex items-center">
+                <span>{event_type}</span>
+              </div>
+            )}
+            
+            {pax && (
+              <div className="flex items-center">
+                <Users className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
+                <span>{pax} guests</span>
+              </div>
+            )}
           </div>
           
           {venueStr && (
             <div className="flex items-center text-sm text-zinc-500 mt-1">
               <MapPin className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
               <span>{venueStr}</span>
-            </div>
-          )}
-          
-          {pax && (
-            <div className="flex items-center text-sm text-zinc-500 mt-1">
-              <Users className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-              <span>{pax} guests</span>
             </div>
           )}
         </div>
