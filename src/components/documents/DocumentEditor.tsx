@@ -8,7 +8,7 @@ import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentState } from "@/hooks/useDocumentState";
 import { CategorySelector } from "./CategorySelector";
 import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DocumentActions } from "./DocumentActions";
 import type { Category } from "@/types/category";
@@ -24,6 +24,8 @@ export default function DocumentEditor({
   const isAuthenticated = useDocumentAuth();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  // Use useMemo to create the editor instance once
   const editor = useEditor({
     extensions: getEditorExtensions(),
     editorProps: {
@@ -32,6 +34,7 @@ export default function DocumentEditor({
       }
     }
   });
+  
   const {
     document,
     isLoading,
@@ -39,20 +42,21 @@ export default function DocumentEditor({
     saveDocument,
     isSaving
   } = useDocumentState(documentId, editor, isAuthenticated);
+  
   const {
     categories
   } = useCategories();
+  
   const {
     documentCategories,
     isLoadingDocumentCategories,
     updateDocumentCategories
   } = useDocumentCategories(documentId);
 
-  // Fix: Add proper dependency array to prevent infinite loop
+  // Update selectedCategories when documentCategories or categories change
   useEffect(() => {
     if (!documentCategories || !categories) return;
     
-    // Only update when documentCategories or categories change
     const selected = documentCategories.map(docCat => {
       const fullCategory = categories.find(c => c.id === docCat.id);
       return fullCategory || docCat;

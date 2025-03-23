@@ -15,7 +15,7 @@ export default function Documents() {
       // This allows DocumentsContainer to process it first
       const timeoutId = setTimeout(() => {
         navigate('/documents', { replace: true });
-      }, 500);
+      }, 1000);
       
       return () => clearTimeout(timeoutId);
     }

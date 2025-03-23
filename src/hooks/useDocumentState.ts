@@ -8,25 +8,34 @@ import { isDocumentContent } from "@/types/document";
 export function useDocumentState(documentId: string | null, editor: Editor | null, isAuthenticated: boolean) {
   const [isSaving, setIsSaving] = useState(false);
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
+  const [contentSet, setContentSet] = useState(false);
 
   // Load initial document content
   useEffect(() => {
-    if (!editor || !document?.content || editor.isDestroyed) return;
+    if (!editor || !document?.content || editor.isDestroyed || contentSet) return;
 
     console.log("Loading document content:", document.content);
 
-    // Only set content if it has changed
+    // Only set content if it hasn't been set yet
     if (isDocumentContent(document.content)) {
       try {
         // Set document content only once when it's first loaded
         editor.commands.setContent(document.content.html || '');
+        setContentSet(true);
       } catch (err) {
         console.error("Error setting document content:", err);
       }
     } else {
       console.warn("Invalid document content format:", document.content);
     }
-  }, [document?.content, editor]);
+  }, [document?.content, editor, contentSet]);
+
+  // Reset contentSet when document changes
+  useEffect(() => {
+    if (documentId) {
+      setContentSet(false);
+    }
+  }, [documentId]);
 
   const saveDocument = async ({ showToast = true } = {}) => {
     if (!editor || !documentId) {
