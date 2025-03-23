@@ -1,10 +1,12 @@
 
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { Calendar, UserCircle, Building, Trash2, ArrowRight, Edit, Eye } from "lucide-react";
+import { Calendar, MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/types/event";
 import { Link } from "react-router-dom";
+import { getVenueNames } from "@/utils/venueUtils";
+import { useCopyEventCode } from "./utils/eventCodeUtils";
 
 interface EventCardProps {
   event: Event;
@@ -24,11 +26,11 @@ export const EventCard: React.FC<EventCardProps> = ({
   onView,
   onDelete
 }) => {
-  const { name, event_type, event_date, primary_name, company, event_code } = event;
+  const { name, event_type, event_date, pax, event_code } = event;
+  const copyEventCode = useCopyEventCode();
   
   const formattedDate = event_date ? format(parseISO(event_date), 'EEE, MMM d, yyyy') : 'No date set';
-  const isWedding = event_type?.toLowerCase().includes('wedding');
-  const isCorporate = event_type?.toLowerCase().includes('corporate');
+  const venueStr = getVenueNames(event);
   
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,30 +55,40 @@ export const EventCard: React.FC<EventCardProps> = ({
     <div className="p-4 hover:bg-gray-50 transition-colors">
       <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
         <div className="space-y-1 flex-1">
-          <h4 className="font-medium text-zinc-900">
-            <Link 
-              to={`/events/${event_code}`} 
-              className="hover:text-primary cursor-pointer"
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-zinc-900">
+              <Link 
+                to={`/events/${event_code}`} 
+                className="hover:text-primary cursor-pointer"
+              >
+                {name}
+              </Link>
+            </h4>
+            <div 
+              className="text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" 
+              onClick={(e) => copyEventCode(event_code, e)}
             >
-              {name}
-            </Link>
-          </h4>
+              <span>EVENT-{event_code}</span>
+              <Copy className="h-3.5 w-3.5 opacity-70" />
+            </div>
+          </div>
+          
           <div className="flex items-center text-sm text-zinc-500">
             <Calendar className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
             <span>{formattedDate}</span>
           </div>
           
-          {primary_name && !isDashboard && (
+          {venueStr && (
             <div className="flex items-center text-sm text-zinc-500 mt-1">
-              <UserCircle className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-              <span>{primary_name}</span>
+              <MapPin className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
+              <span>{venueStr}</span>
             </div>
           )}
           
-          {company && !isDashboard && (
+          {pax && (
             <div className="flex items-center text-sm text-zinc-500 mt-1">
-              <Building className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-              <span>{company}</span>
+              <Users className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
+              <span>{pax} guests</span>
             </div>
           )}
         </div>
@@ -129,8 +141,8 @@ export const EventCard: React.FC<EventCardProps> = ({
               className="h-8 rounded-full p-0 w-8 text-zinc-500"
               onClick={handleViewClick}
             >
-              <ArrowRight className="h-4 w-4" />
-              <span className="sr-only">Go to event</span>
+              <Eye className="h-4 w-4" />
+              <span className="sr-only">View event</span>
             </Button>
           )}
         </div>

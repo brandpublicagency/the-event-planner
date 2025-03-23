@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit, Plus, CalendarDays, Filter, Trash2, Calendar } from "lucide-react";
-import { format, isAfter, parseISO } from "date-fns";
+import { Plus, Trash2 } from "lucide-react";
+import { isAfter, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventsTable } from "@/components/events/EventsTable";
 import { EventCard } from "@/components/events/EventCard";
 import { EventMonthGroup } from "@/components/events/EventMonthGroup";
@@ -27,7 +26,6 @@ import {
 const Events = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [view, setView] = useState<"table" | "cards">("cards");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -122,11 +120,6 @@ const Events = () => {
     return isAfter(parseISO(event.event_date), new Date());
   });
 
-  const passedEvents = events.filter((event) => {
-    if (!event.event_date) return false;
-    return !isAfter(parseISO(event.event_date), new Date());
-  });
-
   const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
     if (!event.event_date) {
       if (!groups["No Date"]) groups["No Date"] = [];
@@ -134,74 +127,15 @@ const Events = () => {
       return groups;
     }
 
-    const month = format(parseISO(event.event_date), "MMMM yyyy");
+    const month = new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     if (!groups[month]) groups[month] = [];
     groups[month].push(event);
     return groups;
   }, {} as Record<string, Event[]>);
 
-  const renderCardView = () => {
-    return (
-      <div className="space-y-8">
-        {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
-          <EventMonthGroup
-            key={month}
-            monthYear={month}
-            events={monthEvents}
-            onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
-            onView={(eventCode) => navigate(`/events/${eventCode}`)}
-            onDelete={handleDeleteEvent}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  const renderTableView = () => {
-    return (
-      <EventsTable
-        groupedEvents={groupedUpcomingEvents}
-        isLoading={isLoading}
-        onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
-        onView={(eventCode) => navigate(`/events/${eventCode}`)}
-        onDelete={handleDeleteEvent}
-      />
-    );
-  };
-
   return (
     <div className="flex flex-col h-full">
-      <Header title="Events">
-        <Button
-          onClick={() => navigate("/calendar")}
-          variant="outline"
-          size="sm"
-          className="mr-2"
-        >
-          <Calendar className="h-4 w-4 mr-1" />
-          Calendar
-        </Button>
-        {view === "table" ? (
-          <Button
-            onClick={() => setView("cards")}
-            variant="outline"
-            size="sm"
-            className="mr-2"
-          >
-            <CalendarDays className="h-4 w-4 mr-1" />
-            Card View
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setView("table")}
-            variant="outline"
-            size="sm"
-            className="mr-2"
-          >
-            <Filter className="h-4 w-4 mr-1" />
-            Table View
-          </Button>
-        )}
+      <Header title="Upcoming Events">
         <Button
           onClick={() => navigate("/events/new")}
           size="sm"
@@ -214,18 +148,18 @@ const Events = () => {
 
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
         <div className="container max-w-5xl">
-          <Tabs defaultValue="upcoming">
-            <TabsList className="mb-6">
-              <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
-              <TabsTrigger value="passed">
-                <Link to="/events/passed">Passed Events</Link>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="upcoming" className="space-y-6">
-              {view === "cards" ? renderCardView() : renderTableView()}
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-8">
+            {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
+              <EventMonthGroup
+                key={month}
+                monthYear={month}
+                events={monthEvents}
+                onEdit={(eventCode) => navigate(`/events/${eventCode}/edit`)}
+                onView={(eventCode) => navigate(`/events/${eventCode}`)}
+                onDelete={handleDeleteEvent}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

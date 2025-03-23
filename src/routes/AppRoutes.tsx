@@ -36,7 +36,7 @@ export const AppRoutes = () => {
       }>
         <Route path="/" element={<Index />} />
         <Route path="/events" element={<Events />} />
-        <Route path="/passed-events" element={<PassedEvents />} />
+        <Route path="/events/passed" element={<PassedEvents />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/tasks" element={<Tasks />} />
