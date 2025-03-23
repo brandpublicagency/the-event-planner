@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { ExternalLink, Check, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
@@ -118,22 +118,21 @@ export function NotificationDropdown() {
         <div className="flex gap-2">
           <Button
             onClick={handleMarkAllAsRead}
-            variant="ghost"
+            variant="default"
             size="sm"
             className="h-8 px-2 text-xs"
             disabled={!notifications.some(n => !n.read) || loading || isRefreshing}
           >
-            <Check className="h-3.5 w-3.5 mr-1" />
             Mark all read
           </Button>
           <Button
             onClick={handleRefresh}
-            variant="ghost"
+            variant="default"
             size="sm"
             className="h-8 w-8 p-0"
             disabled={loading || isRefreshing}
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
             <span className="sr-only">Refresh</span>
           </Button>
         </div>
@@ -156,12 +155,11 @@ export function NotificationDropdown() {
           <div className="p-4 text-center">
             <p className="text-sm text-red-500 mb-2">Failed to load notifications</p>
             <Button 
-              variant="outline" 
+              variant="default" 
               size="sm"
               onClick={handleRefresh}
               className="inline-flex items-center gap-1"
             >
-              <RefreshCw className="h-3 w-3" />
               <span>Try again</span>
             </Button>
           </div>
@@ -175,12 +173,11 @@ export function NotificationDropdown() {
           <div className="p-4 text-center">
             <p className="text-sm text-zinc-500">No notifications to display</p>
             <Button
-              variant="ghost"
+              variant="default"
               size="sm"
               onClick={handleRefresh}
               className="mt-2"
             >
-              <RefreshCw className="h-3 w-3 mr-1" />
               Refresh
             </Button>
           </div>
@@ -192,10 +189,9 @@ export function NotificationDropdown() {
         <Button
           onClick={handleViewAll}
           className="w-full flex items-center gap-2 justify-center"
-          variant="secondary"
+          variant="default"
           size="sm"
         >
-          <ExternalLink className="h-4 w-4" />
           <span className="text-xs">View all notifications</span>
         </Button>
       </div>

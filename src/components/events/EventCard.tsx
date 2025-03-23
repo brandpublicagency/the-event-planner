@@ -1,7 +1,7 @@
 
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { Calendar, MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
+import { MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/types/event";
 import { Link } from "react-router-dom";
@@ -74,7 +74,6 @@ export const EventCard: React.FC<EventCardProps> = ({
           
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500 mt-1">
             <div className="flex items-center">
-              <Calendar className="h-3 w-3 mr-1 text-zinc-400" />
               <span className="text-[11px]">{formattedDate}</span>
             </div>
             
@@ -107,11 +106,11 @@ export const EventCard: React.FC<EventCardProps> = ({
               {onEdit && (
                 <Button
                   onClick={handleEditClick}
-                  variant="ghost"
+                  variant="default"
                   size="sm"
                   className="h-7 w-7 p-0"
                 >
-                  <Edit className="h-3.5 w-3.5 text-zinc-500" />
+                  Edit
                   <span className="sr-only">Edit</span>
                 </Button>
               )}
@@ -119,11 +118,11 @@ export const EventCard: React.FC<EventCardProps> = ({
               {onView && (
                 <Button
                   onClick={handleViewClick}
-                  variant="ghost"
+                  variant="default"
                   size="sm"
                   className="h-7 w-7 p-0"
                 >
-                  <Eye className="h-3.5 w-3.5 text-zinc-500" />
+                  View
                   <span className="sr-only">View</span>
                 </Button>
               )}
@@ -131,11 +130,11 @@ export const EventCard: React.FC<EventCardProps> = ({
               {(handleDelete || onDelete) && (
                 <Button
                   onClick={handleDeleteClick}
-                  variant="ghost"
+                  variant="destructive"
                   size="sm"
-                  className="h-7 w-7 p-0 hover:text-red-500"
+                  className="h-7 w-7 p-0"
                 >
-                  <Trash2 className="h-3.5 w-3.5 text-zinc-500 hover:text-red-500" />
+                  Delete
                   <span className="sr-only">Delete</span>
                 </Button>
               )}
@@ -144,12 +143,12 @@ export const EventCard: React.FC<EventCardProps> = ({
           
           {isDashboard && (
             <Button
-              variant="ghost"
+              variant="default"
               size="sm"
-              className="h-7 rounded-full p-0 w-7 text-zinc-500"
+              className="h-7 rounded-full p-0 w-7 text-white"
               onClick={handleViewClick}
             >
-              <Eye className="h-3.5 w-3.5" />
+              View
               <span className="sr-only">View event</span>
             </Button>
           )}

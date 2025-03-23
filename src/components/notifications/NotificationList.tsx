@@ -24,7 +24,7 @@ export const NotificationsList = ({
   }
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden">
+    <div className="bg-white border border-zinc-100 rounded-lg overflow-hidden">
       <div className="divide-y divide-gray-100 p-2">
         <AnimatePresence initial={false}>
           {notifications.map((notification) => (
