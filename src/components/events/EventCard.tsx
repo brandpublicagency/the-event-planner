@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { Calendar, MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
@@ -50,11 +51,11 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
   
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors w-full">
-      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-start w-full">
-        <div className="space-y-1 flex-1">
+    <div className="p-3 hover:bg-gray-50 transition-colors w-full">
+      <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:justify-between sm:items-start w-full">
+        <div className="space-y-0.5 flex-1">
           <div className="flex items-center">
-            <h4 className="font-medium text-zinc-900">
+            <h4 className="font-medium text-zinc-900 text-sm">
               <Link 
                 to={`/events/${event_code}`} 
                 className="hover:text-primary cursor-pointer"
@@ -63,36 +64,36 @@ export const EventCard: React.FC<EventCardProps> = ({
               </Link>
             </h4>
             <div 
-              className="ml-2 text-xs text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" 
+              className="ml-2 text-[10px] text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" 
               onClick={(e) => copyEventCode(event_code, e)}
             >
-              <span className="text-xs opacity-70">EVENT-{event_code}</span>
-              <Copy className="h-3 w-3 opacity-70" />
+              <span className="text-[10px] opacity-70">EVENT-{event_code}</span>
+              <Copy className="h-2.5 w-2.5 opacity-70" />
             </div>
           </div>
           
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500 mt-1.5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500 mt-1">
             <div className="flex items-center">
-              <Calendar className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-              <span>{formattedDate}</span>
+              <Calendar className="h-3 w-3 mr-1 text-zinc-400" />
+              <span className="text-[11px]">{formattedDate}</span>
             </div>
             
             {event_type && (
               <div className="flex items-center">
-                <span>{event_type}</span>
+                <span className="text-[11px]">{event_type}</span>
               </div>
             )}
             
             {pax && (
               <div className="flex items-center">
-                <Users className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-                <span>{pax} guests</span>
+                <Users className="h-3 w-3 mr-1 text-zinc-400" />
+                <span className="text-[11px]">{pax} guests</span>
                 
                 {venueStr && venueStr !== 'No venues selected' && (
                   <>
-                    <span className="mx-1.5 text-zinc-300">•</span>
-                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-                    <span>{venueStr}</span>
+                    <span className="mx-1 text-zinc-300">•</span>
+                    <MapPin className="h-3 w-3 mr-1 text-zinc-400" />
+                    <span className="text-[11px]">{venueStr}</span>
                   </>
                 )}
               </div>
@@ -100,7 +101,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           </div>
         </div>
         
-        <div className="flex space-x-2 justify-end">
+        <div className="flex space-x-1 justify-end">
           {!isDashboard && (
             <>
               {onEdit && (
@@ -108,9 +109,9 @@ export const EventCard: React.FC<EventCardProps> = ({
                   onClick={handleEditClick}
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Edit className="h-4 w-4 text-zinc-500" />
+                  <Edit className="h-3.5 w-3.5 text-zinc-500" />
                   <span className="sr-only">Edit</span>
                 </Button>
               )}
@@ -120,9 +121,9 @@ export const EventCard: React.FC<EventCardProps> = ({
                   onClick={handleViewClick}
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Eye className="h-4 w-4 text-zinc-500" />
+                  <Eye className="h-3.5 w-3.5 text-zinc-500" />
                   <span className="sr-only">View</span>
                 </Button>
               )}
@@ -132,9 +133,9 @@ export const EventCard: React.FC<EventCardProps> = ({
                   onClick={handleDeleteClick}
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:text-red-500"
+                  className="h-7 w-7 p-0 hover:text-red-500"
                 >
-                  <Trash2 className="h-4 w-4 text-zinc-500 hover:text-red-500" />
+                  <Trash2 className="h-3.5 w-3.5 text-zinc-500 hover:text-red-500" />
                   <span className="sr-only">Delete</span>
                 </Button>
               )}
@@ -145,10 +146,10 @@ export const EventCard: React.FC<EventCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 rounded-full p-0 w-8 text-zinc-500"
+              className="h-7 rounded-full p-0 w-7 text-zinc-500"
               onClick={handleViewClick}
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-3.5 w-3.5" />
               <span className="sr-only">View event</span>
             </Button>
           )}
