@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { isAfter, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,16 +134,7 @@ const Events = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Upcoming Events">
-        <Button
-          onClick={() => navigate("/events/new")}
-          size="sm"
-          variant="default"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          New Event
-        </Button>
-      </Header>
+      <Header title="Upcoming Events" />
 
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
         <div className="container max-w-5xl">
