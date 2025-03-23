@@ -99,7 +99,7 @@ export default function DocumentEditor({
   };
 
   const removeCategory = (categoryId: string) => {
-    setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
   const goToLogin = () => {
