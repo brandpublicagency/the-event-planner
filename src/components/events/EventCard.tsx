@@ -89,16 +89,17 @@ export const EventCard: React.FC<EventCardProps> = ({
               <div className="flex items-center">
                 <Users className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
                 <span>{pax} guests</span>
+                
+                {venueStr && venueStr !== 'No venues selected' && (
+                  <>
+                    <span className="mx-1.5 text-zinc-300">•</span>
+                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
+                    <span>{venueStr}</span>
+                  </>
+                )}
               </div>
             )}
           </div>
-          
-          {venueStr && (
-            <div className="flex items-center text-sm text-zinc-500 mt-1">
-              <MapPin className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
-              <span>{venueStr}</span>
-            </div>
-          )}
         </div>
         
         <div className="flex space-x-2 justify-end">
