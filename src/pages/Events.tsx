@@ -137,7 +137,7 @@ const Events = () => {
       <Header title="Upcoming Events" />
 
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
-        <div className="container max-w-5xl">
+        <div className="w-full px-6 mt-[25px]">
           <div className="space-y-8">
             {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
               <EventMonthGroup
