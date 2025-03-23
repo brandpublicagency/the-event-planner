@@ -2,6 +2,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -15,12 +16,20 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Checking authentication in ProtectedRoute");
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Auth check error:", error);
+          setIsAuthenticated(false);
+          return;
+        }
         
         if (!session) {
+          console.log("No active session found in ProtectedRoute");
           setIsAuthenticated(false);
-          // Removed toast notification
         } else {
+          console.log("Session found in ProtectedRoute, user is authenticated");
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -33,7 +42,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     
     checkAuth();
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in ProtectedRoute:", event);
       setIsAuthenticated(!!session);
     });
     
@@ -45,7 +55,10 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        <div className="flex flex-col items-center gap-4">
+          <Spinner className="h-8 w-8 text-primary" />
+          <p>Checking authentication...</p>
+        </div>
       </div>
     );
   }

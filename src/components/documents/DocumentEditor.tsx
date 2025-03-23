@@ -22,7 +22,7 @@ interface DocumentEditorProps {
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
-  const isAuthenticated = useDocumentAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useDocumentAuth();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -96,6 +96,15 @@ export default function DocumentEditor({
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
+  if (isAuthLoading) {
+    return <div className="h-full flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Spinner className="h-8 w-8 text-primary" />
+        <p className="text-muted-foreground">Checking authentication...</p>
+      </div>
+    </div>;
+  }
+
   if (!documentId) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-md">
@@ -108,8 +117,16 @@ export default function DocumentEditor({
   }
 
   if (!isAuthenticated) {
-    return <div className="h-full flex items-center justify-center">
-        <p className="text-muted-foreground">Authentication required to view documents</p>
+    return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+        <div className="max-w-md">
+          <h3 className="text-lg font-medium mb-2">Authentication required</h3>
+          <p className="text-muted-foreground mb-4">
+            Please sign in to view and edit documents.
+          </p>
+          <Button onClick={() => window.location.href = "/login"}>
+            Go to Login
+          </Button>
+        </div>
       </div>;
   }
 
