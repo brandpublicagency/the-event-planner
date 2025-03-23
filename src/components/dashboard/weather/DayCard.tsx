@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ForecastDay } from './forecastUtils';
 import WeatherIcon from './WeatherIcon';
@@ -26,9 +27,9 @@ const DayCard: React.FC<DayCardProps> = ({
       </div>
       
       {/* Rain chance indicator */}
-      <div className="rounded-none my-0">
-        <Droplets className="h-3 w-3 mr-0.5" />
-        <span className="text-gray-300 text-xs">{day.rainChance}%</span>
+      <div className="rounded-none my-0 flex items-center mt-1">
+        <Droplets className="h-3 w-3 mr-0.5 text-white" />
+        <span className="text-white text-xs">{day.rainChance}%</span>
       </div>
     </div>;
 };
