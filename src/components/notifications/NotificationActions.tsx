@@ -1,8 +1,8 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Notification } from "@/types/notification";
-import { Eye } from "lucide-react";
+import { Eye, CheckSquare } from "lucide-react";
+import { FileActionButton } from "@/components/tasks/file-actions/FileActionButton";
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -25,26 +25,19 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   );
   
   return (
-    <div className="flex space-x-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 p-0"
+    <div className="flex space-x-1">
+      <FileActionButton
+        icon={Eye}
         onClick={(e) => onView(notification, e)}
-      >
-        <Eye className="h-3.5 w-3.5 text-zinc-400" />
-        <span className="sr-only">View</span>
-      </Button>
+        className="h-6 w-6"
+      />
       
       {showCompleteButton && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 p-0"
+        <FileActionButton
+          icon={CheckSquare}
           onClick={(e) => onComplete(notification, e)}
-        >
-          <span className="text-xs text-zinc-400">Complete</span>
-        </Button>
+          className="h-6 w-6"
+        />
       )}
     </div>
   );
