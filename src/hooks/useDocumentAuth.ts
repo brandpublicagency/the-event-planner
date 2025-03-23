@@ -14,6 +14,8 @@ export function useDocumentAuth() {
     const checkAuth = async () => {
       try {
         setIsLoading(true);
+        console.log("Checking authentication in useDocumentAuth");
+        
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -23,17 +25,12 @@ export function useDocumentAuth() {
         }
         
         if (!session) {
-          console.log("No active session found");
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to access documents",
-            variant: "destructive",
-          });
-          navigate("/login");
+          console.log("No active session found in useDocumentAuth");
+          setIsAuthenticated(false);
           return;
         }
         
-        console.log("Session found, user is authenticated");
+        console.log("Session found in useDocumentAuth, user is authenticated:", session.user.id);
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -46,13 +43,13 @@ export function useDocumentAuth() {
     checkAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
-      if (!session) {
-        console.log("Session ended, user no longer authenticated");
+      console.log("Auth state changed in useDocumentAuth:", event);
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log("User is no longer authenticated");
         setIsAuthenticated(false);
-        navigate("/login");
-      } else {
-        console.log("Session started/updated, user is authenticated");
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        console.log("User is authenticated:", session.user.id);
         setIsAuthenticated(true);
       }
     });

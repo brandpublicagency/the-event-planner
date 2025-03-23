@@ -11,36 +11,54 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
   const { data: document, isLoading, error } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
-      if (!documentId || !isAuthenticated) return null;
+      if (!documentId) {
+        console.log("No document ID provided");
+        return null;
+      }
 
-      console.log("Fetching document:", documentId);
-      
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session) {
+      if (!isAuthenticated) {
+        console.log("User is not authenticated, aborting document fetch");
         throw new Error("Authentication required");
       }
 
-      const { data, error } = await supabase
-        .from("documents")
-        .select()
-        .eq("id", documentId)
-        .is("deleted_at", null)
-        .maybeSingle();
+      console.log("Fetching document:", documentId);
+      
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        
+        if (!session?.session) {
+          console.error("No active session when fetching document");
+          throw new Error("Authentication required");
+        }
 
-      if (error) {
-        console.error("Document fetch error:", error);
-        toast({
-          title: "Error loading document",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.log("Active session found, user:", session.session.user.id);
+
+        const { data, error } = await supabase
+          .from("documents")
+          .select()
+          .eq("id", documentId)
+          .is("deleted_at", null)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Document fetch error:", error);
+          throw error;
+        }
+
+        if (!data) {
+          console.log("Document not found:", documentId);
+          return null;
+        }
+
+        console.log("Document fetch successful");
+        return data as Document;
+      } catch (error: any) {
+        console.error("Document fetch failed:", error.message);
         throw error;
       }
-
-      console.log("Document fetch result:", data);
-      return data as Document;
     },
     enabled: !!documentId && isAuthenticated,
+    retry: 1,
   });
 
   const updateDocument = useMutation({
@@ -55,18 +73,22 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     }) => {
       const { showToast = true, ...documentUpdates } = updates;
       
-      if (!documentId || !isAuthenticated) {
-        throw new Error("Cannot update document: not authenticated");
+      if (!documentId) {
+        throw new Error("Document ID is required for updates");
       }
 
-      console.log("Updating document:", documentId, documentUpdates);
+      if (!isAuthenticated) {
+        throw new Error("Authentication required");
+      }
+
+      console.log("Updating document:", documentId);
 
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session) {
         throw new Error("Authentication required");
       }
 
-      // First fetch the current document to ensure it exists and isn't deleted
+      // First fetch the document to ensure it exists
       const { data: existingDoc, error: fetchError } = await supabase
         .from("documents")
         .select()
@@ -92,15 +114,10 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
 
       if (error) {
         console.error("Document update error:", error);
-        toast({
-          title: "Error updating document",
-          description: error.message,
-          variant: "destructive",
-        });
         throw error;
       }
 
-      console.log("Document updated successfully:", data);
+      console.log("Document updated successfully");
       return data;
     },
     onSuccess: (_, variables) => {

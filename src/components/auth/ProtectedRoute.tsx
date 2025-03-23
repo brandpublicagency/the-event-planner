@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (error) {
           console.error("Auth check error:", error);
+          toast.error("Authentication error: " + error.message);
           setIsAuthenticated(false);
           return;
         }
@@ -29,11 +31,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           console.log("No active session found in ProtectedRoute");
           setIsAuthenticated(false);
         } else {
-          console.log("Session found in ProtectedRoute, user is authenticated");
+          console.log("Session found in ProtectedRoute, user is authenticated:", session.user.id);
           setIsAuthenticated(true);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Auth check error:", error);
+        toast.error("Authentication check failed: " + error.message);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -44,7 +47,14 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in ProtectedRoute:", event);
-      setIsAuthenticated(!!session);
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log("User is no longer authenticated");
+        setIsAuthenticated(false);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        console.log("User is authenticated:", session.user.id);
+        setIsAuthenticated(true);
+      }
     });
     
     return () => {

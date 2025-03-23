@@ -14,6 +14,7 @@ import { DocumentActions } from "./DocumentActions";
 import type { Category } from "@/types/category";
 import { isDocumentContent } from "@/types/document";
 import { Spinner } from "@/components/ui/spinner";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -22,6 +23,7 @@ interface DocumentEditorProps {
 export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
+  const navigate = useNavigate();
   const { isAuthenticated, isLoading: isAuthLoading } = useDocumentAuth();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -67,16 +69,20 @@ export default function DocumentEditor({
   }, [documentCategories, categories]);
 
   const handleSave = async () => {
-    await saveDocument({
-      showToast: false
-    });
-    
-    if (documentId) {
-      await updateDocumentCategories({
-        documentId,
-        categoryIds: selectedCategories.map(c => c.id),
-        showSuccessToast: true
+    try {
+      await saveDocument({
+        showToast: false
       });
+      
+      if (documentId) {
+        await updateDocumentCategories({
+          documentId,
+          categoryIds: selectedCategories.map(c => c.id),
+          showSuccessToast: true
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save document:", error);
     }
   };
 
@@ -93,7 +99,11 @@ export default function DocumentEditor({
   };
 
   const removeCategory = (categoryId: string) => {
-    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
+    setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+  };
+
+  const goToLogin = () => {
+    navigate("/login", { state: { from: "/documents" } });
   };
 
   if (isAuthLoading) {
@@ -105,17 +115,6 @@ export default function DocumentEditor({
     </div>;
   }
 
-  if (!documentId) {
-    return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-        <div className="max-w-md">
-          <h3 className="text-lg font-medium mb-2">No document selected</h3>
-          <p className="text-muted-foreground mb-4">
-            Select a document from the list or create a new one to start editing.
-          </p>
-        </div>
-      </div>;
-  }
-
   if (!isAuthenticated) {
     return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-md">
@@ -123,9 +122,20 @@ export default function DocumentEditor({
           <p className="text-muted-foreground mb-4">
             Please sign in to view and edit documents.
           </p>
-          <Button onClick={() => window.location.href = "/login"}>
+          <Button onClick={goToLogin}>
             Go to Login
           </Button>
+        </div>
+      </div>;
+  }
+
+  if (!documentId) {
+    return <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+        <div className="max-w-md">
+          <h3 className="text-lg font-medium mb-2">No document selected</h3>
+          <p className="text-muted-foreground mb-4">
+            Select a document from the list or create a new one to start editing.
+          </p>
         </div>
       </div>;
   }
