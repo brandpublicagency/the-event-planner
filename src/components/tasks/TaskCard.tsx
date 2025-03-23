@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { TaskCheckbox } from "./card/TaskCheckbox";
 import { TaskTitle } from "./card/TaskTitle";
 import { TaskDueDate } from "./card/TaskDueDate";
+import { Edit, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TaskCardProps {
   task: Task;
@@ -100,6 +102,17 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                   dueDate={task.due_date}
                   completed={task.completed}
                 />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Edit action would be here
+                  }}
+                >
+                  <Edit className="h-3.5 w-3.5 text-zinc-400" />
+                </Button>
                 <TaskActions 
                   isDeleting={isDeleting}
                   onDelete={() => deleteTaskMutation.mutate()}

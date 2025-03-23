@@ -1,7 +1,7 @@
 
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
+import { MapPin, Users, Copy, Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/types/event";
 import { Link } from "react-router-dom";
@@ -106,11 +106,11 @@ export const EventCard: React.FC<EventCardProps> = ({
               {onEdit && (
                 <Button
                   onClick={handleEditClick}
-                  variant="default"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   className="h-7 w-7 p-0"
                 >
-                  Edit
+                  <Edit className="h-3.5 w-3.5 text-zinc-400" />
                   <span className="sr-only">Edit</span>
                 </Button>
               )}
@@ -118,24 +118,12 @@ export const EventCard: React.FC<EventCardProps> = ({
               {onView && (
                 <Button
                   onClick={handleViewClick}
-                  variant="default"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   className="h-7 w-7 p-0"
                 >
-                  View
+                  <Eye className="h-3.5 w-3.5 text-zinc-400" />
                   <span className="sr-only">View</span>
-                </Button>
-              )}
-              
-              {(handleDelete || onDelete) && (
-                <Button
-                  onClick={handleDeleteClick}
-                  variant="destructive"
-                  size="sm"
-                  className="h-7 w-7 p-0"
-                >
-                  Delete
-                  <span className="sr-only">Delete</span>
                 </Button>
               )}
             </>
@@ -143,12 +131,12 @@ export const EventCard: React.FC<EventCardProps> = ({
           
           {isDashboard && (
             <Button
-              variant="default"
-              size="sm"
-              className="h-7 rounded-full p-0 w-7 text-white"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 p-0"
               onClick={handleViewClick}
             >
-              View
+              <Eye className="h-3.5 w-3.5 text-zinc-400" />
               <span className="sr-only">View event</span>
             </Button>
           )}

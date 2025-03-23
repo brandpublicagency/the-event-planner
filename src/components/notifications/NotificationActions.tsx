@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Notification } from "@/types/notification";
+import { Eye } from "lucide-react";
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -26,22 +27,23 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   return (
     <div className="flex space-x-2">
       <Button
-        variant="default"
-        size="sm"
-        className="px-3 py-1 h-7 text-xs"
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 p-0"
         onClick={(e) => onView(notification, e)}
       >
-        View
+        <Eye className="h-3.5 w-3.5 text-zinc-400" />
+        <span className="sr-only">View</span>
       </Button>
       
       {showCompleteButton && (
         <Button
-          variant="success"
-          size="sm"
-          className="px-3 py-1 h-7 text-xs"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 p-0"
           onClick={(e) => onComplete(notification, e)}
         >
-          Complete
+          <span className="text-xs text-zinc-400">Complete</span>
         </Button>
       )}
     </div>

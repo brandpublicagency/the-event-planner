@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Loader2, Trash2 } from "lucide-react";
 import {
@@ -24,14 +25,14 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 border-border/40 hover:border-destructive/50"
+          className="h-7 w-7"
           disabled={isDeleting}
           onClick={(e) => e.stopPropagation()}
         >
           {isDeleting ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 text-zinc-400 animate-spin" />
           ) : (
-            <Trash2 className="h-3 w-3 text-muted-foreground transition-colors" />
+            <Trash2 className="h-3.5 w-3.5 text-zinc-400" />
           )}
         </Button>
       </AlertDialogTrigger>

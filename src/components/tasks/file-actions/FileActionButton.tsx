@@ -32,9 +32,9 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
       size="icon"
       onClick={handleClick}
       disabled={disabled}
-      className={cn("h-8 w-8", className)}
+      className={cn("h-7 w-7", className)}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-3.5 w-3.5 text-zinc-400" />
     </Button>
   );
 });

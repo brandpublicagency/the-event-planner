@@ -51,9 +51,9 @@ export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({
           e.stopPropagation();
           navigate(`/events/${eventCode}/edit`);
         }} 
-        className="h-8 w-8 rounded-full mb-1"
+        className="h-7 w-7 rounded-full mb-1"
       >
-        <Edit className="h-4 w-4 text-zinc-400" />
+        <Edit className="h-3.5 w-3.5 text-zinc-400" />
       </Button>
       
       <AlertDialog>
@@ -62,13 +62,13 @@ export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({
             variant="ghost" 
             size="icon" 
             onClick={e => e.stopPropagation()} 
-            className="h-8 w-8 rounded-full"
+            className="h-7 w-7 rounded-full"
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <Loader2 className="h-4 w-4 text-zinc-400 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 text-zinc-400 animate-spin" />
             ) : (
-              <Trash className="h-4 w-4 text-zinc-400" />
+              <Trash className="h-3.5 w-3.5 text-zinc-400" />
             )}
           </Button>
         </AlertDialogTrigger>

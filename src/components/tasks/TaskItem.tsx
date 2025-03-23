@@ -1,5 +1,5 @@
 
-import { Calendar, Pencil } from "lucide-react";
+import { Calendar, Eye, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -77,9 +77,9 @@ export function TaskItem({
               e.stopPropagation();
               onEdit();
             }} 
-            className="h-8 w-8"
+            className="h-7 w-7"
           >
-            <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            <Edit className="h-3.5 w-3.5 text-zinc-400" />
           </Button>
           <TaskActions 
             isDeleting={false} 
