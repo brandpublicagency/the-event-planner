@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { Calendar, MapPin, Users, Copy, Trash2, Edit, Eye } from "lucide-react";
@@ -12,7 +11,6 @@ interface EventCardProps {
   event: Event;
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
-  // Add these props for backward compatibility
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
   onDelete?: (event: Event) => void;
@@ -52,8 +50,8 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
   
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-start">
+    <div className="p-4 hover:bg-gray-50 transition-colors w-full">
+      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-start w-full">
         <div className="space-y-1 flex-1">
           <div className="flex items-center">
             <h4 className="font-medium text-zinc-900">
