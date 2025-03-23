@@ -7,6 +7,7 @@ import DocumentsHeader from "./DocumentsHeader";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import type { Document } from "@/types/document";
 
 interface DocumentsContainerProps {
@@ -18,6 +19,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
+  const [isCreatingDocument, setIsCreatingDocument] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,7 +49,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
         throw error;
       }
 
-      console.log("Documents fetched successfully:", data);
+      console.log("Documents fetched successfully:", data?.length || 0);
       return data as Document[];
     },
     retry: 1,
@@ -79,39 +81,45 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   const createDocument = useMutation({
     mutationFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session) {
-        throw new Error("Authentication required");
-      }
-
-      console.log("Creating new document");
-      const { data, error } = await supabase
-        .from("documents")
-        .insert({
-          title: "Untitled Document",
-          content: { type: "doc", html: "", text: "" },
-          user_id: session.session.user.id,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error creating document:", error);
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
+      setIsCreatingDocument(true);
       
-      console.log("New document created:", data);
-      return data as Document;
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session?.session) {
+          throw new Error("Authentication required");
+        }
+
+        console.log("Creating new document");
+        const { data, error } = await supabase
+          .from("documents")
+          .insert({
+            title: "Untitled Document",
+            content: { type: "doc", html: "", text: "" },
+            user_id: session.session.user.id,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error creating document:", error);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+          throw error;
+        }
+        
+        console.log("New document created:", data);
+        return data as Document;
+      } finally {
+        setIsCreatingDocument(false);
+      }
     },
     onSuccess: (newDoc) => {
       console.log("Document created successfully, selecting document ID:", newDoc.id);
-      setSelectedDocId(newDoc.id);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
+      setSelectedDocId(newDoc.id);
       toast({
         title: "Success",
         description: "New document created",
@@ -130,11 +138,11 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   // Auto-create document if requested and not already done
   useEffect(() => {
-    if (autoCreateDocument && !documentCreated && !createDocument.isPending && !isLoading) {
+    if (autoCreateDocument && !documentCreated && !isCreatingDocument && !createDocument.isPending && !isLoading) {
       console.log("Auto-creating document");
       handleNewDocument();
     }
-  }, [autoCreateDocument, documentCreated, createDocument.isPending, isLoading]);
+  }, [autoCreateDocument, documentCreated, createDocument.isPending, isLoading, isCreatingDocument]);
 
   const handleNewDocument = () => {
     createDocument.mutate();
@@ -159,7 +167,7 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
       
       <div className="flex flex-1 overflow-hidden">
         <DocumentsSidebar 
-          documents={documents}
+          documents={documents || []}
           isLoading={isLoading}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -168,14 +176,23 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           selectedDocId={selectedDocId}
           setSelectedDocId={setSelectedDocId}
           handleNewDocument={handleNewDocument}
-          createDocumentPending={createDocument.isPending}
+          createDocumentPending={createDocument.isPending || isCreatingDocument}
         />
 
         <div className="flex-1 h-full overflow-hidden bg-white"> 
-          <DocumentEditor 
-            documentId={selectedDocId} 
-            key={selectedDocId}
-          />
+          {createDocument.isPending || isCreatingDocument ? (
+            <div className="h-full flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <Spinner className="h-8 w-8 text-primary" />
+                <p>Creating new document...</p>
+              </div>
+            </div>
+          ) : (
+            <DocumentEditor 
+              documentId={selectedDocId} 
+              key={selectedDocId}
+            />
+          )}
         </div>
       </div>
     </div>

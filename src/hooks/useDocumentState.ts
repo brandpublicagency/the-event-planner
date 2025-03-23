@@ -9,26 +9,16 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
   const [isSaving, setIsSaving] = useState(false);
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
   const [contentSet, setContentSet] = useState(false);
+  const [editorReady, setEditorReady] = useState(false);
 
-  // Load initial document content
+  // Track when the editor is ready for content
   useEffect(() => {
-    if (!editor || !document?.content || editor.isDestroyed || contentSet) return;
-
-    console.log("Loading document content:", document.content);
-
-    // Only set content if it hasn't been set yet
-    if (isDocumentContent(document.content)) {
-      try {
-        // Set document content only once when it's first loaded
-        editor.commands.setContent(document.content.html || '');
-        setContentSet(true);
-      } catch (err) {
-        console.error("Error setting document content:", err);
-      }
+    if (editor && !editor.isDestroyed) {
+      setEditorReady(true);
     } else {
-      console.warn("Invalid document content format:", document.content);
+      setEditorReady(false);
     }
-  }, [document?.content, editor, contentSet]);
+  }, [editor]);
 
   // Reset contentSet when document changes
   useEffect(() => {
@@ -36,6 +26,25 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
       setContentSet(false);
     }
   }, [documentId]);
+
+  // Load initial document content
+  useEffect(() => {
+    if (!editorReady || !document?.content || contentSet) return;
+
+    console.log("Loading document content:", document.content);
+
+    try {
+      if (isDocumentContent(document.content)) {
+        console.log("Setting editor content to:", document.content.html?.substring(0, 100));
+        editor?.commands.setContent(document.content.html || '');
+        setContentSet(true);
+      } else {
+        console.warn("Invalid document content format:", document.content);
+      }
+    } catch (err) {
+      console.error("Error setting document content:", err);
+    }
+  }, [document, editorReady, editor, contentSet]);
 
   const saveDocument = async ({ showToast = true } = {}) => {
     if (!editor || !documentId) {
@@ -73,6 +82,7 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     isLoading,
     error,
     saveDocument,
-    isSaving
+    isSaving,
+    contentSet
   };
 }

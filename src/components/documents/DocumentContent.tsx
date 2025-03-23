@@ -1,7 +1,8 @@
 
 import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -9,7 +10,27 @@ interface DocumentContentProps {
 
 export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   ({ editor }, ref) => {
-    if (!editor) return null;
+    // Force editor focus when it becomes available
+    useEffect(() => {
+      if (editor && !editor.isDestroyed) {
+        setTimeout(() => {
+          editor.commands.focus('end');
+        }, 100);
+      }
+    }, [editor]);
+
+    if (!editor) {
+      return (
+        <div className="flex flex-col h-full gap-4">
+          <div className="h-10 w-full">
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="flex-1 rounded-lg border h-full overflow-y-auto">
+            <Skeleton className="h-full w-full" />
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="flex flex-col h-full">

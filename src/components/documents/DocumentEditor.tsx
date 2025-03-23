@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { DocumentActions } from "./DocumentActions";
 import type { Category } from "@/types/category";
 import { isDocumentContent } from "@/types/document";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -25,9 +26,9 @@ export default function DocumentEditor({
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   
-  // Use useMemo to create the editor instance once
+  // Create editor with useMemo to prevent recreation on rerenders
   const editor = useEditor({
-    extensions: getEditorExtensions(),
+    extensions: useMemo(() => getEditorExtensions(), []),
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none'
@@ -106,9 +107,18 @@ export default function DocumentEditor({
       </div>;
   }
 
-  if (!isAuthenticated || isLoading) {
+  if (!isAuthenticated) {
     return <div className="h-full flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground">Authentication required to view documents</p>
+      </div>;
+  }
+
+  if (isLoading) {
+    return <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner className="h-8 w-8 text-primary" />
+          <p className="text-muted-foreground">Loading document...</p>
+        </div>
       </div>;
   }
 

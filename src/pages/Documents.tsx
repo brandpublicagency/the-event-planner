@@ -11,15 +11,17 @@ export default function Documents() {
   // Clear the newDocument parameter after it's been processed
   useEffect(() => {
     if (newDocument === "true") {
-      // Remove the newDocument parameter after a short delay
+      // Remove the newDocument parameter after a delay
       // This allows DocumentsContainer to process it first
       const timeoutId = setTimeout(() => {
         navigate('/documents', { replace: true });
-      }, 1000);
+      }, 2000); // Increased timeout to ensure DocumentsContainer has time to process
       
       return () => clearTimeout(timeoutId);
     }
   }, [newDocument, navigate]);
   
-  return <DocumentsContainer autoCreateDocument={newDocument === "true"} />;
+  return (
+    <DocumentsContainer autoCreateDocument={newDocument === "true"} />
+  );
 }
