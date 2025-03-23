@@ -1,9 +1,7 @@
-
 import React, { memo } from 'react';
 import { Notification } from '@/types/notification';
 import { NotificationActions } from './NotificationActions';
 import { formatDistanceToNow } from 'date-fns';
-
 interface NotificationItemProps {
   notification: Notification;
   onView: (notification: Notification, e: React.MouseEvent) => void;
@@ -17,15 +15,11 @@ export const NotificationItem = memo(({
   onComplete
 }: NotificationItemProps) => {
   // Format relative time (e.g., "2 hours ago")
-  const formattedTime = formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true });
-  
-  return (
-    <div 
-      className={`flex gap-3 p-3 hover:bg-zinc-50 transition-colors ${
-        !notification.read ? 'bg-gray-50' : ''
-      }`}
-    >
-      <div className="flex-1 min-w-0">
+  const formattedTime = formatDistanceToNow(new Date(notification.createdAt), {
+    addSuffix: true
+  });
+  return <div className="rounded-md bg-white">
+      <div className="px-[10px] py-[10px] mx-[10px] my-[10px] bg-white">
         <div className="flex flex-col mb-1">
           <h4 className={`text-sm font-medium ${!notification.read ? 'text-zinc-900' : 'text-zinc-600'}`}>
             {notification.title}
@@ -37,15 +31,10 @@ export const NotificationItem = memo(({
         
         <div className="flex items-center justify-between">
           <span className="text-xs text-zinc-400">{formattedTime}</span>
-          <NotificationActions 
-            notification={notification}
-            onView={onView}
-            onComplete={onComplete}
-          />
+          <NotificationActions notification={notification} onView={onView} onComplete={onComplete} />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 });
 
 // Add display name for React DevTools
