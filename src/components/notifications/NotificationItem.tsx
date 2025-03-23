@@ -25,7 +25,7 @@ export const NotificationItem = memo(({
     const iconProps = { className: 'h-4 w-4 flex-shrink-0' };
     
     if (notification.type.includes('event')) {
-      return <Calendar {...iconProps} className={`${iconProps.className} text-purple-500`} />;
+      return <Calendar {...iconProps} className={`${iconProps.className} text-primary-500`} />;
     } else if (notification.type.includes('task')) {
       return <CheckSquare {...iconProps} className={`${iconProps.className} text-blue-500`} />;
     } else if (notification.type.includes('document')) {
@@ -34,13 +34,13 @@ export const NotificationItem = memo(({
       return <Clock {...iconProps} className={`${iconProps.className} text-green-500`} />;
     }
     
-    return <Bell {...iconProps} className={`${iconProps.className} text-gray-500`} />;
+    return <Bell {...iconProps} className={`${iconProps.className} text-zinc-500`} />;
   };
   
   return (
     <div 
       className={`flex gap-3 p-3 hover:bg-zinc-50 transition-colors ${
-        !notification.read ? 'border-l-2 border-l-primary' : ''
+        !notification.read ? 'bg-gray-50' : ''
       }`}
     >
       <div className={`rounded-full p-1.5 flex items-center justify-center mt-0.5 bg-zinc-100`}>
