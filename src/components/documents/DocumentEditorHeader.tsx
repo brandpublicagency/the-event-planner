@@ -1,5 +1,4 @@
-
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DocumentActions } from "./DocumentActions";
@@ -73,7 +72,7 @@ export function DocumentEditorHeader({
         <Button 
           onClick={handleSave} 
           disabled={isSaving} 
-          className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-white border border-zinc-300"
+          className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-zinc-900 text-white hover:bg-zinc-700"
         >
           {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
           {isSaving ? 'Saving...' : 'Save'}
@@ -90,6 +89,3 @@ export function DocumentEditorHeader({
     </div>
   );
 }
-
-// Fix the missing import for Save icon
-import { Save } from "lucide-react";
