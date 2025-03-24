@@ -20,7 +20,7 @@ export const NotificationsList = ({
     return <EmptyNotifications />;
   }
   return <div className="px-0 py-0 mx-0 my-0 rounded-md bg-[#00000e]/0">
-      <div className="divide-y divide-gray-100 p-2 px-0 py-0 bg-white/0">
+      <div className="bg-transparent">
         <AnimatePresence initial={false}>
           {notifications.map(notification => <motion.div key={notification.id} initial={{
           opacity: 0,
