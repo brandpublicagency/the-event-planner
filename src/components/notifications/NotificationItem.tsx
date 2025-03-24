@@ -1,7 +1,9 @@
+
 import React, { memo } from 'react';
 import { Notification } from '@/types/notification';
 import { NotificationActions } from './NotificationActions';
 import { formatDistanceToNow } from 'date-fns';
+
 interface NotificationItemProps {
   notification: Notification;
   onView: (notification: Notification, e: React.MouseEvent) => void;
@@ -18,8 +20,10 @@ export const NotificationItem = memo(({
   const formattedTime = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true
   });
-  return <div className="rounded-md bg-white">
-      <div className="px-[10px] py-[10px] bg-white mx-0 my-0 rounded-md">
+  
+  return (
+    <div className="rounded-md bg-white">
+      <div className="px-2.5 py-2 bg-white mx-0 my-0 rounded-md">
         <div className="flex flex-col mb-1">
           <h4 className={`text-sm font-medium ${!notification.read ? 'text-zinc-900' : 'text-zinc-600'}`}>
             {notification.title}
@@ -34,7 +38,8 @@ export const NotificationItem = memo(({
           <NotificationActions notification={notification} onView={onView} onComplete={onComplete} />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 });
 
 // Add display name for React DevTools

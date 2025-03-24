@@ -25,18 +25,18 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   );
   
   return (
-    <div className="flex space-x-1">
+    <div className="flex items-center gap-1">
       <FileActionButton
         icon={Eye}
         onClick={(e) => onView(notification, e)}
-        className="h-6 w-6"
+        className="h-5 w-5"
       />
       
       {showCompleteButton && (
         <FileActionButton
           icon={CheckSquare}
           onClick={(e) => onComplete(notification, e)}
-          className="h-6 w-6"
+          className="h-5 w-5"
         />
       )}
     </div>

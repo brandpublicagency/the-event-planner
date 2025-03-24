@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   DropdownMenuSeparator,
@@ -27,7 +26,6 @@ export function NotificationDropdown() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dropdownInitialized, setDropdownInitialized] = useState(false);
 
-  // Refresh when dropdown is opened, with debounce
   useEffect(() => {
     if (!dropdownInitialized) {
       setDropdownInitialized(true);
@@ -38,7 +36,6 @@ export function NotificationDropdown() {
     }
   }, [refreshNotifications, dropdownInitialized]);
 
-  // Handle manual refresh
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     refreshNotifications()
@@ -50,16 +47,12 @@ export function NotificationDropdown() {
       });
   }, [refreshNotifications]);
 
-  // Use a limited number of notifications to prevent performance issues
   const limitedNotifications = notifications.slice(0, 5);
 
-  // Handle viewing a notification
   const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
     try {
-      // Mark as read
       await markAsRead(id);
       
-      // Navigate based on the notification type
       if (relatedId) {
         if (relatedId.startsWith('EVENT-')) {
           navigate(`/events/${relatedId}`);
@@ -77,7 +70,6 @@ export function NotificationDropdown() {
     }
   }, [markAsRead, navigate]);
 
-  // Handle completing a task
   const handleCompleteTask = useCallback(async (id: string) => {
     try {
       await markAsCompleted(id);
@@ -88,12 +80,10 @@ export function NotificationDropdown() {
     }
   }, [markAsCompleted]);
 
-  // Handle viewing all notifications
   const handleViewAll = useCallback(() => {
     navigate('/notifications');
   }, [navigate]);
 
-  // Handle marking all as read
   const handleMarkAllAsRead = useCallback(async () => {
     try {
       await markAllAsRead();
@@ -106,7 +96,7 @@ export function NotificationDropdown() {
 
   return (
     <div className="w-full min-w-[320px]">
-      <div className="flex items-center justify-between p-3 border-b">
+      <div className="flex items-center justify-between p-2 border-b">
         <div className="flex flex-col">
           <p className="text-sm font-medium text-zinc-900">Notifications</p>
           <p className="text-xs text-muted-foreground">
@@ -115,12 +105,12 @@ export function NotificationDropdown() {
               : 'All caught up!'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <Button
             onClick={handleMarkAllAsRead}
             variant="default"
             size="sm"
-            className="h-8 px-2 text-xs"
+            className="h-7 px-2 text-xs"
             disabled={!notifications.some(n => !n.read) || loading || isRefreshing}
           >
             Mark all read
@@ -129,10 +119,10 @@ export function NotificationDropdown() {
             onClick={handleRefresh}
             variant="default"
             size="sm"
-            className="h-8 w-8 p-0"
+            className="h-7 w-7 p-0"
             disabled={loading || isRefreshing}
           >
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            <RefreshCw className="h-3.5 w-3.5" />
             <span className="sr-only">Refresh</span>
           </Button>
         </div>
@@ -140,11 +130,11 @@ export function NotificationDropdown() {
       
       <ScrollArea className="h-[350px] w-full">
         {(loading && notifications.length === 0) || isRefreshing ? (
-          <div className="p-3 space-y-3">
+          <div className="p-2 space-y-2">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="flex items-start gap-3 p-2">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="space-y-2 flex-1">
+              <div key={index} className="flex items-start gap-2 p-2">
+                <Skeleton className="h-7 w-7 rounded-full" />
+                <div className="space-y-1.5 flex-1">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-full" />
                 </div>
@@ -152,7 +142,7 @@ export function NotificationDropdown() {
             ))}
           </div>
         ) : error ? (
-          <div className="p-4 text-center">
+          <div className="p-3 text-center">
             <p className="text-sm text-red-500 mb-2">Failed to load notifications</p>
             <Button 
               variant="default" 
@@ -170,7 +160,7 @@ export function NotificationDropdown() {
             onCompleteTask={handleCompleteTask}
           />
         ) : (
-          <div className="p-4 text-center">
+          <div className="p-3 text-center">
             <p className="text-sm text-zinc-500">No notifications to display</p>
             <Button
               variant="default"
@@ -188,7 +178,7 @@ export function NotificationDropdown() {
       <div className="p-2">
         <Button
           onClick={handleViewAll}
-          className="w-full flex items-center gap-2 justify-center"
+          className="w-full flex items-center gap-2 justify-center h-8"
           variant="default"
           size="sm"
         >
