@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Trash2, MoreVertical } from "lucide-react";
+import { Loader2, Trash2, Delete } from "lucide-react";
 
 interface DocumentDeleteDialogProps {
   isOpen?: boolean;
@@ -83,7 +83,7 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
-              <Trash2 className="h-4 w-4" />
+              <Delete className="h-4 w-4" />
             </Button>
           ) : (
             <Button
@@ -91,7 +91,7 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
               size="icon"
               className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 ml-auto"
             >
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              <Delete className="h-4 w-4 text-muted-foreground" />
             </Button>
           )}
         </AlertDialogTrigger>
