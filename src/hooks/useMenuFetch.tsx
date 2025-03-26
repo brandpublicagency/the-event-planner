@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getMenuSelection } from "@/services/menuService";
 import { MenuState, MenuSelectionResponse } from './menuStateTypes';
 import { transformApiToMenuState } from "@/utils/menu/menuStateTransformers";
+import { toast } from "sonner";
 
 export const useMenuFetch = (eventCode: string) => {
   const [menuState, setMenuState] = useState<MenuState>({
@@ -36,45 +37,68 @@ export const useMenuFetch = (eventCode: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastSavedState, setLastSavedState] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
 
-  useEffect(() => {
-    const fetchMenuSelections = async () => {
-      if (!eventCode) {
-        setError('Event code is required');
-        setIsLoading(false);
-        return;
-      }
+  const fetchMenuSelections = useCallback(async (forceRefresh = false) => {
+    if (!eventCode) {
+      setError('Event code is required');
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        setIsLoading(true);
-        setError(null);
+    // Prevent rapid consecutive fetches (within 2 seconds)
+    const now = Date.now();
+    if (!forceRefresh && (now - lastFetchTime < 2000)) {
+      console.log('Skipping fetch - too soon after previous fetch');
+      return;
+    }
 
-        console.log(`Fetching menu selections for event: ${eventCode}`);
-        const data = await getMenuSelection(eventCode);
+    try {
+      setIsLoading(true);
+      setError(null);
+      setLastFetchTime(now);
 
-        if (data) {
-          console.log('Menu data loaded:', data);
-          const menuData = data as unknown as MenuSelectionResponse;
-          
-          const transformedState = transformApiToMenuState(menuData);
-          setMenuState(transformedState);
-          
-          setLastSavedState(JSON.stringify(menuData));
-        } else {
-          console.log('No existing menu data found for this event. Using defaults.');
-        }
+      console.log(`Fetching menu selections for event: ${eventCode}`);
+      const data = await getMenuSelection(eventCode);
+
+      if (data) {
+        console.log('Menu data loaded:', data);
+        const menuData = data as unknown as MenuSelectionResponse;
         
-        setIsInitialized(true);
-      } catch (err: any) {
-        console.error('Error fetching menu selections:', err);
-        setError('Failed to load menu selections. Please try refreshing the page.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        const transformedState = transformApiToMenuState(menuData);
+        console.log('Transformed menu state:', {
+          starter: transformedState.selectedStarterType,
+          canapes: transformedState.selectedCanapes,
+          mainCourse: transformedState.mainCourseType
+        });
+        
+        setMenuState(transformedState);
+        setLastSavedState(JSON.stringify(menuData));
 
+        // Optional: Show a toast when data is refreshed, only if forcing a refresh
+        if (forceRefresh) {
+          toast.success('Menu data refreshed');
+        }
+      } else {
+        console.log('No existing menu data found for this event. Using defaults.');
+      }
+      
+      setIsInitialized(true);
+    } catch (err: any) {
+      console.error('Error fetching menu selections:', err);
+      setError('Failed to load menu selections. Please try refreshing the page.');
+      if (forceRefresh) {
+        toast.error('Failed to refresh menu data');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventCode, lastFetchTime]);
+
+  // Initial data fetch
+  useEffect(() => {
     fetchMenuSelections();
-  }, [eventCode]);
+  }, [fetchMenuSelections]);
 
   return {
     menuState,
@@ -84,5 +108,6 @@ export const useMenuFetch = (eventCode: string) => {
     isInitialized,
     lastSavedState,
     setLastSavedState,
+    refreshMenu: (force = true) => fetchMenuSelections(force),
   };
 };

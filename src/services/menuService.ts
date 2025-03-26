@@ -26,7 +26,12 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         console.log(`Processing array field ${key}:`, value);
         
         // Ensure all items in the array are valid
-        const filtered = value.filter(item => item !== null && item !== undefined && typeof item === 'string' && item.trim() !== '');
+        const filtered = value.filter(item => 
+          item !== null && 
+          item !== undefined && 
+          typeof item === 'string' && 
+          item.trim() !== ''
+        );
         
         console.log(`After filtering ${key}:`, filtered);
         // Use type assertion to avoid TypeScript error
@@ -80,14 +85,48 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         .from('menu_selections')
         .select('*')
         .eq('event_code', eventCode)
-        .single();
+        .maybeSingle();
       
       if (verifyError) {
         console.error('Error verifying saved data:', verifyError);
-      } else {
+        throw new Error(`Verification failed: ${verifyError.message}`);
+      } 
+      
+      // Verify critical fields match what was intended
+      if (verifyData) {
         console.log('Verified saved data:', verifyData);
+        
+        // Check regular fields 
+        const criticalFields = ['is_custom', 'starter_type', 'main_course_type', 'dessert_type'];
+        for (const field of criticalFields) {
+          if (verifyData[field] !== processedUpdates[field as keyof SaveMenuData]) {
+            console.error(`Verification failed for ${field}:`, {
+              expected: processedUpdates[field as keyof SaveMenuData],
+              actual: verifyData[field]
+            });
+          }
+        }
+        
+        // Check array lengths for critical arrays
+        const arrayFields = ['canape_selections', 'buffet_meat_selections', 'karoo_starch_selection'];
+        for (const field of arrayFields) {
+          const expectedArray = (processedUpdates as any)[field];
+          const actualArray = verifyData[field];
+          
+          if (Array.isArray(expectedArray) && 
+              (!Array.isArray(actualArray) || 
+               actualArray.length !== expectedArray.length)) {
+            console.error(`Array verification failed for ${field}:`, {
+              expectedLength: expectedArray?.length || 0,
+              actualLength: actualArray?.length || 0,
+              expected: expectedArray,
+              actual: actualArray
+            });
+          }
+        }
       }
       
+      console.log('Save verification completed successfully');
       return data || { success: true };
     }, 3, 1000); // 3 retries with 1s base delay
     

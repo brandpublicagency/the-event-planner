@@ -6,6 +6,8 @@ import { useMenuPlanner } from './hooks/useMenuPlanner';
 import MenuPlannerLoading from './MenuPlannerLoading';
 import MenuPlannerError from './MenuPlannerError';
 import MenuPlannerContent from './MenuPlannerContent';
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface WeddingMenuPlannerProps {
@@ -32,15 +34,18 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     isLoading,
     isSaving,
     isInitialized,
+    hasUnsavedChanges,
     handleMenuStateChange,
     handleCanapeSelection,
-    saveMenuSelections: saveMenu
+    saveMenuSelections: saveMenu,
+    refreshMenu
   } = useMenuState(eventCode);
   
   // Define all React hooks before any conditional logic
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [saveRegistered, setSaveRegistered] = useState(false);
   const [registerAttempts, setRegisterAttempts] = useState(0);
+  const [isManualSaving, setIsManualSaving] = useState(false);
   
   const {
     loadingProgress,
@@ -116,20 +121,6 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     }
   }, [isInitialized, isLoading, saveMenu, saveMenuSelections, saveRegistered, registerAttempts, registerSaveFunction]);
 
-  // Debug logging for important state
-  useEffect(() => {
-    console.log('WeddingMenuPlanner component state:', {
-      eventCode,
-      isInitialized,
-      isLoading,
-      saveRegistered,
-      registerAttempts,
-      hasMenuState: !!menuState,
-      hasSaveMenuFunction: !!saveMenu,
-      hasSaveMenuSelectionsProps: !!saveMenuSelections
-    });
-  }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections, registerAttempts]);
-
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {
     if (isCustomMenu !== undefined && isCustomMenu !== menuState.isCustomMenu && !isInternalUpdate) {
@@ -147,6 +138,35 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     }
   }, [menuState.isCustomMenu, onCustomMenuToggle, isInternalUpdate, setIsInternalUpdate]);
 
+  // Periodically refresh data to ensure synchronized state
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      if (isInitialized && !isLoading && !isSaving && !isManualSaving) {
+        console.log('Performing background menu refresh');
+        refreshMenu(false);
+      }
+    }, 60000); // Refresh every minute if no active operations
+    
+    return () => clearInterval(refreshInterval);
+  }, [isInitialized, isLoading, isSaving, isManualSaving, refreshMenu]);
+
+  // Manual save handler with improved feedback
+  const handleManualSave = async () => {
+    if (isManualSaving) return;
+    
+    setIsManualSaving(true);
+    try {
+      console.log('Manual save initiated');
+      await saveMenu();
+      toast.success('Menu saved successfully');
+    } catch (error: any) {
+      console.error('Manual save failed:', error);
+      toast.error(`Save failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsManualSaving(false);
+    }
+  };
+
   // Handle loading state
   if (isLoading) {
     return <MenuPlannerLoading loadingProgress={loadingProgress} />;
@@ -159,13 +179,32 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
 
   // Render main content when data is loaded
   return (
-    <MenuPlannerContent
-      menuState={menuState}
-      isSaving={isSaving}
-      onMenuStateChange={handleMenuStateChange}
-      onCanapeSelection={handleCanapeSelection}
-      handleInternalCustomMenuToggle={handleInternalCustomMenuToggle}
-    />
+    <div className="relative">
+      <MenuPlannerContent
+        menuState={menuState}
+        isSaving={isSaving || isManualSaving}
+        onMenuStateChange={handleMenuStateChange}
+        onCanapeSelection={handleCanapeSelection}
+        handleInternalCustomMenuToggle={handleInternalCustomMenuToggle}
+      />
+      
+      <div className="mt-6 flex justify-end">
+        <Button
+          onClick={handleManualSave}
+          disabled={isSaving || isManualSaving}
+          className="min-w-[120px]"
+        >
+          {isManualSaving ? (
+            <span className="flex items-center">
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              <span>Saving...</span>
+            </span>
+          ) : (
+            <span>Save Menu</span>
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };
 

@@ -66,7 +66,12 @@ export const transformMenuStateToApi = (
   const prepareArray = (arr: string[] | undefined | null): string[] => {
     if (!arr) return [];
     // Create a new array with all non-empty values
-    return [...arr].filter(item => item && item.trim && item.trim() !== '');
+    return [...arr].filter(item => 
+      item !== null && 
+      item !== undefined && 
+      typeof item === 'string' && 
+      item.trim() !== ''
+    );
   };
 
   // Make a fresh object to avoid reference issues
@@ -105,6 +110,7 @@ export const transformMenuStateToApi = (
     starter_type: apiData.starter_type,
     canape_package: apiData.canape_package,
     canape_selections: apiData.canape_selections,
+    canape_selections_length: apiData.canape_selections?.length,
     main_course_type: apiData.main_course_type
   });
 

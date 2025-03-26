@@ -1,8 +1,10 @@
 
+import { useCallback } from 'react';
 import { useMenuFetch } from './useMenuFetch';
 import { useMenuSave } from './useMenuSave';
 import { useMenuUpdater } from './useMenuUpdater';
 import { useMenuChangeDetection } from './useMenuChangeDetection';
+import { toast } from "sonner";
 
 export const useMenuState = (eventCode: string) => {
   // Use smaller, focused hooks
@@ -13,7 +15,8 @@ export const useMenuState = (eventCode: string) => {
     isLoading,
     isInitialized,
     lastSavedState,
-    setLastSavedState
+    setLastSavedState,
+    refreshMenu
   } = useMenuFetch(eventCode);
 
   const {
@@ -30,6 +33,25 @@ export const useMenuState = (eventCode: string) => {
   const {
     hasUnsavedChanges
   } = useMenuChangeDetection(eventCode, menuState, lastSavedState);
+  
+  // Wrapper for save with explicit feedback
+  const saveMenu = useCallback(async () => {
+    try {
+      console.log('Manually saving menu...');
+      await saveMenuSelections();
+      
+      // Force a refresh after saving to ensure the UI displays the latest data
+      setTimeout(() => {
+        refreshMenu(true);
+      }, 500);
+      
+      return true;
+    } catch (error: any) {
+      console.error('Failed to save menu:', error);
+      toast.error(`Save failed: ${error.message || 'Unknown error'}`);
+      return false;
+    }
+  }, [saveMenuSelections, refreshMenu]);
 
   return {
     menuState,
@@ -41,6 +63,7 @@ export const useMenuState = (eventCode: string) => {
     handleMenuStateChange,
     handleCustomMenuToggle,
     handleCanapeSelection,
-    saveMenuSelections,
+    saveMenuSelections: saveMenu,
+    refreshMenu,
   };
 };
