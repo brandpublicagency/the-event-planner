@@ -6,9 +6,11 @@ import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { PrintMenu } from '../menu/PrintMenu';
-import PrintKitchenMenu from '../menu/kitchen/PrintKitchenMenu';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventInfoProps {
   event: Event;
@@ -32,6 +34,8 @@ export const EventInfo = ({
     return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
   };
 
+  const { toast } = useToast();
+
   const startTime = formatTimeDisplay(event.start_time);
   const endTime = formatTimeDisplay(event.end_time);
   const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
@@ -44,6 +48,20 @@ export const EventInfo = ({
     if (onCustomMenuToggle) {
       onCustomMenuToggle(checked);
     }
+  };
+
+  const handlePrint = () => {
+    if (!menuState) {
+      toast({
+        title: "Cannot print menu",
+        description: "Menu information is not available",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Open print dialog
+    window.print();
   };
 
   return (
@@ -73,10 +91,15 @@ export const EventInfo = ({
           )}
           
           {menuState && (
-            <div className="flex space-x-2">
-              <PrintMenu event={event} menuState={menuState} />
-              <PrintKitchenMenu event={event} menuState={menuState} />
-            </div>
+            <Button 
+              onClick={handlePrint}
+              className="rounded-full" 
+              variant="outline"
+              size="sm"
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              Print Menu
+            </Button>
           )}
         </div>
       </div>
