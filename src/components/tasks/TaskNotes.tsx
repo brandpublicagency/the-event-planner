@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { Button } from "@/components/ui/button";
@@ -65,9 +66,10 @@ export function TaskNotes({ taskId }: TaskNotesProps) {
           onClick={handleAddNote} 
           disabled={!newNote.trim()}
           size="icon"
-          className="h-8 w-8 rounded-full"
+          variant="outline"
+          className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 text-zinc-700" />
         </Button>
       </div>
       
@@ -77,12 +79,12 @@ export function TaskNotes({ taskId }: TaskNotesProps) {
             <div key={index} className="flex items-start justify-between gap-2 py-2 border-b last:border-b-0">
               <p className="text-sm flex-1 whitespace-pre-line">{note}</p>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="h-8 w-8 shrink-0"
+                className="h-8 w-8 shrink-0 bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
                 onClick={() => handleRemoveNote(index)}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4 text-zinc-700" />
               </Button>
             </div>
           ))

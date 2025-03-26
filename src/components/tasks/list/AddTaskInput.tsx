@@ -1,27 +1,49 @@
-import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
-import { RefObject } from "react";
+import { useRef } from "react";
+
 interface AddTaskInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
-  inputRef?: RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
-export function AddTaskInput({
-  value,
-  onChange,
+
+export function AddTaskInput({ 
+  value, 
+  onChange, 
   onSubmit,
-  inputRef
+  inputRef,
 }: AddTaskInputProps) {
-  return <div className="flex items-center gap-2 mt-2">
-      <Input placeholder="Add a new task..." value={value} onChange={e => onChange(e.target.value)} onKeyDown={e => {
-      if (e.key === "Enter") {
-        onSubmit();
-      }
-    }} className="h-9" ref={inputRef} />
-      <Button size="sm" onClick={onSubmit} disabled={!value.trim()} className="h-9 text-xs font-normal bg-zinc-50 text-zinc-600">
-        <Plus className="h-4 w-4" />
+  const defaultRef = useRef<HTMLInputElement>(null);
+  const ref = inputRef || defaultRef;
+
+  return (
+    <div className="flex gap-2 items-center mt-2">
+      <Input
+        ref={ref}
+        placeholder="Add a task..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            onSubmit();
+          }
+        }}
+        className="text-sm"
+      />
+      <Button 
+        onClick={onSubmit} 
+        disabled={!value.trim()}
+        size="icon"
+        variant="outline"
+        className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+      >
+        <Plus className="h-4 w-4 text-zinc-700" />
       </Button>
-    </div>;
+    </div>
+  );
 }

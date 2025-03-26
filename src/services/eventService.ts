@@ -104,15 +104,18 @@ export const permanentlyDeleteEvent = async (eventCode) => {
       // Continue with event deletion even if menu deletion fails
     }
     
-    // Delete related event venues
-    const { error: venueError } = await supabase
-      .from('event_venues')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (venueError) {
-      console.error('Error deleting related event venues:', venueError);
-      // Continue with event deletion even if venue deletion fails
+    // Delete related event venues if the table exists
+    try {
+      const { error: venueError } = await supabase
+        .from('event_venues')
+        .delete()
+        .eq('event_code', eventCode);
+      
+      if (venueError) {
+        console.error('Error deleting related event venues:', venueError);
+      }
+    } catch (e) {
+      console.log('event_venues table may not exist, skipping:', e);
     }
     
     // Delete related event documents

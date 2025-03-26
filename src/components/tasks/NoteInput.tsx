@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
@@ -37,9 +38,10 @@ export function NoteInput({
         onClick={onSubmit} 
         disabled={!value.trim()}
         size="icon"
-        className="h-8 w-8 rounded-full"
+        variant="outline"
+        className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4 text-zinc-700" />
       </Button>
     </div>
   );

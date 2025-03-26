@@ -1,10 +1,11 @@
+
 import React from "react";
 import { EventCard } from "@/components/events/EventCard";
 import { DashboardEventItem } from "@/components/events/DashboardEventItem";
 import type { Event } from "@/types/event";
-import { permanentlyDeleteEvent } from "@/utils/eventUtils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteEvent, permanentlyDeleteEvent } from "@/utils/eventUtils";
 
 interface EventMonthGroupProps {
   monthYear: string;
@@ -42,12 +43,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
         const toastId = "soft-delete-event";
         toast.loading("Deleting event...", { id: toastId });
         
-        const { error } = await supabase
-          .from("events")
-          .update({ deleted_at: new Date().toISOString() })
-          .eq("event_code", eventCode);
-          
-        if (error) throw error;
+        await deleteEvent(eventCode);
         
         toast.success("Event deleted", { id: toastId });
       }

@@ -36,7 +36,7 @@ export function TaskCheckbox({ taskId, completed, onClick }: TaskCheckboxProps) 
         updateTaskMutation.mutate(checked as boolean);
       }}
       onClick={onClick}
-      className="transition-colors rounded-[3px]"
+      className="transition-colors rounded-[3px] border-zinc-300 bg-white data-[state=checked]:bg-zinc-800 data-[state=checked]:text-white"
     />
   );
 }

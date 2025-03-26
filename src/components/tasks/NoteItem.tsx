@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Pencil, X } from "lucide-react";
 import { NoteInput } from "./NoteInput";
@@ -33,12 +34,12 @@ export function NoteItem({
           autoFocus
         />
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-[60px] w-[60px] rounded-full"
+          className="h-[60px] w-[60px] rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
           onClick={onEditCancel}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 text-zinc-700" />
         </Button>
       </div>
     );
@@ -49,20 +50,20 @@ export function NoteItem({
       <span className="text-sm whitespace-pre-line">{note}</span>
       <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
           onClick={onEditStart}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-4 w-4 text-zinc-700" />
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
           onClick={onDelete}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 text-zinc-700" />
         </Button>
       </div>
     </div>
