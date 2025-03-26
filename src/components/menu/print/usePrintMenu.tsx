@@ -40,7 +40,7 @@ export const usePrintMenu = (event: Event) => {
       });
     },
     contentRef: componentRef,
-    removeAfterPrint: false,
+    // removeAfterPrint: false, // This property doesn't exist in the type definition
     pageStyle: `
       @page {
         size: A4;

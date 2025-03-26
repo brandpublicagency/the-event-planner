@@ -43,6 +43,7 @@ const NewEvent = () => {
   const handleSubmit = async (data: EventFormData) => {
     try {
       setIsSubmitting(true);
+      console.log("Submitting form data:", data);
       
       const eventCode = await createNewEvent(data);
       

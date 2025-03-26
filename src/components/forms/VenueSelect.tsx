@@ -63,17 +63,17 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
   useEffect(() => {
     const currentVenues = form.getValues("venues");
     
-    if (currentVenues === null) {
-      // Initialize with empty array if null
-      form.setValue("venues", [], { shouldValidate: true });
-      console.log("Initialized venues from null to empty array");
+    if (!currentVenues) {
+      // Initialize with empty array if undefined or null
+      form.setValue("venues", [], { shouldValidate: false });
+      console.log("Initialized venues to empty array");
     } else if (typeof currentVenues === 'string') {
       // Convert string to array with the string as its element
-      form.setValue("venues", [currentVenues], { shouldValidate: true });
+      form.setValue("venues", [currentVenues], { shouldValidate: false });
       console.log("Converted venues from string to array:", [currentVenues]);
     } else if (!Array.isArray(currentVenues)) {
       // Initialize with empty array for any other non-array value
-      form.setValue("venues", [], { shouldValidate: true });
+      form.setValue("venues", [], { shouldValidate: false });
       console.log("Initialized venues to empty array from:", currentVenues);
     } else {
       console.log("Initial venues from database:", currentVenues);
