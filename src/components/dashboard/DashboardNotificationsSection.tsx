@@ -8,6 +8,7 @@ import { AlertCircle, RefreshCw, Bell, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+
 const DashboardNotificationsSection = () => {
   const navigate = useNavigate();
   const {
@@ -21,6 +22,7 @@ const DashboardNotificationsSection = () => {
   } = useNotifications();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [initialLoadAttempted, setInitialLoadAttempted] = useState(false);
+
   useEffect(() => {
     if (!initialLoadAttempted) {
       setInitialLoadAttempted(true);
@@ -29,6 +31,7 @@ const DashboardNotificationsSection = () => {
       });
     }
   }, [refreshNotifications, initialLoadAttempted]);
+
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     refreshNotifications().catch(err => {
@@ -37,6 +40,7 @@ const DashboardNotificationsSection = () => {
       setIsRefreshing(false);
     });
   }, [refreshNotifications]);
+
   const handleNotificationView = useCallback((id: string, relatedId?: string) => {
     markAsRead(id).then(() => {
       if (relatedId) {
@@ -51,12 +55,14 @@ const DashboardNotificationsSection = () => {
       toast("Could not mark notification as read");
     });
   }, [markAsRead, navigate]);
+
   const handleNotificationComplete = useCallback((id: string) => {
     markAsCompleted(id).catch(err => {
       console.error('Error marking notification as completed:', err);
       toast("Could not complete notification");
     });
   }, [markAsCompleted]);
+
   const handleMarkAllAsRead = useCallback(() => {
     markAllAsRead().then(() => {
       toast("All notifications marked as read");
@@ -65,6 +71,7 @@ const DashboardNotificationsSection = () => {
       toast("Could not mark all notifications as read");
     });
   }, [markAllAsRead]);
+
   if (error) {
     return <Alert variant="destructive" className="mt-2 mb-4">
         <AlertCircle className="h-4 w-4" />
@@ -77,9 +84,12 @@ const DashboardNotificationsSection = () => {
         </AlertDescription>
       </Alert>;
   }
+
   const limitedNotifications = notifications.slice(0, 3);
-  return <div className="flex flex-col">
-      <div className="<div class=\"flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[12px] mt-[15px]\">\n  <!-- Content here -->\n</div>">
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[12px] mt-[15px]">
         <div className="flex flex-col">
           <p className="text-lg font-medium text-gray-800">Notifications</p>
           <p className="text-xs text-muted-foreground">
@@ -98,18 +108,28 @@ const DashboardNotificationsSection = () => {
         </div>
       </div>
 
-      {loading && notifications.length === 0 || isRefreshing ? <div className="space-y-2 p-2 bg-white rounded-b-lg shadow-sm">
-          {Array.from({
-        length: 2
-      }).map((_, index) => <div key={index} className="flex items-start gap-2 p-2">
+      {loading && notifications.length === 0 || isRefreshing ? (
+        <div className="space-y-2 p-2 bg-white rounded-b-lg shadow-sm">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="flex items-start gap-2 p-2">
               <Skeleton className="h-7 w-7 rounded-full" />
               <div className="space-y-1.5 flex-1">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-5/6" />
               </div>
-            </div>)}
-        </div> : <div className="h-auto mx-0 px-0 py-0 my-2 rounded bg-[#000a0e]/0">
-          {limitedNotifications.length > 0 ? <NotificationsList notifications={limitedNotifications} onViewDetail={handleNotificationView} onCompleteTask={handleNotificationComplete} /> : <div className="bg-white shadow rounded-lg p-3 text-center">
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="h-auto mx-0 px-0 py-0 my-2 rounded bg-[#000a0e]/0">
+          {limitedNotifications.length > 0 ? (
+            <NotificationsList 
+              notifications={limitedNotifications} 
+              onViewDetail={handleNotificationView} 
+              onCompleteTask={handleNotificationComplete} 
+            />
+          ) : (
+            <div className="bg-white shadow rounded-lg p-3 text-center">
               <p className="text-sm text-zinc-500">
                 {loading ? "Loading notifications..." : "No notifications to display"}
               </p>
@@ -117,8 +137,12 @@ const DashboardNotificationsSection = () => {
                 <RefreshCw className="h-3 w-3 mr-1" />
                 Refresh
               </Button>
-            </div>}
-        </div>}
-    </div>;
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
+
 export default DashboardNotificationsSection;
