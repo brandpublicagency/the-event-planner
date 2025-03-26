@@ -19,8 +19,8 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
         result.type === 'document' ? 'bg-amber-500' : 
         'bg-purple-500'
       }`} />
-      <div>
-        <div className="text-sm font-medium">{result.title}</div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium truncate">{result.title}</div>
         <div className="text-xs text-muted-foreground capitalize">{result.type}</div>
       </div>
     </div>

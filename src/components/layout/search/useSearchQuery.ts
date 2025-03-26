@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parse, isValid } from "date-fns";
@@ -8,11 +7,22 @@ import { SearchResult } from "./types";
 export const useSearchQuery = (searchQuery: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const previousResultsRef = useRef<SearchResult[]>([]);
   const { toast } = useToast();
+  
+  useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setShowLoadingIndicator(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoadingIndicator(false);
+    }
+  }, [isLoading]);
 
-  // Parse date from search query
   const parseDateFromQuery = (query: string): Date | null => {
-    // Try different date formats
     const dateFormats = [
       'd MMMM', // 5 April
       'd MMM',  // 5 Apr
@@ -28,7 +38,6 @@ export const useSearchQuery = (searchQuery: string) => {
     
     for (const dateFormat of dateFormats) {
       try {
-        // Add the current year for proper parsing
         const dateWithYear = query.includes(String(year)) 
           ? query 
           : `${query} ${year}`;
@@ -43,7 +52,6 @@ export const useSearchQuery = (searchQuery: string) => {
           return parsedDate;
         }
       } catch (e) {
-        // Try next format if this one fails
         continue;
       }
     }
@@ -51,7 +59,6 @@ export const useSearchQuery = (searchQuery: string) => {
     return null;
   };
 
-  // Perform search when query changes
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (searchQuery.length < 2) {
@@ -62,14 +69,41 @@ export const useSearchQuery = (searchQuery: string) => {
       setIsLoading(true);
       
       try {
-        // Check if the search query might be a date
+        const previousResults = previousResultsRef.current;
+        
+        const eventCodeSearch = searchQuery.trim().toUpperCase();
+        
+        if (/^[A-Z]+-\d+-\d+$/.test(eventCodeSearch) || 
+            /^[A-Z]+-\d+$/.test(eventCodeSearch)) {
+          const { data: exactEvents, error: exactError } = await supabase
+            .from('events')
+            .select('event_code, name, event_type, event_date')
+            .eq('event_code', eventCodeSearch)
+            .is('deleted_at', null)
+            .limit(1);
+            
+          if (exactError) throw exactError;
+          
+          if (exactEvents && exactEvents.length > 0) {
+            const formattedExactEvents = exactEvents.map(event => ({
+              id: event.event_code,
+              title: `${event.name} (${event.event_code})`,
+              path: `/events/${event.event_code}`,
+              type: 'event' as const
+            }));
+            
+            setSearchResults(formattedExactEvents);
+            previousResultsRef.current = formattedExactEvents;
+            setIsLoading(false);
+            return;
+          }
+        }
+        
         const possibleDate = parseDateFromQuery(searchQuery);
         
         if (possibleDate && isValid(possibleDate)) {
-          // Format the date to ISO format for database query (YYYY-MM-DD)
           const formattedDate = format(possibleDate, 'yyyy-MM-dd');
           
-          // Fetch events by date
           const { data: dateEvents, error: dateError } = await supabase
             .from('events')
             .select('event_code, name, event_type, event_date')
@@ -79,7 +113,6 @@ export const useSearchQuery = (searchQuery: string) => {
             
           if (dateError) throw dateError;
           
-          // Format date search results
           const formattedDateEvents = dateEvents?.map(event => ({
             id: event.event_code,
             title: `${event.name} (${event.event_type})`,
@@ -87,14 +120,12 @@ export const useSearchQuery = (searchQuery: string) => {
             type: 'event' as const
           })) || [];
           
-          // If we found date results, return them directly
           if (formattedDateEvents.length > 0) {
             setSearchResults(formattedDateEvents);
             setIsLoading(false);
             return;
           } 
           
-          // If no events on that date, show a "no events" result
           if (possibleDate) {
             const displayDate = format(possibleDate, 'd MMMM yyyy');
             setSearchResults([{
@@ -108,19 +139,16 @@ export const useSearchQuery = (searchQuery: string) => {
           }
         }
         
-        // Continue with regular search if no date was found or no events on that date
-        // Fetch events
         const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('event_code, name, event_type, event_date')
-          .ilike('name', `%${searchQuery}%`)
+          .or(`name.ilike.%${searchQuery}%,event_code.ilike.%${searchQuery}%`)
           .is('deleted_at', null)
           .order('event_date', { ascending: true })
           .limit(5);
           
         if (eventsError) throw eventsError;
         
-        // Fetch contacts by primary name (bride or corporate contact)
         const { data: primaryContacts, error: primaryError } = await supabase
           .from('events')
           .select('event_code, name, primary_name')
@@ -130,7 +158,6 @@ export const useSearchQuery = (searchQuery: string) => {
           
         if (primaryError) throw primaryError;
         
-        // Fetch contacts by secondary name (groom)
         const { data: secondaryContacts, error: secondaryError } = await supabase
           .from('events')
           .select('event_code, name, secondary_name')
@@ -140,7 +167,6 @@ export const useSearchQuery = (searchQuery: string) => {
           
         if (secondaryError) throw secondaryError;
         
-        // Fetch contacts by company name
         const { data: companyContacts, error: companyError } = await supabase
           .from('events')
           .select('event_code, name, company')
@@ -150,7 +176,6 @@ export const useSearchQuery = (searchQuery: string) => {
           
         if (companyError) throw companyError;
         
-        // Fetch documents
         const { data: documents, error: documentsError } = await supabase
           .from('documents')
           .select('id, title')
@@ -160,7 +185,6 @@ export const useSearchQuery = (searchQuery: string) => {
           
         if (documentsError) throw documentsError;
         
-        // Fetch tasks
         const { data: tasks, error: tasksError } = await supabase
           .from('tasks')
           .select('id, title')
@@ -169,10 +193,9 @@ export const useSearchQuery = (searchQuery: string) => {
           
         if (tasksError) throw tasksError;
         
-        // Format all results
         const formattedEvents = events?.map(event => ({
           id: event.event_code,
-          title: event.name,
+          title: `${event.name} (${event.event_code})`,
           path: `/events/${event.event_code}`,
           type: 'event' as const
         })) || [];
@@ -212,7 +235,6 @@ export const useSearchQuery = (searchQuery: string) => {
           type: 'task' as const
         })) || [];
         
-        // Combine all results
         const combinedResults = [
           ...formattedEvents, 
           ...formattedPrimaryContacts,
@@ -223,6 +245,7 @@ export const useSearchQuery = (searchQuery: string) => {
         ];
         
         setSearchResults(combinedResults);
+        previousResultsRef.current = combinedResults;
       } catch (error) {
         console.error('Search error:', error);
         toast({
@@ -236,18 +259,17 @@ export const useSearchQuery = (searchQuery: string) => {
       }
     };
     
-    // Use debouncing to avoid too many requests
     const timer = setTimeout(() => {
       if (searchQuery.length >= 2) {
         fetchSearchResults();
       }
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery, toast]);
 
   return {
-    isLoading,
+    isLoading: showLoadingIndicator,
     filteredResults: searchResults
   };
 };
