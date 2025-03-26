@@ -46,20 +46,20 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
   }, [document, editorReady, editor, contentSet]);
 
-  const saveDocument = async ({ showToast = true } = {}) => {
-    if (!editor || !documentId) {
+  const saveDocument = async ({ title, content: contentOverride, showToast = true } = {}) => {
+    if (!editor && !contentOverride || !documentId) {
       console.log("Cannot save: editor or documentId is missing");
       return;
     }
 
-    const currentContent = editor.getHTML();
-    const lines = editor.getText().split('\n');
-    const firstLine = lines[0] || 'Untitled Document';
+    const currentContent = contentOverride || editor?.getHTML() || '';
+    const lines = editor ? editor.getText().split('\n') : [];
+    const firstLine = title || lines[0] || 'Untitled Document';
 
     const content: DocumentContent = {
       type: "doc",
       html: currentContent,
-      text: editor.getText(),
+      text: editor ? editor.getText() : '',
     };
 
     setIsSaving(true);
