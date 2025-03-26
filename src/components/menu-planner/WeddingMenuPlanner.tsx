@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useMenuState } from '@/hooks/useMenuState';
 import { MenuState } from '@/hooks/menuStateTypes';
@@ -6,8 +5,7 @@ import { useMenuPlanner } from './hooks/useMenuPlanner';
 import MenuPlannerLoading from './MenuPlannerLoading';
 import MenuPlannerError from './MenuPlannerError';
 import MenuPlannerContent from './MenuPlannerContent';
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { SaveButton } from "@/components/ui/save-button";
 import { toast } from "sonner";
 
 interface WeddingMenuPlannerProps {
@@ -189,20 +187,15 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
       />
       
       <div className="mt-6 flex justify-end">
-        <Button
+        <SaveButton
           onClick={handleManualSave}
           disabled={isSaving || isManualSaving}
+          defaultText="Save Menu"
+          loadingText="Saving..."
+          successText="Menu Saved"
+          timeout={3000}
           className="min-w-[120px]"
-        >
-          {isManualSaving ? (
-            <span className="flex items-center">
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
-              <span>Saving...</span>
-            </span>
-          ) : (
-            <span>Save Menu</span>
-          )}
-        </Button>
+        />
       </div>
     </div>
   );

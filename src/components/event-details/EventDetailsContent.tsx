@@ -9,7 +9,6 @@ import WeddingMenuPlanner from "@/components/menu-planner/WeddingMenuPlanner";
 import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
-import { SaveButton } from "@/components/ui/save-button";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
 
@@ -51,33 +50,6 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
     });
   }, [saveMenuFunction, isSaving, menuState]);
 
-  // Handler with improved error catching
-  const handleSaveClick = async () => {
-    console.log("Save button clicked, attempting save operation...");
-    
-    if (!saveMenuFunction) {
-      console.error("Save operation failed: No save function available");
-      toast.error("Unable to save menu: Save function not registered");
-      return;
-    }
-    
-    if (!menuState) {
-      console.error("Save operation failed: No menu state available");
-      toast.error("Unable to save menu: Menu data not initialized");
-      return;
-    }
-    
-    try {
-      console.log("Initiating save menu operation");
-      await onSaveMenu();
-      console.log("Save menu operation completed successfully");
-      // No toast here - moved to useEventMenuSave to prevent duplicates
-    } catch (error: any) {
-      console.error("Error during save operation:", error);
-      // Error toast is handled in the wrapped save function
-    }
-  };
-
   return (
     <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
@@ -107,16 +79,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
             />
           )}
           
-          <div className="flex justify-end mt-6 print:hidden">
-            <SaveButton 
-              onClick={handleSaveClick}
-              disabled={!menuState || !saveMenuFunction || isSaving}
-              defaultText="Save Menu"
-              loadingText="Saving Menu..."
-              successText="Menu Saved"
-              timeout={30000}
-            />
-          </div>
+          {/* Save button removed from here to prevent duplication */}
         </div>
       </div>
     </div>
