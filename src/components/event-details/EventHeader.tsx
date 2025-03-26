@@ -2,10 +2,8 @@
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { PrintMenu } from '../menu/PrintMenu';
 import { Event } from '@/types/event';
 import { MenuState } from '@/hooks/menuStateTypes';
-import PrintKitchenMenu from '../menu/kitchen/PrintKitchenMenu';
 
 interface EventHeaderProps {
   eventCode: string;
@@ -39,13 +37,6 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
             onCheckedChange={handleToggleChange}
           />
           <Label htmlFor="custom-menu-toggle">Custom Menu</Label>
-        </div>
-      )}
-      
-      {menuState && (
-        <div className="flex space-x-2">
-          <PrintMenu event={event} menuState={menuState} />
-          <PrintKitchenMenu event={event} menuState={menuState} />
         </div>
       )}
     </div>
