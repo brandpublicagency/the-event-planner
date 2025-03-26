@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
-import { createEvent as createEventService, deleteEvent as deleteEventService } from "@/services/eventService";
+import { createEvent as createEventService, deleteEvent as deleteEventService, permanentlyDeleteEvent as permanentlyDeleteEventService } from "@/services/eventService";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
@@ -21,10 +21,20 @@ export const groupEventsByMonth = (events: Event[]) => {
 
 export const deleteEvent = async (eventCode: string) => {
   try {
-    console.log('Deleting event with code:', eventCode);
+    console.log('Soft deleting event with code:', eventCode);
     return await deleteEventService(eventCode);
   } catch (error: any) {
     console.error('Delete event error:', error);
+    throw error;
+  }
+};
+
+export const permanentlyDeleteEvent = async (eventCode: string) => {
+  try {
+    console.log('Permanently deleting event with code:', eventCode);
+    return await permanentlyDeleteEventService(eventCode);
+  } catch (error: any) {
+    console.error('Permanent delete event error:', error);
     throw error;
   }
 };

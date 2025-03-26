@@ -91,6 +91,55 @@ export const deleteEvent = async (eventCode) => {
   }
 };
 
+export const permanentlyDeleteEvent = async (eventCode) => {
+  try {
+    // First, delete related menu selections
+    const { error: menuError } = await supabase
+      .from('menu_selections')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (menuError) {
+      console.error('Error deleting related menu selections:', menuError);
+      // Continue with event deletion even if menu deletion fails
+    }
+    
+    // Delete related event venues
+    const { error: venueError } = await supabase
+      .from('event_venues')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (venueError) {
+      console.error('Error deleting related event venues:', venueError);
+      // Continue with event deletion even if venue deletion fails
+    }
+    
+    // Delete related event documents
+    const { error: documentError } = await supabase
+      .from('event_documents')
+      .delete()
+      .eq('event_code', eventCode);
+    
+    if (documentError) {
+      console.error('Error deleting related event documents:', documentError);
+      // Continue with event deletion even if document deletion fails
+    }
+    
+    // Finally, delete the event itself
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('event_code', eventCode);
+      
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error permanently deleting event:', error);
+    throw error;
+  }
+};
+
 export const createEventNotification = async (eventCode, notificationType) => {
   // This is now a mock function that doesn't actually access the database
   console.log(`Mock: Creating ${notificationType} notification for event ${eventCode}`);

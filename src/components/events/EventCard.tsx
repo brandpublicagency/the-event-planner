@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { MapPin, Users, Copy, Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,24 @@ import type { Event } from "@/types/event";
 import { Link } from "react-router-dom";
 import { getVenueNames } from "@/utils/venueUtils";
 import { useCopyEventCode } from "./utils/eventCodeUtils";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle,
+  AlertDialogTrigger 
+} from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Loader2, Trash } from "lucide-react";
 
 interface EventCardProps {
   event: Event;
-  handleDelete?: (eventCode: string) => Promise<void>;
+  handleDelete?: (eventCode: string, isPermanent?: boolean) => Promise<void>;
   isDashboard?: boolean;
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
@@ -27,6 +41,9 @@ export const EventCard: React.FC<EventCardProps> = ({
 }) => {
   const { name, event_type, event_date, pax, event_code } = event;
   const copyEventCode = useCopyEventCode();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPermanentDelete, setIsPermanentDelete] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const formattedDate = event_date ? format(parseISO(event_date), 'EEE, MMM d, yyyy') : 'No date set';
   const venueStr = getVenueNames(event);
@@ -41,12 +58,24 @@ export const EventCard: React.FC<EventCardProps> = ({
     if (onView) onView(event_code);
   };
   
-  const handleDeleteClick = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (handleDelete) {
-      await handleDelete(event_code);
-    } else if (onDelete) {
-      onDelete(event);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      if (handleDelete) {
+        await handleDelete(event_code, isPermanentDelete);
+      } else if (onDelete) {
+        onDelete(event);
+      }
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
   
@@ -126,6 +155,18 @@ export const EventCard: React.FC<EventCardProps> = ({
                   <span className="sr-only">View</span>
                 </Button>
               )}
+              
+              {(handleDelete || onDelete) && (
+                <Button
+                  onClick={handleDeleteClick}
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                >
+                  <Trash className="h-3.5 w-3.5 text-zinc-400" />
+                  <span className="sr-only">Delete</span>
+                </Button>
+              )}
             </>
           )}
           
@@ -142,6 +183,57 @@ export const EventCard: React.FC<EventCardProps> = ({
           )}
         </div>
       </div>
+      
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="border-red-100 bg-white" onClick={e => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600">Delete Event</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-600">
+              <p className="mb-2">Are you sure you want to delete <span className="font-semibold">{name}</span>?</p>
+              
+              <div className="flex items-center space-x-2 bg-gray-50 p-3 mt-3 rounded-md">
+                <Switch 
+                  id={`permanent-delete-${event_code}`}
+                  checked={isPermanentDelete}
+                  onCheckedChange={setIsPermanentDelete}
+                />
+                <Label htmlFor={`permanent-delete-${event_code}`} className="font-medium text-red-600">
+                  Permanently delete from database
+                </Label>
+              </div>
+              
+              {isPermanentDelete ? (
+                <div className="bg-red-50 p-3 rounded-md border border-red-100 my-2">
+                  <p className="text-red-800 text-sm font-semibold">This action cannot be undone.</p>
+                  <p className="text-red-800 text-sm">The event and all associated data will be permanently deleted from the database.</p>
+                </div>
+              ) : (
+                <div className="bg-amber-50 p-3 rounded-md border border-amber-100 my-2">
+                  <p className="text-amber-800 text-sm">The event will be soft-deleted and can be recovered if needed.</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="rounded-full" onClick={e => e.stopPropagation()}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={e => {
+                e.stopPropagation();
+                confirmDelete();
+              }}
+              className={`${isPermanentDelete ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} rounded-full text-white`}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {isPermanentDelete ? 'Permanently Deleting...' : 'Deleting...'}
+                </>
+              ) : isPermanentDelete ? 'Permanently Delete' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

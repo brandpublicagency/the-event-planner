@@ -14,11 +14,13 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface EventActionsColumnProps {
   eventCode: string;
   eventName: string;
-  handleDelete?: (eventCode: string) => Promise<void>;
+  handleDelete?: (eventCode: string, isPermanent?: boolean) => Promise<void>;
 }
 
 export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({ 
@@ -28,13 +30,14 @@ export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPermanentDelete, setIsPermanentDelete] = useState(false);
 
   const onDelete = async () => {
     if (!handleDelete) return;
     
     try {
       setIsDeleting(true);
-      await handleDelete(eventCode);
+      await handleDelete(eventCode, isPermanentDelete);
     } catch (error) {
       console.error("Error deleting event:", error);
     } finally {
@@ -74,12 +77,31 @@ export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({
         </AlertDialogTrigger>
         <AlertDialogContent className="border-red-100 bg-white" onClick={e => e.stopPropagation()}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-600">Permanently Delete Event</AlertDialogTitle>
+            <AlertDialogTitle className="text-red-600">Delete Event</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-600">
               <p className="mb-2">Are you sure you want to delete <span className="font-semibold">{eventName}</span>?</p>
-              <div className="bg-red-50 p-3 rounded-md border border-red-100 my-2">
-                <p className="text-red-800 text-sm">This action cannot be undone. The event and all associated data will be permanently deleted from the database.</p>
+              
+              <div className="flex items-center space-x-2 bg-gray-50 p-3 mt-3 rounded-md">
+                <Switch 
+                  id="permanent-delete-action" 
+                  checked={isPermanentDelete}
+                  onCheckedChange={setIsPermanentDelete}
+                />
+                <Label htmlFor="permanent-delete-action" className="font-medium text-red-600">
+                  Permanently delete from database
+                </Label>
               </div>
+              
+              {isPermanentDelete ? (
+                <div className="bg-red-50 p-3 rounded-md border border-red-100 my-2">
+                  <p className="text-red-800 text-sm font-semibold">This action cannot be undone.</p>
+                  <p className="text-red-800 text-sm">The event and all associated data will be permanently deleted from the database.</p>
+                </div>
+              ) : (
+                <div className="bg-amber-50 p-3 rounded-md border border-amber-100 my-2">
+                  <p className="text-amber-800 text-sm">The event will be soft-deleted and can be recovered if needed.</p>
+                </div>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
@@ -89,15 +111,15 @@ export const EventActionsColumn: React.FC<EventActionsColumnProps> = ({
                 e.stopPropagation();
                 onDelete();
               }} 
-              className="bg-red-600 hover:bg-red-700 rounded-full text-white"
+              className={`${isPermanentDelete ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} rounded-full text-white`}
               disabled={isDeleting}
             >
               {isDeleting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Deleting...
+                  {isPermanentDelete ? 'Permanently Deleting...' : 'Deleting...'}
                 </>
-              ) : "Delete Permanently"}
+              ) : isPermanentDelete ? 'Permanently Delete' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
