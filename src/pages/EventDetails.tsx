@@ -4,7 +4,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { Edit } from "lucide-react";
+import { Edit, Printer } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import type { Event } from "@/types/event";
 import { useEventMenu } from "@/hooks/useEventMenu";
@@ -13,6 +13,10 @@ import { EventDetailsError } from "@/components/event-details/EventDetailsError"
 import { EventDetailsEmpty } from "@/components/event-details/EventDetailsEmpty";
 import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
 import { toast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { PrintMenu } from "@/components/menu/print/PrintMenu";
+import PrintKitchenMenu from "@/components/menu/kitchen/PrintKitchenMenu";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -82,6 +86,10 @@ const EventDetails = () => {
       navigate(`/events/${id}/edit`);
     }
   }, [id, navigate]);
+
+  const handleCustomMenuToggle = (checked: boolean) => {
+    setIsCustomMenu(checked);
+  };
   
   if (isLoading) {
     return <EventDetailsLoading onBackButtonClick={handleBackNavigation} />;
@@ -106,12 +114,19 @@ const EventDetails = () => {
       <Header 
         showBackButton 
         onBackButtonClick={handleBackNavigation}
-        actionButton={{
-          label: "Edit Event",
-          icon: <Edit className="h-4 w-4 mr-1" />,
-          onClick: handleEditEvent,
-          variant: "outline"
-        }}
+        secondaryAction={
+          <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="custom-menu-toggle" 
+                checked={isCustomMenu} 
+                onCheckedChange={handleCustomMenuToggle}
+              />
+              <Label htmlFor="custom-menu-toggle" className="text-sm">Custom Menu</Label>
+            </div>
+            {menuState && <PrintMenu event={event} menuState={menuState} />}
+          </div>
+        }
       />
       
       <EventDetailsContent

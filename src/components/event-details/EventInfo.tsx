@@ -1,15 +1,15 @@
+
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { MenuState } from "@/hooks/menuStateTypes";
-import { PrintMenu } from '../menu/PrintMenu';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { PrintMenu } from '../menu/print/PrintMenu';
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Edit, Printer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
 interface EventInfoProps {
   event: Event;
   formattedDate: string;
@@ -17,22 +17,24 @@ interface EventInfoProps {
   menuState?: MenuState | null;
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
+  onEditEvent?: () => void;
 }
+
 export const EventInfo = ({
   event,
   formattedDate,
   menuState,
   isCustomMenu = false,
-  onCustomMenuToggle
+  onCustomMenuToggle,
+  onEditEvent
 }: EventInfoProps) => {
   // Format the time in 24-hour format (HH:MM)
   const formatTimeDisplay = (timeString: string | null) => {
     if (!timeString) return '';
     return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
   };
-  const {
-    toast
-  } = useToast();
+  
+  const { toast } = useToast();
   const startTime = formatTimeDisplay(event.start_time);
   const endTime = formatTimeDisplay(event.end_time);
   const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
@@ -40,13 +42,8 @@ export const EventInfo = ({
   // Get venue names using the utility function
   const venueNames = getVenueNames(event);
 
-  // Handler to ensure toggle changes are properly dispatched
-  const handleToggleChange = (checked: boolean) => {
-    if (onCustomMenuToggle) {
-      onCustomMenuToggle(checked);
-    }
-  };
-  return <div className="mb-8 event-info-container">
+  return (
+    <div className="mb-8 event-info-container">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center">
@@ -60,13 +57,14 @@ export const EventInfo = ({
         </div>
         
         <div className="flex items-center space-x-4 mt-2 sm:mt-0">
-          {onCustomMenuToggle && <div className="flex items-center space-x-2">
-              <Switch id="custom-menu-toggle" checked={isCustomMenu} onCheckedChange={handleToggleChange} />
-              <Label htmlFor="custom-menu-toggle">Custom Menu</Label>
-            </div>}
-          
-          {menuState && <PrintMenu event={event} menuState={menuState} />}
+          {onEditEvent && (
+            <Button onClick={onEditEvent} variant="outline" size="sm" className="rounded">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Event
+            </Button>
+          )}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

@@ -61,6 +61,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
               menuState={menuState}
               isCustomMenu={isCustomMenu}
               onCustomMenuToggle={onCustomMenuToggle}
+              onEditEvent={onEditEvent}
             />
           )}
           
