@@ -4,6 +4,7 @@ import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
+import { formatTimeRange } from "@/utils/formatDate";
 
 interface CalendarEventProps {
   event: Event;
@@ -26,9 +27,8 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({ event }) => {
     }
   };
 
-  const eventTime = event.event_date 
-    ? format(parseISO(event.event_date), "HH:mm")
-    : "";
+  // Use formatTimeRange utility to display the event time
+  const eventTime = formatTimeRange(event.start_time, event.end_time);
 
   return (
     <div
