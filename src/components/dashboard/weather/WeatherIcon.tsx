@@ -1,31 +1,39 @@
+
 import React from 'react';
-import { Sun, Cloud, CloudRain, CloudSnow, CloudFog, CloudLightning } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudSnow, CloudFog, CloudLightning, Moon, CloudMoon } from 'lucide-react';
 
 export interface WeatherIconProps {
   condition: string;
   customIcon?: string;
   className?: string;
+  isNight?: boolean;
 }
 
-const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, customIcon, className = "w-10 h-10" }) => {
+const WeatherIcon: React.FC<WeatherIconProps> = ({ 
+  condition, 
+  customIcon, 
+  className = "w-10 h-10",
+  isNight = false
+}) => {
   const getIconFromCode = (iconCode: string) => {
-    const isNight = iconCode?.endsWith('n');
+    const codeIsNight = iconCode?.endsWith('n');
+    const actualIsNight = isNight || codeIsNight;
     
     // Get main weather type from OpenWeather icon code
     // First character(s) indicate weather condition
     const weatherType = iconCode?.substring(0, 2);
     
     switch (weatherType) {
-      case '01': return <Sun className={className} />;
+      case '01': return actualIsNight ? <Moon className={className} /> : <Sun className={className} />;
       case '02':
       case '03':
-      case '04': return <Cloud className={className} />;
+      case '04': return actualIsNight ? <CloudMoon className={className} /> : <Cloud className={className} />;
       case '09':
       case '10': return <CloudRain className={className} />;
       case '11': return <CloudLightning className={className} />;
       case '13': return <CloudSnow className={className} />;
       case '50': return <CloudFog className={className} />;
-      default: return <Sun className={className} />;
+      default: return actualIsNight ? <Moon className={className} /> : <Sun className={className} />;
     }
   };
   
@@ -38,12 +46,12 @@ const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, customIcon, classN
   switch (condition?.toLowerCase()) {
     case 'clear':
     case 'sunny':
-      return <Sun className={className} />;
+      return isNight ? <Moon className={className} /> : <Sun className={className} />;
     case 'clouds':
     case 'cloudy':
     case 'partly cloudy':
     case 'overcast':
-      return <Cloud className={className} />;
+      return isNight ? <CloudMoon className={className} /> : <Cloud className={className} />;
     case 'rain':
     case 'rainy':
     case 'drizzle':
@@ -63,7 +71,7 @@ const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, customIcon, classN
     case 'haze':
       return <CloudFog className={className} />;
     default:
-      return <Sun className={className} />; // Default
+      return isNight ? <Moon className={className} /> : <Sun className={className} />; // Default
   }
 };
 
