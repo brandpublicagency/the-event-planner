@@ -75,10 +75,10 @@ export const useMenuFetch = (eventCode: string) => {
         setMenuState(transformedState);
         setLastSavedState(JSON.stringify(menuData));
 
-        // Optional: Show a toast when data is refreshed, only if forcing a refresh
-        if (forceRefresh) {
-          toast.success('Menu data refreshed');
-        }
+        // Removed toast notification for menu data refresh
+        // if (forceRefresh) {
+        //   toast.success('Menu data refreshed');
+        // }
       } else {
         console.log('No existing menu data found for this event. Using defaults.');
       }
