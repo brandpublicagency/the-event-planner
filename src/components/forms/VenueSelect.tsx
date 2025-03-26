@@ -53,35 +53,21 @@ interface VenueSelectProps {
 }
 
 export const VenueSelect = ({ form }: VenueSelectProps) => {
-  const venues = form.watch("venues") || [];
-  
-  useEffect(() => {
-    console.log("VenueSelect component venues:", venues);
-  }, [venues]);
-  
-  // Ensure venues is always an array
+  // Initialize venues to an empty array if it's undefined
   useEffect(() => {
     const currentVenues = form.getValues("venues");
-    
-    if (!currentVenues) {
-      // Initialize with empty array if undefined or null
+    if (!currentVenues || !Array.isArray(currentVenues)) {
       form.setValue("venues", [], { shouldValidate: false });
       console.log("Initialized venues to empty array");
-    } else if (typeof currentVenues === 'string') {
-      // Convert string to array with the string as its element
-      form.setValue("venues", [currentVenues], { shouldValidate: false });
-      console.log("Converted venues from string to array:", [currentVenues]);
-    } else if (!Array.isArray(currentVenues)) {
-      // Initialize with empty array for any other non-array value
-      form.setValue("venues", [], { shouldValidate: false });
-      console.log("Initialized venues to empty array from:", currentVenues);
-    } else {
-      console.log("Initial venues from database:", currentVenues);
     }
   }, [form]);
   
+  // Get the current venues value, defaulting to an empty array if it's undefined
+  const venues = form.watch("venues") || [];
+  
   const handleVenueChange = (venue: string, checked: boolean) => {
-    const currentVenues = [...venues];
+    // Ensure we're working with an array
+    const currentVenues = Array.isArray(venues) ? [...venues] : [];
     
     if (checked && !currentVenues.includes(venue)) {
       currentVenues.push(venue);
@@ -103,7 +89,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
           <FormControl>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {VENUE_OPTIONS.map((venue) => {
-                const isSelected = venues.includes(venue.name);
+                const isSelected = Array.isArray(venues) && venues.includes(venue.name);
                 return (
                   <div
                     key={venue.id}

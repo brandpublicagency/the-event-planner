@@ -10,37 +10,48 @@ export const generateEventCode = (type: string) => {
 };
 
 export const createNewEvent = async (data: EventFormData) => {
-  const eventCode = generateEventCode(data.event_type || 'Event');
-  
-  // Create the event with minimal required fields
-  const eventData = {
-    event_code: eventCode,
-    name: data.name,
-    event_type: data.event_type,
-    event_date: data.event_date || null,
-    start_time: data.start_time || null,
-    end_time: data.end_time || null,
-    description: data.description || null,
-    primary_name: data.primary_name || null,
-    primary_email: data.primary_email || null,
-    primary_phone: data.primary_phone || null,
-    secondary_name: data.secondary_name || null,
-    secondary_email: data.secondary_email || null,
-    secondary_phone: data.secondary_phone || null,
-    pax: data.pax || null,
-    venues: data.venues && data.venues.length > 0 ? data.venues : null,
-    company: data.company || null,
-    vat_number: data.vat_number || null,
-    client_address: data.address || null, // Map address to client_address in the database
-  };
+  try {
+    console.log("Creating new event with data:", data);
+    const eventCode = generateEventCode(data.event_type || 'Event');
+    
+    // Create the event with minimal required fields
+    const eventData = {
+      event_code: eventCode,
+      name: data.name,
+      event_type: data.event_type,
+      event_date: data.event_date || null,
+      start_time: data.start_time || null,
+      end_time: data.end_time || null,
+      description: data.description || null,
+      primary_name: data.primary_name || null,
+      primary_email: data.primary_email || null,
+      primary_phone: data.primary_phone || null,
+      secondary_name: data.secondary_name || null,
+      secondary_email: data.secondary_email || null,
+      secondary_phone: data.secondary_phone || null,
+      pax: data.pax || null,
+      venues: Array.isArray(data.venues) ? data.venues : [],
+      company: data.company || null,
+      vat_number: data.vat_number || null,
+      address: data.address || null,
+    };
 
-  const { error: eventError } = await supabase
-    .from('events')
-    .insert(eventData);
+    console.log("Sending to database:", eventData);
+    const { data: result, error: eventError } = await supabase
+      .from('events')
+      .insert(eventData)
+      .select('event_code')
+      .single();
 
-  if (eventError) {
-    throw new Error(`Error creating event: ${eventError.message}`);
+    if (eventError) {
+      console.error("Database error:", eventError);
+      throw new Error(`Error creating event: ${eventError.message}`);
+    }
+    
+    console.log("Event created successfully:", result);
+    return eventCode;
+  } catch (error) {
+    console.error("Error in createNewEvent:", error);
+    throw error;
   }
-  
-  return eventCode;
 };

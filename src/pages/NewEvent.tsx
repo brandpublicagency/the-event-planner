@@ -45,6 +45,11 @@ const NewEvent = () => {
       setIsSubmitting(true);
       console.log("Submitting form data:", data);
       
+      // Make sure venues is always an array
+      if (!Array.isArray(data.venues)) {
+        data.venues = [];
+      }
+      
       const eventCode = await createNewEvent(data);
       
       toast({

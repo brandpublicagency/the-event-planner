@@ -19,9 +19,11 @@ interface EditEventFormProps {
 const EditEventForm = ({ form, onSubmit, onCancel, isSubmitting = false }: EditEventFormProps) => {
   const eventType = form.watch('event_type');
   
+  const handleSubmitAction = form.handleSubmit(onSubmit);
+  
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmitAction} className="space-y-8">
         <FormSection 
           title="Event Details" 
           description="Update the basic information about the event."
@@ -55,11 +57,14 @@ const EditEventForm = ({ form, onSubmit, onCancel, isSubmitting = false }: EditE
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+          >
             {isSubmitting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Save Changes
+            {form.formState.isSubmitSuccessful ? "Saved!" : "Save Changes"}
           </Button>
         </div>
       </form>
