@@ -8,6 +8,7 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
   const saveFunctionRegistered = useRef(false);
   const lastSaveTime = useRef<number | null>(null);
   const saveAttempts = useRef(0);
+  const maxRetries = 3;
 
   const handleSaveMenu = async () => {
     if (!eventId) {
@@ -27,30 +28,40 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
       toast.error("Cannot save: Menu state not fully initialized");
       return Promise.reject(new Error("Menu state not fully initialized"));
     }
-    
+
     // Prevent rapid repeated saves
     const now = Date.now();
     if (lastSaveTime.current && (now - lastSaveTime.current < 1000)) {
       console.log("Throttling save request - too soon after previous save");
       return Promise.resolve();
     }
-    
+
     saveAttempts.current += 1;
     lastSaveTime.current = now;
     console.log(`Save attempt #${saveAttempts.current}`);
     
-    setIsSaving(true);
-    try {
-      // Call the actual save function that was passed from WeddingMenuPlanner
-      console.log("Executing save menu function");
-      await saveMenuFunction();
-      console.log("Menu saved successfully");
-      return Promise.resolve();
-    } catch (error: any) {
-      console.error("Failed to save menu:", error.message || 'Unknown error');
-      throw error; // Let the SaveButton handle the error
-    } finally {
-      setIsSaving(false);
+    let retryCount = 0;
+    while (retryCount < maxRetries) {
+      setIsSaving(true);
+      try {
+        await saveMenuFunction();
+        console.log("Menu saved successfully");
+        saveAttempts.current = 0; // Reset counter on success
+        return Promise.resolve();
+      } catch (error: any) {
+        console.error(`Save attempt ${retryCount + 1} failed:`, error.message || 'Unknown error');
+        retryCount++;
+        
+        if (retryCount === maxRetries) {
+          console.error("All retry attempts failed");
+          throw error;
+        }
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 

@@ -57,7 +57,7 @@ export const updateMenuSelection = async (eventCode: string, updates: any) => {
 
 export const getMenuSelection = async (eventCode: string) => {
   try {
-    console.log('Fetching menu selection for event:', eventCode);
+    console.log(`Fetching menu selection for event: ${eventCode}`);
     
     if (!eventCode) {
       throw new Error('Event code is required');
