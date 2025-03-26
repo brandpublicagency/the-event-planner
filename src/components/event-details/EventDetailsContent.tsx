@@ -44,34 +44,35 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
 }) => {
   // Debug monitor for save functionality
   React.useEffect(() => {
-    console.log('EventDetailsContent save state:', {
+    console.log('EventDetailsContent ready with save state:', {
       hasSaveFunction: !!saveMenuFunction,
       isSaving,
-      hasMenuState: !!menuState
+      menuStateInitialized: !!menuState
     });
   }, [saveMenuFunction, isSaving, menuState]);
 
   // Handler with improved error catching
   const handleSaveClick = async () => {
-    console.log("Save button clicked, save function available:", !!saveMenuFunction);
+    console.log("Save button clicked, attempting save operation...");
     
     if (!saveMenuFunction) {
-      console.error("No save function available");
-      toast.error("Unable to save menu: Save function not properly registered");
+      console.error("Save operation failed: No save function available");
+      toast.error("Unable to save menu: Save function not registered");
       return;
     }
     
     if (!menuState) {
-      console.error("No menu state available");
+      console.error("Save operation failed: No menu state available");
       toast.error("Unable to save menu: Menu data not initialized");
       return;
     }
     
     try {
+      console.log("Initiating save menu operation");
       await onSaveMenu();
-      // Success toast is handled in the wrapped save function
+      console.log("Save menu operation completed successfully");
     } catch (error: any) {
-      console.error("Error in save button handler:", error);
+      console.error("Error during save operation:", error);
       // Error toast is handled in the wrapped save function
     }
   };

@@ -3,7 +3,7 @@ import { supabase, retryOperation } from "@/integrations/supabase/client";
 
 export const updateMenuSelection = async (eventCode: string, updates: any) => {
   try {
-    console.log('Saving menu selection for event:', eventCode, 'with data:', JSON.stringify(updates, null, 2));
+    console.log(`Starting menu upsert operation for event: ${eventCode}`);
     
     if (!eventCode) {
       throw new Error('Event code is required');
@@ -26,22 +26,32 @@ export const updateMenuSelection = async (eventCode: string, updates: any) => {
       return { ...acc, [key]: value };
     }, {});
     
+    // Validate the event_code is included in the data
+    if (processedUpdates.event_code !== eventCode) {
+      console.warn('Correcting mismatched event_code in menu data');
+      processedUpdates.event_code = eventCode;
+    }
+    
+    console.log('Executing Supabase upsert operation with data:', JSON.stringify(processedUpdates, null, 2));
+    
     // Use retry operation for more resilient network requests
     const result = await retryOperation(async () => {
-      console.log('Executing Supabase upsert operation for menu with data:', processedUpdates);
       const { data, error } = await supabase
         .from('menu_selections')
-        .upsert({
-          event_code: eventCode,
-          ...processedUpdates
-        }, {
+        .upsert(processedUpdates, {
           onConflict: 'event_code'  // Ensure we update based on event_code conflict
         })
         .select();
 
       if (error) {
-        console.error('Error updating menu selection:', error);
+        console.error('Supabase error updating menu selection:', error);
         throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        console.warn('No data returned from upsert operation, but no error');
+        // This is okay, upsert might not return data
+        return { success: true, message: 'Menu updated' };
       }
       
       console.log('Menu selection successfully saved to database:', data);
@@ -76,7 +86,7 @@ export const getMenuSelection = async (eventCode: string) => {
         throw error;
       }
       
-      console.log('Menu selection fetched:', data);
+      console.log('Menu selection fetched:', data ? 'Data found' : 'No data found');
       return data;
     }, 3, 1000); // 3 retries with 1s base delay
   } catch (error: any) {

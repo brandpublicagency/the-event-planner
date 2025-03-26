@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useMenuState } from '@/hooks/useMenuState';
 import { MenuState } from '@/hooks/menuStateTypes';
 import { useMenuPlanner } from './hooks/useMenuPlanner';
@@ -39,12 +39,12 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
   
   // Define all React hooks before any conditional logic
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
-  const [saveRegistrationAttempted, setSaveRegistrationAttempted] = useState(false);
+  const [saveRegistered, setSaveRegistered] = useState(false);
+  const [registerAttempts, setRegisterAttempts] = useState(0);
   
   const {
     loadingProgress,
     handleInternalCustomMenuToggle,
-    saveRegistered
   } = useMenuPlanner(
     eventCode,
     menuState,
@@ -56,23 +56,19 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     setIsInternalUpdate
   );
 
-  // Debug logging for important state
-  useEffect(() => {
-    console.log('WeddingMenuPlanner debug state:', {
-      eventCode,
-      isInitialized,
-      isLoading,
-      saveRegistered,
-      hasMenuState: !!menuState,
-      hasSaveMenuFunction: !!saveMenu,
-      hasSaveMenuSelectionsProps: !!saveMenuSelections
-    });
-  }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections]);
+  // Register save function with parent - using useCallback for stability
+  const registerSaveFunction = useCallback(() => {
+    if (!saveMenuSelections || !saveMenu || !isInitialized) {
+      console.log('Cannot register save function yet:', {
+        hasSaveMenuSelections: !!saveMenuSelections,
+        hasSaveMenu: !!saveMenu,
+        isInitialized,
+      });
+      return false;
+    }
 
-  // Ensure save function is registered after data is loaded
-  useEffect(() => {
-    if (isInitialized && !isLoading && saveMenu && saveMenuSelections && !saveRegistrationAttempted) {
-      console.log('Attempting to register save function on initialization completion');
+    try {
+      console.log('Registering save function with parent component');
       
       const saveFn = async () => {
         console.log('Save function called from WeddingMenuPlanner');
@@ -87,9 +83,52 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
       };
       
       saveMenuSelections(saveFn);
-      setSaveRegistrationAttempted(true);
+      setSaveRegistered(true);
+      console.log('Save function successfully registered');
+      return true;
+    } catch (error) {
+      console.error('Failed to register save function:', error);
+      return false;
     }
-  }, [isInitialized, isLoading, saveMenu, saveMenuSelections, saveRegistrationAttempted]);
+  }, [saveMenuSelections, saveMenu, isInitialized]);
+
+  // Attempt to register save function when dependencies change
+  useEffect(() => {
+    if (!saveRegistered && isInitialized && !isLoading && saveMenu && saveMenuSelections) {
+      console.log(`Attempting to register save function (attempt ${registerAttempts + 1})`);
+      const success = registerSaveFunction();
+      
+      if (success) {
+        console.log('Save function registration successful');
+      } else {
+        console.log('Save function registration failed, will retry');
+        setRegisterAttempts(prev => prev + 1);
+        
+        // Retry with timeout if failed
+        if (registerAttempts < 5) {
+          const timeout = setTimeout(() => {
+            registerSaveFunction();
+          }, 500 * (registerAttempts + 1)); // Exponential backoff
+          
+          return () => clearTimeout(timeout);
+        }
+      }
+    }
+  }, [isInitialized, isLoading, saveMenu, saveMenuSelections, saveRegistered, registerAttempts, registerSaveFunction]);
+
+  // Debug logging for important state
+  useEffect(() => {
+    console.log('WeddingMenuPlanner component state:', {
+      eventCode,
+      isInitialized,
+      isLoading,
+      saveRegistered,
+      registerAttempts,
+      hasMenuState: !!menuState,
+      hasSaveMenuFunction: !!saveMenu,
+      hasSaveMenuSelectionsProps: !!saveMenuSelections
+    });
+  }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections, registerAttempts]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {
