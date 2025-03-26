@@ -47,19 +47,19 @@ export const EventInfo = ({
     }
   };
   return <div className="mb-8 event-info-container">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="">
         <div>
           <div className="flex items-center">
-            <h1 className="tracking-tight px-0 text-zinc-800 text-xl font-bold">
+            <h1 className="tracking-normal px-0 text-xl font-medium text-zinc-700 my-0 mx-[3px]">
               {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
             </h1>
           </div>
-          <div className="text-xs font-medium text-zinc-600 rounded bg-zinc-100 my-[7px] py-[5px] px-[7px]">
+          <div className="text-xs font-medium text-zinc-600 rounded my-[7px] py-[5px] px-[7px] bg-zinc-50">
             {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
           </div>
         </div>
         
-        <div className="flex items-center space-x-4 mt-2 sm:mt-0">
+        <div className="flex items-center space-x-4 mt-2 sm:mt-0 my-[6px] py-0">
           {onCustomMenuToggle && <div className="flex items-center space-x-2">
               <Switch id="custom-menu-toggle" checked={isCustomMenu} onCheckedChange={handleToggleChange} />
               <Label htmlFor="custom-menu-toggle">Custom Menu</Label>
