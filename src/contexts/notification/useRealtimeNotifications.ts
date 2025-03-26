@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { formatNotification } from './notificationOperations';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { Notification } from '@/types/notification';
 
 export const useRealtimeNotifications = (
@@ -34,9 +34,11 @@ export const useRealtimeNotifications = (
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(count => count + 1);
             
-            // Show toast notification
-            toast("New notification", {
-              description: newNotification.title
+            // Show toast notification using our unified toast system
+            toast({
+              title: "New notification",
+              description: newNotification.title,
+              variant: "info"
             });
           } catch (error) {
             console.error("Error processing realtime notification:", error);
