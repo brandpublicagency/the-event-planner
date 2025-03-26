@@ -54,11 +54,12 @@ export const transformMenuStateToApi = (
   console.log('Transforming menu state to API format:', {
     eventCode,
     isCustom: menuState.isCustomMenu,
-    canapesCount: menuState.selectedCanapes?.length || 0
+    canapesCount: menuState.selectedCanapes?.length || 0,
+    canapes: menuState.selectedCanapes
   });
 
-  // Ensure all arrays are filtered to remove empty strings
-  const safeArray = (arr: string[] | undefined | null): string[] => {
+  // Ensure all arrays are properly filtered and never undefined
+  const ensureArray = (arr: string[] | undefined | null): string[] => {
     if (!arr) return [];
     return arr.filter(item => item && item.trim() !== '');
   };
@@ -70,25 +71,25 @@ export const transformMenuStateToApi = (
     custom_menu_details: menuState.customMenuDetails,
     starter_type: menuState.selectedStarterType,
     canape_package: menuState.selectedCanapePackage,
-    canape_selections: safeArray(menuState.selectedCanapes),
+    canape_selections: ensureArray(menuState.selectedCanapes),
     plated_starter: menuState.selectedPlatedStarter,
     main_course_type: menuState.mainCourseType,
-    buffet_meat_selections: safeArray(menuState.buffetMeatSelections),
-    buffet_vegetable_selections: safeArray(menuState.buffetVegetableSelections),
-    buffet_starch_selections: safeArray(menuState.buffetStarchSelections),
+    buffet_meat_selections: ensureArray(menuState.buffetMeatSelections),
+    buffet_vegetable_selections: ensureArray(menuState.buffetVegetableSelections),
+    buffet_starch_selections: ensureArray(menuState.buffetStarchSelections),
     buffet_salad_selection: menuState.buffetSaladSelection,
     karoo_meat_selection: menuState.karooMeatSelection,
-    karoo_starch_selection: safeArray(menuState.karooStarchSelection),
-    karoo_vegetable_selections: safeArray(menuState.karooVegetableSelections),
+    karoo_starch_selection: ensureArray(menuState.karooStarchSelection),
+    karoo_vegetable_selections: ensureArray(menuState.karooVegetableSelections),
     karoo_salad_selection: menuState.karooSaladSelection,
     plated_main_selection: menuState.platedMainSelection,
     plated_salad_selection: menuState.platedSaladSelection,
     dessert_type: menuState.dessertType,
     traditional_dessert: menuState.traditionalDessert,
-    dessert_canapes: safeArray(menuState.dessertCanapes),
-    individual_cakes: safeArray(menuState.individualCakes),
+    dessert_canapes: ensureArray(menuState.dessertCanapes),
+    individual_cakes: ensureArray(menuState.individualCakes),
     individual_cake_quantities: menuState.individual_cake_quantities || {},
-    other_selections: safeArray(menuState.otherSelections),
+    other_selections: ensureArray(menuState.otherSelections),
     other_selections_quantities: menuState.otherSelectionsQuantities || {},
     notes: menuState.notes,
   };

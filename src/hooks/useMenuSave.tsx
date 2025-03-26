@@ -44,7 +44,14 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       menuData.event_code = eventCode;
       
       // Log canape selections specifically to debug
-      console.log('Canape selections to be saved:', menuData.canape_selections);
+      if (Array.isArray(menuData.canape_selections)) {
+        console.log('Canape selections to be saved:', menuData.canape_selections);
+        // Additional check to make sure we have valid values
+        if (menuData.canape_selections.some(item => !item || item.trim() === '')) {
+          console.warn('Found empty items in canape selections, filtering...');
+          menuData.canape_selections = menuData.canape_selections.filter(item => item && item.trim() !== '');
+        }
+      }
       
       console.log('Transformed menu data:', JSON.stringify({
         event_code: menuData.event_code,

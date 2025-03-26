@@ -20,8 +20,12 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
     const processedUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
       // If the value is an array, make sure it's properly initialized
       if (Array.isArray(value)) {
+        // Add detailed logging for debugging
+        console.log(`Processing array field ${key}:`, value);
         // Filter out empty strings and nulls for array fields
-        return { ...acc, [key]: value.filter(item => item && item.trim() !== '') };
+        const filtered = value.filter(item => item && item.trim() !== '');
+        console.log(`After filtering ${key}:`, filtered);
+        return { ...acc, [key]: filtered };
       }
       
       // If the value should be an array but is null/undefined, initialize it as empty array
@@ -100,6 +104,10 @@ export const getMenuSelection = async (eventCode: string) => {
       }
       
       console.log('Menu selection fetched:', data ? 'Data found' : 'No data found');
+      if (data && data.canape_selections) {
+        console.log('Fetched canape selections:', data.canape_selections);
+      }
+      
       return data;
     }, 3, 1000); // 3 retries with 1s base delay
   } catch (error: any) {

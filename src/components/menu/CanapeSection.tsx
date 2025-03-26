@@ -107,12 +107,13 @@ const CanapeSection = ({
         <div className="space-y-1 mt-1">
           {Array.from({ length: getCanapeSlots() }).map((_, index) => {
             const position = index + 1;
-            const canapeValue = selectedCanapes && selectedCanapes.length > index 
+            // Ensure we're mapping to the correct positions
+            const canapeValue = selectedCanapes && position <= selectedCanapes.length 
               ? selectedCanapes[index] 
               : '';
             
             return (
-              <div key={index}>
+              <div key={`canape-${position}`}>
                 {!canapeValue ? (
                   <MenuDropdown
                     value={canapeValue}
