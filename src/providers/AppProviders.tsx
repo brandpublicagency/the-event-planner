@@ -40,4 +40,4 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
       </ThemeProvider>
     </ErrorBoundary>
   );
-};
+}

@@ -9,7 +9,7 @@ import WeddingMenuPlanner from "@/components/menu-planner/WeddingMenuPlanner";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { Edit } from "lucide-react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast";
 
 interface EventDetailsContentProps {
   event: Event;

@@ -12,7 +12,7 @@ import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoad
 import { EventDetailsError } from "@/components/event-details/EventDetailsError";
 import { EventDetailsEmpty } from "@/components/event-details/EventDetailsEmpty";
 import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const EventDetails = () => {
   const { id } = useParams();
