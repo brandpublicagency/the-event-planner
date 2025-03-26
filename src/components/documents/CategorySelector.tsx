@@ -4,18 +4,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCategories } from "@/hooks/useCategories";
 import { Tag, Loader2 } from "lucide-react";
 
-interface CategorySelectorProps {
+export interface CategorySelectorProps {
   selectedCategory: string | null;
   onChange: (categoryId: string | null) => void;
   includeAllOption?: boolean;
   placeholder?: string;
+  multiSelect?: boolean;
 }
 
 export function CategorySelector({ 
   selectedCategory, 
   onChange, 
   includeAllOption = false,
-  placeholder = "Select category" 
+  placeholder = "Select category",
+  multiSelect = false
 }: CategorySelectorProps) {
   const { categories, isLoadingCategories } = useCategories();
 

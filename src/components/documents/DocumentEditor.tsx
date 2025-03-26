@@ -5,7 +5,7 @@ import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useEffect, useRef, useMemo } from "react";
-import { DocumentEditorHeader } from "./DocumentEditorHeader";
+import DocumentEditorHeader from "./DocumentEditorHeader";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
 import { DocumentEditorError } from "./DocumentEditorError";
@@ -86,13 +86,15 @@ export default function DocumentEditor({
       <DocumentEditorHeader
         document={document}
         selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
+        onTitleChange={(title) => saveDocument({ title, showToast: false })}
         isSaving={isSaving}
         handleSave={handleSave}
         isLoadingDocumentCategories={isLoadingDocumentCategories}
         contentRef={contentRef}
         documentCategories={documentCategories}
         categories={categories}
+        content={editor?.getHTML()}
+        printRef={contentRef}
       />
       <div className="flex-1 px-6 pb-6 flex flex-col overflow-hidden">
         <DocumentContent editor={editor} ref={contentRef} />

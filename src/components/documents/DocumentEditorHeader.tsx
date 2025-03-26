@@ -14,13 +14,23 @@ interface DocumentEditorHeaderProps {
   content?: string;
   printRef?: React.RefObject<HTMLDivElement>;
   onTitleChange?: (title: string) => void;
+  selectedCategories?: any[];
+  setSelectedCategories?: (categories: any[]) => void;
+  isSaving?: boolean;
+  handleSave?: () => void;
+  isLoadingDocumentCategories?: boolean;
+  contentRef?: React.RefObject<HTMLDivElement>;
+  documentCategories?: any[];
+  categories?: any[];
 }
 
 export default function DocumentEditorHeader({
   document,
   content,
   printRef,
-  onTitleChange
+  onTitleChange,
+  selectedCategories = [],
+  isLoadingDocumentCategories = false
 }: DocumentEditorHeaderProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -70,15 +80,17 @@ export default function DocumentEditorHeader({
     <div className="flex items-center justify-between border-b p-4">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <DocumentTitle 
-          title={document.title} 
-          onChange={onTitleChange}
+          title={document.title}
+          onTitleChange={onTitleChange}
+          documentId={document.id}
+          editor={null}
         />
         
         <div className="hidden sm:flex">
           <CategorySelector 
-            selectedCategories={document.category_ids || []}
+            selectedCategory={document.category_ids && document.category_ids.length > 0 ? document.category_ids[0] : null}
             onChange={handleCategoryChange}
-            multiSelect={true}
+            placeholder="Select category"
           />
         </div>
       </div>

@@ -4,9 +4,9 @@ import { DocumentActions } from "./DocumentActions";
 import { Editor } from '@tiptap/react';
 import { Document } from '@/types/document';
 
-interface DocumentTitleProps {
+export interface DocumentTitleProps {
   title: string;
-  onTitleChange: (title: string) => void;
+  onTitleChange?: (title: string) => void;
   documentId: string;
   editor: Editor | null;
 }
@@ -22,7 +22,7 @@ export function DocumentTitle({
       <div className="flex-1">
         <Input
           value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
+          onChange={(e) => onTitleChange && onTitleChange(e.target.value)}
           className="text-lg font-semibold bg-transparent border-none hover:bg-secondary/20 focus-visible:bg-secondary/20 transition-colors"
           placeholder="Untitled Document"
         />
