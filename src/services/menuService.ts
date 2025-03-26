@@ -1,4 +1,3 @@
-
 import { supabase, retryOperation } from "@/integrations/supabase/client";
 import { SaveMenuData } from "@/hooks/menuStateTypes";
 
@@ -8,6 +7,17 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
     
     if (!eventCode) {
       throw new Error('Event code is required');
+    }
+    
+    // Validate that event_code is present and matches the parameter
+    if (!updates.event_code || updates.event_code !== eventCode) {
+      console.warn('Fixing missing or incorrect event_code in updates object');
+      updates.event_code = eventCode;
+    }
+    
+    // Ensure canape_selections is properly initialized as an array
+    if (!updates.canape_selections) {
+      updates.canape_selections = [];
     }
     
     // Ensure all array properties are properly initialized
@@ -27,8 +37,12 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
       return { ...acc, [key]: value };
     }, {} as SaveMenuData);
     
-    // Ensure event_code is ALWAYS included in the data
-    processedUpdates.event_code = eventCode;
+    // Extra validation for canape selections
+    if (Array.isArray(processedUpdates.canape_selections)) {
+      // Filter out any empty strings or nulls
+      processedUpdates.canape_selections = processedUpdates.canape_selections.filter(item => item && item.trim() !== '');
+      console.log('Processed canape selections for save:', processedUpdates.canape_selections);
+    }
     
     console.log('Executing Supabase upsert operation with data:', JSON.stringify(processedUpdates, null, 2));
     

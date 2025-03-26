@@ -28,7 +28,13 @@ export const useMenuUpdater = (setMenuState: React.Dispatch<React.SetStateAction
       newCanapes[position - 1] = value;
       
       console.log('Updated canapes array:', newCanapes);
-      return { ...prev, selectedCanapes: newCanapes };
+      
+      // Filter out empty strings when returning the new state
+      // This ensures we only store actual selections
+      return { 
+        ...prev, 
+        selectedCanapes: newCanapes.map(item => item || '')
+      };
     });
   }, [setMenuState]);
 

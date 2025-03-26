@@ -17,6 +17,11 @@ const CanapeSection = ({
   onCanapePackageChange,
   onCanapeSelection,
 }: CanapeSectionProps) => {
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log(`CanapeSection rendered with package: ${selectedCanapePackage}, selections:`, selectedCanapes);
+  }, [selectedCanapePackage, selectedCanapes]);
+
   // Validate canape selections when the package changes
   useEffect(() => {
     if (selectedCanapePackage) {
@@ -27,7 +32,7 @@ const CanapeSection = ({
       console.log(`Current selections: ${JSON.stringify(selectedCanapes)}`);
       
       // Ensure we don't have more selections than allowed by the package
-      if (selectedCanapes.length > maxCanapes) {
+      if (selectedCanapes && selectedCanapes.length > maxCanapes) {
         console.log(`Trimming canape selections from ${selectedCanapes.length} to ${maxCanapes}`);
         const trimmedSelections = selectedCanapes.slice(0, maxCanapes);
         // Use a timeout to avoid React state update conflicts
@@ -70,29 +75,32 @@ const CanapeSection = ({
 
       {selectedCanapePackage && (
         <div className="space-y-1 mt-1">
-          {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => (
-            <div key={index}>
-              {!selectedCanapes[index] ? (
-                <MenuDropdown
-                  value={selectedCanapes[index] || ''}
-                  onValueChange={(value) => onCanapeSelection(index + 1, value)}
-                  options={canapeOptions
-                    .filter(option => !selectedCanapes.includes(option.value))
-                    .map(canape => ({
-                      value: canape.value,
-                      label: canape.label
-                    }))}
-                  placeholder={`Select canapé ${index + 1}`}
-                />
-              ) : (
-                <SelectionDisplay
-                  label={canapeOptions.find(opt => opt.value === selectedCanapes[index])?.label || ''}
-                  onRemove={() => onCanapeSelection(index + 1, '')}
-                  actionLabel="Change"
-                />
-              )}
-            </div>
-          ))}
+          {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => {
+            const canapeValue = selectedCanapes && selectedCanapes.length > index ? selectedCanapes[index] : '';
+            return (
+              <div key={index}>
+                {!canapeValue ? (
+                  <MenuDropdown
+                    value={canapeValue}
+                    onValueChange={(value) => onCanapeSelection(index + 1, value)}
+                    options={canapeOptions
+                      .filter(option => !selectedCanapes?.includes(option.value))
+                      .map(canape => ({
+                        value: canape.value,
+                        label: canape.label
+                      }))}
+                    placeholder={`Select canapé ${index + 1}`}
+                  />
+                ) : (
+                  <SelectionDisplay
+                    label={canapeOptions.find(opt => opt.value === canapeValue)?.label || ''}
+                    onRemove={() => onCanapeSelection(index + 1, '')}
+                    actionLabel="Change"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

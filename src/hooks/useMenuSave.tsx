@@ -43,11 +43,16 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       // Explicitly ensure event_code is set correctly
       menuData.event_code = eventCode;
       
+      // Log canape selections specifically to debug
+      console.log('Canape selections to be saved:', menuData.canape_selections);
+      
       console.log('Transformed menu data:', JSON.stringify({
         event_code: menuData.event_code,
         is_custom: menuData.is_custom,
-        dessert_type: menuData.dessert_type,
-        canape_selections: menuData.canape_selections
+        starter_type: menuData.starter_type,
+        canape_package: menuData.canape_package,
+        canape_selections: menuData.canape_selections,
+        dessert_type: menuData.dessert_type
       }, null, 2));
       
       const result = await updateMenuSelection(eventCode, menuData);
