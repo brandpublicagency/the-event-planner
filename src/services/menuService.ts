@@ -1,7 +1,8 @@
 
 import { supabase, retryOperation } from "@/integrations/supabase/client";
+import { SaveMenuData } from "@/hooks/menuStateTypes";
 
-export const updateMenuSelection = async (eventCode: string, updates: any) => {
+export const updateMenuSelection = async (eventCode: string, updates: SaveMenuData) => {
   try {
     console.log(`Starting menu upsert operation for event: ${eventCode}`);
     
@@ -24,11 +25,11 @@ export const updateMenuSelection = async (eventCode: string, updates: any) => {
         return { ...acc, [key]: [] };
       }
       return { ...acc, [key]: value };
-    }, {});
+    }, {} as SaveMenuData);
     
     // Validate the event_code is included in the data
-    if (processedUpdates.event_code !== eventCode) {
-      console.warn('Correcting mismatched event_code in menu data');
+    if (!processedUpdates.event_code || processedUpdates.event_code !== eventCode) {
+      console.warn('Ensuring event_code in menu data matches the provided eventCode parameter');
       processedUpdates.event_code = eventCode;
     }
     

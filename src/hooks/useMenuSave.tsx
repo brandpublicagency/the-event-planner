@@ -44,6 +44,12 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       
       const menuData: SaveMenuData = transformMenuStateToApi(eventCode, menuState);
       
+      // Ensure event_code is present and correct
+      if (!menuData.event_code) {
+        console.warn('Adding missing event_code to menuData');
+        menuData.event_code = eventCode;
+      }
+      
       console.log('Transformed menu data:', JSON.stringify({
         event_code: menuData.event_code,
         is_custom: menuData.is_custom,
