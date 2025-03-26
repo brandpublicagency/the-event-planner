@@ -16,24 +16,28 @@ export const useMenuUpdater = (setMenuState: React.Dispatch<React.SetStateAction
     console.log(`Setting canape position ${position} to "${value}"`);
     
     setMenuState(prev => {
-      // Create a new array with enough space for this position
+      // Create a new array with the current selections
       const newCanapes = [...(prev.selectedCanapes || [])];
       
-      // Ensure the array is long enough (fill with empty strings if needed)
-      while (newCanapes.length < position) {
+      // Arrays are zero-indexed, but our positions are 1-based
+      const index = position - 1;
+      
+      // Ensure the array is long enough for this position
+      while (newCanapes.length <= index) {
         newCanapes.push('');
       }
       
-      // Set the value at the position (adjusting for 0-indexed array)
-      newCanapes[position - 1] = value;
+      // Set the value at the position
+      newCanapes[index] = value;
       
-      console.log('Updated canapes array:', newCanapes);
+      // Filter out empty strings when saving
+      const filteredCanapes = newCanapes.filter(item => item !== '');
       
-      // Filter out empty strings when returning the new state
-      // This ensures we only store actual selections
+      console.log('Updated canapes array:', filteredCanapes);
+      
       return { 
         ...prev, 
-        selectedCanapes: newCanapes.map(item => item || '')
+        selectedCanapes: filteredCanapes
       };
     });
   }, [setMenuState]);

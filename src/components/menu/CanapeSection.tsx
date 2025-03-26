@@ -32,24 +32,54 @@ const CanapeSection = ({
       console.log(`Current selections: ${JSON.stringify(selectedCanapes)}`);
       
       // Ensure we don't have more selections than allowed by the package
-      if (selectedCanapes && selectedCanapes.length > maxCanapes) {
+      if (Array.isArray(selectedCanapes) && selectedCanapes.length > maxCanapes) {
         console.log(`Trimming canape selections from ${selectedCanapes.length} to ${maxCanapes}`);
-        const trimmedSelections = selectedCanapes.slice(0, maxCanapes);
+        
         // Use a timeout to avoid React state update conflicts
         setTimeout(() => {
-          const updatedCanapes = [...trimmedSelections];
-          while (updatedCanapes.length < maxCanapes) {
-            updatedCanapes.push('');
-          }
+          // Get the first maxCanapes items from the array
+          const trimmedSelections = selectedCanapes.slice(0, maxCanapes);
           
-          // Update each position individually to maintain indices
-          updatedCanapes.forEach((value, index) => {
-            onCanapeSelection(index + 1, value);
+          // Update each position individually
+          trimmedSelections.forEach((value, index) => {
+            if (value) {
+              onCanapeSelection(index + 1, value);
+            }
           });
         }, 0);
       }
     }
   }, [selectedCanapePackage, selectedCanapes, onCanapeSelection]);
+
+  // Helper function to get the actual number of canape slots
+  const getCanapeSlots = () => {
+    if (!selectedCanapePackage) return 0;
+    return parseInt(selectedCanapePackage, 10);
+  };
+
+  // Helper function to get currently used canape options
+  const getUsedCanapeOptions = () => {
+    if (!selectedCanapes || !Array.isArray(selectedCanapes)) return [];
+    return selectedCanapes.filter(Boolean);
+  };
+
+  // Helper function to get available canape options (excluding already selected ones)
+  const getAvailableOptions = (currentPosition: number) => {
+    const usedOptions = getUsedCanapeOptions();
+    
+    // For the current position, we need to include its current value in the available options
+    const currentPositionValue = selectedCanapes && selectedCanapes.length > currentPosition - 1 
+      ? selectedCanapes[currentPosition - 1] 
+      : '';
+    
+    return canapeOptions.filter(option => {
+      // Always include the current value for this position in available options
+      if (option.value === currentPositionValue) return true;
+      
+      // Exclude options that are already selected in other positions
+      return !usedOptions.includes(option.value);
+    });
+  };
 
   return (
     <div className="space-y-2">
@@ -75,26 +105,25 @@ const CanapeSection = ({
 
       {selectedCanapePackage && (
         <div className="space-y-1 mt-1">
-          {Array.from({ length: parseInt(selectedCanapePackage) }).map((_, index) => {
-            const canapeValue = selectedCanapes && selectedCanapes.length > index ? selectedCanapes[index] : '';
+          {Array.from({ length: getCanapeSlots() }).map((_, index) => {
+            const position = index + 1;
+            const canapeValue = selectedCanapes && selectedCanapes.length > index 
+              ? selectedCanapes[index] 
+              : '';
+            
             return (
               <div key={index}>
                 {!canapeValue ? (
                   <MenuDropdown
                     value={canapeValue}
-                    onValueChange={(value) => onCanapeSelection(index + 1, value)}
-                    options={canapeOptions
-                      .filter(option => !selectedCanapes?.includes(option.value))
-                      .map(canape => ({
-                        value: canape.value,
-                        label: canape.label
-                      }))}
-                    placeholder={`Select canapé ${index + 1}`}
+                    onValueChange={(value) => onCanapeSelection(position, value)}
+                    options={getAvailableOptions(position)}
+                    placeholder={`Select canapé ${position}`}
                   />
                 ) : (
                   <SelectionDisplay
                     label={canapeOptions.find(opt => opt.value === canapeValue)?.label || ''}
-                    onRemove={() => onCanapeSelection(index + 1, '')}
+                    onRemove={() => onCanapeSelection(position, '')}
                     actionLabel="Change"
                   />
                 )}

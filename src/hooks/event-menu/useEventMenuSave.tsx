@@ -84,6 +84,7 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
           toastShown.current = true;
         }
         
+        setIsSaving(false);
         return Promise.resolve();
       } catch (error: any) {
         console.error(`Save attempt ${retryCount + 1} failed:`, error.message || 'Unknown error');
@@ -99,15 +100,18 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
             });
             toastShown.current = true;
           }
+          setIsSaving(false);
           throw error;
         }
         
         // Wait before retrying with exponential backoff
         await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-      } finally {
-        setIsSaving(false);
       }
     }
+    
+    // This should never be reached due to the return/throw inside the loop
+    setIsSaving(false);
+    return Promise.reject(new Error("Unexpected save failure"));
   };
 
   return {

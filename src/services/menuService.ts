@@ -1,3 +1,4 @@
+
 import { supabase, retryOperation } from "@/integrations/supabase/client";
 import { SaveMenuData } from "@/hooks/menuStateTypes";
 
@@ -15,13 +16,14 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
       updates.event_code = eventCode;
     }
     
-    // Ensure canape_selections is properly initialized as an array
-    if (!updates.canape_selections) {
-      updates.canape_selections = [];
-    }
-    
-    // Ensure all array properties are properly initialized
+    // Process arrays to ensure they're properly handled
     const processedUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
+      // If the value is an array, make sure it's properly initialized
+      if (Array.isArray(value)) {
+        // Filter out empty strings and nulls for array fields
+        return { ...acc, [key]: value.filter(item => item && item.trim() !== '') };
+      }
+      
       // If the value should be an array but is null/undefined, initialize it as empty array
       if (value === null && (
         key.includes('selections') || 
@@ -34,14 +36,13 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         console.log(`Converting null to empty array for ${key}`);
         return { ...acc, [key]: [] };
       }
+      
       return { ...acc, [key]: value };
     }, {} as SaveMenuData);
     
-    // Extra validation for canape selections
+    // Extra logging for canape selections
     if (Array.isArray(processedUpdates.canape_selections)) {
-      // Filter out any empty strings or nulls
-      processedUpdates.canape_selections = processedUpdates.canape_selections.filter(item => item && item.trim() !== '');
-      console.log('Processed canape selections for save:', processedUpdates.canape_selections);
+      console.log('Final canape selections for save:', processedUpdates.canape_selections);
     }
     
     console.log('Executing Supabase upsert operation with data:', JSON.stringify(processedUpdates, null, 2));
