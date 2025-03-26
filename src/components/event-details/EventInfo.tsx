@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
 interface EventInfoProps {
   event: Event;
   formattedDate: string;
@@ -18,6 +20,7 @@ interface EventInfoProps {
   isCustomMenu?: boolean;
   onCustomMenuToggle?: (checked: boolean) => void;
 }
+
 export const EventInfo = ({
   event,
   formattedDate,
@@ -30,43 +33,54 @@ export const EventInfo = ({
     if (!timeString) return '';
     return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
   };
-  const {
-    toast
-  } = useToast();
+
+  const { toast } = useToast();
+
   const startTime = formatTimeDisplay(event.start_time);
   const endTime = formatTimeDisplay(event.end_time);
   const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
 
   // Get venue names using the utility function
   const venueNames = getVenueNames(event);
-
+  
   // Handler to ensure toggle changes are properly dispatched
   const handleToggleChange = (checked: boolean) => {
     if (onCustomMenuToggle) {
       onCustomMenuToggle(checked);
     }
   };
-  return <div className="mb-8 event-info-container">
-      <div className="">
+
+  return (
+    <div className="mb-8 event-info-container">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center">
-            <h1 className="tracking-normal px-0 text-xl font-medium text-zinc-700 my-0 mx-[3px]">
+            <h1 className="tracking-tight px-0 text-zinc-800 text-xl font-bold">
               {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
             </h1>
           </div>
-          <div className="text-xs font-medium text-zinc-600 rounded my-[7px] py-[5px] px-[7px] bg-zinc-50">
+          <div className="text-sm font-bold text-zinc-600">
             {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
           </div>
         </div>
         
-        <div className="flex items-center space-x-4 mt-2 sm:mt-0 my-[6px] py-0">
-          {onCustomMenuToggle && <div className="flex items-center space-x-2">
-              <Switch id="custom-menu-toggle" checked={isCustomMenu} onCheckedChange={handleToggleChange} />
+        <div className="flex items-center space-x-4 mt-2 sm:mt-0">
+          {onCustomMenuToggle && (
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="custom-menu-toggle" 
+                checked={isCustomMenu} 
+                onCheckedChange={handleToggleChange}
+              />
               <Label htmlFor="custom-menu-toggle">Custom Menu</Label>
-            </div>}
+            </div>
+          )}
           
-          {menuState && <PrintMenu event={event} menuState={menuState} />}
+          {menuState && (
+            <PrintMenu event={event} menuState={menuState} />
+          )}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
