@@ -15,12 +15,15 @@ export const transformApiToMenuState = (
     canapeSelections: data.canape_selections
   });
 
+  const selectedCanapes = safeGetArray(data.canape_selections);
+  console.log('Processed canape selections:', selectedCanapes);
+
   return {
     isCustomMenu: data.is_custom || false,
     customMenuDetails: data.custom_menu_details || '',
     selectedStarterType: data.starter_type || '',
     selectedCanapePackage: data.canape_package || '',
-    selectedCanapes: safeGetArray(data.canape_selections),
+    selectedCanapes,
     selectedPlatedStarter: data.plated_starter || '',
     mainCourseType: data.main_course_type || '',
     buffetMeatSelections: safeGetArray(data.buffet_meat_selections),
@@ -54,50 +57,55 @@ export const transformMenuStateToApi = (
   console.log('Transforming menu state to API format:', {
     eventCode,
     isCustom: menuState.isCustomMenu,
+    starterType: menuState.selectedStarterType,
     canapesCount: menuState.selectedCanapes?.length || 0,
     canapes: menuState.selectedCanapes
   });
 
-  // Ensure all arrays are properly filtered and never undefined
-  const ensureArray = (arr: string[] | undefined | null): string[] => {
+  // Helper to ensure arrays are properly prepared for saving
+  const prepareArray = (arr: string[] | undefined | null): string[] => {
     if (!arr) return [];
-    return arr.filter(item => item && item.trim() !== '');
+    // Create a new array with all non-empty values
+    return [...arr].filter(item => item && item.trim && item.trim() !== '');
   };
 
-  // Make sure to handle all array properties properly
+  // Make a fresh object to avoid reference issues
   const apiData = {
     event_code: eventCode,
     is_custom: menuState.isCustomMenu,
     custom_menu_details: menuState.customMenuDetails,
     starter_type: menuState.selectedStarterType,
     canape_package: menuState.selectedCanapePackage,
-    canape_selections: ensureArray(menuState.selectedCanapes),
+    canape_selections: prepareArray(menuState.selectedCanapes),
     plated_starter: menuState.selectedPlatedStarter,
     main_course_type: menuState.mainCourseType,
-    buffet_meat_selections: ensureArray(menuState.buffetMeatSelections),
-    buffet_vegetable_selections: ensureArray(menuState.buffetVegetableSelections),
-    buffet_starch_selections: ensureArray(menuState.buffetStarchSelections),
+    buffet_meat_selections: prepareArray(menuState.buffetMeatSelections),
+    buffet_vegetable_selections: prepareArray(menuState.buffetVegetableSelections),
+    buffet_starch_selections: prepareArray(menuState.buffetStarchSelections),
     buffet_salad_selection: menuState.buffetSaladSelection,
     karoo_meat_selection: menuState.karooMeatSelection,
-    karoo_starch_selection: ensureArray(menuState.karooStarchSelection),
-    karoo_vegetable_selections: ensureArray(menuState.karooVegetableSelections),
+    karoo_starch_selection: prepareArray(menuState.karooStarchSelection),
+    karoo_vegetable_selections: prepareArray(menuState.karooVegetableSelections),
     karoo_salad_selection: menuState.karooSaladSelection,
     plated_main_selection: menuState.platedMainSelection,
     plated_salad_selection: menuState.platedSaladSelection,
     dessert_type: menuState.dessertType,
     traditional_dessert: menuState.traditionalDessert,
-    dessert_canapes: ensureArray(menuState.dessertCanapes),
-    individual_cakes: ensureArray(menuState.individualCakes),
+    dessert_canapes: prepareArray(menuState.dessertCanapes),
+    individual_cakes: prepareArray(menuState.individualCakes),
     individual_cake_quantities: menuState.individual_cake_quantities || {},
-    other_selections: ensureArray(menuState.otherSelections),
+    other_selections: prepareArray(menuState.otherSelections),
     other_selections_quantities: menuState.otherSelectionsQuantities || {},
     notes: menuState.notes,
   };
 
-  console.log('Final API data for saving:', {
+  console.log('Final API data for saving (key fields):', {
     event_code: apiData.event_code,
+    is_custom: apiData.is_custom,
+    starter_type: apiData.starter_type,
+    canape_package: apiData.canape_package,
     canape_selections: apiData.canape_selections,
-    canape_package: apiData.canape_package
+    main_course_type: apiData.main_course_type
   });
 
   return apiData;

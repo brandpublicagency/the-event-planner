@@ -16,53 +16,60 @@ export const useMenuUpdater = (setMenuState: React.Dispatch<React.SetStateAction
     console.log(`Setting canape position ${position} to "${value}"`);
     
     setMenuState(prev => {
-      // Create a copy of the current selections (or initialize as empty array)
-      const currentCanapes = Array.isArray(prev.selectedCanapes) ? [...prev.selectedCanapes] : [];
+      // Create a deep copy of current state
+      const newState = { ...prev };
+      
+      // Initialize or copy the canapes array
+      const currentCanapes = Array.isArray(prev.selectedCanapes) 
+        ? [...prev.selectedCanapes] 
+        : [];
+      
+      let newCanapes: string[];
       
       if (value === '') {
-        // Remove the canape at the specified position
-        // First create an array with all position mappings
-        const mappedCanapes = currentCanapes.map((item, index) => ({ 
-          value: item, 
-          originalIndex: index + 1 
-        }));
+        // Remove canape at this position
+        newCanapes = currentCanapes.filter((_, idx) => idx !== position - 1);
         
-        // Filter out the position being removed
-        const filteredCanapes = mappedCanapes
-          .filter(item => item.originalIndex !== position)
-          .map(item => item.value);
-        
-        console.log('Removed canape, new array:', filteredCanapes);
-        
-        return {
-          ...prev,
-          selectedCanapes: filteredCanapes
-        };
+        // If removing the last item in the array
+        if (position === currentCanapes.length) {
+          newCanapes = currentCanapes.slice(0, -1);
+        } else {
+          // Rebuild array without the item at position
+          newCanapes = [];
+          for (let i = 0; i < currentCanapes.length; i++) {
+            if (i !== position - 1) {
+              newCanapes.push(currentCanapes[i]);
+            }
+          }
+        }
       } else {
-        // For adding/updating, we need to ensure the array is large enough
-        const newCanapes = [...currentCanapes];
+        // For adding/updating, ensure array is large enough
+        newCanapes = [...currentCanapes];
         
         // Arrays are zero-indexed, but positions are 1-based
         const index = position - 1;
         
-        // Ensure the array is long enough for this position
+        // Ensure the array is long enough
         while (newCanapes.length <= index) {
           newCanapes.push('');
         }
         
         // Set the value at the position
         newCanapes[index] = value;
-        
-        // Filter out empty strings when saving
-        const filteredCanapes = newCanapes.filter(item => item !== '');
-        
-        console.log('Updated canapes array:', filteredCanapes);
-        
-        return {
-          ...prev,
-          selectedCanapes: filteredCanapes
-        };
       }
+      
+      // Remove empty strings at the end
+      while (newCanapes.length > 0 && newCanapes[newCanapes.length - 1] === '') {
+        newCanapes.pop();
+      }
+      
+      console.log('Updated canapes array:', newCanapes);
+      
+      // Update the state with new canapes array
+      return {
+        ...newState,
+        selectedCanapes: newCanapes
+      };
     });
   }, [setMenuState]);
 

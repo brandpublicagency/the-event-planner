@@ -20,7 +20,7 @@ export const SaveButton = ({
   loadingText = "Saving...",
   defaultText = "Save",
   showIcon = true,
-  timeout = 5000,
+  timeout = 10000, // Increased timeout
   className,
   disabled,
   ...props
@@ -48,7 +48,10 @@ export const SaveButton = ({
       
       // Set up timeout to prevent indefinite loading state
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error(`Operation timed out after ${timeout}ms`)), timeout);
+        setTimeout(() => {
+          console.error(`Operation timed out after ${timeout}ms`);
+          reject(new Error(`Operation timed out after ${timeout}ms`));
+        }, timeout);
       });
       
       // Race between the actual operation and the timeout
@@ -57,6 +60,7 @@ export const SaveButton = ({
         timeoutPromise
       ]);
       
+      // Only set success if we get here (no errors were thrown)
       setStatus('success');
     } catch (error: any) {
       console.error('Save operation failed:', error);

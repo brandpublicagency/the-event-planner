@@ -16,16 +16,20 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
       updates.event_code = eventCode;
     }
     
+    // Create a deep copy of updates to avoid modifying the original
+    const processedUpdates = JSON.parse(JSON.stringify(updates)) as SaveMenuData;
+    
     // Process arrays to ensure they're properly handled
-    const processedUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
-      // If the value is an array, make sure it's properly initialized
+    for (const [key, value] of Object.entries(processedUpdates)) {
+      // If the value is an array, make sure it's properly handled
       if (Array.isArray(value)) {
-        // Add detailed logging for debugging
         console.log(`Processing array field ${key}:`, value);
-        // Filter out empty strings and nulls for array fields
-        const filtered = value.filter(item => item && item.trim() !== '');
+        
+        // Ensure all items in the array are valid
+        const filtered = value.filter(item => item !== null && item !== undefined && item.trim !== undefined && item.trim() !== '');
+        
         console.log(`After filtering ${key}:`, filtered);
-        return { ...acc, [key]: filtered };
+        processedUpdates[key as keyof SaveMenuData] = filtered as any;
       }
       
       // If the value should be an array but is null/undefined, initialize it as empty array
@@ -38,15 +42,18 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         key.includes('vegetable_selections')
       )) {
         console.log(`Converting null to empty array for ${key}`);
-        return { ...acc, [key]: [] };
+        processedUpdates[key as keyof SaveMenuData] = [] as any;
       }
-      
-      return { ...acc, [key]: value };
-    }, {} as SaveMenuData);
+    }
     
-    // Extra logging for canape selections
-    if (Array.isArray(processedUpdates.canape_selections)) {
-      console.log('Final canape selections for save:', processedUpdates.canape_selections);
+    // Final validation check for critical fields
+    if (processedUpdates.starter_type === 'canapes') {
+      console.log('Validating canape selections:', processedUpdates.canape_selections);
+      
+      if (!Array.isArray(processedUpdates.canape_selections)) {
+        console.warn('Canape selections not an array, fixing...');
+        processedUpdates.canape_selections = [];
+      }
     }
     
     console.log('Executing Supabase upsert operation with data:', JSON.stringify(processedUpdates, null, 2));
@@ -56,7 +63,8 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
       const { data, error } = await supabase
         .from('menu_selections')
         .upsert(processedUpdates, {
-          onConflict: 'event_code'  // Ensure we update based on event_code conflict
+          onConflict: 'event_code',
+          ignoreDuplicates: false
         })
         .select();
 
@@ -65,14 +73,20 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         throw error;
       }
       
-      if (!data || data.length === 0) {
-        console.warn('No data returned from upsert operation, but no error');
-        // This is okay, upsert might not return data
-        return { success: true, message: 'Menu updated' };
+      // Verify the save was successful by fetching the latest data
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('menu_selections')
+        .select('*')
+        .eq('event_code', eventCode)
+        .single();
+      
+      if (verifyError) {
+        console.error('Error verifying saved data:', verifyError);
+      } else {
+        console.log('Verified saved data:', verifyData);
       }
       
-      console.log('Menu selection successfully saved to database:', data);
-      return data;
+      return data || { success: true };
     }, 3, 1000); // 3 retries with 1s base delay
     
     return result;

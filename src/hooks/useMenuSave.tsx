@@ -36,32 +36,33 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     
     try {
       console.log(`Starting menu save for event ${eventCode}...`);
+      console.log('Current menu state before transform:', JSON.stringify(menuState, null, 2));
       
       // Transform menu state to API format
       const menuData: SaveMenuData = transformMenuStateToApi(eventCode, menuState);
       
-      // Explicitly ensure event_code is set correctly
-      menuData.event_code = eventCode;
-      
-      // Log canape selections specifically to debug
-      if (Array.isArray(menuData.canape_selections)) {
-        console.log('Canape selections to be saved:', menuData.canape_selections);
-        // Additional check to make sure we have valid values
-        if (menuData.canape_selections.some(item => !item || item.trim() === '')) {
-          console.warn('Found empty items in canape selections, filtering...');
-          menuData.canape_selections = menuData.canape_selections.filter(item => item && item.trim() !== '');
-        }
-      }
-      
-      console.log('Transformed menu data:', JSON.stringify({
+      // Verify that critical fields were properly transformed
+      console.log('Menu data after transform:', JSON.stringify({
         event_code: menuData.event_code,
         is_custom: menuData.is_custom,
         starter_type: menuData.starter_type,
         canape_package: menuData.canape_package,
         canape_selections: menuData.canape_selections,
+        main_course_type: menuData.main_course_type,
         dessert_type: menuData.dessert_type
       }, null, 2));
       
+      // Validate array fields
+      if (Array.isArray(menuData.canape_selections)) {
+        console.log('Canape selections to be saved:', menuData.canape_selections);
+        if (menuData.canape_selections.length === 0 && menuState.selectedCanapes?.length > 0) {
+          console.error('WARNING: Canape selections were lost during transformation!');
+          menuData.canape_selections = [...menuState.selectedCanapes];
+          console.log('Fixed canape selections:', menuData.canape_selections);
+        }
+      }
+      
+      // Save to database
       const result = await updateMenuSelection(eventCode, menuData);
       
       // Store the last saved state for change detection
@@ -69,8 +70,8 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       setLastSavedState(savedStateString);
       
       console.log('Menu saved successfully:', result);
+      toast.success('Menu saved successfully');
       
-      // Only show success toast here, not in another component
       return Promise.resolve();
     } catch (err: any) {
       console.error('Error saving menu selections:', err);

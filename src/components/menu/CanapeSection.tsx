@@ -117,14 +117,20 @@ const CanapeSection = ({
                 {!canapeValue ? (
                   <MenuDropdown
                     value={canapeValue}
-                    onValueChange={(value) => onCanapeSelection(position, value)}
+                    onValueChange={(value) => {
+                      console.log(`Selected canape #${position}: ${value}`);
+                      onCanapeSelection(position, value);
+                    }}
                     options={getAvailableOptions(position)}
                     placeholder={`Select canapé ${position}`}
                   />
                 ) : (
                   <SelectionDisplay
                     label={canapeOptions.find(opt => opt.value === canapeValue)?.label || ''}
-                    onRemove={() => onCanapeSelection(position, '')}
+                    onRemove={() => {
+                      console.log(`Removing canape #${position}`);
+                      onCanapeSelection(position, '');
+                    }}
                     actionLabel="Change"
                   />
                 )}
