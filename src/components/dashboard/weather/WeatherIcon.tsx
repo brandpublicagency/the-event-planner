@@ -1,79 +1,70 @@
-
 import React from 'react';
-import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun, Wind, CloudSun, Moon } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudSnow, CloudFog, CloudLightning } from 'lucide-react';
 
-interface WeatherIconProps {
-  condition?: string;
+export interface WeatherIconProps {
+  condition: string;
   customIcon?: string;
   className?: string;
 }
 
-const WeatherIcon: React.FC<WeatherIconProps> = ({ 
-  condition = 'clear', 
-  customIcon,
-  className = 'h-6 w-6' 
-}) => {
-  const normalizedCondition = (condition || '').toLowerCase();
-  const iconSize = className;
-  
-  // If sunset is specified, render sunset icon
-  if (normalizedCondition === 'sunset') {
-    return (
-      <div className={className}>
-        <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 3V5M5.6 5.6L7 7M3 12H5M5.6 18.4L7 17M21 12H19M18.4 18.4L17 17M18.4 5.6L17 7M12 19V21M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" 
-          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-    );
-  }
-  
-  // If customIcon is provided, use OpenWeather icon codes
-  if (customIcon) {
-    const isNight = customIcon.endsWith('n');
+const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, customIcon, className = "w-10 h-10" }) => {
+  const getIconFromCode = (iconCode: string) => {
+    const isNight = iconCode?.endsWith('n');
     
-    if (customIcon.startsWith('01')) {
-      return isNight ? <Moon className={iconSize} /> : <Sun className={iconSize} />;
-    } else if (customIcon.startsWith('02')) {
-      return isNight ? <CloudSun className={iconSize} /> : <CloudSun className={iconSize} />;
-    } else if (customIcon.startsWith('03') || customIcon.startsWith('04')) {
-      return <Cloud className={iconSize} />;
-    } else if (customIcon.startsWith('09')) {
-      return <CloudDrizzle className={iconSize} />;
-    } else if (customIcon.startsWith('10')) {
-      return <CloudRain className={iconSize} />;
-    } else if (customIcon.startsWith('11')) {
-      return <CloudLightning className={iconSize} />;
-    } else if (customIcon.startsWith('13')) {
-      return <CloudSnow className={iconSize} />;
-    } else if (customIcon.startsWith('50')) {
-      return <CloudFog className={iconSize} />;
+    // Get main weather type from OpenWeather icon code
+    // First character(s) indicate weather condition
+    const weatherType = iconCode?.substring(0, 2);
+    
+    switch (weatherType) {
+      case '01': return <Sun className={className} />;
+      case '02':
+      case '03':
+      case '04': return <Cloud className={className} />;
+      case '09':
+      case '10': return <CloudRain className={className} />;
+      case '11': return <CloudLightning className={className} />;
+      case '13': return <CloudSnow className={className} />;
+      case '50': return <CloudFog className={className} />;
+      default: return <Sun className={className} />;
     }
+  };
+  
+  // If a custom icon code is provided (from OpenWeather), use that
+  if (customIcon) {
+    return getIconFromCode(customIcon);
   }
   
-  // Fallback to condition-based icons
-  if (normalizedCondition.includes('clear') || normalizedCondition.includes('sunny')) {
-    return <Sun className={iconSize} />;
-  } else if (normalizedCondition.includes('partly cloudy')) {
-    return <CloudSun className={iconSize} />;
-  } else if (normalizedCondition.includes('cloud')) {
-    return <Cloud className={iconSize} />;
-  } else if (normalizedCondition.includes('drizzle')) {
-    return <CloudDrizzle className={iconSize} />;
-  } else if (normalizedCondition.includes('rain')) {
-    return <CloudRain className={iconSize} />;
-  } else if (normalizedCondition.includes('thunder')) {
-    return <CloudLightning className={iconSize} />;
-  } else if (normalizedCondition.includes('snow')) {
-    return <CloudSnow className={iconSize} />;
-  } else if (normalizedCondition.includes('fog') || normalizedCondition.includes('mist')) {
-    return <CloudFog className={iconSize} />;
-  } else if (normalizedCondition.includes('wind')) {
-    return <Wind className={iconSize} />;
+  // Otherwise determine by condition string
+  switch (condition?.toLowerCase()) {
+    case 'clear':
+    case 'sunny':
+      return <Sun className={className} />;
+    case 'clouds':
+    case 'cloudy':
+    case 'partly cloudy':
+    case 'overcast':
+      return <Cloud className={className} />;
+    case 'rain':
+    case 'rainy':
+    case 'drizzle':
+    case 'showers':
+      return <CloudRain className={className} />;
+    case 'storm':
+    case 'thunderstorm':
+    case 'thunder':
+      return <CloudLightning className={className} />;
+    case 'snow':
+    case 'snowy':
+    case 'sleet':
+    case 'hail':
+      return <CloudSnow className={className} />;
+    case 'mist':
+    case 'fog':
+    case 'haze':
+      return <CloudFog className={className} />;
+    default:
+      return <Sun className={className} />; // Default
   }
-  
-  // Default
-  return <Cloud className={iconSize} />;
 };
 
 export default WeatherIcon;
