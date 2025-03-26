@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -156,6 +157,37 @@ serve(async (req) => {
     }
 
     console.log('Mapped event data:', eventData)
+
+    // Check for duplicates within the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    
+    let checkField = eventData.primary_email || eventData.secondary_email;
+    
+    if (checkField) {
+      const { data: existingEvents } = await supabase
+        .from('events')
+        .select('event_code')
+        .or(`primary_email.eq.${checkField},secondary_email.eq.${checkField}`)
+        .gte('created_at', fiveMinutesAgo);
+      
+      if (existingEvents && existingEvents.length > 0) {
+        console.log('Duplicate submission detected:', existingEvents[0]);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            data: existingEvents[0],
+            message: 'Duplicate submission detected, returning existing event'
+          }),
+          { 
+            headers: { 
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+    }
 
     // Insert the event data into the events table
     const { data, error } = await supabase

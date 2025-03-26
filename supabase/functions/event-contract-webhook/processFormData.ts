@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { normalizeFormData } from './formNormalizer.ts';
 import { generateEventCode } from './utils.ts';
@@ -20,6 +21,37 @@ export const processFormData = async (formData: any) => {
     // Validate required fields
     if (!normalizedData.name || !normalizedData.event_type) {
       throw new Error('Missing required fields: name and event_type are required');
+    }
+    
+    // Check for duplicate submissions
+    // Look for an event with the same name, email, and timestamp within the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    
+    const { data: existingEvents, error: searchError } = await supabase
+      .from('events')
+      .select('event_code, name, primary_email, created_at')
+      .eq('name', normalizedData.name)
+      .eq('primary_email', normalizedData.primary_email)
+      .gte('created_at', fiveMinutesAgo)
+      .order('created_at', { ascending: false });
+    
+    if (searchError) {
+      console.error('Error checking for duplicates:', searchError);
+      // Continue with event creation even if duplicate check fails
+    } else if (existingEvents && existingEvents.length > 0) {
+      console.log('Duplicate submission detected:', {
+        existing_event: existingEvents[0],
+        submitted_name: normalizedData.name,
+        submitted_email: normalizedData.primary_email
+      });
+      
+      // Return the existing event code instead of creating a new one
+      return {
+        success: true,
+        event_code: existingEvents[0].event_code,
+        message: `Event already exists with code ${existingEvents[0].event_code}`,
+        isDuplicate: true
+      };
     }
     
     // Generate a unique event code

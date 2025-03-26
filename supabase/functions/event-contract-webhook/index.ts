@@ -28,8 +28,18 @@ serve(async (req) => {
       return createErrorResponse('Invalid request body format. Error: ' + parseError.message, 400);
     }
     
+    // Generate a unique request ID to track duplicate requests
+    const requestId = crypto.randomUUID();
+    console.log(`Processing form submission with request ID: ${requestId}`);
+    
     // Process the form data
     const result = await processFormData(formData);
+    
+    if (result.isDuplicate) {
+      console.log(`Duplicate submission detected. Returning existing event code: ${result.event_code}`);
+    } else {
+      console.log(`Successfully created new event with code: ${result.event_code}`);
+    }
     
     return createJsonResponse(result);
   } catch (error) {
