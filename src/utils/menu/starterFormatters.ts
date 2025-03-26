@@ -11,7 +11,19 @@ export const formatStarterSection = (menuState: MenuState): string => {
   
   let section = formatSectionHeader('ARRIVAL & STARTER');
   
-  if (menuState.selectedStarterType === 'starter_canapes') {
+  if (menuState.selectedStarterType === 'canapes') {
+    // First add the canapé package selection
+    if (menuState.selectedCanapePackage) {
+      const packageNumber = menuState.selectedCanapePackage;
+      section += `Choice of ${packageNumber} Canapés\n\n`;
+    }
+    
+    // Then list each selected canapé
+    menuState.selectedCanapes.forEach(canape => {
+      // Remove bullet points and add selected canapés
+      if (canape) section += `${cleanItemDescription(getMenuItemDescription(canape))}\n`;
+    });
+  } else if (menuState.selectedStarterType === 'starter_canapes') {
     // Don't show "Canapés - 3" but just the full canapé descriptions directly
     menuState.selectedCanapes.forEach(canape => {
       // Remove bullet points

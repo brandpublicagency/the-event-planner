@@ -27,14 +27,26 @@ const MenuStarterSection: React.FC<MenuStarterSectionProps> = ({ menuState }) =>
         </p>
       )}
       
-      {menuState.selectedStarterType === 'starter_canapes' && (
-        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
-          Canapés
-        </p>
+      {menuState.selectedStarterType === 'canapes' && (
+        <>
+          <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+            Canapés{menuState.selectedCanapePackage ? ` - Choice of ${menuState.selectedCanapePackage}` : ''}
+          </p>
+          {menuState.selectedCanapes.length > 0 && (
+            <div>
+              {menuState.selectedCanapes.map((canape, idx) => (
+                canape && <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(canape))}</p>
+              ))}
+            </div>
+          )}
+        </>
       )}
       
       {menuState.selectedStarterType === 'starter_canapes' && (
         <>
+          <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+            Canapés
+          </p>
           {menuState.selectedCanapes.length > 0 && (
             <div>
               {menuState.selectedCanapes.map((canape, idx) => (

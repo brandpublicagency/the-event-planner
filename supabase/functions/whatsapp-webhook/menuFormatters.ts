@@ -23,14 +23,13 @@ export const formatEventMenu = (menu: any): string => {
   } else {
     // Format Starter section with canape details
     if (menu.starter_type === 'canapes' || menu.canape_package) {
-      menuText += `*Starter: Canapés*\n`;
+      menuText += `*Arrival & Starter: Canapés*\n`;
       
       if (menu.canape_package) {
-        menuText += `Package: ${menu.canape_package}\n`;
+        menuText += `Choice of ${menu.canape_package} Canapés\n`;
       }
       
       if (menu.canape_selections && menu.canape_selections.length > 0) {
-        menuText += `Selections:\n`;
         menu.canape_selections.forEach((canape: string) => {
           menuText += `- ${canape}\n`;
         });

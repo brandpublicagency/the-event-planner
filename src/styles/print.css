@@ -126,4 +126,9 @@
   .menu-item + .menu-item {
     margin-top: 4px !important;
   }
+  
+  /* Style for canapé package header */
+  p:first-of-type {
+    font-weight: 500 !important;
+  }
 }
