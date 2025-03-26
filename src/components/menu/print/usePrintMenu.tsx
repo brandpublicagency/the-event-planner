@@ -3,7 +3,6 @@ import { useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useToast } from '@/hooks/use-toast';
 import { Event } from '@/types/event';
-import { MenuState } from '@/hooks/menuStateTypes';
 
 export const usePrintMenu = (event: Event) => {
   const componentRef = useRef<HTMLDivElement>(null);
@@ -11,7 +10,7 @@ export const usePrintMenu = (event: Event) => {
   
   // Log when the component mounts with debug info
   useEffect(() => {
-    console.log("Regular Print component mounted");
+    console.log("Print component mounted");
     console.log("Print ref initialized:", !!componentRef.current);
     console.log("Event data:", event.name, event.event_code);
   }, [event]);
@@ -19,21 +18,21 @@ export const usePrintMenu = (event: Event) => {
   const handlePrint = useReactToPrint({
     documentTitle: `Menu - ${event.name}`,
     onBeforePrint: () => {
-      console.log("Preparing to print regular menu...");
+      console.log("Preparing to print menu...");
       if (!componentRef.current) {
-        console.error("Print ref is not available for regular menu!");
+        console.error("Print ref is not available!");
       }
       return Promise.resolve();
     },
     onAfterPrint: () => {
-      console.log("Regular menu print completed or canceled");
+      console.log("Menu print completed or canceled");
       toast({
         title: "Print complete",
         description: "Your menu has been sent to the printer or saved as PDF."
       });
     },
     onPrintError: (error) => {
-      console.error("Regular menu print error:", error);
+      console.error("Menu print error:", error);
       toast({
         title: "Print error",
         description: "There was a problem printing your menu. Please try again.",
@@ -41,6 +40,7 @@ export const usePrintMenu = (event: Event) => {
       });
     },
     contentRef: componentRef,
+    removeAfterPrint: false,
     pageStyle: `
       @page {
         size: A4;
@@ -51,11 +51,17 @@ export const usePrintMenu = (event: Event) => {
           margin: 0;
           padding: 0;
         }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         .print-container {
           width: 210mm;
           height: auto;
           padding: 15mm;
           margin: 0 !important;
+          background-color: white !important;
         }
         h2 {
           font-size: 18px;
@@ -75,18 +81,18 @@ export const usePrintMenu = (event: Event) => {
           margin-bottom: 4px;
         }
         .menu-item {
-          margin-left: 10px;
+          margin-left: 0;
         }
       }
     `,
   });
 
   const onPrintClick = () => {
-    console.log("Regular Print button clicked");
+    console.log("Print button clicked");
     console.log("Print component ref available:", !!componentRef.current);
     
     if (!componentRef.current) {
-      console.error("Print component ref is not available for regular menu!");
+      console.error("Print component ref is not available!");
       toast({
         title: "Print error",
         description: "Could not prepare the menu for printing. Please try again.",

@@ -50,20 +50,6 @@ export const EventInfo = ({
     }
   };
 
-  const handlePrint = () => {
-    if (!menuState) {
-      toast({
-        title: "Cannot print menu",
-        description: "Menu information is not available",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Open print dialog
-    window.print();
-  };
-
   return (
     <div className="mb-8 event-info-container">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -91,15 +77,7 @@ export const EventInfo = ({
           )}
           
           {menuState && (
-            <Button 
-              onClick={handlePrint}
-              className="rounded-full" 
-              variant="outline"
-              size="sm"
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Print Menu
-            </Button>
+            <PrintMenu event={event} menuState={menuState} />
           )}
         </div>
       </div>

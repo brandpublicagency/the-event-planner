@@ -21,7 +21,7 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({ event, menuState }) => {
     <>
       <Button 
         onClick={onPrintClick}
-        className="rounded-full" 
+        className="rounded-full print-hide" 
         variant="outline"
         size="sm"
       >
