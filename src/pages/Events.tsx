@@ -125,29 +125,6 @@ const Events = () => {
     }
   };
   
-  // Find potential duplicate events
-  const findDuplicates = (events: Event[]) => {
-    const eventsByName: Record<string, Event[]> = {};
-    
-    events.forEach(event => {
-      if (!eventsByName[event.name]) {
-        eventsByName[event.name] = [];
-      }
-      eventsByName[event.name].push(event);
-    });
-    
-    // Return only the groups that have more than 1 event with the same name
-    return Object.entries(eventsByName)
-      .filter(([_, eventsGroup]) => eventsGroup.length > 1)
-      .reduce((acc, [name, eventsGroup]) => {
-        acc[name] = eventsGroup;
-        return acc;
-      }, {} as Record<string, Event[]>);
-  };
-  
-  const duplicateEvents = findDuplicates(events);
-  const hasDuplicates = Object.keys(duplicateEvents).length > 0;
-  
   const upcomingEvents = events.filter(event => {
     if (!event.event_date) return true;
     return isAfter(parseISO(event.event_date), new Date());
@@ -173,43 +150,6 @@ const Events = () => {
       <Header title="Upcoming Events" />
 
       <div className="flex-1 p-6 bg-gray-100 overflow-auto">
-        {hasDuplicates && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-amber-800 mb-2">Potential Duplicate Events Detected</h3>
-            <p className="text-amber-700 mb-3">We found events with identical names that might be duplicates:</p>
-            
-            <div className="space-y-4">
-              {Object.entries(duplicateEvents).map(([eventName, duplicates]) => (
-                <div key={eventName} className="bg-white p-4 rounded border border-amber-100">
-                  <h4 className="font-medium text-amber-900 mb-2">{eventName}</h4>
-                  <div className="space-y-2">
-                    {duplicates.map(event => (
-                      <div key={event.event_code} className="flex items-center justify-between p-2 bg-amber-50 rounded">
-                        <div>
-                          <span className="text-sm font-medium">{event.event_code}</span>
-                          {event.event_date && (
-                            <span className="text-xs text-gray-500 ml-2">
-                              {new Date(event.event_date).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          onClick={() => handleDeleteEvent(event)}
-                          className="bg-red-500 hover:bg-red-600"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
         <div className="w-full mt-[25px] px-[5px]">
           <div className="space-y-8">
             {Object.entries(groupedUpcomingEvents).map(([month, monthEvents]) => (
