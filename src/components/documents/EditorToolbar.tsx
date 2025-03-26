@@ -17,11 +17,12 @@ interface MenuButtonProps {
 
 const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) => (
   <Button
-    variant="ghost"
+    variant={active ? "default" : "ghost"}
     size="sm"
     className={`h-8 w-8 p-0 ${active ? 'bg-accent' : ''}`}
     onClick={onClick}
     title={tooltip}
+    type="button"
   >
     <Icon className="h-4 w-4" />
   </Button>

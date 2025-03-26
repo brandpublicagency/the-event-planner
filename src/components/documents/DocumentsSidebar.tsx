@@ -50,7 +50,9 @@ export function DocumentsSidebar({
       <div className="p-4 border-b">
         <Button 
           onClick={handleNewDocument} 
-          className="w-full flex items-center gap-1 shadow-sm"
+          className="w-full flex items-center gap-1"
+          variant="outline"
+          size="sm"
           disabled={createDocumentPending}
         >
           {createDocumentPending ? (

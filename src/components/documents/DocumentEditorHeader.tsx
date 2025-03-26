@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Document } from "@/types/document";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useNavigate } from "react-router-dom";
+import { SaveButton } from "@/components/ui/save-button";
 
 interface DocumentEditorHeaderProps {
   document: Document;
@@ -30,7 +31,9 @@ export default function DocumentEditorHeader({
   printRef,
   onTitleChange,
   selectedCategories = [],
-  isLoadingDocumentCategories = false
+  isLoadingDocumentCategories = false,
+  handleSave,
+  isSaving = false
 }: DocumentEditorHeaderProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -96,6 +99,18 @@ export default function DocumentEditorHeader({
       </div>
       
       <div className="flex items-center gap-2">
+        {handleSave && (
+          <SaveButton
+            onClick={handleSave}
+            disabled={isSaving}
+            loadingText="Saving..."
+            defaultText="Save Document"
+            successText="Saved!"
+            timeout={2000}
+            size="sm"
+          />
+        )}
+        
         <DocumentActions 
           document={document}
           content={content}
