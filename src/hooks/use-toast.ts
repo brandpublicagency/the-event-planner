@@ -13,7 +13,7 @@ type ToastProps = {
 };
 
 export function useToast() {
-  const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
+  const toast = ({ title, description, variant = 'default', duration = 4000, action }: ToastProps) => {
     const toastFn = getToastFunction(variant);
     
     return toastFn(title || '', {
@@ -49,7 +49,7 @@ function getToastFunction(variant: ToastProps['variant']) {
 }
 
 // Standalone toast function
-export const toast = ({ title, description, variant = 'default', duration = 5000, action }: ToastProps) => {
+export const toast = ({ title, description, variant = 'default', duration = 4000, action }: ToastProps) => {
   const toastFn = getToastFunction(variant);
   
   return toastFn(title || '', {

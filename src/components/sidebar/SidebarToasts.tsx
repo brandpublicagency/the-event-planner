@@ -5,15 +5,15 @@ import { Toaster } from "sonner";
 export const SidebarToasts = () => {
   return (
     <Toaster
-      position="bottom-center"
+      position="bottom-right"
       toastOptions={{
-        className: "rounded-md border shadow-md",
-        duration: 5000,
+        duration: 4000,
         style: {
-          background: "white",
-          borderRadius: "0.75rem",
-          color: "black",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+          backgroundColor: "white",
+          borderRadius: "0.5rem",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
+          padding: "0.75rem"
         },
       }}
     />

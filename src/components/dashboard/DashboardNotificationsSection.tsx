@@ -1,3 +1,4 @@
+
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
@@ -73,7 +74,8 @@ const DashboardNotificationsSection = () => {
   }, [markAllAsRead]);
 
   if (error) {
-    return <Alert variant="destructive" className="mt-2 mb-4">
+    return (
+      <Alert variant="destructive" className="mt-2 mb-4">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="flex justify-between items-center">
           <span>There was a problem loading notifications</span>
@@ -82,14 +84,15 @@ const DashboardNotificationsSection = () => {
             Try again
           </Button>
         </AlertDescription>
-      </Alert>;
+      </Alert>
+    );
   }
 
   const limitedNotifications = notifications.slice(0, 3);
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[12px] mt-[15px]">
+      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-100 py-[12px] mt-[15px]">
         <div className="flex flex-col">
           <p className="text-lg font-medium text-gray-800">Notifications</p>
           <p className="text-xs text-muted-foreground">
@@ -129,8 +132,8 @@ const DashboardNotificationsSection = () => {
               onCompleteTask={handleNotificationComplete} 
             />
           ) : (
-            <div className="bg-white shadow rounded-lg p-3 text-center">
-              <p className="text-sm text-zinc-500">
+            <div className="bg-white shadow-sm rounded-lg p-3 text-center">
+              <p className="text-sm text-gray-500">
                 {loading ? "Loading notifications..." : "No notifications to display"}
               </p>
               <Button variant="ghost" size="sm" onClick={handleRefresh} className="mt-2 h-7">
