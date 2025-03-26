@@ -13,9 +13,21 @@ export const useMenuUpdater = (setMenuState: React.Dispatch<React.SetStateAction
   }, [handleMenuStateChange]);
 
   const handleCanapeSelection = useCallback((position: number, value: string) => {
+    console.log(`Setting canape position ${position} to "${value}"`);
+    
     setMenuState(prev => {
+      // Create a new array with enough space for this position
       const newCanapes = [...(prev.selectedCanapes || [])];
+      
+      // Ensure the array is long enough (fill with empty strings if needed)
+      while (newCanapes.length < position) {
+        newCanapes.push('');
+      }
+      
+      // Set the value at the position (adjusting for 0-indexed array)
       newCanapes[position - 1] = value;
+      
+      console.log('Updated canapes array:', newCanapes);
       return { ...prev, selectedCanapes: newCanapes };
     });
   }, [setMenuState]);

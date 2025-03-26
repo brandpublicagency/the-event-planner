@@ -71,6 +71,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
       console.log("Initiating save menu operation");
       await onSaveMenu();
       console.log("Save menu operation completed successfully");
+      // No toast here - moved to useEventMenuSave to prevent duplicates
     } catch (error: any) {
       console.error("Error during save operation:", error);
       // Error toast is handled in the wrapped save function

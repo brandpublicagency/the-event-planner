@@ -27,11 +27,8 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
       return { ...acc, [key]: value };
     }, {} as SaveMenuData);
     
-    // Validate the event_code is included in the data
-    if (!processedUpdates.event_code || processedUpdates.event_code !== eventCode) {
-      console.warn('Ensuring event_code in menu data matches the provided eventCode parameter');
-      processedUpdates.event_code = eventCode;
-    }
+    // Ensure event_code is ALWAYS included in the data
+    processedUpdates.event_code = eventCode;
     
     console.log('Executing Supabase upsert operation with data:', JSON.stringify(processedUpdates, null, 2));
     

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { canapePackages, canapeOptions } from './MenuTypes';
+import React, { useEffect } from 'react';
+import { canapePackages, canapeOptions } from './types/starterOptions';
 import SelectionDisplay from './SelectionDisplay';
 import MenuDropdown from './common/MenuDropdown';
 
@@ -17,6 +17,35 @@ const CanapeSection = ({
   onCanapePackageChange,
   onCanapeSelection,
 }: CanapeSectionProps) => {
+  // Validate canape selections when the package changes
+  useEffect(() => {
+    if (selectedCanapePackage) {
+      const maxCanapes = parseInt(selectedCanapePackage, 10);
+      
+      // Log for debugging
+      console.log(`Canape package selected: ${selectedCanapePackage}, allows ${maxCanapes} canapes`);
+      console.log(`Current selections: ${JSON.stringify(selectedCanapes)}`);
+      
+      // Ensure we don't have more selections than allowed by the package
+      if (selectedCanapes.length > maxCanapes) {
+        console.log(`Trimming canape selections from ${selectedCanapes.length} to ${maxCanapes}`);
+        const trimmedSelections = selectedCanapes.slice(0, maxCanapes);
+        // Use a timeout to avoid React state update conflicts
+        setTimeout(() => {
+          const updatedCanapes = [...trimmedSelections];
+          while (updatedCanapes.length < maxCanapes) {
+            updatedCanapes.push('');
+          }
+          
+          // Update each position individually to maintain indices
+          updatedCanapes.forEach((value, index) => {
+            onCanapeSelection(index + 1, value);
+          });
+        }, 0);
+      }
+    }
+  }, [selectedCanapePackage, selectedCanapes, onCanapeSelection]);
+
   return (
     <div className="space-y-2">
       <div className="space-y-1">

@@ -8,6 +8,13 @@ import { safeGetArray } from "@/utils/menu";
 export const transformApiToMenuState = (
   data: MenuSelectionResponse
 ): MenuState => {
+  console.log('Transforming API data to menu state:', {
+    isCustom: data.is_custom,
+    starterType: data.starter_type,
+    canapePackage: data.canape_package,
+    canapeSelections: data.canape_selections
+  });
+
   return {
     isCustomMenu: data.is_custom || false,
     customMenuDetails: data.custom_menu_details || '',
@@ -44,7 +51,14 @@ export const transformMenuStateToApi = (
   eventCode: string,
   menuState: MenuState
 ) => {
-  return {
+  console.log('Transforming menu state to API format:', {
+    eventCode,
+    isCustom: menuState.isCustomMenu,
+    canapesCount: menuState.selectedCanapes?.length || 0
+  });
+
+  // Make sure to handle all array properties properly
+  const apiData = {
     event_code: eventCode,
     is_custom: menuState.isCustomMenu,
     custom_menu_details: menuState.customMenuDetails,
@@ -72,4 +86,12 @@ export const transformMenuStateToApi = (
     other_selections_quantities: menuState.otherSelectionsQuantities || {},
     notes: menuState.notes,
   };
+
+  console.log('Final API data:', {
+    event_code: apiData.event_code,
+    canape_selections: apiData.canape_selections,
+    canape_package: apiData.canape_package
+  });
+
+  return apiData;
 };

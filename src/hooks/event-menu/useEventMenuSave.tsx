@@ -9,6 +9,7 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
   const lastSaveTime = useRef<number | null>(null);
   const saveAttempts = useRef(0);
   const maxRetries = 3;
+  const toastShown = useRef(false);
 
   // Effect to properly track when the save function is registered
   useEffect(() => {
@@ -51,6 +52,9 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
     lastSaveTime.current = now;
     console.log(`Save attempt #${saveAttempts.current}`);
     
+    // Reset toast shown flag
+    toastShown.current = false;
+    
     let retryCount = 0;
     while (retryCount < maxRetries) {
       setIsSaving(true);
@@ -58,7 +62,13 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         await saveMenuFunction();
         console.log("Menu saved successfully");
         saveAttempts.current = 0; // Reset counter on success
-        toast.success("Menu saved successfully");
+        
+        // Show success toast only once per save operation
+        if (!toastShown.current) {
+          toast.success("Menu saved successfully");
+          toastShown.current = true;
+        }
+        
         return Promise.resolve();
       } catch (error: any) {
         console.error(`Save attempt ${retryCount + 1} failed:`, error.message || 'Unknown error');
@@ -66,7 +76,11 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         
         if (retryCount === maxRetries) {
           console.error("All retry attempts failed");
-          toast.error(`Failed to save menu after ${maxRetries} attempts`);
+          // Only show error toast if not already shown by lower-level hooks
+          if (!toastShown.current) {
+            toast.error(`Failed to save menu after ${maxRetries} attempts`);
+            toastShown.current = true;
+          }
           throw error;
         }
         

@@ -36,25 +36,19 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     
     try {
       console.log(`Starting menu save for event ${eventCode}...`);
-      console.log('Menu state before transform:', JSON.stringify({
-        isCustomMenu: menuState.isCustomMenu,
-        dessertType: menuState.dessertType,
-        mainCourseType: menuState.mainCourseType
-      }));
       
+      // Transform menu state to API format
       const menuData: SaveMenuData = transformMenuStateToApi(eventCode, menuState);
       
-      // Ensure event_code is present and correct
-      if (!menuData.event_code) {
-        console.warn('Adding missing event_code to menuData');
-        menuData.event_code = eventCode;
-      }
+      // Explicitly ensure event_code is set correctly
+      menuData.event_code = eventCode;
       
       console.log('Transformed menu data:', JSON.stringify({
         event_code: menuData.event_code,
         is_custom: menuData.is_custom,
-        dessert_type: menuData.dessert_type
-      }));
+        dessert_type: menuData.dessert_type,
+        canape_selections: menuData.canape_selections
+      }, null, 2));
       
       const result = await updateMenuSelection(eventCode, menuData);
       
@@ -63,7 +57,8 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       setLastSavedState(savedStateString);
       
       console.log('Menu saved successfully:', result);
-      toast.success('Menu saved successfully');
+      
+      // Only show success toast here, not in another component
       return Promise.resolve();
     } catch (err: any) {
       console.error('Error saving menu selections:', err);
