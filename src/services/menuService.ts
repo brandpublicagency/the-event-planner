@@ -26,10 +26,11 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         console.log(`Processing array field ${key}:`, value);
         
         // Ensure all items in the array are valid
-        const filtered = value.filter(item => item !== null && item !== undefined && item.trim !== undefined && item.trim() !== '');
+        const filtered = value.filter(item => item !== null && item !== undefined && typeof item === 'string' && item.trim() !== '');
         
         console.log(`After filtering ${key}:`, filtered);
-        processedUpdates[key as keyof SaveMenuData] = filtered as any;
+        // Use type assertion to avoid TypeScript error
+        (processedUpdates as any)[key] = filtered;
       }
       
       // If the value should be an array but is null/undefined, initialize it as empty array
@@ -42,7 +43,8 @@ export const updateMenuSelection = async (eventCode: string, updates: SaveMenuDa
         key.includes('vegetable_selections')
       )) {
         console.log(`Converting null to empty array for ${key}`);
-        processedUpdates[key as keyof SaveMenuData] = [] as any;
+        // Use type assertion to avoid TypeScript error
+        (processedUpdates as any)[key] = [];
       }
     }
     
