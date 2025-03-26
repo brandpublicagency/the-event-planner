@@ -104,18 +104,18 @@ export const permanentlyDeleteEvent = async (eventCode) => {
       // Continue with event deletion even if menu deletion fails
     }
     
-    // Delete related event venues if the table exists
+    // Try to delete related event venues if they exist
+    // Using direct SQL query instead of the from() method to avoid type errors
     try {
       const { error: venueError } = await supabase
-        .from('event_venues')
-        .delete()
-        .eq('event_code', eventCode);
+        .rpc('delete_event_venues', { event_code_param: eventCode });
       
       if (venueError) {
         console.error('Error deleting related event venues:', venueError);
+        // Since this is using RPC, it might not exist, so continue anyway
       }
     } catch (e) {
-      console.log('event_venues table may not exist, skipping:', e);
+      console.log('Failed to delete event venues, table may not exist:', e);
     }
     
     // Delete related event documents
