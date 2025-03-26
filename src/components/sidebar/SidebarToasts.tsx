@@ -5,9 +5,9 @@ import { Toaster } from "sonner";
 export const SidebarToasts = () => {
   return (
     <Toaster
-      position="top-right"
+      position="bottom-center"
       toastOptions={{
-        className: "toaster group",
+        className: "rounded-md border shadow-md",
         duration: 5000,
         style: {
           background: "white",

@@ -2,11 +2,36 @@
 /* Sonner toast styling */
 [data-sonner-toast] {
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   overflow: hidden !important;
+  background-color: white !important;
+  color: #333 !important;
+  border-width: 1px !important;
+  border-style: solid !important;
 }
 
-/* Animation for toasts */
+/* Border color variants */
+[data-sonner-toast][data-type="success"] {
+  border-color: rgb(22, 163, 74) !important;
+  border-left-width: 4px !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: rgb(220, 38, 38) !important;
+  border-left-width: 4px !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  border-color: rgb(59, 130, 246) !important;
+  border-left-width: 4px !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  border-color: rgb(245, 158, 11) !important;
+  border-left-width: 4px !important;
+}
+
+/* Animation for toasts - slower animation */
 @keyframes toast-in {
   from {
     transform: translateY(20px);
@@ -18,8 +43,23 @@
   }
 }
 
+@keyframes toast-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
 [data-sonner-toast][data-mounted="true"] {
-  animation: toast-in 0.3s ease forwards !important;
+  animation: toast-in 0.5s ease forwards !important;
+}
+
+[data-sonner-toast][data-mounted="false"] {
+  animation: toast-out 0.5s ease forwards !important;
 }
 
 /* Progress bar for toasts */
@@ -29,7 +69,7 @@
   left: 0;
   bottom: 0;
   height: 3px;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.1);
   width: 100%;
   transform-origin: left;
   animation: toast-progress-animation linear forwards;
@@ -47,31 +87,10 @@
 
 /* Style for close button */
 [data-sonner-toast] [data-close-button] {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(0, 0, 0, 0.5) !important;
   transition: color 0.2s !important;
 }
 
 [data-sonner-toast] [data-close-button]:hover {
-  color: white !important;
-}
-
-/* Toast variants */
-[data-sonner-toast][data-type="success"] {
-  background-color: rgb(22, 163, 74) !important;
-  color: white !important;
-}
-
-[data-sonner-toast][data-type="error"] {
-  background-color: rgb(220, 38, 38) !important;
-  color: white !important;
-}
-
-[data-sonner-toast][data-type="info"] {
-  background-color: rgb(59, 130, 246) !important;
-  color: white !important;
-}
-
-[data-sonner-toast][data-type="warning"] {
-  background-color: rgb(245, 158, 11) !important;
-  color: white !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }

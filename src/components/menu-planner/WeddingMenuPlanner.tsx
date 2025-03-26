@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useMenuState } from '@/hooks/useMenuState';
 import { MenuState } from '@/hooks/menuStateTypes';
@@ -156,10 +157,10 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     try {
       console.log('Manual save initiated');
       await saveMenu();
-      toast.success('Menu saved successfully');
+      // Toast handled in saveMenu function
     } catch (error: any) {
       console.error('Manual save failed:', error);
-      toast.error(`Save failed: ${error.message || 'Unknown error'}`);
+      // Toast handled in saveMenu function
     } finally {
       setIsManualSaving(false);
     }

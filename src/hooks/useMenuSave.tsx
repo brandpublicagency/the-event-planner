@@ -13,14 +13,20 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     if (!eventCode) {
       const error = new Error('Event code is required');
       console.error('Cannot save: Event code is missing');
-      toast.error('Cannot save: Missing event code');
+      toast.error('Cannot save menu', {
+        description: 'Missing event code',
+        id: 'menu-save-error'
+      });
       throw error;
     }
 
     if (!isInitialized) {
       const error = new Error('Menu state not fully initialized');
       console.error('Cannot save: Menu state not fully initialized');
-      toast.error('Cannot save: Menu data not fully loaded');
+      toast.error('Cannot save menu', {
+        description: 'Menu data not fully loaded',
+        id: 'menu-save-error'
+      });
       throw error;
     }
 
@@ -34,33 +40,19 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     setLastSaveAttempt(now);
     setIsSaving(true);
     
+    // Dismiss any existing save toasts
+    toast.dismiss('menu-save-success');
+    toast.dismiss('menu-save-error');
+    toast.dismiss('menu-saving');
+    
+    // Show saving toast
+    toast.loading('Saving menu...', { id: 'menu-saving' });
+    
     try {
       console.log(`Starting menu save for event ${eventCode}...`);
-      console.log('Current menu state before transform:', JSON.stringify(menuState, null, 2));
       
       // Transform menu state to API format
       const menuData: SaveMenuData = transformMenuStateToApi(eventCode, menuState);
-      
-      // Verify that critical fields were properly transformed
-      console.log('Menu data after transform:', JSON.stringify({
-        event_code: menuData.event_code,
-        is_custom: menuData.is_custom,
-        starter_type: menuData.starter_type,
-        canape_package: menuData.canape_package,
-        canape_selections: menuData.canape_selections,
-        main_course_type: menuData.main_course_type,
-        dessert_type: menuData.dessert_type
-      }, null, 2));
-      
-      // Validate array fields
-      if (Array.isArray(menuData.canape_selections)) {
-        console.log('Canape selections to be saved:', menuData.canape_selections);
-        if (menuData.canape_selections.length === 0 && menuState.selectedCanapes?.length > 0) {
-          console.error('WARNING: Canape selections were lost during transformation!');
-          menuData.canape_selections = [...menuState.selectedCanapes];
-          console.log('Fixed canape selections:', menuData.canape_selections);
-        }
-      }
       
       // Save to database
       const result = await updateMenuSelection(eventCode, menuData);
@@ -70,12 +62,22 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       setLastSavedState(savedStateString);
       
       console.log('Menu saved successfully:', result);
-      toast.success('Menu saved successfully');
+      
+      // Dismiss saving toast and show success
+      toast.dismiss('menu-saving');
+      toast.success('Menu saved successfully', { id: 'menu-save-success' });
       
       return Promise.resolve();
     } catch (err: any) {
       console.error('Error saving menu selections:', err);
-      toast.error(`Failed to save menu: ${err.message || 'Unknown error'}`);
+      
+      // Dismiss saving toast and show error
+      toast.dismiss('menu-saving');
+      toast.error('Failed to save menu', { 
+        description: err.message || 'Unknown error',
+        id: 'menu-save-error'
+      });
+      
       throw err;
     } finally {
       setIsSaving(false);

@@ -42,15 +42,21 @@ export const SaveButton = ({
     if (isLoading) return;
     
     setIsLoading(true);
+    
+    // Each SaveButton generates a unique ID for its toast
+    const toastId = `save-operation-${Date.now()}`;
+    
     try {
+      // Toast is shown in the respective save functions now - no toast needed here
       await onClick();
-      toast.success("Save completed");
+      
+      // Set success state for button UI
       if (successText) {
         setIsSuccess(true);
       }
     } catch (error: any) {
       console.error('Save operation failed:', error);
-      toast.error(`Save failed: ${error.message || 'Unknown error'}`);
+      // Toast handled in the save functions - no need to display it here
     } finally {
       setIsLoading(false);
     }

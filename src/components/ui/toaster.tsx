@@ -4,13 +4,13 @@ import { Toaster as SonnerToaster } from "sonner";
 export function Toaster() {
   return (
     <SonnerToaster 
-      position="top-right"
+      position="bottom-center"
       expand={false}
-      richColors
+      richColors={false}
       closeButton
       toastOptions={{
         duration: 5000,
-        className: "rounded-md border border-border shadow-md",
+        className: "rounded-md border shadow-md",
         classNames: {
           title: "font-semibold text-foreground",
           description: "text-muted-foreground text-sm",
