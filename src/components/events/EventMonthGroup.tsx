@@ -1,4 +1,3 @@
-
 import React from "react";
 import { EventCard } from "@/components/events/EventCard";
 import { DashboardEventItem } from "@/components/events/DashboardEventItem";
@@ -6,7 +5,6 @@ import type { Event } from "@/types/event";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteEvent, permanentlyDeleteEvent } from "@/utils/eventUtils";
-
 interface EventMonthGroupProps {
   monthYear: string;
   events: Event[];
@@ -16,7 +14,6 @@ interface EventMonthGroupProps {
   handleDelete?: (eventCode: string) => Promise<void>;
   isDashboard?: boolean;
 }
-
 export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
   monthYear,
   events,
@@ -30,24 +27,27 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
     if (propHandleDelete) {
       return propHandleDelete(eventCode);
     }
-    
     try {
       if (isPermanent) {
         const toastId = "permanent-delete-event";
-        toast.loading("Permanently deleting event...", { id: toastId });
-        
+        toast.loading("Permanently deleting event...", {
+          id: toastId
+        });
         await permanentlyDeleteEvent(eventCode);
-        
-        toast.success("Event permanently deleted", { id: toastId });
+        toast.success("Event permanently deleted", {
+          id: toastId
+        });
       } else {
         const toastId = "soft-delete-event";
-        toast.loading("Deleting event...", { id: toastId });
-        
+        toast.loading("Deleting event...", {
+          id: toastId
+        });
         await deleteEvent(eventCode);
-        
-        toast.success("Event deleted", { id: toastId });
+        toast.success("Event deleted", {
+          id: toastId
+        });
       }
-      
+
       // If this component is rendered on the events page, refetch the events
       if (window.location.pathname === "/events") {
         window.location.reload();
@@ -57,32 +57,10 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
       toast.error("Failed to delete event");
     }
   };
-
-  return (
-    <div>
-      <h3 className="text-sm font-medium text-zinc-500 mb-2">{monthYear}</h3>
+  return <div>
+      <h3 className="mb-2 text-slate-600 font-extralight text-xl px-[10px] py-0">{monthYear}</h3>
       <div className="bg-white rounded-lg overflow-hidden divide-y divide-gray-100">
-        {events.map((event) => (
-          isDashboard ? (
-            <DashboardEventItem
-              key={event.event_code}
-              event={event}
-              handleDelete={handleDelete}
-              isDashboard={isDashboard}
-            />
-          ) : (
-            <EventCard
-              key={event.event_code}
-              event={event}
-              handleDelete={handleDelete}
-              isDashboard={isDashboard}
-              onEdit={onEdit}
-              onView={onView}
-              onDelete={onDelete}
-            />
-          )
-        ))}
+        {events.map(event => isDashboard ? <DashboardEventItem key={event.event_code} event={event} handleDelete={handleDelete} isDashboard={isDashboard} /> : <EventCard key={event.event_code} event={event} handleDelete={handleDelete} isDashboard={isDashboard} onEdit={onEdit} onView={onView} onDelete={onDelete} />)}
       </div>
-    </div>
-  );
+    </div>;
 };
