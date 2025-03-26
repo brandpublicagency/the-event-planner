@@ -1,21 +1,10 @@
 
 import React from "react";
-import { Toaster } from "sonner";
+// This component is no longer needed as we're using a single Toaster
+// implementation in the app's root layout
 
 export const SidebarToasts = () => {
-  return (
-    <Toaster
-      position="bottom-right"
-      toastOptions={{
-        duration: 4000,
-        style: {
-          backgroundColor: "white",
-          borderRadius: "0.5rem",
-          border: "1px solid #e2e8f0",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
-          padding: "0.75rem"
-        },
-      }}
-    />
-  );
+  // This is intentionally an empty component to prevent any import errors
+  // It should be removed from any layout files where it's used
+  return null;
 };

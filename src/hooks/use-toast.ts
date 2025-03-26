@@ -10,15 +10,17 @@ type ToastProps = {
     label: string;
     onClick: () => void;
   };
+  id?: string;
 };
 
 export function useToast() {
-  const toast = ({ title, description, variant = 'default', duration = 4000, action }: ToastProps) => {
+  const toast = ({ title, description, variant = 'default', duration = 4000, action, id }: ToastProps) => {
     const toastFn = getToastFunction(variant);
     
     return toastFn(title || '', {
       description,
       duration,
+      id,
       action: action ? {
         label: action.label,
         onClick: action.onClick,
@@ -48,16 +50,27 @@ function getToastFunction(variant: ToastProps['variant']) {
   }
 }
 
-// Standalone toast function
-export const toast = ({ title, description, variant = 'default', duration = 4000, action }: ToastProps) => {
+// Standalone toast function for direct imports
+export const toast = ({ title, description, variant = 'default', duration = 4000, action, id }: ToastProps) => {
   const toastFn = getToastFunction(variant);
   
   return toastFn(title || '', {
     description,
     duration,
+    id,
     action: action ? {
       label: action.label,
       onClick: action.onClick,
     } : undefined,
   });
 };
+
+// Export sonner's dismiss function
+export const dismiss = sonnerToast.dismiss;
+
+// Export sonner's other utility functions
+export const loading = sonnerToast.loading;
+export const success = sonnerToast.success;
+export const error = sonnerToast.error;
+export const info = sonnerToast.info;
+export const warning = sonnerToast.warning;

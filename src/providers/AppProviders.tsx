@@ -5,6 +5,7 @@ import { queryClient } from "@/lib/react-query";
 import { TaskProvider } from "@/contexts/TaskContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ErrorBoundary } from "react-error-boundary";
+import { Toaster } from "@/components/ui/toast";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -31,6 +32,8 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
           <TaskProvider>
             <NotificationProvider>
               {children}
+              {/* Single toast provider for the entire app */}
+              <Toaster />
             </NotificationProvider>
           </TaskProvider>
         </QueryClientProvider>

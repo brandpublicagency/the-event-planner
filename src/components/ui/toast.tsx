@@ -1,4 +1,4 @@
 
-// This file re-exports Sonner components to maintain compatibility
+// This file re-exports all toast functionality from a single source of truth
 export { Toaster } from "sonner";
-export { useToast, toast } from "@/hooks/use-toast";
+export { useToast, toast, dismiss, loading, success, error, info, warning } from "@/hooks/use-toast";

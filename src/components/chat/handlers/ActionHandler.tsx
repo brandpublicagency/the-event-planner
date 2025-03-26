@@ -1,6 +1,5 @@
-
 import React, { useState, useCallback } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { createNewEvent } from "@/utils/createEventUtils";
 import { updateEvent } from "@/utils/eventUpdateUtils";
 import { Button } from "@/components/ui/button";
@@ -46,9 +45,8 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
       // Handle different action types
       switch (action.type) {
         case "create_event":
-          toast.info("Creating event...", {
-            duration: 0, // No auto dismiss
-            id: "create-event", // Use ID for later reference
+          toast.loading("Creating event...", {
+            id: "create-event", // Use ID to update the same toast later
           });
           
           try {
@@ -57,23 +55,20 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             message = `Event created successfully with code: ${eventCode}`;
             
             toast.success(message, {
-              id: "create-event",
-              duration: 4000,
+              id: "create-event", // Updates the loading toast
             });
           } catch (error) {
             success = false;
             message = error instanceof Error ? error.message : String(error);
             
             toast.error(message, {
-              id: "create-event",
-              duration: 4000,
+              id: "create-event", // Updates the loading toast
             });
           }
           break;
 
         case "update_event":
-          toast.info("Updating event...", {
-            duration: 0,
+          toast.loading("Updating event...", {
             id: "update-event",
           });
           
@@ -86,12 +81,10 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             if (success) {
               toast.success(message, {
                 id: "update-event",
-                duration: 4000,
               });
             } else {
               toast.error(message, {
                 id: "update-event",
-                duration: 4000,
               });
             }
           } catch (error) {
@@ -100,14 +93,12 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
             
             toast.error(message, {
               id: "update-event",
-              duration: 4000,
             });
           }
           break;
 
         case "send_whatsapp":
-          toast.info("WhatsApp messaging not implemented", {
-            duration: 0,
+          toast.loading("Processing WhatsApp action...", {
             id: "send-whatsapp",
           });
           
@@ -116,7 +107,6 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
           
           toast.error(message, {
             id: "send-whatsapp",
-            duration: 4000,
           });
           break;
 
@@ -124,7 +114,7 @@ export const ActionHandler = ({ action, onComplete }: ActionHandlerProps) => {
           message = "Unknown action type";
           success = false;
           toast.error(message, {
-            duration: 4000,
+            id: "unknown-action",
           });
       }
 

@@ -4,7 +4,7 @@ import { useEventMenuState } from './event-menu/useEventMenuState';
 import { useEventMenuSave } from './event-menu/useEventMenuSave';
 import { useMenuDebugLogger } from './event-menu/useMenuDebugLogger';
 import { MenuState } from './menuStateTypes';
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 export const useEventMenu = (eventId: string | undefined) => {
   // Use the smaller, focused hooks
@@ -32,7 +32,12 @@ export const useEventMenu = (eventId: string | undefined) => {
   const handleSaveMenu = async () => {
     if (!eventId) {
       console.error("Cannot save: Missing event ID");
-      toast.error("Cannot save: Missing event ID");
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Missing event ID",
+        id: 'event-menu-save'
+      });
       return Promise.reject(new Error("Event ID is missing"));
     }
     
@@ -41,13 +46,23 @@ export const useEventMenu = (eventId: string | undefined) => {
         hasFunction: !!saveMenuFunction,
         isFunction: typeof saveMenuFunction === 'function' 
       });
-      toast.error("Cannot save: Save function is not properly registered");
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Save function is not properly registered",
+        id: 'event-menu-save'
+      });
       return Promise.reject(new Error("Save function is not properly registered"));
     }
     
     if (!isInitialized) {
       console.error("Cannot save: Menu state not fully initialized");
-      toast.error("Cannot save: Menu state not fully initialized");
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Menu state not fully initialized",
+        id: 'event-menu-save'
+      });
       return Promise.reject(new Error("Menu state not fully initialized"));
     }
 

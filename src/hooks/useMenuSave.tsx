@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData } from './menuStateTypes';
 import { transformMenuStateToApi } from "@/utils/menu/menuStateTransformers";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 export const useMenuSave = (eventCode: string, menuState: MenuState, isInitialized: boolean, setLastSavedState: (state: string) => void) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -13,9 +13,11 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     if (!eventCode) {
       const error = new Error('Event code is required');
       console.error('Cannot save: Event code is missing');
-      toast.error('Cannot save menu', {
-        description: 'Missing event code',
-        id: 'menu-save-error'
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Missing event code",
+        id: 'menu-save'
       });
       throw error;
     }
@@ -23,9 +25,11 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     if (!isInitialized) {
       const error = new Error('Menu state not fully initialized');
       console.error('Cannot save: Menu state not fully initialized');
-      toast.error('Cannot save menu', {
-        description: 'Menu data not fully loaded',
-        id: 'menu-save-error'
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Menu data not fully loaded",
+        id: 'menu-save'
       });
       throw error;
     }
@@ -40,13 +44,8 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
     setLastSaveAttempt(now);
     setIsSaving(true);
     
-    // Dismiss any existing save toasts
-    toast.dismiss('menu-save-success');
-    toast.dismiss('menu-save-error');
-    toast.dismiss('menu-saving');
-    
-    // Show saving toast
-    toast.loading('Saving menu...', { id: 'menu-saving' });
+    // Use a single toast with consistent ID
+    toast.loading("Saving menu...", { id: 'menu-save' });
     
     try {
       console.log(`Starting menu save for event ${eventCode}...`);
@@ -63,19 +62,17 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       
       console.log('Menu saved successfully:', result);
       
-      // Dismiss saving toast and show success
-      toast.dismiss('menu-saving');
-      toast.success('Menu saved successfully', { id: 'menu-save-success' });
+      // Update the same toast with success message
+      toast.success("Menu saved successfully", { id: 'menu-save' });
       
       return Promise.resolve();
     } catch (err: any) {
       console.error('Error saving menu selections:', err);
       
-      // Dismiss saving toast and show error
-      toast.dismiss('menu-saving');
-      toast.error('Failed to save menu', { 
+      // Update the same toast with error message
+      toast.error("Failed to save menu", { 
         description: err.message || 'Unknown error',
-        id: 'menu-save-error'
+        id: 'menu-save'
       });
       
       throw err;

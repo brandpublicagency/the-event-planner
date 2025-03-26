@@ -7,7 +7,7 @@ import MenuPlannerLoading from './MenuPlannerLoading';
 import MenuPlannerError from './MenuPlannerError';
 import MenuPlannerContent from './MenuPlannerContent';
 import { SaveButton } from "@/components/ui/save-button";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 interface WeddingMenuPlannerProps {
   eventCode: string;
@@ -157,10 +157,10 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     try {
       console.log('Manual save initiated');
       await saveMenu();
-      // Toast handled in saveMenu function
+      // Toast handled in saveMenu function with consistent ID
     } catch (error: any) {
       console.error('Manual save failed:', error);
-      // Toast handled in saveMenu function
+      // Toast handled in saveMenu function with consistent ID
     } finally {
       setIsManualSaving(false);
     }

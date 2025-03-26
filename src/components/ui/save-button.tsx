@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button, ButtonProps } from "./button";
 import { Loader2, Check } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 export interface SaveButtonProps extends Omit<ButtonProps, 'onClick'> {
   onClick: () => Promise<void>;
@@ -43,11 +43,8 @@ export const SaveButton = ({
     
     setIsLoading(true);
     
-    // Each SaveButton generates a unique ID for its toast
-    const toastId = `save-operation-${Date.now()}`;
-    
     try {
-      // Toast is shown in the respective save functions now - no toast needed here
+      // We don't show toast here as this is handled in the respective save functions
       await onClick();
       
       // Set success state for button UI
@@ -56,7 +53,7 @@ export const SaveButton = ({
       }
     } catch (error: any) {
       console.error('Save operation failed:', error);
-      // Toast handled in the save functions - no need to display it here
+      // Toast handled in the save functions
     } finally {
       setIsLoading(false);
     }

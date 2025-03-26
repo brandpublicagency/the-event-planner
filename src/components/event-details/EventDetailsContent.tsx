@@ -9,7 +9,7 @@ import WeddingMenuPlanner from "@/components/menu-planner/WeddingMenuPlanner";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { Edit } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 interface EventDetailsContentProps {
   event: Event;
@@ -78,4 +78,4 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
       </div>
     </div>
   );
-};
+}

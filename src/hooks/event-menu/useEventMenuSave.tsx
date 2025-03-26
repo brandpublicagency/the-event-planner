@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 export const useEventMenuSave = (eventId: string | undefined, isInitialized: boolean) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -24,27 +24,33 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
   const handleSaveMenu = async () => {
     if (!eventId) {
       console.error("Cannot save: Missing event ID");
-      toast.error("Cannot save menu", { 
-        description: "Missing event ID", 
-        id: 'event-menu-save-error' 
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Missing event ID",
+        id: 'event-menu-save'
       });
       return Promise.reject(new Error("Event ID is missing"));
     }
     
     if (!saveMenuFunction || typeof saveMenuFunction !== 'function') {
       console.error("Cannot save: Save function is not properly registered", { saveMenuFunction });
-      toast.error("Cannot save menu", { 
-        description: "Save function is not properly registered", 
-        id: 'event-menu-save-error' 
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Save function is not properly registered",
+        id: 'event-menu-save'
       });
       return Promise.reject(new Error("Save function is not properly registered"));
     }
     
     if (!isInitialized) {
       console.error("Cannot save: Menu state not fully initialized");
-      toast.error("Cannot save menu", { 
-        description: "Menu state not fully initialized", 
-        id: 'event-menu-save-error' 
+      toast({
+        variant: "destructive",
+        title: "Cannot save menu",
+        description: "Menu state not fully initialized",
+        id: 'event-menu-save'
       });
       return Promise.reject(new Error("Menu state not fully initialized"));
     }
@@ -60,13 +66,8 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
     lastSaveTime.current = now;
     console.log(`Save attempt #${saveAttempts.current}`);
     
-    // Dismiss any existing save-related toasts
-    toast.dismiss('event-menu-save-success');
-    toast.dismiss('event-menu-save-error');
-    toast.dismiss('event-menu-saving');
-    
-    // Show saving toast
-    toast.loading("Saving menu...", { id: 'event-menu-saving' });
+    // Show single loading toast with consistent ID
+    toast.loading("Saving menu...", { id: 'event-menu-save' });
     
     let retryCount = 0;
     while (retryCount < maxRetries) {
@@ -76,10 +77,9 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         console.log("Menu saved successfully");
         saveAttempts.current = 0; // Reset counter on success
         
-        // Dismiss saving toast and show success
-        toast.dismiss('event-menu-saving');
+        // Update the same toast with success message
         toast.success("Menu saved successfully", {
-          id: 'event-menu-save-success',
+          id: 'event-menu-save',
           duration: 3000
         });
         
@@ -92,11 +92,10 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         if (retryCount === maxRetries) {
           console.error("All retry attempts failed");
           
-          // Dismiss saving toast and show error
-          toast.dismiss('event-menu-saving');
+          // Update the same toast with error message
           toast.error("Failed to save menu", {
+            id: 'event-menu-save',
             description: `Failed after ${maxRetries} attempts`,
-            id: 'event-menu-save-error',
             duration: 5000
           });
           
