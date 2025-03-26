@@ -69,10 +69,10 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
     
     try {
       await onSaveMenu();
-      // Success toast is now handled in the wrapped save function
+      // Success toast is handled in the wrapped save function
     } catch (error: any) {
       console.error("Error in save button handler:", error);
-      // Error toast is now handled in the wrapped save function
+      // Error toast is handled in the wrapped save function
     }
   };
 

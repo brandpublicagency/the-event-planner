@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from "sonner";
 
 export const useEventMenuSave = (eventId: string | undefined, isInitialized: boolean) => {
@@ -9,6 +9,17 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
   const lastSaveTime = useRef<number | null>(null);
   const saveAttempts = useRef(0);
   const maxRetries = 3;
+
+  // Effect to properly track when the save function is registered
+  useEffect(() => {
+    if (saveMenuFunction && !saveFunctionRegistered.current) {
+      console.log("Save function has been successfully registered");
+      saveFunctionRegistered.current = true;
+    } else if (!saveMenuFunction && saveFunctionRegistered.current) {
+      console.log("Save function has been unregistered");
+      saveFunctionRegistered.current = false;
+    }
+  }, [saveMenuFunction]);
 
   const handleSaveMenu = async () => {
     if (!eventId) {
@@ -47,6 +58,7 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         await saveMenuFunction();
         console.log("Menu saved successfully");
         saveAttempts.current = 0; // Reset counter on success
+        toast.success("Menu saved successfully");
         return Promise.resolve();
       } catch (error: any) {
         console.error(`Save attempt ${retryCount + 1} failed:`, error.message || 'Unknown error');
@@ -54,10 +66,11 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
         
         if (retryCount === maxRetries) {
           console.error("All retry attempts failed");
+          toast.error(`Failed to save menu after ${maxRetries} attempts`);
           throw error;
         }
         
-        // Wait before retrying
+        // Wait before retrying with exponential backoff
         await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
       } finally {
         setIsSaving(false);

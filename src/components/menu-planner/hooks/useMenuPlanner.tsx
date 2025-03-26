@@ -20,6 +20,7 @@ export const useMenuPlanner = (
   const initialLoadComplete = useRef(false);
   const saveRegistered = useRef(false);
   const lastRegistrationAttempt = useRef(0);
+  const registrationTimeoutId = useRef<number | null>(null);
 
   // Simulate progress when loading
   useEffect(() => {
@@ -42,8 +43,23 @@ export const useMenuPlanner = (
     }
   }, [isLoading]);
 
+  // Cleanup registration timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (registrationTimeoutId.current) {
+        clearTimeout(registrationTimeoutId.current);
+      }
+    };
+  }, []);
+
   // Register save function with parent component - critical for menu saving
   useEffect(() => {
+    // Clear any pending registration timeouts when dependencies change
+    if (registrationTimeoutId.current) {
+      clearTimeout(registrationTimeoutId.current);
+      registrationTimeoutId.current = null;
+    }
+
     // Only proceed if all required parts are available
     if (!saveMenuSelections || !saveMenu || isLoading || !menuState) {
       if (!saveMenuSelections) console.log('SaveMenuSelections function not available yet');
@@ -59,45 +75,50 @@ export const useMenuPlanner = (
       return;
     }
     
-    console.log('Registering save menu function with parent');
-    lastRegistrationAttempt.current = now;
+    console.log('Preparing to register save menu function with parent');
     
-    const wrappedSaveFunction = async () => {
-      console.log("Save menu function called");
-      try {
-        if (!saveMenu) {
-          const error = new Error("Save menu function is not available");
-          console.error(error);
-          toast.error("Failed to save menu: Save function not available");
-          throw error;
+    // Delay the registration slightly to ensure all components are ready
+    registrationTimeoutId.current = window.setTimeout(() => {
+      console.log('Registering save menu function with parent');
+      lastRegistrationAttempt.current = Date.now();
+      
+      const wrappedSaveFunction = async () => {
+        console.log("Save menu function called");
+        try {
+          if (!saveMenu) {
+            const error = new Error("Save menu function is not available");
+            console.error(error);
+            toast.error("Failed to save menu: Save function not available");
+            throw error;
+          }
+          
+          await saveMenu();
+          console.log("Menu saved successfully via wrapped function");
+          return Promise.resolve();
+        } catch (error: any) {
+          console.error('Error saving menu from menu planner:', error);
+          toast.error(`Failed to save menu: ${error.message || 'Unknown error'}`);
+          throw error; // Re-throw to let parent handle
         }
-        
-        await saveMenu();
-        console.log("Menu saved successfully via wrapped function");
-        toast.success("Menu saved successfully");
-        return Promise.resolve();
-      } catch (error: any) {
-        console.error('Error saving menu from menu planner:', error);
-        toast.error(`Failed to save menu: ${error.message || 'Unknown error'}`);
-        throw error; // Re-throw to let parent handle
+      };
+      
+      // Pass the wrapped function up to parent
+      saveMenuSelections(wrappedSaveFunction);
+      saveRegistered.current = true;
+      console.log('Save function successfully registered');
+      
+      // Mark initial load as complete after first render with data
+      if (!initialLoadComplete.current && !isLoading && menuState) {
+        initialLoadComplete.current = true;
+        console.log('Initial load complete, menu data ready');
       }
-    };
+    }, 300); // Small delay to ensure components are ready
     
-    // Pass the wrapped function up to parent
-    saveMenuSelections(wrappedSaveFunction);
-    saveRegistered.current = true;
-    console.log('Save function successfully registered');
-    
-    // Mark initial load as complete after first render with data
-    if (!initialLoadComplete.current && !isLoading && menuState) {
-      initialLoadComplete.current = true;
-      console.log('Initial load complete, menu data ready');
-    }
   }, [saveMenu, saveMenuSelections, isLoading, menuState]);
 
   // Sync menu state changes back to parent component
   useEffect(() => {
-    if (onMenuStateChange && menuState) {
+    if (onMenuStateChange && menuState && initialLoadComplete.current) {
       onMenuStateChange(menuState);
     }
   }, [menuState, onMenuStateChange]);

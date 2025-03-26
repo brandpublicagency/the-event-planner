@@ -39,6 +39,7 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
   
   // Define all React hooks before any conditional logic
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+  const [saveRegistrationAttempted, setSaveRegistrationAttempted] = useState(false);
   
   const {
     loadingProgress,
@@ -67,6 +68,28 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
       hasSaveMenuSelectionsProps: !!saveMenuSelections
     });
   }, [eventCode, isInitialized, isLoading, saveRegistered, menuState, saveMenu, saveMenuSelections]);
+
+  // Ensure save function is registered after data is loaded
+  useEffect(() => {
+    if (isInitialized && !isLoading && saveMenu && saveMenuSelections && !saveRegistrationAttempted) {
+      console.log('Attempting to register save function on initialization completion');
+      
+      const saveFn = async () => {
+        console.log('Save function called from WeddingMenuPlanner');
+        try {
+          await saveMenu();
+          console.log('Save operation completed successfully');
+          return Promise.resolve();
+        } catch (error) {
+          console.error('Error in save operation:', error);
+          throw error;
+        }
+      };
+      
+      saveMenuSelections(saveFn);
+      setSaveRegistrationAttempted(true);
+    }
+  }, [isInitialized, isLoading, saveMenu, saveMenuSelections, saveRegistrationAttempted]);
 
   // Sync external isCustomMenu state with menu state - only when prop changes
   useEffect(() => {

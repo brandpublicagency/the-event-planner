@@ -1,5 +1,5 @@
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useEventMenuState } from './event-menu/useEventMenuState';
 import { useEventMenuSave } from './event-menu/useEventMenuSave';
 import { useMenuDebugLogger } from './event-menu/useMenuDebugLogger';
@@ -24,6 +24,11 @@ export const useEventMenu = (eventId: string | undefined) => {
     setSaveMenuFunction,
     handleSaveMenu
   } = useEventMenuSave(eventId, isInitialized);
+
+  // Effect to update registration status
+  useEffect(() => {
+    saveFunctionRegistered.current = !!saveMenuFunction;
+  }, [saveMenuFunction]);
 
   // Setup debug logging
   useMenuDebugLogger(
