@@ -6,7 +6,6 @@ import { Event } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import WeddingMenuPlanner from "@/components/menu-planner/WeddingMenuPlanner";
-import { EventHeader } from "@/components/event-details/EventHeader";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { Edit } from "lucide-react";
@@ -53,20 +52,17 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   return (
     <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
-        <div className="print:hidden mb-6">
-          {event && menuState && (
-            <EventHeader 
-              eventCode={event.event_code} 
-              event={event}
+        <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
+          {event && (
+            <EventInfo 
+              event={event} 
+              formattedDate={formattedDate} 
+              formattedTime=""
               menuState={menuState}
-              isCustomMenu={isCustomMenu} 
-              onCustomMenuToggle={onCustomMenuToggle} 
+              isCustomMenu={isCustomMenu}
+              onCustomMenuToggle={onCustomMenuToggle}
             />
           )}
-        </div>
-        
-        <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
-          {event && <EventInfo event={event} formattedDate={formattedDate} formattedTime="" />}
           
           {eventId && (
             <WeddingMenuPlanner 
@@ -78,8 +74,6 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
               saveMenuSelections={onSaveMenuSelections}
             />
           )}
-          
-          {/* Save button removed from here to prevent duplication */}
         </div>
       </div>
     </div>
