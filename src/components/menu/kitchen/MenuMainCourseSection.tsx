@@ -40,10 +40,10 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
       {/* Add other main course type specific content here */}
       {menuState.mainCourseType === 'karoo' && (
         <>
-          {menuState.karooMainSelection && (
+          {menuState.karooMeatSelection && (
             <>
               <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Main Selection:</p>
-              <p style={{ fontSize: '12px', margin: '0', marginBottom: '8px' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooMainSelection))}</p>
+              <p style={{ fontSize: '12px', margin: '0', marginBottom: '8px' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooMeatSelection))}</p>
             </>
           )}
           
@@ -56,21 +56,19 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
             </>
           )}
           
-          {menuState.karooVegetableSelection && menuState.karooVegetableSelection.length > 0 && (
+          {menuState.karooVegetableSelections && menuState.karooVegetableSelections.length > 0 && (
             <>
               <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selection:</p>
-              {menuState.karooVegetableSelection.map((item, idx) => (
+              {menuState.karooVegetableSelections.map((item, idx) => (
                 <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
               ))}
             </>
           )}
           
-          {menuState.karooSaladSelection && menuState.karooSaladSelection.length > 0 && (
+          {menuState.karooSaladSelection && (
             <>
               <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
-              {menuState.karooSaladSelection.map((item, idx) => (
-                <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
-              ))}
+              <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.karooSaladSelection))}</p>
             </>
           )}
         </>
@@ -78,30 +76,37 @@ const MenuMainCourseSection: React.FC<MenuMainCourseSectionProps> = ({ menuState
       
       {menuState.mainCourseType === 'buffet' && (
         <>
-          {menuState.buffetMainSelection && menuState.buffetMainSelection.length > 0 && (
+          {menuState.buffetMeatSelections && menuState.buffetMeatSelections.length > 0 && (
             <>
               <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Main Selection:</p>
-              {menuState.buffetMainSelection.map((item, idx) => (
+              {menuState.buffetMeatSelections.map((item, idx) => (
                 <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
               ))}
             </>
           )}
           
-          {menuState.buffetAccompaniments && menuState.buffetAccompaniments.length > 0 && (
+          {menuState.buffetVegetableSelections && menuState.buffetVegetableSelections.length > 0 && (
             <>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Accompaniments:</p>
-              {menuState.buffetAccompaniments.map((item, idx) => (
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Vegetable Selections:</p>
+              {menuState.buffetVegetableSelections.map((item, idx) => (
                 <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
               ))}
             </>
           )}
           
-          {menuState.buffetSaladSelection && menuState.buffetSaladSelection.length > 0 && (
+          {menuState.buffetStarchSelections && menuState.buffetStarchSelections.length > 0 && (
+            <>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Starch Selections:</p>
+              {menuState.buffetStarchSelections.map((item, idx) => (
+                <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
+              ))}
+            </>
+          )}
+          
+          {menuState.buffetSaladSelection && (
             <>
               <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>Salad Selection:</p>
-              {menuState.buffetSaladSelection.map((item, idx) => (
-                <p key={idx} style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(item))}</p>
-              ))}
+              <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.buffetSaladSelection))}</p>
             </>
           )}
         </>
