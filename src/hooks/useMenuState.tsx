@@ -34,8 +34,8 @@ export const useMenuState = (eventCode: string) => {
     hasUnsavedChanges
   } = useMenuChangeDetection(eventCode, menuState, lastSavedState);
   
-  // Wrapper for save with explicit feedback
-  const saveMenu = useCallback(async () => {
+  // Wrapper for save with explicit feedback - modified to return void instead of boolean
+  const saveMenu = useCallback(async (): Promise<void> => {
     try {
       console.log('Manually saving menu...');
       await saveMenuSelections();
@@ -44,12 +44,9 @@ export const useMenuState = (eventCode: string) => {
       setTimeout(() => {
         refreshMenu(true);
       }, 500);
-      
-      return true;
     } catch (error: any) {
       console.error('Failed to save menu:', error);
       toast.error(`Save failed: ${error.message || 'Unknown error'}`);
-      return false;
     }
   }, [saveMenuSelections, refreshMenu]);
 
