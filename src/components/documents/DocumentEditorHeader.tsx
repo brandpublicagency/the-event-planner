@@ -1,90 +1,103 @@
-import { Loader2, X, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
+import { useState } from "react";
+import { DocumentTitle } from "./DocumentTitle";
 import { DocumentActions } from "./DocumentActions";
 import { CategorySelector } from "./CategorySelector";
-import { useState, useEffect } from "react";
-import type { Category } from "@/types/category";
-import type { Document } from "@/types/document";
-import { isDocumentContent } from "@/types/document";
+import { getDocumentCategories, updateDocumentCategories } from "@/api/supabaseApi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Document } from "@/types/document";
+import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentEditorHeaderProps {
-  document: Document | null;
-  selectedCategories: Category[];
-  setSelectedCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-  isSaving: boolean;
-  handleSave: () => Promise<void>;
-  isLoadingDocumentCategories: boolean;
-  contentRef: React.RefObject<HTMLDivElement>;
-  documentCategories: any[];
-  categories: Category[] | undefined;
+  document: Document;
+  content?: string;
+  printRef?: React.RefObject<HTMLDivElement>;
+  onTitleChange?: (title: string) => void;
 }
 
-export function DocumentEditorHeader({
+export default function DocumentEditorHeader({
   document,
-  selectedCategories,
-  setSelectedCategories,
-  isSaving,
-  handleSave,
-  isLoadingDocumentCategories,
-  contentRef,
-  documentCategories,
-  categories
+  content,
+  printRef,
+  onTitleChange
 }: DocumentEditorHeaderProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  const { data: categories = [] } = useQuery({
+    queryKey: ["document-categories", document.id],
+    queryFn: () => getDocumentCategories(document.id),
+    enabled: !!document.id,
+  });
+  
+  const updateCategories = useMutation({
+    mutationFn: (categoryIds: string[]) => 
+      updateDocumentCategories(document.id, categoryIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        queryKey: ["document-categories", document.id] 
+      });
+    }
+  });
   
   const handleCategoryChange = (categoryId: string | null) => {
-    if (!categoryId || !categories) return;
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) return;
-    const isAlreadySelected = selectedCategories.some(c => c.id === category.id);
-    if (isAlreadySelected) {
-      setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+    if (!document.id) return;
+    
+    const currentCategoryIds = document.category_ids || [];
+    
+    if (categoryId === null) {
+      // Remove all categories
+      updateCategories.mutate([]);
+    } else if (currentCategoryIds.includes(categoryId)) {
+      // Remove category
+      updateCategories.mutate(
+        currentCategoryIds.filter(id => id !== categoryId)
+      );
     } else {
-      setSelectedCategories([...selectedCategories, category]);
+      // Add category
+      updateCategories.mutate([...currentCategoryIds, categoryId]);
     }
   };
 
-  const removeCategory = (categoryId: string) => {
-    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
+  const handleDeleteConfirmed = () => {
+    console.log("Document deleted, navigating to documents page");
+    navigate("/documents");
   };
-
-  const documentHtmlContent = document && isDocumentContent(document.content) 
-    ? document.content.html 
-    : '';
-
+  
   return (
-    <div className="flex justify-between items-center p-6 pb-4">
-      <div className="flex flex-col md:flex-row md:items-center gap-3">
-        <div className="w-full md:w-64">
-          {!isLoadingDocumentCategories && <CategorySelector selectedCategory={null} onChange={handleCategoryChange} placeholder="Add category" />}
-        </div>
+    <div className="flex items-center justify-between border-b p-4">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <DocumentTitle 
+          title={document.title} 
+          onChange={onTitleChange}
+        />
         
-        {selectedCategories.length > 0 && <div className="flex flex-wrap gap-2">
-            {selectedCategories.map(category => <Badge key={category.id} variant="outline" className="flex items-center gap-1">
-                <span className="font-light text-xs text-gray-500">{category.name}</span>
-                <Button variant="ghost" size="icon" className="h-4 w-4 p-0 ml-1 hover:bg-transparent" onClick={() => removeCategory(category.id)}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>)}
-          </div>}
-      </div>
-      <div className="flex items-center gap-2">
-        <Button 
-          onClick={handleSave} 
-          disabled={isSaving} 
-          className="flex items-center gap-1.5 h-7 px-2 min-w-[60px] bg-zinc-900 text-white hover:bg-zinc-700"
-        >
-          {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
-        
-        {document && (
-          <DocumentActions 
-            document={document}
-            content={documentHtmlContent}
-            printRef={contentRef}
+        <div className="hidden sm:flex">
+          <CategorySelector 
+            selectedCategories={document.category_ids || []}
+            onChange={handleCategoryChange}
+            multiSelect={true}
           />
-        )}
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2">
+        <DocumentActions 
+          document={document}
+          content={content}
+          printRef={printRef}
+          onDelete={() => setIsDeleteDialogOpen(true)}
+        />
+        
+        <DocumentDeleteDialog
+          isOpen={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          documentId={document.id}
+          documentTitle={document.title}
+          onDocumentDeleted={handleDeleteConfirmed}
+        />
       </div>
     </div>
   );

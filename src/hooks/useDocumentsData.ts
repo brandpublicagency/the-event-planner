@@ -102,11 +102,49 @@ export function useDocumentsData() {
     },
   });
 
+  const deleteDocument = useMutation({
+    mutationFn: async (documentId: string) => {
+      console.log("Deleting document:", documentId);
+      
+      const { error } = await supabase
+        .from("documents")
+        .update({ 
+          deleted_at: new Date().toISOString() 
+        })
+        .eq("id", documentId);
+
+      if (error) {
+        console.error("Error deleting document:", error);
+        throw error;
+      }
+      
+      return documentId;
+    },
+    onSuccess: (documentId) => {
+      console.log("Document deleted successfully:", documentId);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      
+      toast({
+        title: "Document deleted",
+        description: "Document has been removed",
+      });
+    },
+    onError: (error: Error) => {
+      console.error("Error deleting document:", error);
+      toast({
+        title: "Error",
+        description: `Failed to delete document: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     documents,
     isLoading,
     error,
     createDocument,
+    deleteDocument,
     isCreatingDocument
   };
 }
