@@ -58,7 +58,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
     }
   };
   return <div>
-      <h3 className="mb-2 text-slate-600 px-[10px] py-0 font-extralight text-base">{monthYear}</h3>
+      <h3 className="mb-2 px-[10px] text-gray-800 py-[10px] font-normal text-lg">{monthYear}</h3>
       <div className="rounded-lg overflow-hidden divide-y divide-gray-100 bg-transparent">
         {events.map(event => isDashboard ? <DashboardEventItem key={event.event_code} event={event} handleDelete={handleDelete} isDashboard={isDashboard} /> : <EventCard key={event.event_code} event={event} handleDelete={handleDelete} isDashboard={isDashboard} onEdit={onEdit} onView={onView} onDelete={onDelete} />)}
       </div>

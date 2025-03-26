@@ -14,9 +14,9 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
   return <div className="flex-1 py-3 px-5">
       <div className="flex flex-col justify-center h-full">
         <div className="flex items-center justify-between mb-1">
-          <h4 className="font-medium text-zinc-900 text-xs">{event.name}</h4>
+          <h4 className="text-sm text-gray-800 font-normal">{event.name}</h4>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-base">
             <div className="text-[10px] text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" onClick={e => copyEventCode(event.event_code, e)}>
               <span className="text-gray-500">EVENT-{event.event_code}</span>
               <Copy className="h-2.5 w-2.5 opacity-70" />
