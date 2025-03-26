@@ -1,6 +1,5 @@
 
 import React from "react";
-import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
@@ -38,9 +37,9 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({ event }) => {
         getEventColor(event.event_type)
       )}
     >
-      <div className="flex items-center">
-        <div className="mr-1 text-zinc-500">{eventTime}</div>
-        <div className="font-medium truncate" title={event.name}>
+      <div className="flex flex-col">
+        <div className="text-zinc-500 text-xs">{eventTime}</div>
+        <div className="font-medium truncate text-xs" title={event.name}>
           {event.name}
         </div>
       </div>
