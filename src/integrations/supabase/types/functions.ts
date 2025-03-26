@@ -1,3 +1,4 @@
+
 export interface DatabaseFunctions {
   generate_unique_event_code: {
     Args: { base_code: string };
@@ -12,6 +13,10 @@ export interface DatabaseFunctions {
       company_id: string;
       team_id: string;
     };
+  };
+  delete_event_venues: {
+    Args: { event_code_param: string };
+    Returns: void;
   };
   _ltree_compress: {
     Args: { "": unknown };

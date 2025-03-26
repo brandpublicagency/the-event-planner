@@ -539,6 +539,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      delete_event_venues: {
+        Args: {
+          event_code_param: string
+        }
+        Returns: undefined
+      }
       generate_unique_event_code: {
         Args: {
           base_code: string

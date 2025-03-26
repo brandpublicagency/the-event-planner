@@ -105,7 +105,7 @@ export const permanentlyDeleteEvent = async (eventCode) => {
     }
     
     // Try to delete related event venues if they exist
-    // Using direct SQL query instead of the from() method to avoid type errors
+    // Using a raw SQL query through a stored procedure to avoid type errors
     try {
       const { error: venueError } = await supabase
         .rpc('delete_event_venues', { event_code_param: eventCode });
