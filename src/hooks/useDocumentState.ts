@@ -5,6 +5,13 @@ import { useDocument } from './useDocument';
 import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
 
+// Define the interface for saveDocument parameters
+interface SaveDocumentOptions {
+  title?: string;
+  content?: string;
+  showToast?: boolean;
+}
+
 export function useDocumentState(documentId: string | null, editor: Editor | null, isAuthenticated: boolean) {
   const [isSaving, setIsSaving] = useState(false);
   const { document, isLoading, error, updateDocument } = useDocument(documentId, isAuthenticated);
@@ -46,7 +53,9 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
   }, [document, editorReady, editor, contentSet]);
 
-  const saveDocument = async ({ title, content: contentOverride, showToast = true } = {}) => {
+  const saveDocument = async (options: SaveDocumentOptions = {}) => {
+    const { title, content: contentOverride, showToast = true } = options;
+    
     if (!editor && !contentOverride || !documentId) {
       console.log("Cannot save: editor or documentId is missing");
       return;
