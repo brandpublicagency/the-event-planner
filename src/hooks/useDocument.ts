@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Document, DocumentContent } from "@/types/document";
+import { Json } from "@/integrations/supabase/types/json";
 
 export interface DocumentUpdateParams {
   title?: string;
@@ -76,13 +77,28 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         throw fetchError || new Error("Document not found");
       }
 
+      // Create a proper update object with the content cast as Json
+      const updateData: {
+        updated_at: string;
+        title?: string;
+        content?: Json;
+      } = {
+        updated_at: new Date().toISOString(),
+      };
+      
+      if (documentUpdates.title !== undefined) {
+        updateData.title = documentUpdates.title;
+      }
+      
+      if (documentUpdates.content !== undefined) {
+        // Cast the DocumentContent to Json type for Supabase
+        updateData.content = documentUpdates.content as unknown as Json;
+      }
+
       // Then perform the update
       const { data, error } = await supabase
         .from("documents")
-        .update({
-          ...documentUpdates,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", documentId)
         .select()
         .maybeSingle();
