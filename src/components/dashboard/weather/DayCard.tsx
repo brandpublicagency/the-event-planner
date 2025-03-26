@@ -1,35 +1,62 @@
-import React from 'react';
-import { ForecastDay } from './forecastUtils';
-import WeatherIcon from './WeatherIcon';
-import { Droplets } from 'lucide-react';
-interface DayCardProps {
-  day: ForecastDay;
-}
-const DayCard: React.FC<DayCardProps> = ({
-  day
-}) => {
-  // For forecast days, we'll determine if we should show night icons
-  // based on whether we're displaying evening/night hours
-  const currentHour = new Date().getHours();
-  const isCurrentlyNight = currentHour >= 19 || currentHour < 6;
 
-  // Determine if this is today to show current conditions for today vs. forecast for future days
-  const isToday = day.day === 'Today';
-  return <div className="day-card-hover flex flex-col items-center p-2 transition-all duration-300 min-w-[60px] flex-1 py-0 px-0 mx-[10px] my-[5px] rounded-lg">
-      <div className="text-xs font-medium text-white mb-0.5 my-[8px]">{day.day}</div>
+import React from 'react';
+import WeatherIcon from './WeatherIcon';
+import { motion } from 'framer-motion';
+
+interface DayCardProps {
+  day: {
+    day: string;
+    condition: string;
+    icon: string;
+    temp?: string;
+    high?: number;
+    low?: number;
+  };
+  index?: number;
+}
+
+const DayCard: React.FC<DayCardProps> = ({ day, index = 0 }) => {
+  const isSunset = day.day === 'Sunset' || day.condition === 'Sunset';
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="flex-1 flex flex-col items-center justify-center p-2 text-white text-center min-w-[60px]"
+    >
+      <div className="text-sm font-medium mb-1">{day.day}</div>
       
-      <WeatherIcon condition={day.condition} className="h-6 w-6 my-0.5" isNight={isToday && isCurrentlyNight} />
-      
-      <div className="flex items-center space-x-1 text-2xs my-[4px]">
-        <span className="text-white text-sm">{Math.round(day.high)}°</span>
-        <span className="text-white/60 text-sm">{Math.round(day.low)}°</span>
+      <div className="my-1">
+        {isSunset ? (
+          <div className="flex items-center justify-center w-8 h-8">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3V5M5.6 5.6L7 7M3 12H5M5.6 18.4L7 17M21 12H19M18.4 18.4L17 17M18.4 5.6L17 7M12 19V21M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" 
+              stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        ) : (
+          <WeatherIcon 
+            condition={day.condition} 
+            customIcon={day.icon} 
+            className="w-8 h-8"
+          />
+        )}
       </div>
       
-      {/* Rain chance indicator */}
-      <div className="rounded-none my-0 flex items-center mt-1">
-        <Droplets className="h-3 w-3 mr-0.5 text-white my-[5px]" />
-        <span className="text-white text-xs">{day.rainChance}%</span>
-      </div>
-    </div>;
+      {day.temp && (
+        <div className="text-sm font-semibold mt-1">{day.temp}</div>
+      )}
+      
+      {(day.high !== undefined && day.low !== undefined) && (
+        <div className="text-xs">
+          <span className="font-medium">{day.high}°</span>
+          <span className="mx-1 opacity-60">|</span>
+          <span className="opacity-80">{day.low}°</span>
+        </div>
+      )}
+    </motion.div>
+  );
 };
+
 export default DayCard;

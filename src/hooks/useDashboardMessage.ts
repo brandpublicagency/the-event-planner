@@ -47,8 +47,8 @@ export const useDashboardMessage = () => {
     },
     // Refetch more frequently to ensure we get fresh data
     staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 2 * 60 * 1000, // 2 minutes
-    retry: 3, // Retry three times before using fallback
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    retry: 1, // Only retry once to avoid excessive requests
   });
 
   return { 
@@ -96,18 +96,23 @@ const createFallbackWeatherData = () => {
   // Generate random humidity and wind speed
   const humidity = 40 + Math.floor(Math.random() * 30); // 40-70%
   const windSpeed = 8 + Math.floor(Math.random() * 7); // 8-15 km/h
-  const uv = Math.max(1, Math.min(10, Math.floor((currentHour - 6) / 2))); // UV based on time of day
+  
+  // Calculate high and low temperatures
+  const highTemp = baseTemp + 2 + Math.floor(Math.random() * 2);
+  const lowTemp = baseTemp - 6 - Math.floor(Math.random() * 2);
   
   return {
     date: currentDate.toISOString().split('T')[0],
     temp: baseTemp,
     feels_like: baseTemp + Math.floor(Math.random() * 3) - 1, // +/- 1 degree
+    high: highTemp,
+    low: lowTemp,
     humidity: humidity,
     wind_speed: windSpeed,
-    condition: 'Clear',
-    description: 'clear skies',
-    icon: currentHour >= 6 && currentHour < 19 ? '01d' : '01n', // Day or night icon
-    uv: uv,
+    condition: 'Cloudy',
+    description: 'cloudy skies',
+    icon: currentHour >= 6 && currentHour < 19 ? '02d' : '02n', // Day or night icon
+    location: 'Bloemfontein',
     timestamp: currentDate.toISOString()
   };
 };

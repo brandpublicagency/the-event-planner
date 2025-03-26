@@ -48,15 +48,19 @@ export const useWeatherDataManager = (forcedVisible = false) => {
     }
   }, [dashboardMessage?.weatherData, currentDateTime]);
   
+  // Create fallback weather data when needed
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
-    temp: 25,
-    feels_like: 26,
+    temp: 23,
+    feels_like: 24,
     humidity: 45,
     wind_speed: 12,
-    condition: 'Clear',
-    description: 'clear skies',
-    icon: '01d',
+    condition: 'Cloudy',
+    description: 'cloudy skies',
+    icon: '02d',
+    high: 25,
+    low: 16,
+    location: 'Bloemfontein',
     timestamp: new Date().toISOString()
   };
   
