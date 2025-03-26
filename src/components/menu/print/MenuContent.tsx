@@ -32,10 +32,10 @@ const MenuContent = React.forwardRef<HTMLDivElement, MenuContentProps>(({ event,
 
   return (
     <div ref={ref} className="print-container p-8 max-w-[210mm] mx-auto">
-      {/* Print header - LEFT ALIGNED as requested */}
+      {/* Print header - LEFT ALIGNED as requested with bold formatting */}
       <div className="print-header">
-        <h2>{event.name || 'Event'}</h2>
-        <p>
+        <h2 className="font-bold">{event.name || 'Event'}</h2>
+        <p className="font-bold">
           {formatDate(event.event_date)} / {event.pax} Guests / {getEventType(event)} / {getVenueNames(event)}
         </p>
       </div>

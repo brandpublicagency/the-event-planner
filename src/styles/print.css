@@ -39,7 +39,7 @@
     visibility: hidden !important;
   }
 
-  /* Event header - LEFT ALIGNED */
+  /* Event header - LEFT ALIGNED and BOLD */
   .print-header h2 {
     font-size: 16px !important;
     font-weight: bold !important;
@@ -49,6 +49,7 @@
 
   .print-header p {
     font-size: 12px !important;
+    font-weight: bold !important; /* Make event details bold */
     text-align: left !important;
     margin-bottom: 0 !important;
   }
@@ -130,5 +131,11 @@
   /* Style for canapé package header */
   p:first-of-type {
     font-weight: 500 !important;
+  }
+
+  /* Bold menu type selections */
+  .menu-type-selection {
+    font-weight: bold !important;
+    font-size: 12px !important;
   }
 }

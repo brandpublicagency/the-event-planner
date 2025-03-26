@@ -27,10 +27,19 @@ const MenuDessertSection: React.FC<MenuDessertSectionProps> = ({ menuState }) =>
         </p>
       )}
       
+      {menuState.dessertType === 'traditional' && (
+        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+          Traditional Baked Desserts
+        </p>
+      )}
+      
       {menuState.dessertType !== 'canapes' && 
        menuState.dessertType !== 'individual_cakes' && 
-       menuState.dessertType !== 'cakes' && (
-        <p style={{ fontSize: '12px', margin: '0', marginBottom: '4px' }}>{cleanItemDescription(getMenuItemDescription(menuState.dessertType))}</p>
+       menuState.dessertType !== 'cakes' &&
+       menuState.dessertType !== 'traditional' && (
+        <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0', marginBottom: '4px' }}>
+          {cleanItemDescription(getMenuItemDescription(menuState.dessertType))}
+        </p>
       )}
       
       {menuState.dessertType === 'traditional' && menuState.traditionalDessert && (

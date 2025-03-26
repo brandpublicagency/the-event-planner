@@ -13,7 +13,7 @@ const MenuEventHeader: React.FC<MenuEventHeaderProps> = ({ event }) => {
   return (
     <div className="event-header" style={{ marginBottom: '24px' }}>
       <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{eventInfo.name}</h2>
-      <p style={{ fontSize: '12px', margin: '0' }}>
+      <p style={{ fontSize: '12px', fontWeight: 'bold', margin: '0' }}>
         {eventInfo.date}, {eventInfo.time} / {eventInfo.pax} Guests / {eventInfo.eventType} / {eventInfo.venueNames}
       </p>
       <div style={{ marginTop: '16px', borderTop: '1px solid #ddd' }}></div>
