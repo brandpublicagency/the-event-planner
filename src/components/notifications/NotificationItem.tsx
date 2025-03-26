@@ -19,9 +19,9 @@ export const NotificationItem = memo(({
     addSuffix: true
   });
   return <div className="rounded-md bg-white">
-      <div className="px-2.5 py-2 bg-white mx-0 rounded-md my-[15px]">
+      <div className="px-2.5 py-2 mx-0 rounded-md my-[15px] bg-white border">
         <div className="flex flex-col mb-1">
-          <h4 className={`text-sm font-medium ${!notification.read ? 'text-zinc-900' : 'text-zinc-600'}`}>
+          <h4 className="text-red-400 font-medium text-sm">
             {notification.title}
           </h4>
           <p className={`text-xs ${!notification.read ? 'text-zinc-700' : 'text-zinc-500'} line-clamp-2`}>

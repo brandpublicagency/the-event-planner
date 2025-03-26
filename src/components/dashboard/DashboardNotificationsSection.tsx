@@ -79,7 +79,7 @@ const DashboardNotificationsSection = () => {
   }
   const limitedNotifications = notifications.slice(0, 3);
   return <div className="flex flex-col">
-      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[12px]">
+      <div className="<div class=\"flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[12px] mt-[15px]\">\n  <!-- Content here -->\n</div>">
         <div className="flex flex-col">
           <p className="text-lg font-medium text-gray-800">Notifications</p>
           <p className="text-xs text-muted-foreground">
