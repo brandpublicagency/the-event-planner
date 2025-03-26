@@ -60,7 +60,7 @@ export const EventInfo = ({
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2 sm:mt-0">
+        <div className="flex items-center space-x-4 mt-2 sm:mt-0">
           {onCustomMenuToggle && (
             <div className="flex items-center space-x-2">
               <Switch 
