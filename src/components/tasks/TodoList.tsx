@@ -22,7 +22,6 @@ export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
   const [newTodo, setNewTodo] = useState("");
   const queryClient = useQueryClient();
 
-  // Convert string array to Todo objects with checked state
   const parsedTodos: Todo[] = todos.map(todo => {
     try {
       const parsed = JSON.parse(todo);
@@ -124,9 +123,10 @@ export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
             onClick={handleAddTodo} 
             disabled={!newTodo.trim()}
             size="icon"
-            className="shrink-0 h-8 w-8"
+            variant="outline"
+            className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 text-zinc-700" />
           </Button>
         </div>
       </div>
