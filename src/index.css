@@ -113,8 +113,11 @@
 }
 
 .ProseMirror code {
-  background-color: rgba(#616161, 0.1);
+  background-color: rgba(97, 97, 97, 0.1);
   color: #616161;
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+  font-family: 'JetBrainsMono', monospace;
 }
 
 .ProseMirror pre {
@@ -123,6 +126,7 @@
   font-family: 'JetBrainsMono', monospace;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
+  overflow-x: auto;
 }
 
 .ProseMirror pre code {
@@ -134,6 +138,32 @@
 
 .ProseMirror mark {
   background-color: #FAF089;
+}
+
+/* Toolbar button styles */
+.editor-toolbar {
+  @apply flex items-center gap-0.5 p-1 bg-white border border-zinc-200 rounded-md mb-2;
+}
+
+.editor-toolbar button {
+  @apply h-8 w-8 p-0 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 rounded-sm;
+}
+
+.editor-toolbar button.is-active {
+  @apply bg-zinc-100 text-zinc-900;
+}
+
+.editor-toolbar .divider {
+  @apply h-6 w-px mx-1 bg-zinc-200;
+}
+
+/* Document list item styling */
+.document-list-item {
+  @apply p-2 rounded-md cursor-pointer hover:bg-zinc-100 transition-colors;
+}
+
+.document-list-item.selected {
+  @apply bg-white border border-zinc-900/10;
 }
 
 /* Print styles */

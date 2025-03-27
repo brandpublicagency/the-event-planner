@@ -1,22 +1,21 @@
 
 import { useState } from "react";
-import { DocumentTitle } from "./DocumentTitle";
 import { DocumentActions } from "./DocumentActions";
 import { CategorySelector } from "./CategorySelector";
-import { getDocumentCategories, updateDocumentCategories } from "@/api/supabaseApi";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Document } from "@/types/document";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useNavigate } from "react-router-dom";
 import { SaveButton } from "@/components/ui/save-button";
+import { CategoryBadge } from "./CategoryBadge";
+import { Category } from "@/types/category";
 
 interface DocumentEditorHeaderProps {
   document: Document;
   content?: string;
   printRef?: React.RefObject<HTMLDivElement>;
   onTitleChange?: (title: string) => void;
-  selectedCategories?: any[];
-  setSelectedCategories?: (categories: any[]) => void;
+  selectedCategories?: Category[];
+  setSelectedCategories?: (categories: Category[]) => void;
   isSaving?: boolean;
   handleSave?: () => Promise<void>;
   isLoadingDocumentCategories?: boolean;
@@ -33,45 +32,17 @@ export default function DocumentEditorHeader({
   selectedCategories = [],
   isLoadingDocumentCategories = false,
   handleSave,
-  isSaving = false
+  isSaving = false,
+  categories = []
 }: DocumentEditorHeaderProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
-  const { data: categories = [] } = useQuery({
-    queryKey: ["document-categories", document.id],
-    queryFn: () => getDocumentCategories(document.id),
-    enabled: !!document.id,
-  });
-  
-  const updateCategories = useMutation({
-    mutationFn: (categoryIds: string[]) => 
-      updateDocumentCategories(document.id, categoryIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: ["document-categories", document.id] 
-      });
-    }
-  });
   
   const handleCategoryChange = (categoryId: string | null) => {
     if (!document.id) return;
     
-    const currentCategoryIds = document.category_ids || [];
-    
-    if (categoryId === null) {
-      // Remove all categories
-      updateCategories.mutate([]);
-    } else if (currentCategoryIds.includes(categoryId)) {
-      // Remove category
-      updateCategories.mutate(
-        currentCategoryIds.filter(id => id !== categoryId)
-      );
-    } else {
-      // Add category
-      updateCategories.mutate([...currentCategoryIds, categoryId]);
-    }
+    // This is handled by the parent component now
+    console.log("Category changed to:", categoryId);
   };
 
   const handleDeleteConfirmed = () => {
@@ -80,21 +51,22 @@ export default function DocumentEditorHeader({
   };
   
   return (
-    <div className="flex items-center justify-between border-b px-4 py-3">
+    <div className="flex items-center justify-between border-b px-4 py-2">
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <DocumentTitle 
-          title={document.title}
-          onTitleChange={onTitleChange}
-          documentId={document.id}
-          editor={null}
+        <CategorySelector 
+          selectedCategory={document.category_ids && document.category_ids.length > 0 ? document.category_ids[0] : null}
+          onChange={handleCategoryChange}
+          placeholder="Select category"
         />
         
-        <div className="hidden sm:flex">
-          <CategorySelector 
-            selectedCategory={document.category_ids && document.category_ids.length > 0 ? document.category_ids[0] : null}
-            onChange={handleCategoryChange}
-            placeholder="Select category"
-          />
+        <div className="flex flex-wrap gap-1 overflow-hidden">
+          {selectedCategories.map(category => (
+            <CategoryBadge 
+              key={category.id} 
+              category={category} 
+              selected={true} 
+            />
+          ))}
         </div>
       </div>
       
