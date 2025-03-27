@@ -26,7 +26,7 @@ export function CategorySelector({
       value={selectedCategory || ""}
       onValueChange={(value) => onChange(value === "all" ? null : value)}
     >
-      <SelectTrigger className="w-full h-9 bg-white">
+      <SelectTrigger className="w-40 h-9 bg-white">
         <div className="flex items-center gap-2">
           {isLoadingCategories ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
