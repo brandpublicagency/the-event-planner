@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,13 @@ export function DocumentsSidebar({
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search documents..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="h-9 pl-9 pr-4 w-full" />
           </div>
-          <CategorySelector selectedCategory={categoryFilter} onChange={setCategoryFilter} includeAllOption={true} placeholder="Filter by category" />
+          <CategorySelector 
+            selectedCategory={categoryFilter} 
+            onChange={setCategoryFilter} 
+            includeAllOption={true} 
+            placeholder="Filter by category" 
+            className="w-full"
+          />
         </div>
       </div>
     </Card>;

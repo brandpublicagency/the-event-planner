@@ -3,6 +3,7 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { Tag, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface CategorySelectorProps {
   selectedCategory: string | null;
@@ -10,6 +11,7 @@ export interface CategorySelectorProps {
   includeAllOption?: boolean;
   placeholder?: string;
   multiSelect?: boolean;
+  className?: string;
 }
 
 export function CategorySelector({ 
@@ -17,7 +19,8 @@ export function CategorySelector({
   onChange, 
   includeAllOption = false,
   placeholder = "Select category",
-  multiSelect = false
+  multiSelect = false,
+  className
 }: CategorySelectorProps) {
   const { categories, isLoadingCategories } = useCategories();
 
@@ -25,8 +28,9 @@ export function CategorySelector({
     <Select 
       value={selectedCategory || ""}
       onValueChange={(value) => onChange(value === "all" ? null : value)}
+      className={className}
     >
-      <SelectTrigger className="w-40 h-9 bg-white">
+      <SelectTrigger className={cn("w-full h-9 bg-white", className)}>
         <div className="flex items-center gap-2">
           {isLoadingCategories ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
