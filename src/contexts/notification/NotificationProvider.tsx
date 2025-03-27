@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { NotificationContext } from "./NotificationContext";
-import { useNotificationOperations } from "./notificationOperations";
+import { useNotificationOperations } from "./useNotificationOperations";
 import { useRealtimeNotifications } from "./useRealtimeNotifications";
 import { Notification } from "@/types/notification";
 import { toast } from "sonner";

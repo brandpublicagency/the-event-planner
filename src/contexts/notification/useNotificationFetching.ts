@@ -1,56 +1,28 @@
 
-import { useState, useRef, useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Notification } from "@/types/notification";
 import { generateMockNotifications } from "@/api/notification/mockNotifications";
-import { createErrorNotification, createBasicNotifications } from "@/api/notification/notificationErrors";
+import { createErrorNotification } from "@/api/notification/notificationErrors";
+import { Notification } from "@/types/notification";
+import { formatNotification } from "./notificationFormatters";
 
-// Helper to format notification from database to our type
-export const formatNotification = (data: any): Notification => {
-  return {
-    id: data.id,
-    title: data.title || formatTitleFromType(data.notification_type),
-    description: data.description || `Notification for ${data.event_name || 'event'}`,
-    createdAt: new Date(data.created_at || new Date()),
-    read: Boolean(data.read),
-    type: data.notification_type,
-    relatedId: data.event_code,
-    status: data.read ? "read" : "sent"
-  };
-};
+interface UseNotificationFetchingProps {
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<Error | null>>;
+  isMountedRef: React.MutableRefObject<boolean>;
+  isRefreshingRef: React.MutableRefObject<boolean>;
+}
 
-// Helper to format title from notification type
-const formatTitleFromType = (type: string): string => {
-  switch (type) {
-    case 'event_created':
-      return 'New Event Created';
-    case 'event_created_unified':
-      return 'New Event';
-    case 'task_overdue':
-      return 'Task Overdue';
-    case 'task_upcoming':
-      return 'Upcoming Task';
-    case 'event_incomplete':
-      return 'Incomplete Event';
-    case 'final_payment_reminder':
-    case 'payment_reminder':
-      return 'Payment Reminder';
-    case 'document_due_reminder':
-      return 'Document Due';
-    case 'task_created':
-      return 'New Task';
-    default:
-      return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  }
-};
-
-export const useNotificationOperations = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
-  const isMountedRef = useRef(true);
-  const isRefreshingRef = useRef(false);
+export const useNotificationFetching = ({
+  setNotifications,
+  setUnreadCount,
+  setLoading,
+  setError,
+  isMountedRef,
+  isRefreshingRef
+}: UseNotificationFetchingProps) => {
   const fetchAttemptsRef = useRef(0);
   const maxFetchAttempts = 3;
 
@@ -150,76 +122,9 @@ export const useNotificationOperations = () => {
         isRefreshingRef.current = false;
       }, 300);
     }
-  }, []);
-
-  // Mark a notification as read
-  const markAsRead = useCallback(async (id: string) => {
-    try {
-      // Update locally first (optimistic update)
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, read: true, status: "read" } : n)
-      );
-      setUnreadCount(count => Math.max(0, count - 1));
-      
-      // Then update in the database
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('id', id);
-        
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-      // Refresh on error to get correct state
-      fetchNotifications();
-    }
-  }, [fetchNotifications]);
-
-  // Mark a notification as completed (we'll just mark it as read for simplicity)
-  const markAsCompleted = useCallback(async (id: string) => {
-    return markAsRead(id);
-  }, [markAsRead]);
-
-  // Mark all notifications as read
-  const markAllAsRead = useCallback(async () => {
-    try {
-      // Update locally first
-      setNotifications(prev => 
-        prev.map(n => ({ ...n, read: true, status: "read" }))
-      );
-      setUnreadCount(0);
-      
-      // Then update in the database
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('read', false);
-        
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking all as read:', error);
-      fetchNotifications();
-    }
-  }, [fetchNotifications]);
-
-  // Clear all notifications (not implemented in database, just visual)
-  const clearNotifications = useCallback(async () => {
-    // In a real implementation, we would delete notifications from the database
-    // For now, we'll just clear them from state
-    setNotifications([]);
-    setUnreadCount(0);
-  }, []);
+  }, [setLoading, setNotifications, setUnreadCount, setError, isMountedRef, isRefreshingRef]);
 
   return {
-    notifications,
-    unreadCount,
-    loading,
-    error,
-    markAsRead,
-    markAsCompleted,
-    markAllAsRead,
-    clearNotifications,
-    fetchNotifications,
-    isMountedRef,
+    fetchNotifications
   };
 };
