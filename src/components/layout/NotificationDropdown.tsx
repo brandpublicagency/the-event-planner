@@ -37,7 +37,10 @@ export function NotificationDropdown() {
     }
   }, [refreshNotifications, dropdownInitialized]);
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setIsRefreshing(true);
     refreshNotifications()
       .catch(err => {
@@ -50,27 +53,30 @@ export function NotificationDropdown() {
 
   const limitedNotifications = notifications.slice(0, 5);
 
-  const handleViewNotification = useCallback(async (id: string, relatedId?: string) => {
+  const handleViewNotification = useCallback(async (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
-      await markAsRead(id);
+      await markAsRead(notification.id);
       
-      if (relatedId) {
+      if (notification.relatedId) {
         // Normalize event IDs across different formats
-        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
+        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
           // Extract the event code, removing any prefixes
-          const eventCode = relatedId.startsWith('EVENT-') 
-            ? relatedId.replace('EVENT-', '') 
-            : relatedId.startsWith('event_') 
-              ? relatedId.replace('event_', '') 
-              : relatedId;
+          const eventCode = notification.relatedId.startsWith('EVENT-') 
+            ? notification.relatedId.replace('EVENT-', '') 
+            : notification.relatedId.startsWith('event_') 
+              ? notification.relatedId.replace('event_', '') 
+              : notification.relatedId;
               
           console.log(`Notification dropdown: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (relatedId.startsWith('task_')) {
-          navigate(`/tasks?selected=${relatedId}`);
+        } else if (notification.relatedId.startsWith('task_')) {
+          navigate(`/tasks?selected=${notification.relatedId}`);
         } else {
           // For any other type of notification
-          navigate(`/${relatedId}`);
+          navigate(`/${notification.relatedId}`);
         }
       }
       
@@ -86,9 +92,12 @@ export function NotificationDropdown() {
     }
   }, [markAsRead, navigate]);
 
-  const handleCompleteTask = useCallback(async (id: string) => {
+  const handleCompleteTask = useCallback(async (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
-      await markAsCompleted(id);
+      await markAsCompleted(notification.id);
       toast({
         title: "Task marked as complete!"
       });
@@ -101,11 +110,16 @@ export function NotificationDropdown() {
     }
   }, [markAsCompleted]);
 
-  const handleViewAll = useCallback(() => {
+  const handleViewAll = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     navigate('/notifications');
   }, [navigate]);
 
-  const handleMarkAllAsRead = useCallback(async () => {
+  const handleMarkAllAsRead = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       await markAllAsRead();
       toast({

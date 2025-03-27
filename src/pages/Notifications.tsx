@@ -23,7 +23,10 @@ const Notifications = () => {
   const navigate = useNavigate();
 
   // Handle refresh button click
-  const handleRefresh = async () => {
+  const handleRefresh = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       await refreshNotifications();
       toast({
@@ -41,28 +44,31 @@ const Notifications = () => {
   };
 
   // Handle viewing a notification detail
-  const handleViewDetail = async (id: string, relatedId?: string) => {
+  const handleViewDetail = async (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
-      await markAsRead(id);
+      await markAsRead(notification.id);
       
-      if (relatedId) {
+      if (notification.relatedId) {
         // For event notifications, navigate to the events page
-        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
+        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
           // Handle various event ID formats by normalizing them
-          const eventCode = relatedId.startsWith('EVENT-') 
-            ? relatedId.replace('EVENT-', '') 
-            : relatedId.startsWith('event_') 
-              ? relatedId.replace('event_', '') 
-              : relatedId;
+          const eventCode = notification.relatedId.startsWith('EVENT-') 
+            ? notification.relatedId.replace('EVENT-', '') 
+            : notification.relatedId.startsWith('event_') 
+              ? notification.relatedId.replace('event_', '') 
+              : notification.relatedId;
 
           console.log(`Navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (relatedId.startsWith('task_')) {
+        } else if (notification.relatedId.startsWith('task_')) {
           // For task notifications
-          navigate(`/tasks?selected=${relatedId}`);
+          navigate(`/tasks?selected=${notification.relatedId}`);
         } else {
           // For other types of notifications
-          navigate(`/${relatedId}`);
+          navigate(`/${notification.relatedId}`);
         }
       }
       
@@ -80,9 +86,12 @@ const Notifications = () => {
   };
 
   // Handle completing a task
-  const handleCompleteTask = async (id: string) => {
+  const handleCompleteTask = async (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
-      await markAsCompleted(id);
+      await markAsCompleted(notification.id);
       toast({
         title: "Task marked as complete",
       });

@@ -31,7 +31,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   };
   
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
       {isCompletable && (
         <Button 
           variant="outline" 

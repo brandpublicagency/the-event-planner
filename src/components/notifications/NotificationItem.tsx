@@ -28,8 +28,15 @@ export const NotificationItem = memo(({
   const handleClick = (e: React.MouseEvent) => {
     if (isDropdown) {
       e.preventDefault();
+      e.stopPropagation();
       onView(notification, e);
     }
+  };
+  
+  const handleTitleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onView(notification, e);
   };
   
   return (
@@ -39,7 +46,10 @@ export const NotificationItem = memo(({
         onClick={handleClick}
       >
         <div className="flex flex-col mb-1">
-          <h4 className={`text-gray-800 font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}>
+          <h4 
+            className={`text-gray-800 font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}
+            onClick={isDropdown ? handleTitleClick : undefined}
+          >
             {notification.title}
           </h4>
           <p className={`text-xs ${!notification.read ? 'text-gray-700' : 'text-gray-500'} line-clamp-2`}>

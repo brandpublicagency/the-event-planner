@@ -42,22 +42,25 @@ const DashboardNotificationsSection = () => {
     });
   }, [refreshNotifications]);
 
-  const handleNotificationView = useCallback((id: string, relatedId?: string) => {
-    markAsRead(id).then(() => {
-      if (relatedId) {
-        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
-          const eventCode = relatedId.startsWith('EVENT-') 
-            ? relatedId.replace('EVENT-', '') 
-            : relatedId.startsWith('event_') 
-              ? relatedId.replace('event_', '') 
-              : relatedId;
+  const handleNotificationView = useCallback((notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    markAsRead(notification.id).then(() => {
+      if (notification.relatedId) {
+        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
+          const eventCode = notification.relatedId.startsWith('EVENT-') 
+            ? notification.relatedId.replace('EVENT-', '') 
+            : notification.relatedId.startsWith('event_') 
+              ? notification.relatedId.replace('event_', '') 
+              : notification.relatedId;
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (relatedId.includes('task_')) {
-          navigate(`/tasks?selected=${relatedId}`);
+        } else if (notification.relatedId.includes('task_')) {
+          navigate(`/tasks?selected=${notification.relatedId}`);
         } else {
-          navigate(`/${relatedId}`);
+          navigate(`/${notification.relatedId}`);
         }
       }
     }).catch(err => {
@@ -66,8 +69,11 @@ const DashboardNotificationsSection = () => {
     });
   }, [markAsRead, navigate]);
 
-  const handleNotificationComplete = useCallback((id: string) => {
-    markAsCompleted(id).catch(err => {
+  const handleNotificationComplete = useCallback((notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    markAsCompleted(notification.id).catch(err => {
       console.error('Error marking notification as completed:', err);
       toast("Could not complete notification");
     });
@@ -82,7 +88,9 @@ const DashboardNotificationsSection = () => {
     });
   }, [markAllAsRead]);
 
-  const handleViewAllNotifications = useCallback(() => {
+  const handleViewAllNotifications = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     navigate('/notifications');
   }, [navigate]);
 

@@ -7,8 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NotificationsListProps {
   notifications: Notification[];
-  onViewDetail: (id: string, relatedId?: string) => void;
-  onCompleteTask: (id: string) => void;
+  onViewDetail: (notification: Notification, e: React.MouseEvent) => void;
+  onCompleteTask: (notification: Notification, e: React.MouseEvent) => void;
   error?: Error | null;
   listType?: 'all' | 'dropdown' | 'dashboard';
 }
@@ -32,13 +32,15 @@ export const NotificationsList = memo(({
   }
 
   const handleView = (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    onViewDetail(notification.id, notification.relatedId);
+    onViewDetail(notification, e);
   };
 
   const handleComplete = (notification: Notification, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    onCompleteTask(notification.id);
+    onCompleteTask(notification, e);
   };
 
   const isDropdown = listType === 'dropdown';
