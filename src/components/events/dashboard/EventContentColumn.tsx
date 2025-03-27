@@ -33,7 +33,7 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
           
           <div className="flex items-center gap-2 text-base">
             <div className="text-[10px] text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" onClick={e => copyEventCode(event.event_code, e)}>
-              <span className="text-gray-500">EVENT-{event.event_code}</span>
+              <span className="text-gray-500">{event.event_code}</span>
               <Copy className="h-2.5 w-2.5 opacity-70" />
             </div>
           </div>
