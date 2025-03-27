@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -15,16 +15,23 @@ const Notifications = () => {
     notifications,
     markAsRead,
     markAsCompleted,
+    markAllAsRead,
     refreshNotifications,
     loading,
+    unreadCount,
     error
   } = useNotifications();
   
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   // Handle refresh button click
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsRefreshing(true);
     try {
       await refreshNotifications();
       toast({
@@ -38,22 +45,24 @@ const Notifications = () => {
         description: 'Failed to refresh notifications',
         variant: 'destructive',
       });
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
     }
-  };
+  }, [refreshNotifications, toast]);
 
   // Handle viewing a notification detail
-  const handleViewDetail = async (notification: Notification, e: React.MouseEvent) => {
+  const handleViewDetail = useCallback(async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
-      console.log("Viewing notification:", notification);
+      console.log("Page viewing notification:", notification);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
-        console.log(`Navigating to: ${notification.relatedId}`);
+        console.log(`Page navigating to relatedId: ${notification.relatedId}`);
         
-        // For event notifications, navigate to the events page
+        // For event notifications, use consistent format handling
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
             notification.relatedId.startsWith('event_')) {
@@ -66,7 +75,7 @@ const Notifications = () => {
             eventCode = notification.relatedId.replace('event_', '');
           }
 
-          console.log(`Navigating to event: ${eventCode}`);
+          console.log(`Page navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
         } 
         else if (notification.relatedId.startsWith('task_')) {
@@ -93,10 +102,30 @@ const Notifications = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [markAsRead, navigate, toast]);
+
+  // Handle marking all as read
+  const handleMarkAllAsRead = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await markAllAsRead();
+      toast({
+        title: "All notifications marked as read",
+      });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      toast({
+        title: "Error",
+        description: "Failed to mark all as read",
+        variant: "destructive",
+      });
+    }
+  }, [markAllAsRead, toast]);
 
   // Handle completing a task
-  const handleCompleteTask = async (notification: Notification, e: React.MouseEvent) => {
+  const handleCompleteTask = useCallback(async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -113,7 +142,7 @@ const Notifications = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [markAsCompleted, toast]);
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
@@ -122,8 +151,11 @@ const Notifications = () => {
       <div className="container py-6 flex-1">
         <div className="max-w-4xl mx-auto">
           <NotificationHeader 
+            unreadCount={unreadCount}
+            onMarkAllAsRead={handleMarkAllAsRead} 
             onRefresh={handleRefresh} 
             loading={loading} 
+            isRefreshing={isRefreshing} 
           />
           
           <ErrorBoundary 
@@ -134,6 +166,7 @@ const Notifications = () => {
               <NotificationContent 
                 notifications={notifications}
                 loading={loading}
+                isRefreshing={isRefreshing}
                 error={error}
                 onViewDetail={handleViewDetail}
                 onCompleteTask={handleCompleteTask}

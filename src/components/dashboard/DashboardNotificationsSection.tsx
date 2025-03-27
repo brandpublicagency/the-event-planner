@@ -77,6 +77,8 @@ const DashboardNotificationsSection = () => {
         }
       } else {
         console.log("No relatedId found in notification");
+        // Navigate to notifications page if no specific target
+        navigate('/notifications');
       }
       
       toast("Notification marked as read");

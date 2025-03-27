@@ -25,7 +25,13 @@ export const NotificationContent = ({
   onCompleteTask,
   onRefresh
 }: NotificationContentProps) => {
+  // Take only the first 5 notifications for dropdowns
   const limitedNotifications = notifications.slice(0, 5);
+  
+  const handleViewDetail = (notification: Notification, e: React.MouseEvent) => {
+    console.log("NotificationContent handleViewDetail called for:", notification.id);
+    onViewDetail(notification, e);
+  };
 
   return (
     <ScrollArea className="h-[350px] w-full px-3 pt-2">
@@ -56,7 +62,7 @@ export const NotificationContent = ({
       ) : limitedNotifications.length > 0 ? (
         <NotificationsList
           notifications={limitedNotifications}
-          onViewDetail={onViewDetail}
+          onViewDetail={handleViewDetail}
           onCompleteTask={onCompleteTask}
           listType="dropdown"
         />

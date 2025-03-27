@@ -26,16 +26,16 @@ export const NotificationItem = memo(({
   });
   
   const handleClick = (e: React.MouseEvent) => {
-    if (isDropdown) {
-      e.preventDefault();
-      e.stopPropagation();
-      onView(notification, e);
-    }
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("NotificationItem clicked:", notification.id);
+    onView(notification, e);
   };
   
   const handleTitleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("NotificationItem title clicked:", notification.id);
     onView(notification, e);
   };
 
@@ -43,6 +43,9 @@ export const NotificationItem = memo(({
     <div 
       className={`rounded-md transition-opacity duration-200 ${notification.read && !isDropdown ? 'opacity-60' : 'opacity-100'} ${isDropdown ? 'p-3 hover:bg-gray-50 cursor-pointer' : ''}`} 
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Notification: ${notification.title}`}
     >
       <div 
         className={`${isDropdown ? 'mx-0 my-0 border-b border-gray-100 pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-white border border-gray-100 hover:border-gray-200 transition-colors shadow-sm'}`}

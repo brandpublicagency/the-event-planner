@@ -32,12 +32,14 @@ export const NotificationsList = memo(({
   }
 
   const handleView = (notification: Notification, e: React.MouseEvent) => {
+    console.log("NotificationsList handleView called for:", notification.id);
     e.preventDefault();
     e.stopPropagation();
     onViewDetail(notification, e);
   };
 
   const handleComplete = (notification: Notification, e: React.MouseEvent) => {
+    console.log("NotificationsList handleComplete called for:", notification.id);
     e.preventDefault();
     e.stopPropagation();
     onCompleteTask(notification, e);

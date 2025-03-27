@@ -59,7 +59,7 @@ export function NotificationDropdown() {
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
-        console.log(`Dropdown navigating to: ${notification.relatedId}`);
+        console.log(`Dropdown navigating to related ID: ${notification.relatedId}`);
         
         // Normalize event IDs across different formats
         if (notification.relatedId.match(/^\d+-\d+$/) || 
@@ -86,6 +86,8 @@ export function NotificationDropdown() {
         }
       } else {
         console.log("No relatedId found in notification");
+        // Navigate to notifications page if no relatedId
+        navigate('/notifications');
       }
       
       toast({
