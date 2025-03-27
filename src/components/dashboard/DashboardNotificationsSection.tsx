@@ -45,10 +45,18 @@ const DashboardNotificationsSection = () => {
   const handleNotificationView = useCallback((id: string, relatedId?: string) => {
     markAsRead(id).then(() => {
       if (relatedId) {
+        // Handle different relatedId formats correctly
         if (relatedId.startsWith('EVENT-')) {
-          navigate(`/events/${relatedId}`);
+          // Navigate to event with code after EVENT- prefix
+          navigate(`/events/${relatedId.replace('EVENT-', '')}`);
+        } else if (relatedId.startsWith('event_')) {
+          // Navigate to event with code after event_ prefix
+          navigate(`/events/${relatedId.replace('event_', '')}`);
         } else if (relatedId.includes('task_')) {
           navigate(`/tasks?selected=${relatedId}`);
+        } else {
+          // For any other format, try to navigate directly
+          navigate(`/${relatedId}`);
         }
       }
     }).catch(err => {

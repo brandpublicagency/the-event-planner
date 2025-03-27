@@ -43,10 +43,14 @@ const Notifications = () => {
     try {
       await markAsRead(id);
       
-      // Navigate based on notification type
+      // Navigate based on notification type and relatedId format
       if (relatedId) {
-        if (relatedId.startsWith('event_')) {
-          window.location.href = `/events/${relatedId}`;
+        if (relatedId.startsWith('EVENT-')) {
+          // Navigate to event details page with code after EVENT- prefix
+          window.location.href = `/events/${relatedId.replace('EVENT-', '')}`;
+        } else if (relatedId.startsWith('event_')) {
+          // Navigate to event details page with code after event_ prefix
+          window.location.href = `/events/${relatedId.replace('event_', '')}`;
         } else {
           window.location.href = `/${relatedId}`;
         }
