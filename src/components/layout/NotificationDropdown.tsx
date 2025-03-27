@@ -121,7 +121,7 @@ export function NotificationDropdown() {
   }, [markAllAsRead]);
 
   return (
-    <div className="w-full min-w-[320px]">
+    <div className="w-full min-w-[320px] bg-white">
       <div className="flex items-center justify-between p-3 border-b">
         <div className="flex flex-col">
           <p className="text-sm font-medium text-zinc-900">Notifications</p>

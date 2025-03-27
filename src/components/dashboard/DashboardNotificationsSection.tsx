@@ -1,10 +1,11 @@
+
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Bell, Check } from "lucide-react";
+import { AlertCircle, RefreshCw, Bell, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,6 +82,10 @@ const DashboardNotificationsSection = () => {
     });
   }, [markAllAsRead]);
 
+  const handleViewAllNotifications = useCallback(() => {
+    navigate('/notifications');
+  }, [navigate]);
+
   if (error) {
     return (
       <Alert variant="destructive" className="mt-2 mb-4">
@@ -150,6 +155,19 @@ const DashboardNotificationsSection = () => {
               </Button>
             </div>
           )}
+        </div>
+      )}
+      {notifications.length > 3 && (
+        <div className="mt-2 text-right">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleViewAllNotifications} 
+            className="text-xs text-primary hover:bg-primary/5"
+          >
+            <ExternalLink className="h-3 w-3 mr-1" />
+            View all notifications
+          </Button>
         </div>
       )}
     </div>

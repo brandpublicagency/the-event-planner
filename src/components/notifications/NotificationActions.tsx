@@ -18,6 +18,16 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   // Determine if this is a task-type notification that can be completed
   const isCompletable = notification.actionType === 'complete';
   
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Stop event propagation
+    onView(notification, e);
+  };
+  
+  const handleCompleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Stop event propagation
+    onComplete(notification, e);
+  };
+  
   return (
     <div className="flex space-x-2">
       {isCompletable && (
@@ -25,7 +35,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
           variant="outline" 
           size="sm" 
           className="h-6 px-2 text-xs bg-white hover:bg-green-50 text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
-          onClick={(e) => onComplete(notification, e)}
+          onClick={handleCompleteClick}
         >
           <Check className="h-3 w-3 mr-1" />
           <span>Complete</span>
@@ -36,7 +46,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
         variant="outline" 
         size="sm" 
         className="h-6 px-2 text-xs bg-white hover:bg-zinc-50"
-        onClick={(e) => onView(notification, e)}
+        onClick={handleViewClick}
       >
         <ExternalLink className="h-3 w-3 mr-1" />
         <span>View</span>
