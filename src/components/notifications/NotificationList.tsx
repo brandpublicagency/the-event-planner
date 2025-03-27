@@ -33,15 +33,23 @@ export const NotificationsList = memo(({
 
   const handleView = (notification: Notification, e: React.MouseEvent) => {
     console.log("NotificationsList handleView called for:", notification.id, "relatedId:", notification.relatedId);
+    
+    // Ensure event doesn't propagate up
     e.preventDefault();
     e.stopPropagation();
+    
+    // Pass the event to the parent handler
     onViewDetail(notification, e);
   };
 
   const handleComplete = (notification: Notification, e: React.MouseEvent) => {
     console.log("NotificationsList handleComplete called for:", notification.id);
+    
+    // Ensure event doesn't propagate up
     e.preventDefault();
     e.stopPropagation();
+    
+    // Pass the event to the parent handler
     onCompleteTask(notification, e);
   };
 

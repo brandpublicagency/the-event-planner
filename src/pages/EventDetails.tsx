@@ -1,6 +1,6 @@
 
-import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoading";
@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Normalize the event ID if needed
   const normalizedId = React.useMemo(() => {
@@ -33,6 +34,17 @@ const EventDetails = () => {
   }, [id]);
 
   console.log(`Event Details page with ID: ${id}, normalized: ${normalizedId}`);
+
+  // Check if this is a forced refresh
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const forceRefresh = searchParams.get('refresh');
+    
+    if (forceRefresh === 'true') {
+      console.log('Forced refresh detected, refetching event data');
+      refetch();
+    }
+  }, [location.search]);
 
   // Fetch event data
   const { 

@@ -19,24 +19,32 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   const isCompletable = notification.actionType === 'complete';
   
   const handleViewClick = (e: React.MouseEvent) => {
-    // Always prevent default and stop propagation
+    // Prevent default behavior and stop propagation to prevent parent clicks
     e.preventDefault(); 
     e.stopPropagation();
+    
     console.log("NotificationAction view clicked for:", notification.id, "relatedId:", notification.relatedId);
+    
+    // Call the parent component's view handler
     onView(notification, e);
   };
   
   const handleCompleteClick = (e: React.MouseEvent) => {
-    // Always prevent default and stop propagation
+    // Prevent default behavior and stop propagation
     e.preventDefault();
     e.stopPropagation();
+    
     console.log("NotificationAction complete clicked for:", notification.id);
+    
+    // Call the parent component's complete handler
     onComplete(notification, e);
   };
   
   return (
-    // Prevent event bubbling on the container
-    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="flex space-x-2" 
+      onClick={(e) => e.stopPropagation()}
+    >
       {isCompletable && (
         <Button 
           variant="outline" 
