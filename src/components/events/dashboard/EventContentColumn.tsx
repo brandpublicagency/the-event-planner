@@ -55,11 +55,13 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
             </div>
           )}
           
-          {/* Package info - Replace venueStr display with this info */}
-          <div className="flex items-center">
-            <Calendar className="h-3 w-3 mr-1 text-zinc-400" /> 
-            <span className="text-xs text-gray-500">Package 1</span>
-          </div>
+          {/* Venue info */}
+          {venueStr && venueStr !== 'No venues selected' && (
+            <div className="flex items-center">
+              <MapPin className="h-3 w-3 mr-1 text-zinc-400" /> 
+              <span className="text-xs text-gray-500">{venueStr}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>;
