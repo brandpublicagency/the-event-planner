@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationErrorFallback } from '@/components/notifications/NotificationErrorFallback';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
-import { NotificationContent } from '@/components/notifications/NotificationContent';
+import { NotificationsList } from '@/components/notifications/NotificationList';
 import { useNavigate } from 'react-router-dom';
 import { Notification } from '@/types/notification';
 
@@ -160,17 +160,15 @@ const Notifications = () => {
           
           <ErrorBoundary 
             FallbackComponent={NotificationErrorFallback} 
-            onReset={handleRefresh}
+            onReset={() => handleRefresh} 
           >
             <div className="mt-4">
-              <NotificationContent 
+              <NotificationsList 
                 notifications={notifications}
-                loading={loading}
-                isRefreshing={isRefreshing}
-                error={error}
                 onViewDetail={handleViewDetail}
                 onCompleteTask={handleCompleteTask}
-                onRefresh={handleRefresh}
+                error={error}
+                listType="all"
               />
             </div>
           </ErrorBoundary>

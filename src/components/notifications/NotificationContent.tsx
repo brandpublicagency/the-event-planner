@@ -33,6 +33,11 @@ export const NotificationContent = ({
     onViewDetail(notification, e);
   };
 
+  const handleCompleteTask = (notification: Notification, e: React.MouseEvent) => {
+    console.log("NotificationContent handleCompleteTask called for:", notification.id);
+    onCompleteTask(notification, e);
+  };
+
   return (
     <ScrollArea className="h-[350px] w-full px-3 pt-2">
       {(loading && notifications.length === 0) || isRefreshing ? (
@@ -63,7 +68,7 @@ export const NotificationContent = ({
         <NotificationsList
           notifications={limitedNotifications}
           onViewDetail={handleViewDetail}
-          onCompleteTask={onCompleteTask}
+          onCompleteTask={handleCompleteTask}
           listType="dropdown"
         />
       ) : (

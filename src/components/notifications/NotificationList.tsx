@@ -49,16 +49,22 @@ export const NotificationsList = memo(({
 
   return (
     <div className={`${isDropdown ? 'space-y-0' : 'space-y-2'}`}>
-      {notifications.map((notification) => (
-        <NotificationItem 
-          key={notification.id} 
-          notification={notification} 
-          onView={handleView} 
-          onComplete={handleComplete}
-          showIcon={!isDropdown}
-          isDropdown={isDropdown}
-        />
-      ))}
+      {notifications.length === 0 ? (
+        <div className="p-3 text-center text-sm text-zinc-500">
+          No notifications to display
+        </div>
+      ) : (
+        notifications.map((notification) => (
+          <NotificationItem 
+            key={notification.id} 
+            notification={notification} 
+            onView={handleView} 
+            onComplete={handleComplete}
+            showIcon={!isDropdown}
+            isDropdown={isDropdown}
+          />
+        ))
+      )}
     </div>
   );
 });
