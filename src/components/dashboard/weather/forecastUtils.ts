@@ -1,5 +1,6 @@
 
 // Generate forecast data from weather information
+import { format, addDays } from 'date-fns';
 
 export interface ForecastDay {
   time?: string;
@@ -21,55 +22,48 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
 
   // Get current date/time from the parameter or use current time
   const now = currentDate;
-  const currentHour = now.getHours();
   const currentTemp = weatherData.temp;
   const currentCondition = weatherData.condition || 'Clear';
   
-  // Generate hourly forecast for the rest of today
+  // Generate forecast for today and next 4 days
   const forecast = [];
   
-  // Generate hourly forecast starting from current hour
-  // Showing 5 time periods
-  for (let i = 0; i < 5; i++) {
-    const forecastHour = (currentHour + i) % 24;
+  // Add "Now" as the first item
+  forecast.push({
+    day: 'Now',
+    condition: currentCondition,
+    icon: getWeatherIcon(currentCondition, now.getHours()),
+    temp: `${currentTemp}°`,
+  });
+  
+  // Generate forecast for the next 4 days
+  for (let i = 1; i < 5; i++) {
+    const forecastDate = addDays(now, i);
     
-    // Format the hour display
-    let hourDisplay;
-    if (i === 0) {
-      hourDisplay = 'Now';
-    } else if (forecastHour === 0) {
-      hourDisplay = '00';
-    } else {
-      hourDisplay = forecastHour.toString();
-    }
+    // Format day name: Tomorrow for first day, then day names
+    const dayName = i === 1 
+      ? 'Tomorrow' 
+      : format(forecastDate, 'EEEE');
     
-    // Special case for sunset
-    const isSunset = forecastHour >= 17 && forecastHour <= 18;
+    // Create temp variation for future days
+    const tempAdjustment = Math.round(Math.random() * 4) - 2; // Random adjustment between -2 and 2
+    const dayTemp = Math.round(currentTemp + tempAdjustment);
+    const highTemp = dayTemp + 2 + Math.floor(Math.random() * 2);
+    const lowTemp = dayTemp - 4 - Math.floor(Math.random() * 3);
     
-    // Determine the condition based on hour and weather
-    let condition = currentCondition;
-    if (isSunset) {
-      hourDisplay = 'Sunset';
-      condition = 'Sunset';
-    }
-
-    // Create temp variation based on time of day
-    let tempAdjustment = 0;
-    if (forecastHour >= 12 && forecastHour <= 15) {
-      // Warmest part of day
-      tempAdjustment = 1;
-    } else if (forecastHour >= 19 || forecastHour <= 5) {
-      // Coolest part of day
-      tempAdjustment = -2 - i * 0.5;
-    }
-    
-    const hourTemp = Math.round(currentTemp + tempAdjustment);
+    // Randomly vary condition for future days
+    const weatherConditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Rain', 'Thunderstorm'];
+    const randomConditionIndex = Math.floor(Math.random() * weatherConditions.length);
+    const dayCondition = weatherConditions[randomConditionIndex];
     
     forecast.push({
-      day: hourDisplay,
-      condition: condition,
-      icon: isSunset ? 'sunset' : getWeatherIcon(condition, forecastHour),
-      temp: `${hourTemp}°`,
+      day: dayName,
+      condition: dayCondition,
+      icon: getWeatherIcon(dayCondition, 12), // Use midday for future forecasts
+      temp: `${dayTemp}°`,
+      high: highTemp,
+      low: lowTemp,
+      date: forecastDate,
     });
   }
   
@@ -104,43 +98,37 @@ const getWeatherIcon = (condition: string, hour: number) => {
 };
 
 const generateMockForecast = (currentDate: Date = new Date()) => {
-  const currentHour = currentDate.getHours();
   const forecast = [];
   
-  // Generate hourly forecast
-  for (let i = 0; i < 5; i++) {
-    const forecastHour = (currentHour + i) % 24;
+  // Add "Now" as first entry
+  forecast.push({
+    day: 'Now',
+    condition: 'Cloudy',
+    icon: '03d',
+    temp: '22°',
+  });
+  
+  // Add next 4 days
+  for (let i = 1; i < 5; i++) {
+    const forecastDate = addDays(currentDate, i);
     
-    // Format the hour display
-    let hourDisplay;
-    if (i === 0) {
-      hourDisplay = 'Now';
-    } else if (forecastHour === 0) {
-      hourDisplay = '00';
-    } else {
-      hourDisplay = forecastHour.toString();
-    }
+    // Format day name: Tomorrow for first day, then day names
+    const dayName = i === 1 
+      ? 'Tomorrow' 
+      : format(forecastDate, 'EEEE');
     
-    // Special case for sunset
-    const isSunset = i === 2;
-    
-    // Determine temperature based on time of day
-    let temp;
-    if (forecastHour >= 12 && forecastHour <= 15) {
-      // Warmest part of day
-      temp = 23 - i;
-    } else if (forecastHour >= 19 || forecastHour <= 5) {
-      // Coolest part of day
-      temp = 21 - i;
-    } else {
-      temp = 22 - i;
-    }
+    const temp = 22 - i;
+    const highTemp = temp + 2;
+    const lowTemp = temp - 4;
     
     forecast.push({
-      day: isSunset ? 'Sunset' : hourDisplay,
-      condition: isSunset ? 'Sunset' : 'Cloudy',
-      icon: isSunset ? 'sunset' : '03d',
+      day: dayName,
+      condition: 'Cloudy',
+      icon: '03d',
       temp: `${temp}°`,
+      high: highTemp,
+      low: lowTemp,
+      date: forecastDate,
     });
   }
   

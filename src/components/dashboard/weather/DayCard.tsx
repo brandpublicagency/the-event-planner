@@ -23,7 +23,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, index = 0 }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="flex-1 flex flex-col items-center justify-center p-2 text-white text-center min-w-[60px]"
+      className="flex flex-col items-center justify-center py-2 text-white text-center"
     >
       <div className="text-sm font-medium mb-1">{day.day}</div>
       
@@ -49,7 +49,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, index = 0 }) => {
       )}
       
       {(day.high !== undefined && day.low !== undefined) && (
-        <div className="text-xs">
+        <div className="text-xs mt-1">
           <span className="font-medium">{day.high}°</span>
           <span className="mx-1 opacity-60">|</span>
           <span className="opacity-80">{day.low}°</span>

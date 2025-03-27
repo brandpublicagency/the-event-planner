@@ -39,8 +39,8 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
         {/* Add a semi-transparent overlay to improve text readability */}
         <div className="absolute inset-0 bg-black/15 z-[1]"></div>
         
-        <div className="relative z-10 w-full h-full p-4 px-[5px] py-[14px]">
-          <div className="flex items-center justify-between mb-2 text-white">
+        <div className="relative z-10 w-full h-full p-4">
+          <div className="flex items-center justify-between mb-4 text-white">
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -56,7 +56,7 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="flex items-baseline">
+              <div className="flex items-baseline mt-1">
                 <span className="text-4xl font-semibold">{weatherData?.temp || '23'}°</span>
                 <span className="ml-2 text-sm opacity-90">
                   {weatherData?.condition || 'Cloudy'}
@@ -70,8 +70,8 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-right"
             >
-              <div className="text-xl font-medium">{weatherData?.condition || 'Cloudy'}</div>
-              <div className="text-sm">
+              <div className="text-sm font-medium">{weatherData?.condition || 'Cloudy'}</div>
+              <div className="text-xs mt-1">
                 H:{weatherData?.high || '25'}° L:{weatherData?.low || '16'}°
               </div>
             </motion.div>
