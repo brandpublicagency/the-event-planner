@@ -36,7 +36,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
         <Button 
           variant="outline" 
           size="sm" 
-          className="h-6 px-2 text-xs bg-white hover:bg-green-50 text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
+          className="h-7 px-2 text-xs bg-white hover:bg-green-50 text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
           onClick={handleCompleteClick}
         >
           <Check className="h-3 w-3 mr-1" />
@@ -47,7 +47,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
       <Button 
         variant="outline" 
         size="sm" 
-        className="h-6 px-2 text-xs bg-white hover:bg-zinc-50"
+        className="h-7 px-2 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
         onClick={handleViewClick}
       >
         <ExternalLink className="h-3 w-3 mr-1" />

@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Notification } from '@/types/notification';
 import { NotificationActions } from './NotificationActions';
 import { formatDistanceToNow } from 'date-fns';
@@ -38,10 +38,10 @@ export const NotificationItem = memo(({
     e.stopPropagation();
     onView(notification, e);
   };
-  
+
   return (
     <div 
-      className={`rounded-md ${isDropdown ? 'p-3 hover:bg-gray-50 cursor-pointer' : ''}`} 
+      className={`rounded-md transition-opacity duration-200 ${notification.read && !isDropdown ? 'opacity-60' : 'opacity-100'} ${isDropdown ? 'p-3 hover:bg-gray-50 cursor-pointer' : ''}`} 
       onClick={handleClick}
     >
       <div 

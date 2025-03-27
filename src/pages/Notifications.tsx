@@ -66,7 +66,7 @@ const Notifications = () => {
             eventCode = notification.relatedId.replace('event_', '');
           }
 
-          console.log(`Main notifications page: navigating to event: ${eventCode}`);
+          console.log(`Navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
         } 
         else if (notification.relatedId.startsWith('task_')) {

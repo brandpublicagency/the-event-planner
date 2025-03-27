@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Header } from "@/components/layout/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export interface EventDetailsLoadingProps {

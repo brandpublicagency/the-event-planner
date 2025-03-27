@@ -8,7 +8,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
 import { NotificationsList } from "@/components/notifications/NotificationList";
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Notification } from "@/types/notification";
@@ -24,6 +24,7 @@ export function NotificationDropdown() {
     error
   } = useNotifications();
   
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dropdownInitialized, setDropdownInitialized] = useState(false);
@@ -102,7 +103,7 @@ export function NotificationDropdown() {
         variant: "destructive"
       });
     }
-  }, [markAsRead, navigate]);
+  }, [markAsRead, navigate, toast]);
 
   const handleCompleteTask = useCallback(async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
@@ -120,7 +121,7 @@ export function NotificationDropdown() {
         variant: "destructive"
       });
     }
-  }, [markAsCompleted]);
+  }, [markAsCompleted, toast]);
 
   const handleViewAll = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -144,7 +145,7 @@ export function NotificationDropdown() {
         variant: "destructive"
       });
     }
-  }, [markAllAsRead]);
+  }, [markAllAsRead, toast]);
 
   return (
     <div className="w-full min-w-[320px] bg-white">
@@ -174,7 +175,7 @@ export function NotificationDropdown() {
             className="h-7 w-7 p-0"
             disabled={loading || isRefreshing}
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="sr-only">Refresh</span>
           </Button>
         </div>

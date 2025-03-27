@@ -42,21 +42,23 @@ const DashboardNotificationsSection = () => {
     });
   }, [refreshNotifications]);
 
-  const handleNotificationView = useCallback((notification: Notification, e: React.MouseEvent) => {
+  const handleNotificationView = useCallback(async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log("Dashboard viewing notification:", notification);
-    
-    markAsRead(notification.id).then(() => {
+    try {
+      console.log("Dashboard viewing notification:", notification);
+      await markAsRead(notification.id);
+      
       if (notification.relatedId) {
         console.log(`Dashboard navigating to: ${notification.relatedId}`);
         
+        // Normalize event IDs across different formats
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
             notification.relatedId.startsWith('event_')) {
           
-          // Normalize the event code
+          // Extract the event code, removing any prefixes
           let eventCode = notification.relatedId;
           if (notification.relatedId.startsWith('EVENT-')) {
             eventCode = notification.relatedId.replace('EVENT-', '');
@@ -76,29 +78,35 @@ const DashboardNotificationsSection = () => {
       } else {
         console.log("No relatedId found in notification");
       }
-    }).catch(err => {
-      console.error('Error marking notification as read:', err);
+      
+      toast("Notification marked as read");
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
       toast("Could not mark notification as read");
-    });
+    }
   }, [markAsRead, navigate]);
 
-  const handleNotificationComplete = useCallback((notification: Notification, e: React.MouseEvent) => {
+  const handleNotificationComplete = useCallback(async (notification: Notification, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    markAsCompleted(notification.id).catch(err => {
-      console.error('Error marking notification as completed:', err);
+    try {
+      await markAsCompleted(notification.id);
+      toast("Task marked as complete");
+    } catch (error) {
+      console.error('Error marking notification as completed:', error);
       toast("Could not complete notification");
-    });
+    }
   }, [markAsCompleted]);
 
-  const handleMarkAllAsRead = useCallback(() => {
-    markAllAsRead().then(() => {
+  const handleMarkAllAsRead = useCallback(async () => {
+    try {
+      await markAllAsRead();
       toast("All notifications marked as read");
-    }).catch(err => {
-      console.error('Error marking all notifications as read:', err);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
       toast("Could not mark all notifications as read");
-    });
+    }
   }, [markAllAsRead]);
 
   const handleViewAllNotifications = useCallback((e: React.MouseEvent) => {

@@ -18,7 +18,8 @@ const EventDetails = () => {
     data: event, 
     isLoading, 
     isError, 
-    error 
+    error,
+    refetch 
   } = useQuery({
     queryKey: ['event', id],
     queryFn: async () => {
@@ -47,12 +48,16 @@ const EventDetails = () => {
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
 
+  const handleBackClick = () => {
+    navigate('/events');
+  };
+
   // If loading show loading state
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50">
-        <Header pageTitle="Event Details" showBackButton onBackButtonClick={() => navigate('/events')} />
-        <EventDetailsLoading />
+        <Header pageTitle="Event Details" showBackButton onBackButtonClick={handleBackClick} />
+        <EventDetailsLoading onBackButtonClick={handleBackClick} />
       </div>
     );
   }
@@ -66,20 +71,51 @@ const EventDetails = () => {
   if (isError) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50">
-        <Header pageTitle="Event Details" showBackButton onBackButtonClick={() => navigate('/events')} />
-        <EventDetailsError error={error as Error} onRetry={() => navigate(0)} />
+        <Header pageTitle="Event Details" showBackButton onBackButtonClick={handleBackClick} />
+        <EventDetailsError 
+          error={error as Error} 
+          onBackButtonClick={handleBackClick} 
+          onRefetch={() => refetch()}
+        />
       </div>
     );
   }
 
+  // Prepare the formatted date for the event
+  const formattedDate = event.event_date 
+    ? new Date(event.event_date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : 'Date not set';
+
+  // Create mock data for the missing props required by EventDetailsContent
+  const mockMenuState = null;
+  const isCustomMenu = false;
+  
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header 
         pageTitle={event.name || "Event Details"} 
         showBackButton 
-        onBackButtonClick={() => navigate('/events')} 
+        onBackButtonClick={handleBackClick} 
       />
-      <EventDetailsContent event={event} />
+      <EventDetailsContent 
+        event={event}
+        eventId={id || ''}
+        formattedDate={formattedDate}
+        isCustomMenu={isCustomMenu}
+        menuState={mockMenuState}
+        saveMenuFunction={null}
+        isSaving={false}
+        onEditEvent={() => navigate(`/events/edit/${id}`)}
+        onCustomMenuToggle={() => {}}
+        onMenuStateChange={() => {}}
+        onSaveMenuSelections={() => {}}
+        onSaveMenu={async () => {}}
+      />
     </div>
   );
 };
