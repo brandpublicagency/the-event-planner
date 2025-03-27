@@ -40,15 +40,14 @@ export const NotificationItem = memo(({
   };
   
   return (
-    <div className={`rounded-md ${isDropdown ? 'p-3 hover:bg-gray-50 cursor-pointer' : ''}`}>
+    <div className={`rounded-md ${isDropdown ? 'p-3 hover:bg-gray-50 cursor-pointer' : ''}`} onClick={handleClick}>
       <div 
         className={`${isDropdown ? 'mx-0 my-0 border-b border-gray-100 pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-white border border-gray-100 hover:border-gray-200 transition-colors shadow-sm'}`}
-        onClick={handleClick}
       >
         <div className="flex flex-col mb-1">
           <h4 
             className={`text-gray-800 font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}
-            onClick={isDropdown ? handleTitleClick : undefined}
+            onClick={handleTitleClick}
           >
             {notification.title}
           </h4>

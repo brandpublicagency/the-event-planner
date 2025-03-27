@@ -3,12 +3,12 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Bell, Check, ExternalLink } from "lucide-react";
+import { AlertCircle, RefreshCw, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Notification } from "@/types/notification";
 
 const DashboardNotificationsSection = () => {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ const DashboardNotificationsSection = () => {
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (notification.relatedId.includes('task_')) {
+        } else if (notification.relatedId.startsWith('task_')) {
           navigate(`/tasks?selected=${notification.relatedId}`);
         } else {
           navigate(`/${notification.relatedId}`);
@@ -151,6 +151,7 @@ const DashboardNotificationsSection = () => {
               notifications={limitedNotifications} 
               onViewDetail={handleNotificationView} 
               onCompleteTask={handleNotificationComplete} 
+              listType="dashboard"
             />
           ) : (
             <div className="bg-white shadow-sm rounded-lg p-3 text-center">

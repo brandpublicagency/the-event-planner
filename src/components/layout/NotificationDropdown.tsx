@@ -11,6 +11,7 @@ import { NotificationsList } from "@/components/notifications/NotificationList";
 import { toast } from '@/hooks/use-toast';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Notification } from "@/types/notification";
 
 export function NotificationDropdown() {
   const { 

@@ -27,7 +27,9 @@ export const EventNotFoundHandler: React.FC<EventNotFoundHandlerProps> = ({ even
       <Header 
         pageTitle="Event Not Found" 
         showBackButton
-        onBackButtonClick={() => navigate('/events')}
+        onBackButtonClick={() => {
+          navigate('/events');
+        }}
       />
       
       <div className="container py-8 flex-1">

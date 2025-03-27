@@ -33,6 +33,7 @@ const EventDetails = () => {
     queryFn: async () => {
       if (!id) return null;
 
+      console.log(`Fetching event with code: ${id}`);
       const { data, error } = await supabase
         .from("events")
         .select("*")

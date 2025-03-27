@@ -8,6 +8,7 @@ import { NotificationErrorFallback } from '@/components/notifications/Notificati
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { NotificationContent } from '@/components/notifications/NotificationContent';
 import { useNavigate } from 'react-router-dom';
+import { Notification } from '@/types/notification';
 
 const Notifications = () => {
   const {
@@ -23,10 +24,7 @@ const Notifications = () => {
   const navigate = useNavigate();
 
   // Handle refresh button click
-  const handleRefresh = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleRefresh = async () => {
     try {
       await refreshNotifications();
       toast({

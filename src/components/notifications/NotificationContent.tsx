@@ -12,8 +12,8 @@ interface NotificationContentProps {
   notifications: Notification[];
   loading: boolean;
   error: Error | null;
-  onViewDetail: (id: string, relatedId?: string) => void;
-  onCompleteTask: (id: string) => void;
+  onViewDetail: (notification: Notification, e: React.MouseEvent) => void;
+  onCompleteTask: (notification: Notification, e: React.MouseEvent) => void;
   onRefresh: () => void;
 }
 
