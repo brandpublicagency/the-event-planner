@@ -18,22 +18,13 @@ const EventDetails = () => {
   const normalizedId = React.useMemo(() => {
     if (!id) return null;
     
-    // For database queries, we need to ensure the EVENT- prefix is preserved
-    // if it was in the original URL, otherwise add it
-    if (id.startsWith('EVENT-')) {
-      return id;
-    } else if (id.startsWith('event_')) {
-      // Convert event_ format to EVENT- format for querying
-      return 'EVENT-' + id.replace('event_', '');
-    } else if (id.includes('-')) {
-      // If it's a bare ID like "253-2161", add the EVENT- prefix
-      return 'EVENT-' + id;
-    }
-    
-    return id; // Fallback
+    // For database queries, we need to use the ID exactly as it appears in the URL
+    // The backend will handle any necessary normalization
+    console.log(`Original ID from URL: ${id}`);
+    return id;
   }, [id]);
 
-  console.log(`Event Details page with ID: ${id}, normalized for DB: ${normalizedId}`);
+  console.log(`Event Details page with ID: ${id}, using for DB query: ${normalizedId}`);
 
   // Check if this is a forced refresh
   useEffect(() => {
@@ -58,24 +49,58 @@ const EventDetails = () => {
     queryFn: async () => {
       if (!normalizedId) return null;
 
-      console.log(`Fetching event with code: ${normalizedId}`);
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq('event_code', normalizedId)
-        .single();
+      console.log(`Fetching event with ID: ${normalizedId}`);
+      try {
+        // First attempt: try exact match on event_code
+        let { data, error } = await supabase
+          .from("events")
+          .select("*")
+          .eq('event_code', normalizedId)
+          .single();
 
-      if (error) {
+        if (error || !data) {
+          console.log(`No exact match found for event_code: ${normalizedId}, trying with EVENT- prefix`);
+          
+          // Second attempt: try with EVENT- prefix
+          const prefixedId = normalizedId.startsWith('EVENT-') ? normalizedId : `EVENT-${normalizedId}`;
+          
+          ({ data, error } = await supabase
+            .from("events")
+            .select("*")
+            .eq('event_code', prefixedId)
+            .single());
+            
+          if (error || !data) {
+            // Third attempt: if prefixed ID contains dashes, try without EVENT- prefix
+            if (normalizedId.includes('-') && normalizedId.startsWith('EVENT-')) {
+              const unprefixedId = normalizedId.replace('EVENT-', '');
+              console.log(`Trying without EVENT- prefix: ${unprefixedId}`);
+              
+              ({ data, error } = await supabase
+                .from("events")
+                .select("*")
+                .eq('event_code', unprefixedId)
+                .single());
+            }
+          }
+        }
+
+        if (error) {
+          console.error("Error fetching event:", error);
+          throw error;
+        }
+
+        if (!data) {
+          console.log(`No event found with any of the attempted IDs`);
+          throw new Error(`Event not found`);
+        }
+
+        console.log(`Event found:`, data);
+        return data;
+      } catch (error) {
         console.error("Error fetching event:", error);
         throw error;
       }
-
-      if (!data) {
-        console.log(`No event found with code: ${normalizedId}`);
-        throw new Error(`Event with code ${normalizedId} not found`);
-      }
-
-      return data;
     },
     retry: 1,
     staleTime: 5 * 60 * 1000 // 5 minutes
