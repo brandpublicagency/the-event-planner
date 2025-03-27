@@ -2,7 +2,7 @@
 import React from "react";
 import { Document } from "@/types/document";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
-import { useDocumentsData } from "@/hooks/useDocumentsData";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 interface DocumentListProps {
@@ -18,14 +18,18 @@ const DocumentList: React.FC<DocumentListProps> = ({
   onSelect,
   categoryFilter
 }) => {
-  const { deleteDocument } = useDocumentsData();
+  const queryClient = useQueryClient();
 
   const handleDocumentDeleted = (documentId: string) => {
-    console.log("Document deleted, refreshing list:", documentId);
+    console.log("Document deleted, handling UI update:", documentId);
+    
     // If the deleted document was selected, select none
     if (selectedId === documentId) {
       onSelect('');
     }
+    
+    // Force refresh documents list
+    queryClient.invalidateQueries({ queryKey: ["documents"] });
   };
 
   return (
@@ -35,7 +39,7 @@ const DocumentList: React.FC<DocumentListProps> = ({
           key={doc.id}
           className={cn(
             "group flex items-center justify-between p-2 text-sm rounded-md cursor-pointer",
-            selectedId === doc.id ? "bg-primary/10 text-primary" : "hover:bg-accent"
+            selectedId === doc.id ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-accent"
           )}
           onClick={() => onSelect(doc.id)}
         >

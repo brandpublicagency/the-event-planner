@@ -122,6 +122,7 @@ export function useDocumentsData() {
     },
     onSuccess: (documentId) => {
       console.log("Document deleted successfully:", documentId);
+      // Invalidate and refetch the documents query to update the UI
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       
       toast({

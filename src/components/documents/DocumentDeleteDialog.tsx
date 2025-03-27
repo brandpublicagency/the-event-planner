@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useDocumentsData } from "@/hooks/useDocumentsData";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +33,7 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
   isButton = true,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { deleteDocument } = useDocumentsData();
   
   // Use external or internal state based on props
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
@@ -43,32 +42,15 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
   const handleDelete = async () => {
     if (!documentId) return;
     
-    setIsDeleting(true);
     try {
-      // Soft delete the document (update the deleted_at field)
-      const { error } = await supabase
-        .from("documents")
-        .update({ 
-          deleted_at: new Date().toISOString(),
-          // Add any other fields that need to be updated on deletion
-        })
-        .eq("id", documentId);
-
-      if (error) throw error;
-
-      toast.success("Document deleted successfully", {
-        duration: 3000,
-      });
+      // Use the delete mutation from useDocumentsData
+      await deleteDocument.mutateAsync(documentId);
       
       if (onDocumentDeleted) onDocumentDeleted();
       onOpenChange(false);
     } catch (error) {
       console.error("Error deleting document:", error);
-      toast.error("Failed to delete document", {
-        duration: 5000,
-      });
-    } finally {
-      setIsDeleting(false);
+      // Error handling is already in the mutation
     }
   };
 
@@ -103,13 +85,13 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteDocument.isPending}>Cancel</AlertDialogCancel>
             <Button 
               variant="destructive" 
               onClick={handleDelete}
-              disabled={isDeleting}
+              disabled={deleteDocument.isPending}
             >
-              {isDeleting ? (
+              {deleteDocument.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
@@ -138,13 +120,13 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleteDocument.isPending}>Cancel</AlertDialogCancel>
           <Button 
             variant="destructive" 
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={deleteDocument.isPending}
           >
-            {isDeleting ? (
+            {deleteDocument.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Deleting...
