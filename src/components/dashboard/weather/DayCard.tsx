@@ -24,7 +24,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, index = 0, isLast = false }) => 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      className={`flex flex-col items-center justify-center text-white text-center px-1 ${isLast ? 'pr-5' : ''}`}
+      className={`flex flex-col items-center justify-center text-white text-center ${index === 0 ? 'pl-4' : 'px-1'} ${isLast ? 'pr-5' : ''}`}
     >
       <div className="text-xs font-medium mb-1">{day.day}</div>
       
