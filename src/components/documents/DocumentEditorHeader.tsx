@@ -18,7 +18,7 @@ interface DocumentEditorHeaderProps {
   selectedCategories?: any[];
   setSelectedCategories?: (categories: any[]) => void;
   isSaving?: boolean;
-  handleSave?: () => void;
+  handleSave?: () => Promise<void>;
   isLoadingDocumentCategories?: boolean;
   contentRef?: React.RefObject<HTMLDivElement>;
   documentCategories?: any[];
