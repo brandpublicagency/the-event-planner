@@ -19,7 +19,7 @@ const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
       transition={{ duration: 0.5 }}
       className="w-full"
     >
-      <div className="grid grid-cols-5 w-full gap-1">
+      <div className="flex flex-row justify-between w-full">
         {displayForecast.map((day, index) => (
           <DayCard key={index} day={day} index={index} />
         ))}

@@ -1,4 +1,3 @@
-
 // Generate forecast data from weather information
 import { format, addDays } from 'date-fns';
 
@@ -60,7 +59,6 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
       day: dayName,
       condition: dayCondition,
       icon: getWeatherIcon(dayCondition, 12), // Use midday for future forecasts
-      temp: `${dayTemp}°`,
       high: highTemp,
       low: lowTemp,
       date: forecastDate,
