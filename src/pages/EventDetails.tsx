@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { Header } from "@/components/layout/Header";
 import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
 import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoading";
@@ -10,12 +11,17 @@ import { EventDetailsEmpty } from "@/components/event-details/EventDetailsEmpty"
 import { EventNotFoundHandler } from "@/components/events/event-details/EventNotFoundHandler";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { MenuState } from "@/hooks/menuStateTypes";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [notFound, setNotFound] = useState(false);
+  const [isCustomMenu, setIsCustomMenu] = useState(false);
+  const [menuState, setMenuState] = useState<MenuState | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMenuFunction, setSaveMenuFunction] = useState<(() => Promise<void>) | null>(null);
 
   const {
     data: event,
@@ -52,6 +58,52 @@ const EventDetails = () => {
     navigate("/events");
   };
 
+  // Format date for display
+  const formattedDate = event?.event_date 
+    ? format(new Date(event.event_date), 'EEEE, MMMM d, yyyy')
+    : 'Date not specified';
+
+  // Handlers for menu state
+  const handleCustomMenuToggle = (checked: boolean) => {
+    setIsCustomMenu(checked);
+  };
+
+  const handleMenuStateChange = (newMenuState: MenuState) => {
+    setMenuState(newMenuState);
+  };
+
+  const handleSaveMenuSelections = (saveFn: () => Promise<void>) => {
+    setSaveMenuFunction(() => saveFn);
+  };
+
+  const handleSaveMenu = async () => {
+    if (saveMenuFunction) {
+      setIsSaving(true);
+      try {
+        await saveMenuFunction();
+        toast({
+          title: "Menu saved",
+          description: "Your menu selections have been saved."
+        });
+      } catch (error) {
+        console.error("Failed to save menu:", error);
+        toast({
+          title: "Failed to save",
+          description: "There was an error saving your menu selections.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
+  const handleEditEvent = () => {
+    if (id) {
+      navigate(`/events/${id}/edit`);
+    }
+  };
+
   if (notFound) {
     return <EventNotFoundHandler eventId={id} />;
   }
@@ -64,7 +116,7 @@ const EventDetails = () => {
           showBackButton 
           onBackButtonClick={handleBackClick} 
         />
-        <EventDetailsLoading />
+        <EventDetailsLoading onBackButtonClick={handleBackClick} />
       </div>
     );
   }
@@ -94,7 +146,20 @@ const EventDetails = () => {
         showBackButton 
         onBackButtonClick={handleBackClick} 
       />
-      <EventDetailsContent event={event} />
+      <EventDetailsContent 
+        event={event}
+        eventId={id || ''}
+        formattedDate={formattedDate}
+        isCustomMenu={isCustomMenu}
+        menuState={menuState}
+        saveMenuFunction={saveMenuFunction}
+        isSaving={isSaving}
+        onEditEvent={handleEditEvent}
+        onCustomMenuToggle={handleCustomMenuToggle}
+        onMenuStateChange={handleMenuStateChange}
+        onSaveMenuSelections={handleSaveMenuSelections}
+        onSaveMenu={handleSaveMenu}
+      />
     </div>
   );
 };

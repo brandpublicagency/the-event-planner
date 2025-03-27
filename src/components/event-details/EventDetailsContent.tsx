@@ -11,7 +11,7 @@ import { MenuState } from "@/hooks/menuStateTypes";
 import { Edit } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-interface EventDetailsContentProps {
+export interface EventDetailsContentProps {
   event: Event;
   eventId: string;
   formattedDate: string;
