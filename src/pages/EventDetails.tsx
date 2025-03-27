@@ -14,26 +14,26 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Normalize the event ID if needed
+  // Normalize the event ID for database queries
   const normalizedId = React.useMemo(() => {
     if (!id) return null;
     
-    // Remove any potential prefixes - handle all possible formats consistently
+    // For database queries, we need to ensure the EVENT- prefix is preserved
+    // if it was in the original URL, otherwise add it
     if (id.startsWith('EVENT-')) {
-      return id.replace('EVENT-', '');
-    } 
-    if (id.startsWith('event_')) {
-      return id.replace('event_', '');
-    }
-    if (id.includes('-')) {
-      // If it's already in the format like "253-2161"
       return id;
+    } else if (id.startsWith('event_')) {
+      // Convert event_ format to EVENT- format for querying
+      return 'EVENT-' + id.replace('event_', '');
+    } else if (id.includes('-')) {
+      // If it's a bare ID like "253-2161", add the EVENT- prefix
+      return 'EVENT-' + id;
     }
     
-    return id;
+    return id; // Fallback
   }, [id]);
 
-  console.log(`Event Details page with ID: ${id}, normalized: ${normalizedId}`);
+  console.log(`Event Details page with ID: ${id}, normalized for DB: ${normalizedId}`);
 
   // Check if this is a forced refresh
   useEffect(() => {

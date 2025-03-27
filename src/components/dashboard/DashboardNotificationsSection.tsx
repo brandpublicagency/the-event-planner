@@ -60,7 +60,7 @@ const DashboardNotificationsSection = () => {
           if (notification.relatedId.startsWith('EVENT-')) {
             eventCode = notification.relatedId.replace('EVENT-', '');
           } else if (notification.relatedId.startsWith('event_')) {
-            eventCode = notification.relatedId.replace('event_', '');
+            eventCode = 'EVENT-' + notification.relatedId.replace('event_', '');
           }
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);

@@ -62,17 +62,21 @@ const Notifications = () => {
       if (notification.relatedId) {
         console.log(`Page navigating to relatedId: ${notification.relatedId}`);
         
-        // For event notifications, use consistent format handling
+        // For event notifications, preserve the original format
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
             notification.relatedId.startsWith('event_')) {
           
           // Normalize the event code by removing any prefixes
           let eventCode = notification.relatedId;
-          if (notification.relatedId.startsWith('EVENT-')) {
-            eventCode = notification.relatedId.replace('EVENT-', '');
-          } else if (notification.relatedId.startsWith('event_')) {
-            eventCode = notification.relatedId.replace('event_', '');
+          
+          // Only normalize event_ format to EVENT- if needed
+          if (notification.relatedId.startsWith('event_')) {
+            eventCode = 'EVENT-' + notification.relatedId.replace('event_', '');
+          }
+          // If it's just the bare ID (like "253-2161"), add the EVENT- prefix
+          else if (notification.relatedId.match(/^\d+-\d+$/)) {
+            eventCode = 'EVENT-' + notification.relatedId;
           }
 
           console.log(`Page navigating to event: ${eventCode}`);
