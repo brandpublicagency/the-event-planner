@@ -46,22 +46,35 @@ const DashboardNotificationsSection = () => {
     e.preventDefault();
     e.stopPropagation();
     
+    console.log("Dashboard viewing notification:", notification);
+    
     markAsRead(notification.id).then(() => {
       if (notification.relatedId) {
-        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
-          const eventCode = notification.relatedId.startsWith('EVENT-') 
-            ? notification.relatedId.replace('EVENT-', '') 
-            : notification.relatedId.startsWith('event_') 
-              ? notification.relatedId.replace('event_', '') 
-              : notification.relatedId;
+        console.log(`Dashboard navigating to: ${notification.relatedId}`);
+        
+        if (notification.relatedId.match(/^\d+-\d+$/) || 
+            notification.relatedId.startsWith('EVENT-') || 
+            notification.relatedId.startsWith('event_')) {
+          
+          // Normalize the event code
+          let eventCode = notification.relatedId;
+          if (notification.relatedId.startsWith('EVENT-')) {
+            eventCode = notification.relatedId.replace('EVENT-', '');
+          } else if (notification.relatedId.startsWith('event_')) {
+            eventCode = notification.relatedId.replace('event_', '');
+          }
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (notification.relatedId.startsWith('task_')) {
+        } 
+        else if (notification.relatedId.startsWith('task_')) {
           navigate(`/tasks?selected=${notification.relatedId}`);
-        } else {
+        } 
+        else {
           navigate(`/${notification.relatedId}`);
         }
+      } else {
+        console.log("No relatedId found in notification");
       }
     }).catch(err => {
       console.error('Error marking notification as read:', err);

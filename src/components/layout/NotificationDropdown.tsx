@@ -59,26 +59,37 @@ export function NotificationDropdown() {
     e.stopPropagation();
     
     try {
+      console.log("Dropdown viewing notification:", notification);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
+        console.log(`Dropdown navigating to: ${notification.relatedId}`);
+        
         // Normalize event IDs across different formats
-        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
+        if (notification.relatedId.match(/^\d+-\d+$/) || 
+            notification.relatedId.startsWith('EVENT-') || 
+            notification.relatedId.startsWith('event_')) {
+          
           // Extract the event code, removing any prefixes
-          const eventCode = notification.relatedId.startsWith('EVENT-') 
-            ? notification.relatedId.replace('EVENT-', '') 
-            : notification.relatedId.startsWith('event_') 
-              ? notification.relatedId.replace('event_', '') 
-              : notification.relatedId;
+          let eventCode = notification.relatedId;
+          if (notification.relatedId.startsWith('EVENT-')) {
+            eventCode = notification.relatedId.replace('EVENT-', '');
+          } else if (notification.relatedId.startsWith('event_')) {
+            eventCode = notification.relatedId.replace('event_', '');
+          }
               
           console.log(`Notification dropdown: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (notification.relatedId.startsWith('task_')) {
+        } 
+        else if (notification.relatedId.startsWith('task_')) {
           navigate(`/tasks?selected=${notification.relatedId}`);
-        } else {
+        } 
+        else {
           // For any other type of notification
           navigate(`/${notification.relatedId}`);
         }
+      } else {
+        console.log("No relatedId found in notification");
       }
       
       toast({

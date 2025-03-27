@@ -47,27 +47,39 @@ const Notifications = () => {
     e.stopPropagation();
     
     try {
+      console.log("Viewing notification:", notification);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
+        console.log(`Navigating to: ${notification.relatedId}`);
+        
         // For event notifications, navigate to the events page
-        if (notification.relatedId.match(/^\d+-\d+$/) || notification.relatedId.startsWith('EVENT-') || notification.relatedId.startsWith('event_')) {
-          // Handle various event ID formats by normalizing them
-          const eventCode = notification.relatedId.startsWith('EVENT-') 
-            ? notification.relatedId.replace('EVENT-', '') 
-            : notification.relatedId.startsWith('event_') 
-              ? notification.relatedId.replace('event_', '') 
-              : notification.relatedId;
+        if (notification.relatedId.match(/^\d+-\d+$/) || 
+            notification.relatedId.startsWith('EVENT-') || 
+            notification.relatedId.startsWith('event_')) {
+          
+          // Normalize the event code by removing any prefixes
+          let eventCode = notification.relatedId;
+          if (notification.relatedId.startsWith('EVENT-')) {
+            eventCode = notification.relatedId.replace('EVENT-', '');
+          } else if (notification.relatedId.startsWith('event_')) {
+            eventCode = notification.relatedId.replace('event_', '');
+          }
 
-          console.log(`Navigating to event: ${eventCode}`);
+          console.log(`Main notifications page: navigating to event: ${eventCode}`);
           navigate(`/events/${eventCode}`);
-        } else if (notification.relatedId.startsWith('task_')) {
+        } 
+        else if (notification.relatedId.startsWith('task_')) {
           // For task notifications
           navigate(`/tasks?selected=${notification.relatedId}`);
-        } else {
+        } 
+        else {
           // For other types of notifications
           navigate(`/${notification.relatedId}`);
         }
+      } else {
+        // If no relatedId, just mark as read but don't navigate
+        console.log("No relatedId found in notification");
       }
       
       toast({

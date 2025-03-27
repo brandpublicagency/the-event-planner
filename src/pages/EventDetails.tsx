@@ -1,35 +1,26 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Header } from "@/components/layout/Header";
-import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
-import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoading";
-import { EventDetailsError } from "@/components/event-details/EventDetailsError";
-import { EventDetailsEmpty } from "@/components/event-details/EventDetailsEmpty";
-import { EventNotFoundHandler } from "@/components/events/event-details/EventNotFoundHandler";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { MenuState } from "@/hooks/menuStateTypes";
+import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoading";
+import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
+import { EventDetailsError } from "@/components/event-details/EventDetailsError";
+import { EventNotFoundHandler } from "@/components/events/event-details/EventNotFoundHandler";
+import { useQuery } from "@tanstack/react-query";
 
 const EventDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [notFound, setNotFound] = useState(false);
-  const [isCustomMenu, setIsCustomMenu] = useState(false);
-  const [menuState, setMenuState] = useState<MenuState | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMenuFunction, setSaveMenuFunction] = useState<(() => Promise<void>) | null>(null);
 
-  const {
-    data: event,
-    isLoading,
-    error,
-    refetch
+  // Fetch event data
+  const { 
+    data: event, 
+    isLoading, 
+    isError, 
+    error 
   } = useQuery({
-    queryKey: ["event", id],
+    queryKey: ['event', id],
     queryFn: async () => {
       if (!id) return null;
 
@@ -37,130 +28,58 @@ const EventDetails = () => {
       const { data, error } = await supabase
         .from("events")
         .select("*")
-        .eq("event_code", id)
-        .is("deleted_at", null)
-        .maybeSingle();
+        .eq('event_code', id)
+        .single();
 
-      if (error) throw error;
-      
+      if (error) {
+        console.error("Error fetching event:", error);
+        throw error;
+      }
+
       if (!data) {
-        console.log(`Event not found: ${id}`);
-        setNotFound(true);
-        return null;
+        console.log(`No event found with code: ${id}`);
+        throw new Error(`Event with code ${id} not found`);
       }
 
       return data;
     },
-    enabled: !!id,
-    retry: 1, // Only retry once to avoid too many requests for non-existent events
+    retry: 1,
+    staleTime: 5 * 60 * 1000 // 5 minutes
   });
 
-  const handleBackClick = () => {
-    navigate("/events");
-  };
-
-  // Format date for display
-  const formattedDate = event?.event_date 
-    ? format(new Date(event.event_date), 'EEEE, MMMM d, yyyy')
-    : 'Date not specified';
-
-  // Handlers for menu state
-  const handleCustomMenuToggle = (checked: boolean) => {
-    setIsCustomMenu(checked);
-  };
-
-  const handleMenuStateChange = (newMenuState: MenuState) => {
-    setMenuState(newMenuState);
-  };
-
-  const handleSaveMenuSelections = (saveFn: () => Promise<void>) => {
-    setSaveMenuFunction(() => saveFn);
-  };
-
-  const handleSaveMenu = async () => {
-    if (saveMenuFunction) {
-      setIsSaving(true);
-      try {
-        await saveMenuFunction();
-        toast({
-          title: "Menu saved",
-          description: "Your menu selections have been saved."
-        });
-      } catch (error) {
-        console.error("Failed to save menu:", error);
-        toast({
-          title: "Failed to save",
-          description: "There was an error saving your menu selections.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsSaving(false);
-      }
-    }
-  };
-
-  const handleEditEvent = () => {
-    if (id) {
-      navigate(`/events/${id}/edit`);
-    }
-  };
-
-  if (notFound) {
-    return <EventNotFoundHandler eventId={id} />;
-  }
-
+  // If loading show loading state
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50">
-        <Header 
-          pageTitle="Event Details" 
-          showBackButton 
-          onBackButtonClick={handleBackClick} 
-        />
-        <EventDetailsLoading onBackButtonClick={handleBackClick} />
+        <Header pageTitle="Event Details" showBackButton onBackButtonClick={() => navigate('/events')} />
+        <EventDetailsLoading />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <EventDetailsError 
-        error={error} 
-        onBackButtonClick={handleBackClick}
-        onRefetch={refetch}
-      />
-    );
+  // If no event found (404)
+  if (!event) {
+    return <EventNotFoundHandler eventId={id} />;
   }
 
-  if (!event) {
+  // If there was an error fetching the event
+  if (isError) {
     return (
-      <EventDetailsEmpty 
-        onBackButtonClick={handleBackClick} 
-      />
+      <div className="flex flex-col min-h-screen bg-zinc-50">
+        <Header pageTitle="Event Details" showBackButton onBackButtonClick={() => navigate('/events')} />
+        <EventDetailsError error={error as Error} onRetry={() => navigate(0)} />
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header 
-        pageTitle={`Event: ${event.name}`} 
+        pageTitle={event.name || "Event Details"} 
         showBackButton 
-        onBackButtonClick={handleBackClick} 
+        onBackButtonClick={() => navigate('/events')} 
       />
-      <EventDetailsContent 
-        event={event}
-        eventId={id || ''}
-        formattedDate={formattedDate}
-        isCustomMenu={isCustomMenu}
-        menuState={menuState}
-        saveMenuFunction={saveMenuFunction}
-        isSaving={isSaving}
-        onEditEvent={handleEditEvent}
-        onCustomMenuToggle={handleCustomMenuToggle}
-        onMenuStateChange={handleMenuStateChange}
-        onSaveMenuSelections={handleSaveMenuSelections}
-        onSaveMenu={handleSaveMenu}
-      />
+      <EventDetailsContent event={event} />
     </div>
   );
 };

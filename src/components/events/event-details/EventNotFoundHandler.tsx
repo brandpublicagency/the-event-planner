@@ -17,19 +17,21 @@ export const EventNotFoundHandler: React.FC<EventNotFoundHandlerProps> = ({ even
     // Show a toast notification that the event wasn't found
     toast({
       title: "Event not found",
-      description: "The event you're looking for doesn't exist or may have been deleted.",
+      description: `The event with code "${eventId}" doesn't exist or may have been deleted.`,
       variant: "destructive",
     });
-  }, [toast]);
+  }, [toast, eventId]);
+
+  const handleBack = () => {
+    navigate('/events');
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header 
         pageTitle="Event Not Found" 
         showBackButton
-        onBackButtonClick={() => {
-          navigate('/events');
-        }}
+        onBackButtonClick={handleBack}
       />
       
       <div className="container py-8 flex-1">
