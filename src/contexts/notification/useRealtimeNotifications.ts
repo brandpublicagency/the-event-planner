@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { formatNotification } from './notificationOperations';
+import { formatNotification } from './notificationFormatters';
 import { toast } from '@/hooks/use-toast';
 import { Notification } from '@/types/notification';
 

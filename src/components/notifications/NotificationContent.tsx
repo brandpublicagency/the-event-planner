@@ -1,123 +1,78 @@
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React from 'react';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { NotificationsList } from "@/components/notifications/NotificationList";
 import { Notification } from '@/types/notification';
-import { NotificationsList } from '@/components/notifications/NotificationList';
-import { EmptyState } from '@/components/notifications/EmptyState';
-import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface NotificationContentProps {
   notifications: Notification[];
   loading: boolean;
+  isRefreshing: boolean;
   error: Error | null;
   onViewDetail: (notification: Notification, e: React.MouseEvent) => void;
   onCompleteTask: (notification: Notification, e: React.MouseEvent) => void;
-  onRefresh: () => void;
+  onRefresh: (e: React.MouseEvent) => void;
 }
 
 export const NotificationContent = ({
   notifications,
   loading,
+  isRefreshing,
   error,
   onViewDetail,
   onCompleteTask,
   onRefresh
 }: NotificationContentProps) => {
-  const [showInitialLoader, setShowInitialLoader] = useState(true);
-  const [showFallbackLoader, setShowFallbackLoader] = useState(false);
-  
-  // Only show the initial loader for a limited time
-  useEffect(() => {
-    const initialLoaderTimeout = setTimeout(() => {
-      setShowInitialLoader(false);
-    }, 2000); // Show loader for max 2 seconds
-    
-    // If loading takes too long, show a fallback message
-    const fallbackTimeout = setTimeout(() => {
-      if (loading && notifications.length === 0) {
-        setShowFallbackLoader(true);
-      }
-    }, 5000); // After 5 seconds, if still loading
-    
-    return () => {
-      clearTimeout(initialLoaderTimeout);
-      clearTimeout(fallbackTimeout);
-    };
-  }, [loading, notifications.length]);
-  
-  // If loading for first time (no notifications yet), show loading state
-  if (loading && notifications.length === 0 && showInitialLoader) {
-    return (
-      <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
-        <Spinner className="h-6 w-6 mb-2 text-primary" />
-        <p className="text-sm text-muted-foreground mt-2">Loading notifications...</p>
-      </div>
-    );
-  }
-  
-  // Show fallback message if loading takes too long
-  if (showFallbackLoader && notifications.length === 0) {
-    return (
-      <div className="bg-white shadow rounded-lg text-center py-8 flex flex-col items-center">
-        <p className="text-sm text-muted-foreground mb-2">
-          Taking longer than expected to load notifications...
-        </p>
-        <button 
-          onClick={onRefresh} 
-          className="text-sm text-primary hover:underline mt-2"
-        >
-          Try refreshing
-        </button>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive" className="mb-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Notification System Error</AlertTitle>
-        <AlertDescription>
-          {error.message}
-          <div className="mt-2">
-            <button 
-              onClick={onRefresh}
-              className="text-sm underline hover:no-underline"
-            >
-              Try again
-            </button>
-          </div>
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  const limitedNotifications = notifications.slice(0, 5);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      {notifications.length > 0 ? (
-        <NotificationsList 
-          notifications={notifications}
-          error={error}
+    <ScrollArea className="h-[350px] w-full px-3 pt-2">
+      {(loading && notifications.length === 0) || isRefreshing ? (
+        <div className="p-2 space-y-2">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="flex items-start gap-2 p-2">
+              <Skeleton className="h-7 w-7 rounded-full" />
+              <div className="space-y-1.5 flex-1">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="p-3 text-center">
+          <p className="text-sm text-red-500 mb-2">Failed to load notifications</p>
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={onRefresh}
+            className="inline-flex items-center gap-1"
+          >
+            <span>Try again</span>
+          </Button>
+        </div>
+      ) : limitedNotifications.length > 0 ? (
+        <NotificationsList
+          notifications={limitedNotifications}
           onViewDetail={onViewDetail}
           onCompleteTask={onCompleteTask}
-          listType="all"
+          listType="dropdown"
         />
       ) : (
-        <EmptyState refreshWithState={onRefresh} />
-      )}
-      
-      {/* Show a subtle loading indicator when refreshing with existing content */}
-      {loading && notifications.length > 0 && (
-        <div className="flex justify-center mt-2">
-          <Spinner className="h-3 w-3 text-muted-foreground" />
+        <div className="p-3 text-center">
+          <p className="text-sm text-zinc-500">No notifications to display</p>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onRefresh}
+            className="mt-2"
+          >
+            Refresh
+          </Button>
         </div>
       )}
-    </motion.div>
+    </ScrollArea>
   );
 };
