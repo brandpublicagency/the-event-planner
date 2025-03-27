@@ -11,6 +11,9 @@ const lowlight = createLowlight(common);
 // Export all extensions
 export const getEditorExtensions = () => [
   StarterKit.configure({
+    heading: {
+      levels: [1, 2, 3]
+    },
     codeBlock: false, // Disable the default code block to avoid conflicts
   }),
   Underline,

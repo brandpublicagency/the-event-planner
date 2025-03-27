@@ -39,7 +39,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           <div ref={ref} className="bg-white rounded-lg border h-full overflow-y-auto flex flex-col print-document">
             <EditorContent 
               editor={editor} 
-              className="flex-1 p-4 h-full"
+              className="flex-1 p-6 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none"
             />
           </div>
         </div>

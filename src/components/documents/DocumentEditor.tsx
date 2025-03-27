@@ -51,14 +51,14 @@ export default function DocumentEditor({
   const handleSave = async () => {
     try {
       await saveDocument({
-        showToast: false
+        showToast: true
       });
       
       if (documentId) {
         await updateDocumentCategories({
           documentId,
           categoryIds: selectedCategories.map(c => c.id),
-          showSuccessToast: true
+          showSuccessToast: false
         });
       }
     } catch (error) {
@@ -96,7 +96,7 @@ export default function DocumentEditor({
         content={editor?.getHTML()}
         printRef={contentRef}
       />
-      <div className="flex-1 px-6 pb-6 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-hidden p-4">
         <DocumentContent editor={editor} ref={contentRef} />
       </div>
     </div>

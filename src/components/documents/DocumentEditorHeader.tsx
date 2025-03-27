@@ -80,7 +80,7 @@ export default function DocumentEditorHeader({
   };
   
   return (
-    <div className="flex items-center justify-between border-b p-4">
+    <div className="flex items-center justify-between border-b px-4 py-3">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <DocumentTitle 
           title={document.title}
@@ -104,7 +104,7 @@ export default function DocumentEditorHeader({
             onClick={handleSave}
             disabled={isSaving}
             loadingText="Saving..."
-            defaultText="Save Document"
+            defaultText="Save"
             successText="Saved!"
             timeout={2000}
             size="sm"

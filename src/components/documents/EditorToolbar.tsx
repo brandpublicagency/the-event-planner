@@ -7,6 +7,7 @@ import {
 import { Editor } from '@tiptap/react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface MenuButtonProps {
   onClick: () => void;
@@ -19,8 +20,14 @@ const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) =
   <Button
     variant={active ? "default" : "ghost"}
     size="sm"
-    className={`h-8 w-8 p-0 ${active ? 'bg-accent' : ''}`}
-    onClick={onClick}
+    className={cn(
+      "h-9 w-9 p-0 flex items-center justify-center",
+      active ? 'bg-accent text-accent-foreground' : ''
+    )}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick();
+    }}
     title={tooltip}
     type="button"
   >
@@ -38,7 +45,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   }
 
   return (
-    <div className="border rounded-lg mb-4 p-1 flex items-center gap-1 flex-wrap bg-background">
+    <div className="border rounded-lg mb-4 p-1.5 flex items-center gap-1 flex-wrap bg-background">
       <MenuButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         active={editor.isActive('bold')}
