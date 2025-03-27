@@ -1,3 +1,4 @@
+
 // Generate forecast data from weather information
 import { format, addDays } from 'date-fns';
 
@@ -24,7 +25,7 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
   const currentTemp = weatherData.temp;
   const currentCondition = weatherData.condition || 'Clear';
   
-  // Generate forecast for today and next 4 days
+  // Generate forecast for today and next 7 days
   const forecast = [];
   
   // Add "Now" as the first item
@@ -35,8 +36,8 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
     temp: `${currentTemp}°`,
   });
   
-  // Generate forecast for the next 4 days
-  for (let i = 1; i < 5; i++) {
+  // Generate forecast for the next 7 days
+  for (let i = 1; i < 8; i++) {
     const forecastDate = addDays(now, i);
     
     // Format day name: Tomorrow for first day, then day names
@@ -106,8 +107,8 @@ const generateMockForecast = (currentDate: Date = new Date()) => {
     temp: '22°',
   });
   
-  // Add next 4 days
-  for (let i = 1; i < 5; i++) {
+  // Add next 7 days
+  for (let i = 1; i < 8; i++) {
     const forecastDate = addDays(currentDate, i);
     
     // Format day name: Tomorrow for first day, then day names

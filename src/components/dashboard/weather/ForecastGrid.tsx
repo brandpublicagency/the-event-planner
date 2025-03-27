@@ -9,8 +9,8 @@ interface ForecastGridProps {
 }
 
 const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
-  // Take only the first 5 time periods if more are provided
-  const displayForecast = forecast.slice(0, 5);
+  // Take the first 8 time periods if more are provided (Now + 7 days)
+  const displayForecast = forecast.slice(0, 8);
   
   return (
     <motion.div 
