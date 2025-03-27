@@ -1,7 +1,7 @@
 
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { MapPin, Users, Copy } from "lucide-react";
+import { MapPin, Users, Copy, Calendar, Briefcase, Star, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Event } from "@/types/event";
 import { useCopyEventCode } from "../utils/eventCodeUtils";
@@ -25,6 +25,17 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
   
   const copyEventCode = useCopyEventCode();
   const formattedDate = event_date ? format(parseISO(event_date), 'EEE, MMM d, yyyy') : 'No date set';
+  
+  // Get appropriate icon based on event type
+  const getEventTypeIcon = (type: string) => {
+    const lowerType = type?.toLowerCase() || '';
+    
+    if (lowerType.includes('wedding')) return <Award className="h-3 w-3 mr-1 text-zinc-400" />;
+    if (lowerType.includes('corporate')) return <Briefcase className="h-3 w-3 mr-1 text-zinc-400" />;
+    if (lowerType.includes('birthday')) return <Star className="h-3 w-3 mr-1 text-zinc-400" />;
+    // Default icon for other event types
+    return <Calendar className="h-3 w-3 mr-1 text-zinc-400" />;
+  };
   
   return (
     <div className="space-y-0.5 flex-1">
@@ -50,6 +61,7 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
         
         {event_type && (
           <div className="flex items-center">
+            {getEventTypeIcon(event_type)}
             <span className="text-xs text-gray-500">{event_type}</span>
           </div>
         )}
