@@ -1,8 +1,8 @@
 
-import React from "react";
-import { Notification } from "@/types/notification";
-import { Eye, CheckSquare } from "lucide-react";
-import { FileActionButton } from "@/components/tasks/file-actions/FileActionButton";
+import React from 'react';
+import { Notification } from '@/types/notification';
+import { Button } from '@/components/ui/button';
+import { Check, ExternalLink } from 'lucide-react';
 
 interface NotificationActionsProps {
   notification: Notification;
@@ -15,30 +15,32 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   onView,
   onComplete
 }) => {
-  // Determine if we should show the complete button
-  const showCompleteButton = (
-    (notification.type === 'task_overdue' || 
-     notification.type === 'task_upcoming' ||
-     notification.type === 'document_due_reminder' ||
-     notification.type === 'final_payment_reminder') &&
-    !notification.read
-  );
+  // Determine if this is a task-type notification that can be completed
+  const isCompletable = notification.actionType === 'complete';
   
   return (
-    <div className="flex items-center gap-1">
-      <FileActionButton
-        icon={Eye}
-        onClick={(e) => onView(notification, e)}
-        className="h-5 w-5"
-      />
-      
-      {showCompleteButton && (
-        <FileActionButton
-          icon={CheckSquare}
+    <div className="flex space-x-2">
+      {isCompletable && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-6 px-2 text-xs bg-white hover:bg-green-50 text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
           onClick={(e) => onComplete(notification, e)}
-          className="h-5 w-5"
-        />
+        >
+          <Check className="h-3 w-3 mr-1" />
+          <span>Complete</span>
+        </Button>
       )}
+      
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="h-6 px-2 text-xs bg-white hover:bg-zinc-50"
+        onClick={(e) => onView(notification, e)}
+      >
+        <ExternalLink className="h-3 w-3 mr-1" />
+        <span>View</span>
+      </Button>
     </div>
   );
 };

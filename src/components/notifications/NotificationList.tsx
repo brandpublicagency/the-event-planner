@@ -1,42 +1,62 @@
-import React from 'react';
+
+import React, { memo } from 'react';
 import { Notification } from '@/types/notification';
-import { NotificationItem } from '@/components/notifications/NotificationItem';
-import { EmptyNotifications } from '@/components/notifications/EmptyNotifications';
-import { motion, AnimatePresence } from 'framer-motion';
-export interface NotificationsListProps {
+import { NotificationItem } from './NotificationItem';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+interface NotificationsListProps {
   notifications: Notification[];
   onViewDetail: (id: string, relatedId?: string) => void;
   onCompleteTask: (id: string) => void;
   error?: Error | null;
-  listType?: string;
+  listType?: 'all' | 'dropdown' | 'dashboard';
 }
-export const NotificationsList = ({
+
+export const NotificationsList = memo(({
   notifications,
   onViewDetail,
   onCompleteTask,
-  error
+  error,
+  listType = 'all'
 }: NotificationsListProps) => {
-  if (notifications.length === 0) {
-    return <EmptyNotifications />;
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          There was an error loading notifications
+        </AlertDescription>
+      </Alert>
+    );
   }
-  return <div className="px-0 py-0 mx-0 my-0 rounded-md bg-[#00000e]/0">
-      <div className="bg-transparent">
-        <AnimatePresence initial={false}>
-          {notifications.map(notification => <motion.div key={notification.id} initial={{
-          opacity: 0,
-          y: 10
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} exit={{
-          opacity: 0,
-          height: 0
-        }} transition={{
-          duration: 0.2
-        }}>
-              <NotificationItem notification={notification} onView={notification => onViewDetail(notification.id, notification.relatedId)} onComplete={notification => onCompleteTask(notification.id)} />
-            </motion.div>)}
-        </AnimatePresence>
-      </div>
-    </div>;
-};
+
+  const handleView = (notification: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onViewDetail(notification.id, notification.relatedId);
+  };
+
+  const handleComplete = (notification: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCompleteTask(notification.id);
+  };
+
+  const isDropdown = listType === 'dropdown';
+
+  return (
+    <div className={`${isDropdown ? 'space-y-0' : 'space-y-2'}`}>
+      {notifications.map((notification) => (
+        <NotificationItem 
+          key={notification.id} 
+          notification={notification} 
+          onView={handleView} 
+          onComplete={handleComplete}
+          showIcon={!isDropdown}
+          isDropdown={isDropdown}
+        />
+      ))}
+    </div>
+  );
+});
+
+NotificationsList.displayName = 'NotificationsList';

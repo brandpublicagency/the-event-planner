@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ExternalLink } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate } from 'react-router-dom';
@@ -122,7 +122,7 @@ export function NotificationDropdown() {
 
   return (
     <div className="w-full min-w-[320px]">
-      <div className="flex items-center justify-between p-2 border-b">
+      <div className="flex items-center justify-between p-3 border-b">
         <div className="flex flex-col">
           <p className="text-sm font-medium text-zinc-900">Notifications</p>
           <p className="text-xs text-muted-foreground">
@@ -154,7 +154,7 @@ export function NotificationDropdown() {
         </div>
       </div>
       
-      <ScrollArea className="h-[350px] w-full">
+      <ScrollArea className="h-[350px] w-full px-3 pt-2">
         {(loading && notifications.length === 0) || isRefreshing ? (
           <div className="p-2 space-y-2">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -184,6 +184,7 @@ export function NotificationDropdown() {
             notifications={limitedNotifications}
             onViewDetail={handleViewNotification}
             onCompleteTask={handleCompleteTask}
+            listType="dropdown"
           />
         ) : (
           <div className="p-3 text-center">
@@ -201,13 +202,14 @@ export function NotificationDropdown() {
       </ScrollArea>
       
       <DropdownMenuSeparator />
-      <div className="p-2">
+      <div className="p-3">
         <Button
           onClick={handleViewAll}
-          className="w-full flex items-center gap-2 justify-center h-8"
-          variant="default"
+          className="w-full flex items-center justify-center h-8"
+          variant="outline"
           size="sm"
         >
+          <ExternalLink className="h-3.5 w-3.5 mr-2" />
           <span className="text-xs">View all notifications</span>
         </Button>
       </div>
