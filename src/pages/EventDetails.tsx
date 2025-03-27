@@ -17,13 +17,18 @@ const EventDetails = () => {
   const normalizedId = React.useMemo(() => {
     if (!id) return null;
     
-    // Remove any potential prefixes
+    // Remove any potential prefixes - handle all possible formats consistently
     if (id.startsWith('EVENT-')) {
       return id.replace('EVENT-', '');
     } 
     if (id.startsWith('event_')) {
       return id.replace('event_', '');
     }
+    if (id.includes('-')) {
+      // If it's already in the format like "253-2161"
+      return id;
+    }
+    
     return id;
   }, [id]);
 

@@ -26,19 +26,13 @@ export const NotificationItem = memo(({
   });
   
   const handleClick = (e: React.MouseEvent) => {
+    // Always prevent default and stop propagation to avoid bubbling
     e.preventDefault();
     e.stopPropagation();
     console.log("NotificationItem clicked:", notification.id, "relatedId:", notification.relatedId);
     onView(notification, e);
   };
   
-  const handleTitleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("NotificationItem title clicked:", notification.id, "relatedId:", notification.relatedId);
-    onView(notification, e);
-  };
-
   return (
     <div 
       className={`rounded-md transition-all duration-200 hover:bg-gray-50 ${notification.read && !isDropdown ? 'opacity-60' : 'opacity-100'} ${isDropdown ? 'p-3 cursor-pointer' : ''}`} 
@@ -53,7 +47,6 @@ export const NotificationItem = memo(({
         <div className="flex flex-col mb-1">
           <h4 
             className={`text-gray-800 font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}
-            onClick={handleTitleClick}
           >
             {notification.title}
           </h4>

@@ -1,4 +1,3 @@
-
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
@@ -53,12 +52,10 @@ const DashboardNotificationsSection = () => {
       if (notification.relatedId) {
         console.log(`Dashboard navigating to: ${notification.relatedId}`);
         
-        // Normalize event IDs across different formats
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
             notification.relatedId.startsWith('event_')) {
           
-          // Extract the event code, removing any prefixes
           let eventCode = notification.relatedId;
           if (notification.relatedId.startsWith('EVENT-')) {
             eventCode = notification.relatedId.replace('EVENT-', '');
@@ -67,25 +64,33 @@ const DashboardNotificationsSection = () => {
           }
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);
+          
+          if (window.location.pathname === `/events/${eventCode}`) {
+            console.log(`Already on event page ${eventCode}, forcing reload`);
+            window.location.href = `/events/${eventCode}`;
+            return;
+          }
+          
+          console.log(`Navigating to event page ${eventCode}`);
           navigate(`/events/${eventCode}`);
         } 
         else if (notification.relatedId.startsWith('task_')) {
+          console.log(`Navigating to task: ${notification.relatedId}`);
           navigate(`/tasks?selected=${notification.relatedId}`);
         } 
         else {
-          // For any other type of notification
+          console.log(`Navigating to general path: ${notification.relatedId}`);
           navigate(`/${notification.relatedId}`);
         }
       } else {
-        console.log("No relatedId found in notification");
-        // Navigate to notifications page if no specific target
+        console.log("No relatedId found in notification, navigating to notifications page");
         navigate('/notifications');
       }
       
       toast("Notification marked as read");
     } catch (error) {
-      console.error('Error marking notification as read:', error);
-      toast("Could not mark notification as read");
+      console.error('Error handling notification click:', error);
+      toast("Could not process notification");
     }
   }, [markAsRead, navigate]);
 

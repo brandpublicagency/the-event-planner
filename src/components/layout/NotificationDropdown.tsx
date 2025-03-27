@@ -76,24 +76,27 @@ export function NotificationDropdown() {
               
           console.log(`Notification dropdown: navigating to event: ${eventCode}`);
           
-          // Use navigate with location state to avoid the router ignoring same-route clicks
+          // For same route navigation, force a page reload
           if (window.location.pathname === `/events/${eventCode}`) {
-            // If already on the event page, force a refresh
+            console.log(`Already on event page ${eventCode}, forcing reload`);
             window.location.href = `/events/${eventCode}`;
           } else {
+            // For different route, use navigate
+            console.log(`Navigating to event page ${eventCode}`);
             navigate(`/events/${eventCode}`);
           }
         } 
         else if (notification.relatedId.startsWith('task_')) {
+          console.log(`Navigating to task: ${notification.relatedId}`);
           navigate(`/tasks?selected=${notification.relatedId}`);
         } 
         else {
           // For any other type of notification
+          console.log(`Navigating to general path: ${notification.relatedId}`);
           navigate(`/${notification.relatedId}`);
         }
       } else {
-        console.log("No relatedId found in notification");
-        // Navigate to notifications page if no relatedId
+        console.log("No relatedId found in notification, navigating to notifications page");
         navigate('/notifications');
       }
       
@@ -101,9 +104,9 @@ export function NotificationDropdown() {
         title: "Notification marked as read"
       });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error("Error handling notification click:", error);
       toast({
-        title: "Failed to mark notification as read",
+        title: "Failed to process notification",
         variant: "destructive"
       });
     }

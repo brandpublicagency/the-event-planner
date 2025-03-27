@@ -48,7 +48,10 @@ export const NotificationsList = memo(({
   const isDropdown = listType === 'dropdown';
 
   return (
-    <div className={`${isDropdown ? 'space-y-0' : 'space-y-2'}`}>
+    <div 
+      className={`${isDropdown ? 'space-y-0' : 'space-y-2'}`}
+      onClick={(e) => e.stopPropagation()} // Prevent click propagation at the container level
+    >
       {notifications.length === 0 ? (
         <div className="p-3 text-center text-sm text-zinc-500">
           No notifications to display
