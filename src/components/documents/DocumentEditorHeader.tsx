@@ -6,7 +6,6 @@ import { Document } from "@/types/document";
 import { DocumentDeleteDialog } from "./DocumentDeleteDialog";
 import { useNavigate } from "react-router-dom";
 import { SaveButton } from "@/components/ui/save-button";
-import { CategoryBadge } from "./CategoryBadge";
 import { Category } from "@/types/category";
 
 interface DocumentEditorHeaderProps {
@@ -59,15 +58,7 @@ export default function DocumentEditorHeader({
           placeholder="Select category"
         />
         
-        <div className="flex flex-wrap gap-1 overflow-hidden">
-          {selectedCategories.map(category => (
-            <CategoryBadge 
-              key={category.id} 
-              category={category} 
-              selected={true} 
-            />
-          ))}
-        </div>
+        {/* Removed the redundant category badges display */}
       </div>
       
       <div className="flex items-center gap-2">
