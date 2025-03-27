@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -61,23 +60,14 @@ export function NotificationDropdown() {
       if (notification.relatedId) {
         console.log(`Dropdown navigating to related ID: ${notification.relatedId}`);
         
-        // For event notifications, preserve the original format
+        // For event notifications, pass the ID exactly as stored in the relatedId
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_')) {
+            notification.relatedId.startsWith('event_') ||
+            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
           
-          // Extract the event code, removing any prefixes
-          let eventCode = notification.relatedId;
-          
-          // Only normalize event_ format to EVENT- if needed
-          if (notification.relatedId.startsWith('event_')) {
-            eventCode = 'EVENT-' + notification.relatedId.replace('event_', '');
-          }
-          // If it's just the bare ID (like "253-2161"), add the EVENT- prefix
-          else if (notification.relatedId.match(/^\d+-\d+$/)) {
-            eventCode = 'EVENT-' + notification.relatedId;
-          }
-              
+          // Use the event code exactly as is
+          const eventCode = notification.relatedId;
           console.log(`Notification dropdown: navigating to event: ${eventCode}`);
           
           // For same route navigation, force a page reload

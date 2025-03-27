@@ -54,14 +54,11 @@ const DashboardNotificationsSection = () => {
         
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_')) {
+            notification.relatedId.startsWith('event_') ||
+            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
           
-          let eventCode = notification.relatedId;
-          if (notification.relatedId.startsWith('EVENT-')) {
-            eventCode = notification.relatedId.replace('EVENT-', '');
-          } else if (notification.relatedId.startsWith('event_')) {
-            eventCode = 'EVENT-' + notification.relatedId.replace('event_', '');
-          }
+          // Use the event code exactly as is
+          const eventCode = notification.relatedId;
               
           console.log(`Dashboard notification: navigating to event: ${eventCode}`);
           

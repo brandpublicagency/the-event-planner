@@ -20,15 +20,8 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const fetchEventById = async (eventCode: string): Promise<any> => {
-  // Normalize event code by removing any prefixes
-  let normalizedEventCode = eventCode;
-  if (eventCode.startsWith('EVENT-')) {
-    normalizedEventCode = eventCode.replace('EVENT-', '');
-  } else if (eventCode.startsWith('event_')) {
-    normalizedEventCode = eventCode.replace('event_', '');
-  }
-  
-  console.log(`Fetching event with normalized code: ${normalizedEventCode}`);
+  // Use the event code exactly as provided
+  console.log(`Fetching event with code: ${eventCode}`);
   
   try {
     const { data: event, error } = await supabase
@@ -42,17 +35,17 @@ export const fetchEventById = async (eventCode: string): Promise<any> => {
           )
         )
       `)
-      .eq('event_code', normalizedEventCode)
+      .eq('event_code', eventCode)
       .single();
 
     if (error) {
-      console.error(`Error fetching event ${normalizedEventCode}:`, error);
+      console.error(`Error fetching event ${eventCode}:`, error);
       throw error;
     }
 
     return event;
   } catch (error) {
-    console.error(`Error in fetchEventById for ${normalizedEventCode}:`, error);
+    console.error(`Error in fetchEventById for ${eventCode}:`, error);
     return null;
   }
 };

@@ -75,7 +75,7 @@ export const fetchEventById = async (eventCode: string) => {
   console.log(`Fetching event with code: ${eventCode}`);
   
   try {
-    // Fetch event with a simpler query
+    // Use the exact event code as provided - no normalization
     const { data: event, error } = await withTimeout(
       supabase
         .from('events')

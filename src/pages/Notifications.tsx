@@ -1,4 +1,3 @@
-
 import React, { useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -62,23 +61,14 @@ const Notifications = () => {
       if (notification.relatedId) {
         console.log(`Page navigating to relatedId: ${notification.relatedId}`);
         
-        // For event notifications, preserve the original format
+        // For event notifications, use the ID exactly as stored in relatedId
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_')) {
+            notification.relatedId.startsWith('event_') ||
+            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
           
-          // Normalize the event code by removing any prefixes
-          let eventCode = notification.relatedId;
-          
-          // Only normalize event_ format to EVENT- if needed
-          if (notification.relatedId.startsWith('event_')) {
-            eventCode = 'EVENT-' + notification.relatedId.replace('event_', '');
-          }
-          // If it's just the bare ID (like "253-2161"), add the EVENT- prefix
-          else if (notification.relatedId.match(/^\d+-\d+$/)) {
-            eventCode = 'EVENT-' + notification.relatedId;
-          }
-
+          // Use the event code exactly as is
+          const eventCode = notification.relatedId;
           console.log(`Page navigating to event: ${eventCode}`);
           
           // Use navigate with location state to avoid the router ignoring same-route clicks
