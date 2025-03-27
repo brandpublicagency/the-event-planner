@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { NotificationErrorFallback } from '@/components/notifications/NotificationErrorFallback';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { NotificationContent } from '@/components/notifications/NotificationContent';
+import { useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
   const {
@@ -19,6 +20,7 @@ const Notifications = () => {
   } = useNotifications();
   
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Handle refresh button click
   const handleRefresh = async () => {
@@ -43,16 +45,24 @@ const Notifications = () => {
     try {
       await markAsRead(id);
       
-      // Navigate based on notification type and relatedId format
       if (relatedId) {
-        if (relatedId.startsWith('EVENT-')) {
-          // Navigate to event details page with code after EVENT- prefix
-          window.location.href = `/events/${relatedId.replace('EVENT-', '')}`;
-        } else if (relatedId.startsWith('event_')) {
-          // Navigate to event details page with code after event_ prefix
-          window.location.href = `/events/${relatedId.replace('event_', '')}`;
+        // For event notifications, navigate to the events page
+        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
+          // Handle various event ID formats by normalizing them
+          const eventCode = relatedId.startsWith('EVENT-') 
+            ? relatedId.replace('EVENT-', '') 
+            : relatedId.startsWith('event_') 
+              ? relatedId.replace('event_', '') 
+              : relatedId;
+
+          console.log(`Navigating to event: ${eventCode}`);
+          navigate(`/events/${eventCode}`);
+        } else if (relatedId.startsWith('task_')) {
+          // For task notifications
+          navigate(`/tasks?selected=${relatedId}`);
         } else {
-          window.location.href = `/${relatedId}`;
+          // For other types of notifications
+          navigate(`/${relatedId}`);
         }
       }
       

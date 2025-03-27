@@ -55,17 +55,21 @@ export function NotificationDropdown() {
       await markAsRead(id);
       
       if (relatedId) {
-        // Handle different relatedId formats correctly
-        if (relatedId.startsWith('EVENT-')) {
-          // Navigate to event with code after EVENT- prefix
-          navigate(`/events/${relatedId.replace('EVENT-', '')}`);
-        } else if (relatedId.startsWith('event_')) {
-          // Navigate to event with code after event_ prefix
-          navigate(`/events/${relatedId.replace('event_', '')}`);
+        // Normalize event IDs across different formats
+        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
+          // Extract the event code, removing any prefixes
+          const eventCode = relatedId.startsWith('EVENT-') 
+            ? relatedId.replace('EVENT-', '') 
+            : relatedId.startsWith('event_') 
+              ? relatedId.replace('event_', '') 
+              : relatedId;
+              
+          console.log(`Notification dropdown: navigating to event: ${eventCode}`);
+          navigate(`/events/${eventCode}`);
         } else if (relatedId.startsWith('task_')) {
           navigate(`/tasks?selected=${relatedId}`);
         } else {
-          // For any other format, try to navigate directly
+          // For any other type of notification
           navigate(`/${relatedId}`);
         }
       }

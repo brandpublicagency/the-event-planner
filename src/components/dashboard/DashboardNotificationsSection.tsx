@@ -1,4 +1,3 @@
-
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationsList } from "@/components/notifications/NotificationList";
 import { useNavigate } from "react-router-dom";
@@ -45,17 +44,18 @@ const DashboardNotificationsSection = () => {
   const handleNotificationView = useCallback((id: string, relatedId?: string) => {
     markAsRead(id).then(() => {
       if (relatedId) {
-        // Handle different relatedId formats correctly
-        if (relatedId.startsWith('EVENT-')) {
-          // Navigate to event with code after EVENT- prefix
-          navigate(`/events/${relatedId.replace('EVENT-', '')}`);
-        } else if (relatedId.startsWith('event_')) {
-          // Navigate to event with code after event_ prefix
-          navigate(`/events/${relatedId.replace('event_', '')}`);
+        if (relatedId.match(/^\d+-\d+$/) || relatedId.startsWith('EVENT-') || relatedId.startsWith('event_')) {
+          const eventCode = relatedId.startsWith('EVENT-') 
+            ? relatedId.replace('EVENT-', '') 
+            : relatedId.startsWith('event_') 
+              ? relatedId.replace('event_', '') 
+              : relatedId;
+              
+          console.log(`Dashboard notification: navigating to event: ${eventCode}`);
+          navigate(`/events/${eventCode}`);
         } else if (relatedId.includes('task_')) {
           navigate(`/tasks?selected=${relatedId}`);
         } else {
-          // For any other format, try to navigate directly
           navigate(`/${relatedId}`);
         }
       }
