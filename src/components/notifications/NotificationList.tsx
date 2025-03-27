@@ -32,7 +32,7 @@ export const NotificationsList = memo(({
   }
 
   const handleView = (notification: Notification, e: React.MouseEvent) => {
-    console.log("NotificationsList handleView called for:", notification.id);
+    console.log("NotificationsList handleView called for:", notification.id, "relatedId:", notification.relatedId);
     e.preventDefault();
     e.stopPropagation();
     onViewDetail(notification, e);

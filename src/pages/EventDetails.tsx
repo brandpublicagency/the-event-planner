@@ -13,6 +13,22 @@ const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Normalize the event ID if needed
+  const normalizedId = React.useMemo(() => {
+    if (!id) return null;
+    
+    // Remove any potential prefixes
+    if (id.startsWith('EVENT-')) {
+      return id.replace('EVENT-', '');
+    } 
+    if (id.startsWith('event_')) {
+      return id.replace('event_', '');
+    }
+    return id;
+  }, [id]);
+
+  console.log(`Event Details page with ID: ${id}, normalized: ${normalizedId}`);
+
   // Fetch event data
   const { 
     data: event, 
@@ -21,15 +37,15 @@ const EventDetails = () => {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['event', id],
+    queryKey: ['event', normalizedId],
     queryFn: async () => {
-      if (!id) return null;
+      if (!normalizedId) return null;
 
-      console.log(`Fetching event with code: ${id}`);
+      console.log(`Fetching event with code: ${normalizedId}`);
       const { data, error } = await supabase
         .from("events")
         .select("*")
-        .eq('event_code', id)
+        .eq('event_code', normalizedId)
         .single();
 
       if (error) {
@@ -38,8 +54,8 @@ const EventDetails = () => {
       }
 
       if (!data) {
-        console.log(`No event found with code: ${id}`);
-        throw new Error(`Event with code ${id} not found`);
+        console.log(`No event found with code: ${normalizedId}`);
+        throw new Error(`Event with code ${normalizedId} not found`);
       }
 
       return data;
@@ -64,7 +80,7 @@ const EventDetails = () => {
 
   // If no event found (404)
   if (!event) {
-    return <EventNotFoundHandler eventId={id} />;
+    return <EventNotFoundHandler eventId={normalizedId ?? id} />;
   }
 
   // If there was an error fetching the event
@@ -104,13 +120,13 @@ const EventDetails = () => {
       />
       <EventDetailsContent 
         event={event}
-        eventId={id || ''}
+        eventId={normalizedId || id || ''}
         formattedDate={formattedDate}
         isCustomMenu={isCustomMenu}
         menuState={mockMenuState}
         saveMenuFunction={null}
         isSaving={false}
-        onEditEvent={() => navigate(`/events/edit/${id}`)}
+        onEditEvent={() => navigate(`/events/${normalizedId || id}/edit`)}
         onCustomMenuToggle={() => {}}
         onMenuStateChange={() => {}}
         onSaveMenuSelections={() => {}}

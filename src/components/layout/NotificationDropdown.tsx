@@ -55,7 +55,7 @@ export function NotificationDropdown() {
     e.stopPropagation();
     
     try {
-      console.log("Dropdown viewing notification:", notification);
+      console.log("Dropdown viewing notification:", notification.id, "relatedId:", notification.relatedId);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
@@ -75,7 +75,14 @@ export function NotificationDropdown() {
           }
               
           console.log(`Notification dropdown: navigating to event: ${eventCode}`);
-          navigate(`/events/${eventCode}`);
+          
+          // Use navigate with location state to avoid the router ignoring same-route clicks
+          if (window.location.pathname === `/events/${eventCode}`) {
+            // If already on the event page, force a refresh
+            window.location.href = `/events/${eventCode}`;
+          } else {
+            navigate(`/events/${eventCode}`);
+          }
         } 
         else if (notification.relatedId.startsWith('task_')) {
           navigate(`/tasks?selected=${notification.relatedId}`);

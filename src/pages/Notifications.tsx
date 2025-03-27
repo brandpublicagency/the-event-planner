@@ -56,7 +56,7 @@ const Notifications = () => {
     e.stopPropagation();
     
     try {
-      console.log("Page viewing notification:", notification);
+      console.log("Page viewing notification:", notification.id, "relatedId:", notification.relatedId);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
@@ -76,7 +76,14 @@ const Notifications = () => {
           }
 
           console.log(`Page navigating to event: ${eventCode}`);
-          navigate(`/events/${eventCode}`);
+          
+          // Use navigate with location state to avoid the router ignoring same-route clicks
+          if (window.location.pathname === `/events/${eventCode}`) {
+            // If already on the event page, force a refresh
+            window.location.href = `/events/${eventCode}`;
+          } else {
+            navigate(`/events/${eventCode}`);
+          }
         } 
         else if (notification.relatedId.startsWith('task_')) {
           // For task notifications

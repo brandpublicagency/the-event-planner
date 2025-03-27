@@ -28,14 +28,14 @@ export const NotificationItem = memo(({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("NotificationItem clicked:", notification.id);
+    console.log("NotificationItem clicked:", notification.id, "relatedId:", notification.relatedId);
     onView(notification, e);
   };
   
   const handleTitleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("NotificationItem title clicked:", notification.id);
+    console.log("NotificationItem title clicked:", notification.id, "relatedId:", notification.relatedId);
     onView(notification, e);
   };
 

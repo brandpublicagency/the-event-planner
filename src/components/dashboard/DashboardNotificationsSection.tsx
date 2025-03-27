@@ -47,7 +47,7 @@ const DashboardNotificationsSection = () => {
     e.stopPropagation();
     
     try {
-      console.log("Dashboard viewing notification:", notification);
+      console.log("Dashboard viewing notification:", notification.id, "relatedId:", notification.relatedId);
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
@@ -73,6 +73,7 @@ const DashboardNotificationsSection = () => {
           navigate(`/tasks?selected=${notification.relatedId}`);
         } 
         else {
+          // For any other type of notification
           navigate(`/${notification.relatedId}`);
         }
       } else {

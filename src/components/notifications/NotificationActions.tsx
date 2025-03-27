@@ -21,14 +21,14 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
   const handleViewClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
     e.stopPropagation(); // Stop event propagation
-    console.log("Notification action view clicked for:", notification.id);
+    console.log("NotificationAction view clicked for:", notification.id, "relatedId:", notification.relatedId);
     onView(notification, e);
   };
   
   const handleCompleteClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
     e.stopPropagation(); // Stop event propagation
-    console.log("Notification action complete clicked for:", notification.id);
+    console.log("NotificationAction complete clicked for:", notification.id);
     onComplete(notification, e);
   };
   
