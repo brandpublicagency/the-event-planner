@@ -135,6 +135,7 @@ export function useEvents() {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     eventToDelete,
+    setEventToDelete, // Exposing this function
     handleDeleteEvent,
     confirmDelete,
     isDeleting,

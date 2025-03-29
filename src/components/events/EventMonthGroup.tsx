@@ -4,7 +4,6 @@ import { EventCard } from "@/components/events/EventCard";
 import { DashboardEventItem } from "@/components/events/DashboardEventItem";
 import type { Event } from "@/types/event";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { deleteEvent, permanentlyDeleteEvent } from "@/utils/eventUtils";
 
 interface EventMonthGroupProps {
@@ -52,7 +51,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
       }
 
       // If this component is rendered on the events page, refetch the events
-      if (window.location.pathname === "/events") {
+      if (window.location.pathname === "/events" || window.location.pathname === "/events/passed") {
         window.location.reload();
       }
     } catch (error) {

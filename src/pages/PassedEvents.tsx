@@ -1,33 +1,39 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import EventsTable from "@/components/events/EventsTable";
+import { Header } from "@/components/layout/Header";
+import { useEvents } from "@/hooks/useEvents";
+import { EventsList } from "@/components/events/EventsList";
+import { DeleteEventDialog } from "@/components/events/DeleteEventDialog";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { Event } from "@/types/event";
-import { groupEventsByMonth, deleteEvent } from "@/utils/eventUtils";
-import { Header } from "@/components/layout/Header";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Search, Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import type { Event } from "@/types/event";
+import { groupEventsByMonth } from "@/utils/eventUtils";
 
 const PassedEvents = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const { 
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    eventToDelete,
+    setEventToDelete,
+    handleDeleteEvent,
+    confirmDelete,
+    isDeleting,
+    isPermanentDelete,
+    setIsPermanentDelete
+  } = useEvents();
 
-  const { data: events = [], isLoading, error, refetch } = useQuery({
+  const { data: events = [], isLoading } = useQuery({
     queryKey: ['passed-events'],
     queryFn: async () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString().split('T')[0];
-      
-      console.log("Today's ISO date for filtering passed events:", todayIso);
-      console.log("Current date object for passed events:", today);
       
       const { data, error } = await supabase
         .from('events')
@@ -44,15 +50,6 @@ const PassedEvents = () => {
         });
         throw error;
       }
-
-      console.log('Fetched passed events:', data);
-      
-      const specificEvent = data?.find(e => e.event_code === 'EVENT-001-113');
-      if (specificEvent) {
-        console.log('EVENT-001-113 found in passed events:', specificEvent);
-      } else {
-        console.log('EVENT-001-113 NOT found in passed events');
-      }
       
       return data as Event[];
     },
@@ -60,18 +57,29 @@ const PassedEvents = () => {
     refetchOnMount: true,
   });
 
+  // Group events by month
   const groupedEvents = events.reduce((acc: Record<string, Event[]>, event) => {
-    if (!event.event_date) return acc;
-    const monthYear = format(new Date(event.event_date), 'MMMM yyyy');
-    if (!acc[monthYear]) {
-      acc[monthYear] = [];
+    if (!event.event_date) {
+      if (!acc["No Date"]) acc["No Date"] = [];
+      acc["No Date"].push(event);
+      return acc;
     }
-    acc[monthYear].push(event);
+    const month = format(new Date(event.event_date), 'MMMM yyyy');
+    if (!acc[month]) {
+      acc[month] = [];
+    }
+    acc[month].push(event);
     return acc;
   }, {});
 
+  // Filter events based on search query
   const filteredEvents = Object.entries(groupedEvents).reduce(
     (acc: Record<string, Event[]>, [monthYear, monthEvents]) => {
+      if (!searchQuery) {
+        acc[monthYear] = monthEvents;
+        return acc;
+      }
+      
       const filteredMonthEvents = monthEvents.filter(
         (event) =>
           event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -84,81 +92,37 @@ const PassedEvents = () => {
     },
     {}
   );
-
-  if (error) {
-    return (
-      <div className="flex-1 p-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-red-800">Error loading passed events. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="flex flex-col h-full">
-      <Header
-        showBackButton
-        backButtonPath="/events"
-        pageTitle="Passed Events"
-      />
-      
-      <div className="flex-1 p-6 flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex w-full sm:w-auto gap-2">
-            <div className="relative flex-1 sm:flex-initial">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
-              <Input
-                type="text"
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 w-full sm:w-[250px] text-sm"
-              />
-            </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-zinc-700 shrink-0"
-              onClick={() => navigate('/events')}
-            >
-              <Calendar className="h-4 w-4 mr-1.5" />
-              Upcoming Events
-            </Button>
-          </div>
-        </div>
-        
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-[200px] w-full rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <EventsTable 
-            groupedEvents={filteredEvents}
-            handleDelete={async (eventCode: string) => {
-              try {
-                await deleteEvent(eventCode);
+      <Header title="Passed Events" />
 
-                toast({
-                  title: "Success",
-                  description: "Event deleted successfully",
-                });
-
-                refetch();
-              } catch (error: any) {
-                toast({
-                  title: "Error",
-                  description: error.message || "Failed to delete event",
-                  variant: "destructive",
-                });
-              }
-            }}
-          />
-        )}
+      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+        <EventsList 
+          groupedEvents={filteredEvents} 
+          isLoading={isLoading}
+          onDelete={(event) => {
+            setEventToDelete(event);
+            setIsDeleteDialogOpen(true);
+          }}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          alternateLink={{
+            path: "/events",
+            label: "Upcoming Events"
+          }}
+        />
       </div>
+
+      <DeleteEventDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        event={eventToDelete}
+        onDelete={confirmDelete}
+        isPermanentDelete={isPermanentDelete}
+        onPermanentDeleteChange={setIsPermanentDelete}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

@@ -1,31 +1,81 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { EventMonthGroup } from "@/components/events/EventMonthGroup";
+import { Search, Calendar, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import EventsTable from "@/components/events/EventsTable";
 import type { Event } from "@/types/event";
 
 interface EventsListProps {
   groupedEvents: Record<string, Event[]>;
-  onDelete: (event: Event) => void;
+  isLoading?: boolean;
+  onDelete?: (event: Event) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  alternateLink?: {
+    path: string;
+    label: string;
+  };
 }
 
-export const EventsList: React.FC<EventsListProps> = ({ groupedEvents, onDelete }) => {
+export const EventsList: React.FC<EventsListProps> = ({
+  groupedEvents,
+  isLoading = false,
+  onDelete,
+  searchQuery = "",
+  onSearchChange,
+  alternateLink
+}) => {
   const navigate = useNavigate();
-  
+
   return (
-    <div className="w-full mt-[25px] px-[5px]">
-      <div className="space-y-8">
-        {Object.entries(groupedEvents).map(([month, monthEvents]) => (
-          <EventMonthGroup 
-            key={month} 
-            monthYear={month} 
-            events={monthEvents} 
-            onEdit={eventCode => navigate(`/events/${eventCode}/edit`)} 
-            onView={eventCode => navigate(`/events/${eventCode}`)} 
-            onDelete={onDelete} 
-          />
-        ))}
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex w-full sm:w-auto gap-2">
+          {onSearchChange && (
+            <div className="relative flex-1 sm:flex-initial">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+              <Input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="pl-9 h-9 w-full sm:w-[250px] text-sm"
+              />
+            </div>
+          )}
+          
+          {alternateLink && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-zinc-700 shrink-0"
+              onClick={() => navigate(alternateLink.path)}
+            >
+              <Calendar className="h-4 w-4 mr-1.5" />
+              {alternateLink.label}
+            </Button>
+          )}
+        </div>
+        
+        <Button 
+          onClick={() => navigate('/events/new')} 
+          size="sm" 
+          className="shrink-0"
+        >
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Event
+        </Button>
       </div>
+      
+      <EventsTable 
+        groupedEvents={groupedEvents} 
+        isLoading={isLoading}
+        onDelete={onDelete}
+      />
     </div>
   );
 };
+
+export default EventsList;

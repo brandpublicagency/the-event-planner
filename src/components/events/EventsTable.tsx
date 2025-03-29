@@ -3,32 +3,31 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
-import { CalendarX } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { CalendarX, Loader2 } from "lucide-react";
 
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
+  isLoading?: boolean;
   handleDelete?: (eventCode: string) => Promise<void>;
+  onDelete?: (event: Event) => void;
   isDashboard?: boolean;
   className?: string;
   // Add these props for backward compatibility
   events?: Event[];
-  isLoading?: boolean;
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
-  onDelete?: (event: Event) => void;
 }
 
 export const EventsTable: React.FC<EventsTableProps> = ({ 
   groupedEvents = {}, 
+  isLoading = false,
   handleDelete, 
+  onDelete,
   isDashboard = false,
   className,
   events, // For backward compatibility
-  isLoading,
   onEdit,
-  onView,
-  onDelete
+  onView
 }) => {
   // If events array is provided but groupedEvents is not, create groupedEvents structure
   let effectiveGroupedEvents = groupedEvents;
@@ -80,6 +79,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             events={monthEvents}
             handleDelete={handleDelete}
             isDashboard={true}
+            onDelete={onDelete}
           />
         ))}
         {Object.keys(filteredGroupedEvents).length === 0 && (
