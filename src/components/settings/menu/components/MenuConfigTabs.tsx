@@ -16,7 +16,13 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
   // Get all valid tab values by looking at the children
   const tabValues = React.Children.toArray(children)
     .filter(React.isValidElement)
-    .map(child => React.isValidElement(child) ? child.props.value : null)
+    .map(child => {
+      // Add proper type checking before accessing props.value
+      if (React.isValidElement(child) && 'value' in child.props) {
+        return child.props.value;
+      }
+      return null;
+    })
     .filter(Boolean);
 
   console.log("MenuConfigTabs rendering with tabs:", tabValues, "active tab:", activeTab);
@@ -44,7 +50,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
       </TabsList>
       
       {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
+        if (React.isValidElement(child) && 'value' in child.props) {
           return (
             <TabsContent value={child.props.value} key={child.props.value}>
               {child}
