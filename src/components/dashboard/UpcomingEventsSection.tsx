@@ -61,7 +61,7 @@ const UpcomingEventsSection = () => {
       });
     }
   };
-  return <div className="flex flex-col h-full overflow-hidden">
+  return <div className="flex flex-col h-full overflow-hidden bg-transparent">
       <div className="flex items-center justify-between p-4 py-5 rounded-lg bg-gray-200">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-zinc-700 bg-transparent" />

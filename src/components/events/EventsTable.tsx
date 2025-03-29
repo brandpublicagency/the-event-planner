@@ -5,7 +5,6 @@ import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { CalendarX, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
   isLoading?: boolean;
@@ -18,7 +17,6 @@ interface EventsTableProps {
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
 }
-
 export const EventsTable: React.FC<EventsTableProps> = ({
   groupedEvents = {},
   isLoading = false,
@@ -65,7 +63,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   }, {} as Record<string, Event[]>) : effectiveGroupedEvents;
   if (isDashboard) {
     // Keep the dashboard view unchanged but reduce spacing between cards
-    return <div className="space-y-1.5 pt-2">
+    return <div className="space-y-1.5 pt-2 bg-transparent">
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => <EventMonthGroup key={monthYear} monthYear={monthYear} events={monthEvents} handleDelete={handleDelete} isDashboard={true} onDelete={onDelete} />)}
         {Object.keys(filteredGroupedEvents).length === 0 && <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
@@ -85,5 +83,4 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       </div>
     </ScrollArea>;
 };
-
 export default EventsTable;
