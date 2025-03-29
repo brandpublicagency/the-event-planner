@@ -51,8 +51,7 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 shadow-lg hover:shadow-xl focus-within:ring-2 focus-within:ring-blue-300 ${className}`}
-      style={{ boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)' }}
+      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 border border-black/10 ${className}`}
       tabIndex={0}
       aria-label={`Weather forecast for ${location}, high temperature ${displayHighTemp}°, low temperature ${displayLowTemp}°, ${weatherType || weatherData?.description || ''}`}
     >

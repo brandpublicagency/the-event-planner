@@ -115,7 +115,7 @@ const ContactsTable = ({
       </div>
       
       <AlertDialog open={!!contactToDelete} onOpenChange={open => !open && setContactToDelete(null)}>
-        <AlertDialogContent className="max-w-md rounded-xl">
+        <AlertDialogContent className="max-w-md rounded-xl border border-black/10">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact</AlertDialogTitle>
             <AlertDialogDescription>
@@ -123,9 +123,9 @@ const ContactsTable = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-lg border border-black/10">Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              className="bg-red-500 hover:bg-red-600 text-white rounded-lg" 
+              className="bg-red-500 hover:bg-red-600 text-white rounded-lg border border-black/10" 
               onClick={handleConfirmDelete}
             >
               Delete

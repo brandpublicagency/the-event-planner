@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,7 +247,7 @@ const ProfileSection = ({
             </Button>
             
             {!hasPassword && (
-              <div className="flex items-start mt-4 p-3 bg-white rounded-lg border border-black/20 shadow-sm">
+              <div className="flex items-start mt-4 p-3 bg-white rounded-lg border border-black/20">
                 <Info className="h-5 w-5 text-zinc-700 mr-3 mt-0.5 shrink-0" />
                 <p className="text-sm text-zinc-700">
                   Setting a password will allow you to login with your email and password in the future.
