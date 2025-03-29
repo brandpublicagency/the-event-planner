@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NotificationsList } from "@/components/notifications/NotificationList";
 import { Notification } from '@/types/notification';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { NotificationLoadingState } from './content/NotificationLoadingState';
+import { NotificationErrorState } from './content/NotificationErrorState';
+import { NotificationEmptyState } from './content/NotificationEmptyState';
+import { NotificationListWrapper } from './content/NotificationListWrapper';
 
 interface NotificationContentProps {
   notifications: Notification[];
@@ -28,61 +29,20 @@ export const NotificationContent = ({
   // Take only the first 5 notifications for dropdowns
   const limitedNotifications = notifications.slice(0, 5);
   
-  const handleViewDetail = (notification: Notification, e: React.MouseEvent) => {
-    console.log("NotificationContent handleViewDetail called for:", notification.id);
-    onViewDetail(notification, e);
-  };
-
-  const handleCompleteTask = (notification: Notification, e: React.MouseEvent) => {
-    console.log("NotificationContent handleCompleteTask called for:", notification.id);
-    onCompleteTask(notification, e);
-  };
-
   return (
     <ScrollArea className="h-[350px] w-full px-3 pt-2">
       {(loading && notifications.length === 0) || isRefreshing ? (
-        <div className="p-2 space-y-2">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex items-start gap-2 p-2">
-              <Skeleton className="h-7 w-7 rounded-full" />
-              <div className="space-y-1.5 flex-1">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <NotificationLoadingState />
       ) : error ? (
-        <div className="p-3 text-center">
-          <p className="text-sm text-red-500 mb-2">Failed to load notifications</p>
-          <Button 
-            variant="default" 
-            size="sm"
-            onClick={onRefresh}
-            className="inline-flex items-center gap-1"
-          >
-            <span>Try again</span>
-          </Button>
-        </div>
+        <NotificationErrorState onRefresh={onRefresh} />
       ) : limitedNotifications.length > 0 ? (
-        <NotificationsList
+        <NotificationListWrapper
           notifications={limitedNotifications}
-          onViewDetail={handleViewDetail}
-          onCompleteTask={handleCompleteTask}
-          listType="dropdown"
+          onViewDetail={onViewDetail}
+          onCompleteTask={onCompleteTask}
         />
       ) : (
-        <div className="p-3 text-center">
-          <p className="text-sm text-zinc-500">No notifications to display</p>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={onRefresh}
-            className="mt-2"
-          >
-            Refresh
-          </Button>
-        </div>
+        <NotificationEmptyState onRefresh={onRefresh} />
       )}
     </ScrollArea>
   );
