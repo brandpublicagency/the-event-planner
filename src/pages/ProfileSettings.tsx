@@ -1,6 +1,5 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { useProfileData } from "@/hooks/useProfileData";
 import ProfileAvatar from "@/components/profile/ProfileAvatar";
@@ -42,8 +41,8 @@ const ProfileSettings = () => {
       
       <div className="flex-1 p-6 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <Card className="p-6 shadow-sm bg-transparent border-muted/20">
+          <div className="max-w-xl mx-auto space-y-6">
+            <div className="rounded-lg border border-zinc-200/30 shadow-sm p-6">
               <ProfileAvatar profile={profile} userEmail={userEmail} />
               
               <ProfileInformationSection
@@ -57,7 +56,7 @@ const ProfileSettings = () => {
               />
               
               <ProfilePasswordSection hasPassword={hasPassword} />
-            </Card>
+            </div>
           </div>
         </ScrollArea>
       </div>
