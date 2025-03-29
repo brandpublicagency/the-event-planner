@@ -7,6 +7,22 @@ interface MenuConfigTabsProps {
   defaultValue?: string;
 }
 
+interface TabContentProps {
+  value: string;
+  children: React.ReactNode;
+}
+
+// Helper to safely extract value from a React element
+const isTabContent = (child: React.ReactNode): child is React.ReactElement<TabContentProps> => {
+  return (
+    React.isValidElement(child) &&
+    child.props !== null &&
+    typeof child.props === 'object' &&
+    'value' in child.props &&
+    typeof child.props.value === 'string'
+  );
+};
+
 const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({ 
   children, 
   defaultValue = "starters" 
@@ -15,15 +31,8 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
 
   // Get all valid tab values by looking at the children
   const tabValues = React.Children.toArray(children)
-    .filter(React.isValidElement)
-    .map(child => {
-      // Add proper type checking before accessing props.value
-      if (React.isValidElement(child) && child.props && typeof child.props === 'object' && 'value' in child.props) {
-        return child.props.value;
-      }
-      return null;
-    })
-    .filter(Boolean);
+    .filter(isTabContent)
+    .map(child => child.props.value);
 
   console.log("MenuConfigTabs rendering with tabs:", tabValues, "active tab:", activeTab);
 
@@ -50,7 +59,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
       </TabsList>
       
       {React.Children.map(children, child => {
-        if (React.isValidElement(child) && child.props && typeof child.props === 'object' && 'value' in child.props) {
+        if (isTabContent(child)) {
           return (
             <TabsContent value={child.props.value} key={child.props.value}>
               {child}
