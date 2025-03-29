@@ -35,18 +35,26 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
 
   const validateOption = useCallback((value: string, label: string, isNew: boolean, editingId: string | null = null): boolean => {
     if (!value || !label) {
-      toast.error('Both value and label are required');
+      toast({
+        title: "Error",
+        description: 'Both value and label are required',
+        variant: "destructive"
+      });
       return false;
     }
 
     const existingOption = options.find(option => option.value === value && option.id !== editingId);
     if (existingOption) {
-      toast.error(`Option with value "${value}" already exists`);
+      toast({
+        title: "Error",
+        description: `Option with value "${value}" already exists`,
+        variant: "destructive"
+      });
       return false;
     }
 
     return true;
-  }, [options, toast]);
+  }, [options]);
 
   const createOption = useCallback(async (value: string, label: string): Promise<boolean> => {
     setIsSaving(true);
@@ -68,20 +76,32 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
       if (createdOption) {
         setOptions(prevOptions => [...prevOptions, createdOption]);
         resetAddState();
+        toast({
+          title: "Success",
+          description: 'Option added successfully'
+        });
         await onSave([...options, createdOption]);
         return true;
       } else {
-        toast.error('Failed to add option');
+        toast({
+          title: "Error",
+          description: 'Failed to add option',
+          variant: "destructive"
+        });
         return false;
       }
     } catch (error: any) {
       console.error('Error creating option:', error);
-      toast.error(`Failed to add option: ${error.message}`);
+      toast({
+        title: "Error",
+        description: `Failed to add option: ${error.message}`,
+        variant: "destructive"
+      });
       return false;
     } finally {
       setIsSaving(false);
     }
-  }, [validateOption, setOptions, category, onSave, resetAddState, setIsSaving, options, toast]);
+  }, [validateOption, setOptions, category, onSave, resetAddState, setIsSaving, options]);
 
   const updateOption = useCallback(async (id: string, value: string, label: string): Promise<boolean> => {
     setIsSaving(true);
@@ -101,22 +121,34 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
           )
         );
         resetEditState();
+        toast({
+          title: "Success",
+          description: 'Option updated successfully'
+        });
         await onSave(options.map(option =>
           option.id === id ? { ...option, value, label } : option
         ));
         return true;
       } else {
-        toast.error('Failed to update option');
+        toast({
+          title: "Error",
+          description: 'Failed to update option',
+          variant: "destructive"
+        });
         return false;
       }
     } catch (error: any) {
       console.error('Error updating option:', error);
-      toast.error(`Failed to update option: ${error.message}`);
+      toast({
+        title: "Error",
+        description: `Failed to update option: ${error.message}`,
+        variant: "destructive"
+      });
       return false;
     } finally {
       setIsSaving(false);
     }
-  }, [validateOption, setOptions, onSave, resetEditState, options, setIsSaving, toast]);
+  }, [validateOption, setOptions, onSave, resetEditState, options, setIsSaving]);
 
   const deleteOption = useCallback(async (id: string): Promise<boolean> => {
     setProcessingId(id);
@@ -125,20 +157,32 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
 
       if (success) {
         setOptions(prevOptions => prevOptions.filter(option => option.id !== id));
+        toast({
+          title: "Success",
+          description: 'Option deleted successfully'
+        });
         await onSave(options.filter(option => option.id !== id));
         return true;
       } else {
-        toast.error('Failed to delete option');
+        toast({
+          title: "Error",
+          description: 'Failed to delete option',
+          variant: "destructive"
+        });
         return false;
       }
     } catch (error: any) {
       console.error('Error deleting option:', error);
-      toast.error(`Failed to delete option: ${error.message}`);
+      toast({
+        title: "Error",
+        description: `Failed to delete option: ${error.message}`,
+        variant: "destructive"
+      });
       return false;
     } finally {
       setProcessingId(null);
     }
-  }, [setOptions, onSave, options, toast]);
+  }, [setOptions, onSave, options]);
 
   return {
     processingId,

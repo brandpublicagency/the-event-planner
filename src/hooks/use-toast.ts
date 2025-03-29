@@ -1,104 +1,84 @@
 
-import { toast as sonnerToast } from "sonner";
+// Re-export toast functions from the Sonner library for consistent usage
+import { toast as sonnerToast, Toast } from "sonner";
 
-type ToastProps = {
+export type ToastProps = {
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive' | 'success' | 'info' | 'warning';
-  duration?: number;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
-  id?: string;
+  variant?: "default" | "destructive";
+  action?: React.ReactNode;
 };
 
-export function useToast() {
-  const toast = ({ title, description, variant = 'default', duration = 4000, action, id }: ToastProps) => {
-    const toastFn = getToastFunction(variant);
+// Create a more React-like hook interface
+export const useToast = () => {
+  const toast = (props: ToastProps) => {
+    const { title, description, variant = "default", action } = props;
     
-    return toastFn(title || '', {
+    if (variant === "destructive") {
+      return sonnerToast.error(title, {
+        description,
+        action
+      });
+    }
+    
+    return sonnerToast(title, {
       description,
-      duration,
-      id,
-      action: action ? {
-        label: action.label,
-        onClick: action.onClick,
-      } : undefined,
+      action
     });
   };
 
   return {
-    toast,
-    dismiss: sonnerToast.dismiss,
+    toast
   };
-}
-
-// Get the appropriate toast function based on variant
-function getToastFunction(variant: ToastProps['variant']) {
-  switch (variant) {
-    case 'destructive':
-      return sonnerToast.error;
-    case 'success':
-      return sonnerToast.success;
-    case 'info':
-      return sonnerToast.info;
-    case 'warning':
-      return sonnerToast.warning;
-    default:
-      return sonnerToast;
-  }
-}
-
-// Create a wrapper function for the toast with all the methods
-const createToast = () => {
-  const baseToast = ({ title, description, variant = 'default', duration = 4000, action, id }: ToastProps) => {
-    const toastFn = getToastFunction(variant);
-    
-    return toastFn(title || '', {
-      description,
-      duration,
-      id,
-      action: action ? {
-        label: action.label,
-        onClick: action.onClick,
-      } : undefined,
-    });
-  };
-  
-  // Adding utility methods to the base toast function
-  baseToast.loading = (title: string, options?: Omit<ToastProps, 'title' | 'variant'>) => {
-    return sonnerToast.loading(title, options);
-  };
-  
-  baseToast.success = (title: string, options?: Omit<ToastProps, 'title' | 'variant'>) => {
-    return sonnerToast.success(title, options);
-  };
-  
-  baseToast.error = (title: string, options?: Omit<ToastProps, 'title' | 'variant'>) => {
-    return sonnerToast.error(title, options);
-  };
-  
-  baseToast.info = (title: string, options?: Omit<ToastProps, 'title' | 'variant'>) => {
-    return sonnerToast.info(title, options);
-  };
-  
-  baseToast.warning = (title: string, options?: Omit<ToastProps, 'title' | 'variant'>) => {
-    return sonnerToast.warning(title, options);
-  };
-  
-  baseToast.dismiss = sonnerToast.dismiss;
-  
-  return baseToast;
 };
 
-// Export the enhanced toast function
-export const toast = createToast();
+// Export individual toast functions for direct usage
+export const toast = {
+  // Basic toast
+  success: (message: string, options?: any) => {
+    return sonnerToast.success(message, options);
+  },
+  
+  error: (message: string, options?: any) => {
+    return sonnerToast.error(message, options);
+  },
+  
+  warning: (message: string, options?: any) => {
+    return sonnerToast.warning(message, options);
+  },
+  
+  info: (message: string, options?: any) => {
+    return sonnerToast.info(message, options);
+  },
+  
+  // Default toast
+  default: (message: string, options?: any) => {
+    return sonnerToast(message, options);
+  },
+  
+  // Promise toast
+  promise: (promise: Promise<any>, options: any) => {
+    return sonnerToast.promise(promise, options);
+  },
+  
+  // Custom toast with options
+  custom: (options: any) => {
+    return sonnerToast(options);
+  },
+  
+  // Dismiss all toasts
+  dismiss: () => sonnerToast.dismiss(),
+  
+  // Loading toast
+  loading: (message: string, options?: any) => {
+    return sonnerToast.loading(message, options);
+  }
+};
 
-// Export sonner's dismiss function
+// Also export the dismiss function directly
 export const dismiss = sonnerToast.dismiss;
 
-// Export sonner's other utility functions directly
+// Also export the loading, success, error functions directly
 export const loading = sonnerToast.loading;
 export const success = sonnerToast.success;
 export const error = sonnerToast.error;

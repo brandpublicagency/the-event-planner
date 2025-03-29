@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import MenuStartersSettings from "./menu/MenuStartersSettings";
 import MenuMainsSettings from "./menu/MenuMainsSettings";
 import MenuDessertsSettings from "./menu/MenuDessertsSettings";
@@ -9,6 +9,15 @@ import MenuTabContent from "./menu/components/MenuTabContent";
 import MenuConfigHeader from "./menu/components/MenuConfigHeader";
 
 const MenuConfigurationTab = () => {
+  useEffect(() => {
+    console.log("MenuConfigurationTab mounted");
+    
+    // Return cleanup function
+    return () => {
+      console.log("MenuConfigurationTab unmounted");
+    };
+  }, []);
+  
   console.log("Rendering MenuConfigurationTab");
   
   return (

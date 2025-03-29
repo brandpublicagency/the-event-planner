@@ -61,7 +61,13 @@ export const useMenuOptions = (category: string) => {
 
   // Initial data fetch
   useEffect(() => {
+    console.log(`useMenuOptions hook initialized for category: ${category}`);
     fetchMenuOptions();
+    
+    // Return cleanup function
+    return () => {
+      console.log(`useMenuOptions hook cleanup for category: ${category}`);
+    };
   }, [fetchMenuOptions]);
   
   const saveMenuOptions = async (updatedOptions: MenuOption[]) => {

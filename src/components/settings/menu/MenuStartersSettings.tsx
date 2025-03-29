@@ -1,11 +1,16 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import MenuSettingsBase from './MenuSettingsBase';
 import { useMenuOptions } from '@/hooks/useMenuOptions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const MenuStartersSettings = () => {
   const { options, isLoading, error, saveMenuOptions } = useMenuOptions('starter');
+  
+  useEffect(() => {
+    console.log("MenuStartersSettings mounted", { options, isLoading, error });
+    return () => console.log("MenuStartersSettings unmounted");
+  }, [options, isLoading, error]);
   
   console.log("MenuStartersSettings render - options:", options, "isLoading:", isLoading, "error:", error);
   
