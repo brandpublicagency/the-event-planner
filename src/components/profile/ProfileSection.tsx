@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +32,6 @@ interface ProfileSectionProps {
   hasPassword: boolean;
 }
 
-// Schema for password change
 const passwordSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
   confirmPassword: z.string()
@@ -51,12 +49,10 @@ const ProfileSection = ({
   handleSave,
   hasPassword
 }: ProfileSectionProps) => {
-  // Use the email from the profile if available, otherwise we'll fetch it from the session
   const [userEmail, setUserEmail] = useState(profile?.email || "");
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const { toast } = useToast();
   
-  // Setup form for password reset
   const form = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -75,7 +71,6 @@ const ProfileSection = ({
 
       if (error) throw error;
       
-      // Mark that user has set a password
       const { error: updateError } = await supabase.auth.updateUser({
         data: { has_set_password: true }
       });
@@ -84,7 +79,6 @@ const ProfileSection = ({
         console.error("Error updating user metadata:", updateError);
       }
       
-      // Clear form on success
       form.reset();
       
       toast({
@@ -252,9 +246,9 @@ const ProfileSection = ({
             </Button>
             
             {!hasPassword && (
-              <div className="flex items-start mt-4 p-3 bg-blue-50 rounded-lg">
-                <Info className="h-5 w-5 text-blue-500 mr-3 mt-0.5 shrink-0" />
-                <p className="text-sm text-blue-700">
+              <div className="flex items-start mt-4 p-3 bg-white rounded-lg border border-black/20 shadow-sm">
+                <Info className="h-5 w-5 text-zinc-700 mr-3 mt-0.5 shrink-0" />
+                <p className="text-sm text-zinc-700">
                   Setting a password will allow you to login with your email and password in the future.
                 </p>
               </div>
