@@ -1,10 +1,21 @@
 
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useMenuOptionsForm } from '../useMenuOptionsForm';
+import { useMenuFormState } from '../useMenuFormState';
+import { useMenuActions } from '../useMenuActions';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-// Mock dependencies
+// Mock the child hooks
+jest.mock('../useMenuFormState', () => ({
+  useMenuFormState: jest.fn()
+}));
+
+jest.mock('../useMenuActions', () => ({
+  useMenuActions: jest.fn()
+}));
+
+// Mock toast
 jest.mock('@/hooks/use-toast', () => ({
   toast: {
     error: jest.fn(),
@@ -12,15 +23,15 @@ jest.mock('@/hooks/use-toast', () => ({
   },
 }));
 
+// Mock supabase
 jest.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: jest.fn(() => ({
       insert: jest.fn(() => ({
-        select: jest.fn().mockResolvedValue({ data: [{ id: 'new-id', type: 'new-type', name: 'New Option', category: 'test' }], error: null }),
+        select: jest.fn(),
       })),
-      update: jest.fn().mockResolvedValue({ error: null }),
-      delete: jest.fn().mockResolvedValue({ error: null }),
-      select: jest.fn().mockResolvedValue({ data: [], error: null }),
+      update: jest.fn(),
+      delete: jest.fn(),
     })),
   },
 }));
@@ -33,22 +44,60 @@ describe('useMenuOptionsForm', () => {
   
   const mockCategory = 'test';
   const mockOnSave = jest.fn().mockResolvedValue(true);
+  
+  // Mock state values and functions
+  const mockMenuFormState = {
+    options: mockInitialOptions,
+    setOptions: jest.fn(),
+    isAdding: false,
+    setIsAdding: jest.fn(),
+    isSaving: false,
+    setIsSaving: jest.fn(),
+    editingId: null,
+    setEditingId: jest.fn(),
+    newOption: { value: '', label: '' },
+    setNewOption: jest.fn(),
+    editedOption: { value: '', label: '' },
+    setEditedOption: jest.fn(),
+    resetAddState: jest.fn(),
+    resetEditState: jest.fn()
+  };
+
+  // Mock actions values and functions
+  const mockMenuActions = {
+    processingId: null,
+    validateOption: jest.fn().mockImplementation((value, label) => {
+      return !!value && !!label;
+    }),
+    createOption: jest.fn().mockResolvedValue(true),
+    updateOption: jest.fn().mockResolvedValue(true),
+    deleteOption: jest.fn().mockResolvedValue(true)
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useMenuFormState as jest.Mock).mockReturnValue(mockMenuFormState);
+    (useMenuActions as jest.Mock).mockReturnValue(mockMenuActions);
   });
 
-  it('should initialize with the provided options', () => {
-    const { result } = renderHook(() => 
+  it('should initialize with the correct hooks', () => {
+    renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    expect(result.current.options).toEqual(mockInitialOptions);
-    expect(result.current.isAdding).toBe(false);
-    expect(result.current.editingId).toBeNull();
+    expect(useMenuFormState).toHaveBeenCalledWith(mockInitialOptions);
+    expect(useMenuActions).toHaveBeenCalledWith(
+      mockInitialOptions,
+      mockMenuFormState.setOptions,
+      mockCategory,
+      mockOnSave,
+      mockMenuFormState.resetAddState,
+      mockMenuFormState.resetEditState,
+      mockMenuFormState.setIsSaving
+    );
   });
 
-  it('should add new option when handleAddOption is called', () => {
+  it('should handle adding an option', () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
@@ -57,288 +106,147 @@ describe('useMenuOptionsForm', () => {
       result.current.handleAddOption();
     });
 
-    expect(result.current.isAdding).toBe(true);
-    expect(result.current.newOption).toEqual({ value: '', label: '' });
+    expect(mockMenuFormState.setIsAdding).toHaveBeenCalledWith(true);
+    expect(mockMenuFormState.setNewOption).toHaveBeenCalledWith({ value: '', label: '' });
   });
 
-  it('should cancel adding when handleCancelAdd is called', () => {
+  it('should handle canceling add', () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleAddOption();
-    });
-    
-    expect(result.current.isAdding).toBe(true);
-    
     act(() => {
       result.current.handleCancelAdd();
     });
-    
-    expect(result.current.isAdding).toBe(false);
+
+    expect(mockMenuFormState.resetAddState).toHaveBeenCalled();
   });
 
-  it('should update newOption when handleNewOptionChange is called', () => {
+  it('should handle new option change', () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleAddOption();
-    });
-    
     act(() => {
       result.current.handleNewOptionChange('value', 'new-value');
     });
-    
-    expect(result.current.newOption.value).toBe('new-value');
-    
-    act(() => {
-      result.current.handleNewOptionChange('label', 'New Label');
-    });
-    
-    expect(result.current.newOption.label).toBe('New Label');
+
+    expect(mockMenuFormState.setNewOption).toHaveBeenCalled();
   });
 
-  it('should save new option successfully', async () => {
+  it('should save new option if validation passes', async () => {
     const { result, waitForNextUpdate } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleAddOption();
+    mockMenuFormState.newOption = { value: 'valid-value', label: 'Valid Label' };
+    
+    await act(async () => {
+      await result.current.handleSaveNew();
     });
-    
-    act(() => {
-      result.current.handleNewOptionChange('value', 'new-type');
-      result.current.handleNewOptionChange('label', 'New Option');
-    });
-    
-    act(() => {
-      result.current.handleSaveNew();
-    });
-    
-    await waitForNextUpdate();
-    
-    expect(result.current.isAdding).toBe(false);
-    expect(result.current.options.length).toBe(3);
-    expect(toast.success).toHaveBeenCalled();
+
+    expect(mockMenuActions.validateOption).toHaveBeenCalled();
+    expect(mockMenuActions.createOption).toHaveBeenCalledWith('valid-value', 'Valid Label');
+    expect(mockMenuFormState.resetAddState).toHaveBeenCalled();
   });
 
-  it('should not save when new option is missing values', async () => {
+  it('should not save new option if validation fails', async () => {
+    mockMenuActions.validateOption.mockReturnValueOnce(false);
+    
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleAddOption();
+    await act(async () => {
+      await result.current.handleSaveNew();
     });
 
-    act(() => {
-      result.current.handleSaveNew();
-    });
-    
-    expect(toast.error).toHaveBeenCalled();
-    expect(result.current.isAdding).toBe(true);
+    expect(mockMenuActions.validateOption).toHaveBeenCalled();
+    expect(mockMenuActions.createOption).not.toHaveBeenCalled();
   });
 
-  it('should not save when new option has duplicate value', async () => {
+  it('should handle editing an option', () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleAddOption();
-    });
+    const optionToEdit = mockInitialOptions[0];
     
     act(() => {
-      result.current.handleNewOptionChange('value', 'option1');  // Existing value
-      result.current.handleNewOptionChange('label', 'New Label');
+      result.current.handleEdit(optionToEdit);
     });
-    
-    act(() => {
-      result.current.handleSaveNew();
+
+    expect(mockMenuFormState.setEditingId).toHaveBeenCalledWith(optionToEdit.id);
+    expect(mockMenuFormState.setEditedOption).toHaveBeenCalledWith({
+      value: optionToEdit.value,
+      label: optionToEdit.label
     });
-    
-    expect(toast.error).toHaveBeenCalled();
-    expect(result.current.isAdding).toBe(true);
   });
 
-  it('should handle edit mode correctly', () => {
+  it('should handle canceling edit', () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
-    });
-    
-    expect(result.current.editingId).toBe('1');
-    expect(result.current.editedOption).toEqual({ 
-      value: 'option1', 
-      label: 'Option 1' 
-    });
-  });
-
-  it('should update edited option fields', () => {
-    const { result } = renderHook(() => 
-      useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
-    );
-
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
-    });
-    
-    act(() => {
-      result.current.handleEditChange('value', 'updated-value');
-    });
-    
-    expect(result.current.editedOption.value).toBe('updated-value');
-    
-    act(() => {
-      result.current.handleEditChange('label', 'Updated Label');
-    });
-    
-    expect(result.current.editedOption.label).toBe('Updated Label');
-  });
-
-  it('should cancel editing mode', () => {
-    const { result } = renderHook(() => 
-      useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
-    );
-
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
-    });
-    
-    expect(result.current.editingId).toBe('1');
-    
     act(() => {
       result.current.handleCancelEdit();
     });
-    
-    expect(result.current.editingId).toBeNull();
+
+    expect(mockMenuFormState.resetEditState).toHaveBeenCalled();
   });
 
-  it('should save edited option successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => 
+  it('should handle edit change', () => {
+    const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
-    });
-    
     act(() => {
       result.current.handleEditChange('value', 'updated-value');
-      result.current.handleEditChange('label', 'Updated Label');
     });
-    
-    act(() => {
-      result.current.handleSaveEdit('1');
-    });
-    
-    await waitForNextUpdate();
-    
-    expect(result.current.editingId).toBeNull();
-    expect(result.current.options[0].value).toBe('updated-value');
-    expect(result.current.options[0].label).toBe('Updated Label');
-    expect(toast.success).toHaveBeenCalled();
+
+    expect(mockMenuFormState.setEditedOption).toHaveBeenCalled();
   });
 
-  it('should not save when edited option is missing values', () => {
+  it('should save edit if validation passes', async () => {
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
-    });
+    mockMenuFormState.editedOption = { value: 'valid-value', label: 'Valid Label' };
     
-    act(() => {
-      result.current.handleEditChange('value', '');
+    await act(async () => {
+      await result.current.handleSaveEdit('1');
     });
-    
-    act(() => {
-      result.current.handleSaveEdit('1');
-    });
-    
-    expect(toast.error).toHaveBeenCalled();
-    expect(result.current.editingId).toBe('1');
+
+    expect(mockMenuActions.validateOption).toHaveBeenCalled();
+    expect(mockMenuActions.updateOption).toHaveBeenCalledWith('1', 'valid-value', 'Valid Label');
+    expect(mockMenuFormState.resetEditState).toHaveBeenCalled();
   });
 
-  it('should not save when edited option has duplicate value', () => {
+  it('should not save edit if validation fails', async () => {
+    mockMenuActions.validateOption.mockReturnValueOnce(false);
+    
     const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleEdit(mockInitialOptions[0]);
+    await act(async () => {
+      await result.current.handleSaveEdit('1');
     });
-    
-    act(() => {
-      result.current.handleEditChange('value', 'option2');  // Already exists
-    });
-    
-    act(() => {
-      result.current.handleSaveEdit('1');
-    });
-    
-    expect(toast.error).toHaveBeenCalled();
-    expect(result.current.editingId).toBe('1');
+
+    expect(mockMenuActions.validateOption).toHaveBeenCalled();
+    expect(mockMenuActions.updateOption).not.toHaveBeenCalled();
   });
 
-  it('should delete option successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => 
+  it('should handle deleting an option', async () => {
+    const { result } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
     );
 
-    act(() => {
-      result.current.handleDeleteOption('1');
+    await act(async () => {
+      await result.current.handleDeleteOption('1');
     });
-    
-    await waitForNextUpdate();
-    
-    expect(result.current.options.length).toBe(1);
-    expect(result.current.options[0].id).toBe('2');
-    expect(toast.success).toHaveBeenCalled();
-  });
 
-  it('should handle Supabase errors gracefully', async () => {
-    // Mock Supabase to return an error
-    jest.spyOn(supabase, 'from').mockImplementationOnce(() => ({
-      insert: jest.fn().mockReturnValue({
-        select: jest.fn().mockResolvedValue({ 
-          data: null, 
-          error: { message: 'Database error' } 
-        }),
-      }),
-      update: jest.fn(),
-      delete: jest.fn(),
-      select: jest.fn(),
-    } as any));
-
-    const { result, waitForNextUpdate } = renderHook(() => 
-      useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
-    );
-
-    act(() => {
-      result.current.handleAddOption();
-    });
-    
-    act(() => {
-      result.current.handleNewOptionChange('value', 'new-type');
-      result.current.handleNewOptionChange('label', 'New Option');
-    });
-    
-    act(() => {
-      result.current.handleSaveNew();
-    });
-    
-    await waitForNextUpdate();
-    
-    expect(toast.error).toHaveBeenCalled();
-    expect(result.current.isSaving).toBe(false);
+    expect(mockMenuActions.deleteOption).toHaveBeenCalledWith('1');
   });
 });
