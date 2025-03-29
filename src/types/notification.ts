@@ -26,6 +26,6 @@ export type NotificationContextType = {
   markAsCompleted: (id: string) => Promise<boolean>;
   markAllAsRead: () => Promise<boolean>;
   clearNotifications: () => Promise<void>;
-  refreshNotifications: () => Promise<void>;
+  refreshNotifications: () => Promise<boolean>; // Changed from Promise<void> to Promise<boolean>
   lastFilterRefresh?: number;
 };
