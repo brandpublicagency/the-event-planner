@@ -32,7 +32,7 @@ export const EventsList: React.FC<EventsListProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex w-full sm:w-auto gap-2">
+        <div className="flex w-full sm:w-auto gap-2 items-center">
           {onSearchChange && (
             <div className="relative flex-1 sm:flex-initial">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
@@ -50,7 +50,7 @@ export const EventsList: React.FC<EventsListProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="text-zinc-700 shrink-0"
+              className="text-zinc-700 h-9"
               onClick={() => navigate(alternateLink.path)}
             >
               <Calendar className="h-4 w-4 mr-1.5" />
@@ -62,7 +62,7 @@ export const EventsList: React.FC<EventsListProps> = ({
         <Button 
           onClick={() => navigate('/events/new')} 
           size="sm" 
-          className="shrink-0"
+          className="h-9"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           New Event
