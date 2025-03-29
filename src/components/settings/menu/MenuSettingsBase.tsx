@@ -21,7 +21,7 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   category,
   onSave,
 }) => {
-  const [options, setOptions] = useState<MenuOption[]>(optionsData || []);
+  const [options, setOptions] = useState<MenuOption[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newOption, setNewOption] = useState<{ value: string; label: string }>({
@@ -38,7 +38,9 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   // Update local state when props change
   useEffect(() => {
     console.log(`MenuSettingsBase: optionsData updated for ${category}:`, optionsData);
-    setOptions(optionsData || []);
+    if (optionsData) {
+      setOptions(optionsData);
+    }
   }, [optionsData, category]);
 
   // Add new option row
@@ -83,6 +85,10 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
 
       if (error) throw error;
 
+      if (!data || data.length === 0) {
+        throw new Error('No data returned after insert');
+      }
+
       // Transform the returned data to match MenuOption format
       const newMenuOption: MenuOption = {
         id: data[0].id,
@@ -90,6 +96,8 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
         label: data[0].name,
         category: data[0].category
       };
+
+      console.log('New option created:', newMenuOption);
 
       // Update local state
       const updatedOptions = [...options, newMenuOption];
@@ -128,6 +136,7 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
 
   // Start editing an option
   const handleEdit = useCallback((option: MenuOption) => {
+    console.log('Editing option:', option);
     setEditingId(option.id);
     setEditedOption({ value: option.value, label: option.label });
   }, []);

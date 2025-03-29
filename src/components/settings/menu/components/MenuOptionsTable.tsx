@@ -41,6 +41,8 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
 }) => {
   console.log("MenuOptionsTable rendering with options:", options, "isAdding:", isAdding);
   
+  const hasOptions = Array.isArray(options) && options.length > 0;
+  
   return (
     <Table>
       <TableHeader>
@@ -60,7 +62,7 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
           />
         )}
         
-        {options && options.length > 0 ? (
+        {hasOptions ? (
           options.map((option) => (
             <MenuOptionRow
               key={option.id}

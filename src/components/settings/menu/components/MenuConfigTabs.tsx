@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface MenuConfigTabsProps {
   children: React.ReactNode;
@@ -13,53 +13,47 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(defaultValue);
 
-  // Filter and render only the active tab content
-  const activeContent = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.props.value === activeTab
-  );
+  // Get all valid tab values by looking at the children
+  const tabValues = React.Children.toArray(children)
+    .filter(React.isValidElement)
+    .map(child => React.isValidElement(child) ? child.props.value : null)
+    .filter(Boolean);
+
+  console.log("MenuConfigTabs rendering with tabs:", tabValues, "active tab:", activeTab);
 
   return (
-    <div className="w-full space-y-4">
-      <Menubar className="border-none p-0 bg-transparent">
-        <MenubarMenu>
-          <MenubarTrigger 
-            className={`${activeTab === "starters" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
-            onClick={() => setActiveTab("starters")}
-          >
-            Starters
-          </MenubarTrigger>
-        </MenubarMenu>
-
-        <MenubarMenu>
-          <MenubarTrigger 
-            className={`${activeTab === "mains" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
-            onClick={() => setActiveTab("mains")}
-          >
-            Main Courses
-          </MenubarTrigger>
-        </MenubarMenu>
-
-        <MenubarMenu>
-          <MenubarTrigger 
-            className={`${activeTab === "desserts" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
-            onClick={() => setActiveTab("desserts")}
-          >
-            Desserts
-          </MenubarTrigger>
-        </MenubarMenu>
-
-        <MenubarMenu>
-          <MenubarTrigger 
-            className={`${activeTab === "others" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
-            onClick={() => setActiveTab("others")}
-          >
-            Other Options
-          </MenubarTrigger>
-        </MenubarMenu>
-      </Menubar>
+    <Tabs 
+      value={activeTab} 
+      onValueChange={setActiveTab} 
+      defaultValue={defaultValue} 
+      className="w-full"
+    >
+      <TabsList className="grid grid-cols-4 mb-6">
+        <TabsTrigger value="starters">
+          Starters
+        </TabsTrigger>
+        <TabsTrigger value="mains">
+          Main Courses
+        </TabsTrigger>
+        <TabsTrigger value="desserts">
+          Desserts
+        </TabsTrigger>
+        <TabsTrigger value="others">
+          Other Options
+        </TabsTrigger>
+      </TabsList>
       
-      {activeContent}
-    </div>
+      {React.Children.map(children, child => {
+        if (React.isValidElement(child)) {
+          return (
+            <TabsContent value={child.props.value} key={child.props.value}>
+              {child}
+            </TabsContent>
+          );
+        }
+        return null;
+      })}
+    </Tabs>
   );
 };
 

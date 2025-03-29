@@ -44,6 +44,7 @@ export const useMenuOptions = (category: string) => {
           category: item.category
         }));
         
+        console.log('Transformed menu options:', transformedData);
         setOptions(transformedData);
       } catch (err: any) {
         console.error('Error fetching menu options:', err);
@@ -65,6 +66,9 @@ export const useMenuOptions = (category: string) => {
     try {
       setIsLoading(true);
       console.log('Saving menu options:', updatedOptions);
+      
+      // Implementation for saving would go here
+      
       return true;
     } catch (err: any) {
       console.error('Error saving menu options:', err);

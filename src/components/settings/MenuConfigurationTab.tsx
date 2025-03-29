@@ -9,6 +9,8 @@ import MenuTabContent from "./menu/components/MenuTabContent";
 import MenuConfigHeader from "./menu/components/MenuConfigHeader";
 
 const MenuConfigurationTab = () => {
+  console.log("Rendering MenuConfigurationTab");
+  
   return (
     <div className="space-y-6">
       <MenuConfigHeader title="Menu Configuration" />

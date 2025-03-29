@@ -7,11 +7,7 @@ interface MenuTabContentProps {
 }
 
 const MenuTabContent: React.FC<MenuTabContentProps> = ({ value, children }) => {
-  return (
-    <div className="mt-2">
-      {children}
-    </div>
-  );
+  return <div data-value={value}>{children}</div>;
 };
 
 export default MenuTabContent;
