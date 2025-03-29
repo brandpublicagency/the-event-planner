@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Info, Lock, Loader2 } from "lucide-react";
@@ -86,15 +86,13 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  {!hasPassword ? "New Password" : "Change Password"}
-                </FormLabel>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 p-3 border rounded-lg">
                   <Lock className="h-5 w-5 text-muted-foreground" />
                   <FormControl>
                     <Input 
                       type="password" 
-                      placeholder="Enter password" 
+                      placeholder={!hasPassword ? "New Password" : "Change Password"}
+                      className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
                       {...field} 
                     />
                   </FormControl>
@@ -108,13 +106,13 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 p-3 border rounded-lg">
                   <Lock className="h-5 w-5 text-muted-foreground" />
                   <FormControl>
                     <Input 
                       type="password" 
-                      placeholder="Confirm password" 
+                      placeholder="Confirm Password"
+                      className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
                       {...field} 
                     />
                   </FormControl>

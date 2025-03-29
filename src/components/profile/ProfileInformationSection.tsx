@@ -55,8 +55,8 @@ const ProfileInformationSection = ({
         <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
           <Mail className="h-5 w-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Email Address</p>
-            <p className="text-sm text-muted-foreground">{userEmail || 'Not set'}</p>
+            <p className="text-sm text-muted-foreground">Email Address</p>
+            <p className="font-medium">{userEmail || 'Not set'}</p>
           </div>
         </div>
 
@@ -64,41 +64,32 @@ const ProfileInformationSection = ({
           <div className="grid gap-4">
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium mb-1">First Name</p>
-                <Input
-                  value={editForm.full_name}
-                  onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                  placeholder="First name"
-                  className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
-                />
-              </div>
+              <Input
+                value={editForm.full_name}
+                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                placeholder="First name"
+                className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
+              />
             </div>
 
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium mb-1">Surname</p>
-                <Input
-                  value={editForm.surname}
-                  onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
-                  placeholder="Surname"
-                  className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
-                />
-              </div>
+              <Input
+                value={editForm.surname}
+                onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
+                placeholder="Surname"
+                className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
+              />
             </div>
 
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium mb-1">Mobile Number</p>
-                <Input
-                  value={editForm.mobile}
-                  onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
-                  placeholder="Mobile number"
-                  className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
-                />
-              </div>
+              <Input
+                value={editForm.mobile}
+                onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
+                placeholder="Mobile number"
+                className="border-none p-0 h-7 focus-visible:ring-0 bg-transparent"
+              />
             </div>
           </div>
         ) : (
@@ -106,24 +97,24 @@ const ProfileInformationSection = ({
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">First Name</p>
-                <p className="text-sm text-muted-foreground">{profile?.full_name || 'Not set'}</p>
+                <p className="text-sm text-muted-foreground">First Name</p>
+                <p className="font-medium">{profile?.full_name || 'Not set'}</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Surname</p>
-                <p className="text-sm text-muted-foreground">{profile?.surname || 'Not set'}</p>
+                <p className="text-sm text-muted-foreground">Surname</p>
+                <p className="font-medium">{profile?.surname || 'Not set'}</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Mobile Number</p>
-                <p className="text-sm text-muted-foreground">{profile?.mobile || 'Not set'}</p>
+                <p className="text-sm text-muted-foreground">Mobile Number</p>
+                <p className="font-medium">{profile?.mobile || 'Not set'}</p>
               </div>
             </div>
           </div>

@@ -43,8 +43,8 @@ const ProfileSettings = () => {
       <div className="flex-1 p-6 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="max-w-2xl mx-auto space-y-6">
-            <Card className="p-6">
-              <ProfileAvatar profile={profile} />
+            <Card className="p-6 shadow-sm bg-transparent border-muted/20">
+              <ProfileAvatar profile={profile} userEmail={userEmail} />
               
               <ProfileInformationSection
                 profile={profile}

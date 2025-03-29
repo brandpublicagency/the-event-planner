@@ -12,9 +12,10 @@ interface ProfileAvatarProps {
     surname?: string | null;
     avatar_url?: string | null;
   } | null;
+  userEmail?: string;
 }
 
-const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
+const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadAvatar, isLoading: isUploading } = useAvatarUpload();
@@ -82,7 +83,7 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
         />
       </div>
       <h2 className="text-xl font-semibold">{profile?.full_name} {profile?.surname}</h2>
-      <p className="text-sm text-muted-foreground">{profile?.email}</p>
+      <p className="text-sm text-muted-foreground">{userEmail}</p>
     </div>
   );
 };
