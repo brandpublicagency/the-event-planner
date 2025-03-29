@@ -68,7 +68,6 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
       if (createdOption) {
         setOptions(prevOptions => [...prevOptions, createdOption]);
         resetAddState();
-        toast.success('Option added successfully');
         await onSave([...options, createdOption]);
         return true;
       } else {
@@ -102,7 +101,6 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
           )
         );
         resetEditState();
-        toast.success('Option updated successfully');
         await onSave(options.map(option =>
           option.id === id ? { ...option, value, label } : option
         ));
@@ -127,7 +125,6 @@ export const useMenuActions = (props: UseMenuActionsProps) => {
 
       if (success) {
         setOptions(prevOptions => prevOptions.filter(option => option.id !== id));
-        toast.success('Option deleted successfully');
         await onSave(options.filter(option => option.id !== id));
         return true;
       } else {
