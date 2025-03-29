@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Pencil, Trash2, Save } from "lucide-react";
@@ -18,7 +17,7 @@ interface MenuSettingsBaseProps {
   description: string;
   optionsData: MenuOption[];
   category: string;
-  onSave?: (options: MenuOption[]) => Promise<void>;
+  onSave?: (options: MenuOption[]) => Promise<boolean | void>;
 }
 
 const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
