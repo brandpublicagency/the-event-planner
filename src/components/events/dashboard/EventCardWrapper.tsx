@@ -25,7 +25,7 @@ export const EventCardWrapper: React.FC<EventCardWrapperProps> = ({
           </div>
         </AnimatedBorder>
       ) : (
-        <div className="rounded-xl mb-1.5 bg-white border border-slate-200 overflow-hidden">
+        <div className="rounded-xl mb-1.5 bg-white border border-black/10 overflow-hidden">
           {children}
         </div>
       )}

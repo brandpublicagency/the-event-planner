@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventMonthGroup } from "./EventMonthGroup";
@@ -19,7 +20,7 @@ interface EventsTableProps {
   onView?: (eventCode: string) => void;
 }
 
-export const EventsTable: React.FC<EventsTableProps> = ({
+const EventsTable: React.FC<EventsTableProps> = ({
   groupedEvents = {},
   isLoading = false,
   handleDelete,
