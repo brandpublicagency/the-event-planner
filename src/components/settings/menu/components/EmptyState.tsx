@@ -1,14 +1,27 @@
 
-import React from "react";
-import { TableRow, TableCell } from "@/components/ui/table";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
-const EmptyState: React.FC = () => {
+interface EmptyStateProps {
+  title: string;
+  description: string;
+  onAdd: () => void;
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ title, description, onAdd }) => {
   return (
-    <TableRow>
-      <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-        No menu items found. Click "Add Item" to create one.
-      </TableCell>
-    </TableRow>
+    <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-zinc-300 rounded-lg">
+      <h3 className="mb-2 text-lg font-medium text-zinc-900">{title}</h3>
+      <p className="mb-6 text-sm text-zinc-500">{description}</p>
+      <Button 
+        onClick={onAdd} 
+        className="bg-zinc-800 hover:bg-zinc-700 text-white"
+      >
+        <PlusCircle className="h-4 w-4 mr-2" />
+        Add First Item
+      </Button>
+    </div>
   );
 };
 

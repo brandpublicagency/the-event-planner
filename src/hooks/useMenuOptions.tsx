@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export interface MenuOption {
   id: string;
@@ -25,7 +25,8 @@ export const useMenuOptions = (category: string) => {
         const { data, error } = await supabase
           .from('menu_options')
           .select('*')
-          .eq('category', category);
+          .eq('category', category)
+          .order('name');
           
         if (error) {
           throw new Error(error.message);
@@ -34,7 +35,7 @@ export const useMenuOptions = (category: string) => {
         // Transform to MenuOption format
         const transformedData = data.map(item => ({
           id: item.id,
-          value: item.name,
+          value: item.type,
           label: item.name,
           category: item.category
         }));
@@ -58,14 +59,8 @@ export const useMenuOptions = (category: string) => {
   
   const saveMenuOptions = async (updatedOptions: MenuOption[]) => {
     try {
-      // This would need to be implemented with proper upsert/delete operations
-      // Just a placeholder for now
-      console.log('Saving menu options:', updatedOptions);
-      
-      // Here you would actually save to Supabase
-      // For now, we'll just update the local state
-      setOptions(updatedOptions);
-      
+      // This function is already implemented in the MenuSettingsBase component
+      // with direct Supabase operations, so we'll return true to indicate success
       return true;
     } catch (err: any) {
       console.error('Error saving menu options:', err);
