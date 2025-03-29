@@ -33,14 +33,10 @@ export const useNotificationMutations = ({
         
       if (error) throw error;
       
-      // The real-time subscription will handle the UI update,
-      // but we'll also wait a bit and refresh to be certain
-      setTimeout(() => {
-        console.log('Refreshing notifications after mark as read');
-        fetchNotifications().catch(err => {
-          console.error('Error refreshing notifications after mark as read:', err);
-        });
-      }, 300);
+      // Force a refresh to ensure filters are correctly applied
+      // The real-time subscription will also trigger an update,
+      // but we'll refresh explicitly to ensure consistency
+      await fetchNotifications();
     } catch (error) {
       console.error('Error marking notification as read:', error);
       // Refresh on error to get correct state
@@ -72,14 +68,8 @@ export const useNotificationMutations = ({
         
       if (error) throw error;
       
-      // The real-time subscription will handle the UI update,
-      // but we'll also wait a bit and refresh to be certain
-      setTimeout(() => {
-        console.log('Refreshing notifications after mark all as read');
-        fetchNotifications().catch(err => {
-          console.error('Error refreshing notifications after mark all as read:', err);
-        });
-      }, 300);
+      // Force a refresh to ensure filters are correctly applied
+      await fetchNotifications();
     } catch (error) {
       console.error('Error marking all as read:', error);
       fetchNotifications();

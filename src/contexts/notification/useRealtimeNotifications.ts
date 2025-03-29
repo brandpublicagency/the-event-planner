@@ -8,7 +8,8 @@ import { Notification } from '@/types/notification';
 export const useRealtimeNotifications = (
   isMountedRef: React.MutableRefObject<boolean>,
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>,
-  setUnreadCount: React.Dispatch<React.SetStateAction<number>>
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>,
+  fetchNotifications: () => Promise<void>
 ) => {
   useEffect(() => {
     console.log("Setting up realtime notification subscription");
@@ -67,6 +68,13 @@ export const useRealtimeNotifications = (
             if (payload.new.read && !payload.old.read) {
               setUnreadCount(count => Math.max(0, count - 1));
             }
+            
+            // After receiving an update event, refresh the notifications list
+            // to ensure proper filtering in the UI
+            console.log("Refreshing notifications after status update");
+            fetchNotifications().catch(err => {
+              console.error("Error refreshing notifications after status update:", err);
+            });
           } catch (error) {
             console.error("Error processing notification update:", error);
           }
@@ -90,5 +98,5 @@ export const useRealtimeNotifications = (
         }
       }
     };
-  }, [isMountedRef, setNotifications, setUnreadCount]);
+  }, [isMountedRef, setNotifications, setUnreadCount, fetchNotifications]);
 };
