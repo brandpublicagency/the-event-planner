@@ -1,8 +1,9 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Save, Edit, Lock, Info, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -29,6 +30,7 @@ interface ProfileSectionProps {
   setEditForm: (form: { full_name: string; surname: string; mobile: string }) => void;
   handleEdit: () => void;
   handleSave: () => void;
+  hasPassword: boolean;
 }
 
 // Schema for password change
@@ -47,10 +49,10 @@ const ProfileSection = ({
   setEditForm,
   handleEdit,
   handleSave,
+  hasPassword
 }: ProfileSectionProps) => {
   // Use the email from the profile if available, otherwise we'll fetch it from the session
   const [userEmail, setUserEmail] = useState(profile?.email || "");
-  const [hasPassword, setHasPassword] = useState(true);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const { toast } = useToast();
   
@@ -63,40 +65,6 @@ const ProfileSection = ({
     },
   });
   
-  useEffect(() => {
-    // If profile doesn't have an email, get it from the session
-    if (!profile?.email) {
-      const getSessionEmail = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.email) {
-          setUserEmail(session.user.email);
-        }
-      };
-      
-      getSessionEmail();
-    }
-
-    // Check if user has a password set
-    const checkAuthMethod = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // This is a simplistic check. If the user has logged in with a magic link,
-        // they will not have a password set initially.
-        const { data: { user }, error } = await supabase.auth.getUser();
-        
-        if (user && user.app_metadata) {
-          // If the user has only used magic links, they won't have a password
-          const providers = user.app_metadata.providers as string[] || [];
-          
-          // If only provider is email and user hasn't set password yet
-          setHasPassword(!(providers.length === 1 && providers[0] === 'email' && !user.user_metadata?.has_set_password));
-        }
-      }
-    };
-    
-    checkAuthMethod();
-  }, [profile?.email]);
-
   const handlePasswordUpdate = async (values: z.infer<typeof passwordSchema>) => {
     try {
       setIsPasswordLoading(true);
@@ -118,7 +86,6 @@ const ProfileSection = ({
       
       // Clear form on success
       form.reset();
-      setHasPassword(true);
       
       toast({
         title: "Password updated",
