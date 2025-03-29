@@ -8,39 +8,33 @@ import { MenuOption } from '@/hooks/useMenuOptions';
 
 interface MenuOptionRowProps {
   option: MenuOption;
+  isEditing: boolean;
+  editedOption: { value: string; label: string };
+  onEdit: () => void;
   onDelete: () => void;
-  onEdit: (updatedOption: { value: string; label: string }) => void;
-  disabled?: boolean;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onEditChange: (field: "value" | "label", value: string) => void;
 }
 
 const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
   option,
-  onDelete,
+  isEditing,
+  editedOption,
   onEdit,
+  onDelete,
+  onSaveEdit,
+  onCancelEdit,
+  onEditChange,
   disabled = false
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedValue, setEditedValue] = useState(option.value);
-  const [editedLabel, setEditedLabel] = useState(option.label);
-
-  const handleSave = () => {
-    onEdit({ value: editedValue, label: editedLabel });
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditedValue(option.value);
-    setEditedLabel(option.label);
-    setIsEditing(false);
-  };
-
   return (
     <TableRow>
       <TableCell className="font-mono">
         {isEditing ? (
           <Input
-            value={editedValue}
-            onChange={(e) => setEditedValue(e.target.value)}
+            value={editedOption.value}
+            onChange={(e) => onEditChange("value", e.target.value)}
             className="border-zinc-200 focus-visible:ring-zinc-400"
           />
         ) : (
@@ -50,8 +44,8 @@ const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
       <TableCell>
         {isEditing ? (
           <Input
-            value={editedLabel}
-            onChange={(e) => setEditedLabel(e.target.value)}
+            value={editedOption.label}
+            onChange={(e) => onEditChange("label", e.target.value)}
             className="border-zinc-200 focus-visible:ring-zinc-400"
           />
         ) : (
@@ -63,7 +57,7 @@ const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
           {isEditing ? (
             <>
               <Button 
-                onClick={handleSave} 
+                onClick={onSaveEdit} 
                 size="sm" 
                 variant="outline" 
                 disabled={disabled}
@@ -72,7 +66,7 @@ const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
                 <Save className="h-3.5 w-3.5" />
               </Button>
               <Button 
-                onClick={handleCancel} 
+                onClick={onCancelEdit} 
                 size="sm" 
                 variant="outline" 
                 disabled={disabled}
@@ -84,7 +78,7 @@ const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
           ) : (
             <>
               <Button 
-                onClick={() => setIsEditing(true)} 
+                onClick={onEdit} 
                 size="sm" 
                 variant="outline" 
                 disabled={disabled}

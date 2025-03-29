@@ -1,13 +1,10 @@
 
 import React, { useState, useCallback } from "react";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import MenuOptionRow from "./components/MenuOptionRow";
-import AddOptionRow from "./components/AddOptionRow";
+import MenuOptionsTable from "./components/MenuOptionsTable";
 import MenuHeader from "./components/MenuHeader";
 import { MenuOption } from "@/hooks/useMenuOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import EmptyState from "./components/EmptyState";
 
 interface MenuSettingsBaseProps {
   title: string;
@@ -26,7 +23,12 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
 }) => {
   const [options, setOptions] = useState<MenuOption[]>(optionsData);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newOption, setNewOption] = useState<{ value: string; label: string }>({
+    value: "",
+    label: "",
+  });
+  const [editedOption, setEditedOption] = useState<{ value: string; label: string }>({
     value: "",
     label: "",
   });
@@ -118,6 +120,22 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     setNewOption(prev => ({ ...prev, [field]: value }));
   }, []);
 
+  // Start editing an option
+  const handleEdit = useCallback((option: MenuOption) => {
+    setEditingId(option.id);
+    setEditedOption({ value: option.value, label: option.label });
+  }, []);
+
+  // Handle change in edited option form
+  const handleEditChange = useCallback((field: "value" | "label", value: string) => {
+    setEditedOption(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  // Cancel editing
+  const handleCancelEdit = useCallback(() => {
+    setEditingId(null);
+  }, []);
+
   // Delete option
   const handleDeleteOption = useCallback(async (id: string) => {
     try {
@@ -148,9 +166,9 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     }
   }, [options, toast]);
 
-  // Edit option
-  const handleEditOption = useCallback(async (id: string, updatedOption: { value: string; label: string }) => {
-    if (!updatedOption.value || !updatedOption.label) {
+  // Save edited option
+  const handleSaveEdit = useCallback(async (id: string) => {
+    if (!editedOption.value || !editedOption.label) {
       toast({
         title: "Error",
         description: "Both value and label are required",
@@ -160,7 +178,7 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     }
 
     // Check for duplicates, excluding the current option
-    if (options.some(option => option.value === updatedOption.value && option.id !== id)) {
+    if (options.some(option => option.value === editedOption.value && option.id !== id)) {
       toast({
         title: "Error",
         description: "An option with this value already exists",
@@ -175,8 +193,8 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
       const { error } = await supabase
         .from('menu_options')
         .update({
-          name: updatedOption.label,
-          type: updatedOption.value
+          name: editedOption.label,
+          type: editedOption.value
         })
         .eq('id', id);
 
@@ -185,9 +203,12 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
       // Update local state
       setOptions(options.map(option => 
         option.id === id 
-          ? { ...option, value: updatedOption.value, label: updatedOption.label } 
+          ? { ...option, value: editedOption.value, label: editedOption.label } 
           : option
       ));
+      
+      // Clear editing state
+      setEditingId(null);
       
       toast({
         title: "Success",
@@ -203,7 +224,7 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     } finally {
       setIsSaving(false);
     }
-  }, [options, toast]);
+  }, [options, editedOption, toast]);
 
   return (
     <div className="space-y-6">
@@ -215,40 +236,43 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
       />
 
       {options.length === 0 && !isAdding ? (
-        <EmptyState 
-          title="No options configured" 
-          description="Add your first menu option to get started" 
-          onAdd={handleAddOption} 
-        />
+        <div className="border rounded-md">
+          <MenuOptionsTable
+            options={[]}
+            isAdding={isAdding}
+            editingId={editingId}
+            newOption={newOption}
+            editedOption={editedOption}
+            onEdit={handleEdit}
+            onDelete={handleDeleteOption}
+            onSaveEdit={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
+            onSaveNew={handleSaveNew}
+            onCancelAdd={handleCancelAdd}
+            onNewOptionChange={handleNewOptionChange}
+            onEditChange={handleEditChange}
+            onAddItem={handleAddOption}
+          />
+        </div>
       ) : (
-        <Table className="border rounded-md">
-          <TableHeader className="bg-zinc-50">
-            <TableRow>
-              <TableHead className="w-1/3">Value</TableHead>
-              <TableHead className="w-1/2">Display Label</TableHead>
-              <TableHead className="w-1/6 text-right pr-4">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {options.map((option) => (
-              <MenuOptionRow
-                key={option.id}
-                option={option}
-                onDelete={() => handleDeleteOption(option.id)}
-                onEdit={(updatedOption) => handleEditOption(option.id, updatedOption)}
-                disabled={isSaving}
-              />
-            ))}
-            {isAdding && (
-              <AddOptionRow
-                newOption={newOption}
-                onSaveNew={handleSaveNew}
-                onCancelAdd={handleCancelAdd}
-                onNewOptionChange={handleNewOptionChange}
-              />
-            )}
-          </TableBody>
-        </Table>
+        <div className="border rounded-md">
+          <MenuOptionsTable
+            options={options}
+            isAdding={isAdding}
+            editingId={editingId}
+            newOption={newOption}
+            editedOption={editedOption}
+            onEdit={handleEdit}
+            onDelete={handleDeleteOption}
+            onSaveEdit={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
+            onSaveNew={handleSaveNew}
+            onCancelAdd={handleCancelAdd}
+            onNewOptionChange={handleNewOptionChange}
+            onEditChange={handleEditChange}
+            onAddItem={handleAddOption}
+          />
+        </div>
       )}
     </div>
   );

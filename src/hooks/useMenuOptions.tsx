@@ -22,6 +22,8 @@ export const useMenuOptions = (category: string) => {
         setIsLoading(true);
         setError(null);
         
+        console.log(`Fetching menu options for category: ${category}`);
+        
         const { data, error } = await supabase
           .from('menu_options')
           .select('*')
@@ -31,6 +33,8 @@ export const useMenuOptions = (category: string) => {
         if (error) {
           throw new Error(error.message);
         }
+        
+        console.log(`Retrieved ${data?.length || 0} options for ${category}:`, data);
         
         // Transform to MenuOption format
         const transformedData = data.map(item => ({
