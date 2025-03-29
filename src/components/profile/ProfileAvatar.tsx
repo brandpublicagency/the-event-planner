@@ -52,24 +52,31 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  const fullName = profile?.full_name && profile?.surname 
+    ? `${profile.full_name} ${profile.surname}`
+    : profile?.full_name || 'User';
+    
   return (
-    <div className="flex flex-col items-center mb-8">
-      <div className="relative mb-4 group">
-        <Avatar className="h-32 w-32 border-4 border-white shadow-xl cursor-pointer transition-transform duration-300 hover:scale-105" onClick={handleAvatarClick}>
+    <div className="flex items-center mb-2">
+      <div className="relative mr-5">
+        <Avatar 
+          className="h-20 w-20 border-2 border-white shadow-sm cursor-pointer transition-transform duration-300 hover:scale-105" 
+          onClick={handleAvatarClick}
+        >
           <AvatarImage src={profile?.avatar_url || ''} alt="Profile" className="object-cover" />
-          <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-semibold">
+          <AvatarFallback className="bg-primary/90 text-primary-foreground text-xl font-semibold">
             {getInitials() || 'U'}
           </AvatarFallback>
         </Avatar>
         
         <div 
-          className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
           onClick={handleAvatarClick}
         >
           {isUploading ? (
-            <Loader2 className="h-8 w-8 text-white animate-spin" />
+            <Loader2 className="h-6 w-6 text-white animate-spin" />
           ) : (
-            <Camera className="h-8 w-8 text-white" />
+            <Camera className="h-6 w-6 text-white" />
           )}
         </div>
         
@@ -81,9 +88,11 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
           accept="image/png, image/jpeg, image/webp"
         />
       </div>
-      <h2 className="text-2xl font-bold">
-        {profile?.full_name} {profile?.surname}
-      </h2>
+      
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-800">{fullName}</h2>
+        <p className="text-slate-500 text-sm">{profile?.email || userEmail}</p>
+      </div>
     </div>
   );
 };
