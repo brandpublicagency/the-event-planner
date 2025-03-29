@@ -96,6 +96,9 @@ const Notifications = () => {
           title: "Notification marked as read",
         });
         
+        // Force a re-filter to move the notification to the read tab
+        setFilterKey(prev => prev + 1);
+        
         // Navigate if we have a relatedId
         if (notification.relatedId) {
           console.log(`Page navigating to relatedId: ${notification.relatedId}`);
@@ -160,6 +163,9 @@ const Notifications = () => {
         toast({
           title: "All notifications marked as read",
         });
+        
+        // Force a re-filter to update the tabs
+        setFilterKey(prev => prev + 1);
       } else {
         toast({
           title: "Error",
@@ -187,6 +193,9 @@ const Notifications = () => {
       toast({
         title: "Task marked as complete",
       });
+      
+      // Force a re-filter to update the UI
+      setFilterKey(prev => prev + 1);
     } catch (error) {
       console.error("Error marking task as complete:", error);
       toast({
@@ -201,6 +210,8 @@ const Notifications = () => {
   const handleFilterChange = (filter: FilterType) => {
     console.log(`Changing filter to: ${filter}`);
     setCurrentFilter(filter);
+    // Reset filterKey to ensure we re-filter when changing tabs
+    setFilterKey(prev => prev + 1);
   };
 
   return (

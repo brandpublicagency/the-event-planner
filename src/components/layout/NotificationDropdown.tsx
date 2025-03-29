@@ -27,6 +27,7 @@ export function NotificationDropdown() {
   const [dropdownInitialized, setDropdownInitialized] = useState(false);
   // Use a local state to track the current filter
   const [currentFilter, setCurrentFilter] = useState<'all' | 'unread'>('unread');
+  const [filterKey, setFilterKey] = useState<number>(0);
 
   useEffect(() => {
     if (!dropdownInitialized) {
@@ -39,9 +40,12 @@ export function NotificationDropdown() {
   }, [refreshNotifications, dropdownInitialized]);
 
   // Filter notifications for the dropdown
-  const filteredNotifications = notifications.filter(n => 
-    currentFilter === 'all' ? true : !n.read
-  );
+  const filteredNotifications = React.useMemo(() => {
+    console.log(`Dropdown filtering notifications: ${currentFilter}, total: ${notifications.length}`);
+    return notifications.filter(n => 
+      currentFilter === 'all' ? true : !n.read
+    );
+  }, [notifications, currentFilter, filterKey]);
 
   const handleRefresh = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -63,48 +67,53 @@ export function NotificationDropdown() {
     
     try {
       console.log("Dropdown viewing notification:", notification.id, "relatedId:", notification.relatedId);
-      await markAsRead(notification.id);
+      const success = await markAsRead(notification.id);
       
-      if (notification.relatedId) {
-        console.log(`Dropdown navigating to related ID: ${notification.relatedId}`);
+      if (success) {
+        // Force a re-filtering
+        setFilterKey(prev => prev + 1);
         
-        // For event notifications, pass the ID exactly as stored in the relatedId
-        if (notification.relatedId.match(/^\d+-\d+$/) || 
-            notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_') ||
-            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
+        if (notification.relatedId) {
+          console.log(`Dropdown navigating to related ID: ${notification.relatedId}`);
           
-          // Use the event code exactly as is
-          const eventCode = notification.relatedId;
-          console.log(`Notification dropdown: navigating to event: ${eventCode}`);
-          
-          // For same route navigation, force a page reload
-          if (window.location.pathname === `/events/${eventCode}`) {
-            console.log(`Already on event page ${eventCode}, forcing reload`);
-            window.location.href = `/events/${eventCode}`;
-          } else {
-            // For different route, use navigate
-            console.log(`Navigating to event page ${eventCode}`);
-            navigate(`/events/${eventCode}`);
+          // For event notifications, pass the ID exactly as stored in the relatedId
+          if (notification.relatedId.match(/^\d+-\d+$/) || 
+              notification.relatedId.startsWith('EVENT-') || 
+              notification.relatedId.startsWith('event_') ||
+              notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
+            
+            // Use the event code exactly as is
+            const eventCode = notification.relatedId;
+            console.log(`Notification dropdown: navigating to event: ${eventCode}`);
+            
+            // For same route navigation, force a page reload
+            if (window.location.pathname === `/events/${eventCode}`) {
+              console.log(`Already on event page ${eventCode}, forcing reload`);
+              window.location.href = `/events/${eventCode}`;
+            } else {
+              // For different route, use navigate
+              console.log(`Navigating to event page ${eventCode}`);
+              navigate(`/events/${eventCode}`);
+            }
+          } 
+          else if (notification.relatedId.startsWith('task_')) {
+            console.log(`Navigating to task: ${notification.relatedId}`);
+            navigate(`/tasks?selected=${notification.relatedId}`);
+          } 
+          else {
+            // For any other type of notification
+            console.log(`Navigating to general path: ${notification.relatedId}`);
+            navigate(`/${notification.relatedId}`);
           }
-        } 
-        else if (notification.relatedId.startsWith('task_')) {
-          console.log(`Navigating to task: ${notification.relatedId}`);
-          navigate(`/tasks?selected=${notification.relatedId}`);
-        } 
-        else {
-          // For any other type of notification
-          console.log(`Navigating to general path: ${notification.relatedId}`);
-          navigate(`/${notification.relatedId}`);
+        } else {
+          console.log("No relatedId found in notification, navigating to notifications page");
+          navigate('/notifications');
         }
-      } else {
-        console.log("No relatedId found in notification, navigating to notifications page");
-        navigate('/notifications');
+        
+        toast({
+          title: "Notification marked as read"
+        });
       }
-      
-      toast({
-        title: "Notification marked as read"
-      });
     } catch (error) {
       console.error("Error handling notification click:", error);
       toast({
@@ -120,6 +129,10 @@ export function NotificationDropdown() {
     
     try {
       await markAsCompleted(notification.id);
+      
+      // Force a re-filtering
+      setFilterKey(prev => prev + 1);
+      
       toast({
         title: "Task marked as complete!"
       });
@@ -143,10 +156,16 @@ export function NotificationDropdown() {
     e.stopPropagation();
     
     try {
-      await markAllAsRead();
-      toast({
-        title: "All notifications marked as read"
-      });
+      const success = await markAllAsRead();
+      
+      if (success) {
+        // Force a re-filtering after marking all as read
+        setFilterKey(prev => prev + 1);
+        
+        toast({
+          title: "All notifications marked as read"
+        });
+      }
     } catch (error) {
       console.error("Error marking all as read:", error);
       toast({
@@ -167,7 +186,7 @@ export function NotificationDropdown() {
       />
       
       <NotificationContent 
-        notifications={notifications}
+        notifications={filteredNotifications}
         loading={loading}
         isRefreshing={isRefreshing}
         error={error}

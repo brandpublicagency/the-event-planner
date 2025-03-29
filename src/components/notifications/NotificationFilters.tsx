@@ -32,9 +32,7 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
       // force a filter change to refresh the view
       if (currentFilter === 'read') {
         console.log('NotificationFilters: Refreshing "read" tab view');
-        // Switch to 'all' and back to 'read' to force refresh
-        onFilterChange('all');
-        setTimeout(() => onFilterChange('read'), 50);
+        onFilterChange('read');
       }
     }
   }, [lastFilterRefresh, currentFilter, onFilterChange]);

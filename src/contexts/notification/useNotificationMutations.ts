@@ -29,7 +29,7 @@ export const useNotificationMutations = ({
               ...n, 
               read: true, 
               status: "read" as NotificationStatus 
-            };
+            } as Notification;
           }
           return n;
         });
@@ -93,7 +93,7 @@ export const useNotificationMutations = ({
           ...n, 
           read: true, 
           status: "read" as NotificationStatus 
-        }));
+        }) as Notification);
         console.log('Updated all notifications to read=true in local state');
         return updated;
       });

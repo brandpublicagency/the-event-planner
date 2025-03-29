@@ -30,7 +30,7 @@ export const NotificationItem = memo(({
     // Always prevent default and stop propagation to avoid bubbling
     e.preventDefault();
     e.stopPropagation();
-    console.log("NotificationItem clicked:", notification.id, "relatedId:", notification.relatedId);
+    console.log("NotificationItem clicked:", notification.id, "relatedId:", notification.relatedId, "read:", notification.read);
     
     // Call the view handler to navigate to the related content
     onView(notification, e);
@@ -38,7 +38,7 @@ export const NotificationItem = memo(({
   
   return (
     <div 
-      className={`rounded-md transition-all duration-200 hover:bg-gray-50 ${notification.read && !isDropdown ? 'opacity-60' : 'opacity-100'} ${isDropdown ? 'p-3 cursor-pointer' : ''}`} 
+      className={`rounded-md transition-all duration-200 hover:bg-gray-50 ${notification.read ? 'opacity-60' : 'opacity-100'} ${isDropdown ? 'p-3 cursor-pointer' : ''}`} 
     >
       <div 
         className={`${isDropdown ? 'mx-0 my-0 border-b border-gray-100 pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-white border border-gray-100 hover:border-gray-200 transition-colors shadow-sm'}`}
