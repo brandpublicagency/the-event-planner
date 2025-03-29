@@ -9,7 +9,7 @@ export const NotificationContext = createContext<NotificationContextType>({
   loading: false,
   error: null,
   markAsRead: async () => false,
-  markAsCompleted: async () => {},
+  markAsCompleted: async () => false,
   markAllAsRead: async () => false,
   clearNotifications: async () => {},
   refreshNotifications: async () => {},

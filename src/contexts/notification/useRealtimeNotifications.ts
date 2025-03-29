@@ -5,12 +5,19 @@ import { formatNotification } from './notificationFormatters';
 import { toast } from 'sonner';
 import { Notification } from '@/types/notification';
 
-export const useRealtimeNotifications = (
-  isMountedRef: React.MutableRefObject<boolean>,
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>,
-  setUnreadCount: React.Dispatch<React.SetStateAction<number>>,
-  fetchNotifications: () => Promise<void>
-) => {
+interface UseRealtimeNotificationsProps {
+  isMountedRef: React.MutableRefObject<boolean>;
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  fetchNotifications: () => Promise<void>;
+}
+
+export const useRealtimeNotifications = ({
+  isMountedRef,
+  setNotifications,
+  setUnreadCount,
+  fetchNotifications
+}: UseRealtimeNotificationsProps) => {
   useEffect(() => {
     console.log("Setting up realtime notification subscription");
     
@@ -52,8 +59,7 @@ export const useRealtimeNotifications = (
             }
             
             // Show toast notification
-            toast({
-              title: "New notification",
+            toast.success({
               description: newNotification.title
             });
           } catch (error) {

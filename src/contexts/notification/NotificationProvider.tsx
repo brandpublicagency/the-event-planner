@@ -94,7 +94,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   }, [notifications, unreadCount]);
 
   // Set up realtime notifications
-  useRealtimeNotifications(isMountedRef, setNotificationsState, setUnreadCountState, fetchNotifications);
+  useRealtimeNotifications({
+    isMountedRef, 
+    setNotifications: setNotificationsState, 
+    setUnreadCount: setUnreadCountState, 
+    fetchNotifications
+  });
 
   // Expose notification operations with additional debug logging
   const wrappedMarkAsRead = async (id: string) => {
@@ -123,6 +128,17 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     }
   };
 
+  const wrappedMarkAsCompleted = async (id: string) => {
+    console.log(`NotificationProvider.markAsCompleted called for id: ${id}`);
+    try {
+      await markAsCompleted(id);
+      return true;
+    } catch (error) {
+      console.error("Error in wrappedMarkAsCompleted:", error);
+      return false;
+    }
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -131,7 +147,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         loading,
         error,
         markAsRead: wrappedMarkAsRead,
-        markAsCompleted,
+        markAsCompleted: wrappedMarkAsCompleted,
         markAllAsRead: wrappedMarkAllAsRead,
         clearNotifications,
         refreshNotifications: fetchNotifications,

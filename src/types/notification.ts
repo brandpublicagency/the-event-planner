@@ -3,6 +3,8 @@ export type NotificationType = "event_created" | string;
 
 export type NotificationActionType = "review" | "complete" | "acknowledge" | string;
 
+export type NotificationStatus = "completed" | "read" | "sent";
+
 export interface Notification {
   id: string;
   title: string;
@@ -12,7 +14,7 @@ export interface Notification {
   type: NotificationType;
   relatedId?: string;
   actionType?: NotificationActionType;
-  status?: "completed" | "read" | "sent";
+  status?: NotificationStatus;
 }
 
 export type NotificationContextType = {
@@ -21,7 +23,7 @@ export type NotificationContextType = {
   loading: boolean;
   error: Error | null;
   markAsRead: (id: string) => Promise<boolean>;
-  markAsCompleted: (id: string) => Promise<void>;
+  markAsCompleted: (id: string) => Promise<boolean>;
   markAllAsRead: () => Promise<boolean>;
   clearNotifications: () => Promise<void>;
   refreshNotifications: () => Promise<void>;

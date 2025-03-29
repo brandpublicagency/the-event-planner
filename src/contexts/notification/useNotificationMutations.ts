@@ -1,7 +1,7 @@
 
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Notification } from "@/types/notification";
+import { Notification, NotificationStatus } from "@/types/notification";
 import { toast } from "sonner";
 
 interface UseNotificationMutationsProps {
@@ -25,7 +25,7 @@ export const useNotificationMutations = ({
         const updated = prev.map(n => {
           if (n.id === id) {
             console.log(`Optimistically updating notification ${id} to read=true`);
-            return { ...n, read: true, status: "read" };
+            return { ...n, read: true, status: "read" as NotificationStatus };
           }
           return n;
         });
@@ -85,7 +85,11 @@ export const useNotificationMutations = ({
       
       // Update locally first
       setNotifications(prev => {
-        const updated = prev.map(n => ({ ...n, read: true, status: "read" }));
+        const updated = prev.map(n => ({ 
+          ...n, 
+          read: true, 
+          status: "read" as NotificationStatus 
+        }));
         console.log('Updated all notifications to read=true in local state');
         return updated;
       });
