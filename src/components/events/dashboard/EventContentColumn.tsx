@@ -1,3 +1,4 @@
+
 import React from "react";
 import type { Event } from "@/types/event";
 import { format } from "date-fns";
@@ -30,8 +31,8 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
   return <div className="flex-1 py-3 px-5">
       <div className="flex items-center">
         <h3 className="text-base font-normal text-gray-800 mb-0.5 line-clamp-1">{event.name}</h3>
-        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 transition-colors">
-          <span className="text-base">{event.event_code}</span>
+        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-600 transition-colors">
+          <span className="text-xs">{event.event_code}</span>
           <Copy className="h-3 w-3" />
         </button>
       </div>
