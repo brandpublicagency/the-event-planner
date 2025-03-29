@@ -60,7 +60,7 @@ const ProfileSettings = () => {
           <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="p-6 pb-0">
-                <ProfileAvatar profile={profile} />
+                <ProfileAvatar profile={profile} userEmail={userEmail} />
               </div>
               
               <div className="p-6 space-y-8">
