@@ -78,10 +78,17 @@ export const useRealtimeNotifications = ({
             const updatedNotification = formatNotification(payload.new);
             
             // Update the notification in the state
+            let wasUnread = false;
+            let isNowRead = false;
+            
             setNotifications(prev => {
               const updated = prev.map(notification => {
                 if (notification.id === updatedNotification.id) {
-                  console.log(`Updating notification ${updatedNotification.id} in state via realtime`);
+                  // Check if this notification was previously unread and is now read
+                  wasUnread = !notification.read;
+                  isNowRead = updatedNotification.read;
+                  
+                  console.log(`Updating notification ${updatedNotification.id} in state via realtime. Was unread: ${wasUnread}, Now read: ${isNowRead}`);
                   return updatedNotification;
                 }
                 return notification;
@@ -92,9 +99,6 @@ export const useRealtimeNotifications = ({
             });
             
             // Update unread count if this notification was marked as read
-            const wasUnread = !payload.old.read;
-            const isNowRead = payload.new.read;
-            
             if (wasUnread && isNowRead) {
               console.log(`Notification ${payload.new.id} was marked as read, updating unread count`);
               setUnreadCount(count => Math.max(0, count - 1));

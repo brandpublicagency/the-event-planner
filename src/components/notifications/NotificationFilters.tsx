@@ -29,7 +29,7 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
       console.log(`NotificationFilters: Detected filter refresh trigger: ${lastFilterRefresh}`);
       
       // Force a filter change to refresh the view, especially needed for the read tab
-      // This ensures notifications that were just marked as read appear immediately
+      // This ensures notifications that were just marked as read appear immediately in the right tab
       if (currentFilter) {
         console.log(`NotificationFilters: Refreshing "${currentFilter}" tab view`);
         onFilterChange(currentFilter);

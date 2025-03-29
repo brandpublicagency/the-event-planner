@@ -34,7 +34,7 @@ export const useNotificationPage = () => {
     }
   }, [lastFilterRefresh]);
 
-  // Filter notifications based on the current filter
+  // Filter notifications based on the current filter with proper typing
   const filteredNotifications = notifications.filter(notification => {
     if (currentFilter === 'all') return true;
     if (currentFilter === 'unread') return !notification.read;
@@ -49,7 +49,7 @@ export const useNotificationPage = () => {
     const read = notifications.filter(n => n.read).length;
     console.log(`Notification filtering - Total: ${total}, Unread: ${unread}, Read: ${read}, Current filter: ${currentFilter}`);
     console.log(`Filtered notifications count: ${filteredNotifications.length}`);
-  }, [notifications, currentFilter, filteredNotifications.length]);
+  }, [notifications, currentFilter, filteredNotifications.length, filterKey]);
 
   // Handle refresh button click
   const handleRefresh = useCallback(async (e: React.MouseEvent) => {
@@ -58,11 +58,19 @@ export const useNotificationPage = () => {
     
     setIsRefreshing(true);
     try {
-      await refreshNotifications();
-      toast({
-        title: 'Success',
-        description: 'Notifications refreshed successfully',
-      });
+      const success = await refreshNotifications();
+      if (success) {
+        toast({
+          title: 'Success',
+          description: 'Notifications refreshed successfully',
+        });
+      } else {
+        toast({
+          title: 'Warning',
+          description: 'Notifications may not be up to date',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       console.error('Error refreshing notifications:', error);
       toast({
@@ -187,13 +195,22 @@ export const useNotificationPage = () => {
     e.stopPropagation();
     
     try {
-      await markAsCompleted(notification.id);
-      toast({
-        title: "Task marked as complete",
-      });
+      const success = await markAsCompleted(notification.id);
       
-      // Force a re-filter to update the UI
-      setFilterKey(prev => prev + 1);
+      if (success) {
+        toast({
+          title: "Task marked as complete",
+        });
+        
+        // Force a re-filter to update the UI
+        setFilterKey(prev => prev + 1);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to mark task as complete",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error marking task as complete:", error);
       toast({

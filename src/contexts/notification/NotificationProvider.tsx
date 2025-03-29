@@ -72,6 +72,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       }
     }, 5000);
     
+    initialFetchTimeoutRef.current = fallbackTimeout;
+    
     return () => {
       window.clearTimeout(fallbackTimeout);
     };

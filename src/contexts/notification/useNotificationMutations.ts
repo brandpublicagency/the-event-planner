@@ -21,10 +21,12 @@ export const useNotificationMutations = ({
       console.log('Marking notification as read:', id);
       
       // Optimistic update - Update locally first
+      let notificationUpdated = false;
       setNotifications(prev => {
         const updated = prev.map(n => {
-          if (n.id === id) {
+          if (n.id === id && !n.read) {
             console.log(`Optimistically updating notification ${id} to read=true`);
+            notificationUpdated = true;
             return { 
               ...n, 
               read: true, 
@@ -37,8 +39,10 @@ export const useNotificationMutations = ({
         return updated;
       });
       
-      // Update unread count
-      setUnreadCount(count => Math.max(0, count - 1));
+      // Only update unread count if we actually updated a notification
+      if (notificationUpdated) {
+        setUnreadCount(count => Math.max(0, count - 1));
+      }
       
       // Then update in the database
       const { error, data } = await supabase
@@ -54,7 +58,7 @@ export const useNotificationMutations = ({
       
       console.log(`Successfully marked notification ${id} as read in database, response:`, data);
       
-      // Force a refresh to ensure filters are correctly applied
+      // Force a refresh to ensure filters are correctly applied and database state is synced
       await fetchNotifications();
       
       // Log the state after server update
@@ -65,7 +69,7 @@ export const useNotificationMutations = ({
       console.error('Error marking notification as read:', error);
       // Refresh on error to get correct state
       toast.error("Failed to mark notification as read");
-      fetchNotifications();
+      await fetchNotifications();
       return false;
     }
   }, [setNotifications, setUnreadCount, fetchNotifications]);
@@ -97,7 +101,14 @@ export const useNotificationMutations = ({
         throw fetchError;
       }
       
-      console.log(`Found ${unreadNotifications?.length || 0} unread notifications`);
+      const unreadCount = unreadNotifications?.length || 0;
+      console.log(`Found ${unreadCount} unread notifications`);
+      
+      // Only proceed if there are unread notifications
+      if (unreadCount === 0) {
+        console.log('No unread notifications to update');
+        return true;
+      }
       
       // Update locally first
       setNotifications(prev => {
@@ -113,20 +124,18 @@ export const useNotificationMutations = ({
       setUnreadCount(0);
       
       // Update in the database
-      if (unreadNotifications && unreadNotifications.length > 0) {
-        const { error, data } = await supabase
-          .from('notifications')
-          .update({ read: true })
-          .eq('read', false)
-          .select();
+      const { error, data } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('read', false)
+        .select();
           
-        if (error) {
-          console.error('Error updating all notifications in database:', error);
-          throw error;
-        }
-        
-        console.log(`Successfully marked ${unreadNotifications.length} notifications as read in database, response:`, data);
+      if (error) {
+        console.error('Error updating all notifications in database:', error);
+        throw error;
       }
+      
+      console.log(`Successfully marked ${unreadCount} notifications as read in database, response:`, data);
       
       // Force a refresh to ensure filters are correctly applied
       await fetchNotifications();
@@ -136,7 +145,7 @@ export const useNotificationMutations = ({
     } catch (error) {
       console.error('Error marking all as read:', error);
       toast.error("Failed to mark all notifications as read");
-      fetchNotifications();
+      await fetchNotifications();
       return false;
     }
   }, [setNotifications, setUnreadCount, fetchNotifications]);
