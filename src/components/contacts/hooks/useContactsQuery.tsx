@@ -28,7 +28,8 @@ export const useContactsQuery = () => {
             company,
             address,
             vat_number,
-            venues
+            venues,
+            completed
           `)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false });
@@ -64,7 +65,7 @@ export const useContactsQuery = () => {
               eventName: event.name,
               eventDate: event.event_date,
               eventType: event.event_type,
-              completed: event.completed,
+              completed: event.completed || false,
               venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
               originalData: event
             });
@@ -95,7 +96,7 @@ export const useContactsQuery = () => {
               eventName: event.name,
               eventDate: event.event_date,
               eventType: event.event_type,
-              completed: event.completed,
+              completed: event.completed || false,
               venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
               originalData: event
             });

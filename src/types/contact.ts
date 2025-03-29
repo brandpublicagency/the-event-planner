@@ -17,7 +17,7 @@ export interface ContactEvent {
   eventName: string;
   eventDate: string | null;
   eventType: string;
-  completed?: boolean;
+  completed: boolean;
   venue: string;
   originalData: any;
 }
