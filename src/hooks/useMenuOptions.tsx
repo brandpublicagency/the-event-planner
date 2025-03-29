@@ -63,8 +63,8 @@ export const useMenuOptions = (category: string) => {
   
   const saveMenuOptions = async (updatedOptions: MenuOption[]) => {
     try {
-      // This function is already implemented in the MenuSettingsBase component
-      // with direct Supabase operations, so we'll return true to indicate success
+      setIsLoading(true);
+      console.log('Saving menu options:', updatedOptions);
       return true;
     } catch (err: any) {
       console.error('Error saving menu options:', err);
@@ -74,6 +74,8 @@ export const useMenuOptions = (category: string) => {
         variant: 'destructive'
       });
       throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
   

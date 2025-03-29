@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import MenuOptionsTable from "./components/MenuOptionsTable";
 import MenuHeader from "./components/MenuHeader";
 import { MenuOption } from "@/hooks/useMenuOptions";
@@ -21,7 +21,7 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   category,
   onSave,
 }) => {
-  const [options, setOptions] = useState<MenuOption[]>(optionsData);
+  const [options, setOptions] = useState<MenuOption[]>(optionsData || []);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newOption, setNewOption] = useState<{ value: string; label: string }>({
@@ -34,6 +34,12 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+
+  // Update local state when props change
+  useEffect(() => {
+    console.log(`MenuSettingsBase: optionsData updated for ${category}:`, optionsData);
+    setOptions(optionsData || []);
+  }, [optionsData, category]);
 
   // Add new option row
   const handleAddOption = useCallback(() => {
@@ -226,6 +232,8 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     }
   }, [options, editedOption, toast]);
 
+  console.log("MenuSettingsBase rendering with options:", options, "isAdding:", isAdding);
+
   return (
     <div className="space-y-6">
       <MenuHeader 
@@ -235,45 +243,24 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
         isAdding={isAdding || isSaving} 
       />
 
-      {options.length === 0 && !isAdding ? (
-        <div className="border rounded-md">
-          <MenuOptionsTable
-            options={[]}
-            isAdding={isAdding}
-            editingId={editingId}
-            newOption={newOption}
-            editedOption={editedOption}
-            onEdit={handleEdit}
-            onDelete={handleDeleteOption}
-            onSaveEdit={handleSaveEdit}
-            onCancelEdit={handleCancelEdit}
-            onSaveNew={handleSaveNew}
-            onCancelAdd={handleCancelAdd}
-            onNewOptionChange={handleNewOptionChange}
-            onEditChange={handleEditChange}
-            onAddItem={handleAddOption}
-          />
-        </div>
-      ) : (
-        <div className="border rounded-md">
-          <MenuOptionsTable
-            options={options}
-            isAdding={isAdding}
-            editingId={editingId}
-            newOption={newOption}
-            editedOption={editedOption}
-            onEdit={handleEdit}
-            onDelete={handleDeleteOption}
-            onSaveEdit={handleSaveEdit}
-            onCancelEdit={handleCancelEdit}
-            onSaveNew={handleSaveNew}
-            onCancelAdd={handleCancelAdd}
-            onNewOptionChange={handleNewOptionChange}
-            onEditChange={handleEditChange}
-            onAddItem={handleAddOption}
-          />
-        </div>
-      )}
+      <div className="border rounded-md">
+        <MenuOptionsTable
+          options={options}
+          isAdding={isAdding}
+          editingId={editingId}
+          newOption={newOption}
+          editedOption={editedOption}
+          onEdit={handleEdit}
+          onDelete={handleDeleteOption}
+          onSaveEdit={handleSaveEdit}
+          onCancelEdit={handleCancelEdit}
+          onSaveNew={handleSaveNew}
+          onCancelAdd={handleCancelAdd}
+          onNewOptionChange={handleNewOptionChange}
+          onEditChange={handleEditChange}
+          onAddItem={handleAddOption}
+        />
+      </div>
     </div>
   );
 };

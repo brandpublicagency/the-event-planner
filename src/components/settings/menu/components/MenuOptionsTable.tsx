@@ -39,6 +39,8 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
   onEditChange,
   onAddItem,
 }) => {
+  console.log("MenuOptionsTable rendering with options:", options, "isAdding:", isAdding);
+  
   return (
     <Table>
       <TableHeader>
@@ -58,26 +60,29 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
           />
         )}
         
-        {options.map((option) => (
-          <MenuOptionRow
-            key={option.id}
-            option={option}
-            isEditing={editingId === option.id}
-            editedOption={editedOption}
-            onEdit={() => onEdit(option)}
-            onDelete={() => onDelete(option.id)}
-            onSaveEdit={() => onSaveEdit(option.id)}
-            onCancelEdit={onCancelEdit}
-            onEditChange={onEditChange}
-          />
-        ))}
-        
-        {options.length === 0 && !isAdding && (
-          <EmptyState 
-            title="No options configured" 
-            description="Add your first menu option to get started" 
-            onAdd={onAddItem} 
-          />
+        {options && options.length > 0 ? (
+          options.map((option) => (
+            <MenuOptionRow
+              key={option.id}
+              option={option}
+              isEditing={editingId === option.id}
+              editedOption={editedOption}
+              onEdit={() => onEdit(option)}
+              onDelete={() => onDelete(option.id)}
+              onSaveEdit={() => onSaveEdit(option.id)}
+              onCancelEdit={onCancelEdit}
+              onEditChange={onEditChange}
+              disabled={isAdding}
+            />
+          ))
+        ) : (
+          !isAdding && (
+            <EmptyState 
+              title="No options configured" 
+              description="Add your first menu option to get started" 
+              onAdd={onAddItem} 
+            />
+          )
         )}
       </TableBody>
     </Table>

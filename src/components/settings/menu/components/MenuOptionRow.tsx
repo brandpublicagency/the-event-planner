@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil, Save, Trash2, X } from 'lucide-react';
 import { TableRow, TableCell } from '@/components/ui/table';
@@ -15,7 +15,7 @@ interface MenuOptionRowProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onEditChange: (field: "value" | "label", value: string) => void;
-  disabled?: boolean; // Added the missing disabled prop with optional flag
+  disabled?: boolean;
 }
 
 const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
