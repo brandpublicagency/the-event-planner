@@ -35,50 +35,78 @@ export const useContactsQuery = () => {
 
         if (eventsError) throw eventsError;
         
-        const processedContacts: Contact[] = [];
+        // Use a Map to store unique contacts by email
+        const contactsMap = new Map();
         
         events?.forEach(event => {
-          // Add primary contact if it exists
-          if (event.primary_name) {
-            processedContacts.push({
-              id: `primary-${event.event_code}`,
-              name: event.primary_name,
-              email: event.primary_email || '',
-              phone: event.primary_phone || '',
-              company: event.company || null,
-              vat_number: event.vat_number || null,
-              address: event.address || null,
-              contactType: event.event_type === 'Wedding' ? 'wedding-bride' : 'corporate',
+          // Process primary contact if it exists
+          if (event.primary_name && event.primary_email) {
+            const email = event.primary_email.toLowerCase().trim();
+            if (!contactsMap.has(email)) {
+              // Create new contact if email is not in map
+              contactsMap.set(email, {
+                id: `contact-${email}`,
+                name: event.primary_name,
+                email: email,
+                phone: event.primary_phone || '',
+                company: event.company || null,
+                vat_number: event.vat_number || null,
+                address: event.address || null,
+                contactType: event.event_type === 'Wedding' ? 'wedding-bride' : 'corporate',
+                events: [], // Initialize events array
+              });
+            }
+            
+            // Add this event to the contact's events array
+            const contact = contactsMap.get(email);
+            contact.events.push({
               eventCode: event.event_code,
               eventName: event.name,
               eventDate: event.event_date,
+              eventType: event.event_type,
+              completed: event.completed,
               venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
               originalData: event
             });
           }
 
-          // Add secondary contact if it exists (usually for wedding events)
-          if (event.secondary_name) {
-            processedContacts.push({
-              id: `secondary-${event.event_code}`,
-              name: event.secondary_name,
-              email: event.secondary_email || '',
-              phone: event.secondary_phone || '',
-              company: event.company || null,
-              vat_number: event.vat_number || null,
-              address: event.address || null,
-              contactType: 'wedding-groom', // Assuming secondary is always the groom in weddings
+          // Process secondary contact if it exists
+          if (event.secondary_name && event.secondary_email) {
+            const email = event.secondary_email.toLowerCase().trim();
+            if (!contactsMap.has(email)) {
+              // Create new contact if email is not in map
+              contactsMap.set(email, {
+                id: `contact-${email}`,
+                name: event.secondary_name,
+                email: email,
+                phone: event.secondary_phone || '',
+                company: event.company || null,
+                vat_number: event.vat_number || null,
+                address: event.address || null,
+                contactType: 'wedding-groom', // Assuming secondary is always the groom in weddings
+                events: [], // Initialize events array
+              });
+            }
+            
+            // Add this event to the contact's events array
+            const contact = contactsMap.get(email);
+            contact.events.push({
               eventCode: event.event_code,
               eventName: event.name,
               eventDate: event.event_date,
+              eventType: event.event_type,
+              completed: event.completed,
               venue: Array.isArray(event.venues) && event.venues.length > 0 ? event.venues[0] : 'Not specified',
               originalData: event
             });
           }
         });
 
+        // Convert Map to array
+        const uniqueContacts = Array.from(contactsMap.values());
+        
         // Sort contacts alphabetically by name (A to Z)
-        return processedContacts.sort((a, b) => {
+        return uniqueContacts.sort((a, b) => {
           return a.name.localeCompare(b.name);
         });
       } catch (error: any) {

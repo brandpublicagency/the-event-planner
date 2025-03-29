@@ -1,70 +1,78 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import type { Contact, ContactUpdate } from "@/types/contact";
+import { Contact, ContactUpdate } from "@/types/contact";
+import { useToast } from "@/hooks/use-toast";
 
-export const updateContact = async (contact: Contact, updates: ContactUpdate): Promise<void> => {
-  // Based on the contact type, update the appropriate fields in the events table
-  if (contact.contactType === 'corporate' || contact.contactType === 'wedding-bride') {
-    // Primary contact (either corporate contact or bride)
-    const { error } = await supabase
-      .from('events')
-      .update({
-        primary_name: updates.name,
-        primary_email: updates.email,
-        primary_phone: updates.phone,
-        company: updates.company,
-        address: updates.address,
-        vat_number: updates.vat_number,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
-  } 
-  else if (contact.contactType === 'wedding-groom') {
-    // Secondary contact (groom)
-    const { error } = await supabase
-      .from('events')
-      .update({
-        secondary_name: updates.name,
-        secondary_email: updates.email,
-        secondary_phone: updates.phone,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
+export const updateContact = async (contact: Contact, updates: ContactUpdate) => {
+  try {
+    // Since we're using email as the unique identifier, 
+    // we need to update all events associated with this contact
+    for (const event of contact.events) {
+      // Determine if this is a primary or secondary contact
+      const isPrimary = event.originalData.primary_email?.toLowerCase() === contact.email.toLowerCase();
+      
+      const updateData = isPrimary 
+        ? {
+            primary_name: updates.name || contact.name,
+            primary_email: updates.email || contact.email,
+            primary_phone: updates.phone || contact.phone,
+            // Only update company-wide fields if this is a primary contact
+            company: updates.company || contact.company,
+            address: updates.address || contact.address,
+            vat_number: updates.vat_number || contact.vat_number,
+          }
+        : {
+            secondary_name: updates.name || contact.name,
+            secondary_email: updates.email || contact.email,
+            secondary_phone: updates.phone || contact.phone,
+          };
+      
+      const { error } = await supabase
+        .from('events')
+        .update(updateData)
+        .eq('event_code', event.eventCode);
+      
+      if (error) throw error;
+    }
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating contact:', error);
+    throw new Error(`Failed to update contact: ${error.message}`);
   }
 };
 
-export const deleteContact = async (contact: Contact): Promise<void> => {
-  // Based on the contact type, update the appropriate record to clear the contact
-  if (contact.contactType === 'corporate' || contact.contactType === 'wedding-bride') {
-    // Primary contact (either corporate contact or bride)
-    const { error } = await supabase
-      .from('events')
-      .update({
-        primary_name: null,
-        primary_email: null,
-        primary_phone: null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
-  } 
-  else if (contact.contactType === 'wedding-groom') {
-    // Secondary contact (groom)
-    const { error } = await supabase
-      .from('events')
-      .update({
-        secondary_name: null,
-        secondary_email: null,
-        secondary_phone: null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('event_code', contact.eventCode);
-
-    if (error) throw new Error(error.message);
+export const deleteContact = async (contact: Contact) => {
+  // We won't actually delete the contact, just remove their association with events
+  try {
+    // For each event associated with this contact
+    for (const event of contact.events) {
+      // Determine if this is a primary or secondary contact
+      const isPrimary = event.originalData.primary_email?.toLowerCase() === contact.email.toLowerCase();
+      
+      const updateData = isPrimary 
+        ? {
+            primary_name: null,
+            primary_email: null,
+            primary_phone: null,
+          }
+        : {
+            secondary_name: null,
+            secondary_email: null,
+            secondary_phone: null,
+          };
+      
+      const { error } = await supabase
+        .from('events')
+        .update(updateData)
+        .eq('event_code', event.eventCode);
+      
+      if (error) throw error;
+    }
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting contact:', error);
+    throw new Error(`Failed to delete contact: ${error.message}`);
   }
 };

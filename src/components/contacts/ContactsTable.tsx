@@ -57,13 +57,14 @@ const ContactsTable = ({
                 <TableHead className="font-bold text-black">Company</TableHead>
                 <TableHead className="font-bold text-black">Email</TableHead>
                 <TableHead className="font-bold text-black">Phone</TableHead>
+                <TableHead className="font-bold text-black">Events</TableHead>
                 <TableHead className="w-[100px] text-right pr-4 font-bold text-black">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {contacts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2 py-8">
                       <User className="h-10 w-10 text-gray-300" />
                       <p>No contacts found</p>
@@ -84,6 +85,7 @@ const ContactsTable = ({
                     <TableCell className="text-gray-600">{contact.company || "-"}</TableCell>
                     <TableCell className="text-gray-600">{contact.email || "-"}</TableCell>
                     <TableCell className="text-gray-600">{contact.phone || "-"}</TableCell>
+                    <TableCell className="text-gray-600">{contact.events.length}</TableCell>
                     <TableCell className="text-right pr-2">
                       <div className="flex justify-end space-x-1">
                         <Button 

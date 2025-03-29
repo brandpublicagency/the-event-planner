@@ -15,21 +15,20 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
   today.setHours(0, 0, 0, 0);
   
   // Determine event status based on date and completion
-  const getEventStatus = () => {
-    if (!contact.eventDate) return "Unknown";
+  const getEventStatus = (event: any) => {
+    if (!event.eventDate) return "Unknown";
     
-    const eventDate = new Date(contact.eventDate);
+    const eventDate = new Date(event.eventDate);
     eventDate.setHours(0, 0, 0, 0);
     
-    if (contact.originalData?.completed) return "Completed";
+    if (event.completed) return "Completed";
     if (eventDate < today) return "Passed";
     if (eventDate.getTime() === today.getTime()) return "Today";
     return "Upcoming";
   };
   
   // Get badge color based on status
-  const getBadgeVariant = () => {
-    const status = getEventStatus();
+  const getBadgeVariant = (status: string) => {
     switch (status) {
       case "Completed":
         return "secondary";
@@ -38,7 +37,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
       case "Today":
         return "default";
       case "Upcoming":
-        return "secondary"; // Changed from "success" to "secondary" to match valid variants
+        return "secondary";
       default:
         return "outline";
     }
@@ -46,23 +45,38 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
 
   return (
     <div className="pt-4 border-t">
-      <h3 className="text-sm font-medium uppercase tracking-wide mb-3">EVENTS BOOKED</h3>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <Link 
-            to={`/events/${contact.eventCode}`}
-            className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
-          >
-            {contact.company || contact.name} {contact.originalData?.event_type || 'Event'}
-          </Link>
-          <Badge variant={getBadgeVariant()}>{getEventStatus()}</Badge>
-        </div>
-        
-        {contact.eventDate && (
-          <div className="flex items-center text-xs text-gray-500">
-            <CalendarIcon className="h-3 w-3 mr-1" />
-            {format(new Date(contact.eventDate), "dd MMM yyyy")}
-          </div>
+      <h3 className="text-sm font-medium uppercase tracking-wide mb-3">EVENTS BOOKED ({contact.events.length})</h3>
+      <div className="flex flex-col gap-4">
+        {contact.events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No events booked</p>
+        ) : (
+          contact.events.map((event, index) => {
+            const status = getEventStatus(event);
+            return (
+              <div key={event.eventCode} className={`flex flex-col gap-2 ${index !== 0 ? "pt-3 border-t border-gray-100" : ""}`}>
+                <div className="flex items-center justify-between">
+                  <Link 
+                    to={`/events/${event.eventCode}`}
+                    className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
+                  >
+                    {event.eventName} {event.eventType}
+                  </Link>
+                  <Badge variant={getBadgeVariant(status)}>{status}</Badge>
+                </div>
+                
+                {event.eventDate && (
+                  <div className="flex items-center text-xs text-gray-500">
+                    <CalendarIcon className="h-3 w-3 mr-1" />
+                    {format(new Date(event.eventDate), "dd MMM yyyy")}
+                  </div>
+                )}
+                
+                <div className="text-xs text-gray-500">
+                  Venue: {event.venue}
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>

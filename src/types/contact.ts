@@ -8,12 +8,18 @@ export interface Contact {
   company: string | null;
   vat_number?: string | null;
   contactType: 'wedding-bride' | 'wedding-groom' | 'corporate';
+  address: string | null;
+  events: ContactEvent[];
+}
+
+export interface ContactEvent {
   eventCode: string;
   eventName: string;
   eventDate: string | null;
+  eventType: string;
+  completed?: boolean;
   venue: string;
-  address: string | null;
-  originalData: any; // The original event record with additional fields like related_events and event_types
+  originalData: any;
 }
 
 export interface ContactUpdate {
