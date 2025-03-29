@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useNotifications } from '@/contexts/NotificationContext';
 
-type FilterType = 'all' | 'unread' | 'read';
+export type FilterType = 'all' | 'unread' | 'read';
 
 interface NotificationFiltersProps {
   currentFilter: FilterType;
