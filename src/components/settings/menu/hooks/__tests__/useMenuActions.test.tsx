@@ -88,7 +88,6 @@ describe('useMenuActions', () => {
     expect(supabase.from).toHaveBeenCalledWith('menu_options');
     expect(mockSetOptions).toHaveBeenCalled();
     expect(mockOnSave).toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith('Option added successfully');
     expect(mockSetIsSaving).toHaveBeenCalledTimes(2); // Once to set true, once to set false
   });
 
@@ -103,7 +102,6 @@ describe('useMenuActions', () => {
     expect(supabase.from).toHaveBeenCalledWith('menu_options');
     expect(mockSetOptions).toHaveBeenCalled();
     expect(mockOnSave).toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith('Option updated successfully');
   });
 
   it('should delete option successfully', async () => {
@@ -117,7 +115,6 @@ describe('useMenuActions', () => {
     expect(supabase.from).toHaveBeenCalledWith('menu_options');
     expect(mockSetOptions).toHaveBeenCalled();
     expect(mockOnSave).toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith('Option deleted successfully');
   });
 
   // Test error handling

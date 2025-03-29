@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { MenuOption } from "@/hooks/useMenuOptions";
 import { useMenuFormState } from "./useMenuFormState";
 import { useMenuActions } from "./useMenuActions";
+import { toast } from "@/hooks/use-toast";
 
 export const useMenuOptionsForm = (
   optionsData: MenuOption[],
@@ -27,7 +28,7 @@ export const useMenuOptionsForm = (
     resetEditState
   } = useMenuFormState(optionsData);
 
-  // Use menu form actions
+  // Use menu form actions with props object
   const {
     processingId,
     validateOption,
@@ -66,9 +67,15 @@ export const useMenuOptionsForm = (
       return;
     }
 
-    const success = await createOption(newOption.value, newOption.label);
-    if (success) {
-      resetAddState();
+    try {
+      const success = await createOption(newOption.value, newOption.label);
+      if (success) {
+        toast.success('Option added successfully');
+        resetAddState();
+      }
+    } catch (error: any) {
+      console.error('Error saving new option:', error);
+      toast.error(`Failed to add option: ${error.message}`);
     }
   }, [newOption, validateOption, createOption, resetAddState]);
 
@@ -97,15 +104,27 @@ export const useMenuOptionsForm = (
       return;
     }
 
-    const success = await updateOption(id, editedOption.value, editedOption.label);
-    if (success) {
-      resetEditState();
+    try {
+      const success = await updateOption(id, editedOption.value, editedOption.label);
+      if (success) {
+        toast.success('Option updated successfully');
+        resetEditState();
+      }
+    } catch (error: any) {
+      console.error('Error saving edited option:', error);
+      toast.error(`Failed to update option: ${error.message}`);
     }
   }, [editedOption, validateOption, updateOption, resetEditState]);
 
   // Handler for deleting an option
   const handleDeleteOption = useCallback(async (id: string) => {
-    await deleteOption(id);
+    try {
+      await deleteOption(id);
+      toast.success('Option deleted successfully');
+    } catch (error: any) {
+      console.error('Error deleting option:', error);
+      toast.error(`Failed to delete option: ${error.message}`);
+    }
   }, [deleteOption]);
 
   return {
