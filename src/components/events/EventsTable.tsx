@@ -4,6 +4,8 @@ import { EventMonthGroup } from "./EventMonthGroup";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { CalendarX, Loader2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
   isLoading?: boolean;
@@ -16,6 +18,7 @@ interface EventsTableProps {
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
 }
+
 export const EventsTable: React.FC<EventsTableProps> = ({
   groupedEvents = {},
   isLoading = false,
@@ -60,26 +63,61 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
     return acc;
   }, {} as Record<string, Event[]>) : effectiveGroupedEvents;
+
   if (isDashboard) {
     // Keep the dashboard view unchanged but reduce spacing between cards
-    return <div className="space-y-1.5 pt-2">
-        {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => <EventMonthGroup key={monthYear} monthYear={monthYear} events={monthEvents} handleDelete={handleDelete} isDashboard={true} onDelete={onDelete} />)}
-        {Object.keys(filteredGroupedEvents).length === 0 && <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+    return (
+      <div className="space-y-1.5 pt-2">
+        {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
+          <EventMonthGroup 
+            key={monthYear} 
+            monthYear={monthYear} 
+            events={monthEvents} 
+            handleDelete={handleDelete} 
+            isDashboard={true} 
+            onDelete={onDelete} 
+          />
+        ))}
+        {Object.keys(filteredGroupedEvents).length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
             <p>No upcoming events</p>
-          </div>}
-      </div>;
+          </div>
+        )}
+      </div>
+    );
   }
-  return <ScrollArea className={cn(isDashboard ? "h-auto" : "h-full", className)}>
+
+  return (
+    <ScrollArea className={cn(isDashboard ? "h-auto" : "h-full", className)}>
       <div className="space-y-4 pb-4 bg-transparent">
-        {isLoading ? <div className="flex justify-center py-8">
+        {isLoading ? (
+          <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-          </div> : Object.keys(filteredGroupedEvents).length === 0 ? <div className="flex flex-col items-center justify-center py-16 text-zinc-500 bg-white rounded-lg">
+          </div>
+        ) : Object.keys(filteredGroupedEvents).length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-zinc-500 bg-transparent rounded-lg">
             <CalendarX className="h-12 w-12 mb-3 text-zinc-300" />
             <p className="text-base">No events found</p>
             <p className="text-sm text-zinc-400 mt-1">Create your first event to get started</p>
-          </div> : Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => <EventMonthGroup key={monthYear} monthYear={monthYear} events={monthEvents} handleDelete={handleDelete} isDashboard={isDashboard} onEdit={onEdit} onView={onView} onDelete={onDelete} />)}
+          </div>
+        ) : (
+          Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
+            <EventMonthGroup 
+              key={monthYear} 
+              monthYear={monthYear} 
+              events={monthEvents} 
+              handleDelete={handleDelete} 
+              isDashboard={isDashboard} 
+              onEdit={onEdit} 
+              onView={onView} 
+              onDelete={onDelete} 
+            />
+          ))
+        )}
       </div>
-    </ScrollArea>;
+    </ScrollArea>
+  );
 };
+
 export default EventsTable;
