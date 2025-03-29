@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 type FilterType = 'all' | 'unread' | 'read';
 
@@ -20,9 +21,36 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
   onFilterChange,
   counts
 }) => {
+  const { lastFilterRefresh } = useNotifications();
+  
+  // Force re-render when lastFilterRefresh changes
+  useEffect(() => {
+    if (lastFilterRefresh) {
+      console.log(`NotificationFilters: Detected filter refresh trigger: ${lastFilterRefresh}`);
+      
+      // If we're in the read tab and a notification was just marked as read,
+      // force a filter change to refresh the view
+      if (currentFilter === 'read') {
+        console.log('NotificationFilters: Refreshing "read" tab view');
+        // Switch to 'all' and back to 'read' to force refresh
+        onFilterChange('all');
+        setTimeout(() => onFilterChange('read'), 50);
+      }
+    }
+  }, [lastFilterRefresh, currentFilter, onFilterChange]);
+
+  const handleFilterChange = (value: string) => {
+    console.log(`NotificationFilters: Changing filter to ${value}`);
+    onFilterChange(value as FilterType);
+  };
+
   return (
     <div className="my-4">
-      <Tabs value={currentFilter} onValueChange={(v) => onFilterChange(v as FilterType)} className="w-full">
+      <Tabs 
+        value={currentFilter} 
+        onValueChange={handleFilterChange} 
+        className="w-full"
+      >
         <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="all" className="flex items-center justify-center gap-2">
             All

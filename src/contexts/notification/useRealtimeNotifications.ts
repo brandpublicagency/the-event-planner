@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { formatNotification } from './notificationFormatters';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Notification } from '@/types/notification';
 
 export const useRealtimeNotifications = (
@@ -33,14 +33,28 @@ export const useRealtimeNotifications = (
           try {
             const newNotification = formatNotification(payload.new);
             
-            setNotifications(prev => [newNotification, ...prev]);
-            setUnreadCount(count => count + 1);
+            // Update notifications list with the new notification
+            setNotifications(prev => {
+              // Check if notification already exists to avoid duplicates
+              const exists = prev.some(n => n.id === newNotification.id);
+              if (exists) {
+                console.log(`Notification ${newNotification.id} already exists in state, skipping`);
+                return prev;
+              }
+              
+              console.log(`Adding new notification ${newNotification.id} to state`);
+              return [newNotification, ...prev];
+            });
             
-            // Show toast notification using our unified toast system
+            // Update unread count if the notification is unread
+            if (!newNotification.read) {
+              setUnreadCount(count => count + 1);
+            }
+            
+            // Show toast notification
             toast({
               title: "New notification",
-              description: newNotification.title,
-              variant: "info"
+              description: newNotification.title
             });
           } catch (error) {
             console.error("Error processing realtime notification:", error);
@@ -54,26 +68,38 @@ export const useRealtimeNotifications = (
         }, (payload) => {
           if (!isMountedRef.current) return;
           
-          console.log("Notification updated:", payload);
+          console.log("Notification updated via realtime:", payload);
           
           try {
             const updatedNotification = formatNotification(payload.new);
             
             // Update the notification in the state
-            setNotifications(prev => prev.map(notification => 
-              notification.id === updatedNotification.id ? updatedNotification : notification
-            ));
+            setNotifications(prev => {
+              const updated = prev.map(notification => {
+                if (notification.id === updatedNotification.id) {
+                  console.log(`Updating notification ${updatedNotification.id} in state via realtime`);
+                  return updatedNotification;
+                }
+                return notification;
+              });
+              
+              console.log('Updated notifications state after realtime event');
+              return updated;
+            });
             
             // Update unread count if this notification was marked as read
-            if (payload.new.read && !payload.old.read) {
+            const wasUnread = !payload.old.read;
+            const isNowRead = payload.new.read;
+            
+            if (wasUnread && isNowRead) {
+              console.log(`Notification ${payload.new.id} was marked as read, updating unread count`);
               setUnreadCount(count => Math.max(0, count - 1));
             }
             
-            // After receiving an update event, refresh the notifications list
-            // to ensure proper filtering in the UI
-            console.log("Refreshing notifications after status update");
+            // Force a full refresh to ensure consistent state
+            console.log("Refreshing notifications after realtime update");
             fetchNotifications().catch(err => {
-              console.error("Error refreshing notifications after status update:", err);
+              console.error("Error refreshing notifications after realtime update:", err);
             });
           } catch (error) {
             console.error("Error processing notification update:", error);

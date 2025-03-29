@@ -20,9 +20,10 @@ export type NotificationContextType = {
   unreadCount: number;
   loading: boolean;
   error: Error | null;
-  markAsRead: (id: string) => Promise<void>;
+  markAsRead: (id: string) => Promise<boolean>;
   markAsCompleted: (id: string) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
+  markAllAsRead: () => Promise<boolean>;
   clearNotifications: () => Promise<void>;
   refreshNotifications: () => Promise<void>;
+  lastFilterRefresh?: number;
 };

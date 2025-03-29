@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -22,21 +22,36 @@ const Notifications = () => {
     refreshNotifications,
     loading,
     unreadCount,
-    error
+    error,
+    lastFilterRefresh
   } = useNotifications();
   
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>('all');
+  const [filterKey, setFilterKey] = useState<number>(0);
+  
+  // Update filterKey when lastFilterRefresh changes to force re-filtering
+  useEffect(() => {
+    if (lastFilterRefresh) {
+      console.log(`Notifications page: Filter refresh triggered: ${lastFilterRefresh}`);
+      setFilterKey(prev => prev + 1);
+    }
+  }, [lastFilterRefresh]);
 
   // Filter notifications based on the current filter
-  const filteredNotifications = notifications.filter(notification => {
-    if (currentFilter === 'all') return true;
-    if (currentFilter === 'unread') return !notification.read;
-    if (currentFilter === 'read') return notification.read;
-    return true;
-  });
+  const filteredNotifications = React.useMemo(() => {
+    console.log(`Filtering notifications with key ${filterKey}, filter: ${currentFilter}`);
+    console.log(`Total notifications: ${notifications.length}, Unread: ${notifications.filter(n => !n.read).length}, Read: ${notifications.filter(n => n.read).length}`);
+    
+    return notifications.filter(notification => {
+      if (currentFilter === 'all') return true;
+      if (currentFilter === 'unread') return !notification.read;
+      if (currentFilter === 'read') return notification.read;
+      return true;
+    });
+  }, [notifications, currentFilter, filterKey]);
 
   // Handle refresh button click
   const handleRefresh = useCallback(async (e: React.MouseEvent) => {
@@ -71,60 +86,63 @@ const Notifications = () => {
       console.log("Page viewing notification:", notification.id, "relatedId:", notification.relatedId);
       
       // Mark as read first so the UI updates immediately
-      await markAsRead(notification.id);
+      const success = await markAsRead(notification.id);
       
-      // Force refresh the filtered list after a read operation
-      setTimeout(() => {
-        console.log("Forcing filter refresh after read operation");
-        // This will trigger a re-render with the updated filter
-        setCurrentFilter(prev => {
-          // Setting to the same value forces the filter to refresh
-          return prev;
-        });
-      }, 100);
-      
-      if (notification.relatedId) {
-        console.log(`Page navigating to relatedId: ${notification.relatedId}`);
+      if (success) {
+        console.log(`Successfully marked notification ${notification.id} as read`);
         
-        // For event notifications, use the ID exactly as stored in relatedId
-        if (notification.relatedId.match(/^\d+-\d+$/) || 
-            notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_') ||
-            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
+        // Toast success message
+        toast({
+          title: "Notification marked as read",
+        });
+        
+        // Navigate if we have a relatedId
+        if (notification.relatedId) {
+          console.log(`Page navigating to relatedId: ${notification.relatedId}`);
           
-          // Use the event code exactly as is
-          const eventCode = notification.relatedId;
-          console.log(`Page navigating to event: ${eventCode}`);
-          
-          // Use navigate with location state to avoid the router ignoring same-route clicks
-          if (window.location.pathname === `/events/${eventCode}`) {
-            // If already on the event page, force a refresh
-            window.location.href = `/events/${eventCode}`;
-          } else {
-            navigate(`/events/${eventCode}`);
+          // For event notifications, use the ID exactly as stored in relatedId
+          if (notification.relatedId.match(/^\d+-\d+$/) || 
+              notification.relatedId.startsWith('EVENT-') || 
+              notification.relatedId.startsWith('event_') ||
+              notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
+            
+            // Use the event code exactly as is
+            const eventCode = notification.relatedId;
+            console.log(`Page navigating to event: ${eventCode}`);
+            
+            // Use navigate with location state to avoid the router ignoring same-route clicks
+            if (window.location.pathname === `/events/${eventCode}`) {
+              // If already on the event page, force a refresh
+              window.location.href = `/events/${eventCode}`;
+            } else {
+              navigate(`/events/${eventCode}`);
+            }
+          } 
+          else if (notification.relatedId.startsWith('task_')) {
+            // For task notifications
+            navigate(`/tasks?selected=${notification.relatedId}`);
+          } 
+          else {
+            // For other types of notifications
+            navigate(`/${notification.relatedId}`);
           }
-        } 
-        else if (notification.relatedId.startsWith('task_')) {
-          // For task notifications
-          navigate(`/tasks?selected=${notification.relatedId}`);
-        } 
-        else {
-          // For other types of notifications
-          navigate(`/${notification.relatedId}`);
+        } else {
+          // If no relatedId, just mark as read but don't navigate
+          console.log("No relatedId found in notification");
         }
       } else {
-        // If no relatedId, just mark as read but don't navigate
-        console.log("No relatedId found in notification");
+        console.error("Failed to mark notification as read");
+        toast({
+          title: "Error",
+          description: "Failed to mark notification as read",
+          variant: "destructive",
+        });
       }
-      
-      toast({
-        title: "Notification marked as read",
-      });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error("Error handling notification:", error);
       toast({
         title: "Error",
-        description: "Failed to mark notification as read",
+        description: "Failed to process notification",
         variant: "destructive",
       });
     }
@@ -136,10 +154,19 @@ const Notifications = () => {
     e.stopPropagation();
     
     try {
-      await markAllAsRead();
-      toast({
-        title: "All notifications marked as read",
-      });
+      const success = await markAllAsRead();
+      
+      if (success) {
+        toast({
+          title: "All notifications marked as read",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to mark all as read",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
       toast({

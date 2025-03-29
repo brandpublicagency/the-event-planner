@@ -12,6 +12,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const initialFetchDoneRef = useRef(false);
   const mountedRef = useRef(true);
   const initialFetchTimeoutRef = useRef<number | null>(null);
+  const lastFilterRefreshRef = useRef<number>(Date.now());
 
   const {
     notifications,
@@ -28,6 +29,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Set up cleanup function
   useEffect(() => {
+    console.log("NotificationProvider mounted");
     mountedRef.current = true;
     isMountedRef.current = true;
     
@@ -44,6 +46,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     }
     
     return () => {
+      console.log("NotificationProvider unmounted");
       mountedRef.current = false;
       isMountedRef.current = false;
       
@@ -77,13 +80,48 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   // Update local state when notifications change
   useEffect(() => {
     if (mountedRef.current) {
+      console.log("Updating local state with notifications:", notifications.length);
+      console.log("Unread count:", unreadCount);
+      
       setNotificationsState(notifications);
       setUnreadCountState(unreadCount);
+      
+      // Logging notification read status distribution for debugging
+      const readCount = notifications.filter(n => n.read).length;
+      const unreadCount = notifications.filter(n => !n.read).length;
+      console.log(`Notification status: Read: ${readCount}, Unread: ${unreadCount}, Total: ${notifications.length}`);
     }
   }, [notifications, unreadCount]);
 
   // Set up realtime notifications
   useRealtimeNotifications(isMountedRef, setNotificationsState, setUnreadCountState, fetchNotifications);
+
+  // Expose notification operations with additional debug logging
+  const wrappedMarkAsRead = async (id: string) => {
+    console.log(`NotificationProvider.markAsRead called for id: ${id}`);
+    try {
+      await markAsRead(id);
+      // Force a refresh of the filter views
+      lastFilterRefreshRef.current = Date.now();
+      return true;
+    } catch (error) {
+      console.error("Error in wrappedMarkAsRead:", error);
+      return false;
+    }
+  };
+
+  const wrappedMarkAllAsRead = async () => {
+    console.log("NotificationProvider.markAllAsRead called");
+    try {
+      await markAllAsRead();
+      // Force a refresh of the filter views
+      lastFilterRefreshRef.current = Date.now();
+      return true;
+    } catch (error) {
+      console.error("Error in wrappedMarkAllAsRead:", error);
+      return false;
+    }
+  };
 
   return (
     <NotificationContext.Provider
@@ -92,11 +130,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         unreadCount: unreadCountState,
         loading,
         error,
-        markAsRead,
+        markAsRead: wrappedMarkAsRead,
         markAsCompleted,
-        markAllAsRead,
+        markAllAsRead: wrappedMarkAllAsRead,
         clearNotifications,
         refreshNotifications: fetchNotifications,
+        lastFilterRefresh: lastFilterRefreshRef.current,
       }}
     >
       {children}

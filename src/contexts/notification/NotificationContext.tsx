@@ -8,11 +8,12 @@ export const NotificationContext = createContext<NotificationContextType>({
   unreadCount: 0,
   loading: false,
   error: null,
-  markAsRead: async () => {},
+  markAsRead: async () => false,
   markAsCompleted: async () => {},
-  markAllAsRead: async () => {},
+  markAllAsRead: async () => false,
   clearNotifications: async () => {},
   refreshNotifications: async () => {},
+  lastFilterRefresh: Date.now(),
 });
 
 export const useNotifications = () => useContext(NotificationContext);
