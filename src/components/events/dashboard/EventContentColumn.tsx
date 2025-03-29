@@ -24,7 +24,7 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
         {event.event_type && (
           <span className="line-clamp-1">
             {event.event_type}
-            {event.guest_count ? ` • ${event.guest_count} guests` : ''}
+            {event.pax ? ` • ${event.pax} guests` : ''}
           </span>
         )}
         {venueStr && <span className="line-clamp-1">{venueStr}</span>}
