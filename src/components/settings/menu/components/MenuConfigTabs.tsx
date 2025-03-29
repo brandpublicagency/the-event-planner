@@ -1,12 +1,6 @@
 
 import React, { useState } from "react";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
+import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
 
 interface MenuConfigTabsProps {
   children: React.ReactNode;
@@ -34,11 +28,6 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
           >
             Starters
           </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => setActiveTab("starters")}>
-              Starters
-            </MenubarItem>
-          </MenubarContent>
         </MenubarMenu>
 
         <MenubarMenu>
@@ -48,11 +37,6 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
           >
             Main Courses
           </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => setActiveTab("mains")}>
-              Main Courses
-            </MenubarItem>
-          </MenubarContent>
         </MenubarMenu>
 
         <MenubarMenu>
@@ -62,11 +46,6 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
           >
             Desserts
           </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => setActiveTab("desserts")}>
-              Desserts
-            </MenubarItem>
-          </MenubarContent>
         </MenubarMenu>
 
         <MenubarMenu>
@@ -76,11 +55,6 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
           >
             Other Options
           </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => setActiveTab("others")}>
-              Other Options
-            </MenubarItem>
-          </MenubarContent>
         </MenubarMenu>
       </Menubar>
       
