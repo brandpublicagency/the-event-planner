@@ -83,7 +83,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   }, [notifications, unreadCount]);
 
   // Set up realtime notifications
-  useRealtimeNotifications(isMountedRef, setNotificationsState, setUnreadCountState);
+  useRealtimeNotifications(isMountedRef, setNotificationsState, setUnreadCountState, fetchNotifications);
 
   return (
     <NotificationContext.Provider
