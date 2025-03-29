@@ -9,8 +9,8 @@ interface MenuConfigHeaderProps {
 const MenuConfigHeader: React.FC<MenuConfigHeaderProps> = ({ title }) => {
   return (
     <div className="flex items-center gap-2">
-      <UtensilsCrossed className="h-5 w-5 text-muted-foreground" />
-      <h1 className="text-xl font-medium">{title}</h1>
+      <UtensilsCrossed className="h-5 w-5 text-zinc-500" />
+      <h1 className="text-xl font-medium text-zinc-900">{title}</h1>
     </div>
   );
 };

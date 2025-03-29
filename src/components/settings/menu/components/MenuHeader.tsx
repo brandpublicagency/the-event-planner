@@ -14,10 +14,15 @@ const MenuHeader: React.FC<MenuHeaderProps> = ({ title, description, onAdd, isAd
   return (
     <div className="flex justify-between items-center">
       <div>
-        <h3 className="text-lg font-medium">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h3 className="text-lg font-medium text-zinc-900">{title}</h3>
+        <p className="text-sm text-zinc-500">{description}</p>
       </div>
-      <Button onClick={onAdd} disabled={isAdding} size="sm">
+      <Button 
+        onClick={onAdd} 
+        disabled={isAdding} 
+        size="sm"
+        className="bg-zinc-800 hover:bg-zinc-700 text-white"
+      >
         <PlusCircle className="h-4 w-4 mr-2" />
         Add Item
       </Button>

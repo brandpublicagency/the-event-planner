@@ -23,7 +23,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
       <Menubar className="border-none p-0 bg-transparent">
         <MenubarMenu>
           <MenubarTrigger 
-            className={`${activeTab === "starters" ? "bg-accent text-accent-foreground" : ""}`}
+            className={`${activeTab === "starters" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
             onClick={() => setActiveTab("starters")}
           >
             Starters
@@ -32,7 +32,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
 
         <MenubarMenu>
           <MenubarTrigger 
-            className={`${activeTab === "mains" ? "bg-accent text-accent-foreground" : ""}`}
+            className={`${activeTab === "mains" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
             onClick={() => setActiveTab("mains")}
           >
             Main Courses
@@ -41,7 +41,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
 
         <MenubarMenu>
           <MenubarTrigger 
-            className={`${activeTab === "desserts" ? "bg-accent text-accent-foreground" : ""}`}
+            className={`${activeTab === "desserts" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
             onClick={() => setActiveTab("desserts")}
           >
             Desserts
@@ -50,7 +50,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
 
         <MenubarMenu>
           <MenubarTrigger 
-            className={`${activeTab === "others" ? "bg-accent text-accent-foreground" : ""}`}
+            className={`${activeTab === "others" ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
             onClick={() => setActiveTab("others")}
           >
             Other Options
