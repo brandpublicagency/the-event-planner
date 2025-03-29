@@ -40,22 +40,23 @@ describe('useMenuActions', () => {
   const mockResetEditState = jest.fn();
   const mockSetIsSaving = jest.fn();
 
+  // Create mock props object
+  const mockProps = {
+    options: mockOptions,
+    setOptions: mockSetOptions,
+    category: mockCategory,
+    onSave: mockOnSave,
+    resetAddState: mockResetAddState,
+    resetEditState: mockResetEditState,
+    setIsSaving: mockSetIsSaving
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should validate option correctly', () => {
-    const { result } = renderHook(() => 
-      useMenuActions(
-        mockOptions,
-        mockSetOptions,
-        mockCategory,
-        mockOnSave,
-        mockResetAddState,
-        mockResetEditState,
-        mockSetIsSaving
-      )
-    );
+    const { result } = renderHook(() => useMenuActions(mockProps));
 
     // Missing values
     expect(result.current.validateOption('', 'label', true)).toBe(false);
@@ -77,17 +78,7 @@ describe('useMenuActions', () => {
   });
 
   it('should create option successfully', async () => {
-    const { result } = renderHook(() => 
-      useMenuActions(
-        mockOptions,
-        mockSetOptions,
-        mockCategory,
-        mockOnSave,
-        mockResetAddState,
-        mockResetEditState,
-        mockSetIsSaving
-      )
-    );
+    const { result } = renderHook(() => useMenuActions(mockProps));
 
     await act(async () => {
       const success = await result.current.createOption('new-type', 'New Option');
@@ -102,17 +93,7 @@ describe('useMenuActions', () => {
   });
 
   it('should update option successfully', async () => {
-    const { result } = renderHook(() => 
-      useMenuActions(
-        mockOptions,
-        mockSetOptions,
-        mockCategory,
-        mockOnSave,
-        mockResetAddState,
-        mockResetEditState,
-        mockSetIsSaving
-      )
-    );
+    const { result } = renderHook(() => useMenuActions(mockProps));
 
     await act(async () => {
       const success = await result.current.updateOption('1', 'updated-value', 'Updated Label');
@@ -126,17 +107,7 @@ describe('useMenuActions', () => {
   });
 
   it('should delete option successfully', async () => {
-    const { result } = renderHook(() => 
-      useMenuActions(
-        mockOptions,
-        mockSetOptions,
-        mockCategory,
-        mockOnSave,
-        mockResetAddState,
-        mockResetEditState,
-        mockSetIsSaving
-      )
-    );
+    const { result } = renderHook(() => useMenuActions(mockProps));
 
     await act(async () => {
       const success = await result.current.deleteOption('1');
@@ -163,17 +134,7 @@ describe('useMenuActions', () => {
       delete: jest.fn(),
     } as any));
 
-    const { result } = renderHook(() => 
-      useMenuActions(
-        mockOptions,
-        mockSetOptions,
-        mockCategory,
-        mockOnSave,
-        mockResetAddState,
-        mockResetEditState,
-        mockSetIsSaving
-      )
-    );
+    const { result } = renderHook(() => useMenuActions(mockProps));
 
     await act(async () => {
       const success = await result.current.createOption('new-type', 'New Option');

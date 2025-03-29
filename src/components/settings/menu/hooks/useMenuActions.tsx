@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { 
   createMenuOption, 
@@ -9,7 +10,7 @@ import {
 import { MenuOption } from "@/hooks/useMenuOptions";
 import { toast } from "@/hooks/use-toast";
 
-interface UseMenuActionsProps {
+export interface UseMenuActionsProps {
   options: MenuOption[];
   setOptions: React.Dispatch<React.SetStateAction<MenuOption[]>>;
   category: string;
@@ -19,15 +20,17 @@ interface UseMenuActionsProps {
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const useMenuActions = ({
-  options,
-  setOptions,
-  category,
-  onSave,
-  resetAddState,
-  resetEditState,
-  setIsSaving
-}: UseMenuActionsProps) => {
+export const useMenuActions = (props: UseMenuActionsProps) => {
+  const {
+    options,
+    setOptions,
+    category,
+    onSave,
+    resetAddState,
+    resetEditState,
+    setIsSaving
+  } = props;
+  
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const validateOption = useCallback((value: string, label: string, isNew: boolean, editingId: string | null = null): boolean => {

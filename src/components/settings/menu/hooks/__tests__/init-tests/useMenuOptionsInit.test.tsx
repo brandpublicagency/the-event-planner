@@ -1,4 +1,3 @@
-
 import { renderHook } from '@testing-library/react-hooks';
 import { useMenuOptionsForm } from '../../useMenuOptionsForm';
 import { useMenuFormState } from '../../useMenuFormState';
@@ -61,15 +60,15 @@ describe('Menu Options Initialization Tests', () => {
     );
 
     expect(useMenuFormState).toHaveBeenCalledWith(mockInitialOptions);
-    expect(useMenuActions).toHaveBeenCalledWith(
-      mockInitialOptions,
-      mockMenuFormState.setOptions,
-      mockCategory,
-      mockOnSave,
-      mockMenuFormState.resetAddState,
-      mockMenuFormState.resetEditState,
-      mockMenuFormState.setIsSaving
-    );
+    expect(useMenuActions).toHaveBeenCalledWith({
+      options: mockInitialOptions,
+      setOptions: mockMenuFormState.setOptions,
+      category: mockCategory,
+      onSave: mockOnSave,
+      resetAddState: mockMenuFormState.resetAddState,
+      resetEditState: mockMenuFormState.resetEditState,
+      setIsSaving: mockMenuFormState.setIsSaving
+    });
   });
 
   it('should return all expected properties and methods', () => {

@@ -34,7 +34,7 @@ export const useMenuOptionsForm = (
     createOption,
     updateOption,
     deleteOption
-  } = useMenuActions(
+  } = useMenuActions({
     options,
     setOptions,
     category,
@@ -42,7 +42,7 @@ export const useMenuOptionsForm = (
     resetAddState,
     resetEditState,
     setIsSaving
-  );
+  });
 
   // Handler for adding a new option
   const handleAddOption = useCallback(() => {

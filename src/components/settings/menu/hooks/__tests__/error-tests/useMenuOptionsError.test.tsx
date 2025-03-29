@@ -19,10 +19,11 @@ jest.mock('@/hooks/use-toast', () => ({
   toast: {
     error: jest.fn(),
     success: jest.fn(),
+    warning: jest.fn(),
   },
 }));
 
-describe('Menu Options Error Handling Tests', () => {
+describe('Menu Options Error Tests', () => {
   const mockInitialOptions = [
     { id: '1', value: 'option1', label: 'Option 1', category: 'test' },
     { id: '2', value: 'option2', label: 'Option 2', category: 'test' },
@@ -41,21 +42,21 @@ describe('Menu Options Error Handling Tests', () => {
     setIsSaving: jest.fn(),
     editingId: null,
     setEditingId: jest.fn(),
-    newOption: { value: '', label: '' },
+    newOption: { value: 'new-value', label: 'New Label' },
     setNewOption: jest.fn(),
-    editedOption: { value: '', label: '' },
+    editedOption: { value: 'edited-value', label: 'Edited Label' },
     setEditedOption: jest.fn(),
     resetAddState: jest.fn(),
     resetEditState: jest.fn()
   };
 
-  // Mock actions values and functions
+  // Mock actions values and functions for error scenarios
   const mockMenuActions = {
     processingId: null,
     validateOption: jest.fn().mockReturnValue(true),
-    createOption: jest.fn(),
-    updateOption: jest.fn(),
-    deleteOption: jest.fn()
+    createOption: jest.fn().mockRejectedValue(new Error('Failed to create')),
+    updateOption: jest.fn().mockRejectedValue(new Error('Failed to update')),
+    deleteOption: jest.fn().mockRejectedValue(new Error('Failed to delete'))
   };
 
   beforeEach(() => {
