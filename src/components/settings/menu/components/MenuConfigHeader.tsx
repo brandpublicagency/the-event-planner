@@ -1,6 +1,5 @@
 
-import React from "react";
-import { UtensilsCrossed } from "lucide-react";
+import React from 'react';
 
 interface MenuConfigHeaderProps {
   title: string;
@@ -8,9 +7,11 @@ interface MenuConfigHeaderProps {
 
 const MenuConfigHeader: React.FC<MenuConfigHeaderProps> = ({ title }) => {
   return (
-    <div className="flex items-center gap-2">
-      <UtensilsCrossed className="h-5 w-5 text-zinc-500" />
-      <h1 className="text-xl font-medium text-zinc-900">{title}</h1>
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      <p className="text-sm text-muted-foreground mt-1">
+        Configure menu options that will be available for events
+      </p>
     </div>
   );
 };

@@ -38,13 +38,12 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   // Update local state when props change
   useEffect(() => {
     console.log(`MenuSettingsBase: optionsData updated for ${category}:`, optionsData);
-    if (optionsData) {
-      setOptions(optionsData);
-    }
+    setOptions(optionsData || []);
   }, [optionsData, category]);
 
   // Add new option row
   const handleAddOption = useCallback(() => {
+    console.log('Adding new option row');
     setIsAdding(true);
     setNewOption({ value: "", label: "" });
   }, []);
@@ -72,6 +71,12 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
 
     setIsSaving(true);
     try {
+      console.log('Saving new option to database:', {
+        name: newOption.label,
+        type: newOption.value,
+        category
+      });
+      
       // Add to database
       const { data, error } = await supabase
         .from('menu_options')
@@ -83,7 +88,10 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
         })
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
 
       if (!data || data.length === 0) {
         throw new Error('No data returned after insert');
@@ -155,12 +163,17 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
   const handleDeleteOption = useCallback(async (id: string) => {
     try {
       setIsSaving(true);
+      console.log('Deleting option with ID:', id);
+      
       const { error } = await supabase
         .from('menu_options')
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
       
       // Update local state
       setOptions(options.filter(option => option.id !== id));
@@ -204,6 +217,8 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
 
     setIsSaving(true);
     try {
+      console.log('Updating option with ID:', id, 'New values:', editedOption);
+      
       // Update in database
       const { error } = await supabase
         .from('menu_options')
@@ -213,7 +228,10 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
         })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
 
       // Update local state
       setOptions(options.map(option => 
