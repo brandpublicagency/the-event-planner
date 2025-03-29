@@ -6,7 +6,7 @@ import { User, Mail, Phone, Save, Edit, Lock, Info, Loader2 } from "lucide-react
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -123,7 +123,6 @@ const ProfileSection = ({
         <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
           <Mail className="h-5 w-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Email Address</p>
             <p className="text-sm text-muted-foreground">{userEmail || 'Not set'}</p>
           </div>
         </div>
@@ -133,7 +132,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium mb-1">First Name</p>
                 <Input
                   value={editForm.full_name}
                   onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
@@ -146,7 +144,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium mb-1">Surname</p>
                 <Input
                   value={editForm.surname}
                   onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
@@ -159,7 +156,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 border rounded-lg">
               <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium mb-1">Mobile Number</p>
                 <Input
                   value={editForm.mobile}
                   onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
@@ -174,7 +170,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">First Name</p>
                 <p className="text-sm text-muted-foreground">{profile?.full_name || 'Not set'}</p>
               </div>
             </div>
@@ -182,7 +177,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <User className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Surname</p>
                 <p className="text-sm text-muted-foreground">{profile?.surname || 'Not set'}</p>
               </div>
             </div>
@@ -190,7 +184,6 @@ const ProfileSection = ({
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Mobile Number</p>
                 <p className="text-sm text-muted-foreground">{profile?.mobile || 'Not set'}</p>
               </div>
             </div>
@@ -210,15 +203,12 @@ const ProfileSection = ({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">
-                    {!hasPassword ? "New Password" : "Change Password"}
-                  </FormLabel>
                   <div className="flex items-center space-x-3">
                     <Lock className="h-5 w-5 text-muted-foreground" />
                     <FormControl>
                       <Input 
                         type="password" 
-                        placeholder="Enter password" 
+                        placeholder={!hasPassword ? "New Password" : "Change Password"}
                         {...field} 
                       />
                     </FormControl>
@@ -232,13 +222,12 @@ const ProfileSection = ({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
                   <div className="flex items-center space-x-3">
                     <Lock className="h-5 w-5 text-muted-foreground" />
                     <FormControl>
                       <Input 
                         type="password" 
-                        placeholder="Confirm password" 
+                        placeholder="Confirm Password"
                         {...field} 
                       />
                     </FormControl>
