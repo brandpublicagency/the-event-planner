@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 const MenuDessertsSettings = () => {
   const { options, isLoading, saveMenuOptions } = useMenuOptions('dessert');
   
+  console.log("MenuDessertsSettings render - options:", options, "isLoading:", isLoading);
+  
   if (isLoading) {
     return (
       <div className="space-y-4">

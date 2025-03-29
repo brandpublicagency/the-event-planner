@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 const MenuStartersSettings = () => {
   const { options, isLoading, saveMenuOptions } = useMenuOptions('starter');
   
+  console.log("MenuStartersSettings render - options:", options, "isLoading:", isLoading);
+  
   if (isLoading) {
     return (
       <div className="space-y-4">

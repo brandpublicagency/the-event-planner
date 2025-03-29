@@ -15,6 +15,7 @@ interface MenuOptionRowProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onEditChange: (field: "value" | "label", value: string) => void;
+  disabled?: boolean; // Added the missing disabled prop with optional flag
 }
 
 const MenuOptionRow: React.FC<MenuOptionRowProps> = ({
