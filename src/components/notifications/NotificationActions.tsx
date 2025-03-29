@@ -60,7 +60,7 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
       <Button 
         variant="outline" 
         size="sm" 
-        className="h-7 px-2 text-xs font-medium bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 border-gray-800 hover:border-gray-900"
+        className="h-7 px-2 text-xs font-medium bg-white hover:bg-primary/10 text-primary hover:text-primary/80 border-primary/30 hover:border-primary/50"
         onClick={handleViewClick}
       >
         <ExternalLink className="h-3 w-3 mr-1" />

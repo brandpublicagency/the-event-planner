@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -24,6 +25,8 @@ export function NotificationDropdown() {
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dropdownInitialized, setDropdownInitialized] = useState(false);
+  // Use a local state to track the current filter
+  const [currentFilter, setCurrentFilter] = useState<'all' | 'unread'>('unread');
 
   useEffect(() => {
     if (!dropdownInitialized) {
@@ -34,6 +37,11 @@ export function NotificationDropdown() {
       });
     }
   }, [refreshNotifications, dropdownInitialized]);
+
+  // Filter notifications for the dropdown
+  const filteredNotifications = notifications.filter(n => 
+    currentFilter === 'all' ? true : !n.read
+  );
 
   const handleRefresh = useCallback((e: React.MouseEvent) => {
     e.preventDefault();

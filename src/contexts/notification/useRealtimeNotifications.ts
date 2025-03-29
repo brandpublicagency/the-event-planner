@@ -15,10 +15,11 @@ export const useRealtimeNotifications = (
     
     let channel: any;
     
-    // Set up realtime subscription for new notifications
+    // Set up realtime subscription for new notifications and updates
     try {
       channel = supabase
         .channel('public:notifications')
+        // Subscribe to INSERT events for new notifications
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
@@ -42,6 +43,32 @@ export const useRealtimeNotifications = (
             });
           } catch (error) {
             console.error("Error processing realtime notification:", error);
+          }
+        })
+        // Subscribe to UPDATE events for notification status changes
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications'
+        }, (payload) => {
+          if (!isMountedRef.current) return;
+          
+          console.log("Notification updated:", payload);
+          
+          try {
+            const updatedNotification = formatNotification(payload.new);
+            
+            // Update the notification in the state
+            setNotifications(prev => prev.map(notification => 
+              notification.id === updatedNotification.id ? updatedNotification : notification
+            ));
+            
+            // Update unread count if this notification was marked as read
+            if (payload.new.read && !payload.old.read) {
+              setUnreadCount(count => Math.max(0, count - 1));
+            }
+          } catch (error) {
+            console.error("Error processing notification update:", error);
           }
         })
         .subscribe((status) => {

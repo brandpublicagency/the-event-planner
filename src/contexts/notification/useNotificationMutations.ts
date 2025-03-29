@@ -17,6 +17,8 @@ export const useNotificationMutations = ({
   // Mark a notification as read
   const markAsRead = useCallback(async (id: string) => {
     try {
+      console.log('Marking notification as read:', id);
+      
       // Update locally first (optimistic update)
       setNotifications(prev => 
         prev.map(n => n.id === id ? { ...n, read: true, status: "read" } : n)
@@ -30,6 +32,15 @@ export const useNotificationMutations = ({
         .eq('id', id);
         
       if (error) throw error;
+      
+      // The real-time subscription will handle the UI update,
+      // but we'll also wait a bit and refresh to be certain
+      setTimeout(() => {
+        console.log('Refreshing notifications after mark as read');
+        fetchNotifications().catch(err => {
+          console.error('Error refreshing notifications after mark as read:', err);
+        });
+      }, 300);
     } catch (error) {
       console.error('Error marking notification as read:', error);
       // Refresh on error to get correct state
@@ -45,6 +56,8 @@ export const useNotificationMutations = ({
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     try {
+      console.log('Marking all notifications as read');
+      
       // Update locally first
       setNotifications(prev => 
         prev.map(n => ({ ...n, read: true, status: "read" }))
@@ -58,6 +71,15 @@ export const useNotificationMutations = ({
         .eq('read', false);
         
       if (error) throw error;
+      
+      // The real-time subscription will handle the UI update,
+      // but we'll also wait a bit and refresh to be certain
+      setTimeout(() => {
+        console.log('Refreshing notifications after mark all as read');
+        fetchNotifications().catch(err => {
+          console.error('Error refreshing notifications after mark all as read:', err);
+        });
+      }, 300);
     } catch (error) {
       console.error('Error marking all as read:', error);
       fetchNotifications();

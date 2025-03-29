@@ -69,7 +69,19 @@ const Notifications = () => {
     
     try {
       console.log("Page viewing notification:", notification.id, "relatedId:", notification.relatedId);
+      
+      // Mark as read first so the UI updates immediately
       await markAsRead(notification.id);
+      
+      // Force refresh the filtered list after a read operation
+      setTimeout(() => {
+        console.log("Forcing filter refresh after read operation");
+        // This will trigger a re-render with the updated filter
+        setCurrentFilter(prev => {
+          // Setting to the same value forces the filter to refresh
+          return prev;
+        });
+      }, 100);
       
       if (notification.relatedId) {
         console.log(`Page navigating to relatedId: ${notification.relatedId}`);
@@ -158,6 +170,12 @@ const Notifications = () => {
     }
   }, [markAsCompleted, toast]);
 
+  // Handle filter change
+  const handleFilterChange = (filter: FilterType) => {
+    console.log(`Changing filter to: ${filter}`);
+    setCurrentFilter(filter);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header pageTitle="Notifications" />
@@ -174,7 +192,7 @@ const Notifications = () => {
           
           <NotificationFilters
             currentFilter={currentFilter}
-            onFilterChange={setCurrentFilter}
+            onFilterChange={handleFilterChange}
             counts={{
               all: notifications.length,
               unread: unreadCount,
