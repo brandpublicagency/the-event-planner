@@ -1,6 +1,5 @@
 
 import React from "react";
-import { TabsContent } from "@/components/ui/tabs";
 
 interface MenuTabContentProps {
   value: string;
@@ -9,9 +8,9 @@ interface MenuTabContentProps {
 
 const MenuTabContent: React.FC<MenuTabContentProps> = ({ value, children }) => {
   return (
-    <TabsContent value={value}>
+    <div className="mt-2">
       {children}
-    </TabsContent>
+    </div>
   );
 };
 
