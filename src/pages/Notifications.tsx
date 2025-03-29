@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+
+import React, { useCallback, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -8,6 +9,9 @@ import { NotificationHeader } from '@/components/notifications/NotificationHeade
 import { NotificationsList } from '@/components/notifications/NotificationList';
 import { useNavigate } from 'react-router-dom';
 import { Notification } from '@/types/notification';
+import { NotificationFilters } from '@/components/notifications/NotificationFilters';
+
+type FilterType = 'all' | 'unread' | 'read';
 
 const Notifications = () => {
   const {
@@ -24,6 +28,15 @@ const Notifications = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [currentFilter, setCurrentFilter] = useState<FilterType>('all');
+
+  // Filter notifications based on the current filter
+  const filteredNotifications = notifications.filter(notification => {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'unread') return !notification.read;
+    if (currentFilter === 'read') return notification.read;
+    return true;
+  });
 
   // Handle refresh button click
   const handleRefresh = useCallback(async (e: React.MouseEvent) => {
@@ -159,13 +172,23 @@ const Notifications = () => {
             isRefreshing={isRefreshing} 
           />
           
+          <NotificationFilters
+            currentFilter={currentFilter}
+            onFilterChange={setCurrentFilter}
+            counts={{
+              all: notifications.length,
+              unread: unreadCount,
+              read: notifications.length - unreadCount
+            }}
+          />
+          
           <ErrorBoundary 
             FallbackComponent={NotificationErrorFallback} 
             onReset={() => handleRefresh} 
           >
             <div className="mt-4">
               <NotificationsList 
-                notifications={notifications}
+                notifications={filteredNotifications}
                 onViewDetail={handleViewDetail}
                 onCompleteTask={handleCompleteTask}
                 error={error}
