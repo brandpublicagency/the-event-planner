@@ -317,7 +317,7 @@ describe('useMenuOptionsForm', () => {
       update: jest.fn(),
       delete: jest.fn(),
       select: jest.fn(),
-    }));
+    } as any));
 
     const { result, waitForNextUpdate } = renderHook(() => 
       useMenuOptionsForm(mockInitialOptions, mockCategory, mockOnSave)
