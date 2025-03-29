@@ -18,7 +18,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
     .filter(React.isValidElement)
     .map(child => {
       // Add proper type checking before accessing props.value
-      if (React.isValidElement(child) && child.props && 'value' in child.props) {
+      if (React.isValidElement(child) && child.props && typeof child.props === 'object' && 'value' in child.props) {
         return child.props.value;
       }
       return null;
@@ -50,7 +50,7 @@ const MenuConfigTabs: React.FC<MenuConfigTabsProps> = ({
       </TabsList>
       
       {React.Children.map(children, child => {
-        if (React.isValidElement(child) && child.props && 'value' in child.props) {
+        if (React.isValidElement(child) && child.props && typeof child.props === 'object' && 'value' in child.props) {
           return (
             <TabsContent value={child.props.value} key={child.props.value}>
               {child}
