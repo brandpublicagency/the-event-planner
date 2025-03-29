@@ -53,11 +53,11 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center mb-6">
+    <div className="flex flex-col items-center mb-8">
       <div className="relative mb-4 group">
-        <Avatar className="h-24 w-24 border-2 border-white shadow-md cursor-pointer" onClick={handleAvatarClick}>
-          <AvatarImage src={profile?.avatar_url || ''} alt="Profile" />
-          <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+        <Avatar className="h-32 w-32 border-4 border-white shadow-xl cursor-pointer transition-transform duration-300 hover:scale-105" onClick={handleAvatarClick}>
+          <AvatarImage src={profile?.avatar_url || ''} alt="Profile" className="object-cover" />
+          <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-semibold">
             {getInitials() || 'U'}
           </AvatarFallback>
         </Avatar>
@@ -67,9 +67,9 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
           onClick={handleAvatarClick}
         >
           {isUploading ? (
-            <Loader2 className="h-6 w-6 text-white animate-spin" />
+            <Loader2 className="h-8 w-8 text-white animate-spin" />
           ) : (
-            <Camera className="h-6 w-6 text-white" />
+            <Camera className="h-8 w-8 text-white" />
           )}
         </div>
         
@@ -81,8 +81,9 @@ const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
           accept="image/png, image/jpeg, image/webp"
         />
       </div>
-      <h2 className="text-xl font-semibold">{profile?.full_name} {profile?.surname}</h2>
-      <p className="text-sm text-muted-foreground">{profile?.email}</p>
+      <h2 className="text-2xl font-bold">
+        {profile?.full_name} {profile?.surname}
+      </h2>
     </div>
   );
 };
