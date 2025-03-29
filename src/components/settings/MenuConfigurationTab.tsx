@@ -4,36 +4,32 @@ import MenuStartersSettings from "./menu/MenuStartersSettings";
 import MenuMainsSettings from "./menu/MenuMainsSettings";
 import MenuDessertsSettings from "./menu/MenuDessertsSettings";
 import MenuOthersSettings from "./menu/MenuOthersSettings";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UtensilsCrossed } from "lucide-react";
+import MenuConfigTabs from "./menu/components/MenuConfigTabs";
+import MenuTabContent from "./menu/components/MenuTabContent";
+import MenuConfigHeader from "./menu/components/MenuConfigHeader";
 
 const MenuConfigurationTab = () => {
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="starters" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="starters">Starters</TabsTrigger>
-          <TabsTrigger value="mains">Main Courses</TabsTrigger>
-          <TabsTrigger value="desserts">Desserts</TabsTrigger>
-          <TabsTrigger value="others">Other Options</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="starters">
+      <MenuConfigHeader title="Menu Configuration" />
+      
+      <MenuConfigTabs defaultValue="starters">
+        <MenuTabContent value="starters">
           <MenuStartersSettings />
-        </TabsContent>
+        </MenuTabContent>
         
-        <TabsContent value="mains">
+        <MenuTabContent value="mains">
           <MenuMainsSettings />
-        </TabsContent>
+        </MenuTabContent>
         
-        <TabsContent value="desserts">
+        <MenuTabContent value="desserts">
           <MenuDessertsSettings />
-        </TabsContent>
+        </MenuTabContent>
         
-        <TabsContent value="others">
+        <MenuTabContent value="others">
           <MenuOthersSettings />
-        </TabsContent>
-      </Tabs>
+        </MenuTabContent>
+      </MenuConfigTabs>
     </div>
   );
 };
