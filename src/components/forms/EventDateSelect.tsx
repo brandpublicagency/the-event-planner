@@ -18,6 +18,8 @@ export const EventDateSelect = ({
 }: EventDateSelectProps) => {
   // Add state to track the calendar's default month
   const [defaultMonth, setDefaultMonth] = useState<Date | undefined>(undefined);
+  // Add state to control the open/closed state of the popover
+  const [open, setOpen] = useState(false);
   
   // Update defaultMonth when the form value changes
   useEffect(() => {
@@ -30,7 +32,7 @@ export const EventDateSelect = ({
   return <FormField control={form.control} name="event_date" render={({
     field
   }) => <FormItem className="flex flex-col">
-          <Popover>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button variant="outline" className={cn("w-full h-10 px-3 py-2 text-left font-normal rounded-md border border-input bg-background", !field.value && "text-muted-foreground")}>
@@ -48,6 +50,8 @@ export const EventDateSelect = ({
                     const currentDate = field.value ? new Date(field.value) : new Date();
                     date.setHours(currentDate.getHours(), currentDate.getMinutes());
                     field.onChange(date.toISOString());
+                    // Close the popover when a date is selected
+                    setOpen(false);
                   }
                 }} 
                 defaultMonth={defaultMonth}
