@@ -51,7 +51,12 @@ export const useMenuActions = (
       const { data, error } = await supabase
         .from('menu_options')
         .insert([
-          { type: value, name: label, category, price_type: 'standard' }
+          { 
+            type: value, 
+            name: label, 
+            category, 
+            price_type: 'standard'  // Add the required price_type field
+          }
         ])
         .select();
 
