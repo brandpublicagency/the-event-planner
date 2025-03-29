@@ -42,6 +42,16 @@ export const EventInfo = ({
   // Get venue names using the utility function
   const venueNames = getVenueNames(event);
 
+  // Compute formatted date from event directly to ensure it's always current
+  const currentFormattedDate = event.event_date 
+    ? new Date(event.event_date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : 'Date not set';
+
   return (
     <div className="mb-8 event-info-container">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -52,7 +62,7 @@ export const EventInfo = ({
             </h1>
           </div>
           <div className="text-xs font-normal text-zinc-600 bg-transparent px-0 py-0 mx-[2px] my-[3px]">
-            {formattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
+            {currentFormattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
           </div>
         </div>
         

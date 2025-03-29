@@ -26,13 +26,14 @@ const EventDetails = () => {
 
   console.log(`Event Details page with ID: ${id}, using for DB query: ${normalizedId}`);
 
-  // Check if this is a forced refresh
+  // Check if this is a forced refresh or returning from edit
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const forceRefresh = searchParams.get('refresh');
+    const fromEdit = searchParams.get('from') === 'edit';
     
-    if (forceRefresh === 'true') {
-      console.log('Forced refresh detected, refetching event data');
+    if (forceRefresh === 'true' || fromEdit) {
+      console.log('Forced refresh or return from edit detected, refetching event data');
       refetch();
     }
   }, [location.search]);
@@ -103,7 +104,7 @@ const EventDetails = () => {
       }
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 0 // Set to 0 to ensure fresh data on each visit
   });
 
   const handleBackClick = () => {

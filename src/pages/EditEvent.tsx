@@ -102,8 +102,10 @@ const EditEvent = () => {
       
       await updateEvent(id, updateData);
 
+      // Invalidate all relevant queries
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['events', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', id] });
       await queryClient.invalidateQueries({ queryKey: ['passed-events'] });
       await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
 
@@ -112,8 +114,8 @@ const EditEvent = () => {
         description: "Event updated successfully",
       });
 
-      // Always navigate back to the event details page instead of the events list
-      navigate(`/events/${id}`);
+      // Navigate back to event details with parameter indicating we came from edit
+      navigate(`/events/${id}?from=edit`);
     } catch (error: any) {
       console.error('Update error:', error);
       toast({
