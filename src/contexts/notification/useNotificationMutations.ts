@@ -25,7 +25,11 @@ export const useNotificationMutations = ({
         const updated = prev.map(n => {
           if (n.id === id) {
             console.log(`Optimistically updating notification ${id} to read=true`);
-            return { ...n, read: true, status: "read" as NotificationStatus };
+            return { 
+              ...n, 
+              read: true, 
+              status: "read" as NotificationStatus 
+            };
           }
           return n;
         });

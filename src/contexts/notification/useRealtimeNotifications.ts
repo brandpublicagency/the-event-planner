@@ -58,10 +58,8 @@ export const useRealtimeNotifications = ({
               setUnreadCount(count => count + 1);
             }
             
-            // Show toast notification
-            toast.success({
-              description: newNotification.title
-            });
+            // Show toast notification - using the correct format for sonner
+            toast.success(newNotification.title);
           } catch (error) {
             console.error("Error processing realtime notification:", error);
           }
