@@ -1,181 +1,147 @@
-
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useState, useCallback } from 'react';
+import { 
+  createMenuOption, 
+  updateMenuOption, 
+  deleteMenuOption, 
+  transformDbOptionToMenuOption,
+  type MenuOptionFormData
+} from '../services';
 import { MenuOption } from "@/hooks/useMenuOptions";
+import { toast } from "@/hooks/use-toast";
 
-export const useMenuActions = (
-  options: MenuOption[],
-  setOptions: React.Dispatch<React.SetStateAction<MenuOption[]>>,
-  category: string,
-  onSave: (updatedOptions: MenuOption[]) => Promise<boolean>,
-  resetAddState: () => void,
-  resetEditState: () => void,
-  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>
-) => {
+interface UseMenuActionsProps {
+  options: MenuOption[];
+  setOptions: React.Dispatch<React.SetStateAction<MenuOption[]>>;
+  category: string;
+  onSave: (updatedOptions: MenuOption[]) => Promise<boolean>;
+  resetAddState: () => void;
+  resetEditState: () => void;
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const useMenuActions = ({
+  options,
+  setOptions,
+  category,
+  onSave,
+  resetAddState,
+  resetEditState,
+  setIsSaving
+}: UseMenuActionsProps) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // Validation helpers
-  const isValueUnique = (value: string, excludeId?: string): boolean => {
-    return !options.some(opt => 
-      opt.value === value && (!excludeId || opt.id !== excludeId)
-    );
-  };
-
-  const validateOption = (
-    value: string, 
-    label: string, 
-    isNew: boolean, 
-    id?: string
-  ): boolean => {
-    if (!value.trim() || !label.trim()) {
-      toast.error("Both value and label are required");
+  const validateOption = useCallback((value: string, label: string, isNew: boolean, editingId: string | null = null): boolean => {
+    if (!value || !label) {
+      toast.error('Both value and label are required');
       return false;
     }
 
-    if ((isNew || (id && options.find(o => o.id === id)?.value !== value)) 
-        && !isValueUnique(value, id)) {
+    const existingOption = options.find(option => option.value === value && option.id !== editingId);
+    if (existingOption) {
       toast.error(`Option with value "${value}" already exists`);
       return false;
     }
 
     return true;
-  };
+  }, [options, toast]);
 
-  // Create a new menu option
-  const createOption = async (value: string, label: string): Promise<boolean> => {
+  const createOption = useCallback(async (value: string, label: string): Promise<boolean> => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      
-      // Create in Supabase
-      const { data, error } = await supabase
-        .from('menu_options')
-        .insert([
-          { 
-            type: value, 
-            name: label, 
-            category, 
-            price_type: 'standard'  // Add the required price_type field
-          }
-        ])
-        .select();
-
-      if (error) throw error;
-      
-      if (!data || data.length === 0) {
-        throw new Error("No data returned from insert operation");
+      const isValid = validateOption(value, label, true);
+      if (!isValid) {
+        setIsSaving(false);
+        return false;
       }
 
-      // Transform to MenuOption format
-      const newOption: MenuOption = {
-        id: data[0].id,
-        value: data[0].type,
-        label: data[0].name,
-        category: data[0].category
+      const newOptionData: MenuOptionFormData = {
+        name: label,
+        type: value,
+        category: category,
       };
 
-      // Update local state
-      setOptions([...options, newOption]);
-      
-      // Notify success
-      toast.success("Option added successfully");
-      
-      // Notify parent component
-      await onSave([...options, newOption]);
-      
-      return true;
-    } catch (err: any) {
-      console.error("Error creating menu option:", err);
-      toast.error(`Failed to add option: ${err.message}`);
+      const createdOption = await createMenuOption(newOptionData);
+
+      if (createdOption) {
+        setOptions(prevOptions => [...prevOptions, createdOption]);
+        resetAddState();
+        toast.success('Option added successfully');
+        await onSave([...options, createdOption]);
+        return true;
+      } else {
+        toast.error('Failed to add option');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error creating option:', error);
+      toast.error(`Failed to add option: ${error.message}`);
       return false;
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [validateOption, setOptions, category, onSave, resetAddState, setIsSaving, options, toast]);
 
-  // Update an existing menu option
-  const updateOption = async (
-    id: string, 
-    value: string, 
-    label: string
-  ): Promise<boolean> => {
+  const updateOption = useCallback(async (id: string, value: string, label: string): Promise<boolean> => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      setProcessingId(id);
-      
-      // Update in Supabase
-      const { error } = await supabase
-        .from('menu_options')
-        .update({ 
-          type: value, 
-          name: label 
-        })
-        .eq('id', id);
+      const isValid = validateOption(value, label, false, id);
+      if (!isValid) {
+        setIsSaving(false);
+        return false;
+      }
 
-      if (error) throw error;
+      const success = await updateMenuOption(id, { name: label, type: value });
 
-      // Update local state
-      const updatedOptions = options.map(opt => 
-        opt.id === id 
-          ? { ...opt, value, label } 
-          : opt
-      );
-      
-      setOptions(updatedOptions);
-      
-      // Notify success
-      toast.success("Option updated successfully");
-      
-      // Notify parent component
-      await onSave(updatedOptions);
-      
-      return true;
-    } catch (err: any) {
-      console.error("Error updating menu option:", err);
-      toast.error(`Failed to update option: ${err.message}`);
+      if (success) {
+        setOptions(prevOptions =>
+          prevOptions.map(option =>
+            option.id === id ? { ...option, value, label } : option
+          )
+        );
+        resetEditState();
+        toast.success('Option updated successfully');
+        await onSave(options.map(option =>
+          option.id === id ? { ...option, value, label } : option
+        ));
+        return true;
+      } else {
+        toast.error('Failed to update option');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error updating option:', error);
+      toast.error(`Failed to update option: ${error.message}`);
       return false;
     } finally {
       setIsSaving(false);
-      setProcessingId(null);
     }
-  };
+  }, [validateOption, setOptions, onSave, resetEditState, options, setIsSaving, toast]);
 
-  // Delete a menu option
-  const deleteOption = async (id: string): Promise<boolean> => {
+  const deleteOption = useCallback(async (id: string): Promise<boolean> => {
+    setProcessingId(id);
     try {
-      setProcessingId(id);
-      
-      // Delete from Supabase
-      const { error } = await supabase
-        .from('menu_options')
-        .delete()
-        .eq('id', id);
+      const success = await deleteMenuOption(id);
 
-      if (error) throw error;
-
-      // Update local state
-      const filteredOptions = options.filter(opt => opt.id !== id);
-      setOptions(filteredOptions);
-      
-      // Notify success
-      toast.success("Option deleted successfully");
-      
-      // Notify parent component
-      await onSave(filteredOptions);
-      
-      return true;
-    } catch (err: any) {
-      console.error("Error deleting menu option:", err);
-      toast.error(`Failed to delete option: ${err.message}`);
+      if (success) {
+        setOptions(prevOptions => prevOptions.filter(option => option.id !== id));
+        toast.success('Option deleted successfully');
+        await onSave(options.filter(option => option.id !== id));
+        return true;
+      } else {
+        toast.error('Failed to delete option');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error deleting option:', error);
+      toast.error(`Failed to delete option: ${error.message}`);
       return false;
     } finally {
       setProcessingId(null);
     }
-  };
+  }, [setOptions, onSave, options, toast]);
 
   return {
     processingId,
-    isValueUnique,
     validateOption,
     createOption,
     updateOption,
