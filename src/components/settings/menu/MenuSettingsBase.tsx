@@ -1,9 +1,8 @@
+
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Pencil, Trash2, Save } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import MenuHeader from "./components/MenuHeader";
+import MenuOptionsTable from "./components/MenuOptionsTable";
 
 export interface MenuOption {
   id: string;
@@ -156,112 +155,38 @@ const MenuSettingsBase: React.FC<MenuSettingsBaseProps> = ({
     setEditedOption({ value: "", label: "" });
   };
   
+  const handleNewOptionChange = (field: "value" | "label", value: string) => {
+    setNewOption(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleEditChange = (field: "value" | "label", value: string) => {
+    setEditedOption(prev => ({ ...prev, [field]: value }));
+  };
+  
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-medium">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-        <Button onClick={handleAdd} disabled={isAdding} size="sm">
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Item
-        </Button>
-      </div>
+      <MenuHeader 
+        title={title}
+        description={description}
+        onAdd={handleAdd}
+        isAdding={isAdding}
+      />
       
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Value</TableHead>
-            <TableHead>Label</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isAdding && (
-            <TableRow>
-              <TableCell>
-                <Input
-                  value={newOption.value}
-                  onChange={(e) => setNewOption({ ...newOption, value: e.target.value })}
-                  placeholder="Enter value (e.g. 'chicken_breast')"
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  value={newOption.label}
-                  onChange={(e) => setNewOption({ ...newOption, label: e.target.value })}
-                  placeholder="Enter display label"
-                />
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button onClick={handleSaveNew} size="sm" variant="outline">
-                    <Save className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button onClick={handleCancelAdd} size="sm" variant="outline">
-                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          )}
-          
-          {options.map((option) => (
-            <TableRow key={option.id}>
-              <TableCell>
-                {editingId === option.id ? (
-                  <Input
-                    value={editedOption.value}
-                    onChange={(e) => setEditedOption({ ...editedOption, value: e.target.value })}
-                  />
-                ) : (
-                  option.value
-                )}
-              </TableCell>
-              <TableCell>
-                {editingId === option.id ? (
-                  <Input
-                    value={editedOption.label}
-                    onChange={(e) => setEditedOption({ ...editedOption, label: e.target.value })}
-                  />
-                ) : (
-                  option.label
-                )}
-              </TableCell>
-              <TableCell>
-                {editingId === option.id ? (
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveEdit(option.id)} size="sm" variant="outline">
-                      <Save className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button onClick={handleCancelEdit} size="sm" variant="outline">
-                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleEdit(option)} size="sm" variant="outline">
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button onClick={() => handleDelete(option.id)} size="sm" variant="outline">
-                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                    </Button>
-                  </div>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-          
-          {options.length === 0 && !isAdding && (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                No menu items found. Click "Add Item" to create one.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <MenuOptionsTable
+        options={options}
+        isAdding={isAdding}
+        editingId={editingId}
+        newOption={newOption}
+        editedOption={editedOption}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onSaveEdit={handleSaveEdit}
+        onCancelEdit={handleCancelEdit}
+        onSaveNew={handleSaveNew}
+        onCancelAdd={handleCancelAdd}
+        onNewOptionChange={handleNewOptionChange}
+        onEditChange={handleEditChange}
+      />
     </div>
   );
 };
