@@ -4,6 +4,8 @@ import { EventMonthGroup } from "./EventMonthGroup";
 import type { Event } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { CalendarX, Loader2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+
 interface EventsTableProps {
   groupedEvents: Record<string, Event[]>;
   isLoading?: boolean;
@@ -16,6 +18,7 @@ interface EventsTableProps {
   onEdit?: (eventCode: string) => void;
   onView?: (eventCode: string) => void;
 }
+
 export const EventsTable: React.FC<EventsTableProps> = ({
   groupedEvents = {},
   isLoading = false,
@@ -82,4 +85,5 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       </div>
     </ScrollArea>;
 };
+
 export default EventsTable;
