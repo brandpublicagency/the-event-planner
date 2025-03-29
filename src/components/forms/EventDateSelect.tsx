@@ -7,12 +7,26 @@ import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+
 interface EventDateSelectProps {
   form: UseFormReturn<any>;
 }
+
 export const EventDateSelect = ({
   form
 }: EventDateSelectProps) => {
+  // Add state to track the calendar's default month
+  const [defaultMonth, setDefaultMonth] = useState<Date | undefined>(undefined);
+  
+  // Update defaultMonth when the form value changes
+  useEffect(() => {
+    const eventDate = form.watch('event_date');
+    if (eventDate) {
+      setDefaultMonth(new Date(eventDate));
+    }
+  }, [form.watch('event_date')]);
+
   return <FormField control={form.control} name="event_date" render={({
     field
   }) => <FormItem className="flex flex-col">
@@ -26,13 +40,21 @@ export const EventDateSelect = ({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={date => {
-          if (date) {
-            const currentDate = field.value ? new Date(field.value) : new Date();
-            date.setHours(currentDate.getHours(), currentDate.getMinutes());
-            field.onChange(date.toISOString());
-          }
-        }} disabled={date => date < new Date(new Date().setHours(0, 0, 0, 0))} initialFocus className="rounded-md border border-input bg-background" />
+              <Calendar 
+                mode="single" 
+                selected={field.value ? new Date(field.value) : undefined} 
+                onSelect={date => {
+                  if (date) {
+                    const currentDate = field.value ? new Date(field.value) : new Date();
+                    date.setHours(currentDate.getHours(), currentDate.getMinutes());
+                    field.onChange(date.toISOString());
+                  }
+                }} 
+                defaultMonth={defaultMonth}
+                disabled={date => date < new Date(new Date().setHours(0, 0, 0, 0))} 
+                initialFocus 
+                className="rounded-md border border-input bg-background pointer-events-auto" 
+              />
             </PopoverContent>
           </Popover>
           <FormMessage />
