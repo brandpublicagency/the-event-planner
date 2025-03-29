@@ -12,7 +12,7 @@ export const NotificationContext = createContext<NotificationContextType>({
   markAsCompleted: async () => false,
   markAllAsRead: async () => false,
   clearNotifications: async () => {},
-  refreshNotifications: async () => {},
+  refreshNotifications: async () => false, // Changed from Promise<void> to Promise<boolean>
   lastFilterRefresh: Date.now(),
 });
 
