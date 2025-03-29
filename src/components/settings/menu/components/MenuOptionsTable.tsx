@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MenuOption } from "../MenuSettingsBase";
+import { MenuOption } from "@/hooks/useMenuOptions";
 import AddOptionRow from "./AddOptionRow";
 import MenuOptionRow from "./MenuOptionRow";
 import EmptyState from "./EmptyState";
@@ -20,6 +20,7 @@ interface MenuOptionsTableProps {
   onCancelAdd: () => void;
   onNewOptionChange: (field: "value" | "label", value: string) => void;
   onEditChange: (field: "value" | "label", value: string) => void;
+  onAddItem: () => void;
 }
 
 const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
@@ -36,6 +37,7 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
   onCancelAdd,
   onNewOptionChange,
   onEditChange,
+  onAddItem,
 }) => {
   return (
     <Table>
@@ -62,15 +64,21 @@ const MenuOptionsTable: React.FC<MenuOptionsTableProps> = ({
             option={option}
             isEditing={editingId === option.id}
             editedOption={editedOption}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onSaveEdit={onSaveEdit}
+            onEdit={() => onEdit(option)}
+            onDelete={() => onDelete(option.id)}
+            onSaveEdit={() => onSaveEdit(option.id)}
             onCancelEdit={onCancelEdit}
             onEditChange={onEditChange}
           />
         ))}
         
-        {options.length === 0 && !isAdding && <EmptyState />}
+        {options.length === 0 && !isAdding && (
+          <EmptyState 
+            title="No options configured" 
+            description="Add your first menu option to get started" 
+            onAdd={onAddItem} 
+          />
+        )}
       </TableBody>
     </Table>
   );
