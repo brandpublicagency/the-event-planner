@@ -74,62 +74,58 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
   };
 
   return (
-    <div className="pt-6 border-t border-slate-100">
-      <h3 className="text-xl font-semibold text-slate-800 mb-4">
+    <div className="pt-4 border-t">
+      <h3 className="text-lg font-semibold mb-4 flex items-center">
         {!hasPassword ? 'Set Password' : 'Password Settings'}
       </h3>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handlePasswordUpdate)} className="space-y-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-medium text-slate-600">
-                    {!hasPassword ? "New Password" : "Change Password"}
-                  </FormLabel>
-                  <div className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-lg">
-                    <Lock className="h-5 w-5 text-slate-400" />
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Enter password" 
-                        className="border-none focus-visible:ring-0 bg-transparent p-0 h-7"
-                        {...field} 
-                      />
-                    </FormControl>
-                  </div>
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-medium text-slate-600">Confirm Password</FormLabel>
-                  <div className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-lg">
-                    <Lock className="h-5 w-5 text-slate-400" />
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Confirm password" 
-                        className="border-none focus-visible:ring-0 bg-transparent p-0 h-7"
-                        {...field} 
-                      />
-                    </FormControl>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
+        <form onSubmit={form.handleSubmit(handlePasswordUpdate)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {!hasPassword ? "New Password" : "Change Password"}
+                </FormLabel>
+                <div className="flex items-center space-x-3">
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                  <FormControl>
+                    <Input 
+                      type="password" 
+                      placeholder="Enter password" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
+                <div className="flex items-center space-x-3">
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                  <FormControl>
+                    <Input 
+                      type="password" 
+                      placeholder="Confirm password" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
           
           <Button 
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="w-full mt-2"
             disabled={!form.formState.isDirty || isPasswordLoading}
           >
             {isPasswordLoading ? (
@@ -143,9 +139,9 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
           </Button>
           
           {!hasPassword && (
-            <div className="flex items-start mt-4 p-4 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
+            <div className="flex items-start mt-4 p-3 bg-blue-50 rounded-lg">
               <Info className="h-5 w-5 text-blue-500 mr-3 mt-0.5 shrink-0" />
-              <p className="text-sm">
+              <p className="text-sm text-blue-700">
                 Setting a password will allow you to login with your email and password in the future.
               </p>
             </div>

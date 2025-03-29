@@ -12,10 +12,9 @@ interface ProfileAvatarProps {
     surname?: string | null;
     avatar_url?: string | null;
   } | null;
-  userEmail?: string;
 }
 
-const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
+const ProfileAvatar = ({ profile }: ProfileAvatarProps) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadAvatar, isLoading: isUploading } = useAvatarUpload();
@@ -53,25 +52,18 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const fullName = profile?.full_name && profile?.surname 
-    ? `${profile.full_name} ${profile.surname}`
-    : profile?.full_name || 'User';
-    
   return (
-    <div className="flex items-center mb-2">
-      <div className="relative mr-5">
-        <Avatar 
-          className="h-20 w-20 border-2 border-white shadow-sm cursor-pointer transition-transform duration-300 hover:scale-105" 
-          onClick={handleAvatarClick}
-        >
-          <AvatarImage src={profile?.avatar_url || ''} alt="Profile" className="object-cover" />
-          <AvatarFallback className="bg-primary/90 text-primary-foreground text-xl font-semibold">
+    <div className="flex flex-col items-center mb-6">
+      <div className="relative mb-4 group">
+        <Avatar className="h-24 w-24 border-2 border-white shadow-md cursor-pointer" onClick={handleAvatarClick}>
+          <AvatarImage src={profile?.avatar_url || ''} alt="Profile" />
+          <AvatarFallback className="bg-primary text-primary-foreground text-xl">
             {getInitials() || 'U'}
           </AvatarFallback>
         </Avatar>
         
         <div 
-          className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+          className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           onClick={handleAvatarClick}
         >
           {isUploading ? (
@@ -89,11 +81,8 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
           accept="image/png, image/jpeg, image/webp"
         />
       </div>
-      
-      <div>
-        <h2 className="text-2xl font-semibold text-slate-800">{fullName}</h2>
-        <p className="text-slate-500 text-sm">{userEmail || 'No email available'}</p>
-      </div>
+      <h2 className="text-xl font-semibold">{profile?.full_name} {profile?.surname}</h2>
+      <p className="text-sm text-muted-foreground">{profile?.email}</p>
     </div>
   );
 };
