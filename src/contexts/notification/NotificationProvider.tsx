@@ -106,8 +106,14 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     console.log(`NotificationProvider.markAsRead called for id: ${id}`);
     try {
       const success = await markAsRead(id);
-      // Force a refresh of the filter views
+      
+      // Force a refresh of the filter views with a new timestamp
       lastFilterRefreshRef.current = Date.now();
+      
+      // Log the result of the operation
+      console.log(`markAsRead operation ${success ? 'succeeded' : 'failed'} for notification ${id}`);
+      console.log(`Setting lastFilterRefresh to ${lastFilterRefreshRef.current}`);
+      
       return success;
     } catch (error) {
       console.error("Error in wrappedMarkAsRead:", error);
@@ -119,8 +125,14 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     console.log("NotificationProvider.markAllAsRead called");
     try {
       const success = await markAllAsRead();
-      // Force a refresh of the filter views
+      
+      // Force a refresh of the filter views with a new timestamp
       lastFilterRefreshRef.current = Date.now();
+      
+      // Log the result of the operation
+      console.log(`markAllAsRead operation ${success ? 'succeeded' : 'failed'}`);
+      console.log(`Setting lastFilterRefresh to ${lastFilterRefreshRef.current}`);
+      
       return success;
     } catch (error) {
       console.error("Error in wrappedMarkAllAsRead:", error);
@@ -132,9 +144,27 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     console.log(`NotificationProvider.markAsCompleted called for id: ${id}`);
     try {
       const success = await markAsCompleted(id);
+      
+      // Force a refresh of the filter views
+      lastFilterRefreshRef.current = Date.now();
+      
       return success;
     } catch (error) {
       console.error("Error in wrappedMarkAsCompleted:", error);
+      return false;
+    }
+  };
+
+  // Create a function to explicitly refresh notifications
+  const wrappedRefreshNotifications = async () => {
+    console.log("NotificationProvider.refreshNotifications called");
+    try {
+      await fetchNotifications();
+      // Force filter refresh after fetch
+      lastFilterRefreshRef.current = Date.now();
+      return true;
+    } catch (error) {
+      console.error("Error in wrappedRefreshNotifications:", error);
       return false;
     }
   };
@@ -150,7 +180,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         markAsCompleted: wrappedMarkAsCompleted,
         markAllAsRead: wrappedMarkAllAsRead,
         clearNotifications,
-        refreshNotifications: fetchNotifications,
+        refreshNotifications: wrappedRefreshNotifications,
         lastFilterRefresh: lastFilterRefreshRef.current,
       }}
     >

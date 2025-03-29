@@ -5,15 +5,18 @@ import { Notification } from "@/types/notification";
  * Helper to format notification from database to our type
  */
 export const formatNotification = (data: any): Notification => {
+  // Ensure read status is a boolean
+  const read = data.read === true || data.read === 'true' || data.read === 1;
+  
   return {
     id: data.id,
     title: data.title || formatTitleFromType(data.notification_type),
     description: data.description || `Notification for ${data.event_name || 'event'}`,
     createdAt: new Date(data.created_at || new Date()),
-    read: Boolean(data.read),
+    read: read,
     type: data.notification_type,
     relatedId: data.event_code,
-    status: data.read ? "read" : "sent"
+    status: read ? "read" : "sent"
   };
 };
 

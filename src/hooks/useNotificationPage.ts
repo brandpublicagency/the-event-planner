@@ -36,12 +36,20 @@ export const useNotificationPage = () => {
 
   // Filter notifications based on the current filter
   const filteredNotifications = notifications.filter(notification => {
-    console.log(`Filtering notification ${notification.id}, read=${notification.read}, filter=${currentFilter}`);
     if (currentFilter === 'all') return true;
     if (currentFilter === 'unread') return !notification.read;
     if (currentFilter === 'read') return notification.read;
     return true;
   });
+
+  // Log the filtering results for debugging
+  useEffect(() => {
+    const total = notifications.length;
+    const unread = notifications.filter(n => !n.read).length;
+    const read = notifications.filter(n => n.read).length;
+    console.log(`Notification filtering - Total: ${total}, Unread: ${unread}, Read: ${read}, Current filter: ${currentFilter}`);
+    console.log(`Filtered notifications count: ${filteredNotifications.length}`);
+  }, [notifications, currentFilter, filteredNotifications.length]);
 
   // Handle refresh button click
   const handleRefresh = useCallback(async (e: React.MouseEvent) => {

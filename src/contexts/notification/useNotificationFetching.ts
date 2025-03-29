@@ -50,9 +50,12 @@ export const useNotificationFetching = ({
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching notifications from Supabase:", error);
+          throw error;
+        }
         
-        console.log("Notifications fetched:", data?.length || 0);
+        console.log("Notifications fetched from database:", data?.length || 0);
         
         if (data && data.length > 0) {
           formattedNotifications = data.map(item => {
@@ -73,6 +76,11 @@ export const useNotificationFetching = ({
               };
             }
           });
+
+          // Log the read status distribution for debugging
+          const readCount = formattedNotifications.filter(n => n.read).length;
+          const unreadCount = formattedNotifications.filter(n => !n.read).length;
+          console.log(`Fetched notifications read status: Read: ${readCount}, Unread: ${unreadCount}, Total: ${formattedNotifications.length}`);
         } else {
           // If no data from Supabase, use mock data in development
           if (process.env.NODE_ENV === 'development') {
@@ -96,7 +104,12 @@ export const useNotificationFetching = ({
       // Only update state if component is still mounted
       if (isMountedRef.current) {
         setNotifications(formattedNotifications);
-        setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+        
+        // Calculate unread count
+        const unreadCount = formattedNotifications.filter(n => !n.read).length;
+        setUnreadCount(unreadCount);
+        console.log(`Setting unread count to ${unreadCount}`);
+        
         setError(null);
         fetchAttemptsRef.current = 0; // Reset counter on success
       }

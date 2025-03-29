@@ -100,11 +100,13 @@ export const useRealtimeNotifications = ({
               setUnreadCount(count => Math.max(0, count - 1));
             }
             
-            // Force a full refresh to ensure consistent state
-            console.log("Refreshing notifications after realtime update");
-            fetchNotifications().catch(err => {
-              console.error("Error refreshing notifications after realtime update:", err);
-            });
+            // Force a full refresh to ensure consistent state after a brief delay
+            setTimeout(() => {
+              console.log("Refreshing notifications after realtime update");
+              fetchNotifications().catch(err => {
+                console.error("Error refreshing notifications after realtime update:", err);
+              });
+            }, 500);
           } catch (error) {
             console.error("Error processing notification update:", error);
           }
