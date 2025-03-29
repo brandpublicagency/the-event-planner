@@ -1,6 +1,6 @@
 
 export const platedMainOptions = [
-  { value: 'lamb_shank', label: 'Fall-off-the-bone lamb shank with demi-glace and creamy mashed potato served with crisp broccoli stems and honey-roasted carrots. (+ R 35.00 PP)' },
+  { value: 'lamb_shank', label: 'Fall-off-the-bone lamb shank with demi-glace and creamy mashed potato served with crisp broccoli stems and honey-roasted carrots.' },
   { value: 'beef_cut', label: "Chef's cut of beef, whole green beans and potatoes wedges roasted in duck fat with parmesan & thyme. Served with mushroom or pepper sauce." },
   { value: 'chicken_breast', label: 'Sun-dried tomato & feta-stuffed chicken breast in a basil cream sauce with mediterranean couscous & seasonal roast vegetables.' },
 ];
