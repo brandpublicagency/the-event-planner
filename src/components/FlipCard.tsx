@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,10 @@ interface FlipCardProps {
   front: React.ReactNode;
   back: React.ReactNode;
   onEdit?: () => void;
+  className?: string; // Added className prop
 }
 
-const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
+const FlipCard = ({ front, back, onEdit, className }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleCardClick = () => {
@@ -32,7 +34,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
       >
         <div className="absolute h-full w-full [backface-visibility:hidden]">
           <Card 
-            className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
+            className={`h-full w-full cursor-pointer overflow-hidden rounded-xl ${className || ''}`}
             onClick={handleCardClick}
           >
             {front}
@@ -50,7 +52,7 @@ const FlipCard = ({ front, back, onEdit }: FlipCardProps) => {
         </div>
         <div className="absolute h-full w-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <Card 
-            className="h-full w-full cursor-pointer overflow-hidden rounded-xl"
+            className={`h-full w-full cursor-pointer overflow-hidden rounded-xl ${className || ''}`}
             onClick={handleCardClick}
           >
             <div className="p-6">{back}</div>
