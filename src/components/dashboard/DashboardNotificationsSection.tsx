@@ -1,210 +1,59 @@
-import { useNotifications } from "@/contexts/NotificationContext";
+
+import React from "react";
 import { NotificationsList } from "@/components/notifications/NotificationList";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Check, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Notification } from "@/types/notification";
+import { useDashboardNotifications } from "./notifications/useDashboardNotifications";
+import { NotificationError } from "./notifications/NotificationError";
+import { NotificationLoading } from "./notifications/NotificationLoading";
+import { NotificationEmpty } from "./notifications/NotificationEmpty";
+import { NotificationHeader } from "./notifications/NotificationHeader";
+import { NotificationFooter } from "./notifications/NotificationFooter";
+import { DashboardNotificationsContent } from "./notifications/DashboardNotificationsContent";
 
 const DashboardNotificationsSection = () => {
-  const navigate = useNavigate();
   const {
     notifications,
-    markAsRead,
-    markAsCompleted,
-    markAllAsRead,
-    refreshNotifications,
+    limitedNotifications,
+    unreadCount,
     loading,
-    error
-  } = useNotifications();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [initialLoadAttempted, setInitialLoadAttempted] = useState(false);
-
-  useEffect(() => {
-    if (!initialLoadAttempted) {
-      setInitialLoadAttempted(true);
-      refreshNotifications().catch(err => {
-        console.error('Error refreshing notifications in dashboard:', err);
-      });
-    }
-  }, [refreshNotifications, initialLoadAttempted]);
-
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    refreshNotifications().catch(err => {
-      console.error("Error manually refreshing notifications:", err);
-    }).finally(() => {
-      setIsRefreshing(false);
-    });
-  }, [refreshNotifications]);
-
-  const handleNotificationView = useCallback(async (notification: Notification, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      console.log("Dashboard viewing notification:", notification.id, "relatedId:", notification.relatedId);
-      await markAsRead(notification.id);
-      
-      if (notification.relatedId) {
-        console.log(`Dashboard navigating to: ${notification.relatedId}`);
-        
-        if (notification.relatedId.match(/^\d+-\d+$/) || 
-            notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_') ||
-            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
-          
-          // Use the event code exactly as is
-          const eventCode = notification.relatedId;
-              
-          console.log(`Dashboard notification: navigating to event: ${eventCode}`);
-          
-          if (window.location.pathname === `/events/${eventCode}`) {
-            console.log(`Already on event page ${eventCode}, forcing reload`);
-            window.location.href = `/events/${eventCode}`;
-            return;
-          }
-          
-          console.log(`Navigating to event page ${eventCode}`);
-          navigate(`/events/${eventCode}`);
-        } 
-        else if (notification.relatedId.startsWith('task_')) {
-          console.log(`Navigating to task: ${notification.relatedId}`);
-          navigate(`/tasks?selected=${notification.relatedId}`);
-        } 
-        else {
-          console.log(`Navigating to general path: ${notification.relatedId}`);
-          navigate(`/${notification.relatedId}`);
-        }
-      } else {
-        console.log("No relatedId found in notification, navigating to notifications page");
-        navigate('/notifications');
-      }
-      
-      toast("Notification marked as read");
-    } catch (error) {
-      console.error('Error handling notification click:', error);
-      toast("Could not process notification");
-    }
-  }, [markAsRead, navigate]);
-
-  const handleNotificationComplete = useCallback(async (notification: Notification, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      await markAsCompleted(notification.id);
-      toast("Task marked as complete");
-    } catch (error) {
-      console.error('Error marking notification as completed:', error);
-      toast("Could not complete notification");
-    }
-  }, [markAsCompleted]);
-
-  const handleMarkAllAsRead = useCallback(async () => {
-    try {
-      await markAllAsRead();
-      toast("All notifications marked as read");
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-      toast("Could not mark all notifications as read");
-    }
-  }, [markAllAsRead]);
-
-  const handleViewAllNotifications = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/notifications');
-  }, [navigate]);
+    isRefreshing,
+    error,
+    handleRefresh,
+    handleNotificationView,
+    handleNotificationComplete,
+    handleMarkAllAsRead,
+    handleViewAllNotifications,
+  } = useDashboardNotifications();
 
   if (error) {
-    return (
-      <Alert variant="destructive" className="mt-2 mb-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription className="flex justify-between items-center">
-          <span>There was a problem loading notifications</span>
-          <Button variant="outline" size="sm" onClick={handleRefresh} className="ml-2 h-7">
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Try again
-          </Button>
-        </AlertDescription>
-      </Alert>
-    );
+    return <NotificationError onRefresh={handleRefresh} />;
   }
-
-  const limitedNotifications = notifications.slice(0, 3);
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-100 py-[12px] mt-[15px]">
-        <div className="flex flex-col">
-          <p className="text-lg font-medium text-gray-800">Notifications</p>
-          <p className="text-xs text-muted-foreground">
-            {notifications.filter(n => !n.read).length > 0 ? `You have ${notifications.filter(n => !n.read).length} unread notifications` : 'All caught up!'}
-          </p>
-        </div>
-        <div className="flex gap-1.5">
-          <Button onClick={handleMarkAllAsRead} variant="ghost" size="sm" disabled={!notifications.some(n => !n.read) || loading || isRefreshing} className="h-7 text-xs bg-white rounded-md px-2">
-            <Check className="h-3 w-3 mr-1" />
-            Mark all read
-          </Button>
-          <Button onClick={handleRefresh} variant="ghost" size="sm" disabled={loading || isRefreshing} className="h-7 w-7 p-0 bg-white rounded-md">
-            <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span className="sr-only">Refresh</span>
-          </Button>
-        </div>
-      </div>
+      <NotificationHeader
+        unreadCount={unreadCount}
+        loading={loading}
+        isRefreshing={isRefreshing}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onRefresh={handleRefresh}
+      />
 
-      {loading && notifications.length === 0 || isRefreshing ? (
-        <div className="space-y-2 p-2 bg-white rounded-b-lg shadow-sm">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div key={index} className="flex items-start gap-2 p-2">
-              <Skeleton className="h-7 w-7 rounded-full" />
-              <div className="space-y-1.5 flex-1">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-5/6" />
-              </div>
-            </div>
-          ))}
-        </div>
+      {(loading && notifications.length === 0) || isRefreshing ? (
+        <NotificationLoading />
+      ) : limitedNotifications.length > 0 ? (
+        <DashboardNotificationsContent 
+          notifications={limitedNotifications} 
+          onViewDetail={handleNotificationView} 
+          onCompleteTask={handleNotificationComplete} 
+        />
       ) : (
-        <div className="h-auto mx-0 px-0 py-0 my-2 rounded bg-[#000a0e]/0">
-          {limitedNotifications.length > 0 ? (
-            <NotificationsList 
-              notifications={limitedNotifications} 
-              onViewDetail={handleNotificationView} 
-              onCompleteTask={handleNotificationComplete} 
-              listType="dashboard"
-            />
-          ) : (
-            <div className="bg-white shadow-sm rounded-lg p-3 text-center">
-              <p className="text-sm text-gray-500">
-                {loading ? "Loading notifications..." : "No notifications to display"}
-              </p>
-              <Button variant="ghost" size="sm" onClick={handleRefresh} className="mt-2 h-7">
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Refresh
-              </Button>
-            </div>
-          )}
-        </div>
+        <NotificationEmpty loading={loading} onRefresh={handleRefresh} />
       )}
-      {notifications.length > 3 && (
-        <div className="mt-2 text-right">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleViewAllNotifications} 
-            className="text-xs text-primary hover:bg-primary/5"
-          >
-            <ExternalLink className="h-3 w-3 mr-1" />
-            View all notifications
-          </Button>
-        </div>
-      )}
+
+      <NotificationFooter 
+        hasMoreNotifications={notifications.length > 3} 
+        onViewAllNotifications={handleViewAllNotifications} 
+      />
     </div>
   );
 };
