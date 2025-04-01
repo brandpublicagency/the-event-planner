@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import React, { useEffect, useRef } from 'react';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useNotifications } from '@/contexts/NotificationContext';
 
 export type FilterType = 'all' | 'unread' | 'read';
@@ -22,11 +22,13 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
   counts
 }) => {
   const { lastFilterRefresh } = useNotifications();
+  const lastRefreshRef = useRef<number>(0);
   
   // Force re-render when lastFilterRefresh changes
   useEffect(() => {
-    if (lastFilterRefresh) {
+    if (lastFilterRefresh && lastFilterRefresh > lastRefreshRef.current) {
       console.log(`NotificationFilters: Detected filter refresh trigger: ${lastFilterRefresh}`);
+      lastRefreshRef.current = lastFilterRefresh;
       
       // Force a filter change to refresh the view, especially needed for the read tab
       // This ensures notifications that were just marked as read appear immediately in the right tab

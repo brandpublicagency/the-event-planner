@@ -26,7 +26,7 @@ export const useRealtimeNotifications = ({
     // Set up realtime subscription for new notifications and updates
     try {
       channel = supabase
-        .channel('public:notifications')
+        .channel('notifications-channel')
         // Subscribe to INSERT events for new notifications
         .on('postgres_changes', {
           event: 'INSERT',
@@ -76,41 +76,40 @@ export const useRealtimeNotifications = ({
           
           try {
             const updatedNotification = formatNotification(payload.new);
+            const oldNotification = payload.old;
+            
+            // Check if this is a read status change
+            const wasUnread = !oldNotification.read;
+            const isNowRead = updatedNotification.read;
+            
+            console.log(`Realtime update - Was unread: ${wasUnread}, Now read: ${isNowRead}`);
+            
+            if (wasUnread && isNowRead) {
+              // Update the unread count when a notification is marked as read
+              setUnreadCount(count => Math.max(0, count - 1));
+              console.log(`Notification ${updatedNotification.id} was marked as read, updating unread count`);
+            }
             
             // Update the notification in the state
-            let wasUnread = false;
-            let isNowRead = false;
-            
             setNotifications(prev => {
               const updated = prev.map(notification => {
                 if (notification.id === updatedNotification.id) {
-                  // Check if this notification was previously unread and is now read
-                  wasUnread = !notification.read;
-                  isNowRead = updatedNotification.read;
-                  
-                  console.log(`Updating notification ${updatedNotification.id} in state via realtime. Was unread: ${wasUnread}, Now read: ${isNowRead}`);
+                  console.log(`Updating notification ${updatedNotification.id} in state via realtime`);
                   return updatedNotification;
                 }
                 return notification;
               });
               
-              console.log('Updated notifications state after realtime event');
               return updated;
             });
             
-            // Update unread count if this notification was marked as read
-            if (wasUnread && isNowRead) {
-              console.log(`Notification ${payload.new.id} was marked as read, updating unread count`);
-              setUnreadCount(count => Math.max(0, count - 1));
-            }
-            
-            // Force a full refresh to ensure consistent state after a brief delay
+            // Force a full refresh after a slight delay to ensure consistent state
             setTimeout(() => {
               console.log("Refreshing notifications after realtime update");
               fetchNotifications().catch(err => {
                 console.error("Error refreshing notifications after realtime update:", err);
               });
-            }, 500);
+            }, 300);
           } catch (error) {
             console.error("Error processing notification update:", error);
           }

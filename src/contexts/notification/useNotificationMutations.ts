@@ -20,31 +20,7 @@ export const useNotificationMutations = ({
     try {
       console.log('Marking notification as read:', id);
       
-      // Optimistic update - Update locally first
-      let notificationUpdated = false;
-      setNotifications(prev => {
-        const updated = prev.map(n => {
-          if (n.id === id && !n.read) {
-            console.log(`Optimistically updating notification ${id} to read=true`);
-            notificationUpdated = true;
-            return { 
-              ...n, 
-              read: true, 
-              status: "read" as NotificationStatus 
-            };
-          }
-          return n;
-        });
-        console.log('Updated notifications state after optimistic update:', updated);
-        return updated;
-      });
-      
-      // Only update unread count if we actually updated a notification
-      if (notificationUpdated) {
-        setUnreadCount(count => Math.max(0, count - 1));
-      }
-      
-      // Then update in the database
+      // First update in the database
       const { error, data } = await supabase
         .from('notifications')
         .update({ read: true })
@@ -58,11 +34,36 @@ export const useNotificationMutations = ({
       
       console.log(`Successfully marked notification ${id} as read in database, response:`, data);
       
-      // Force a refresh to ensure filters are correctly applied and database state is synced
-      await fetchNotifications();
+      // After database update succeeds, update the local state
+      let notificationUpdated = false;
+      setNotifications(prev => {
+        const updated = prev.map(n => {
+          if (n.id === id && !n.read) {
+            console.log(`Updating notification ${id} to read=true in local state`);
+            notificationUpdated = true;
+            return { 
+              ...n, 
+              read: true, 
+              status: "read" as NotificationStatus 
+            };
+          }
+          return n;
+        });
+        console.log('Updated notifications state after database update:', updated);
+        return updated;
+      });
       
-      // Log the state after server update
-      console.log('Notification marked as read, refreshed state');
+      // Only update unread count if we actually updated a notification
+      if (notificationUpdated) {
+        setUnreadCount(count => Math.max(0, count - 1));
+      }
+      
+      // Force a refresh after a brief delay to ensure everything is synced
+      setTimeout(() => {
+        fetchNotifications().catch(err => {
+          console.error("Error refreshing notifications after marking as read:", err);
+        });
+      }, 300);
       
       return true;
     } catch (error) {
@@ -110,20 +111,7 @@ export const useNotificationMutations = ({
         return true;
       }
       
-      // Update locally first
-      setNotifications(prev => {
-        const updated = prev.map(n => ({ 
-          ...n, 
-          read: true, 
-          status: "read" as NotificationStatus 
-        }));
-        console.log('Updated all notifications to read=true in local state');
-        return updated;
-      });
-      
-      setUnreadCount(0);
-      
-      // Update in the database
+      // Update in the database first
       const { error, data } = await supabase
         .from('notifications')
         .update({ read: true })
@@ -137,9 +125,25 @@ export const useNotificationMutations = ({
       
       console.log(`Successfully marked ${unreadCount} notifications as read in database, response:`, data);
       
-      // Force a refresh to ensure filters are correctly applied
-      await fetchNotifications();
-      console.log('State refreshed after marking all as read');
+      // After database update succeeds, update the local state
+      setNotifications(prev => {
+        const updated = prev.map(n => ({ 
+          ...n, 
+          read: true, 
+          status: "read" as NotificationStatus 
+        }));
+        console.log('Updated all notifications to read=true in local state');
+        return updated;
+      });
+      
+      setUnreadCount(0);
+      
+      // Force a refresh after a short delay
+      setTimeout(() => {
+        fetchNotifications().catch(err => {
+          console.error("Error refreshing notifications after marking all as read:", err);
+        });
+      }, 300);
       
       return true;
     } catch (error) {
