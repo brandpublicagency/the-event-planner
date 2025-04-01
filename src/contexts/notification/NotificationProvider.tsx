@@ -13,10 +13,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const mountedRef = useRef(true);
   const initialFetchTimeoutRef = useRef<number | null>(null);
   const lastFilterRefreshRef = useRef<number>(Date.now());
+  const lastNotificationUpdateRef = useRef<number>(Date.now());
 
   // Function to trigger filter refresh by updating the timestamp
   const triggerFilterRefresh = useCallback(() => {
     lastFilterRefreshRef.current = Date.now();
+    lastNotificationUpdateRef.current = Date.now();
     console.log(`NotificationProvider: Triggered filter refresh, timestamp: ${lastFilterRefreshRef.current}`);
   }, []);
 
@@ -84,6 +86,23 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       window.clearTimeout(fallbackTimeout);
     };
   }, [loading, notificationsState.length]);
+
+  // Periodic refetch to ensure data consistency
+  useEffect(() => {
+    const refreshInterval = window.setInterval(() => {
+      // Only refresh if the component is mounted and we haven't updated recently
+      if (mountedRef.current && Date.now() - lastNotificationUpdateRef.current > 60000) {
+        console.log("Performing background notification refresh");
+        fetchNotifications().catch(err => {
+          console.error("Error in background notification refresh:", err);
+        });
+      }
+    }, 300000); // Every 5 minutes
+    
+    return () => {
+      window.clearInterval(refreshInterval);
+    };
+  }, [fetchNotifications]);
 
   // Update local state when notifications change
   useEffect(() => {
@@ -168,7 +187,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const wrappedRefreshNotifications = async () => {
     console.log("NotificationProvider.refreshNotifications called");
     try {
-      await fetchNotifications();
+      await fetchNotifications(true); // Force refresh
       // Force filter refresh after fetch
       triggerFilterRefresh();
       return true;

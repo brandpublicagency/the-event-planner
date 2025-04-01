@@ -1,9 +1,9 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { generateForecastFromWeatherData } from '../forecastUtils';
 
-export const useWeatherDataManager = (forcedVisible = false) => {
+export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => {
   const {
     dashboardMessage,
     isLoading,
@@ -13,6 +13,14 @@ export const useWeatherDataManager = (forcedVisible = false) => {
   
   const [forecast, setForecast] = useState<any[]>([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
+  
+  // Function to manually refetch weather data
+  const refetchWeather = useCallback(() => {
+    console.log("Manually refetching weather data");
+    setLastRefreshTime(Date.now());
+    return refetch();
+  }, [refetch]);
   
   // Update current time every minute
   useEffect(() => {
@@ -22,6 +30,14 @@ export const useWeatherDataManager = (forcedVisible = false) => {
     const interval = setInterval(updateTime, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
+  
+  // Refetch when retryCount changes (manual retry)
+  useEffect(() => {
+    if (retryCount > 0) {
+      console.log(`Retrying weather data fetch (attempt ${retryCount})`);
+      refetchWeather();
+    }
+  }, [retryCount, refetchWeather]);
   
   // Refresh weather data every 15 minutes
   useEffect(() => {
@@ -61,7 +77,8 @@ export const useWeatherDataManager = (forcedVisible = false) => {
     high: 25,
     low: 16,
     location: 'Bloemfontein',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    rainChance: Math.floor(Math.random() * 40)
   };
   
   const showWeather = dashboardMessage?.weatherData || forcedVisible;
@@ -73,6 +90,7 @@ export const useWeatherDataManager = (forcedVisible = false) => {
     showWeather,
     isLoading,
     error,
+    refetchWeather,
     currentDateTime
   };
 };

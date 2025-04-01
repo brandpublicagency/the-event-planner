@@ -25,17 +25,29 @@ export const useNotificationFetching = ({
 }: UseNotificationFetchingProps) => {
   const fetchAttemptsRef = useRef(0);
   const maxFetchAttempts = 3;
+  const lastFetchTimeRef = useRef<number>(0);
+  const minTimeBetweenFetches = 2000; // Minimum 2 seconds between fetches
 
-  // Fetch notifications from Supabase
-  const fetchNotifications = useCallback(async () => {
-    // Prevent concurrent refresh requests and additional fetches while loading
+  // Fetch notifications from Supabase with debouncing
+  const fetchNotifications = useCallback(async (force = false) => {
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchTimeRef.current;
+    
+    // Skip if already refreshing
     if (isRefreshingRef.current) {
       console.log("Already refreshing notifications, skipping");
+      return;
+    }
+    
+    // Skip if fetched recently (unless forced)
+    if (!force && timeSinceLastFetch < minTimeBetweenFetches) {
+      console.log(`Skipping fetch, last one was ${timeSinceLastFetch}ms ago`);
       return;
     }
 
     isRefreshingRef.current = true;
     setLoading(true);
+    lastFetchTimeRef.current = now;
     
     try {
       console.log("Fetching notifications...");

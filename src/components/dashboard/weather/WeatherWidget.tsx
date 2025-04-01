@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useHoverStyles } from './hooks/useHoverStyles';
 import { useTimeManager } from './hooks/useTimeManager';
 import { useWeatherDataManager } from './hooks/useWeatherDataManager';
@@ -20,21 +20,30 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   // Manage time states
   const { timeOfDay, currentDateTime } = useTimeManager();
   
+  // Track retry attempts
+  const [retryCount, setRetryCount] = useState(0);
+  
   // Manage weather data
   const {
     forecast,
     weatherData,
     showWeather,
     isLoading,
-    error
-  } = useWeatherDataManager(forcedVisible);
+    error,
+    refetchWeather
+  } = useWeatherDataManager(forcedVisible, retryCount);
+  
+  const handleRetry = useCallback(() => {
+    console.log("Manually retrying weather data fetch");
+    setRetryCount(prev => prev + 1);
+  }, []);
   
   if (isLoading) {
     return <WeatherWidgetLoading />;
   }
   
   if (error) {
-    return <WeatherWidgetError error={error} />;
+    return <WeatherWidgetError error={error} onRetry={handleRetry} />;
   }
   
   if (!showWeather) {

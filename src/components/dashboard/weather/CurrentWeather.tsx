@@ -32,6 +32,9 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
     rainChance: 0
   };
   
+  // Ensure rainChance is a number
+  const rainChance = typeof safeData.rainChance === 'number' ? safeData.rainChance : 0;
+  
   // Determine if it's night time (between 7PM and 6AM)
   const currentHour = new Date().getHours();
   const isNight = currentHour >= 19 || currentHour < 6;
@@ -57,7 +60,7 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
           {/* Rain chance indicator */}
           <div className="flex items-center text-xs text-blue-300 mt-0.5">
             <Droplets className="h-3.5 w-3.5 mr-1" />
-            <span>{safeData.rainChance || 0}% chance of rain</span>
+            <span>{rainChance}% chance of rain</span>
           </div>
         </div>
       </div>

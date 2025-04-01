@@ -9,7 +9,7 @@ interface UseRealtimeNotificationsProps {
   isMountedRef: React.MutableRefObject<boolean>;
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
-  fetchNotifications: () => Promise<void>;
+  fetchNotifications: (force?: boolean) => Promise<void>;
   triggerFilterRefresh: () => void;
 }
 
@@ -23,8 +23,9 @@ export const useRealtimeNotifications = ({
   useEffect(() => {
     console.log("Setting up realtime notification subscription");
     
+    // Create a channel for real-time notifications
     const channel = supabase
-      .channel('notifications-channel')
+      .channel('notifications-realtime')
       // Subscribe to INSERT events for new notifications
       .on('postgres_changes', {
         event: 'INSERT',
@@ -58,6 +59,9 @@ export const useRealtimeNotifications = ({
           
           // Show toast notification - using the correct format for sonner
           toast.success(newNotification.title);
+          
+          // Trigger filter refresh to update UI
+          triggerFilterRefresh();
         } catch (error) {
           console.error("Error processing realtime notification:", error);
         }
@@ -83,10 +87,12 @@ export const useRealtimeNotifications = ({
           console.log(`Realtime update - Was unread: ${wasUnread}, Now read: ${isNowRead}`);
           
           // Update the notification in the state first
+          let updated = false;
           setNotifications(prev => {
             return prev.map(notification => {
               if (notification.id === updatedNotification.id) {
                 console.log(`Updating notification ${updatedNotification.id} in state via realtime`);
+                updated = true;
                 return updatedNotification;
               }
               return notification;
@@ -101,6 +107,12 @@ export const useRealtimeNotifications = ({
             
             // Trigger a filter refresh to ensure UI updates correctly
             triggerFilterRefresh();
+          }
+          
+          // If we didn't find the notification in our state, fetch all to sync
+          if (!updated) {
+            console.log("Updated notification not found in current state, fetching fresh data");
+            fetchNotifications(true);
           }
         } catch (error) {
           console.error("Error processing notification update:", error);
