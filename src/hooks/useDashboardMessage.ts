@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, retryOperation } from "@/integrations/supabase/client";
 
 interface DashboardMessage {
   message: string;
@@ -18,29 +18,32 @@ export const useDashboardMessage = () => {
       try {
         console.log('Fetching dashboard message from edge function');
         
-        // Improved error handling with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-        
-        const { data, error } = await supabase.functions.invoke('generate-dashboard-message', {
-          // Add signal for timeout support
-          abortSignal: controller.signal
+        // Create a timeout promise to abort the request if it takes too long
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout: Edge function took longer than 10 seconds')), 10000);
         });
         
-        clearTimeout(timeoutId);
+        // The actual fetch operation
+        const fetchPromise = retryOperation(async () => {
+          const { data, error } = await supabase.functions.invoke('generate-dashboard-message');
+          
+          if (error) {
+            console.error('Edge function error:', error);
+            throw new Error(error.message || 'Failed to send a request to the Edge Function');
+          }
+          
+          if (!data) {
+            console.error('No data returned from edge function');
+            throw new Error('No data returned from edge function');
+          }
+          
+          console.log('Dashboard message received successfully', data);
+          return data as DashboardMessage;
+        });
         
-        if (error) {
-          console.error('Edge function error:', error);
-          throw new Error(error.message || 'Failed to send a request to the Edge Function');
-        }
+        // Race between timeout and fetch - whichever resolves/rejects first wins
+        return await Promise.race([fetchPromise, timeoutPromise]) as DashboardMessage;
         
-        if (!data) {
-          console.error('No data returned from edge function');
-          throw new Error('No data returned from edge function');
-        }
-        
-        console.log('Dashboard message received successfully', data);
-        return data as DashboardMessage;
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
