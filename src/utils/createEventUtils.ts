@@ -14,27 +14,32 @@ export const createNewEvent = async (data: EventFormData) => {
     console.log("Creating new event with data:", data);
     const eventCode = generateEventCode(data.event_type || 'Event');
     
-    // Create the event with required fields
+    // Normalize empty strings to null for database storage
+    const normalizeField = (value: any) => {
+      if (value === '') return null;
+      return value;
+    };
+    
+    // Create the event with normalized fields
     const eventData = {
       event_code: eventCode,
       name: data.name,
       event_type: data.event_type,
-      event_date: data.event_date || null,
-      start_time: data.start_time || null,
-      end_time: data.end_time || null,
-      description: data.description || null,
-      primary_name: data.primary_name || null,
-      primary_email: data.primary_email || null,
-      primary_phone: data.primary_phone || null,
-      secondary_name: data.secondary_name || null,
-      secondary_email: data.secondary_email || null,
-      secondary_phone: data.secondary_phone || null,
+      event_date: normalizeField(data.event_date),
+      start_time: normalizeField(data.start_time),
+      end_time: normalizeField(data.end_time),
+      description: normalizeField(data.description),
+      primary_name: normalizeField(data.primary_name),
+      primary_email: normalizeField(data.primary_email),
+      primary_phone: normalizeField(data.primary_phone),
+      secondary_name: normalizeField(data.secondary_name),
+      secondary_email: normalizeField(data.secondary_email),
+      secondary_phone: normalizeField(data.secondary_phone),
       pax: data.pax || null,
       venues: Array.isArray(data.venues) ? data.venues : [],
-      company: data.company || null,
-      vat_number: data.vat_number || null,
-      address: data.address || null,
-      // Log the actual data structure being sent to the database
+      company: normalizeField(data.company),
+      vat_number: normalizeField(data.vat_number),
+      address: normalizeField(data.address),
       created_by: null, // Add proper user ID when authentication is implemented
     };
 

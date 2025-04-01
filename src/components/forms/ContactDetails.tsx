@@ -72,7 +72,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           )}
         />
 
-        {/* For all events, including weddings, show secondary contact fields */}
+        {/* Only show secondary contact fields as required for weddings */}
         <FormField
           control={form.control}
           name="secondary_name"
@@ -80,8 +80,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             <FormItem>
               <FormControl>
                 <Input 
-                  placeholder={isWedding ? "Groom's Name" : "Secondary Contact Name"} 
-                  aria-label={isWedding ? "Groom's Name" : "Secondary Contact Name"}
+                  placeholder={isWedding ? "Groom's Name" : "Secondary Contact Name (Optional)"} 
+                  aria-label={isWedding ? "Groom's Name" : "Secondary Contact Name (Optional)"}
                   {...field} 
                   className="bg-white" 
                 />
@@ -98,8 +98,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             <FormItem>
               <FormControl>
                 <Input 
-                  placeholder={isWedding ? "Groom's Email" : "Secondary Contact Email"} 
-                  aria-label={isWedding ? "Groom's Email" : "Secondary Contact Email"}
+                  placeholder={isWedding ? "Groom's Email" : "Secondary Contact Email (Optional)"} 
+                  aria-label={isWedding ? "Groom's Email" : "Secondary Contact Email (Optional)"}
                   type="email"
                   {...field} 
                   className="bg-white" 
@@ -117,8 +117,8 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
             <FormItem>
               <FormControl>
                 <Input 
-                  placeholder={isWedding ? "Groom's Phone" : "Secondary Contact Phone"} 
-                  aria-label={isWedding ? "Groom's Phone" : "Secondary Contact Phone"}
+                  placeholder={isWedding ? "Groom's Phone" : "Secondary Contact Phone (Optional)"} 
+                  aria-label={isWedding ? "Groom's Phone" : "Secondary Contact Phone (Optional)"}
                   type="tel"
                   {...field} 
                   className="bg-white" 

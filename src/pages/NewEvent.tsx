@@ -36,8 +36,23 @@ const NewEvent = () => {
       company: '',
       vat_number: '',
       address: '',
-    }
+    },
+    mode: 'onBlur', // Validate on blur to improve user experience
   });
+
+  // Watch the event type to handle conditional validation
+  const eventType = form.watch('event_type');
+
+  // Set secondary email to empty string when event type changes from Wedding to another type
+  React.useEffect(() => {
+    if (eventType !== 'Wedding') {
+      // For non-wedding events, ensure secondary fields can be empty
+      const currentSecondaryEmail = form.getValues('secondary_email');
+      if (!currentSecondaryEmail) {
+        form.setValue('secondary_email', '');
+      }
+    }
+  }, [eventType, form]);
 
   const handleSubmit = async (data: EventFormData) => {
     try {
@@ -47,6 +62,11 @@ const NewEvent = () => {
       // Make sure venues is always an array
       if (!Array.isArray(data.venues)) {
         data.venues = [];
+      }
+      
+      // For non-wedding events, an empty string in secondary_email should be treated as null
+      if (data.event_type !== 'Wedding' && data.secondary_email === '') {
+        data.secondary_email = null;
       }
       
       const eventCode = await createNewEvent(data);
