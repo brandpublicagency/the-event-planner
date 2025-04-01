@@ -22,40 +22,39 @@ export function useAvatarUpload() {
         throw new Error('File type not supported. Please use JPG, PNG or WebP');
       }
 
+      console.log('Original file type:', fileType);
+      console.log('File name:', file.name);
+
       // Create a unique file path that follows our RLS pattern (userId as folder)
       const fileExt = file.name.split('.').pop()?.toLowerCase();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      // Map file extensions to correct MIME types to ensure correct content type
-      const mimeTypes: Record<string, string> = {
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'png': 'image/png',
-        'webp': 'image/webp'
-      };
+      // IMPORTANT: Explicitly set the content type without any conversion
+      console.log(`Uploading file ${fileName} with type ${fileType}`);
       
-      // Use the mapped MIME type or fallback to the file's type
-      const contentType = fileExt ? mimeTypes[fileExt] || fileType : fileType;
-      
-      console.log('Uploading file with content type:', contentType);
-
-      // Instead of using Blob conversion which might be causing the issue,
-      // upload the file directly but with explicit contentType
-      const { error: uploadError } = await supabase.storage
+      // Simple direct upload with correct content type parameter
+      const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true,
-          contentType: contentType
+          contentType: fileType // Use the file's original detected type
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', data);
 
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      console.log('Public URL:', publicUrl);
 
       // Update user profile with new avatar URL
       const { error: updateError } = await supabase
