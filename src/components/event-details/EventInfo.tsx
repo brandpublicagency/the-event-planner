@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
@@ -29,7 +28,6 @@ export const EventInfo = ({
   onCustomMenuToggle,
   onEditEvent
 }: EventInfoProps) => {
-  // Format the time in 24-hour format (HH:MM)
   const formatTimeDisplay = (timeString: string | null) => {
     if (!timeString) return '';
     return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
@@ -39,10 +37,8 @@ export const EventInfo = ({
   const endTime = formatTimeDisplay(event.end_time);
   const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
 
-  // Get venue names using the utility function
   const venueNames = getVenueNames(event);
 
-  // Compute formatted date from event directly to ensure it's always current
   const currentFormattedDate = event.event_date 
     ? new Date(event.event_date).toLocaleDateString('en-US', {
         weekday: 'long',

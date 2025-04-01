@@ -14,7 +14,10 @@ interface PrintKitchenMenuProps {
 }
 
 // Print button component
-export const PrintKitchenMenu: React.FC<PrintKitchenMenuProps> = ({ event, menuState }) => {
+export const PrintKitchenMenu: React.FC<PrintKitchenMenuProps> = ({ 
+  event, 
+  menuState 
+}) => {
   const { componentRef, onPrintClick } = useKitchenPrintMenu(event);
 
   return (

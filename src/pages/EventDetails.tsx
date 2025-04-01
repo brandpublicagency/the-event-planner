@@ -8,6 +8,7 @@ import { EventDetailsContent } from "@/components/event-details/EventDetailsCont
 import { EventDetailsError } from "@/components/event-details/EventDetailsError";
 import { EventNotFoundHandler } from "@/components/events/event-details/EventNotFoundHandler";
 import { useQuery } from "@tanstack/react-query";
+import { useEventMenu } from "@/hooks/useEventMenu"; // Make sure this import is present
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -107,6 +108,17 @@ const EventDetails = () => {
     staleTime: 0 // Set to 0 to ensure fresh data on each visit
   });
 
+  // Initialize the menu state management - Add this if it's missing
+  const {
+    isCustomMenu,
+    setIsCustomMenu,
+    isSaving,
+    menuState,
+    handleSaveMenu,
+    setSaveMenuFunction,
+    setMenuState
+  } = useEventMenu(id);
+
   const handleBackClick = () => {
     navigate('/events');
   };
@@ -141,7 +153,7 @@ const EventDetails = () => {
   }
 
   // Prepare the formatted date for the event
-  const formattedDate = event.event_date 
+  const formattedDate = event?.event_date 
     ? new Date(event.event_date).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -149,32 +161,46 @@ const EventDetails = () => {
         day: 'numeric'
       })
     : 'Date not set';
-
-  // Create mock data for the missing props required by EventDetailsContent
-  const mockMenuState = null;
-  const isCustomMenu = false;
   
+  // Function to handle custom menu toggle
+  const handleCustomMenuToggle = (checked: boolean) => {
+    setIsCustomMenu(checked);
+  };
+  
+  // Function to handle menu state changes
+  const handleMenuStateChange = (newMenuState: any) => {
+    setMenuState(newMenuState);
+  };
+  
+  // Function to register save function
+  const handleSaveMenuSelections = (saveFn: () => Promise<void>) => {
+    console.log('Save function registered in EventDetails');
+    setSaveMenuFunction(saveFn);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
       <Header 
-        pageTitle={event.name || "Event Details"} 
+        pageTitle={event?.name || "Event Details"} 
         showBackButton 
         onBackButtonClick={handleBackClick} 
       />
-      <EventDetailsContent 
-        event={event}
-        eventId={normalizedId || id || ''}
-        formattedDate={formattedDate}
-        isCustomMenu={isCustomMenu}
-        menuState={mockMenuState}
-        saveMenuFunction={null}
-        isSaving={false}
-        onEditEvent={() => navigate(`/events/${normalizedId || id}/edit`)}
-        onCustomMenuToggle={() => {}}
-        onMenuStateChange={() => {}}
-        onSaveMenuSelections={() => {}}
-        onSaveMenu={async () => {}}
-      />
+      {event && (
+        <EventDetailsContent 
+          event={event}
+          eventId={normalizedId || id || ''}
+          formattedDate={formattedDate}
+          isCustomMenu={isCustomMenu}
+          menuState={menuState}
+          saveMenuFunction={handleSaveMenu}
+          isSaving={isSaving}
+          onEditEvent={() => navigate(`/events/${normalizedId || id}/edit`)}
+          onCustomMenuToggle={handleCustomMenuToggle}
+          onMenuStateChange={handleMenuStateChange}
+          onSaveMenuSelections={handleSaveMenuSelections}
+          onSaveMenu={handleSaveMenu}
+        />
+      )}
     </div>
   );
 };

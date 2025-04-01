@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -21,21 +22,25 @@ export const PrintMenu: React.FC<PrintMenuProps> = ({
     componentRef,
     onPrintClick
   } = usePrintMenu(event);
-  return <>
+
+  return (
+    <>
       <Button onClick={onPrintClick} variant="outline" size="sm" className="print-hide bg-transparent rounded">
         <Printer className="h-4 w-4 mr-2" />
         Print Menu
       </Button>
       <div style={{
-      position: "absolute",
-      left: "-9999px",
-      top: 0,
-      width: "210mm",
-      height: "auto",
-      overflow: "visible" // Ensure content isn't cut off
-    }}>
+        position: "absolute",
+        left: "-9999px",
+        top: 0,
+        width: "210mm",
+        height: "auto",
+        overflow: "visible" // Ensure content isn't cut off
+      }}>
         <MenuContent ref={componentRef} event={event} menuState={menuState} />
       </div>
-    </>;
+    </>
+  );
 };
+
 export default PrintMenu;
