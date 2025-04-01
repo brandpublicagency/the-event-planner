@@ -1,8 +1,5 @@
 
 import { useState } from "react";
-import Uppy from "@uppy/core";
-import Tus from "@uppy/tus";
-import type { UppyFile } from "@uppy/core";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,19 +12,25 @@ export function useReliableFileUpload() {
       setIsLoading(true);
       setProgress(0);
       
-      console.log('Starting reliable upload for:', file.name, 'type:', file.type);
+      console.log('Starting file upload for:', file.name, 'type:', file.type);
       
-      // Create a unique file path
+      // Check that the file is actually an image
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Only image files are supported');
+      }
+      
+      // Create a unique file path with original extension
       const fileExt = file.name.split('.').pop()?.toLowerCase();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
       
-      // Simple direct upload method instead of resumable upload
+      // Upload file directly without trying to parse it as JSON
       const { error: uploadError, data } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type // Explicitly set the content type
         });
 
       if (uploadError) {
@@ -56,7 +59,7 @@ export function useReliableFileUpload() {
       
       toast({
         title: "Upload successful",
-        description: "Your file has been uploaded successfully",
+        description: "Your profile image has been updated",
         variant: "success",
       });
       
@@ -64,7 +67,7 @@ export function useReliableFileUpload() {
       setProgress(100);
       return publicUrl;
     } catch (error: any) {
-      console.error('[Reliable Upload] Error:', error);
+      console.error('[File Upload] Error:', error);
       toast({
         title: "Error uploading file",
         description: error.message || "An error occurred during upload",

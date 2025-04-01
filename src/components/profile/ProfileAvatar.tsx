@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useReliableFileUpload } from "@/hooks/useReliableFileUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface ProfileAvatarProps {
   profile: {
@@ -31,11 +32,34 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
     if (!files || files.length === 0) return;
 
     try {
+      const file = files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file (JPEG, PNG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      if (file.size > MAX_SIZE) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user found');
 
       console.log('Starting avatar upload for user:', user.id);
-      await uploadFile(files[0], user.id);
+      await uploadFile(file, user.id);
       
       // Invalidate all relevant queries to refresh avatar data
       queryClient.invalidateQueries({ queryKey: ['profile'] });
