@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { eventFormSchema } from '@/schemas/eventFormSchema';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { EventFormData } from '@/types/eventForm';
 import EditEventForm from '@/components/forms/EditEventForm';
 import { createNewEvent } from '@/utils/createEventUtils';
@@ -13,7 +13,6 @@ import { createNewEvent } from '@/utils/createEventUtils';
 const NewEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as any,

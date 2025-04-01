@@ -4,30 +4,28 @@ import type { Event } from "@/types/event";
 import { format } from "date-fns";
 import { MapPin, Users, Calendar, Copy } from "lucide-react";
 import { useCopyEventCode } from "../utils/eventCodeUtils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
+
 interface EventContentColumnProps {
   event: Event;
   venueStr: string;
 }
+
 export const EventContentColumn: React.FC<EventContentColumnProps> = ({
   event,
   venueStr
 }) => {
   const copyEventCode = useCopyEventCode();
-  const {
-    toast
-  } = useToast();
 
   // Format the event date if it exists
   const eventDate = event.event_date ? format(new Date(event.event_date), "d MMMM yyyy") : null;
+  
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation();
     copyEventCode(event.event_code, e);
-    toast({
-      description: `Event code ${event.event_code} copied to clipboard`,
-      duration: 2000
-    });
+    toast.success(`Event code ${event.event_code} copied to clipboard`);
   };
+  
   return <div className="flex-1 py-3 px-5">
       <div className="flex items-center">
         <h3 className="text-base font-normal text-gray-800 mb-0.5 line-clamp-1">{event.name}</h3>

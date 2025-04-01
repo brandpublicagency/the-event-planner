@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { updateMenuSelection } from "@/services/menuService";
 import { MenuState, SaveMenuData } from './menuStateTypes';
 import { transformMenuStateToApi } from "@/utils/menu/menuStateTransformers";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast";
 
 export const useMenuSave = (eventCode: string, menuState: MenuState, isInitialized: boolean, setLastSavedState: (state: string) => void) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -14,9 +14,9 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       const error = new Error('Event code is required');
       console.error('Cannot save: Event code is missing');
       toast({
-        variant: "destructive",
         title: "Cannot save menu",
         description: "Missing event code",
+        variant: "destructive",
         id: 'menu-save'
       });
       throw error;
@@ -26,9 +26,9 @@ export const useMenuSave = (eventCode: string, menuState: MenuState, isInitializ
       const error = new Error('Menu state not fully initialized');
       console.error('Cannot save: Menu state not fully initialized');
       toast({
-        variant: "destructive",
         title: "Cannot save menu",
         description: "Menu data not fully loaded",
+        variant: "destructive",
         id: 'menu-save'
       });
       throw error;
