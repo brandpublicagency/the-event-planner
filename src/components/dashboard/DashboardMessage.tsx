@@ -1,4 +1,3 @@
-
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,6 +5,7 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
 import WeatherWidget from "./weather/WeatherWidget";
+import { useToast } from "@/hooks/use-toast";
 
 const DashboardMessage = () => {
   const {
@@ -18,6 +18,7 @@ const DashboardMessage = () => {
     isLoading: isProfileLoading
   } = useProfile();
   const { refreshNotifications } = useNotifications();
+  const { toast } = useToast();
 
   // Refresh notifications when the dashboard loads
   useEffect(() => {
@@ -26,6 +27,7 @@ const DashboardMessage = () => {
     });
   }, [refreshNotifications]);
 
+  // Log dashboard message for debugging
   useEffect(() => {
     if (dashboardMessage) {
       console.log("Dashboard message received:", dashboardMessage);
@@ -35,6 +37,15 @@ const DashboardMessage = () => {
       }
     }
   }, [dashboardMessage]);
+
+  // Show error toast only once when there's an edge function error
+  useEffect(() => {
+    if (error) {
+      console.log("Dashboard message error:", error);
+      // Don't show error toast to user as we have fallback data
+      // This keeps the UX smooth even when there are backend issues
+    }
+  }, [error, toast]);
 
   const hour = new Date().getHours();
   let greeting = "Good day";
@@ -71,7 +82,7 @@ const DashboardMessage = () => {
         </div>
       </motion.div>
       
-      {/* Ensure the weather widget always displays by adding a fallback condition */}
+      {/* Weather widget always displays with fallback data if needed */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

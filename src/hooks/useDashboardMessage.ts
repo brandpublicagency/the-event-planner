@@ -17,7 +17,17 @@ export const useDashboardMessage = () => {
     queryFn: async () => {
       try {
         console.log('Fetching dashboard message from edge function');
-        const { data, error } = await supabase.functions.invoke('generate-dashboard-message');
+        
+        // Improved error handling with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const { data, error } = await supabase.functions.invoke('generate-dashboard-message', {
+          // Add signal for timeout support
+          abortSignal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         
         if (error) {
           console.error('Edge function error:', error);
@@ -45,10 +55,10 @@ export const useDashboardMessage = () => {
         return fallbackMessage;
       }
     },
-    // Refetch more frequently to ensure we get fresh data
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
-    retry: 1, // Only retry once to avoid excessive requests
+    // Refetch less frequently to avoid excessive requests when there are issues
+    staleTime: 5 * 60 * 1000,        // 5 minutes
+    refetchInterval: 10 * 60 * 1000,  // 10 minutes
+    retry: 1,                         // Only retry once to avoid excessive requests
   });
 
   return { 

@@ -12,3 +12,7 @@ verify_jwt = false
 
 [functions.event-contract-webhook]
 verify_jwt = false
+
+[functions.generate-dashboard-message]
+verify_jwt = false
+

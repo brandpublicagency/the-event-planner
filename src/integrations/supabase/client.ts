@@ -18,7 +18,14 @@ const fetchWithTimeout = (url: RequestInfo | URL, options: RequestInit = {}, tim
     
     fetch(url, { ...options, signal })
       .then(resolve)
-      .catch(reject)
+      .catch((error) => {
+        // Provide more context for network errors
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+          reject(new Error('Network connection issue: Unable to reach Supabase servers'));
+        } else {
+          reject(error);
+        }
+      })
       .finally(() => clearTimeout(timeoutId));
   });
 };
