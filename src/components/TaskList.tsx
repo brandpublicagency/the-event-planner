@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
 import { Loader2, AlertCircle, CheckSquare, Plus } from "lucide-react";
@@ -10,7 +9,6 @@ import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
 interface TaskListProps {
   tasks: Task[];
   onTaskSelect: (id: string) => void;
@@ -19,7 +17,6 @@ interface TaskListProps {
   hideHeader?: boolean;
   isDashboard?: boolean;
 }
-
 export function TaskList({
   tasks,
   onTaskSelect,
@@ -38,7 +35,6 @@ export function TaskList({
     error
   } = useTaskContext();
   const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     if (focusNewTaskInput && inputRef.current) {
       setTimeout(() => {
@@ -46,7 +42,6 @@ export function TaskList({
       }, 100);
     }
   }, [focusNewTaskInput]);
-
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
     try {
@@ -60,25 +55,20 @@ export function TaskList({
   };
 
   // If on dashboard, only show upcoming tasks
-  const filteredTasks = isDashboard 
-    ? tasks.filter(task => !task.completed)
-    : tasks.filter(task => {
-        if (activeTab === "upcoming") {
-          return !task.completed;
-        } else {
-          return task.completed;
-        }
-      });
-
+  const filteredTasks = isDashboard ? tasks.filter(task => !task.completed) : tasks.filter(task => {
+    if (activeTab === "upcoming") {
+      return !task.completed;
+    } else {
+      return task.completed;
+    }
+  });
   const upcomingCount = tasks.filter(task => !task.completed).length;
   const completedCount = tasks.filter(task => task.completed).length;
-
   if (isLoading) {
     return <div className="flex items-center justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>;
   }
-
   if (error) {
     return <Alert variant="destructive" className="my-4">
         <AlertCircle className="h-4 w-4" />
@@ -87,69 +77,34 @@ export function TaskList({
         </AlertDescription>
       </Alert>;
   }
-
-  return (
-    <div className="space-y-4">
-      {!hideHeader && (
-        <div 
-          className="flex items-center justify-between p-4 rounded-xl mb-4 relative"
-          style={{ 
-            backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            marginBottom: '15px'
-          }}
-        >
-          <div className="absolute inset-0 bg-white/85 rounded-xl"></div>
+  return <div className="space-y-4">
+      {!hideHeader && <div className="flex items-center justify-between p-4 rounded-xl mb-4 relative" style={{
+      backgroundImage: 'url(https://www.warmkaroo.com/wp-content/uploads/2025/03/WK-Profile.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      marginBottom: '15px'
+    }}>
+          <div className="flex items-center justify-between p-4 py-5 rounded-lg bg-gray-200"></div>
           
           <div className="flex items-center gap-2 relative z-10">
             <CheckSquare className="h-5 w-5 text-zinc-700" />
             <h3 className="text-lg font-medium text-zinc-900">Tasks</h3>
           </div>
 
-          <Button 
-            onClick={() => navigate('/tasks?newTask=true')} 
-            size="sm" 
-            variant="outline" 
-            className="rounded-full relative z-10"
-          >
+          <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="rounded-full relative z-10">
             <Plus className="h-4 w-4 mr-1.5" />
             New Task
           </Button>
-        </div>
-      )}
+        </div>}
       
       {/* Only show tabs if not on dashboard */}
-      {!isDashboard && (
-        <TaskListHeader 
-          upcomingCount={upcomingCount} 
-          completedCount={completedCount}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-      )}
+      {!isDashboard && <TaskListHeader upcomingCount={upcomingCount} completedCount={completedCount} activeTab={activeTab} onTabChange={setActiveTab} />}
       
       <div className="mt-2">
-        <TaskListContent 
-          tasks={filteredTasks} 
-          editingTaskId={editingTaskId} 
-          selectedTaskId={selectedTaskId} 
-          onTaskSelect={onTaskSelect} 
-          onEditStart={id => setEditingTaskId(id)} 
-          onEditCancel={() => setEditingTaskId(null)} 
-          onEditSave={() => setEditingTaskId(null)} 
-        />
+        <TaskListContent tasks={filteredTasks} editingTaskId={editingTaskId} selectedTaskId={selectedTaskId} onTaskSelect={onTaskSelect} onEditStart={id => setEditingTaskId(id)} onEditCancel={() => setEditingTaskId(null)} onEditSave={() => setEditingTaskId(null)} />
       </div>
       
       {/* Only show add task input if on upcoming tab or dashboard */}
-      {(activeTab === "upcoming" || isDashboard) && (
-        <AddTaskInput 
-          value={newTaskTitle} 
-          onChange={setNewTaskTitle} 
-          onSubmit={handleAddTask} 
-          inputRef={inputRef} 
-        />
-      )}
-    </div>
-  );
+      {(activeTab === "upcoming" || isDashboard) && <AddTaskInput value={newTaskTitle} onChange={setNewTaskTitle} onSubmit={handleAddTask} inputRef={inputRef} />}
+    </div>;
 }
