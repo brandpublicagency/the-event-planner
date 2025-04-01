@@ -8,7 +8,7 @@ interface FileActionButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   icon: LucideIcon;
   disabled?: boolean;
-  variant?: "ghost" | "destructive";
+  variant?: "ghost" | "destructive" | "default";
   className?: string;
 }
 
