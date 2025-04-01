@@ -34,6 +34,7 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user found');
 
+      console.log('Starting avatar upload for user:', user.id);
       await uploadFile(files[0], user.id);
       
       // Invalidate all relevant queries to refresh avatar data
