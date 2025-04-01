@@ -38,7 +38,7 @@ export const useEventMenuSave = (eventId: string | undefined, isInitialized: boo
       toast({
         title: "Cannot save menu",
         description: "Save function is not properly registered",
-        variant: "destructive",
+        variant: "destructive", 
         id: 'event-menu-save'
       });
       return Promise.reject(new Error("Save function is not properly registered"));
