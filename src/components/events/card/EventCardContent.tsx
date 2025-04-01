@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { MapPin, Users, Copy, Calendar, Briefcase, Star, Award } from "lucide-react";
@@ -38,9 +39,9 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
             {name}
           </Link>
         </h4>
-        <div className="ml-2 text-[10px] text-zinc-500 flex items-center gap-1 cursor-pointer hover:text-zinc-700" onClick={e => copyEventCode(event_code, e)}>
-          <span className="text-[10px] opacity-70">{event_code}</span>
-          <Copy className="h-2.5 w-2.5 opacity-100" />
+        <div className="ml-2 text-[10px] text-zinc-700 flex items-center gap-0.5 cursor-pointer hover:text-zinc-900" onClick={e => copyEventCode(event_code, e)}>
+          <span className="text-[10px]">{event_code}</span>
+          <Copy className="h-2.5 w-2.5" />
         </div>
       </div>
       

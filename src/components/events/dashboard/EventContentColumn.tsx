@@ -29,9 +29,9 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
   return <div className="flex-1 py-3 px-5">
       <div className="flex items-center">
         <h3 className="text-base font-normal text-gray-800 mb-0.5 line-clamp-1">{event.name}</h3>
-        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-600 transition-colors">
-          <span className="text-xs">{event.event_code}</span>
-          <Copy className="h-3 w-3" />
+        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-0.5 text-[10px] text-zinc-700 hover:text-zinc-900 transition-colors">
+          <span className="text-[10px]">{event.event_code}</span>
+          <Copy className="h-2.5 w-2.5" />
         </button>
       </div>
       <div className="flex items-center flex-wrap gap-x-3 text-xs text-gray-500">
