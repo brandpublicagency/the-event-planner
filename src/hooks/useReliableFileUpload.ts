@@ -40,9 +40,9 @@ export function useReliableFileUpload() {
       
       // Add Tus plugin for resumable uploads
       uppy.use(Tus, {
-        endpoint: `https://${process.env.SUPABASE_PROJECT_ID || 'gqkhnmlytbvklkyktcwt'}.supabase.co/storage/v1/upload/resumable`,
+        endpoint: `https://gqkhnmlytbvklkyktcwt.supabase.co/storage/v1/upload/resumable`,
         headers: {
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdxa2hubWx5dGJ2a2xreWt0Y3d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyMDk1MjYsImV4cCI6MjA0Njc4NTUyNn0.xT3iS1sWyX0pClMadR0CFlyMGlRoiGGAXGu0yuozgZs'}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdxa2hubWx5dGJ2a2xreWt0Y3d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyMDk1MjYsImV4cCI6MjA0Njc4NTUyNn0.xT3iS1sWyX0pClMadR0CFlyMGlRoiGGAXGu0yuozgZs`,
           'x-upsert': 'false'
         },
         chunkSize: 5 * 1024 * 1024, // 5MB chunks
