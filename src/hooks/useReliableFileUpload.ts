@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
+import type { UppyFile } from "@uppy/core";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -45,12 +46,17 @@ export function useReliableFileUpload() {
           'x-upsert': 'false'
         },
         chunkSize: 5 * 1024 * 1024, // 5MB chunks
-        onBeforeRequest: (req) => {
+        // Fixed error: This function needs to return a Promise<void>
+        onBeforeRequest: (req, file) => {
           const url = new URL(req.getURL());
           url.searchParams.set('bucket', bucketName);
           url.searchParams.set('path', filePath);
+          
+          // Fixed error: Use setURL() method instead of returning the request
           req.setURL(url.toString());
-          return req;
+          
+          // Return a Promise<void> as required by the type signature
+          return Promise.resolve();
         }
       });
       
