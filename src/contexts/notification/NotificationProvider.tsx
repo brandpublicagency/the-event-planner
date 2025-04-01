@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { NotificationContext } from "./NotificationContext";
 import { useNotificationOperations } from "./useNotificationOperations";
 import { useRealtimeNotifications } from "./useRealtimeNotifications";
@@ -13,6 +13,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const mountedRef = useRef(true);
   const initialFetchTimeoutRef = useRef<number | null>(null);
   const lastFilterRefreshRef = useRef<number>(Date.now());
+
+  // Function to trigger filter refresh by updating the timestamp
+  const triggerFilterRefresh = useCallback(() => {
+    lastFilterRefreshRef.current = Date.now();
+    console.log(`NotificationProvider: Triggered filter refresh, timestamp: ${lastFilterRefreshRef.current}`);
+  }, []);
 
   const {
     notifications,
@@ -100,7 +106,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     isMountedRef, 
     setNotifications: setNotificationsState, 
     setUnreadCount: setUnreadCountState, 
-    fetchNotifications
+    fetchNotifications,
+    triggerFilterRefresh
   });
 
   // Expose notification operations with additional debug logging
@@ -110,11 +117,11 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const success = await markAsRead(id);
       
       // Force a refresh of the filter views with a new timestamp
-      lastFilterRefreshRef.current = Date.now();
+      triggerFilterRefresh();
       
       // Log the result of the operation
       console.log(`markAsRead operation ${success ? 'succeeded' : 'failed'} for notification ${id}`);
-      console.log(`Setting lastFilterRefresh to ${lastFilterRefreshRef.current}`);
+      console.log(`Current lastFilterRefresh is ${lastFilterRefreshRef.current}`);
       
       return success;
     } catch (error) {
@@ -129,11 +136,11 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const success = await markAllAsRead();
       
       // Force a refresh of the filter views with a new timestamp
-      lastFilterRefreshRef.current = Date.now();
+      triggerFilterRefresh();
       
       // Log the result of the operation
       console.log(`markAllAsRead operation ${success ? 'succeeded' : 'failed'}`);
-      console.log(`Setting lastFilterRefresh to ${lastFilterRefreshRef.current}`);
+      console.log(`Current lastFilterRefresh is ${lastFilterRefreshRef.current}`);
       
       return success;
     } catch (error) {
@@ -148,7 +155,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const success = await markAsCompleted(id);
       
       // Force a refresh of the filter views
-      lastFilterRefreshRef.current = Date.now();
+      triggerFilterRefresh();
       
       return success;
     } catch (error) {
@@ -163,7 +170,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     try {
       await fetchNotifications();
       // Force filter refresh after fetch
-      lastFilterRefreshRef.current = Date.now();
+      triggerFilterRefresh();
       return true;
     } catch (error) {
       console.error("Error in wrappedRefreshNotifications:", error);

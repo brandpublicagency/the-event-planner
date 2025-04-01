@@ -10,13 +10,15 @@ interface UseRealtimeNotificationsProps {
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   fetchNotifications: () => Promise<void>;
+  triggerFilterRefresh: () => void;
 }
 
 export const useRealtimeNotifications = ({
   isMountedRef,
   setNotifications,
   setUnreadCount,
-  fetchNotifications
+  fetchNotifications,
+  triggerFilterRefresh
 }: UseRealtimeNotificationsProps) => {
   useEffect(() => {
     console.log("Setting up realtime notification subscription");
@@ -72,10 +74,10 @@ export const useRealtimeNotifications = ({
         
         try {
           const updatedNotification = formatNotification(payload.new);
-          const oldNotification = payload.old;
+          const oldNotificationData = payload.old;
           
           // Check if this is a read status change
-          const wasUnread = !oldNotification.read;
+          const wasUnread = oldNotificationData && !oldNotificationData.read;
           const isNowRead = updatedNotification.read;
           
           console.log(`Realtime update - Was unread: ${wasUnread}, Now read: ${isNowRead}`);
@@ -96,6 +98,9 @@ export const useRealtimeNotifications = ({
             // Update the unread count when a notification is marked as read
             setUnreadCount(count => Math.max(0, count - 1));
             console.log(`Notification ${updatedNotification.id} was marked as read, updating unread count`);
+            
+            // Trigger a filter refresh to ensure UI updates correctly
+            triggerFilterRefresh();
           }
         } catch (error) {
           console.error("Error processing notification update:", error);
@@ -117,5 +122,5 @@ export const useRealtimeNotifications = ({
         }
       }
     };
-  }, [isMountedRef, setNotifications, setUnreadCount, fetchNotifications]);
+  }, [isMountedRef, setNotifications, setUnreadCount, fetchNotifications, triggerFilterRefresh]);
 };

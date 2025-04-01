@@ -12,6 +12,13 @@ export const useNotificationOperations = () => {
   const [error, setError] = useState<Error | null>(null);
   const isMountedRef = useRef(true);
   const isRefreshingRef = useRef(false);
+  const lastFilterRefreshRef = useRef<number>(Date.now());
+
+  // Function to trigger a filter refresh
+  const triggerFilterRefresh = useCallback(() => {
+    lastFilterRefreshRef.current = Date.now();
+    console.log(`useNotificationOperations: Filter refresh triggered, timestamp: ${lastFilterRefreshRef.current}`);
+  }, []);
 
   // Import functionality from separate hooks
   const { fetchNotifications } = useNotificationFetching({
@@ -31,7 +38,8 @@ export const useNotificationOperations = () => {
   } = useNotificationMutations({
     setNotifications,
     setUnreadCount,
-    fetchNotifications
+    fetchNotifications,
+    triggerFilterRefresh
   });
 
   return {
@@ -45,6 +53,8 @@ export const useNotificationOperations = () => {
     clearNotifications,
     fetchNotifications,
     isMountedRef,
+    lastFilterRefreshRef,
+    triggerFilterRefresh
   };
 };
 
