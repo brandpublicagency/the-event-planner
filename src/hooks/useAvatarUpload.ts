@@ -30,14 +30,12 @@ export function useAvatarUpload() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      // Upload directly using the file object
-      // IMPORTANT: Do not manipulate the file or set contentType manually
-      // Let Supabase handle the file type detection
+      // Try using upsert: false to ensure we're not accidentally overwriting files
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: false
         });
 
       if (uploadError) {
