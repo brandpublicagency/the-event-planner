@@ -40,13 +40,11 @@ export function useAvatarUpload() {
       
       console.log('Uploading file with content type:', contentType);
 
-      // Convert to a Blob with explicit content type
-      const fileBlob = new Blob([await file.arrayBuffer()], { type: contentType });
-      
-      // Upload the blob to Supabase Storage with explicit content type
+      // Instead of using Blob conversion which might be causing the issue,
+      // upload the file directly but with explicit contentType
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, fileBlob, {
+        .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true,
           contentType: contentType
