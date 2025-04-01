@@ -24,23 +24,39 @@ export function useReliableFileUpload() {
       const fileName = `${userId}_${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
       
-      // Important: Do not attempt to process or transform the file in any way
-      // Let the browser's Fetch API handle the binary data correctly
-      const { error: uploadError, data } = await supabase.storage
-        .from(bucketName)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true, // Override any existing file
-          contentType: file.type // Explicitly set the content type
-        });
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
+      // Get active session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session found');
       }
-
-      console.log('Upload successful:', data);
-
+      
+      // Create a FormData object and append the file
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Construct the direct Supabase Storage API URL
+      const supabaseUrl = "https://gqkhnmlytbvklkyktcwt.supabase.co";
+      const apiUrl = `${supabaseUrl}/storage/v1/object/${bucketName}/${filePath}`;
+      
+      // Make a direct fetch request to Supabase Storage REST API
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+          // Do NOT set Content-Type here - browser will set it automatically with FormData
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Supabase REST API error:', errorData);
+        throw new Error(`Upload failed: ${errorData.error || response.statusText}`);
+      }
+      
+      console.log('Upload successful via direct API call');
+      
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
@@ -64,7 +80,6 @@ export function useReliableFileUpload() {
         variant: "success",
       });
       
-      setIsLoading(false);
       setProgress(100);
       return publicUrl;
     } catch (error: any) {
@@ -74,8 +89,9 @@ export function useReliableFileUpload() {
         description: error.message || "An error occurred during upload",
         variant: "destructive",
       });
-      setIsLoading(false);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
