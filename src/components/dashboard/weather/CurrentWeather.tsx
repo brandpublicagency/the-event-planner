@@ -23,7 +23,7 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
   
   // Handle null weather data with default values
   const safeData = weatherData || {
-    temp: 25,
+    temp: 18,
     condition: 'Clear',
     description: 'clear skies',
     location: 'Your Location',

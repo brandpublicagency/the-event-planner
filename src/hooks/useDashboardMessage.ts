@@ -34,7 +34,7 @@ export const useDashboardMessage = () => {
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
-        // Create a fallback message with weather data
+        // Create a fallback message with more realistic weather data
         const fallbackMessage: DashboardMessage = {
           message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
           type: 'default',
@@ -76,21 +76,37 @@ const createFallbackWeatherData = () => {
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
   
-  // Generate a temperature based on time of day
-  let baseTemp = 22; // Default base temperature
+  // Generate a temperature based on time of day and season
+  // More realistic temperature range for Bloemfontein, South Africa
+  let baseTemp = 18; // Default base temperature
   
+  // Get month to adjust for seasons (Southern Hemisphere)
+  const month = currentDate.getMonth(); // 0-11 (Jan-Dec)
+  
+  // Seasonal adjustments
+  if (month >= 11 || month <= 1) { // Summer (Dec-Feb)
+    baseTemp = 22 + Math.floor(Math.random() * 5); // 22-26°C base
+  } else if (month >= 2 && month <= 4) { // Autumn (Mar-May)
+    baseTemp = 15 + Math.floor(Math.random() * 5); // 15-19°C base
+  } else if (month >= 5 && month <= 7) { // Winter (Jun-Aug)
+    baseTemp = 8 + Math.floor(Math.random() * 4); // 8-11°C base
+  } else { // Spring (Sep-Nov)
+    baseTemp = 16 + Math.floor(Math.random() * 6); // 16-21°C base
+  }
+  
+  // Time of day adjustment
   if (currentHour >= 5 && currentHour < 10) {
     // Morning - cooler
-    baseTemp = 18 + Math.floor(Math.random() * 4);
+    baseTemp -= 2;
   } else if (currentHour >= 10 && currentHour < 15) {
     // Midday - warmest
-    baseTemp = 24 + Math.floor(Math.random() * 6);
+    baseTemp += 3;
   } else if (currentHour >= 15 && currentHour < 19) {
     // Afternoon - warm
-    baseTemp = 22 + Math.floor(Math.random() * 5);
+    baseTemp += 1;
   } else {
     // Evening/night - cooler
-    baseTemp = 16 + Math.floor(Math.random() * 5);
+    baseTemp -= 3;
   }
   
   // Generate random humidity and wind speed
@@ -100,6 +116,11 @@ const createFallbackWeatherData = () => {
   // Calculate high and low temperatures
   const highTemp = baseTemp + 2 + Math.floor(Math.random() * 2);
   const lowTemp = baseTemp - 6 - Math.floor(Math.random() * 2);
+  
+  // Calculate rain chance based on season and humidity
+  const rainChance = month >= 11 || month <= 3 
+    ? 15 + Math.floor(Math.random() * 25) // Higher in summer
+    : 5 + Math.floor(Math.random() * 10); // Lower in winter
   
   return {
     date: currentDate.toISOString().split('T')[0],
@@ -113,6 +134,7 @@ const createFallbackWeatherData = () => {
     description: 'cloudy skies',
     icon: currentHour >= 6 && currentHour < 19 ? '02d' : '02n', // Day or night icon
     location: 'Bloemfontein',
-    timestamp: currentDate.toISOString()
+    timestamp: currentDate.toISOString(),
+    rainChance: rainChance
   };
 };

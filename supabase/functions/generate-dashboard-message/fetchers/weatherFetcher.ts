@@ -1,3 +1,4 @@
+
 import { createSupabaseClient } from "../../_shared/supabaseClient.ts";
 import { createFallbackWeatherData } from "../utils/weatherUtils.ts";
 
@@ -153,24 +154,37 @@ function processWeatherData(data) {
     }
   }
   
-  // Calculate high and low temperatures from main temp
-  // In a real API we would get these from a forecast endpoint
-  const currentTemp = Math.round(data.main.temp);
-  const highTemp = Math.round(currentTemp + 2);
-  const lowTemp = Math.round(currentTemp - 7);
+  // Calculate rain chance based on clouds and humidity
+  let rainChance = 0;
+  if (data.clouds && data.main && data.main.humidity) {
+    // Simple algorithm: higher clouds + higher humidity = higher rain chance
+    const cloudCoverage = data.clouds.all || 0; // 0-100%
+    const humidity = data.main.humidity || 50; // 0-100%
+    
+    // Weight clouds and humidity to calculate rain chance
+    rainChance = Math.round((cloudCoverage * 0.6 + humidity * 0.4) / 2);
+    
+    // Adjust based on current conditions
+    if (mainCondition === 'Rain' || mainCondition === 'Drizzle' || mainCondition === 'Thunderstorm') {
+      rainChance = Math.min(100, rainChance + 40); // Much higher if already raining
+    } else if (mainCondition === 'Clear') {
+      rainChance = Math.max(0, rainChance - 30); // Much lower if clear skies
+    }
+  }
   
   return {
     date: new Date().toISOString().split('T')[0],
-    temp: currentTemp,
+    temp: Math.round(data.main.temp),
     feels_like: Math.round(data.main.feels_like),
-    high: highTemp,
-    low: lowTemp,
+    high: Math.round(data.main.temp_max),
+    low: Math.round(data.main.temp_min),
     humidity: data.main.humidity,
     wind_speed: data.wind?.speed || 0,
     condition: data.weather[0].main,
     description: friendlyDescription,
     icon: data.weather[0].icon,
     location: 'Bloemfontein',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    rainChance: rainChance
   };
 }
