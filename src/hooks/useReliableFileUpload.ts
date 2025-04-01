@@ -21,15 +21,16 @@ export function useReliableFileUpload() {
       
       // Create a unique file path with original extension
       const fileExt = file.name.split('.').pop()?.toLowerCase();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const fileName = `${userId}_${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
       
-      // Upload file directly without trying to parse it as JSON
+      // Important: Do not attempt to process or transform the file in any way
+      // Let the browser's Fetch API handle the binary data correctly
       const { error: uploadError, data } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false,
+          upsert: true, // Override any existing file
           contentType: file.type // Explicitly set the content type
         });
 
