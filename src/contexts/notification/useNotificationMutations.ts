@@ -21,25 +21,25 @@ export const useNotificationMutations = ({
       console.log('Marking notification as read:', id);
       
       // First update in the database
-      const { error, data } = await supabase
+      const { error } = await supabase
         .from('notifications')
         .update({ read: true })
-        .eq('id', id)
-        .select();
+        .eq('id', id);
         
       if (error) {
         console.error('Error updating notification in database:', error);
         throw error;
       }
       
-      console.log(`Successfully marked notification ${id} as read in database, response:`, data);
+      console.log(`Successfully marked notification ${id} as read in database`);
       
-      // After database update succeeds, update the local state
+      // After database update succeeds, update the local state optimistically
+      // This will be confirmed by the realtime update
       let notificationUpdated = false;
       setNotifications(prev => {
         const updated = prev.map(n => {
           if (n.id === id && !n.read) {
-            console.log(`Updating notification ${id} to read=true in local state`);
+            console.log(`Optimistically updating notification ${id} to read=true in local state`);
             notificationUpdated = true;
             return { 
               ...n, 
@@ -49,7 +49,6 @@ export const useNotificationMutations = ({
           }
           return n;
         });
-        console.log('Updated notifications state after database update:', updated);
         return updated;
       });
       
@@ -58,17 +57,9 @@ export const useNotificationMutations = ({
         setUnreadCount(count => Math.max(0, count - 1));
       }
       
-      // Force a refresh after a brief delay to ensure everything is synced
-      setTimeout(() => {
-        fetchNotifications().catch(err => {
-          console.error("Error refreshing notifications after marking as read:", err);
-        });
-      }, 300);
-      
       return true;
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      // Refresh on error to get correct state
       toast.error("Failed to mark notification as read");
       await fetchNotifications();
       return false;
@@ -111,21 +102,21 @@ export const useNotificationMutations = ({
         return true;
       }
       
-      // Update in the database first
-      const { error, data } = await supabase
+      // Update in the database
+      const { error } = await supabase
         .from('notifications')
         .update({ read: true })
-        .eq('read', false)
-        .select();
+        .eq('read', false);
           
       if (error) {
         console.error('Error updating all notifications in database:', error);
         throw error;
       }
       
-      console.log(`Successfully marked ${unreadCount} notifications as read in database, response:`, data);
+      console.log(`Successfully marked ${unreadCount} notifications as read in database`);
       
-      // After database update succeeds, update the local state
+      // After database update succeeds, update the local state optimistically
+      // This will be confirmed by the realtime update
       setNotifications(prev => {
         const updated = prev.map(n => ({ 
           ...n, 
@@ -137,13 +128,6 @@ export const useNotificationMutations = ({
       });
       
       setUnreadCount(0);
-      
-      // Force a refresh after a short delay
-      setTimeout(() => {
-        fetchNotifications().catch(err => {
-          console.error("Error refreshing notifications after marking all as read:", err);
-        });
-      }, 300);
       
       return true;
     } catch (error) {
