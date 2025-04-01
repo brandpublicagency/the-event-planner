@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAvatarUpload } from "@/hooks/useAvatarUpload";
+import { useReliableFileUpload } from "@/hooks/useReliableFileUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Loader2 } from "lucide-react";
 
@@ -18,7 +18,7 @@ interface ProfileAvatarProps {
 const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadAvatar, isLoading: isUploading } = useAvatarUpload();
+  const { uploadFile, isLoading: isUploading, progress } = useReliableFileUpload();
 
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
@@ -34,7 +34,7 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user found');
 
-      await uploadAvatar(files[0], user.id);
+      await uploadFile(files[0], user.id);
       
       // Invalidate all relevant queries to refresh avatar data
       queryClient.invalidateQueries({ queryKey: ['profile'] });
@@ -74,7 +74,12 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
           onClick={handleAvatarClick}
         >
           {isUploading ? (
-            <Loader2 className="h-5 w-5 text-white animate-spin" />
+            <div className="flex flex-col items-center">
+              <Loader2 className="h-5 w-5 text-white animate-spin mb-1" />
+              {progress > 0 && (
+                <span className="text-white text-xs">{progress}%</span>
+              )}
+            </div>
           ) : (
             <Camera className="h-5 w-5 text-white" />
           )}
@@ -89,7 +94,6 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
         />
       </div>
       <h2 className="text-lg font-medium">{profile?.full_name} {profile?.surname}</h2>
-      {/* Removed the email display line from here */}
     </div>
   );
 };
