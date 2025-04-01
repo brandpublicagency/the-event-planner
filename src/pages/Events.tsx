@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { useEvents } from "@/hooks/useEvents";
 import { EventsList } from "@/components/events/EventsList";
@@ -17,8 +17,14 @@ const Events = () => {
     confirmDelete,
     isDeleting,
     isPermanentDelete,
-    setIsPermanentDelete
+    setIsPermanentDelete,
+    refetch
   } = useEvents();
+  
+  // Add effect to refetch when component mounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
   
   // Filter events based on search query
   const filteredEvents = Object.entries(groupedUpcomingEvents).reduce(

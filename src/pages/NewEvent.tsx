@@ -9,10 +9,12 @@ import { toast } from '@/hooks/use-toast';
 import { EventFormData } from '@/types/eventForm';
 import EditEventForm from '@/components/forms/EditEventForm';
 import { createNewEvent } from '@/utils/createEventUtils';
+import { useQueryClient } from '@tanstack/react-query';
 
 const NewEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as any,
@@ -70,6 +72,10 @@ const NewEvent = () => {
       }
       
       const eventCode = await createNewEvent(data);
+      
+      // Invalidate all events queries to ensure updated data is fetched
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["upcoming_events"] });
       
       toast({
         title: 'Success!',

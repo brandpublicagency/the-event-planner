@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 import { EventFormData } from '@/types/eventForm';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const generateEventCode = (type: string) => {
   const prefix = type ? type.substring(0, 3).toUpperCase() : 'EVT';

@@ -47,7 +47,9 @@ export function useEvents() {
         });
         return [];
       }
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
   
   const handleDeleteEvent = (event: Event) => {
@@ -91,8 +93,13 @@ export function useEvents() {
       
       setIsDeleteDialogOpen(false);
       setEventToDelete(null);
+
+      // Invalidate all related queries to ensure updated data
       queryClient.invalidateQueries({
         queryKey: ["events"]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["upcoming_events"]
       });
     } catch (err) {
       console.error("Error deleting event:", err);
@@ -135,7 +142,7 @@ export function useEvents() {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     eventToDelete,
-    setEventToDelete, // Exposing this function
+    setEventToDelete,
     handleDeleteEvent,
     confirmDelete,
     isDeleting,

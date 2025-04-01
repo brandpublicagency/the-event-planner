@@ -9,6 +9,7 @@ import { Loader2, CalendarClock, Plus, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { deleteEvent } from "@/services/eventService";
 import type { Event } from "@/types/event";
+import { useEffect } from "react";
 
 const UpcomingEventsSection = () => {
   const { toast } = useToast();
@@ -46,8 +47,15 @@ const UpcomingEventsSection = () => {
         throw error;
       }
     },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     retry: 1
   });
+
+  // Add effect to refetch when component mounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const events = allEvents.slice(0, 10);
   const groupedEvents = groupEventsByMonth(events);
