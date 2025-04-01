@@ -72,106 +72,99 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
           )}
         />
 
-        {/* For all non-wedding events, show company and VAT number fields */}
-        {!isWedding && (
-          <>
-            <FormField
-              control={form.control}
-              name="company"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="Company Name" 
-                      aria-label="Company Name"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* For all events, including weddings, show secondary contact fields */}
+        <FormField
+          control={form.control}
+          name="secondary_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input 
+                  placeholder={isWedding ? "Groom's Name" : "Secondary Contact Name"} 
+                  aria-label={isWedding ? "Groom's Name" : "Secondary Contact Name"}
+                  {...field} 
+                  className="bg-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="vat_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="VAT Number" 
-                      aria-label="VAT Number"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        <FormField
+          control={form.control}
+          name="secondary_email"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input 
+                  placeholder={isWedding ? "Groom's Email" : "Secondary Contact Email"} 
+                  aria-label={isWedding ? "Groom's Email" : "Secondary Contact Email"}
+                  type="email"
+                  {...field} 
+                  className="bg-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        {isWedding && (
-          <>
-            <FormField
-              control={form.control}
-              name="secondary_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="Groom's Name" 
-                      aria-label="Groom's Name"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          control={form.control}
+          name="secondary_phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input 
+                  placeholder={isWedding ? "Groom's Phone" : "Secondary Contact Phone"} 
+                  aria-label={isWedding ? "Groom's Phone" : "Secondary Contact Phone"}
+                  type="tel"
+                  {...field} 
+                  className="bg-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="secondary_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="Groom's Email" 
-                      aria-label="Groom's Email"
-                      type="email"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Company and VAT fields for all event types */}
+        <FormField
+          control={form.control}
+          name="company"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input 
+                  placeholder="Company Name" 
+                  aria-label="Company Name"
+                  {...field} 
+                  className="bg-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="secondary_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      placeholder="Groom's Phone" 
-                      aria-label="Groom's Phone"
-                      type="tel"
-                      {...field} 
-                      className="bg-white" 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        <FormField
+          control={form.control}
+          name="vat_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input 
+                  placeholder="VAT Number" 
+                  aria-label="VAT Number"
+                  {...field} 
+                  className="bg-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       <FormField

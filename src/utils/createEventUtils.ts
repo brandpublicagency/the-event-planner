@@ -14,7 +14,7 @@ export const createNewEvent = async (data: EventFormData) => {
     console.log("Creating new event with data:", data);
     const eventCode = generateEventCode(data.event_type || 'Event');
     
-    // Create the event with minimal required fields
+    // Create the event with required fields
     const eventData = {
       event_code: eventCode,
       name: data.name,
@@ -34,9 +34,12 @@ export const createNewEvent = async (data: EventFormData) => {
       company: data.company || null,
       vat_number: data.vat_number || null,
       address: data.address || null,
+      // Log the actual data structure being sent to the database
+      created_by: null, // Add proper user ID when authentication is implemented
     };
 
-    console.log("Sending to database:", eventData);
+    console.log("Sending to database:", JSON.stringify(eventData, null, 2));
+    
     const { data: result, error: eventError } = await supabase
       .from('events')
       .insert(eventData)
