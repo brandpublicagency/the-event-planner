@@ -7,13 +7,15 @@ interface UseSaveRegistrationProps {
   saveMenu?: () => Promise<void>;
   isInitialized: boolean;
   isLoading: boolean;
+  autoSaveOnLoad?: boolean; // New option to control auto-saving
 }
 
 export const useSaveRegistration = ({
   saveMenuSelections,
   saveMenu,
   isInitialized,
-  isLoading
+  isLoading,
+  autoSaveOnLoad = false // Default to false to prevent auto-saving
 }: UseSaveRegistrationProps) => {
   const [saveRegistered, setSaveRegistered] = useState(false);
   const [registerAttempts, setRegisterAttempts] = useState(0);
@@ -44,15 +46,16 @@ export const useSaveRegistration = ({
         }
       };
       
+      // Register the save function but don't trigger an auto-save
       saveMenuSelections(saveFn);
       setSaveRegistered(true);
-      console.log('Save function successfully registered');
+      console.log('Save function successfully registered, autoSaveOnLoad:', autoSaveOnLoad);
       return true;
     } catch (error) {
       console.error('Failed to register save function:', error);
       return false;
     }
-  }, [saveMenuSelections, saveMenu, isInitialized]);
+  }, [saveMenuSelections, saveMenu, isInitialized, autoSaveOnLoad]);
 
   // Attempt to register save function when dependencies change
   useEffect(() => {

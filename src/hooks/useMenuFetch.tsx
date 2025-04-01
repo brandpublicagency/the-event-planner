@@ -108,6 +108,6 @@ export const useMenuFetch = (eventCode: string) => {
     isInitialized,
     lastSavedState,
     setLastSavedState,
-    refreshMenu: (force = true) => fetchMenuSelections(force),
+    refreshMenu: (force = false) => fetchMenuSelections(force),
   };
 };

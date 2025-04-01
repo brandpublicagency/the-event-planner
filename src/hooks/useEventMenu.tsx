@@ -77,6 +77,9 @@ export const useEventMenu = (eventId: string | undefined) => {
     setLastSaveTime(now);
     console.log(`Save attempt #${saveAttempts.current} at ${new Date().toISOString()}`);
     
+    // Display save toast only when explicitly saved
+    toast.loading("Saving menu...", { id: 'event-menu-save' });
+    
     try {
       await originalHandleSaveMenu();
       console.log("Menu saved successfully");

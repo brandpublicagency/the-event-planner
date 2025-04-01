@@ -70,21 +70,23 @@ const WeddingMenuPlanner: React.FC<WeddingMenuPlannerProps> = ({
     setIsInternalUpdate
   );
 
-  // Register save function with parent component
+  // Register save function with parent component but set autoSaveOnLoad to false
   useSaveRegistration({
     saveMenuSelections,
     saveMenu,
     isInitialized,
-    isLoading
+    isLoading,
+    autoSaveOnLoad: false // Added this option to prevent auto-saving
   });
 
-  // Set up periodic background refreshing
+  // Set up periodic background refreshing without triggering saves
   useMenuRefresh({
     isInitialized,
     isLoading,
     isSaving,
     isManualSaving,
-    refreshMenu
+    refreshMenu,
+    disableAutoSave: true // Added this option to prevent auto-saving
   });
 
   // Manual save handler with improved feedback
