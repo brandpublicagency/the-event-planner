@@ -30,35 +30,20 @@ export function useAvatarUpload() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      // Force specific content type based on extension to override any potential defaults
-      let contentType;
-      switch (fileExt) {
-        case 'jpg':
-        case 'jpeg':
-          contentType = 'image/jpeg';
-          break;
-        case 'png':
-          contentType = 'image/png';
-          break;
-        case 'webp':
-          contentType = 'image/webp';
-          break;
-        default:
-          contentType = fileType;
-      }
-
-      console.log(`Uploading file ${fileName} with forced content type ${contentType}`);
+      // Read the file as an ArrayBuffer to preserve binary content
+      const arrayBuffer = await file.arrayBuffer();
+      const fileData = new Uint8Array(arrayBuffer);
       
-      // Create a new File object with the explicit content type
-      const newFile = new File([file], fileName, { type: contentType });
+      // Log the first few bytes to check if it's a valid image
+      console.log('File data first bytes:', [...fileData.slice(0, 16)]);
       
-      // Upload with the new file and explicit content type parameter
+      // Upload using arrayBuffer to preserve binary content
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
-        .upload(filePath, newFile, {
+        .uploadBinary(filePath, fileData, {
+          contentType: fileType,
           cacheControl: '3600',
-          upsert: true,
-          contentType: contentType
+          upsert: true
         });
 
       if (uploadError) {
