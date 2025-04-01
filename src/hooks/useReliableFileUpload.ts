@@ -46,16 +46,22 @@ export function useReliableFileUpload() {
           'x-upsert': 'false'
         },
         chunkSize: 5 * 1024 * 1024, // 5MB chunks
-        // Fixed error: This function needs to return a Promise<void>
         onBeforeRequest: (req, file) => {
-          const url = new URL(req.getURL());
-          url.searchParams.set('bucket', bucketName);
-          url.searchParams.set('path', filePath);
+          // Get the current URL
+          const currentUrl = req.getURL();
+          // Create a new URL with the needed parameters
+          const urlWithParams = `${currentUrl}${currentUrl.includes('?') ? '&' : '?'}bucket=${bucketName}&path=${filePath}`;
           
-          // Fixed error: Use setURL() method instead of returning the request
-          req.setURL(url.toString());
+          // Instead of using setURL which doesn't exist, we'll create a new request
+          // with the modified URL and copy over properties from the original request
+          const modifiedRequest = {
+            ...req,
+            getURL: () => urlWithParams
+          };
           
-          // Return a Promise<void> as required by the type signature
+          // Replace the original request with our modified one
+          Object.assign(req, modifiedRequest);
+          
           return Promise.resolve();
         }
       });
