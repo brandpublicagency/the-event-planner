@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
@@ -5,7 +6,6 @@ import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { MenuState } from "@/hooks/menuStateTypes";
 import { PrintMenu } from '../menu/PrintMenu';
-import { PrintKitchenMenu } from '../menu/PrintKitchenMenu';
 import { Button } from "@/components/ui/button";
 import { Edit, Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -64,10 +64,7 @@ export const EventInfo = ({
         
         <div className="flex items-center space-x-2 mt-2 sm:mt-0">
           {menuState && (
-            <>
-              <PrintMenu event={event} menuState={menuState} />
-              <PrintKitchenMenu event={event} menuState={menuState} />
-            </>
+            <PrintMenu event={event} menuState={menuState} />
           )}
           
           {onEditEvent && (
