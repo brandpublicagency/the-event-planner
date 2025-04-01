@@ -5,10 +5,11 @@ import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
 import { MenuState } from "@/hooks/menuStateTypes";
-import { PrintMenu } from '../menu/print/PrintMenu';
+import { PrintMenu } from '../menu/PrintMenu';
+import { PrintKitchenMenu } from '../menu/PrintKitchenMenu';
 import { Button } from "@/components/ui/button";
 import { Edit, Printer } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface EventInfoProps {
   event: Event;
@@ -34,7 +35,6 @@ export const EventInfo = ({
     return format(parseISO(`2000-01-01T${timeString}`), 'HH:mm');
   };
   
-  const { toast } = useToast();
   const startTime = formatTimeDisplay(event.start_time);
   const endTime = formatTimeDisplay(event.end_time);
   const timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : '';
@@ -66,7 +66,14 @@ export const EventInfo = ({
           </div>
         </div>
         
-        <div className="flex items-center space-x-4 mt-2 sm:mt-0">
+        <div className="flex items-center space-x-2 mt-2 sm:mt-0">
+          {menuState && (
+            <>
+              <PrintMenu event={event} menuState={menuState} />
+              <PrintKitchenMenu event={event} menuState={menuState} />
+            </>
+          )}
+          
           {onEditEvent && (
             <Button onClick={onEditEvent} variant="outline" size="sm" className="rounded">
               <Edit className="h-4 w-4 mr-2" />
