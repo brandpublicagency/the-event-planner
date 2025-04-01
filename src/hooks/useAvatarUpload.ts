@@ -26,13 +26,23 @@ export function useAvatarUpload() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
+      // Map file extensions to correct MIME types
+      const mimeTypes = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'webp': 'image/webp'
+      };
+      
+      const contentType = mimeTypes[fileExt as keyof typeof mimeTypes];
+
       // Upload the file to Supabase Storage with correct content type and caching
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true,
-          contentType: `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`
+          contentType: contentType
         });
 
       if (uploadError) throw uploadError;
