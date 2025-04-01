@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
 import { Loader2, AlertCircle, CheckSquare, Plus } from "lucide-react";
@@ -79,7 +78,7 @@ export function TaskList({
       </Alert>;
   }
   return <div className="space-y-4">
-      {!hideHeader && <div className="flex items-center justify-between p-4 py-5 rounded-lg bg-gray-200">
+      {!hideHeader && <div className="flex items-center justify-between p-4 rounded-lg bg-gray-200 py-0 px-[10px]">
           <div className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-zinc-700" />
             <h3 className="text-lg font-medium text-gray-800">Tasks</h3>
