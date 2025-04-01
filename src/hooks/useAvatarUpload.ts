@@ -30,11 +30,9 @@ export function useAvatarUpload() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      // Use a FormData approach to ensure binary file upload
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // Upload directly using the file object without any conversion
+      // Upload directly using the file object
+      // IMPORTANT: Do not manipulate the file or set contentType manually
+      // Let Supabase handle the file type detection
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
