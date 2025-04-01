@@ -22,44 +22,19 @@ export function useAvatarUpload() {
         throw new Error('File type not supported. Please use JPG, PNG or WebP');
       }
 
+      console.log('Original file name:', file.name);
       console.log('Original file type:', fileType);
-      console.log('File name:', file.name);
-
-      // Create a unique file path that follows our RLS pattern (userId as folder)
+      
+      // Create a unique file path
       const fileExt = file.name.split('.').pop()?.toLowerCase();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      // Force specific content type based on extension
-      let contentType;
-      switch (fileExt) {
-        case 'jpg':
-        case 'jpeg':
-          contentType = 'image/jpeg';
-          break;
-        case 'png':
-          contentType = 'image/png';
-          break;
-        case 'webp':
-          contentType = 'image/webp';
-          break;
-        default:
-          contentType = fileType;
-      }
-      
-      console.log('Using content type:', contentType);
-      
-      // Read file as array buffer to preserve binary data
-      const arrayBuffer = await file.arrayBuffer();
-      
-      // Create a Blob with the correct content type to ensure proper upload
-      const blob = new Blob([arrayBuffer], { type: contentType });
-      
-      // Upload the blob with the standard upload method
+      // Directly upload the file object with explicitly set content type
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
-        .upload(filePath, blob, {
-          contentType: contentType, // Explicitly set content type
+        .upload(filePath, file, {
+          contentType: fileType, // Use the original file type
           cacheControl: '3600',
           upsert: true
         });
