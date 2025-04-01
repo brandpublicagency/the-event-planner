@@ -22,9 +22,9 @@ export function useAvatarUpload() {
         throw new Error('File type not supported. Please use JPG, PNG or WebP');
       }
 
-      // Create a unique file name
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      // Create a unique file path that follows our RLS pattern (userId as folder)
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
 
       // Upload the file to Supabase Storage
       const { error: uploadError } = await supabase.storage
