@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ interface ProfileSectionProps {
   handleEdit: () => void;
   handleSave: () => void;
   hasPassword: boolean;
+  userEmail?: string;
 }
 const passwordSchema = z.object({
   password: z.string().min(6, {
@@ -50,9 +52,9 @@ const ProfileSection = ({
   setEditForm,
   handleEdit,
   handleSave,
-  hasPassword
+  hasPassword,
+  userEmail
 }: ProfileSectionProps) => {
-  const [userEmail, setUserEmail] = useState(profile?.email || "");
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const {
     toast
@@ -114,7 +116,7 @@ const ProfileSection = ({
         <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
           <Mail className="h-5 w-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm text-muted-foreground">{userEmail || 'Not set'}</p>
+            <p className="text-sm text-muted-foreground">{userEmail || profile?.email || 'Not set'}</p>
           </div>
         </div>
 

@@ -1,3 +1,4 @@
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/layout/Header";
 import { useProfileData } from "@/hooks/useProfileData";
@@ -36,7 +37,16 @@ const ProfileSettings = () => {
             <div className="rounded-lg border border-black/10 p-6 bg-white px-[18px] py-[30px]">
               <ProfileAvatar profile={profile} userEmail={userEmail} />
               
-              <ProfileSection profile={profile} isEditing={isEditing} editForm={editForm} setEditForm={setEditForm} handleEdit={handleEdit} handleSave={handleSave} hasPassword={hasPassword} />
+              <ProfileSection 
+                profile={profile} 
+                isEditing={isEditing} 
+                editForm={editForm} 
+                setEditForm={setEditForm} 
+                handleEdit={handleEdit} 
+                handleSave={handleSave} 
+                hasPassword={hasPassword} 
+                userEmail={userEmail} 
+              />
             </div>
           </div>
         </ScrollArea>

@@ -89,7 +89,7 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
         />
       </div>
       <h2 className="text-lg font-medium">{profile?.full_name} {profile?.surname}</h2>
-      <p className="text-sm text-muted-foreground">{userEmail}</p>
+      {/* Removed the email display line from here */}
     </div>
   );
 };
