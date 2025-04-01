@@ -27,10 +27,21 @@ export function useAvatarUpload() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      console.log('Uploading file with content type:', fileType);
+      // Map file extensions to correct MIME types to ensure correct content type
+      const mimeTypes: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'webp': 'image/webp'
+      };
+      
+      // Use the mapped MIME type or fallback to the file's type
+      const contentType = fileExt ? mimeTypes[fileExt] || fileType : fileType;
+      
+      console.log('Uploading file with content type:', contentType);
 
-      // Instead of uploading the file directly, first convert it to a Blob with explicit content type
-      const fileBlob = new Blob([await file.arrayBuffer()], { type: fileType });
+      // Convert to a Blob with explicit content type
+      const fileBlob = new Blob([await file.arrayBuffer()], { type: contentType });
       
       // Upload the blob to Supabase Storage with explicit content type
       const { error: uploadError } = await supabase.storage
@@ -38,7 +49,7 @@ export function useAvatarUpload() {
         .upload(filePath, fileBlob, {
           cacheControl: '3600',
           upsert: true,
-          contentType: fileType
+          contentType: contentType
         });
 
       if (uploadError) throw uploadError;
