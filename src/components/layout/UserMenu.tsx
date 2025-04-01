@@ -35,6 +35,7 @@ export const UserMenu = () => {
         email: user.email,
         fullName: profile?.full_name || 'User',
         surname: profile?.surname || '',
+        avatarUrl: profile?.avatar_url || '',
         initials: profile?.full_name 
           ? `${profile.full_name.charAt(0)}${profile.surname ? profile.surname.charAt(0) : ''}`
           : 'U'
@@ -55,7 +56,7 @@ export const UserMenu = () => {
             <Skeleton className="h-9 w-9 rounded-full" />
           ) : (
             <Avatar className="h-9 w-9">
-              <AvatarImage src="" alt={userProfile?.fullName || 'User'} />
+              <AvatarImage src={userProfile?.avatarUrl} alt={userProfile?.fullName || 'User'} />
               <AvatarFallback className="bg-zinc-100 text-zinc-800">
                 {userProfile?.initials || 'U'}
               </AvatarFallback>

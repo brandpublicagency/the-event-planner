@@ -35,7 +35,10 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
       if (!user) throw new Error('No authenticated user found');
 
       await uploadAvatar(files[0], user.id);
+      
+      // Invalidate all relevant queries to refresh avatar data
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['header-user-profile'] });
       
       // Clear the input value to allow selecting the same file again
       if (fileInputRef.current) {
