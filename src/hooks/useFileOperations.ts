@@ -5,7 +5,7 @@ import { useFileDelete } from "./file-operations/useFileDelete";
 import { useFileDownload } from "./file-operations/useFileDownload";
 
 export function useFileOperations() {
-  const { uploadFile, isLoading: isUploading } = useFileUpload();
+  const { uploadFile, isLoading: isUploading, progress } = useFileUpload();
   const { viewFile, isLoading: isViewing } = useFileView();
   const { deleteFile, isLoading: isDeleting } = useFileDelete();
   const { downloadFile, isLoading: isDownloading } = useFileDownload();
@@ -15,6 +15,7 @@ export function useFileOperations() {
     viewFile,
     deleteFile,
     downloadFile,
-    isLoading: isUploading || isViewing || isDeleting || isDownloading
+    isLoading: isUploading || isViewing || isDeleting || isDownloading,
+    progress
   };
 }
