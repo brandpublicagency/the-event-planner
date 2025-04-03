@@ -18,7 +18,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ weatherType }) =>
   console.log("Weather background type:", type);
   
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none">
+    <div className="absolute inset-0 z-0 pointer-events-none w-full h-full overflow-hidden">
       {type.includes('rain') || type.includes('shower') || type.includes('drizzle') ? (
         <RainAnimation />
       ) : type.includes('thunder') || type.includes('lightning') ? (
