@@ -60,13 +60,14 @@ export const fetchMenuItems = async () => {
       throw error;
     }
     
+    // Transform the data to match our MenuItem type
     const menuItems: MenuItem[] = data.map((item: any) => ({
       id: item.id,
       value: item.value,
       label: item.label,
       description: item.description,
       choice_id: item.choice_id,
-      available: item.available !== false,
+      available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -95,13 +96,14 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       throw error;
     }
     
+    // Transform the data to match our MenuItem type
     const menuItems: MenuItem[] = data.map((item: any) => ({
       id: item.id,
       value: item.value,
       label: item.label,
       description: item.description,
       choice_id: item.choice_id,
-      available: item.available !== false,
+      available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -117,9 +119,16 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
 
 export const createMenuItem = async (menuItem: MenuItemFormData) => {
   try {
+    // Prepare the item for insertion - make sure we're sending the right fields
+    // that match the database schema
     const itemToCreate = {
-      ...menuItem,
-      available: menuItem.available !== false
+      value: menuItem.value,
+      label: menuItem.label,
+      description: menuItem.description,
+      choice_id: menuItem.choice_id,
+      available: menuItem.available,
+      image_url: menuItem.image_url,
+      display_order: menuItem.display_order || 0
     };
 
     const { data, error } = await supabase
@@ -133,13 +142,14 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       throw error;
     }
     
+    // Transform the returned data to match our MenuItem type
     const createdItem: MenuItem = {
       id: data.id,
       value: data.value,
       label: data.label,
       description: data.description,
       choice_id: data.choice_id,
-      available: data.available !== false,
+      available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
       created_at: data.created_at,
@@ -167,13 +177,14 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       throw error;
     }
     
+    // Transform the returned data to match our MenuItem type
     const updatedItem: MenuItem = {
       id: data.id,
       value: data.value,
       label: data.label,
       description: data.description,
       choice_id: data.choice_id,
-      available: data.available !== false,
+      available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
       created_at: data.created_at,
