@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MenuSection } from '@/api/menuItemsApi';
+import { Separator } from "@/components/ui/separator";
 
 const MenuSectionsTable = () => {
   const { 
@@ -72,7 +73,7 @@ const MenuSectionsTable = () => {
           ) : (
             sections.map((section) => (
               <div key={section.id} className="mb-8">
-                <div className="flex justify-between items-center mb-4 border-b pb-2">
+                <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-lg font-medium">{section.label}</h3>
                     <p className="text-sm text-gray-500">Value: {section.value}, Order: {section.display_order}</p>
@@ -94,9 +95,11 @@ const MenuSectionsTable = () => {
                     </Button>
                   </div>
                 </div>
+                
+                <Separator className="mb-4" />
 
                 <div>
-                  <h4 className="text-md font-medium mb-2">Choices</h4>
+                  <h4 className="text-md font-medium mb-4">Choices</h4>
                   <MenuChoicesTable sectionId={section.id} />
                 </div>
               </div>

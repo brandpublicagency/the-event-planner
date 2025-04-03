@@ -55,7 +55,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ml-2">
       <Button 
         size="sm" 
         onClick={() => setIsAddDialogOpen(true)}
@@ -75,8 +75,8 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
             </div>
           ) : (
             choices.map((choice) => (
-              <div key={choice.id} className="mb-4 pl-2 border-l-2 border-gray-100">
-                <div className="flex justify-between items-center mb-3 pb-2 border-b">
+              <div key={choice.id} className="mb-6">
+                <div className="flex justify-between items-center mb-3">
                   <div>
                     <h5 className="font-medium">{choice.label}</h5>
                     <p className="text-xs text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>

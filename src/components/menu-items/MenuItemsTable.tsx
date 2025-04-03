@@ -76,10 +76,10 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className="flex items-start border-b pb-3 mb-2 last:border-0 last:mb-0"
+                        className="flex items-start mb-4"
                       >
                         {onReorder && (
-                          <div {...provided.dragHandleProps} className="cursor-grab pr-2">
+                          <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
                             <GripVertical className="h-5 w-5 text-gray-400" />
                           </div>
                         )}
