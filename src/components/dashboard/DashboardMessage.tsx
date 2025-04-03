@@ -80,7 +80,7 @@ const DashboardMessage = () => {
         }} transition={{
           duration: 0.7,
           delay: 0.2
-        }} className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line bg-white px-[10px] py-[10px] my-0 rounded">
+        }} className="text-gray-600 dark:text-gray-300 mt-1 text-base leading whitespace-pre-line bg-white py-[10px] rounded px-[15px] my-[5px]">
             <div style={{
             fontSize: '1.05rem',
             fontWeight: 450,
