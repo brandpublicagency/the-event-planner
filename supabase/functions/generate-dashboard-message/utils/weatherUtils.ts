@@ -8,20 +8,20 @@ export function createFallbackWeatherData() {
   
   // Generate a temperature based on time of day and season
   // More realistic temperature range for Bloemfontein, South Africa
-  let baseTemp = 18; // Default base temperature
+  let baseTemp = 19; // Increased default base temperature to match current observations
   
   // Get month to adjust for seasons (Southern Hemisphere)
   const month = currentDate.getMonth(); // 0-11 (Jan-Dec)
   
   // Seasonal adjustments
   if (month >= 11 || month <= 1) { // Summer (Dec-Feb)
-    baseTemp = 22 + Math.floor(Math.random() * 5); // 22-26°C base
+    baseTemp = 24 + Math.floor(Math.random() * 5); // 24-28°C base
   } else if (month >= 2 && month <= 4) { // Autumn (Mar-May)
-    baseTemp = 15 + Math.floor(Math.random() * 5); // 15-19°C base
+    baseTemp = 18 + Math.floor(Math.random() * 4); // 18-21°C base (increased)
   } else if (month >= 5 && month <= 7) { // Winter (Jun-Aug)
-    baseTemp = 8 + Math.floor(Math.random() * 4); // 8-11°C base
+    baseTemp = 10 + Math.floor(Math.random() * 4); // 10-13°C base
   } else { // Spring (Sep-Nov)
-    baseTemp = 16 + Math.floor(Math.random() * 6); // 16-21°C base
+    baseTemp = 18 + Math.floor(Math.random() * 6); // 18-23°C base
   }
   
   // Time of day adjustment

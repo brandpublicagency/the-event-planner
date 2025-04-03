@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase, retryOperation } from "@/integrations/supabase/client";
 import { useProfile } from './useProfile';
@@ -57,9 +58,9 @@ export const useDashboardMessage = () => {
         return fallbackMessage;
       }
     },
-    // Refetch less frequently to avoid excessive requests when there are issues
+    // Refetch more frequently to get updated weather data
     staleTime: 5 * 60 * 1000,        // 5 minutes
-    refetchInterval: 10 * 60 * 1000,  // 10 minutes
+    refetchInterval: 5 * 60 * 1000,  // Reduced to 5 minutes to get more frequent updates
     retry: 1,                         // Only retry once to avoid excessive requests
   });
 
@@ -114,7 +115,7 @@ const generateAccurateWeatherData = () => {
   
   // April in South Africa (autumn)
   if (month === 3) { // April
-    baseTemp = 15 + Math.floor(Math.random() * 8); // 15-22°C in April
+    baseTemp = 19 + Math.floor(Math.random() * 5); // 19-23°C in April (updated)
     
     // Autumn in Bloemfontein is typically clear/partly cloudy
     const weatherTypes = [
@@ -148,7 +149,7 @@ const generateAccurateWeatherData = () => {
   }
   // Default for any other month (shouldn't happen in April but just in case)
   else {
-    baseTemp = 18;
+    baseTemp = 19;
     condition = 'Clear';
     description = 'clear skies';
     rainProbability = 5 + Math.floor(Math.random() * 10);

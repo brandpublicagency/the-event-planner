@@ -12,16 +12,16 @@ export const fetchWeatherForecast = async () => {
     
     const supabaseClient = createSupabaseClient();
     
-    // Check if we have cached weather data less than 30 minutes old
-    const thirtyMinutesAgo = new Date();
-    thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
-    const thirtyMinutesAgoIso = thirtyMinutesAgo.toISOString();
+    // Check if we have cached weather data less than 15 minutes old (reduced from 30)
+    const fifteenMinutesAgo = new Date();
+    fifteenMinutesAgo.setMinutes(fifteenMinutesAgo.getMinutes() - 15);
+    const fifteenMinutesAgoIso = fifteenMinutesAgo.toISOString();
     
     // Try to get cached weather data from the database
     const { data: cachedWeather, error: cacheError } = await supabaseClient
       .from("cached_weather")
       .select("*")
-      .gt("timestamp", thirtyMinutesAgoIso)
+      .gt("timestamp", fifteenMinutesAgoIso)
       .order("timestamp", { ascending: false })
       .limit(1);
     
@@ -77,7 +77,7 @@ export const fetchWeatherForecast = async () => {
         await supabaseClient
           .from("cached_weather")
           .delete()
-          .lt("timestamp", thirtyMinutesAgoIso);
+          .lt("timestamp", fifteenMinutesAgoIso);
         
         // Then insert the new data
         const { error: insertError } = await supabaseClient

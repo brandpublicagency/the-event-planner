@@ -39,16 +39,16 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [retryCount, refetchWeather]);
   
-  // Refresh weather data every 15 minutes
+  // Refresh weather data more frequently
   useEffect(() => {
     // Initial load
     refetch();
     
-    // Set up auto-refresh interval (every 15 minutes)
+    // Set up auto-refresh interval (reduced to 10 minutes)
     const refreshInterval = setInterval(() => {
       console.log("Auto-refreshing weather data...");
       refetch();
-    }, 15 * 60 * 1000);
+    }, 10 * 60 * 1000);
     
     return () => clearInterval(refreshInterval);
   }, [refetch]);
@@ -67,15 +67,15 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
   // Create fallback weather data when needed
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
-    temp: 23,
-    feels_like: 24,
+    temp: 19,
+    feels_like: 20,
     humidity: 45,
     wind_speed: 12,
     condition: 'Cloudy',
     description: 'cloudy skies',
     icon: '02d',
-    high: 25,
-    low: 16,
+    high: 21,
+    low: 13,
     location: 'Bloemfontein',
     timestamp: new Date().toISOString(),
     rainChance: Math.floor(Math.random() * 40)
