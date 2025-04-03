@@ -20,10 +20,14 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
   timeOfDay,
   currentDateTime
 }) => {
+  // Ensure we're using the current weather condition or default to 'cloudy'
+  // Changed from 'clear' to 'cloudy' to ensure the greyish color scheme is used by default
+  const weatherCondition = weatherData?.condition?.toLowerCase() || 'cloudy';
+  
   const {
     gradientStyle,
     fallbackGradientClass
-  } = getWeatherGradientStyles(timeOfDay, weatherData?.condition?.toLowerCase() || 'clear');
+  } = getWeatherGradientStyles(timeOfDay, weatherCondition);
 
   return (
     <div className="w-full py-[5px]">

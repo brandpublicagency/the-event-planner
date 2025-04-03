@@ -35,8 +35,12 @@ export const prepareDashboardResponse = (
     type: 'default'
   };
   
-  // Always include weather data if available
+  // Ensure the weather data has a valid condition
   if (weatherData) {
+    // Default to 'cloudy' if no condition is present to ensure consistent grey colors
+    if (!weatherData.condition) {
+      weatherData.condition = 'cloudy';
+    }
     response.weatherData = weatherData;
   }
   
