@@ -76,7 +76,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
       isCollapsed ? "justify-center px-0" : "px-3"
     )}>
       <div className={cn(
-        "flex items-center w-[259px]",
+        "flex items-center w-[260px]", // Changed from w-[259px] to w-[260px]
         isCollapsed ? "justify-center" : "gap-2"
       )}>
         <Avatar 
