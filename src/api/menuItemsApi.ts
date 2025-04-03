@@ -4,12 +4,12 @@ export type MenuItem = {
   id: string;
   value: string;
   label: string;
-  category: string;
-  section: string;
+  choice: string;
   description: string | null;
   image_url: string | null;
   created_at: string;
   updated_at: string;
+  choice_id: string | null;
 };
 
 export type MenuSection = {
@@ -21,8 +21,19 @@ export type MenuSection = {
   updated_at: string;
 };
 
+export type MenuChoice = {
+  id: string;
+  section_id: string;
+  value: string;
+  label: string;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type MenuItemFormData = Omit<MenuItem, 'id' | 'created_at' | 'updated_at'>;
 export type MenuSectionFormData = Omit<MenuSection, 'id' | 'created_at' | 'updated_at'>;
+export type MenuChoiceFormData = Omit<MenuChoice, 'id' | 'created_at' | 'updated_at'>;
 
 export const fetchMenuItems = async () => {
   try {
@@ -30,7 +41,7 @@ export const fetchMenuItems = async () => {
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
-      .order('section, category, label');
+      .order('label');
     
     if (error) {
       console.error('Error fetching menu items:', error);
@@ -155,7 +166,7 @@ export const deleteMenuItemImage = async (url: string): Promise<void> => {
   }
 };
 
-// New section management functions
+// Menu section management functions
 export const fetchMenuSections = async () => {
   try {
     console.log('Fetching menu sections');
@@ -232,6 +243,108 @@ export const deleteMenuSection = async (id: string) => {
     return true;
   } catch (error) {
     console.error('Error in deleteMenuSection:', error);
+    throw error;
+  }
+};
+
+// New menu choice management functions
+export const fetchMenuChoices = async () => {
+  try {
+    console.log('Fetching menu choices');
+    const { data, error } = await supabase
+      .from('menu_choices')
+      .select('*')
+      .order('display_order');
+    
+    if (error) {
+      console.error('Error fetching menu choices:', error);
+      throw error;
+    }
+    
+    return data as MenuChoice[];
+  } catch (error) {
+    console.error('Error in fetchMenuChoices:', error);
+    throw error;
+  }
+};
+
+export const fetchMenuChoicesBySection = async (sectionId: string) => {
+  try {
+    console.log(`Fetching menu choices for section: ${sectionId}`);
+    const { data, error } = await supabase
+      .from('menu_choices')
+      .select('*')
+      .eq('section_id', sectionId)
+      .order('display_order');
+    
+    if (error) {
+      console.error('Error fetching menu choices by section:', error);
+      throw error;
+    }
+    
+    return data as MenuChoice[];
+  } catch (error) {
+    console.error('Error in fetchMenuChoicesBySection:', error);
+    throw error;
+  }
+};
+
+export const createMenuChoice = async (choice: MenuChoiceFormData) => {
+  try {
+    const { data, error } = await supabase
+      .from('menu_choices')
+      .insert(choice)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error creating menu choice:', error);
+      throw error;
+    }
+    
+    return data as MenuChoice;
+  } catch (error) {
+    console.error('Error in createMenuChoice:', error);
+    throw error;
+  }
+};
+
+export const updateMenuChoice = async (id: string, choice: Partial<MenuChoiceFormData>) => {
+  try {
+    const { data, error } = await supabase
+      .from('menu_choices')
+      .update(choice)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating menu choice:', error);
+      throw error;
+    }
+    
+    return data as MenuChoice;
+  } catch (error) {
+    console.error('Error in updateMenuChoice:', error);
+    throw error;
+  }
+};
+
+export const deleteMenuChoice = async (id: string) => {
+  try {
+    const { error } = await supabase
+      .from('menu_choices')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting menu choice:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteMenuChoice:', error);
     throw error;
   }
 };

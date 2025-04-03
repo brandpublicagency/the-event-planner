@@ -202,44 +202,82 @@ export type Database = {
           },
         ]
       }
-      menu_items: {
+      menu_choices: {
         Row: {
-          choice: string
           created_at: string | null
-          description: string | null
+          display_order: number
           id: string
           label: string
-          section: string
+          section_id: string
           updated_at: string | null
           value: string
         }
         Insert: {
-          choice: string
           created_at?: string | null
-          description?: string | null
+          display_order?: number
           id?: string
           label: string
-          section: string
+          section_id: string
           updated_at?: string | null
           value: string
         }
         Update: {
-          choice?: string
           created_at?: string | null
-          description?: string | null
+          display_order?: number
           id?: string
           label?: string
-          section?: string
+          section_id?: string
           updated_at?: string | null
           value?: string
         }
         Relationships: [
           {
-            foreignKeyName: "menu_items_section_fkey"
-            columns: ["section"]
+            foreignKeyName: "menu_choices_section_id_fkey"
+            columns: ["section_id"]
             isOneToOne: false
             referencedRelation: "menu_sections"
-            referencedColumns: ["value"]
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_items: {
+        Row: {
+          choice: string
+          choice_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          label: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          choice: string
+          choice_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          label: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          choice?: string
+          choice_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          label?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_choice_id_fkey"
+            columns: ["choice_id"]
+            isOneToOne: false
+            referencedRelation: "menu_choices"
+            referencedColumns: ["id"]
           },
         ]
       }

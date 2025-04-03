@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import MenuSectionDialog from './MenuSectionDialog';
+import MenuChoicesTable from './MenuChoicesTable';
 import {
   Table,
   TableBody,
@@ -12,13 +13,68 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MenuSection } from '@/api/menuItemsApi';
 
 const MenuSectionsTable = () => {
-  const { sections, isLoading } = useMenuSections();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { 
+    sections, 
+    isLoading,
+    handleAddSection,
+    handleUpdateSection,
+    handleDeleteSection,
+    editingSection,
+    setEditingSection,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useMenuSections();
+
+  const [sectionToDelete, setSectionToDelete] = useState<MenuSection | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+
+  const handleEditClick = (section: MenuSection) => {
+    setEditingSection(section);
+  };
+
+  const handleDeleteClick = (section: MenuSection) => {
+    setSectionToDelete(section);
+  };
+
+  const confirmDelete = () => {
+    if (sectionToDelete) {
+      handleDeleteSection(sectionToDelete.id);
+      setSectionToDelete(null);
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Button 
         size="sm" 
         onClick={() => setIsAddDialogOpen(true)}
@@ -31,33 +87,99 @@ const MenuSectionsTable = () => {
       {isLoading ? (
         <div className="text-center py-4">Loading sections...</div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Display Name</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Display Order</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sections.map((section) => (
-                <TableRow key={section.id}>
-                  <TableCell>{section.label}</TableCell>
-                  <TableCell>{section.value}</TableCell>
-                  <TableCell>{section.display_order}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="space-y-4">
+          {sections.length === 0 ? (
+            <div className="text-center py-4 text-gray-500 bg-white rounded-lg shadow-sm p-6">
+              No sections added yet
+            </div>
+          ) : (
+            sections.map((section) => (
+              <div key={section.id} className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="text-lg font-medium">{section.label}</h3>
+                    <p className="text-sm text-gray-500">Value: {section.value}, Order: {section.display_order}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditClick(section)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(section)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => toggleSection(section.id)}
+                    >
+                      {expandedSections.includes(section.id) ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {expandedSections.includes(section.id) && (
+                  <div className="mt-4 border-t pt-4">
+                    <h4 className="text-md font-medium mb-2">Choices</h4>
+                    <MenuChoicesTable sectionId={section.id} />
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
 
+      {/* Add Dialog */}
       <MenuSectionDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
+        onSubmit={handleAddSection}
+        isSubmitting={isCreating}
         title="Add Section"
       />
+
+      {/* Edit Dialog */}
+      {editingSection && (
+        <MenuSectionDialog
+          open={!!editingSection}
+          onOpenChange={(open) => !open && setEditingSection(null)}
+          onSubmit={(data) => handleUpdateSection(editingSection.id, data)}
+          isSubmitting={isUpdating}
+          initialData={editingSection}
+          title="Edit Section"
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!sectionToDelete} onOpenChange={(open) => !open && setSectionToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the menu section
+              {sectionToDelete && ` "${sectionToDelete.label}"`} and all associated choices and items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

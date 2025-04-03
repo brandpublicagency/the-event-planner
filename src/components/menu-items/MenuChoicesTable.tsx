@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
+import { useMenuChoices } from '@/hooks/useMenuChoices';
+import MenuChoiceDialog from './MenuChoiceDialog';
 import {
   Table,
   TableBody,
@@ -10,10 +12,54 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MenuChoice } from '@/api/menuItemsApi';
 
-// This is a placeholder until we implement the choices functionality
-const MenuChoicesTable = () => {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+interface MenuChoicesTableProps {
+  sectionId: string;
+}
+
+const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
+  const { 
+    choices, 
+    isLoading,
+    handleAddChoice,
+    handleUpdateChoice,
+    handleDeleteChoice,
+    editingChoice,
+    setEditingChoice,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useMenuChoices(sectionId);
+
+  const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
+
+  const handleEditClick = (choice: MenuChoice) => {
+    setEditingChoice(choice);
+  };
+
+  const handleDeleteClick = (choice: MenuChoice) => {
+    setChoiceToDelete(choice);
+  };
+
+  const confirmDelete = () => {
+    if (choiceToDelete) {
+      handleDeleteChoice(choiceToDelete.id);
+      setChoiceToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -26,23 +72,99 @@ const MenuChoicesTable = () => {
         Add Choice
       </Button>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Section</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={2} className="text-center py-4 text-gray-500">
-                Coming soon...
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
+      {isLoading ? (
+        <div className="text-center py-4">Loading choices...</div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Display Name</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Display Order</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {choices.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                    No choices added yet
+                  </TableCell>
+                </TableRow>
+              ) : (
+                choices.map((choice) => (
+                  <TableRow key={choice.id}>
+                    <TableCell>{choice.label}</TableCell>
+                    <TableCell>{choice.value}</TableCell>
+                    <TableCell>{choice.display_order}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditClick(choice)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(choice)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Add Dialog */}
+      <MenuChoiceDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSubmit={handleAddChoice}
+        isSubmitting={isCreating}
+        title="Add Choice"
+        sectionId={sectionId}
+      />
+
+      {/* Edit Dialog */}
+      {editingChoice && (
+        <MenuChoiceDialog
+          open={!!editingChoice}
+          onOpenChange={(open) => !open && setEditingChoice(null)}
+          onSubmit={(data) => handleUpdateChoice(editingChoice.id, data)}
+          isSubmitting={isUpdating}
+          initialData={editingChoice}
+          title="Edit Choice"
+          sectionId={sectionId}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!choiceToDelete} onOpenChange={(open) => !open && setChoiceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the menu choice
+              {choiceToDelete && ` "${choiceToDelete.label}"`} and all associated items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
