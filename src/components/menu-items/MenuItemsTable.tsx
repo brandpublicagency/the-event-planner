@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { EditIcon, Trash2Icon, ImageIcon } from 'lucide-react';
+import { EditIcon, Trash2Icon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useMenuSections } from '@/hooks/useMenuSections';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type MenuItemsTableProps = {
   items: MenuItem[];
@@ -109,7 +108,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[60px]">Image</TableHead>
               <TableHead>Section</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Name</TableHead>
@@ -119,21 +117,13 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-4 text-gray-500">
+                <TableCell colSpan={4} className="text-center py-4 text-gray-500">
                   No menu items found
                 </TableCell>
               </TableRow>
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
-                    <Avatar>
-                      <AvatarImage src={item.image_url || undefined} alt={item.label} />
-                      <AvatarFallback>
-                        <ImageIcon className="h-4 w-4 text-gray-400" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </TableCell>
                   <TableCell>{getSectionLabel(item.section)}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{getCategoryLabel(item.category)}</Badge>
