@@ -20,9 +20,9 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
   timeOfDay,
   currentDateTime
 }) => {
-  // Ensure we're using the current weather condition or default to 'cloudy'
-  // This ensures the greyish color scheme is used by default
-  const weatherCondition = weatherData?.condition?.toLowerCase() || 'cloudy';
+  // Ensure we're using the current weather condition or default to 'light rain'
+  // This ensures the dark, muted appearance is used by default
+  const weatherCondition = weatherData?.condition?.toLowerCase() || 'light rain';
   
   const {
     gradientStyle,
@@ -55,11 +55,11 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
                 <span className="text-lg font-medium">{weatherData?.location || 'Bloemfontein'}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-4xl font-semibold">{weatherData?.temp || '17'}°</span>
+                <span className="text-4xl font-semibold">{weatherData?.temp || '19'}°</span>
                 <div className="text-sm">
-                  <span className="font-medium">{weatherData?.condition || 'Cloudy'}</span>
+                  <span className="font-medium">{weatherData?.condition || 'Light Rain'}</span>
                   <span className="mx-1">•</span>
-                  <span>H:{weatherData?.high || '19'}° L:{weatherData?.low || '11'}°</span>
+                  <span>H:{weatherData?.high || '24'}° L:{weatherData?.low || '14'}°</span>
                 </div>
               </div>
             </motion.div>

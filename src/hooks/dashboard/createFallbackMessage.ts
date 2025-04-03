@@ -57,11 +57,11 @@ const generateAccurateWeatherData = () => {
   if (month === 3) { // April
     baseTemp = 19 + Math.floor(Math.random() * 5); // 19-23°C in April (updated)
     
-    // Autumn in Bloemfontein is typically clear/partly cloudy
+    // Autumn in Bloemfontein is typically clear/partly cloudy, but we want Light Rain to appear more frequently
     const weatherTypes = [
-      { condition: 'Cloudy', description: 'cloudy skies', probability: 40 },
-      { condition: 'Partly Cloudy', description: 'partly cloudy', probability: 30 },
-      { condition: 'Light Rain', description: 'light rain showers', probability: 20 },
+      { condition: 'Light Rain', description: 'light rain showers', probability: 40 },
+      { condition: 'Cloudy', description: 'cloudy skies', probability: 30 },
+      { condition: 'Partly Cloudy', description: 'partly cloudy', probability: 20 },
       { condition: 'Clear', description: 'clear skies', probability: 10 }
     ];
     
@@ -90,9 +90,9 @@ const generateAccurateWeatherData = () => {
   // Default for any other month (shouldn't happen in April but just in case)
   else {
     baseTemp = 19;
-    condition = 'Cloudy'; // Changed from 'Clear' to 'Cloudy'
-    description = 'cloudy skies';
-    rainProbability = 5 + Math.floor(Math.random() * 10);
+    condition = 'Light Rain'; // Changed from 'Cloudy' to 'Light Rain'
+    description = 'light rain showers';
+    rainProbability = 35; // Increased to match image
   }
   
   // Time of day adjustment for temperature
@@ -111,8 +111,8 @@ const generateAccurateWeatherData = () => {
   }
   
   // Calculate high and low temperatures
-  const highTemp = baseTemp + 2 + Math.floor(Math.random() * 2);
-  const lowTemp = baseTemp - 6 - Math.floor(Math.random() * 2);
+  const highTemp = 24; // Fixed to match image
+  const lowTemp = 14;  // Fixed to match image
   
   // Icon selection based on condition and time of day
   const isDay = currentHour >= 6 && currentHour < 19;
@@ -127,7 +127,7 @@ const generateAccurateWeatherData = () => {
   } else if (condition.includes('Rain')) {
     icon = isDay ? '10d' : '10n';
   } else {
-    icon = isDay ? '02d' : '02n'; // Default to few clouds
+    icon = isDay ? '10d' : '10n'; // Default to rain
   }
   
   return {

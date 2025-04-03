@@ -8,30 +8,30 @@ type GradientStyle = {
 
 type GradientSet = Record<TimePhase, GradientStyle>;
 
-// Storm gradients for different times of day
+// Muted storm gradients for different times of day
 export const stormGradients: GradientSet = {
   dawn: {
-    background: "linear-gradient(to right bottom, rgb(15, 23, 42), rgb(30, 41, 59), rgb(55, 65, 81))",
-    fallbackClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-gray-700"
+    background: "linear-gradient(to right bottom, rgb(26, 31, 46), rgb(35, 40, 55), rgb(30, 38, 53))",
+    fallbackClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800"
   },
   morning: {
-    background: "linear-gradient(to right bottom, rgb(30, 41, 59), rgb(51, 65, 85), rgb(75, 85, 99))",
-    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-gray-600"
+    background: "linear-gradient(to right bottom, rgb(36, 41, 56), rgb(45, 50, 65), rgb(40, 48, 63))",
+    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-700"
   },
   midday: {
-    background: "linear-gradient(to right bottom, rgb(51, 65, 85), rgb(71, 85, 105), rgb(107, 114, 128))",
-    fallbackClass: "bg-gradient-to-br from-slate-700 via-slate-600 to-gray-500"
+    background: "linear-gradient(to right bottom, rgb(46, 51, 66), rgb(55, 60, 75), rgb(50, 58, 73))",
+    fallbackClass: "bg-gradient-to-br from-slate-700 via-slate-600 to-slate-600"
   },
   afternoon: {
-    background: "linear-gradient(to right bottom, rgb(30, 41, 59), rgb(51, 65, 85), rgb(75, 85, 99))",
-    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-gray-600"
+    background: "linear-gradient(to right bottom, rgb(41, 46, 61), rgb(50, 55, 70), rgb(45, 53, 68))",
+    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-700"
   },
   sunset: {
-    background: "linear-gradient(to right bottom, rgb(15, 23, 42), rgb(30, 41, 59), rgb(55, 65, 81))",
-    fallbackClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-gray-700"
+    background: "linear-gradient(to right bottom, rgb(31, 36, 51), rgb(40, 45, 60), rgb(35, 43, 58))",
+    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-700"
   },
   night: {
-    background: "linear-gradient(to right bottom, rgb(2, 6, 23), rgb(15, 23, 42), rgb(31, 41, 55))",
-    fallbackClass: "bg-gradient-to-br from-slate-950 via-slate-900 to-gray-800"
+    background: "linear-gradient(to right bottom, rgb(18, 22, 32), rgb(22, 27, 37), rgb(20, 25, 35))",
+    fallbackClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800"
   }
 };

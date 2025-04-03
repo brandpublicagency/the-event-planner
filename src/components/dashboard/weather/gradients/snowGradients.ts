@@ -8,30 +8,30 @@ type GradientStyle = {
 
 type GradientSet = Record<TimePhase, GradientStyle>;
 
-// Snow gradients for different times of day
+// Muted snow gradients for different times of day
 export const snowGradients: GradientSet = {
   dawn: {
-    background: "linear-gradient(to right bottom, rgb(203, 213, 225), rgb(226, 232, 240), rgb(241, 245, 249))",
-    fallbackClass: "bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100"
+    background: "linear-gradient(to right bottom, rgb(40, 46, 60), rgb(48, 54, 68), rgb(45, 51, 65))",
+    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-700"
   },
   morning: {
-    background: "linear-gradient(to right bottom, rgb(226, 232, 240), rgb(241, 245, 249), rgb(248, 250, 252))",
-    fallbackClass: "bg-gradient-to-br from-slate-200 via-slate-100 to-slate-50"
+    background: "linear-gradient(to right bottom, rgb(55, 61, 75), rgb(63, 69, 83), rgb(60, 66, 80))",
+    fallbackClass: "bg-gradient-to-br from-slate-700 via-slate-600 to-slate-600"
   },
   midday: {
-    background: "linear-gradient(to right bottom, rgb(224, 242, 254), rgb(240, 249, 255), rgb(248, 250, 252))",
-    fallbackClass: "bg-gradient-to-br from-blue-100 via-blue-50 to-slate-50"
+    background: "linear-gradient(to right bottom, rgb(65, 71, 85), rgb(73, 79, 93), rgb(70, 76, 90))",
+    fallbackClass: "bg-gradient-to-br from-slate-600 via-slate-500 to-slate-500"
   },
   afternoon: {
-    background: "linear-gradient(to right bottom, rgb(219, 234, 254), rgb(239, 246, 255), rgb(241, 245, 249))",
-    fallbackClass: "bg-gradient-to-br from-blue-100 via-blue-50 to-slate-100"
+    background: "linear-gradient(to right bottom, rgb(55, 61, 75), rgb(63, 69, 83), rgb(60, 66, 80))",
+    fallbackClass: "bg-gradient-to-br from-slate-700 via-slate-600 to-slate-600"
   },
   sunset: {
-    background: "linear-gradient(to right bottom, rgb(186, 230, 253), rgb(224, 242, 254), rgb(226, 232, 240))",
-    fallbackClass: "bg-gradient-to-br from-sky-200 via-sky-100 to-slate-200"
+    background: "linear-gradient(to right bottom, rgb(45, 51, 65), rgb(53, 59, 73), rgb(50, 56, 70))",
+    fallbackClass: "bg-gradient-to-br from-slate-700 via-slate-600 to-slate-600"
   },
   night: {
-    background: "linear-gradient(to right bottom, rgb(148, 163, 184), rgb(203, 213, 225), rgb(226, 232, 240))",
-    fallbackClass: "bg-gradient-to-br from-slate-400 via-slate-300 to-slate-200"
+    background: "linear-gradient(to right bottom, rgb(30, 36, 50), rgb(38, 44, 58), rgb(35, 41, 55))",
+    fallbackClass: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-700"
   }
 };

@@ -44,13 +44,11 @@ export function createFallbackWeatherData() {
   const windSpeed = 8 + Math.floor(Math.random() * 7); // 8-15 km/h
   
   // Calculate high and low temperatures
-  const highTemp = baseTemp + 2 + Math.floor(Math.random() * 2);
-  const lowTemp = baseTemp - 6 - Math.floor(Math.random() * 2);
+  const highTemp = 24; // Set to match image
+  const lowTemp = 14;  // Set to match image
   
-  // Calculate rain chance based on season and humidity
-  const rainChance = month >= 11 || month <= 3 
-    ? 15 + Math.floor(Math.random() * 25) // Higher in summer
-    : 5 + Math.floor(Math.random() * 10); // Lower in winter
+  // Set rain chance to match image
+  const rainChance = 35;
   
   return {
     date: currentDate.toISOString().split('T')[0],
@@ -60,9 +58,9 @@ export function createFallbackWeatherData() {
     low: lowTemp,
     humidity: humidity,
     wind_speed: windSpeed,
-    condition: 'Cloudy', // Default to Cloudy instead of Clear
-    description: 'cloudy skies',
-    icon: currentHour >= 6 && currentHour < 19 ? '02d' : '02n', // Day or night icon
+    condition: 'Light Rain', // Changed from Cloudy to Light Rain
+    description: 'light rain showers',
+    icon: currentHour >= 6 && currentHour < 19 ? '10d' : '10n', // Rain icon for day or night
     location: 'Bloemfontein',
     timestamp: currentDate.toISOString(),
     rainChance: rainChance

@@ -59,21 +59,21 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [dashboardMessage?.weatherData, currentDateTime]);
   
-  // Updated mock data for Bloemfontein in April with explicit 'Cloudy' condition
+  // Updated mock data to use Light Rain instead of Cloudy
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 19,
     feels_like: 20,
     humidity: 45,
     wind_speed: 12,
-    condition: 'Cloudy',  // Default to cloudy for consistent styling
-    description: 'cloudy skies',
-    icon: '03n',  // Use nighttime cloudy icon (03n instead of 02d)
-    high: 21,
-    low: 13,
+    condition: 'Light Rain',  // Changed from Cloudy to Light Rain
+    description: 'light rain showers',
+    icon: '10n',  // Rain at night icon
+    high: 24,
+    low: 14,
     location: 'Bloemfontein',
     timestamp: new Date().toISOString(),
-    rainChance: Math.floor(Math.random() * 40)
+    rainChance: 35  // Increased to match the image showing 35%
   };
   
   const showWeather = dashboardMessage?.weatherData || forcedVisible;
