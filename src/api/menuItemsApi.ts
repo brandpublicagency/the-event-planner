@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
@@ -31,7 +32,15 @@ export type MenuChoice = {
   updated_at: string;
 };
 
-export type MenuItemFormData = Omit<MenuItem, 'id' | 'created_at' | 'updated_at'>;
+export type MenuItemFormData = {
+  value: string;
+  label: string;
+  description: string | null;
+  choice_id: string;
+  available: boolean;
+  image_url: string | null;
+};
+
 export type MenuSectionFormData = Omit<MenuSection, 'id' | 'created_at' | 'updated_at'>;
 export type MenuChoiceFormData = Omit<MenuChoice, 'id' | 'created_at' | 'updated_at'>;
 

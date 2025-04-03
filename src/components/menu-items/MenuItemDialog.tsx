@@ -37,10 +37,10 @@ interface MenuItemDialogProps {
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   available: z.boolean().default(true),
-  choice_id: z.string().optional(),
-  image_url: z.string().optional().nullable(),
+  choice_id: z.string().min(1, "Choice is required"),
+  image_url: z.string().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,9 +59,9 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     defaultValues: {
       label: initialData?.label || '',
       value: initialData?.value || '',
-      description: initialData?.description || '',
+      description: initialData?.description || null,
       available: initialData?.available !== false, // Default to true if not specified
-      choice_id: choiceId,
+      choice_id: choiceId || initialData?.choice_id || '',
       image_url: initialData?.image_url || null,
     },
   });
@@ -69,7 +69,9 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   const handleSubmit = (values: FormValues) => {
     onSubmit({
       ...values,
-      choice_id: choiceId,
+      choice_id: choiceId || values.choice_id,
+      description: values.description || null,
+      image_url: values.image_url || null,
     });
   };
 
@@ -141,6 +143,22 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="choice_id"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      value={choiceId || field.value} 
+                      type="hidden" 
                     />
                   </FormControl>
                 </FormItem>

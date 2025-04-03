@@ -17,13 +17,14 @@ import {
 } from '@/components/ui/select';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   label: z.string().min(1, 'Label is required'),
-  choice: z.string().min(1, 'Choice is required'),
-  choice_id: z.string().nullable(),
+  choice_id: z.string().min(1, 'Choice is required'),
   description: z.string().nullable(),
+  available: z.boolean().default(true),
   image_url: z.string().nullable(),
 });
 
@@ -49,9 +50,9 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     defaultValues: {
       value: initialData.value || '',
       label: initialData.label || '',
-      choice: initialData.choice || '',
-      choice_id: initialData.choice_id || null,
-      description: initialData.description || '',
+      choice_id: initialData.choice_id || '',
+      description: initialData.description || null,
+      available: initialData.available !== false,
       image_url: initialData.image_url || null,
     },
   });
@@ -60,10 +61,10 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     onSubmit(values as MenuItemFormData);
   };
 
-  // Filter choices based on selected section
+  // Find the section for the selected choice
   useEffect(() => {
     if (initialData.choice_id) {
-      // Find the section for the initial choice
+      // Find the choice for the initial choice_id
       const choice = choices.find(c => c.id === initialData.choice_id);
       if (choice) {
         setSelectedSection(choice.section_id);
@@ -77,20 +78,15 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="choice"
+            name="choice_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Menu Choice</FormLabel>
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
-                    // Find the choice and set the choice_id
-                    const choice = choices.find(c => c.value === value);
-                    if (choice) {
-                      form.setValue('choice_id', choice.id);
-                    }
                   }}
-                  defaultValue={field.value}
+                  value={field.value}
                   disabled={choicesLoading}
                 >
                   <FormControl>
@@ -100,7 +96,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   </FormControl>
                   <SelectContent>
                     {choices.map((choice) => (
-                      <SelectItem key={choice.value} value={choice.value}>
+                      <SelectItem key={choice.id} value={choice.id}>
                         {choice.label}
                       </SelectItem>
                     ))}
@@ -113,11 +109,17 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 
           <FormField
             control={form.control}
-            name="choice_id"
+            name="available"
             render={({ field }) => (
-              <FormItem className="hidden">
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>Available</FormLabel>
+                </div>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} type="hidden" />
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
               </FormItem>
             )}
