@@ -12,7 +12,7 @@ import {
   CheckSquare, 
   ChevronLeft, 
   ChevronRight, 
-  Calendar,
+  CalendarDays,
   Users as UsersIcon,
   Building
 } from "lucide-react";
@@ -90,7 +90,7 @@ const Sidebar = ({
       label: "Upcoming Events"
     }, 
     {
-      icon: Wallet,
+      icon: CalendarDays,
       path: "/calendar",
       label: "Calendar"
     }, 
