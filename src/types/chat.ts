@@ -1,9 +1,11 @@
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+
+// This is a simplified version of the chat types without OpenAI references
 
 export interface ChatMessage {
   text: string;
   isUser: boolean;
   id?: string;
+  timestamp?: Date;
 }
 
 export interface PendingAction {
@@ -23,22 +25,3 @@ export interface PendingAction {
 }
 
 export type ChatRole = "system" | "user" | "assistant";
-
-export type ChatMessageForAPI = ChatCompletionMessageParam;
-
-// Add interfaces for the saved chat messages in the database
-export interface SavedChatMessage {
-  id: string;
-  message_id: string;
-  conversation_id: string;
-  content: string;
-  is_user: boolean;
-  created_at: string;
-}
-
-export interface SaveChatMessageParams {
-  message_id: string;
-  conversation_id: string;
-  content: string;
-  is_user: boolean;
-}

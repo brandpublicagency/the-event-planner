@@ -4,7 +4,6 @@ export { formatEventForContext, prepareEventsContext } from './eventContextUtils
 export { prepareTasksContext } from './taskContextUtils';
 export { prepareContactsContext } from './contactContextUtils';
 export { prepareDocumentsContext } from './documentContextUtils';
-export { getSystemMessage } from './systemMessageUtils';
 
 // Also provide namespace exports for more flexible imports
 export * as eventUtils from './eventContextUtils';

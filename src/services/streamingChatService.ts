@@ -1,11 +1,10 @@
 
-import { ChatMessage } from "@/types/chat";
-import { StreamProcessor } from "@/services/chatStream";
+// This is a simplified placeholder file that replaces the original streamingChatService.ts
 
 export const streamChatRequest = async (
-  messages: ChatMessage[],
+  messages: any[],
   systemMessage: string,
-  processor: StreamProcessor,
+  processor: any,
   functionDefs?: any[]
 ) => {
   console.log("Streaming chat functionality has been removed");
