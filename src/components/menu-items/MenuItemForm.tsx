@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { MenuItemFormData, uploadMenuItemImage } from '@/api/menuItemsApi';
+import { MenuItemFormData } from '@/api/menuItemsApi';
 import { 
   Select,
   SelectContent,
@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useMenuSections } from '@/hooks/useMenuSections';
-import ImageUploader from './ImageUploader';
 
 const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
@@ -57,7 +56,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 }) => {
   const { sections, isLoading: sectionsLoading } = useMenuSections();
   const [filteredCategories, setFilteredCategories] = useState<typeof CATEGORIES>([]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,19 +83,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   }, [selectedSection]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      // Handle image upload if there's a new file
-      if (imageFile) {
-        // We need a temporary ID for new items
-        const tempId = initialData.id || 'temp-' + Date.now();
-        const imageUrl = await uploadMenuItemImage(imageFile, tempId);
-        values.image_url = imageUrl;
-      }
-      
-      onSubmit(values as MenuItemFormData);
-    } catch (error) {
-      console.error('Error during form submission:', error);
-    }
+    onSubmit(values as MenuItemFormData);
   };
 
   return (
@@ -206,24 +192,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   onChange={e => field.onChange(e.target.value || null)}
                   placeholder="Enter description" 
                   className="min-h-[100px]"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="image_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <ImageUploader 
-                  imageUrl={field.value} 
-                  onImageChange={field.onChange}
-                  onFileChange={setImageFile}
                 />
               </FormControl>
               <FormMessage />
