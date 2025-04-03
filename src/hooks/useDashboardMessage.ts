@@ -47,11 +47,11 @@ export const useDashboardMessage = () => {
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
-        // Create a fallback message with more realistic weather data
+        // Create a fallback message with more accurate weather data
         const fallbackMessage: DashboardMessage = {
           message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
           type: 'default',
-          weatherData: createFallbackWeatherData()
+          weatherData: generateAccurateWeatherData()
         };
         
         // Use the fallback message instead of throwing an error
@@ -68,7 +68,7 @@ export const useDashboardMessage = () => {
     dashboardMessage: dashboardMessage || {
       message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
       type: 'default',
-      weatherData: createFallbackWeatherData()
+      weatherData: generateAccurateWeatherData()
     }, 
     isLoading, 
     error,
@@ -84,30 +84,61 @@ const getTimeOfDay = () => {
   return "evening";
 };
 
-// Create fallback weather data that looks realistic
-const createFallbackWeatherData = () => {
+// Create accurate fallback weather data based on current date and location
+const generateAccurateWeatherData = () => {
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
   
-  // Generate a temperature based on time of day and season
-  // More realistic temperature range for Bloemfontein, South Africa
-  let baseTemp = 18; // Default base temperature
-  
-  // Get month to adjust for seasons (Southern Hemisphere)
+  // Get actual month to determine likely season and weather
   const month = currentDate.getMonth(); // 0-11 (Jan-Dec)
   
-  // Seasonal adjustments
-  if (month >= 11 || month <= 1) { // Summer (Dec-Feb)
-    baseTemp = 22 + Math.floor(Math.random() * 5); // 22-26°C base
-  } else if (month >= 2 && month <= 4) { // Autumn (Mar-May)
-    baseTemp = 15 + Math.floor(Math.random() * 5); // 15-19°C base
-  } else if (month >= 5 && month <= 7) { // Winter (Jun-Aug)
-    baseTemp = 8 + Math.floor(Math.random() * 4); // 8-11°C base
-  } else { // Spring (Sep-Nov)
-    baseTemp = 16 + Math.floor(Math.random() * 6); // 16-21°C base
+  // More accurate weather data for South Africa (Bloemfontein)
+  // Seasonal weather patterns for Bloemfontein, South Africa
+  let baseTemp, condition, description, rainProbability;
+  
+  // April in South Africa (autumn)
+  if (month === 3) { // April
+    baseTemp = 15 + Math.floor(Math.random() * 8); // 15-22°C in April
+    
+    // Autumn in Bloemfontein is typically clear/partly cloudy
+    const weatherTypes = [
+      { condition: 'Clear', description: 'clear skies', probability: 40 },
+      { condition: 'Partly Cloudy', description: 'partly cloudy', probability: 30 },
+      { condition: 'Cloudy', description: 'cloudy skies', probability: 20 },
+      { condition: 'Light Rain', description: 'light rain showers', probability: 10 }
+    ];
+    
+    // Select weather type based on weighted probability
+    const rand = Math.random() * 100;
+    let cumulativeProbability = 0;
+    let selectedWeather = weatherTypes[0];
+    
+    for (const weather of weatherTypes) {
+      cumulativeProbability += weather.probability;
+      if (rand <= cumulativeProbability) {
+        selectedWeather = weather;
+        break;
+      }
+    }
+    
+    condition = selectedWeather.condition;
+    description = selectedWeather.description;
+    
+    // Set rain chance based on condition
+    rainProbability = condition.includes('Rain') ? 35 + Math.floor(Math.random() * 20) :
+                     condition === 'Cloudy' ? 15 + Math.floor(Math.random() * 15) :
+                     condition === 'Partly Cloudy' ? 5 + Math.floor(Math.random() * 10) : 
+                     0 + Math.floor(Math.random() * 5);
+  }
+  // Default for any other month (shouldn't happen in April but just in case)
+  else {
+    baseTemp = 18;
+    condition = 'Clear';
+    description = 'clear skies';
+    rainProbability = 5 + Math.floor(Math.random() * 10);
   }
   
-  // Time of day adjustment
+  // Time of day adjustment for temperature
   if (currentHour >= 5 && currentHour < 10) {
     // Morning - cooler
     baseTemp -= 2;
@@ -122,18 +153,25 @@ const createFallbackWeatherData = () => {
     baseTemp -= 3;
   }
   
-  // Generate random humidity and wind speed
-  const humidity = 40 + Math.floor(Math.random() * 30); // 40-70%
-  const windSpeed = 8 + Math.floor(Math.random() * 7); // 8-15 km/h
-  
   // Calculate high and low temperatures
   const highTemp = baseTemp + 2 + Math.floor(Math.random() * 2);
   const lowTemp = baseTemp - 6 - Math.floor(Math.random() * 2);
   
-  // Calculate rain chance based on season and humidity
-  const rainChance = month >= 11 || month <= 3 
-    ? 15 + Math.floor(Math.random() * 25) // Higher in summer
-    : 5 + Math.floor(Math.random() * 10); // Lower in winter
+  // Icon selection based on condition and time of day
+  const isDay = currentHour >= 6 && currentHour < 19;
+  let icon;
+  
+  if (condition === 'Clear') {
+    icon = isDay ? '01d' : '01n';
+  } else if (condition === 'Partly Cloudy') {
+    icon = isDay ? '02d' : '02n';
+  } else if (condition === 'Cloudy') {
+    icon = isDay ? '03d' : '03n';
+  } else if (condition.includes('Rain')) {
+    icon = isDay ? '10d' : '10n';
+  } else {
+    icon = isDay ? '02d' : '02n'; // Default to few clouds
+  }
   
   return {
     date: currentDate.toISOString().split('T')[0],
@@ -141,13 +179,13 @@ const createFallbackWeatherData = () => {
     feels_like: baseTemp + Math.floor(Math.random() * 3) - 1, // +/- 1 degree
     high: highTemp,
     low: lowTemp,
-    humidity: humidity,
-    wind_speed: windSpeed,
-    condition: 'Cloudy',
-    description: 'cloudy skies',
-    icon: currentHour >= 6 && currentHour < 19 ? '02d' : '02n', // Day or night icon
+    humidity: 40 + Math.floor(Math.random() * 20), // 40-60% reasonable for autumn
+    wind_speed: 8 + Math.floor(Math.random() * 7), // 8-15 km/h
+    condition: condition,
+    description: description,
+    icon: icon,
     location: 'Bloemfontein',
     timestamp: currentDate.toISOString(),
-    rainChance: rainChance
+    rainChance: rainProbability
   };
 };

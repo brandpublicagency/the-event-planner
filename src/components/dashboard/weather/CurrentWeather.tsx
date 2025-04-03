@@ -14,6 +14,7 @@ interface CurrentWeatherProps {
     wind_speed?: string | number;
     uv?: string | number;
     rainChance?: number;
+    icon?: string;
   } | null;
 }
 
@@ -35,15 +36,18 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
   // Ensure rainChance is a number
   const rainChance = typeof safeData.rainChance === 'number' ? safeData.rainChance : 0;
   
-  // Determine if it's night time (between 7PM and 6AM)
+  // Determine if it's night time based on current hour or icon
   const currentHour = new Date().getHours();
-  const isNight = currentHour >= 19 || currentHour < 6;
+  const isNight = safeData.icon ? 
+                 safeData.icon.endsWith('n') : 
+                 (currentHour >= 19 || currentHour < 6);
   
   return (
     <div className="flex flex-col p-3 pr-4 border-r border-white/20">
       <div className="flex items-center space-x-3">
         <WeatherIcon 
           condition={safeData.condition}
+          customIcon={safeData.icon}
           className="h-8 w-8"
           isNight={isNight}
         />

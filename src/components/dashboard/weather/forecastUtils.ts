@@ -24,6 +24,7 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
   const now = currentDate;
   const currentTemp = weatherData.temp;
   const currentCondition = weatherData.condition || 'Clear';
+  const currentRainChance = weatherData.rainChance || 0;
   
   // Generate forecast for today and next 7 days
   const forecast = [];
@@ -34,7 +35,11 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
     condition: currentCondition,
     icon: getWeatherIcon(currentCondition, now.getHours()),
     temp: `${currentTemp}°`,
+    rainChance: currentRainChance,
   });
+  
+  // Get the current month for seasonal patterns
+  const currentMonth = now.getMonth();
   
   // Generate forecast for the next 7 days
   for (let i = 1; i < 8; i++) {
@@ -45,16 +50,66 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
       ? 'Tomorrow' 
       : format(forecastDate, 'EEEE');
     
-    // Create temp variation for future days
-    const tempAdjustment = Math.round(Math.random() * 4) - 2; // Random adjustment between -2 and 2
+    // Create temp variation that follows a realistic pattern
+    // Temperatures usually follow a pattern rather than random changes
+    const patternValue = Math.sin(i / 2) * 3; // Creates a wave pattern
+    const tempAdjustment = Math.round(patternValue);
     const dayTemp = Math.round(currentTemp + tempAdjustment);
     const highTemp = dayTemp + 2 + Math.floor(Math.random() * 2);
     const lowTemp = dayTemp - 4 - Math.floor(Math.random() * 3);
     
-    // Randomly vary condition for future days
-    const weatherConditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Rain', 'Thunderstorm'];
-    const randomConditionIndex = Math.floor(Math.random() * weatherConditions.length);
-    const dayCondition = weatherConditions[randomConditionIndex];
+    // Weather conditions should also follow patterns, not just random
+    // For example, if it's raining today, there's a higher chance of rain tomorrow
+    let dayCondition;
+    let rainChance;
+    
+    // Simple weather pattern algorithm
+    if (currentCondition.toLowerCase().includes('rain') || currentCondition.toLowerCase().includes('storm')) {
+      // If it's raining today, gradually clear up
+      const clearupChance = 30 + (i * 10); // Increases each day
+      if (Math.random() * 100 < clearupChance) {
+        dayCondition = i < 2 ? 'Cloudy' : 'Partly Cloudy';
+        rainChance = Math.max(0, currentRainChance - (i * 10));
+      } else {
+        dayCondition = i < 2 ? 'Rain' : 'Light Rain';
+        rainChance = Math.max(0, currentRainChance - (i * 5));
+      }
+    }
+    else if (currentCondition.toLowerCase().includes('cloud')) {
+      // If it's cloudy, it could rain or clear up
+      const rainDevelopChance = 20 - (i * 3);
+      const clearupChance = 30 + (i * 10);
+      
+      if (Math.random() * 100 < rainDevelopChance) {
+        dayCondition = 'Light Rain';
+        rainChance = 30 + Math.floor(Math.random() * 20);
+      } else if (Math.random() * 100 < clearupChance) {
+        dayCondition = 'Clear';
+        rainChance = 5 + Math.floor(Math.random() * 5);
+      } else {
+        dayCondition = 'Partly Cloudy';
+        rainChance = 15 + Math.floor(Math.random() * 10);
+      }
+    }
+    else {
+      // If it's clear, usually stays clear with occasional clouds
+      const cloudDevelopChance = 20 + (i * 5);
+      
+      if (Math.random() * 100 < cloudDevelopChance) {
+        dayCondition = 'Partly Cloudy';
+        rainChance = 10 + Math.floor(Math.random() * 15);
+      } else {
+        dayCondition = 'Clear';
+        rainChance = 0 + Math.floor(Math.random() * 5);
+      }
+    }
+    
+    // Seasonal adjustments based on month
+    // For South Africa in April (autumn)
+    if (currentMonth === 3) { // April
+      // Autumn in South Africa tends to be dry and mild
+      if (rainChance > 30) rainChance = Math.floor(rainChance * 0.7); // Reduce rain chance
+    }
     
     forecast.push({
       day: dayName,
@@ -62,6 +117,7 @@ export const generateForecastFromWeatherData = (weatherData: any, currentDate: D
       icon: getWeatherIcon(dayCondition, 12), // Use midday for future forecasts
       high: highTemp,
       low: lowTemp,
+      rainChance: Math.round(rainChance),
       date: forecastDate,
     });
   }
@@ -73,23 +129,23 @@ const getWeatherIcon = (condition: string, hour: number) => {
   const isDay = hour >= 6 && hour < 18;
   const suffix = isDay ? 'd' : 'n';
   
-  condition = condition.toLowerCase();
+  const normalizedCondition = condition?.toLowerCase() || 'clear';
   
-  if (condition.includes('clear') || condition.includes('sunny')) {
+  if (normalizedCondition.includes('clear') || normalizedCondition.includes('sunny')) {
     return `01${suffix}`;
-  } else if (condition.includes('partly') && condition.includes('cloud')) {
+  } else if (normalizedCondition.includes('partly') && normalizedCondition.includes('cloud')) {
     return `02${suffix}`;
-  } else if (condition.includes('cloud')) {
+  } else if (normalizedCondition.includes('cloud')) {
     return `03${suffix}`;
-  } else if (condition.includes('shower') || condition.includes('drizzle')) {
+  } else if (normalizedCondition.includes('shower') || normalizedCondition.includes('drizzle')) {
     return `09${suffix}`;
-  } else if (condition.includes('rain')) {
+  } else if (normalizedCondition.includes('rain')) {
     return `10${suffix}`;
-  } else if (condition.includes('thunder')) {
+  } else if (normalizedCondition.includes('thunder') || normalizedCondition.includes('storm')) {
     return `11${suffix}`;
-  } else if (condition.includes('snow')) {
+  } else if (normalizedCondition.includes('snow')) {
     return `13${suffix}`;
-  } else if (condition.includes('mist') || condition.includes('fog')) {
+  } else if (normalizedCondition.includes('mist') || normalizedCondition.includes('fog')) {
     return `50${suffix}`;
   }
   
@@ -102,12 +158,16 @@ const generateMockForecast = (currentDate: Date = new Date()) => {
   // Add "Now" as first entry
   forecast.push({
     day: 'Now',
-    condition: 'Cloudy',
-    icon: '03d',
+    condition: 'Partly Cloudy',
+    icon: '02d',
     temp: '22°',
+    rainChance: 15,
   });
   
-  // Add next 7 days
+  // Add next 7 days with a pattern rather than random values
+  const weatherPattern = ['Partly Cloudy', 'Clear', 'Clear', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Partly Cloudy'];
+  const tempPattern = [21, 23, 24, 22, 19, 18, 20]; // More realistic temperature progression
+  
   for (let i = 1; i < 8; i++) {
     const forecastDate = addDays(currentDate, i);
     
@@ -116,17 +176,21 @@ const generateMockForecast = (currentDate: Date = new Date()) => {
       ? 'Tomorrow' 
       : format(forecastDate, 'EEEE');
     
-    const temp = 22 - i;
+    const condition = weatherPattern[i-1];
+    const temp = tempPattern[i-1];
     const highTemp = temp + 2;
-    const lowTemp = temp - 4;
+    const lowTemp = temp - 5;
+    const rainChance = condition.includes('Rain') ? 40 : 
+                      condition === 'Cloudy' ? 25 : 
+                      condition === 'Partly Cloudy' ? 15 : 5;
     
     forecast.push({
       day: dayName,
-      condition: 'Cloudy',
-      icon: '03d',
-      temp: `${temp}°`,
+      condition: condition,
+      icon: getWeatherIcon(condition, 12),
       high: highTemp,
       low: lowTemp,
+      rainChance: rainChance,
       date: forecastDate,
     });
   }
