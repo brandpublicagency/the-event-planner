@@ -1,6 +1,7 @@
+
 import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
-import { generateForecastFromWeatherData } from '../forecastUtils';
+import { generateForecastFromWeatherData } from './forecastUtilsProxy';
 
 export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => {
   const {
@@ -9,7 +10,7 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     error,
     refetch
   } = useDashboardMessage({
-    refetchInterval: 10 * 60 * 1000
+    refetchInterval: 5 * 60 * 1000  // Reduced to 5 minutes for more frequent updates
   });
   
   const [forecast, setForecast] = useState<any[]>([]);
@@ -43,7 +44,7 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     const refreshInterval = setInterval(() => {
       console.log("Auto-refreshing weather data...");
       refetch();
-    }, 10 * 60 * 1000);
+    }, 5 * 60 * 1000);  // Shortened to 5 minutes for more frequent updates
     
     return () => clearInterval(refreshInterval);
   }, [refetch]);
@@ -58,13 +59,14 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [dashboardMessage?.weatherData, currentDateTime]);
   
+  // Updated mock data for Bloemfontein in April
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 19,
     feels_like: 20,
     humidity: 45,
     wind_speed: 12,
-    condition: 'Cloudy',
+    condition: 'Cloudy',  // Default to cloudy for consistent styling
     description: 'cloudy skies',
     icon: '02d',
     high: 21,
