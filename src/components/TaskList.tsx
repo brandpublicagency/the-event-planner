@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Task } from "@/contexts/task/taskTypes";
 import { Loader2, AlertCircle, CheckSquare, Plus } from "lucide-react";
@@ -9,6 +10,7 @@ import { TaskListHeader } from "./tasks/list/TaskListHeader";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+
 interface TaskListProps {
   tasks: Task[];
   onTaskSelect: (id: string) => void;
@@ -17,6 +19,7 @@ interface TaskListProps {
   hideHeader?: boolean;
   isDashboard?: boolean;
 }
+
 export function TaskList({
   tasks,
   onTaskSelect,
@@ -35,6 +38,7 @@ export function TaskList({
     error
   } = useTaskContext();
   const inputRef = useRef<HTMLInputElement>(null);
+  
   useEffect(() => {
     if (focusNewTaskInput && inputRef.current) {
       setTimeout(() => {
@@ -42,6 +46,7 @@ export function TaskList({
       }, 100);
     }
   }, [focusNewTaskInput]);
+  
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
     try {
@@ -62,13 +67,16 @@ export function TaskList({
       return task.completed;
     }
   });
+  
   const upcomingCount = tasks.filter(task => !task.completed).length;
   const completedCount = tasks.filter(task => task.completed).length;
+  
   if (isLoading) {
     return <div className="flex items-center justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>;
   }
+  
   if (error) {
     return <Alert variant="destructive" className="my-4">
         <AlertCircle className="h-4 w-4" />
@@ -77,6 +85,7 @@ export function TaskList({
         </AlertDescription>
       </Alert>;
   }
+  
   return <div className="space-y-4">
       {!hideHeader && <div className="flex items-center justify-between p-4 rounded-lg bg-gray-200 py-[20px] px-[20px]">
           <div className="flex items-center gap-2">

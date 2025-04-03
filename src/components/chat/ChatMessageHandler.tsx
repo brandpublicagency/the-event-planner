@@ -1,50 +1,30 @@
 
 import { ReactNode } from "react";
-import { useChatMessageHandler } from "@/hooks/chat/useChatMessageHandler";
-import { ChatMessage, PendingAction } from "@/types/chat";
+import { ChatMessage } from "@/types/chat";
 
 interface ChatMessageHandlerProps {
   children: (props: {
     messages: ChatMessage[];
     isLoading: boolean;
-    pendingAction: PendingAction | null;
+    pendingAction: null;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
   }) => ReactNode;
-  contextData?: any;
-  inputValue?: string;
-  isLoading?: boolean;
-  setInputValue?: (value: string) => void;
-  clearInput?: () => void;
-  forceLocalData?: boolean;
 }
 
-const ChatMessageHandler = ({ 
-  children, 
-  contextData, 
-  inputValue = "",
-  isLoading = false,
-  setInputValue = () => {},
-  clearInput = () => {},
-  forceLocalData = true // Force local data by default
-}: ChatMessageHandlerProps) => {
-  const {
-    messages,
-    isLoading: handlerIsLoading,
-    pendingAction,
-    handleSubmit
-  } = useChatMessageHandler({
-    contextData,
-    inputValue,
-    isLoading,
-    setInputValue,
-    clearInput,
-    forceLocalData
-  });
+const ChatMessageHandler = ({ children }: ChatMessageHandlerProps) => {
+  // This is a simplified implementation that doesn't use OpenAI
+  const messages: ChatMessage[] = [];
+  const isLoading = false;
+  const pendingAction = null;
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Chat functionality has been simplified - AI integration removed");
+  };
 
-  // Ensure messages are passed correctly to children
   return children({
     messages,
-    isLoading: handlerIsLoading,
+    isLoading,
     pendingAction,
     handleSubmit
   });

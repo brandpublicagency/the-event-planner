@@ -1,4 +1,4 @@
 
 // This file is kept for backward compatibility
-// It re-exports the refactored hook from its new location
+// It re-exports the simplified hook from its new location
 export { useChatMessageHandler } from "./chat/useChatMessageHandler";
