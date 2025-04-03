@@ -1,50 +1,38 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MenuItemFormData } from '@/api/menuItemsApi';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-
 interface MenuItemInlineFormProps {
   onSubmit: (data: MenuItemFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
 }
-
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  choice_id: z.string().min(1, "Choice is required"),
+  choice_id: z.string().min(1, "Choice is required")
 });
-
 type FormValues = z.infer<typeof formSchema>;
-
 const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting,
-  choiceId,
+  choiceId
 }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       label: '',
       value: '',
-      choice_id: choiceId,
-    },
+      choice_id: choiceId
+    }
   });
-
   const handleSubmit = (values: FormValues) => {
     // Create the menu item data
     const menuItemData: MenuItemFormData = {
@@ -52,55 +40,38 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       value: values.value,
       choice_id: choiceId,
       description: null,
-      image_url: null,
+      image_url: null
     };
-    
     onSubmit(menuItemData);
     form.reset();
   };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 mt-3 p-3 border border-gray-100 bg-gray-50 rounded-md">
+  return <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 mt-3 p-3 border border-gray-100 rounded-md bg-white">
         <div className="flex justify-between items-center mb-2">
           <h5 className="text-sm font-medium">Add New Item</h5>
-          <Button 
-            type="button" 
-            variant="ghost" 
-            size="icon" 
-            onClick={onCancel}
-            className="h-6 w-6"
-          >
+          <Button type="button" variant="ghost" size="icon" onClick={onCancel} className="h-6 w-6">
             <X className="h-4 w-4" />
           </Button>
         </div>
         
         <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="label"
-            render={({ field }) => (
-              <FormItem>
+          <FormField control={form.control} name="label" render={({
+          field
+        }) => <FormItem>
                 <FormControl>
                   <Input placeholder="Display name" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+              </FormItem>} />
           
-          <FormField
-            control={form.control}
-            name="value"
-            render={({ field }) => (
-              <FormItem>
+          <FormField control={form.control} name="value" render={({
+          field
+        }) => <FormItem>
                 <FormControl>
                   <Input placeholder="Value identifier" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+              </FormItem>} />
         </div>
         
         <div className="flex justify-end">
@@ -109,8 +80,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           </Button>
         </div>
       </form>
-    </Form>
-  );
+    </Form>;
 };
-
 export default MenuItemInlineForm;
