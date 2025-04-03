@@ -20,9 +20,8 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
   timeOfDay,
   currentDateTime
 }) => {
-  // Ensure we're using the current weather condition or default to 'cloudy'
-  // This ensures the greyish color scheme is used by default
-  const weatherCondition = weatherData?.condition?.toLowerCase() || 'cloudy';
+  // Ensure we're using the current weather condition
+  const weatherCondition = weatherData?.condition?.toLowerCase() || '';
   
   const {
     gradientStyle,
@@ -39,7 +38,8 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
           boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
         }}
       >
-        <WeatherBackground weatherType={weatherData?.condition} />
+        {/* Apply weather animation only to the background, not to each forecast item */}
+        <WeatherBackground weatherType={weatherData?.condition} todayOnly={true} />
         
         <div className="relative z-10 w-full h-full p-4">
           <div className="flex items-center justify-between text-white">
