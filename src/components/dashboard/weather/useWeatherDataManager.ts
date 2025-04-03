@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
-import { generateForecastFromWeatherData } from '../forecastUtils';
+import { generateForecastFromWeatherData } from './forecastUtils';
 
 export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => {
   const {
