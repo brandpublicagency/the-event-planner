@@ -23,12 +23,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
+import { useNavigate } from 'react-router-dom';
 
 interface MenuChoicesTableProps {
   sectionId: string;
 }
 
 const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
+  const navigate = useNavigate();
   const { 
     choices, 
     isLoading,
@@ -82,7 +84,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
                 <TableHead>Display Name</TableHead>
                 <TableHead>Value</TableHead>
                 <TableHead>Display Order</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[150px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

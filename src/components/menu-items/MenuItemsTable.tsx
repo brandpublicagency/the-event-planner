@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { MenuItem } from '@/api/menuItemsApi';
+import React, { useState, useEffect } from 'react';
+import { MenuItem, MenuChoice } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useMenuSections } from '@/hooks/useMenuSections';
+import { useMenuChoices } from '@/hooks/useMenuChoices';
 
 type MenuItemsTableProps = {
   items: MenuItem[];
@@ -38,8 +38,14 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   isDeleting,
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
-  const [section, setSection] = useState<string | null>(null);
-  const { sections } = useMenuSections();
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const { choices } = useMenuChoices();
+  const [allChoices, setAllChoices] = useState<MenuChoice[]>([]);
+
+  // Fetch all choices
+  useEffect(() => {
+    setAllChoices(choices);
+  }, [choices]);
 
   const handleDelete = () => {
     if (itemToDelete) {
@@ -48,58 +54,39 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
   };
 
-  // Get unique sections
-  const uniqueSections = [...new Set(items.map(item => item.section))];
+  // Get unique choices
+  const uniqueChoices = [...new Set(items.map(item => item.choice))];
   
-  // Filter items by section if selected
-  const filteredItems = section 
-    ? items.filter(item => item.section === section)
+  // Filter items by choice if selected
+  const filteredItems = selectedChoice 
+    ? items.filter(item => item.choice === selectedChoice)
     : items;
 
-  const getCategoryLabel = (categoryValue: string): string => {
-    const categoryMap: Record<string, string> = {
-      'canapes': 'Canapés',
-      'plated': 'Plated',
-      'buffet_meat': 'Buffet Meat',
-      'buffet_vegetable': 'Buffet Vegetable',
-      'buffet_starch': 'Buffet Starch',
-      'karoo_meat': 'Karoo Meat',
-      'karoo_vegetable': 'Karoo Vegetable',
-      'karoo_starch': 'Karoo Starch',
-      'plated_main': 'Plated Main',
-      'dessert_canapes': 'Dessert Canapés',
-      'individual_cakes': 'Individual Cakes',
-      'traditional': 'Traditional',
-    };
-    
-    return categoryMap[categoryValue] || categoryValue;
-  };
-
-  const getSectionLabel = (sectionValue: string): string => {
-    const sectionObj = sections.find(s => s.value === sectionValue);
-    return sectionObj ? sectionObj.label : sectionValue;
+  const getChoiceLabel = (choiceValue: string): string => {
+    const choice = allChoices.find(c => c.value === choiceValue);
+    return choice ? choice.label : choiceValue;
   };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2 mb-4">
         <Button
-          variant={section === null ? "default" : "outline"}
+          variant={selectedChoice === null ? "default" : "outline"}
           size="sm"
-          onClick={() => setSection(null)}
+          onClick={() => setSelectedChoice(null)}
           className="mb-1"
         >
           All
         </Button>
-        {uniqueSections.map(s => (
+        {uniqueChoices.map(c => (
           <Button
-            key={s}
-            variant={section === s ? "default" : "outline"}
+            key={c}
+            variant={selectedChoice === c ? "default" : "outline"}
             size="sm"
-            onClick={() => setSection(s)}
+            onClick={() => setSelectedChoice(c)}
             className="mb-1"
           >
-            {getSectionLabel(s)}
+            {getChoiceLabel(c)}
           </Button>
         ))}
       </div>
@@ -108,8 +95,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Section</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>Choice</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -117,16 +103,15 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                <TableCell colSpan={3} className="text-center py-4 text-gray-500">
                   No menu items found
                 </TableCell>
               </TableRow>
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{getSectionLabel(item.section)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{getCategoryLabel(item.category)}</Badge>
+                    <Badge variant="outline">{getChoiceLabel(item.choice)}</Badge>
                   </TableCell>
                   <TableCell>
                     <div>{item.label}</div>

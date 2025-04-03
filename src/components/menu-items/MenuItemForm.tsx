@@ -16,12 +16,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useMenuSections } from '@/hooks/useMenuSections';
+import { useMenuChoices } from '@/hooks/useMenuChoices';
 
 const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   label: z.string().min(1, 'Label is required'),
-  category: z.string().min(1, 'Category is required'),
-  section: z.string().min(1, 'Section is required'),
+  choice: z.string().min(1, 'Choice is required'),
+  choice_id: z.string().nullable(),
   description: z.string().nullable(),
   image_url: z.string().nullable(),
 });
@@ -33,21 +34,6 @@ type MenuItemFormProps = {
   isSubmitting?: boolean;
 };
 
-const CATEGORIES = [
-  { value: 'canapes', label: 'Canapés', section: 'starters' },
-  { value: 'plated', label: 'Plated', section: 'starters' },
-  { value: 'buffet_meat', label: 'Buffet Meat', section: 'main_courses' },
-  { value: 'buffet_vegetable', label: 'Buffet Vegetable', section: 'main_courses' },
-  { value: 'buffet_starch', label: 'Buffet Starch', section: 'main_courses' },
-  { value: 'karoo_meat', label: 'Karoo Meat', section: 'main_courses' },
-  { value: 'karoo_vegetable', label: 'Karoo Vegetable', section: 'main_courses' },
-  { value: 'karoo_starch', label: 'Karoo Starch', section: 'main_courses' },
-  { value: 'plated_main', label: 'Plated Main', section: 'main_courses' },
-  { value: 'dessert_canapes', label: 'Dessert Canapés', section: 'desserts' },
-  { value: 'individual_cakes', label: 'Individual Cakes', section: 'desserts' },
-  { value: 'traditional', label: 'Traditional', section: 'desserts' },
-];
-
 const MenuItemForm: React.FC<MenuItemFormProps> = ({ 
   initialData = {}, 
   onSubmit, 
@@ -55,36 +41,35 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   isSubmitting = false
 }) => {
   const { sections, isLoading: sectionsLoading } = useMenuSections();
-  const [filteredCategories, setFilteredCategories] = useState<typeof CATEGORIES>([]);
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const { choices, isLoading: choicesLoading } = useMenuChoices(selectedSection || undefined);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       value: initialData.value || '',
       label: initialData.label || '',
-      category: initialData.category || '',
-      section: initialData.section || '',
+      choice: initialData.choice || '',
+      choice_id: initialData.choice_id || null,
       description: initialData.description || '',
       image_url: initialData.image_url || null,
     },
   });
 
-  const selectedSection = form.watch('section');
-
-  // Filter categories when section changes
-  useEffect(() => {
-    if (selectedSection) {
-      setFilteredCategories(
-        CATEGORIES.filter(category => category.section === selectedSection)
-      );
-    } else {
-      setFilteredCategories([]);
-    }
-  }, [selectedSection]);
-
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     onSubmit(values as MenuItemFormData);
   };
+
+  // Filter choices based on selected section
+  useEffect(() => {
+    if (initialData.choice_id) {
+      // Find the section for the initial choice
+      const choice = choices.find(c => c.id === initialData.choice_id);
+      if (choice) {
+        setSelectedSection(choice.section_id);
+      }
+    }
+  }, [initialData.choice_id, choices]);
 
   return (
     <Form {...form}>
@@ -92,24 +77,31 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="section"
+            name="choice"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Section</FormLabel>
+                <FormLabel>Menu Choice</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Find the choice and set the choice_id
+                    const choice = choices.find(c => c.value === value);
+                    if (choice) {
+                      form.setValue('choice_id', choice.id);
+                    }
+                  }}
                   defaultValue={field.value}
-                  disabled={sectionsLoading}
+                  disabled={choicesLoading}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
+                      <SelectValue placeholder="Select choice" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {sections.map((section) => (
-                      <SelectItem key={section.value} value={section.value}>
-                        {section.label}
+                    {choices.map((choice) => (
+                      <SelectItem key={choice.value} value={choice.value}>
+                        {choice.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -121,29 +113,12 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 
           <FormField
             control={form.control}
-            name="category"
+            name="choice_id"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!selectedSection}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {filteredCategories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
+              <FormItem className="hidden">
+                <FormControl>
+                  <Input {...field} value={field.value || ''} type="hidden" />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -204,7 +179,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : initialData.id ? 'Update' : 'Create'}
+            {isSubmitting ? 'Saving...' : initialData.value ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>
