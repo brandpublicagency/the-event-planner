@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { generateForecastFromWeatherData } from '../forecastUtils';
@@ -67,7 +68,7 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     wind_speed: 12,
     condition: 'Cloudy',  // Default to cloudy for consistent styling
     description: 'cloudy skies',
-    icon: '02d',
+    icon: '03n',  // Use nighttime cloudy icon (03n instead of 02d)
     high: 21,
     low: 13,
     location: 'Bloemfontein',

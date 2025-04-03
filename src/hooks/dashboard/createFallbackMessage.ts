@@ -59,10 +59,10 @@ const generateAccurateWeatherData = () => {
     
     // Autumn in Bloemfontein is typically clear/partly cloudy
     const weatherTypes = [
-      { condition: 'Clear', description: 'clear skies', probability: 40 },
+      { condition: 'Cloudy', description: 'cloudy skies', probability: 40 },
       { condition: 'Partly Cloudy', description: 'partly cloudy', probability: 30 },
-      { condition: 'Cloudy', description: 'cloudy skies', probability: 20 },
-      { condition: 'Light Rain', description: 'light rain showers', probability: 10 }
+      { condition: 'Light Rain', description: 'light rain showers', probability: 20 },
+      { condition: 'Clear', description: 'clear skies', probability: 10 }
     ];
     
     // Select weather type based on weighted probability
@@ -90,8 +90,8 @@ const generateAccurateWeatherData = () => {
   // Default for any other month (shouldn't happen in April but just in case)
   else {
     baseTemp = 19;
-    condition = 'Clear';
-    description = 'clear skies';
+    condition = 'Cloudy'; // Changed from 'Clear' to 'Cloudy'
+    description = 'cloudy skies';
     rainProbability = 5 + Math.floor(Math.random() * 10);
   }
   

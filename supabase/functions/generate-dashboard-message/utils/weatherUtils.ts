@@ -60,7 +60,7 @@ export function createFallbackWeatherData() {
     low: lowTemp,
     humidity: humidity,
     wind_speed: windSpeed,
-    condition: 'Cloudy',
+    condition: 'Cloudy', // Default to Cloudy instead of Clear
     description: 'cloudy skies',
     icon: currentHour >= 6 && currentHour < 19 ? '02d' : '02n', // Day or night icon
     location: 'Bloemfontein',

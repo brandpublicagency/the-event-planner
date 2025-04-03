@@ -20,8 +20,9 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
   timeOfDay,
   currentDateTime
 }) => {
-  // Ensure we're using the current weather condition
-  const weatherCondition = weatherData?.condition?.toLowerCase() || '';
+  // Ensure we're using the current weather condition or default to 'cloudy'
+  // This ensures the greyish color scheme is used by default
+  const weatherCondition = weatherData?.condition?.toLowerCase() || 'cloudy';
   
   const {
     gradientStyle,
