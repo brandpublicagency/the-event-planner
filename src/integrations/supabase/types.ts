@@ -202,6 +202,45 @@ export type Database = {
           },
         ]
       }
+      menu_items: {
+        Row: {
+          available: boolean | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          label: string
+          price: number | null
+          section: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          available?: boolean | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          label: string
+          price?: number | null
+          section: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          available?: boolean | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          label?: string
+          price?: number | null
+          section?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       menu_options: {
         Row: {
           category: string
