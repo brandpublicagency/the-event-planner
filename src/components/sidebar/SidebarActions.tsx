@@ -31,99 +31,99 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   return (
     <div className={cn(
-      "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-3 pb-4",
+      "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-2 pb-3",
       isCollapsed ? "px-2" : "px-3"
     )}>
       <div className={cn(
         "flex",
-        isCollapsed ? "flex-col items-center gap-3" : "flex-col gap-1"
+        isCollapsed ? "flex-col items-center gap-2" : "flex-col gap-1"
       )}>
         {isCollapsed ? (
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Event"
             >
-              <Plus className="h-5 w-5 transition-transform group-hover:scale-110" />
+              <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Task"
             >
-              <CheckSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
+              <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Document"
             >
-              <FilePlus className="h-5 w-5 transition-transform group-hover:scale-110" />
+              <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
-            <div className="my-2 w-8 border-t border-gray-200/50"></div>
+            <div className="my-1.5 w-6 border-t border-gray-200/50"></div>
             
             <button 
               onClick={navigateToMyBusiness} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Menu Management"
             >
-              <Menu className="h-5 w-5 transition-transform group-hover:scale-110" />
+              <Menu className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Expand Sidebar"
             >
-              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
           </>
         ) : (
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
-              <span className="text-sm font-medium">Add Event</span>
+              <Plus className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <span className="text-xs font-medium">Add Event</span>
             </button>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
-              <span className="text-sm font-medium">Add Task</span>
+              <CheckSquare className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <span className="text-xs font-medium">Add Task</span>
             </button>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
-              <span className="text-sm font-medium">Add Document</span>
+              <FilePlus className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <span className="text-xs font-medium">Add Document</span>
             </button>
             
-            <div className="my-2 border-t border-gray-200/50"></div>
+            <div className="my-1.5 border-t border-gray-200/50"></div>
             
             <button 
               onClick={navigateToMyBusiness} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <Menu className="h-4 w-4 transition-transform group-hover:scale-110" />
-              <span className="text-sm font-medium">Menu Management</span>
+              <Menu className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <span className="text-xs font-medium">Menu Management</span>
             </button>
             
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-              <span className="text-sm font-medium">Collapse Sidebar</span>
+              <ChevronLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span className="text-xs font-medium">Collapse Sidebar</span>
             </button>
           </>
         )}

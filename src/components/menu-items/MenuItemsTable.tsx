@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
@@ -39,9 +40,9 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           <Droppable droppableId="menu-items" direction="vertical">
             {provided => <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
                 {items.map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
-                    {provided => <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-start mb-4">
+                    {provided => <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-start mb-3">
                         {onReorder && <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
-                            <GripVertical className="h-5 w-5 text-gray-400" />
+                            <GripVertical className="h-4 w-4 text-gray-400" />
                           </div>}
                         
                         <div className="flex-1">
@@ -50,17 +51,17 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                               <div className="text-xs text-gray-800">{item.label}</div>
                               <div className="text-xs text-gray-500 mt-1">{item.value}</div>
                             </div>
-                            <div className="flex space-x-2">
-                              <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
-                                <Edit className="h-4 w-4" />
+                            <div className="flex space-x-1">
+                              <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="h-6 w-6">
+                                <Edit className="h-3 w-3" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => setItemToDelete(item)}>
-                                <Trash2 className="h-4 w-4" />
+                              <Button variant="ghost" size="icon" onClick={() => setItemToDelete(item)} className="h-6 w-6">
+                                <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
                           </div>
                           
-                          {item.description && <div className="text-sm text-gray-700 mt-2">
+                          {item.description && <div className="text-xs text-gray-700 mt-2">
                               {item.description}
                             </div>}
                         </div>

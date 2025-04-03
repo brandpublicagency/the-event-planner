@@ -11,11 +11,11 @@ interface NotificationEmptyProps {
 export const NotificationEmpty = ({ loading, onRefresh }: NotificationEmptyProps) => {
   return (
     <div className="bg-white shadow-sm rounded-lg p-3 text-center">
-      <p className="text-sm text-gray-500">
+      <p className="text-xs text-gray-500">
         {loading ? "Loading notifications..." : "No notifications to display"}
       </p>
-      <Button variant="ghost" size="sm" onClick={onRefresh} className="mt-2 h-7">
-        <RefreshCw className="h-3 w-3 mr-1" />
+      <Button variant="ghost" size="sm" onClick={onRefresh} className="mt-2 h-6 text-[10px]">
+        <RefreshCw className="h-2.5 w-2.5 mr-1" />
         Refresh
       </Button>
     </div>

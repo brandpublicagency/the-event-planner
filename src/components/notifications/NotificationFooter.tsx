@@ -11,15 +11,15 @@ export const NotificationFooter: React.FC<NotificationFooterProps> = ({
   onViewAll
 }) => {
   return (
-    <div className="p-3">
+    <div className="p-2.5">
       <Button
         onClick={onViewAll}
-        className="w-full flex items-center justify-center h-8"
+        className="w-full flex items-center justify-center h-7"
         variant="outline"
         size="sm"
       >
-        <ExternalLink className="h-3.5 w-3.5 mr-2" />
-        <span className="text-xs">View all notifications</span>
+        <ExternalLink className="h-3 w-3 mr-1.5" />
+        <span className="text-[10px]">View all notifications</span>
       </Button>
     </div>
   );

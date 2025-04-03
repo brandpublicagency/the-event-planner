@@ -11,19 +11,19 @@ const ActionButtons = ({
   isSubmitting
 }: ActionButtonsProps) => {
   return (
-    <div className="py-[10px] pb-5 pt-8">
+    <div className="py-[10px] pb-4 pt-6">
       <Button 
         type="button" 
         variant="outline" 
         onClick={onClose} 
-        className="w-24 rounded-[4px] ml-0"
+        className="w-20 rounded-[4px] ml-0"
       >
         Cancel
       </Button>
       <Button 
         type="submit" 
         disabled={isSubmitting} 
-        className="w-32 rounded-[4px] ml-[10px]"
+        className="w-28 rounded-[4px] ml-[10px]"
       >
         {isSubmitting ? "Saving..." : "Save changes"}
       </Button>

@@ -21,7 +21,7 @@ export function AddTaskInput({
   const ref = inputRef || defaultRef;
 
   return (
-    <div className="flex gap-2 items-center mt-2">
+    <div className="flex gap-1.5 items-center mt-2">
       <Input
         ref={ref}
         placeholder="Add a task..."
@@ -33,16 +33,16 @@ export function AddTaskInput({
             onSubmit();
           }
         }}
-        className="text-sm"
+        className="text-xs h-7"
       />
       <Button 
         onClick={onSubmit} 
         disabled={!value.trim()}
         size="icon"
         variant="outline"
-        className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+        className="h-7 w-7 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
       >
-        <Plus className="h-4 w-4 text-zinc-700" />
+        <Plus className="h-3.5 w-3.5 text-zinc-700" />
       </Button>
     </div>
   );

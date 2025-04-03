@@ -19,7 +19,7 @@ export function NoteInput({
   autoFocus = false 
 }: NoteInputProps) {
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex gap-1.5 items-center">
       <Textarea
         placeholder={placeholder}
         value={value}
@@ -30,7 +30,7 @@ export function NoteInput({
             onSubmit();
           }
         }}
-        className="min-h-[60px] text-sm resize-none"
+        className="min-h-[55px] text-xs resize-none"
         rows={2}
         autoFocus={autoFocus}
       />
@@ -39,9 +39,9 @@ export function NoteInput({
         disabled={!value.trim()}
         size="icon"
         variant="outline"
-        className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+        className="h-7 w-7 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
       >
-        <Plus className="h-4 w-4 text-zinc-700" />
+        <Plus className="h-3.5 w-3.5 text-zinc-700" />
       </Button>
     </div>
   );

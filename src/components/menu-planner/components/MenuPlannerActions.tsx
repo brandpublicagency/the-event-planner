@@ -14,7 +14,7 @@ const MenuPlannerActions: React.FC<MenuPlannerActionsProps> = ({
   isManualSaving
 }) => {
   return (
-    <div className="mt-6 flex justify-end">
+    <div className="mt-4 flex justify-end">
       <SaveButton
         onClick={onSave}
         disabled={isSaving || isManualSaving}
@@ -22,7 +22,7 @@ const MenuPlannerActions: React.FC<MenuPlannerActionsProps> = ({
         loadingText="Saving..."
         successText="Menu Saved"
         timeout={3000}
-        className="min-w-[120px]"
+        className="min-w-[100px]"
       />
     </div>
   );

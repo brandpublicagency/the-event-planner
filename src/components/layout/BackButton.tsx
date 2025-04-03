@@ -40,11 +40,11 @@ export const BackButton = ({ path = "/", onClick }: BackButtonProps) => {
     <Button
       variant="ghost"
       size="sm"
-      className="rounded-full h-8 mr-2"
+      className="rounded-full h-7 mr-2"
       onClick={handleClick}
     >
-      <ChevronLeft className="h-4 w-4 mr-1" />
-      <span className="text-sm font-medium">Back</span>
+      <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+      <span className="text-xs font-medium">Back</span>
     </Button>
   );
 };

@@ -77,8 +77,8 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
+      <CardContent className="p-3">
+        <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
             <TaskCheckbox
               taskId={task.id}
@@ -87,8 +87,8 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5">
                 <TaskTitle
                   title={task.title}
                   taskCode={task.task_code}
@@ -96,7 +96,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                 />
                 <TaskDueDate dueDate={task.due_date} />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <TaskStatusBadges 
                   priority={task.priority} 
                   dueDate={task.due_date}
@@ -105,13 +105,13 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-7 w-7"
+                  className="h-6 w-6"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Edit action would be here
                   }}
                 >
-                  <Edit className="h-3.5 w-3.5 text-zinc-400" />
+                  <Edit className="h-3 w-3 text-zinc-400" />
                 </Button>
                 <TaskActions 
                   isDeleting={isDeleting}

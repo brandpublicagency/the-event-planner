@@ -64,19 +64,19 @@ export const SaveButton = ({
       onClick={handleClick}
       disabled={disabled || isLoading}
       className={cn(
-        "relative min-w-[120px]",
+        "relative min-w-[100px]",
         className
       )}
       {...props}
     >
       {isLoading ? (
         <span className="flex items-center justify-center">
-          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+          <Loader2 className="h-3 w-3 animate-spin mr-1" />
           <span>{loadingText}</span>
         </span>
       ) : isSuccess && successText ? (
         <span className="flex items-center justify-center">
-          <Check className="h-4 w-4 mr-1" />
+          <Check className="h-3 w-3 mr-1" />
           <span>{successText}</span>
         </span>
       ) : (

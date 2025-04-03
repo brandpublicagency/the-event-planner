@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
@@ -43,7 +44,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
   };
   return <div className="space-y-4">
       <Button size="sm" onClick={() => setShowInlineForm(true)} className="mb-4">
-        <PlusIcon className="h-4 w-4 mr-2" />
+        <PlusIcon className="h-3 w-3 mr-1.5" />
         Add Choice
       </Button>
 
@@ -52,21 +53,21 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
       setShowInlineForm(false);
     }} onCancel={() => setShowInlineForm(false)} isSubmitting={isCreating} sectionId={sectionId} />}
 
-      {isLoading ? <div className="text-center py-4">Loading choices...</div> : <div className="space-y-6">
+      {isLoading ? <div className="text-center py-4">Loading choices...</div> : <div className="space-y-5">
           {choices.length === 0 ? <div className="text-center py-4 text-gray-500">
               No choices added yet
-            </div> : choices.map(choice => <div key={choice.id} className="mb-6">
-                <div className="flex justify-between items-center mb-3">
+            </div> : choices.map(choice => <div key={choice.id} className="mb-5">
+                <div className="flex justify-between items-center mb-2">
                   <div>
-                    <h5 className="font-medium text-sm">{choice.label}</h5>
-                    <p className="text-xs text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
+                    <h5 className="font-medium text-xs">{choice.label}</h5>
+                    <p className="text-[10px] text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)}>
-                      <Pencil className="h-4 w-4" />
+                  <div className="flex space-x-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)} className="h-6 w-6">
+                      <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(choice)}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(choice)} className="h-6 w-6">
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>

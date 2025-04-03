@@ -20,9 +20,9 @@ export const NotificationFooter = ({
         variant="ghost" 
         size="sm" 
         onClick={onViewAllNotifications} 
-        className="text-xs text-primary hover:bg-primary/5"
+        className="text-[10px] text-primary hover:bg-primary/5 h-6 px-2"
       >
-        <ExternalLink className="h-3 w-3 mr-1" />
+        <ExternalLink className="h-2.5 w-2.5 mr-1" />
         View all notifications
       </Button>
     </div>
