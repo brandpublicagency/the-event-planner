@@ -32,9 +32,6 @@ const DashboardMessage = () => {
     if (dashboardMessage) {
       console.log("Dashboard message received:", dashboardMessage);
       console.log("Weather data available:", !!dashboardMessage.weatherData);
-      if (dashboardMessage.weatherData) {
-        console.log("Weather data details:", dashboardMessage.weatherData);
-      }
     }
   }, [dashboardMessage]);
 
@@ -47,15 +44,6 @@ const DashboardMessage = () => {
     }
   }, [error, toast]);
 
-  const hour = new Date().getHours();
-  let greeting = "Good day";
-  if (hour < 12) greeting = "Good morning";
-  else if (hour < 18) greeting = "Good afternoon";
-  else greeting = "Good evening";
-
-  const firstName = profile?.full_name?.split(' ')[0] || '';
-  const personalizedGreeting = firstName ? `${greeting} ${firstName}` : greeting;
-
   if (isLoading || isProfileLoading) {
     return <div className="mb-6 mt-4">
         <div className="p-4">
@@ -65,6 +53,9 @@ const DashboardMessage = () => {
       </div>;
   }
 
+  // The message already contains the appropriate greeting
+  const message = dashboardMessage.message || "Welcome to your dashboard. Have a great day!";
+
   return (
     <div className="mb-6 mt-4">
       <motion.div 
@@ -73,11 +64,8 @@ const DashboardMessage = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-4">
-          <h2 className="font-bold text-gray-800 dark:text-gray-100 text-2xl">
-            {personalizedGreeting}
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed">
-            {dashboardMessage.message}
+          <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line">
+            {message}
           </p>
         </div>
       </motion.div>

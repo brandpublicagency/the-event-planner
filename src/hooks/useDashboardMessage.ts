@@ -1,19 +1,19 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase, retryOperation } from "@/integrations/supabase/client";
+import { useProfile } from './useProfile';
 
 interface DashboardMessage {
   message: string;
-  type: 'event' | 'task' | 'upcoming_event' | 'weather' | 'default';
-  eventDetails?: any;
-  tasks?: any[];
-  upcomingEvents?: any;
+  type: 'default';
   weatherData?: any;
 }
 
 export const useDashboardMessage = () => {
+  const { profile } = useProfile();
+  const firstName = profile?.full_name?.split(' ')[0] || '';
+
   const { data: dashboardMessage, isLoading, error, refetch } = useQuery({
-    queryKey: ['dashboard-message'],
+    queryKey: ['dashboard-message', firstName],
     queryFn: async () => {
       try {
         console.log('Fetching dashboard message from edge function');
@@ -25,7 +25,10 @@ export const useDashboardMessage = () => {
         
         // The actual fetch operation
         const fetchPromise = retryOperation(async () => {
-          const { data, error } = await supabase.functions.invoke('generate-dashboard-message');
+          // Pass the user's first name to the edge function
+          const { data, error } = await supabase.functions.invoke('generate-dashboard-message', {
+            body: { firstName }
+          });
           
           if (error) {
             console.error('Edge function error:', error);
@@ -47,12 +50,8 @@ export const useDashboardMessage = () => {
       } catch (err: any) {
         console.error('Error fetching dashboard message:', err);
         
-        // Create a fallback message with more accurate weather data
-        const fallbackMessage: DashboardMessage = {
-          message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
-          type: 'default',
-          weatherData: generateAccurateWeatherData()
-        };
+        // Create a fallback message with time-based greeting
+        const fallbackMessage = createFallbackMessage(firstName);
         
         // Use the fallback message instead of throwing an error
         return fallbackMessage;
@@ -65,14 +64,31 @@ export const useDashboardMessage = () => {
   });
 
   return { 
-    dashboardMessage: dashboardMessage || {
-      message: `Welcome to your dashboard. Have a pleasant ${getTimeOfDay()}!`,
-      type: 'default',
-      weatherData: generateAccurateWeatherData()
-    }, 
+    dashboardMessage: dashboardMessage || createFallbackMessage(firstName), 
     isLoading, 
     error,
     refetch
+  };
+};
+
+// Helper function to create fallback message
+const createFallbackMessage = (firstName: string): DashboardMessage => {
+  const hour = new Date().getHours();
+  const personalizedName = firstName ? ` ${firstName}` : '';
+  let message = '';
+  
+  if (hour >= 3 && hour < 12) {
+    message = `Good morning${personalizedName},\nWelcome to your dashboard. Have a great day!`;
+  } else if (hour >= 12 && hour < 18) {
+    message = `Good afternoon${personalizedName},\nWelcome to your dashboard. Enjoy the rest of your day.`;
+  } else {
+    message = `Good evening${personalizedName},\nWelcome to your dashboard. Enjoy your evening!`;
+  }
+  
+  return {
+    message,
+    type: 'default',
+    weatherData: generateAccurateWeatherData()
   };
 };
 

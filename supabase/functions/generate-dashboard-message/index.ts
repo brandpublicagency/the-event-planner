@@ -2,18 +2,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { createJsonResponse, createErrorResponse } from "../_shared/response.ts";
-import { 
-  fetchTodayEvents,
-  fetchTasks,
-  fetchUpcomingEvents,
-  fetchWeatherForecast
-} from "./dataFetcher.ts";
-import { 
-  determineMessageContext,
-  generatePersonalizedMessage,
-  prepareDashboardResponse,
-  type DashboardMessage
-} from "./messageGenerator.ts";
+import { fetchWeatherForecast } from "./dataFetcher.ts";
+import { getTimeBasedGreeting, prepareDashboardResponse } from "./messageGenerator.ts";
 
 serve(async (req) => {
   try {
@@ -25,38 +15,24 @@ serve(async (req) => {
 
     console.log("Dashboard message request received with method:", req.method);
 
-    // Fetch all context data with better error handling
-    let todayEvents = [];
-    let tasks = [];
-    let upcomingEvents = [];
+    // Try to parse the request to get the user's name if provided
+    let firstName = '';
+    try {
+      const requestData = await req.json();
+      firstName = requestData.firstName || '';
+      console.log(`Request included user's first name: ${firstName}`);
+    } catch (error) {
+      console.log("No request body or not valid JSON, proceeding without user name");
+    }
+
+    // Only fetch weather data, skip fetching events and tasks
     let weatherData = null;
 
     // Check if OpenWeather API key is set
     const openWeatherApiKey = Deno.env.get("OPENWEATHER_API_KEY");
     console.log("OpenWeather API Key configured:", !!openWeatherApiKey);
 
-    try {
-      todayEvents = await fetchTodayEvents();
-      console.log(`Fetched ${todayEvents.length} today events`);
-    } catch (error) {
-      console.error("Error fetching today's events:", error);
-    }
-
-    try {
-      tasks = await fetchTasks();
-      console.log(`Fetched ${tasks.length} tasks`);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    }
-
-    try {
-      upcomingEvents = await fetchUpcomingEvents();
-      console.log(`Fetched ${upcomingEvents.length} upcoming events`);
-    } catch (error) {
-      console.error("Error fetching upcoming events:", error);
-    }
-
-    // Fetch weather data (now with 30-minute caching)
+    // Fetch weather data (with caching)
     try {
       weatherData = await fetchWeatherForecast();
       console.log("Weather data fetched:", weatherData ? JSON.stringify(weatherData).substring(0, 100) + "..." : "failed");
@@ -64,60 +40,32 @@ serve(async (req) => {
       console.error("Error fetching weather forecast:", error);
     }
     
-    // Determine message type and prepare context for OpenAI
-    const { messageType, contextData, systemPrompt } = determineMessageContext(
-      todayEvents,
-      tasks,
-      upcomingEvents,
-      weatherData
-    );
-    
-    console.log(`Message type determined: ${messageType}`);
-    
-    // Generate the personalized message
-    let message;
-    try {
-      message = await generatePersonalizedMessage(systemPrompt, contextData);
-      console.log("Message generated successfully:", message);
-    } catch (error) {
-      console.error("Error generating message:", error);
-      const timeOfDay = contextData.timeOfDay || "day";
-      
-      if (weatherData) {
-        message = `Welcome to your dashboard. Tomorrow's forecast shows ${weatherData.description} with a high of ${weatherData.temp}°C. Have a pleasant ${timeOfDay}!`;
-      } else {
-        message = `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`;
-      }
-      console.log("Using fallback message:", message);
-    }
+    // Get the simple time-based greeting
+    const message = getTimeBasedGreeting(firstName);
+    console.log("Generated time-based greeting:", message);
     
     // Prepare the final response
-    const response = prepareDashboardResponse(
-      message,
-      messageType,
-      todayEvents,
-      tasks,
-      upcomingEvents,
-      weatherData
-    );
+    const response = prepareDashboardResponse(message, weatherData);
     
-    console.log("Responding with dashboard message of type:", response.type);
+    console.log("Responding with dashboard message");
     console.log("Message includes weather data:", !!response.weatherData);
     
     return createJsonResponse(response);
   } catch (error) {
     console.error("Error in dashboard message generation:", error);
     
-    // Try to determine time of day for fallback message
+    // Create a simple fallback greeting based on time
     const hour = new Date().getHours();
-    let timeOfDay = "day";
-    if (hour < 12) timeOfDay = "morning";
-    else if (hour < 17) timeOfDay = "afternoon";
-    else timeOfDay = "evening";
+    let greeting = "Welcome to your dashboard.";
     
-    return createErrorResponse(
-      `Welcome to your dashboard. Have a pleasant ${timeOfDay}!`,
-      500
-    );
+    if (hour >= 3 && hour < 12) {
+      greeting = "Good morning,\nWelcome to your dashboard. Have a great day!";
+    } else if (hour >= 12 && hour < 18) {
+      greeting = "Good afternoon,\nWelcome to your dashboard. Enjoy the rest of your day.";
+    } else {
+      greeting = "Good evening,\nWelcome to your dashboard. Enjoy your evening!";
+    }
+    
+    return createErrorResponse(greeting, 500);
   }
 });
