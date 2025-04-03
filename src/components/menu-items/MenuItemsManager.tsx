@@ -34,13 +34,11 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
   const choiceItems = menuItems.filter(item => item.choice_id === choiceId);
 
   return (
-    <div className="mt-2 pl-6 border-l-2 border-gray-100">
+    <div className="mt-2 pl-4 border-l-2 border-gray-100">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-sm font-medium text-gray-700">Items for {choiceLabel}</h4>
         <Button 
           size="sm" 
-          variant="outline" 
-          className="h-8"
           onClick={() => setIsAddDialogOpen(true)}
         >
           <PlusIcon className="h-3.5 w-3.5 mr-1" />
@@ -53,7 +51,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
       ) : (
         <>
           {choiceItems.length === 0 ? (
-            <div className="text-center py-4 text-sm text-gray-500 bg-gray-50 rounded-md">
+            <div className="text-center py-4 text-sm text-gray-500">
               No items added to this choice yet
             </div>
           ) : (

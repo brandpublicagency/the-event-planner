@@ -70,13 +70,13 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
       ) : (
         <div className="space-y-6">
           {choices.length === 0 ? (
-            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-md">
+            <div className="text-center py-4 text-gray-500">
               No choices added yet
             </div>
           ) : (
             choices.map((choice) => (
-              <div key={choice.id} className="bg-gray-50 rounded-md p-4">
-                <div className="flex justify-between items-center mb-3">
+              <div key={choice.id} className="mb-4 pl-2 border-l-2 border-gray-100">
+                <div className="flex justify-between items-center mb-3 pb-2 border-b">
                   <div>
                     <h5 className="font-medium">{choice.label}</h5>
                     <p className="text-xs text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>

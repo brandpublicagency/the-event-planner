@@ -53,7 +53,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   return (
     <div className="space-y-4">
       {items.length === 0 ? (
-        <div className="text-center py-4 text-gray-500 bg-white rounded-md border p-4">
+        <div className="text-center py-4 text-gray-500">
           No menu items found
         </div>
       ) : (
@@ -76,7 +76,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className="flex items-start bg-white border rounded-md p-3 shadow-sm"
+                        className="flex items-start border-b pb-3 mb-2 last:border-0 last:mb-0"
                       >
                         {onReorder && (
                           <div {...provided.dragHandleProps} className="cursor-grab pr-2">
