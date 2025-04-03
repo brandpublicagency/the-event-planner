@@ -8,7 +8,7 @@ type GradientStyle = {
 
 type GradientSet = Record<TimePhase, GradientStyle>;
 
-// Cloudy gradients for different times of day
+// Cloudy gradients for different times of day - using muted blue/grey tones
 export const cloudyGradients: GradientSet = {
   dawn: {
     background: "linear-gradient(to right bottom, rgb(51, 65, 85), rgb(100, 116, 139), rgb(148, 163, 184))",

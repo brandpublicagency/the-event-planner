@@ -8,27 +8,27 @@ type GradientStyle = {
 
 type GradientSet = Record<TimePhase, GradientStyle>;
 
-// Clear sky gradients for different times of day
+// Clear sky gradients for different times of day - using more muted blue tones
 export const clearGradients: GradientSet = {
   dawn: {
-    background: "linear-gradient(to right bottom, rgb(49, 46, 129), rgb(168, 85, 247), rgb(249, 115, 22))",
-    fallbackClass: "bg-gradient-to-br from-indigo-900 via-pink-600 to-orange-500"
+    background: "linear-gradient(to right bottom, rgb(30, 58, 138), rgb(59, 130, 246), rgb(125, 211, 252))",
+    fallbackClass: "bg-gradient-to-br from-indigo-800 via-blue-500 to-sky-300"
   },
   morning: {
-    background: "linear-gradient(to right bottom, rgb(249, 115, 22), rgb(125, 211, 252), rgb(56, 189, 248))",
-    fallbackClass: "bg-gradient-to-br from-orange-500 via-sky-300 to-sky-400"
+    background: "linear-gradient(to right bottom, rgb(56, 189, 248), rgb(125, 211, 252), rgb(186, 230, 253))",
+    fallbackClass: "bg-gradient-to-br from-sky-400 via-sky-300 to-sky-200"
   },
   midday: {
-    background: "linear-gradient(to right bottom, rgb(56, 189, 248), rgb(14, 165, 233), rgb(59, 130, 246))",
-    fallbackClass: "bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500"
+    background: "linear-gradient(to right bottom, rgb(14, 165, 233), rgb(56, 189, 248), rgb(125, 211, 252))",
+    fallbackClass: "bg-gradient-to-br from-sky-500 via-sky-400 to-sky-300"
   },
   afternoon: {
-    background: "linear-gradient(to right bottom, rgb(59, 130, 246), rgb(56, 189, 248), rgb(217, 119, 6))",
-    fallbackClass: "bg-gradient-to-br from-blue-500 via-sky-400 to-amber-300"
+    background: "linear-gradient(to right bottom, rgb(59, 130, 246), rgb(56, 189, 248), rgb(125, 211, 252))",
+    fallbackClass: "bg-gradient-to-br from-blue-500 via-sky-400 to-sky-300"
   },
   sunset: {
-    background: "linear-gradient(to right bottom, rgb(245, 158, 11), rgb(234, 88, 12), rgb(49, 46, 129))",
-    fallbackClass: "bg-gradient-to-br from-amber-500 via-orange-600 to-indigo-900"
+    background: "linear-gradient(to right bottom, rgb(29, 78, 216), rgb(59, 130, 246), rgb(30, 58, 138))",
+    fallbackClass: "bg-gradient-to-br from-blue-700 via-blue-500 to-indigo-800"
   },
   night: {
     background: "linear-gradient(to right bottom, rgb(15, 23, 42), rgb(30, 27, 75), rgb(15, 23, 42))",
