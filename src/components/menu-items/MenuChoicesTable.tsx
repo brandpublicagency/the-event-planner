@@ -1,18 +1,10 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
 import MenuChoiceDialog from './MenuChoiceDialog';
 import MenuItemsManager from './MenuItemsManager';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +38,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
   } = useMenuChoices(sectionId);
 
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
-  const [expandedChoices, setExpandedChoices] = useState<string[]>([]);
 
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
@@ -63,14 +54,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
     }
   };
 
-  const toggleChoice = (choiceId: string) => {
-    setExpandedChoices(prev => 
-      prev.includes(choiceId)
-        ? prev.filter(id => id !== choiceId)
-        : [...prev, choiceId]
-    );
-  };
-
   return (
     <div className="space-y-4">
       <Button 
@@ -85,75 +68,46 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
       {isLoading ? (
         <div className="text-center py-4">Loading choices...</div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Display Name</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Display Order</TableHead>
-                <TableHead className="w-[150px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {choices.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4 text-gray-500">
-                    No choices added yet
-                  </TableCell>
-                </TableRow>
-              ) : (
-                choices.map((choice) => (
-                  <React.Fragment key={choice.id}>
-                    <TableRow>
-                      <TableCell>{choice.label}</TableCell>
-                      <TableCell>{choice.value}</TableCell>
-                      <TableCell>{choice.display_order}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditClick(choice)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(choice)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => toggleChoice(choice.id)}
-                          >
-                            {expandedChoices.includes(choice.id) ? (
-                              <ChevronUp className="h-4 w-4" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {expandedChoices.includes(choice.id) && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="p-0 border-0">
-                          <MenuItemsManager 
-                            choiceId={choice.id}
-                            choiceLabel={choice.label}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <div className="space-y-6">
+          {choices.length === 0 ? (
+            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-md">
+              No choices added yet
+            </div>
+          ) : (
+            choices.map((choice) => (
+              <div key={choice.id} className="bg-gray-50 rounded-md p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <div>
+                    <h5 className="font-medium">{choice.label}</h5>
+                    <p className="text-xs text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditClick(choice)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(choice)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-2">
+                  <MenuItemsManager 
+                    choiceId={choice.id}
+                    choiceLabel={choice.label}
+                  />
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 

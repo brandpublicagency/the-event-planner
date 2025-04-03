@@ -1,24 +1,10 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import MenuSectionDialog from './MenuSectionDialog';
 import MenuChoicesTable from './MenuChoicesTable';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +34,6 @@ const MenuSectionsTable = () => {
   } = useMenuSections();
 
   const [sectionToDelete, setSectionToDelete] = useState<MenuSection | null>(null);
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
   const handleEditClick = (section: MenuSection) => {
     setEditingSection(section);
@@ -65,14 +50,6 @@ const MenuSectionsTable = () => {
     }
   };
 
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId)
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
-
   return (
     <div className="space-y-6">
       <Button 
@@ -87,7 +64,7 @@ const MenuSectionsTable = () => {
       {isLoading ? (
         <div className="text-center py-4">Loading sections...</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-8">
           {sections.length === 0 ? (
             <div className="text-center py-4 text-gray-500 bg-white rounded-lg shadow-sm p-6">
               No sections added yet
@@ -115,26 +92,13 @@ const MenuSectionsTable = () => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toggleSection(section.id)}
-                    >
-                      {expandedSections.includes(section.id) ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
                   </div>
                 </div>
 
-                {expandedSections.includes(section.id) && (
-                  <div className="mt-4 border-t pt-4">
-                    <h4 className="text-md font-medium mb-2">Choices</h4>
-                    <MenuChoicesTable sectionId={section.id} />
-                  </div>
-                )}
+                <div className="mt-4 border-t pt-4">
+                  <h4 className="text-md font-medium mb-2">Choices</h4>
+                  <MenuChoicesTable sectionId={section.id} />
+                </div>
               </div>
             ))
           )}

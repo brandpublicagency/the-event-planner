@@ -5,13 +5,6 @@ import MenuSectionsTable from './MenuSectionsTable';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { Button } from '@/components/ui/button';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import MenuChoicesTable from './MenuChoicesTable';
 import MenuItemDialog from './MenuItemDialog';
 import { PlusIcon } from 'lucide-react';
 
@@ -49,26 +42,9 @@ const MenuManagementPage = () => {
         {sectionsLoading ? (
           <div className="text-center py-8">Loading menu structure...</div>
         ) : (
-          <>
-            <Accordion type="multiple" className="w-full mb-8">
-              {sections.map((section) => (
-                <AccordionItem key={section.id} value={section.id}>
-                  <AccordionTrigger className="text-lg font-medium">
-                    {section.label}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="pl-4 pt-2">
-                      <MenuChoicesTable sectionId={section.id} />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-
-            <div className="mt-8">
-              <MenuSectionsTable />
-            </div>
-          </>
+          <div className="space-y-8">
+            <MenuSectionsTable />
+          </div>
         )}
 
         {/* Global Add Item Dialog */}

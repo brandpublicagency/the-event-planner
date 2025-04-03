@@ -242,31 +242,40 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          available: boolean | null
           choice: string
           choice_id: string | null
           created_at: string | null
           description: string | null
+          display_order: number | null
           id: string
+          image_url: string | null
           label: string
           updated_at: string | null
           value: string
         }
         Insert: {
+          available?: boolean | null
           choice: string
           choice_id?: string | null
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           id?: string
+          image_url?: string | null
           label: string
           updated_at?: string | null
           value: string
         }
         Update: {
+          available?: boolean | null
           choice?: string
           choice_id?: string | null
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           id?: string
+          image_url?: string | null
           label?: string
           updated_at?: string | null
           value?: string
