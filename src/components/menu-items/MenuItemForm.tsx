@@ -52,13 +52,21 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: initialData.label || '',
       choice_id: initialData.choice_id || '',
       description: initialData.description || null,
-      available: initialData.available !== false,
+      available: initialData.available !== false, // Default to true if not specified
       image_url: initialData.image_url || null,
     },
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    onSubmit(values as MenuItemFormData);
+    const formData: MenuItemFormData = {
+      value: values.value,
+      label: values.label,
+      choice_id: values.choice_id,
+      description: values.description,
+      available: values.available,
+      image_url: values.image_url,
+    };
+    onSubmit(formData);
   };
 
   // Find the section for the selected choice

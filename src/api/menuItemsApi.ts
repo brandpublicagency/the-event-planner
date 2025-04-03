@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
@@ -9,6 +8,7 @@ export type MenuItem = {
   choice_id: string;
   available: boolean;
   image_url: string | null;
+  choice?: string;
   created_at: string;
   updated_at: string;
 };
@@ -57,7 +57,20 @@ export const fetchMenuItems = async () => {
       throw error;
     }
     
-    return data as MenuItem[];
+    const menuItems: MenuItem[] = data.map((item: any) => ({
+      id: item.id,
+      value: item.value,
+      label: item.label,
+      description: item.description,
+      choice_id: item.choice_id,
+      available: item.available !== false,
+      image_url: item.image_url || null,
+      choice: item.choice,
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    }));
+    
+    return menuItems;
   } catch (error) {
     console.error('Error in fetchMenuItems:', error);
     throw error;
@@ -78,7 +91,20 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       throw error;
     }
     
-    return data as MenuItem[];
+    const menuItems: MenuItem[] = data.map((item: any) => ({
+      id: item.id,
+      value: item.value,
+      label: item.label,
+      description: item.description,
+      choice_id: item.choice_id,
+      available: item.available !== false,
+      image_url: item.image_url || null,
+      choice: item.choice,
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    }));
+    
+    return menuItems;
   } catch (error) {
     console.error('Error in fetchMenuItemsByChoice:', error);
     throw error;
@@ -87,7 +113,6 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
 
 export const createMenuItem = async (menuItem: MenuItemFormData) => {
   try {
-    // Make sure available is set to true by default if not provided
     const itemToCreate = {
       ...menuItem,
       available: menuItem.available !== false
@@ -104,7 +129,20 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       throw error;
     }
     
-    return data as MenuItem;
+    const createdItem: MenuItem = {
+      id: data.id,
+      value: data.value,
+      label: data.label,
+      description: data.description,
+      choice_id: data.choice_id,
+      available: data.available !== false,
+      image_url: data.image_url || null,
+      choice: data.choice,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
+    
+    return createdItem;
   } catch (error) {
     console.error('Error in createMenuItem:', error);
     throw error;
@@ -125,7 +163,20 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       throw error;
     }
     
-    return data as MenuItem;
+    const updatedItem: MenuItem = {
+      id: data.id,
+      value: data.value,
+      label: data.label,
+      description: data.description,
+      choice_id: data.choice_id,
+      available: data.available !== false,
+      image_url: data.image_url || null,
+      choice: data.choice,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
+    
+    return updatedItem;
   } catch (error) {
     console.error('Error in updateMenuItem:', error);
     throw error;
@@ -151,7 +202,6 @@ export const deleteMenuItem = async (id: string) => {
   }
 };
 
-// Image upload functions
 export const uploadMenuItemImage = async (file: File, menuItemId: string): Promise<string> => {
   try {
     const fileExt = file.name.split('.').pop();
@@ -180,10 +230,9 @@ export const uploadMenuItemImage = async (file: File, menuItemId: string): Promi
 
 export const deleteMenuItemImage = async (url: string): Promise<void> => {
   try {
-    // Extract the path from the URL
     const urlObj = new URL(url);
     const pathParts = urlObj.pathname.split('/');
-    const bucketName = pathParts[1]; // Usually 'menu-images'
+    const bucketName = pathParts[1];
     const filePath = pathParts.slice(2).join('/');
 
     if (bucketName && filePath) {
@@ -202,7 +251,6 @@ export const deleteMenuItemImage = async (url: string): Promise<void> => {
   }
 };
 
-// Menu section management functions
 export const fetchMenuSections = async () => {
   try {
     console.log('Fetching menu sections');
@@ -283,7 +331,6 @@ export const deleteMenuSection = async (id: string) => {
   }
 };
 
-// Menu choice management functions
 export const fetchMenuChoices = async () => {
   try {
     console.log('Fetching menu choices');

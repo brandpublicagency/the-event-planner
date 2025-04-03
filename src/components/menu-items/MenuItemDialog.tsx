@@ -67,12 +67,17 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   });
 
   const handleSubmit = (values: FormValues) => {
-    onSubmit({
-      ...values,
+    // Ensure all required fields are present
+    const menuItemData: MenuItemFormData = {
+      label: values.label,
+      value: values.value,
+      description: values.description,
+      available: values.available,
       choice_id: choiceId || values.choice_id,
-      description: values.description || null,
-      image_url: values.image_url || null,
-    });
+      image_url: values.image_url,
+    };
+    
+    onSubmit(menuItemData);
   };
 
   return (
