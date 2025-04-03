@@ -1,3 +1,4 @@
+
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,9 +65,20 @@ const DashboardMessage = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-4">
-          <p className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line">
+          <motion.p 
+            className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            style={{ 
+              fontSize: '1.05rem', 
+              fontWeight: 450, 
+              lineHeight: 1.6,
+              letterSpacing: '0.01em',
+            }}
+          >
             {message}
-          </p>
+          </motion.p>
         </div>
       </motion.div>
       
