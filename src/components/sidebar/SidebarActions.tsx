@@ -1,7 +1,7 @@
 
 import { cn } from "@/lib/utils";
-import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight, Briefcase } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarActionsProps {
   isCollapsed: boolean;
@@ -10,6 +10,7 @@ interface SidebarActionsProps {
 
 const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const handleAddDocument = () => {
     if (location.pathname === '/documents') {
@@ -22,6 +23,10 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
     } else {
       navigate('/documents?newDocument=true');
     }
+  };
+
+  const navigateToMyBusiness = () => {
+    navigate('/my-business');
   };
 
   return (
@@ -62,6 +67,14 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             <div className="my-2 w-8 border-t border-gray-200/50"></div>
             
             <button 
+              onClick={navigateToMyBusiness} 
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
+              title="My Business"
+            >
+              <Briefcase className="h-5 w-5 transition-transform group-hover:scale-110" />
+            </button>
+            
+            <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 
               className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-10 w-10 rounded-full transition-all duration-200"
               title="Expand Sidebar"
@@ -96,6 +109,14 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             </button>
             
             <div className="my-2 border-t border-gray-200/50"></div>
+            
+            <button 
+              onClick={navigateToMyBusiness} 
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-10 px-3 rounded-lg gap-2.5 hover:bg-white/50 transition-all duration-200"
+            >
+              <Briefcase className="h-4 w-4 transition-transform group-hover:scale-110" />
+              <span className="text-sm font-medium">My Business</span>
+            </button>
             
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 

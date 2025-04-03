@@ -7,8 +7,7 @@ import {
   Users, 
   CalendarDays,
   Users as UsersIcon,
-  Building,
-  Briefcase
+  Building
 } from "lucide-react";
 
 export interface NavItem {
@@ -50,11 +49,6 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
       icon: UsersIcon,
       path: "/schedule/meeting",
       label: "Schedule Meeting"
-    },
-    {
-      icon: Briefcase,
-      path: "/my-business",
-      label: "My Business"
     },
     {
       icon: FileText,
