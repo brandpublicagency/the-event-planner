@@ -203,7 +203,9 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
     // Prepare updates with display_order values
     const updates = items.map((item, index) => ({
       id: item.id,
-      display_order: index
+      display_order: index,
+      value: item.value, // Adding required fields for upsert
+      label: item.label
     }));
 
     // Perform batch update

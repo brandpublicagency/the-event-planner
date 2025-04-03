@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DragIcon, EditIcon, Trash2Icon } from 'lucide-react';
+import { GripVertical, Edit, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -99,7 +99,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                           >
                             {onReorder && (
                               <TableCell {...provided.dragHandleProps} className="w-[40px] cursor-grab">
-                                <DragIcon className="h-4 w-4 text-gray-400" />
+                                <GripVertical className="h-4 w-4 text-gray-400" />
                               </TableCell>
                             )}
                             <TableCell>
@@ -131,14 +131,14 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                                   size="icon"
                                   onClick={() => onEdit(item)}
                                 >
-                                  <EditIcon className="h-4 w-4" />
+                                  <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setItemToDelete(item)}
                                 >
-                                  <Trash2Icon className="h-4 w-4" />
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </TableCell>
