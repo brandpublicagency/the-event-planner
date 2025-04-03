@@ -204,7 +204,7 @@ export type Database = {
       }
       menu_items: {
         Row: {
-          category: string
+          choice: string
           created_at: string | null
           description: string | null
           id: string
@@ -214,7 +214,7 @@ export type Database = {
           value: string
         }
         Insert: {
-          category: string
+          choice: string
           created_at?: string | null
           description?: string | null
           id?: string
@@ -224,7 +224,7 @@ export type Database = {
           value: string
         }
         Update: {
-          category?: string
+          choice?: string
           created_at?: string | null
           description?: string | null
           id?: string
