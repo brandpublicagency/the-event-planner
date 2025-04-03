@@ -4,9 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import MenuSectionsTable from './MenuSectionsTable';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import { useMenuItems } from '@/hooks/useMenuItems';
-import { Button } from '@/components/ui/button';
 import MenuItemDialog from './MenuItemDialog';
-import { PlusIcon } from 'lucide-react';
 
 const MenuManagementPage = () => {
   const { sections, isLoading: sectionsLoading } = useMenuSections();
@@ -30,13 +28,6 @@ const MenuManagementPage = () => {
               Create and manage menu sections, choices, and items in a hierarchical structure.
             </p>
           </div>
-          <Button 
-            onClick={() => setIsAddDialogOpen(true)}
-            className="ml-4"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add Menu Item
-          </Button>
         </div>
         
         {sectionsLoading ? (
