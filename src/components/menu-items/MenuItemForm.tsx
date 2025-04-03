@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { MenuItemFormData } from '@/api/menuItemsApi';
+import { MenuItemFormData, uploadMenuItemImage } from '@/api/menuItemsApi';
 import { 
   Select,
   SelectContent,
@@ -15,16 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useMenuSections } from '@/hooks/useMenuSections';
+import ImageUploader from './ImageUploader';
 
 const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   label: z.string().min(1, 'Label is required'),
   category: z.string().min(1, 'Category is required'),
   section: z.string().min(1, 'Section is required'),
-  price: z.number().nullable(),
-  available: z.boolean().default(true),
   description: z.string().nullable(),
+  image_url: z.string().nullable(),
 });
 
 type MenuItemFormProps = {
@@ -33,12 +33,6 @@ type MenuItemFormProps = {
   onCancel: () => void;
   isSubmitting?: boolean;
 };
-
-const SECTIONS = [
-  { value: 'starters', label: 'Starters' },
-  { value: 'main_courses', label: 'Main Courses' },
-  { value: 'desserts', label: 'Desserts' },
-];
 
 const CATEGORIES = [
   { value: 'canapes', label: 'Canapés', section: 'starters' },
@@ -61,6 +55,10 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   onCancel,
   isSubmitting = false
 }) => {
+  const { sections, isLoading: sectionsLoading } = useMenuSections();
+  const [filteredCategories, setFilteredCategories] = useState<typeof CATEGORIES>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,20 +66,38 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: initialData.label || '',
       category: initialData.category || '',
       section: initialData.section || '',
-      price: initialData.price || null,
-      available: initialData.available !== undefined ? initialData.available : true,
       description: initialData.description || '',
+      image_url: initialData.image_url || null,
     },
   });
 
   const selectedSection = form.watch('section');
 
-  const filteredCategories = CATEGORIES.filter(
-    (category) => category.section === selectedSection
-  );
+  // Filter categories when section changes
+  useEffect(() => {
+    if (selectedSection) {
+      setFilteredCategories(
+        CATEGORIES.filter(category => category.section === selectedSection)
+      );
+    } else {
+      setFilteredCategories([]);
+    }
+  }, [selectedSection]);
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values as MenuItemFormData);
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // Handle image upload if there's a new file
+      if (imageFile) {
+        // We need a temporary ID for new items
+        const tempId = initialData.id || 'temp-' + Date.now();
+        const imageUrl = await uploadMenuItemImage(imageFile, tempId);
+        values.image_url = imageUrl;
+      }
+      
+      onSubmit(values as MenuItemFormData);
+    } catch (error) {
+      console.error('Error during form submission:', error);
+    }
   };
 
   return (
@@ -97,6 +113,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={sectionsLoading}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -104,7 +121,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {SECTIONS.map((section) => (
+                    {sections.map((section) => (
                       <SelectItem key={section.value} value={section.value}>
                         {section.label}
                       </SelectItem>
@@ -176,45 +193,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    step="0.01"
-                    placeholder="0.00" 
-                    value={field.value === null ? '' : field.value}
-                    onChange={e => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="available"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-3 space-y-0 mt-8">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="font-normal">Available</FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         <FormField
           control={form.control}
           name="description"
@@ -228,6 +206,24 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   onChange={e => field.onChange(e.target.value || null)}
                   placeholder="Enter description" 
                   className="min-h-[100px]"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="image_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image</FormLabel>
+              <FormControl>
+                <ImageUploader 
+                  imageUrl={field.value} 
+                  onImageChange={field.onChange}
+                  onFileChange={setImageFile}
                 />
               </FormControl>
               <FormMessage />

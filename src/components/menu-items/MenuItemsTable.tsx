@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { EditIcon, Trash2Icon, CheckIcon, XIcon } from 'lucide-react';
+import { EditIcon, Trash2Icon, ImageIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { formatCurrency } from '@/utils/formatCurrency';
+import { useMenuSections } from '@/hooks/useMenuSections';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type MenuItemsTableProps = {
   items: MenuItem[];
@@ -39,6 +40,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
   const [section, setSection] = useState<string | null>(null);
+  const { sections } = useMenuSections();
 
   const handleDelete = () => {
     if (itemToDelete) {
@@ -48,7 +50,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   };
 
   // Get unique sections
-  const sections = [...new Set(items.map(item => item.section))];
+  const uniqueSections = [...new Set(items.map(item => item.section))];
   
   // Filter items by section if selected
   const filteredItems = section 
@@ -75,13 +77,8 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   };
 
   const getSectionLabel = (sectionValue: string): string => {
-    const sectionMap: Record<string, string> = {
-      'starters': 'Starters',
-      'main_courses': 'Main Courses',
-      'desserts': 'Desserts',
-    };
-    
-    return sectionMap[sectionValue] || sectionValue;
+    const sectionObj = sections.find(s => s.value === sectionValue);
+    return sectionObj ? sectionObj.label : sectionValue;
   };
 
   return (
@@ -95,7 +92,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         >
           All
         </Button>
-        {sections.map(s => (
+        {uniqueSections.map(s => (
           <Button
             key={s}
             variant={section === s ? "default" : "outline"}
@@ -112,24 +109,31 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[60px]">Image</TableHead>
               <TableHead>Section</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Available</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-4 text-gray-500">
                   No menu items found
                 </TableCell>
               </TableRow>
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item.id}>
+                  <TableCell>
+                    <Avatar>
+                      <AvatarImage src={item.image_url || undefined} alt={item.label} />
+                      <AvatarFallback>
+                        <ImageIcon className="h-4 w-4 text-gray-400" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </TableCell>
                   <TableCell>{getSectionLabel(item.section)}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{getCategoryLabel(item.category)}</Badge>
@@ -140,16 +144,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                       <div className="text-xs text-gray-500 truncate max-w-[250px]">
                         {item.description}
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {item.price !== null ? formatCurrency(item.price) : '—'}
-                  </TableCell>
-                  <TableCell>
-                    {item.available ? (
-                      <CheckIcon className="h-5 w-5 text-green-500" />
-                    ) : (
-                      <XIcon className="h-5 w-5 text-red-500" />
                     )}
                   </TableCell>
                   <TableCell>

@@ -204,42 +204,44 @@ export type Database = {
       }
       menu_items: {
         Row: {
-          available: boolean | null
           category: string
           created_at: string | null
           description: string | null
           id: string
           label: string
-          price: number | null
           section: string
           updated_at: string | null
           value: string
         }
         Insert: {
-          available?: boolean | null
           category: string
           created_at?: string | null
           description?: string | null
           id?: string
           label: string
-          price?: number | null
           section: string
           updated_at?: string | null
           value: string
         }
         Update: {
-          available?: boolean | null
           category?: string
           created_at?: string | null
           description?: string | null
           id?: string
           label?: string
-          price?: number | null
           section?: string
           updated_at?: string | null
           value?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_section_fkey"
+            columns: ["section"]
+            isOneToOne: false
+            referencedRelation: "menu_sections"
+            referencedColumns: ["value"]
+          },
+        ]
       }
       menu_options: {
         Row: {
@@ -268,6 +270,33 @@ export type Database = {
           price_type?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      menu_sections: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          id: string
+          label: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          label: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          label?: string
+          updated_at?: string | null
+          value?: string
         }
         Relationships: []
       }
