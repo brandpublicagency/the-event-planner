@@ -48,7 +48,7 @@ const MenuSectionsTable = () => {
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-lg font-medium">{section.label}</h3>
-                    <p className="text-sm text-gray-500">Value: {section.value}, Order: {section.display_order}</p>
+                    <p className="text-[10px] text-gray-500">Value: {section.value}, Order: {section.display_order}</p>
                   </div>
                   <div className="flex space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(section)}>
