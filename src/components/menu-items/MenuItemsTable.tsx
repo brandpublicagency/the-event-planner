@@ -13,7 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 type MenuItemsTableProps = {
@@ -113,18 +112,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                               {item.description}
                             </div>
                           )}
-                          
-                          <div className="mt-2">
-                            {item.available !== false ? (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                Available
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                                Unavailable
-                              </Badge>
-                            )}
-                          </div>
                         </div>
                       </div>
                     )}

@@ -13,8 +13,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, X } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import { X } from 'lucide-react';
 
 interface MenuItemInlineFormProps {
   onSubmit: (data: MenuItemFormData) => void;
@@ -26,7 +25,6 @@ interface MenuItemInlineFormProps {
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  available: z.boolean().default(true),
   choice_id: z.string().min(1, "Choice is required"),
 });
 
@@ -43,7 +41,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     defaultValues: {
       label: '',
       value: '',
-      available: true,
       choice_id: choiceId,
     },
   });
@@ -53,7 +50,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
-      available: values.available,
       choice_id: choiceId,
       description: null,
       image_url: null,
@@ -107,23 +103,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           />
         </div>
         
-        <div className="flex items-center justify-between">
-          <FormField
-            control={form.control}
-            name="available"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2">
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <span className="text-xs">Available</span>
-              </FormItem>
-            )}
-          />
-          
+        <div className="flex justify-end">
           <Button type="submit" size="sm" disabled={isSubmitting}>
             {isSubmitting ? 'Adding...' : 'Add Item'}
           </Button>

@@ -17,14 +17,12 @@ import {
 } from '@/components/ui/select';
 import { useMenuSections } from '@/hooks/useMenuSections';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
-import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   label: z.string().min(1, 'Label is required'),
   choice_id: z.string().min(1, 'Choice is required'),
   description: z.string().nullable(),
-  available: z.boolean().default(true),
   image_url: z.string().nullable(),
 });
 
@@ -52,7 +50,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: initialData.label || '',
       choice_id: initialData.choice_id || '',
       description: initialData.description || null,
-      available: initialData.available !== false, // Default to true if not specified
       image_url: initialData.image_url || null,
     },
   });
@@ -63,7 +60,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: values.label,
       choice_id: values.choice_id,
       description: values.description,
-      available: values.available,
       image_url: values.image_url,
     };
     onSubmit(formData);
@@ -111,24 +107,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   </SelectContent>
                 </Select>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="available"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Available</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
               </FormItem>
             )}
           />

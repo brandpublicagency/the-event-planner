@@ -22,7 +22,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 
 interface MenuItemDialogProps {
   open: boolean;
@@ -38,7 +37,6 @@ const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
   description: z.string().nullable(),
-  available: z.boolean().default(true),
   choice_id: z.string().min(1, "Choice is required"),
   image_url: z.string().nullable(),
 });
@@ -60,7 +58,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       label: initialData?.label || '',
       value: initialData?.value || '',
       description: initialData?.description || null,
-      available: initialData?.available !== false, // Default to true if not specified
       choice_id: choiceId || initialData?.choice_id || '',
       image_url: initialData?.image_url || null,
     },
@@ -72,7 +69,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       label: values.label,
       value: values.value,
       description: values.description,
-      available: values.available,
       choice_id: choiceId || values.choice_id,
       image_url: values.image_url,
     };
@@ -132,24 +128,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                     />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="available"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Available</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
@@ -8,7 +7,6 @@ export type MenuItem = {
   description: string | null;
   choice_id: string;
   choice: string;  // Adding this field to match database schema
-  available: boolean;
   image_url: string | null;
   display_order?: number;
   created_at: string;
@@ -40,7 +38,6 @@ export type MenuItemFormData = {
   description: string | null;
   choice_id: string;
   choice?: string;  // Adding this as optional for form data
-  available: boolean;
   image_url: string | null;
   display_order?: number;
 };
@@ -70,7 +67,6 @@ export const fetchMenuItems = async () => {
       description: item.description,
       choice_id: item.choice_id,
       choice: item.choice || '',  // Ensure choice is included
-      available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -107,7 +103,6 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       description: item.description,
       choice_id: item.choice_id,
       choice: item.choice || '',  // Ensure choice is included
-      available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -143,7 +138,6 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       description: menuItem.description,
       choice_id: menuItem.choice_id,
       choice: choiceData.value, // Use the choice value from the choice record
-      available: menuItem.available,
       image_url: menuItem.image_url,
       display_order: menuItem.display_order || 0
     };
@@ -167,7 +161,6 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       description: data.description,
       choice_id: data.choice_id,
       choice: data.choice,
-      available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
       created_at: data.created_at,
@@ -223,7 +216,6 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       description: data.description,
       choice_id: data.choice_id,
       choice: data.choice,
-      available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
       created_at: data.created_at,
