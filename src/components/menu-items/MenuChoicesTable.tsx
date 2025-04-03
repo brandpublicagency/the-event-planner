@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
@@ -43,7 +42,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     }
   };
   return <div className="space-y-4">
-      <Button size="sm" onClick={() => setShowInlineForm(true)} className="mb-4">
+      <Button size="sm" onClick={() => setShowInlineForm(true)} className="mb-4 font-normal text-xs">
         <PlusIcon className="h-3 w-3 mr-1.5" />
         Add Choice
       </Button>
