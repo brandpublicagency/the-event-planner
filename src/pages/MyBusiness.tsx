@@ -1,5 +1,5 @@
-
 import React from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +14,16 @@ import {
 
 const MyBusiness = () => {
   return (
-    <div className="container mx-auto py-6 max-w-7xl">
+    <div className="flex flex-col h-full">
+      <PageHeader 
+        pageTitle="My Business"
+        actionButton={{
+          label: "Create Report",
+          onClick: () => console.log("Create report clicked")
+        }}
+      />
+      
+      <div className="container mx-auto py-6 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold tracking-tight">My Business</h1>
         <div className="flex gap-2">
@@ -120,6 +129,7 @@ const MyBusiness = () => {
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
     </div>
   );
 };
