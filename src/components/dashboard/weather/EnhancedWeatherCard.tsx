@@ -1,10 +1,8 @@
 
 import React from 'react';
 import { Droplet, Thermometer } from 'lucide-react';
-import { format } from 'date-fns';
 import { getWeatherGradientStyles } from './weatherGradientStyles';
 import { WeatherStatCard } from './WeatherStatCard';
-import { motion } from 'framer-motion';
 import WeatherCardHeader from './WeatherCardHeader';
 import WeatherBackground from './WeatherBackground';
 
@@ -47,11 +45,8 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
   const { gradientStyle, fallbackGradientClass } = getWeatherGradientStyles(timeOfDay, weatherType);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
-      className={`rounded-xl overflow-hidden h-full transform transition-all duration-300 border border-black/10 ${className}`}
+    <div 
+      className={`rounded-xl overflow-hidden h-full border border-black/10 ${className}`}
       tabIndex={0}
       aria-label={`Weather forecast for ${location}, high temperature ${displayHighTemp}°, low temperature ${displayLowTemp}°, ${weatherType || weatherData?.description || ''}`}
     >
@@ -59,7 +54,7 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
         className={`text-white p-5 flex flex-col h-full ${fallbackGradientClass}`} 
         style={{ background: gradientStyle.background }}
       >
-        {/* Weather background animations */}
+        {/* Static background - no animations */}
         <WeatherBackground weatherType={weatherType || weatherData?.description} />
         
         {/* Header section */}
@@ -95,7 +90,7 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
           />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

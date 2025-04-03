@@ -1,7 +1,6 @@
 
 import React from 'react';
 import WeatherIcon from './WeatherIcon';
-import { motion } from 'framer-motion';
 
 interface DayCardProps {
   day: {
@@ -20,10 +19,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, index = 0, isLast = false }) => 
   const isSunset = day.day === 'Sunset' || day.condition === 'Sunset';
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+    <div
       className={`flex flex-col items-center justify-center text-white text-center ${index === 0 ? 'pl-4' : 'px-1'} ${isLast ? 'pr-5' : ''}`}
     >
       <div className="text-xs font-medium mb-1">{day.day}</div>
@@ -56,7 +52,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, index = 0, isLast = false }) => 
           <span className="opacity-80">{day.low}°</span>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

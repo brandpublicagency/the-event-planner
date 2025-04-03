@@ -2,7 +2,6 @@
 import React from 'react';
 import DayCard from './DayCard';
 import { ForecastDay } from './forecastUtils';
-import { motion } from 'framer-motion';
 
 interface ForecastGridProps {
   forecast: ForecastDay[];
@@ -13,12 +12,7 @@ const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
   const displayForecast = forecast.slice(0, 8);
   
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full"
-    >
+    <div className="w-full">
       <div className="flex flex-row justify-between w-full ml-5 pl-5 border-l border-white/30">
         {displayForecast.map((day, index) => (
           <DayCard 
@@ -29,7 +23,7 @@ const ForecastGrid: React.FC<ForecastGridProps> = ({ forecast }) => {
           />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

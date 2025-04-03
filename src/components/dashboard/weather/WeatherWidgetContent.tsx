@@ -5,7 +5,6 @@ import WeatherBackground from './WeatherBackground';
 import { generateForecastFromWeatherData } from './forecastUtils';
 import { getWeatherGradientStyles } from "./weatherGradientStyles";
 import { TimePeriod } from './utils/timeUtils';
-import { motion } from 'framer-motion';
 
 interface WeatherWidgetContentProps {
   weatherData: any;
@@ -39,18 +38,13 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
           boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
         }}
       >
-        {/* Apply weather animation only to the background, not to each forecast item */}
+        {/* Apply weather background only to the background, no animations */}
         <WeatherBackground weatherType={weatherData?.condition} todayOnly={true} />
         
         <div className="relative z-10 w-full h-full p-4">
           <div className="flex items-center justify-between text-white">
             {/* Left side - Current weather */}
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-col"
-            >
+            <div className="flex flex-col">
               <div className="flex items-center">
                 <span className="text-lg font-medium">{weatherData?.location || 'Bloemfontein'}</span>
               </div>
@@ -62,7 +56,7 @@ const WeatherWidgetContent: React.FC<WeatherWidgetContentProps> = ({
                   <span>H:{weatherData?.high || '24'}° L:{weatherData?.low || '14'}°</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Right side - Forecast */}
             <div className="flex-1 pl-6">
