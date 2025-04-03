@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
+import { PlusIcon, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
 import MenuChoiceDialog from './MenuChoiceDialog';
+import MenuItemsManager from './MenuItemsManager';
 import {
   Table,
   TableBody,
@@ -23,14 +24,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
-import { useNavigate } from 'react-router-dom';
 
 interface MenuChoicesTableProps {
   sectionId: string;
 }
 
 const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
-  const navigate = useNavigate();
   const { 
     choices, 
     isLoading,
@@ -47,6 +46,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
   } = useMenuChoices(sectionId);
 
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
+  const [expandedChoices, setExpandedChoices] = useState<string[]>([]);
 
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
@@ -61,6 +61,14 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
       handleDeleteChoice(choiceToDelete.id);
       setChoiceToDelete(null);
     }
+  };
+
+  const toggleChoice = (choiceId: string) => {
+    setExpandedChoices(prev => 
+      prev.includes(choiceId)
+        ? prev.filter(id => id !== choiceId)
+        : [...prev, choiceId]
+    );
   };
 
   return (
@@ -96,29 +104,52 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
                 </TableRow>
               ) : (
                 choices.map((choice) => (
-                  <TableRow key={choice.id}>
-                    <TableCell>{choice.label}</TableCell>
-                    <TableCell>{choice.value}</TableCell>
-                    <TableCell>{choice.display_order}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditClick(choice)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(choice)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <React.Fragment key={choice.id}>
+                    <TableRow>
+                      <TableCell>{choice.label}</TableCell>
+                      <TableCell>{choice.value}</TableCell>
+                      <TableCell>{choice.display_order}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditClick(choice)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(choice)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => toggleChoice(choice.id)}
+                          >
+                            {expandedChoices.includes(choice.id) ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {expandedChoices.includes(choice.id) && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="p-0 border-0">
+                          <MenuItemsManager 
+                            choiceId={choice.id}
+                            choiceLabel={choice.label}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </TableBody>

@@ -1,16 +1,15 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
   id: string;
   value: string;
   label: string;
-  choice: string;
   description: string | null;
+  choice_id: string;
+  available: boolean;
   image_url: string | null;
   created_at: string;
   updated_at: string;
-  choice_id: string | null;
 };
 
 export type MenuSection = {
@@ -38,7 +37,7 @@ export type MenuChoiceFormData = Omit<MenuChoice, 'id' | 'created_at' | 'updated
 
 export const fetchMenuItems = async () => {
   try {
-    console.log('Fetching menu items');
+    console.log('Fetching all menu items');
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
@@ -56,11 +55,38 @@ export const fetchMenuItems = async () => {
   }
 };
 
-export const createMenuItem = async (menuItem: MenuItemFormData) => {
+export const fetchMenuItemsByChoice = async (choiceId: string) => {
   try {
+    console.log(`Fetching menu items for choice: ${choiceId}`);
     const { data, error } = await supabase
       .from('menu_items')
-      .insert(menuItem)
+      .select('*')
+      .eq('choice_id', choiceId)
+      .order('label');
+    
+    if (error) {
+      console.error('Error fetching menu items by choice:', error);
+      throw error;
+    }
+    
+    return data as MenuItem[];
+  } catch (error) {
+    console.error('Error in fetchMenuItemsByChoice:', error);
+    throw error;
+  }
+};
+
+export const createMenuItem = async (menuItem: MenuItemFormData) => {
+  try {
+    // Make sure available is set to true by default if not provided
+    const itemToCreate = {
+      ...menuItem,
+      available: menuItem.available !== false
+    };
+
+    const { data, error } = await supabase
+      .from('menu_items')
+      .insert(itemToCreate)
       .select()
       .single();
     
@@ -248,7 +274,7 @@ export const deleteMenuSection = async (id: string) => {
   }
 };
 
-// New menu choice management functions
+// Menu choice management functions
 export const fetchMenuChoices = async () => {
   try {
     console.log('Fetching menu choices');

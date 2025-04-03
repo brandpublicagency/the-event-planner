@@ -1,9 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   fetchMenuItems, 
+  fetchMenuItemsByChoice,
   createMenuItem, 
   updateMenuItem, 
   deleteMenuItem,
@@ -11,24 +12,37 @@ import {
   MenuItemFormData
 } from '@/api/menuItemsApi';
 
-export const useMenuItems = () => {
+export const useMenuItems = (choiceId?: string) => {
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  const queryKey = choiceId 
+    ? ['menuItems', choiceId] 
+    : ['menuItems'];
+
+  const queryFn = useCallback(
+    () => choiceId ? fetchMenuItemsByChoice(choiceId) : fetchMenuItems(),
+    [choiceId]
+  );
 
   const { 
     data: menuItems = [], 
     isLoading, 
     error 
   } = useQuery({
-    queryKey: ['menuItems'],
-    queryFn: fetchMenuItems,
+    queryKey,
+    queryFn,
+    enabled: true,
   });
 
   const createMutation = useMutation({
     mutationFn: createMenuItem,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       toast.success('Menu item created successfully');
       setIsAddDialogOpen(false);
     },
@@ -42,6 +56,9 @@ export const useMenuItems = () => {
       updateMenuItem(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       toast.success('Menu item updated successfully');
       setEditingItem(null);
     },
@@ -54,6 +71,9 @@ export const useMenuItems = () => {
     mutationFn: deleteMenuItem,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       toast.success('Menu item deleted successfully');
     },
     onError: (error) => {

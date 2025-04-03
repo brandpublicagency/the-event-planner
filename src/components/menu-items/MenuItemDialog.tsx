@@ -1,43 +1,162 @@
 
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { MenuItem, MenuItemFormData } from '@/api/menuItemsApi';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
-import MenuItemForm from './MenuItemForm';
-import { MenuItem, MenuItemFormData } from '@/api/menuItemsApi';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 
-type MenuItemDialogProps = {
+interface MenuItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: MenuItemFormData) => void;
-  isSubmitting?: boolean;
+  isSubmitting: boolean;
   initialData?: MenuItem;
   title: string;
-};
+  choiceId: string;
+}
+
+const formSchema = z.object({
+  label: z.string().min(1, "Name is required"),
+  value: z.string().min(1, "Value is required"),
+  description: z.string().optional(),
+  available: z.boolean().default(true),
+  choice_id: z.string().optional(),
+  image_url: z.string().optional().nullable(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   open,
   onOpenChange,
   onSubmit,
-  isSubmitting = false,
+  isSubmitting,
   initialData,
   title,
+  choiceId,
 }) => {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      label: initialData?.label || '',
+      value: initialData?.value || '',
+      description: initialData?.description || '',
+      available: initialData?.available !== false, // Default to true if not specified
+      choice_id: choiceId,
+      image_url: initialData?.image_url || null,
+    },
+  });
+
+  const handleSubmit = (values: FormValues) => {
+    onSubmit({
+      ...values,
+      choice_id: choiceId,
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[625px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <MenuItemForm
-          initialData={initialData}
-          onSubmit={onSubmit}
-          onCancel={() => onOpenChange(false)}
-          isSubmitting={isSubmitting}
-        />
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Display Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Item name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Value</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Unique identifier" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Item description" 
+                      className="resize-none"
+                      {...field}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="available"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Available</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

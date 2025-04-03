@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { MenuItem, MenuChoice } from '@/api/menuItemsApi';
+import React, { useState } from 'react';
+import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { EditIcon, Trash2Icon } from 'lucide-react';
 import {
   AlertDialog,
@@ -22,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useMenuChoices } from '@/hooks/useMenuChoices';
+import { Badge } from '@/components/ui/badge';
 
 type MenuItemsTableProps = {
   items: MenuItem[];
@@ -38,14 +37,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   isDeleting,
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const { choices } = useMenuChoices();
-  const [allChoices, setAllChoices] = useState<MenuChoice[]>([]);
-
-  // Fetch all choices
-  useEffect(() => {
-    setAllChoices(choices);
-  }, [choices]);
 
   const handleDelete = () => {
     if (itemToDelete) {
@@ -54,71 +45,48 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
   };
 
-  // Get unique choices
-  const uniqueChoices = [...new Set(items.map(item => item.choice))];
-  
-  // Filter items by choice if selected
-  const filteredItems = selectedChoice 
-    ? items.filter(item => item.choice === selectedChoice)
-    : items;
-
-  const getChoiceLabel = (choiceValue: string): string => {
-    const choice = allChoices.find(c => c.value === choiceValue);
-    return choice ? choice.label : choiceValue;
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Button
-          variant={selectedChoice === null ? "default" : "outline"}
-          size="sm"
-          onClick={() => setSelectedChoice(null)}
-          className="mb-1"
-        >
-          All
-        </Button>
-        {uniqueChoices.map(c => (
-          <Button
-            key={c}
-            variant={selectedChoice === c ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedChoice(c)}
-            className="mb-1"
-          >
-            {getChoiceLabel(c)}
-          </Button>
-        ))}
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Choice</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredItems.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-4 text-gray-500">
+                <TableCell colSpan={4} className="text-center py-4 text-gray-500">
                   No menu items found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredItems.map((item) => (
+              items.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <Badge variant="outline">{getChoiceLabel(item.choice)}</Badge>
+                    <div className="font-medium">{item.label}</div>
+                    <div className="text-xs text-gray-500">{item.value}</div>
                   </TableCell>
                   <TableCell>
-                    <div>{item.label}</div>
                     {item.description && (
-                      <div className="text-xs text-gray-500 truncate max-w-[250px]">
+                      <div className="text-sm text-gray-700 max-w-[250px] line-clamp-2">
                         {item.description}
                       </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {item.available !== false ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Available
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                        Unavailable
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell>
