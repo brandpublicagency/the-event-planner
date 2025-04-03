@@ -39,7 +39,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   return <div className="mt-2">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-sm font-medium text-gray-700">Items for {choiceLabel}</h4>
-        <Button size="sm" onClick={() => setShowInlineForm(true)} className="font-light text-xs">
+        <Button size="sm" onClick={() => setShowInlineForm(true)} className="font-light text-xs bg-white">
           <PlusIcon className="h-3.5 w-3.5 mr-1" />
           Add Items
         </Button>
