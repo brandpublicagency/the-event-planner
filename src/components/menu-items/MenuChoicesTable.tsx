@@ -58,7 +58,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             </div> : choices.map(choice => <div key={choice.id} className="mb-5">
                 <div className="flex justify-between items-center mb-2">
                   <div>
-                    <h5 className="font-medium text-xs">{choice.label}</h5>
+                    <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
                     <p className="text-[10px] text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
                   </div>
                   <div className="flex space-x-1">
