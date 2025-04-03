@@ -12,10 +12,10 @@ export const MobileMenuToggle = ({ onClick }: MobileMenuToggleProps) => {
     <Button
       variant="ghost"
       size="icon"
-      className="md:hidden h-7 w-7"
+      className="md:hidden h-6 w-6"
       onClick={onClick}
     >
-      <Menu className="h-4 w-4" />
+      <Menu className="h-3.5 w-3.5" />
       <span className="sr-only">Toggle menu</span>
     </Button>
   );
