@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { generateForecastFromWeatherData } from './forecastUtils';
@@ -59,7 +58,7 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [dashboardMessage?.weatherData, currentDateTime]);
   
-  // Updated mock data for Bloemfontein in April
+  // Updated mock data for Bloemfontein in April with explicit 'Cloudy' condition
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 19,
