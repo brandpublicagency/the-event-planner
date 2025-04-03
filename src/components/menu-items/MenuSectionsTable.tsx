@@ -95,7 +95,7 @@ const MenuSectionsTable = () => {
                   </div>
                 </div>
 
-                <div className="ml-4">
+                <div>
                   <h4 className="text-md font-medium mb-2">Choices</h4>
                   <MenuChoicesTable sectionId={section.id} />
                 </div>
