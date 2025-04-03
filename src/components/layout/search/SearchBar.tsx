@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSearchQuery } from "./useSearchQuery";
@@ -10,7 +10,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 export const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Increased debounce time
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   const {
     isLoading,
@@ -19,6 +20,18 @@ export const SearchBar = () => {
   
   const clearSearch = () => {
     setSearchQuery("");
+  };
+  
+  // Handle clicks outside the search results to close them
+  const handleBlur = (e: React.FocusEvent) => {
+    // Delay to allow click on results
+    setTimeout(() => {
+      // Skip blur if clicking within the results panel
+      if (resultsRef.current && resultsRef.current.contains(e.relatedTarget as Node)) {
+        return;
+      }
+      setIsFocused(false);
+    }, 200);
   };
   
   return (
@@ -30,10 +43,7 @@ export const SearchBar = () => {
         value={searchQuery} 
         onChange={e => setSearchQuery(e.target.value)} 
         onFocus={() => setIsFocused(true)} 
-        onBlur={() => {
-          // Delay to allow click on results
-          setTimeout(() => setIsFocused(false), 200);
-        }}
+        onBlur={handleBlur}
         className="pl-10 pr-8 bg-zinc-50 border-zinc-200 focus-visible:ring-0 rounded-md" 
       />
       
@@ -45,7 +55,9 @@ export const SearchBar = () => {
       
       {/* Show search results if focused and has query */}
       {isFocused && searchQuery && searchQuery.length >= 2 && (
-        <SearchResults isLoading={isLoading} searchResults={filteredResults} />
+        <div ref={resultsRef}>
+          <SearchResults isLoading={isLoading} searchResults={filteredResults} />
+        </div>
       )}
       
       {/* Minimum Characters Notice */}

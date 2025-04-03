@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parse, isValid } from "date-fns";
@@ -9,6 +9,8 @@ export const useSearchQuery = (searchQuery: string) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const previousResultsRef = useRef<SearchResult[]>([]);
+  const previousQueryRef = useRef<string>("");
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -22,7 +24,7 @@ export const useSearchQuery = (searchQuery: string) => {
     }
   }, [isLoading]);
 
-  const parseDateFromQuery = (query: string): Date | null => {
+  const parseDateFromQuery = useCallback((query: string): Date | null => {
     const dateFormats = [
       'd MMMM', // 5 April
       'd MMM',  // 5 Apr
@@ -57,9 +59,19 @@ export const useSearchQuery = (searchQuery: string) => {
     }
     
     return null;
-  };
+  }, []);
 
   useEffect(() => {
+    if (searchQuery === previousQueryRef.current) {
+      return;
+    }
+    
+    previousQueryRef.current = searchQuery;
+    
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
     const fetchSearchResults = async () => {
       if (searchQuery.length < 2) {
         setSearchResults([]);
@@ -67,6 +79,8 @@ export const useSearchQuery = (searchQuery: string) => {
       }
 
       setIsLoading(true);
+      
+      abortControllerRef.current = new AbortController();
       
       try {
         const previousResults = previousResultsRef.current;
@@ -122,6 +136,7 @@ export const useSearchQuery = (searchQuery: string) => {
           
           if (formattedDateEvents.length > 0) {
             setSearchResults(formattedDateEvents);
+            previousResultsRef.current = formattedDateEvents;
             setIsLoading(false);
             return;
           } 
@@ -134,6 +149,12 @@ export const useSearchQuery = (searchQuery: string) => {
               path: `/calendar`,
               type: 'event' as const
             }]);
+            previousResultsRef.current = [{
+              id: 'no-events',
+              title: `No events scheduled on ${displayDate}`,
+              path: `/calendar`,
+              type: 'event' as const
+            }];
             setIsLoading(false);
             return;
           }
@@ -247,15 +268,21 @@ export const useSearchQuery = (searchQuery: string) => {
         setSearchResults(combinedResults);
         previousResultsRef.current = combinedResults;
       } catch (error) {
-        console.error('Search error:', error);
-        toast({
-          title: "Search failed",
-          description: "Could not retrieve search results",
-          variant: "destructive",
-        });
-        setSearchResults([]);
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          console.error('Search error:', error);
+          toast({
+            title: "Search failed",
+            description: "Could not retrieve search results",
+            variant: "destructive",
+          });
+          setSearchResults([]);
+        }
       } finally {
+        if (abortControllerRef.current?.signal.aborted) {
+          return;
+        }
         setIsLoading(false);
+        abortControllerRef.current = null;
       }
     };
     
@@ -265,8 +292,14 @@ export const useSearchQuery = (searchQuery: string) => {
       }
     }, 500);
 
-    return () => clearTimeout(timer);
-  }, [searchQuery, toast]);
+    return () => {
+      clearTimeout(timer);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, [searchQuery, toast, parseDateFromQuery]);
 
   return {
     isLoading: showLoadingIndicator,

@@ -4,14 +4,14 @@ import { SearchResult } from "./types";
 
 interface SearchResultItemProps {
   result: SearchResult;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }
 
 export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onClick }) => {
   return (
     <div 
       className="px-3 py-2 hover:bg-zinc-50 cursor-pointer flex items-center"
-      onMouseDown={onClick}
+      onMouseDown={(e) => onClick(e)}
     >
       <div className={`w-2 h-2 rounded-full mr-2 ${
         result.type === 'event' ? 'bg-blue-500' : 

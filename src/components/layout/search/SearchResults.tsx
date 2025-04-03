@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { SearchResultItem } from "./SearchResultItem";
@@ -14,9 +14,14 @@ interface SearchResultsProps {
 export const SearchResults: React.FC<SearchResultsProps> = ({ isLoading, searchResults }) => {
   const navigate = useNavigate();
   
-  const handleResultClick = (path: string) => {
+  const handleResultClick = useCallback((path: string, e: React.MouseEvent) => {
+    // Prevent default to avoid triggering form submission
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Use navigate instead of direct location change to prevent full page reload
     navigate(path);
-  };
+  }, [navigate]);
   
   return (
     <div className="absolute top-full mt-1 w-full bg-white rounded-md border border-zinc-200 shadow-md z-10 overflow-hidden">
@@ -42,7 +47,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ isLoading, searchR
             <SearchResultItem 
               key={`${result.type}-${result.id}`}
               result={result}
-              onClick={() => handleResultClick(result.path)}
+              onClick={(e) => handleResultClick(result.path, e)}
             />
           ))
         ) : (
