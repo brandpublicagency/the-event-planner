@@ -19,13 +19,15 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
     handleAddItem, 
     handleUpdateItem, 
     handleDeleteItem,
+    handleReorderItems,
     setEditingItem,
     editingItem,
     isAddDialogOpen,
     setIsAddDialogOpen,
     isCreating,
     isUpdating,
-    isDeleting
+    isDeleting,
+    isReordering
   } = useMenuItems(choiceId);
 
   // Get items for this choice
@@ -59,6 +61,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
               items={choiceItems}
               onEdit={(item) => setEditingItem(item)}
               onDelete={handleDeleteItem}
+              onReorder={(reorderedItems) => handleReorderItems(reorderedItems)}
               isDeleting={isDeleting}
             />
           )}

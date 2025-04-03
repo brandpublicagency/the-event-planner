@@ -8,6 +8,7 @@ import {
   createMenuItem, 
   updateMenuItem, 
   deleteMenuItem,
+  reorderMenuItems,
   MenuItem,
   MenuItemFormData
 } from '@/api/menuItemsApi';
@@ -81,6 +82,20 @@ export const useMenuItems = (choiceId?: string) => {
     }
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: reorderMenuItems,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
+      toast.success('Menu items reordered successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to reorder menu items: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  });
+
   const handleAddItem = (data: MenuItemFormData) => {
     createMutation.mutate(data);
   };
@@ -93,6 +108,10 @@ export const useMenuItems = (choiceId?: string) => {
     deleteMutation.mutate(id);
   };
 
+  const handleReorderItems = (reorderedItems: MenuItem[]) => {
+    reorderMutation.mutate(reorderedItems);
+  };
+
   return {
     menuItems,
     isLoading,
@@ -100,12 +119,14 @@ export const useMenuItems = (choiceId?: string) => {
     handleAddItem,
     handleUpdateItem,
     handleDeleteItem,
+    handleReorderItems,
     editingItem,
     setEditingItem,
     isAddDialogOpen,
     setIsAddDialogOpen,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
-    isDeleting: deleteMutation.isPending
+    isDeleting: deleteMutation.isPending,
+    isReordering: reorderMutation.isPending
   };
 };

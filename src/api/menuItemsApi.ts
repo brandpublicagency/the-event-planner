@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
@@ -8,7 +9,7 @@ export type MenuItem = {
   choice_id: string;
   available: boolean;
   image_url: string | null;
-  choice?: string;
+  display_order?: number;
   created_at: string;
   updated_at: string;
 };
@@ -39,6 +40,7 @@ export type MenuItemFormData = {
   choice_id: string;
   available: boolean;
   image_url: string | null;
+  display_order?: number;
 };
 
 export type MenuSectionFormData = Omit<MenuSection, 'id' | 'created_at' | 'updated_at'>;
@@ -50,7 +52,8 @@ export const fetchMenuItems = async () => {
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
-      .order('label');
+      .order('display_order', { ascending: true })
+      .order('label', { ascending: true });
     
     if (error) {
       console.error('Error fetching menu items:', error);
@@ -65,7 +68,7 @@ export const fetchMenuItems = async () => {
       choice_id: item.choice_id,
       available: item.available !== false,
       image_url: item.image_url || null,
-      choice: item.choice,
+      display_order: item.display_order || 0,
       created_at: item.created_at,
       updated_at: item.updated_at
     }));
@@ -84,7 +87,8 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       .from('menu_items')
       .select('*')
       .eq('choice_id', choiceId)
-      .order('label');
+      .order('display_order', { ascending: true })
+      .order('label', { ascending: true });
     
     if (error) {
       console.error('Error fetching menu items by choice:', error);
@@ -99,7 +103,7 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       choice_id: item.choice_id,
       available: item.available !== false,
       image_url: item.image_url || null,
-      choice: item.choice,
+      display_order: item.display_order || 0,
       created_at: item.created_at,
       updated_at: item.updated_at
     }));
@@ -137,7 +141,7 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       choice_id: data.choice_id,
       available: data.available !== false,
       image_url: data.image_url || null,
-      choice: data.choice,
+      display_order: data.display_order || 0,
       created_at: data.created_at,
       updated_at: data.updated_at
     };
@@ -171,7 +175,7 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       choice_id: data.choice_id,
       available: data.available !== false,
       image_url: data.image_url || null,
-      choice: data.choice,
+      display_order: data.display_order || 0,
       created_at: data.created_at,
       updated_at: data.updated_at
     };
@@ -179,6 +183,31 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
     return updatedItem;
   } catch (error) {
     console.error('Error in updateMenuItem:', error);
+    throw error;
+  }
+};
+
+export const reorderMenuItems = async (items: MenuItem[]) => {
+  try {
+    // Prepare updates with display_order values
+    const updates = items.map((item, index) => ({
+      id: item.id,
+      display_order: index
+    }));
+
+    // Perform batch update
+    const { error } = await supabase
+      .from('menu_items')
+      .upsert(updates, { onConflict: 'id' });
+    
+    if (error) {
+      console.error('Error reordering menu items:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in reorderMenuItems:', error);
     throw error;
   }
 };
