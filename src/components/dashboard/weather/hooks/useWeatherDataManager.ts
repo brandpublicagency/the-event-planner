@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useCallback } from 'react';
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { generateForecastFromWeatherData } from '../forecastUtils';
@@ -9,29 +8,28 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     isLoading,
     error,
     refetch
-  } = useDashboardMessage();
+  } = useDashboardMessage({
+    refetchInterval: 10 * 60 * 1000
+  });
   
   const [forecast, setForecast] = useState<any[]>([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   
-  // Function to manually refetch weather data
   const refetchWeather = useCallback(() => {
     console.log("Manually refetching weather data");
     setLastRefreshTime(Date.now());
     return refetch();
   }, [refetch]);
   
-  // Update current time every minute
   useEffect(() => {
     const updateTime = () => {
       setCurrentDateTime(new Date());
     };
-    const interval = setInterval(updateTime, 60000); // Update every minute
+    const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
   
-  // Refetch when retryCount changes (manual retry)
   useEffect(() => {
     if (retryCount > 0) {
       console.log(`Retrying weather data fetch (attempt ${retryCount})`);
@@ -39,12 +37,9 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [retryCount, refetchWeather]);
   
-  // Refresh weather data more frequently
   useEffect(() => {
-    // Initial load
     refetch();
     
-    // Set up auto-refresh interval (reduced to 10 minutes)
     const refreshInterval = setInterval(() => {
       console.log("Auto-refreshing weather data...");
       refetch();
@@ -53,7 +48,6 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     return () => clearInterval(refreshInterval);
   }, [refetch]);
   
-  // Generate forecast whenever weather data or current time changes
   useEffect(() => {
     if (dashboardMessage?.weatherData) {
       console.log("Weather data received in widget:", dashboardMessage.weatherData);
@@ -64,7 +58,6 @@ export const useWeatherDataManager = (forcedVisible = false, retryCount = 0) => 
     }
   }, [dashboardMessage?.weatherData, currentDateTime]);
   
-  // Create fallback weather data when needed
   const mockWeatherData = {
     date: new Date().toISOString().split('T')[0],
     temp: 19,
