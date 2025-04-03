@@ -7,6 +7,7 @@ export type MenuItem = {
   label: string;
   description: string | null;
   choice_id: string;
+  choice: string;  // Adding this field to match database schema
   available: boolean;
   image_url: string | null;
   display_order?: number;
@@ -38,6 +39,7 @@ export type MenuItemFormData = {
   label: string;
   description: string | null;
   choice_id: string;
+  choice?: string;  // Adding this as optional for form data
   available: boolean;
   image_url: string | null;
   display_order?: number;
@@ -67,6 +69,7 @@ export const fetchMenuItems = async () => {
       label: item.label,
       description: item.description,
       choice_id: item.choice_id,
+      choice: item.choice || '',  // Ensure choice is included
       available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
@@ -103,6 +106,7 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       label: item.label,
       description: item.description,
       choice_id: item.choice_id,
+      choice: item.choice || '',  // Ensure choice is included
       available: item.available !== false, // Default to true if not specified
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
@@ -119,6 +123,18 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
 
 export const createMenuItem = async (menuItem: MenuItemFormData) => {
   try {
+    // Get choice info based on choice_id
+    const { data: choiceData, error: choiceError } = await supabase
+      .from('menu_choices')
+      .select('*')
+      .eq('id', menuItem.choice_id)
+      .single();
+    
+    if (choiceError) {
+      console.error('Error fetching choice for menu item:', choiceError);
+      throw choiceError;
+    }
+    
     // Prepare the item for insertion - make sure we're sending the right fields
     // that match the database schema
     const itemToCreate = {
@@ -126,6 +142,7 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       label: menuItem.label,
       description: menuItem.description,
       choice_id: menuItem.choice_id,
+      choice: choiceData.value, // Use the choice value from the choice record
       available: menuItem.available,
       image_url: menuItem.image_url,
       display_order: menuItem.display_order || 0
@@ -149,6 +166,7 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       label: data.label,
       description: data.description,
       choice_id: data.choice_id,
+      choice: data.choice,
       available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
@@ -165,9 +183,29 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
 
 export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormData>) => {
   try {
+    // If choice_id is being updated, we need to update the choice field as well
+    let itemToUpdate: any = { ...menuItem };
+    
+    if (menuItem.choice_id) {
+      // Get choice info based on choice_id
+      const { data: choiceData, error: choiceError } = await supabase
+        .from('menu_choices')
+        .select('*')
+        .eq('id', menuItem.choice_id)
+        .single();
+      
+      if (choiceError) {
+        console.error('Error fetching choice for menu item update:', choiceError);
+        throw choiceError;
+      }
+      
+      // Add the choice value
+      itemToUpdate.choice = choiceData.value;
+    }
+
     const { data, error } = await supabase
       .from('menu_items')
-      .update(menuItem)
+      .update(itemToUpdate)
       .eq('id', id)
       .select()
       .single();
@@ -184,6 +222,7 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       label: data.label,
       description: data.description,
       choice_id: data.choice_id,
+      choice: data.choice,
       available: data.available !== false, // Default to true if not specified
       image_url: data.image_url || null,
       display_order: data.display_order || 0,
@@ -200,12 +239,13 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
 
 export const reorderMenuItems = async (items: MenuItem[]) => {
   try {
-    // Prepare updates with display_order values
+    // Prepare updates with display_order values and required fields for upsert
     const updates = items.map((item, index) => ({
       id: item.id,
       display_order: index,
-      value: item.value, // Adding required fields for upsert
-      label: item.label
+      value: item.value,
+      label: item.label,
+      choice: item.choice // Add the choice field required by the database
     }));
 
     // Perform batch update
