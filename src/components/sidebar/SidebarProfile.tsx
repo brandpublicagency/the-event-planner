@@ -72,11 +72,11 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
   return (
     <div className={cn(
-      "h-16 w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
+      "h-[65px] w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
       isCollapsed ? "justify-center px-0" : "px-3"
     )}>
       <div className={cn(
-        "flex items-center w-[258px]",
+        "flex items-center w-[259px]",
         isCollapsed ? "justify-center" : "gap-2"
       )}>
         <Avatar 
