@@ -1,4 +1,3 @@
-
 import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,7 +6,6 @@ import { useEffect } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
 import WeatherWidget from "./weather/WeatherWidget";
 import { useToast } from "@/hooks/use-toast";
-
 const DashboardMessage = () => {
   const {
     dashboardMessage,
@@ -18,8 +16,12 @@ const DashboardMessage = () => {
     profile,
     isLoading: isProfileLoading
   } = useProfile();
-  const { refreshNotifications } = useNotifications();
-  const { toast } = useToast();
+  const {
+    refreshNotifications
+  } = useNotifications();
+  const {
+    toast
+  } = useToast();
 
   // Refresh notifications when the dashboard loads
   useEffect(() => {
@@ -44,7 +46,6 @@ const DashboardMessage = () => {
       // This keeps the UX smooth even when there are backend issues
     }
   }, [error, toast]);
-
   if (isLoading || isProfileLoading) {
     return <div className="mb-6 mt-4">
         <div className="p-4">
@@ -56,64 +57,65 @@ const DashboardMessage = () => {
 
   // The message already contains the appropriate greeting
   const message = dashboardMessage.message || "Welcome to your dashboard. Have a great day!";
-  
+
   // Split message into lines to apply different styling
   const messageLines = message.split('\n');
   const firstLine = messageLines[0];
   const remainingLines = messageLines.slice(1).join('\n');
-
-  return (
-    <div className="mb-6 mt-4">
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+  return <div className="mb-6 mt-4">
+      <motion.div initial={{
+      opacity: 0,
+      y: -10
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.5
+    }}>
         <div className="mb-4">
-          <motion.div 
-            className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            <div 
-              style={{ 
-                fontSize: '1.05rem', 
-                fontWeight: 450, 
-                lineHeight: 1.6,
-                letterSpacing: '0.01em',
-              }}
-            >
+          <motion.div initial={{
+          opacity: 0
+        }} animate={{
+          opacity: 1
+        }} transition={{
+          duration: 0.7,
+          delay: 0.2
+        }} className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed whitespace-pre-line bg-white px-[10px] py-[10px] my-0 rounded">
+            <div style={{
+            fontSize: '1.05rem',
+            fontWeight: 450,
+            lineHeight: 1.6,
+            letterSpacing: '0.01em'
+          }}>
               {firstLine}
             </div>
-            {remainingLines && (
-              <div 
-                style={{ 
-                  fontSize: '1.05rem', 
-                  fontWeight: 300, // Lighter weight for the second line
-                  lineHeight: 1.6,
-                  letterSpacing: '0.01em',
-                  marginTop: '0.25rem'
-                }}
-              >
+            {remainingLines && <div style={{
+            fontSize: '1.05rem',
+            fontWeight: 300,
+            // Lighter weight for the second line
+            lineHeight: 1.6,
+            letterSpacing: '0.01em',
+            marginTop: '0.25rem'
+          }}>
                 {remainingLines}
-              </div>
-            )}
+              </div>}
           </motion.div>
         </div>
       </motion.div>
       
       {/* Weather widget always displays with fallback data if needed */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="mt-4"
-      >
+      <motion.div initial={{
+      opacity: 0,
+      y: 10
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.5,
+      delay: 0.2
+    }} className="mt-4">
         <WeatherWidget forcedVisible={true} />
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default DashboardMessage;
