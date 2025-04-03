@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
@@ -49,7 +48,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                           <div className="flex items-start justify-between">
                             <div>
                               <div className="text-xs text-gray-800">{item.label}</div>
-                              <div className="text-xs text-gray-500 mt-1">{item.value}</div>
+                              <div className="text-[10px] text-gray-500 py-px">{item.value}</div>
                             </div>
                             <div className="flex space-x-1">
                               <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="h-6 w-6">
