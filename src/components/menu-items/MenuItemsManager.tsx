@@ -34,7 +34,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
   const choiceItems = menuItems.filter(item => item.choice_id === choiceId);
 
   return (
-    <div className="mt-2 ml-2">
+    <div className="mt-2">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-sm font-medium text-gray-700">Items for {choiceLabel}</h4>
         <Button 

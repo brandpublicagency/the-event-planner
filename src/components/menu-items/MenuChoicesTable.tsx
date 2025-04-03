@@ -55,7 +55,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
   };
 
   return (
-    <div className="space-y-4 ml-2">
+    <div className="space-y-4">
       <Button 
         size="sm" 
         onClick={() => setIsAddDialogOpen(true)}
