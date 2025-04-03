@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { PlusIcon } from 'lucide-react';
 import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
 import { MenuItem } from '@/api/menuItemsApi';
+import MenuItemInlineForm from './MenuItemInlineForm';
 
 interface MenuItemsManagerProps {
   choiceId: string;
@@ -30,6 +31,9 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
     isReordering
   } = useMenuItems(choiceId);
 
+  // State for showing the inline form
+  const [showInlineForm, setShowInlineForm] = useState(false);
+
   // Get items for this choice
   const choiceItems = menuItems.filter(item => item.choice_id === choiceId);
 
@@ -39,12 +43,22 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({ choiceId, choiceLab
         <h4 className="text-sm font-medium text-gray-700">Items for {choiceLabel}</h4>
         <Button 
           size="sm" 
-          onClick={() => setIsAddDialogOpen(true)}
+          onClick={() => setShowInlineForm(true)}
         >
           <PlusIcon className="h-3.5 w-3.5 mr-1" />
           Add Items
         </Button>
       </div>
+
+      {/* Inline form for adding items */}
+      {showInlineForm && (
+        <MenuItemInlineForm 
+          onSubmit={handleAddItem}
+          onCancel={() => setShowInlineForm(false)}
+          isSubmitting={isCreating}
+          choiceId={choiceId}
+        />
+      )}
 
       {isLoading ? (
         <div className="text-center py-4 text-sm text-gray-500">Loading items...</div>

@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
 import MenuChoiceDialog from './MenuChoiceDialog';
 import MenuItemsManager from './MenuItemsManager';
+import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +38,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
   } = useMenuChoices(sectionId);
 
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
+  const [showInlineForm, setShowInlineForm] = useState(false);
 
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
@@ -58,12 +59,24 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
     <div className="space-y-4">
       <Button 
         size="sm" 
-        onClick={() => setIsAddDialogOpen(true)}
+        onClick={() => setShowInlineForm(true)}
         className="mb-4"
       >
         <PlusIcon className="h-4 w-4 mr-2" />
         Add Choice
       </Button>
+
+      {showInlineForm && (
+        <MenuChoiceInlineForm 
+          onSubmit={(data) => {
+            handleAddChoice(data);
+            setShowInlineForm(false);
+          }}
+          onCancel={() => setShowInlineForm(false)}
+          isSubmitting={isCreating}
+          sectionId={sectionId}
+        />
+      )}
 
       {isLoading ? (
         <div className="text-center py-4">Loading choices...</div>
@@ -111,17 +124,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
         </div>
       )}
 
-      {/* Add Dialog */}
-      <MenuChoiceDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onSubmit={handleAddChoice}
-        isSubmitting={isCreating}
-        title="Add Choice"
-        sectionId={sectionId}
-      />
-
-      {/* Edit Dialog */}
+      {/* Edit Dialog - we still keep this for editing choices */}
       {editingChoice && (
         <MenuChoiceDialog
           open={!!editingChoice}
