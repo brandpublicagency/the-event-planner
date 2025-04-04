@@ -5,7 +5,7 @@ import {
   Highlighter, Image
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
-import { isMarkActive } from "./editorExtensions";
+import { isMarkActive, isHeadingActive } from "./editorExtensions";
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -22,11 +22,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         attrs: { url }
       }).run();
     }
-  };
-
-  // Check if heading is active - explicitly checking for level
-  const isHeadingActive = (level: number) => {
-    return editor.isActive('heading', { level });
   };
 
   return (
@@ -64,21 +59,21 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={isHeadingActive(1) ? 'is-active' : ''}
+        className={isHeadingActive(editor, 1) ? 'is-active' : ''}
         title="Heading 1"
       >
         <Heading1 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={isHeadingActive(2) ? 'is-active' : ''}
+        className={isHeadingActive(editor, 2) ? 'is-active' : ''}
         title="Heading 2"
       >
         <Heading2 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={isHeadingActive(3) ? 'is-active' : ''}
+        className={isHeadingActive(editor, 3) ? 'is-active' : ''}
         title="Heading 3"
       >
         <Heading3 size={18} />

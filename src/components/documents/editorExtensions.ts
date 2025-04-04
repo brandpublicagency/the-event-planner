@@ -39,3 +39,8 @@ export const getEditorExtensions = () => [
 export const isMarkActive = (editor: any, type: string) => {
   return editor.isActive(type);
 };
+
+// Helper function to check if heading with specific level is active
+export const isHeadingActive = (editor: any, level: number) => {
+  return editor.isActive('heading', { level });
+};
