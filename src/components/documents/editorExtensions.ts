@@ -31,11 +31,16 @@ const PasteHandler = Extension.create({
             if (urlRegex.test(clipboardText)) {
               const url = clipboardText.match(urlRegex)?.[0];
               if (url) {
-                // Insert link preview
-                this.editor.commands.insertContent({
-                  type: 'linkPreview',
-                  attrs: { url }
-                });
+                // Instead of direct insertContent, we'll create a transaction
+                const { tr } = view.state;
+                const node = view.state.schema.nodes.linkPreview.create({ url });
+                
+                // Insert at current position
+                const position = view.state.selection.from;
+                tr.insert(position, node);
+                
+                // Apply the transaction
+                view.dispatch(tr);
                 return true; // Stop propagation
               }
             }

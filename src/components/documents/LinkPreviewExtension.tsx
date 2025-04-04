@@ -8,7 +8,7 @@ export const LinkPreviewNode = Node.create({
   
   group: 'block',
   
-  atom: true,
+  atom: true, // This ensures it's treated as an atomic node
   
   addAttributes() {
     return {

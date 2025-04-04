@@ -28,9 +28,22 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         setLoading(true);
         setError(null);
         
+        // Make sure URL is properly formatted
+        let formattedUrl = url;
+        if (!/^https?:\/\//i.test(url)) {
+          formattedUrl = 'https://' + url;
+        }
+        
+        // Validate URL format
+        try {
+          new URL(formattedUrl);
+        } catch (e) {
+          throw new Error("Invalid URL format");
+        }
+        
         // Use the linkpreview.net API
         const API_KEY = '9da1016eb780c52e283ab0eb4f099b7c';
-        const apiUrl = `https://api.linkpreview.net/?key=${API_KEY}&q=${encodeURIComponent(url)}`;
+        const apiUrl = `https://api.linkpreview.net/?key=${API_KEY}&q=${encodeURIComponent(formattedUrl)}`;
         
         const response = await fetch(apiUrl);
         
@@ -79,15 +92,24 @@ export function LinkPreview({ url }: LinkPreviewProps) {
   }
 
   if (error || !preview) {
+    // If we can't get a preview, at least show the URL as a clickable link
+    let displayUrl = url;
+    let linkUrl = url;
+    
+    // Try to format the URL for display/linking
+    if (!/^https?:\/\//i.test(url)) {
+      linkUrl = 'https://' + url;
+    }
+    
     return (
       <a 
-        href={url} 
+        href={linkUrl} 
         target="_blank" 
         rel="noopener noreferrer"
         className="flex items-center gap-2 text-primary underline hover:text-primary/80"
       >
         <ExternalLink size={14} />
-        {url}
+        {displayUrl}
       </a>
     );
   }
