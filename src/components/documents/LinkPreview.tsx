@@ -41,6 +41,14 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           throw new Error("Invalid URL format");
         }
         
+        // Try to extract domain from URL to use as fallback
+        let domain = "";
+        try {
+          domain = new URL(formattedUrl).hostname;
+        } catch (e) {
+          domain = formattedUrl;
+        }
+        
         // Use the linkpreview.net API
         const API_KEY = '9da1016eb780c52e283ab0eb4f099b7c';
         const apiUrl = `https://api.linkpreview.net/?key=${API_KEY}&q=${encodeURIComponent(formattedUrl)}`;
@@ -48,26 +56,54 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         const response = await fetch(apiUrl);
         
         if (!response.ok) {
+          // Create a fallback preview if API fails
           throw new Error(`API error: ${response.status}`);
         }
         
         const data = await response.json();
         
         // Parse domain from URL
-        const domain = new URL(data.url).hostname;
+        const responseDomain = new URL(data.url).hostname;
         
         const previewData: PreviewData = {
           title: data.title || domain,
           description: data.description || null,
           image: data.image || null,
           url: data.url,
-          domain: domain
+          domain: responseDomain
         };
         
         setPreview(previewData);
       } catch (err) {
         console.error("Error fetching link preview:", err);
         setError(err instanceof Error ? err.message : "Failed to load preview");
+        
+        // Create a fallback preview with the URL information
+        if (url) {
+          try {
+            // Extract domain from URL for the fallback preview
+            const fallbackUrl = url.startsWith('http') ? url : `https://${url}`;
+            const fallbackDomain = new URL(fallbackUrl).hostname;
+            
+            // Set a fallback preview with minimal information
+            setPreview({
+              title: fallbackDomain,
+              description: "No preview available",
+              image: null,
+              url: fallbackUrl,
+              domain: fallbackDomain
+            });
+          } catch (e) {
+            // If all else fails, just use the raw URL
+            setPreview({
+              title: url,
+              description: null,
+              image: null,
+              url: url.startsWith('http') ? url : `https://${url}`,
+              domain: url
+            });
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -91,8 +127,8 @@ export function LinkPreview({ url }: LinkPreviewProps) {
     );
   }
 
-  if (error || !preview) {
-    // If we can't get a preview, at least show the URL as a clickable link
+  if (!preview) {
+    // If we still can't get a preview, at least show the URL as a clickable link
     let displayUrl = url;
     let linkUrl = url;
     
