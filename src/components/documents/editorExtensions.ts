@@ -31,8 +31,28 @@ const PasteHandler = Extension.create({
             if (urlRegex.test(clipboardText)) {
               const url = clipboardText.match(urlRegex)?.[0];
               if (url) {
+                // If there's selected text, apply the link to it instead of creating a preview
+                const { from, to } = view.state.selection;
+                const selectedText = view.state.doc.textBetween(from, to, ' ');
+                
+                if (selectedText) {
+                  // Create a link around the selected text
+                  const { tr } = view.state;
+                  view.dispatch(
+                    tr.replaceSelectionWith(
+                      view.state.schema.text(selectedText),
+                      false
+                    ).addMark(
+                      from,
+                      from + selectedText.length,
+                      view.state.schema.marks.link.create({ href: url })
+                    )
+                  );
+                  return true;
+                }
+                
                 try {
-                  // Create a node
+                  // No selection, create a link preview node
                   const node = view.state.schema.nodes.linkPreview.create({ url });
                   
                   // Create a transaction and insert the node
@@ -68,12 +88,15 @@ export const getEditorExtensions = () => [
   }),
   Underline,
   Link.configure({
-    openOnClick: false,
+    openOnClick: true, // Open links on click
     HTMLAttributes: {
       class: 'text-primary underline decoration-primary cursor-pointer',
+      rel: 'noopener noreferrer', // Security best practice for external links
+      target: '_blank', // Open links in new tab
     },
-    autolink: true,
-    validate: href => /^https?:\/\//.test(href),
+    autolink: true, // Automatically convert URLs to links
+    validate: href => /^https?:\/\//.test(href), // Only allow http/https links
+    linkOnPaste: true, // Convert pasted URLs to links
   }),
   Highlight.configure({
     multicolor: false,

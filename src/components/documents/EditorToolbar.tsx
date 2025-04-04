@@ -89,9 +89,37 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <button
         onClick={() => {
-          const url = window.prompt('Enter URL');
+          // Check if there's text selected
+          const { from, to } = editor.state.selection;
+          const selectedText = editor.state.doc.textBetween(from, to, ' ');
+          
+          // Get the current link attributes if a link is selected
+          const currentLink = editor.isActive('link') ? editor.getAttributes('link').href : '';
+          
+          // Default prompt text based on whether we're updating or creating
+          const promptText = currentLink 
+            ? `Update link URL (current: ${currentLink})` 
+            : 'Enter URL for link';
+          
+          const url = window.prompt(promptText, currentLink || 'https://');
+          
+          // If URL is provided and not canceled
           if (url) {
-            editor.chain().focus().setLink({ href: url }).run();
+            // If text is selected, apply link to selection
+            if (selectedText) {
+              editor.chain().focus().setLink({ href: url }).run();
+            } else {
+              // If nothing is selected and we're on a link, update it
+              if (editor.isActive('link')) {
+                editor.chain().focus().updateAttributes('link', { href: url }).run();
+              } else {
+                // No selection and not on link - just insert URL as a link
+                editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
+              }
+            }
+          } else if (url === '') {
+            // Empty string means remove the link
+            editor.chain().focus().unsetLink().run();
           }
         }}
         className={editor.isActive('link') ? 'is-active' : ''}
