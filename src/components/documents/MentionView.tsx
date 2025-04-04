@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { NodeViewWrapper } from '@tiptap/react';
+import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
 import { File, Calendar, CheckSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
 
-interface MentionViewProps {
+export interface MentionViewProps extends NodeViewProps {
   node: {
     attrs: {
       id: string;

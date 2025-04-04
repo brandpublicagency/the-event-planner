@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
@@ -55,7 +54,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
         // Check if mentioned_in already contains this document
         const { data: targetDoc } = await supabase
           .from('documents')
-          .select('mentioned_in')
+          .select('*')
           .eq('id', id)
           .single();
         
@@ -80,7 +79,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
         // Similar logic for tasks
         const { data: targetTask } = await supabase
           .from('tasks')
-          .select('mentioned_in')
+          .select('*')
           .eq('id', id)
           .single();
         
@@ -103,7 +102,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
         // Similar logic for events
         const { data: targetEvent } = await supabase
           .from('events')
-          .select('mentioned_in')
+          .select('*')
           .eq('event_code', id)
           .single();
         
