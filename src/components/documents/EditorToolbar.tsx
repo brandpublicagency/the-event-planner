@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
+import { Separator } from "@/components/ui/separator";
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -43,7 +44,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Highlighter size={18} />
       </button>
 
-      <div className="divider"></div>
+      <Separator orientation="vertical" className="mx-1 h-6" />
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -67,7 +68,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Heading3 size={18} />
       </button>
 
-      <div className="divider"></div>
+      <Separator orientation="vertical" className="mx-1 h-6" />
 
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -84,7 +85,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <ListOrdered size={18} />
       </button>
 
-      <div className="divider"></div>
+      <Separator orientation="vertical" className="mx-1 h-6" />
 
       <button
         onClick={() => {
@@ -99,7 +100,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Link size={18} />
       </button>
 
-      <div className="divider"></div>
+      <Separator orientation="vertical" className="mx-1 h-6" />
 
       <button
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}

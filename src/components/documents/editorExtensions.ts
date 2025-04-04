@@ -31,17 +31,22 @@ const PasteHandler = Extension.create({
             if (urlRegex.test(clipboardText)) {
               const url = clipboardText.match(urlRegex)?.[0];
               if (url) {
-                // Instead of direct insertContent, we'll create a transaction
-                const { tr } = view.state;
-                const node = view.state.schema.nodes.linkPreview.create({ url });
-                
-                // Insert at current position
-                const position = view.state.selection.from;
-                tr.insert(position, node);
-                
-                // Apply the transaction
-                view.dispatch(tr);
-                return true; // Stop propagation
+                try {
+                  // Create a node
+                  const node = view.state.schema.nodes.linkPreview.create({ url });
+                  
+                  // Create a transaction and insert the node
+                  const { tr } = view.state;
+                  const position = view.state.selection.from;
+                  tr.insert(position, node);
+                  
+                  // Apply the transaction
+                  view.dispatch(tr);
+                  return true; // Stop propagation
+                } catch (err) {
+                  console.error("Error inserting link preview:", err);
+                  return false;
+                }
               }
             }
             

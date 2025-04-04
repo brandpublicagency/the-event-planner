@@ -173,10 +173,6 @@
   @apply bg-zinc-100 text-zinc-900;
 }
 
-.editor-toolbar .divider {
-  @apply h-6 w-px mx-1 bg-zinc-200;
-}
-
 /* Document list item styling */
 .document-list-item {
   @apply p-2 rounded-md cursor-pointer hover:bg-zinc-100 transition-colors;
