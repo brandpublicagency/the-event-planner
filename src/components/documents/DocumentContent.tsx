@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useState, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionItems } from '@/hooks/useMentionItems';
-import { SuggestionOptions } from '@tiptap/suggestion';
+import { SuggestionOptions, SuggestionProps } from '@tiptap/suggestion';
 import { PluginKey } from '@tiptap/pm/state';
 
 interface DocumentContentProps {
@@ -24,7 +24,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery);
 
   // Suggestion handler for mentions
-  const mentionSuggestionHandler = useCallback((props: any) => {
+  const mentionSuggestionHandler = useCallback((props: SuggestionProps) => {
     const { editor, range, query, command } = props;
     
     // Update the mention state
@@ -87,7 +87,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         // Define complete options object with all required properties
         const options: SuggestionOptions = {
           pluginKey: suggestionPluginKey,
-          editor: editor, // This was missing and causing the error
+          editor: editor, 
           char: '@',
           items: ({ query }) => {
             return mentionItems;
