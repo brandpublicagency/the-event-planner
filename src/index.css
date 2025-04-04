@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -140,6 +141,23 @@
 
 .document-content mark {
   background-color: #FAF089;
+}
+
+/* Link preview styles */
+.link-preview-node {
+  position: relative;
+}
+
+.link-preview-node:hover .link-preview-actions {
+  opacity: 1;
+}
+
+.link-preview-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 /* Toolbar button styles */
