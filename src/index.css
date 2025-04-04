@@ -68,33 +68,36 @@
   outline: none;
 }
 
-.ProseMirror h1 {
-  font-size: 2em;
-  font-weight: bold;
-  margin-top: 0.67em;
-  margin-bottom: 0.67em;
+/* Custom document content styles */
+.document-content {
+  font-size: 11px;
+  line-height: 1.5;
 }
 
-.ProseMirror h2 {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin-top: 0.83em;
-  margin-bottom: 0.83em;
+.document-content h1 {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0.5em 0;
 }
 
-.ProseMirror h3 {
-  font-size: 1.17em;
-  font-weight: bold;
-  margin-top: 1em;
-  margin-bottom: 1em;
+.document-content h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0.5em 0;
 }
 
-.ProseMirror p {
-  margin-top: 1em;
-  margin-bottom: 1em;
+.document-content h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0.5em 0;
 }
 
-.ProseMirror blockquote {
+.document-content p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.document-content blockquote {
   border-left: 4px solid #e2e8f0;
   padding-left: 1rem;
   margin-left: 0;
@@ -102,17 +105,17 @@
   font-style: italic;
 }
 
-.ProseMirror ul {
+.document-content ul {
   list-style-type: disc;
   padding-left: 1.5em;
 }
 
-.ProseMirror ol {
+.document-content ol {
   list-style-type: decimal;
   padding-left: 1.5em;
 }
 
-.ProseMirror code {
+.document-content code {
   background-color: rgba(97, 97, 97, 0.1);
   color: #616161;
   padding: 0.1em 0.2em;
@@ -120,7 +123,7 @@
   font-family: 'JetBrainsMono', monospace;
 }
 
-.ProseMirror pre {
+.document-content pre {
   background: #0D0D0D;
   color: #FFF;
   font-family: 'JetBrainsMono', monospace;
@@ -129,14 +132,14 @@
   overflow-x: auto;
 }
 
-.ProseMirror pre code {
+.document-content pre code {
   color: inherit;
   padding: 0;
   background: none;
   font-size: 0.8rem;
 }
 
-.ProseMirror mark {
+.document-content mark {
   background-color: #FAF089;
 }
 
