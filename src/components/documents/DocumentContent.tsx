@@ -92,7 +92,35 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           items: ({ query }) => {
             return mentionItems;
           },
-          render: mentionSuggestionHandler,
+          render: () => ({
+            onStart: (props) => {
+              // Call the handler with the props to set up the suggestion UI
+              const result = mentionSuggestionHandler(props);
+              // We don't need to do anything on start, just return
+            },
+            onUpdate: (props) => {
+              // Update the suggestion UI when needed
+              mentionSuggestionHandler(props);
+            },
+            onExit: () => {
+              // Clean up when exiting
+              setMentionQuery(null);
+              setMentionRange(null);
+              setMentionClientRect(null);
+            },
+            onKeyDown: (props) => {
+              // Handle keyboard navigation
+              const { event } = props;
+              
+              // Handle arrow up/down and enter
+              if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter') {
+                // Prevent default to stop cursor movement
+                return true; // Returning true prevents default behavior
+              }
+              
+              return false; // Let other key events pass through
+            }
+          }),
           command: ({ editor, range, props }) => {
             editor
               .chain()
