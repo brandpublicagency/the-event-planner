@@ -6,10 +6,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionItems } from '@/hooks/useMentionItems';
 import { SuggestionOptions } from '@tiptap/suggestion';
+import { PluginKey } from '@tiptap/pm/state';
 
 interface DocumentContentProps {
   editor: Editor | null;
 }
+
+// Create a plugin key for the suggestion
+const suggestionPluginKey = new PluginKey('mention-suggestion');
 
 export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(({
   editor
@@ -80,13 +84,16 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       try {
         const { default: Suggestion } = await import('@tiptap/suggestion');
         
-        const options = {
+        // Define complete options object with all required properties
+        const options: SuggestionOptions = {
+          pluginKey: suggestionPluginKey,
+          editor: editor, // This was missing and causing the error
           char: '@',
-          items: ({ query }: { query: string }) => {
+          items: ({ query }) => {
             return mentionItems;
           },
           render: mentionSuggestionHandler,
-          command: ({ editor, range, props }: any) => {
+          command: ({ editor, range, props }) => {
             editor
               .chain()
               .focus()
@@ -100,14 +107,11 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           }
         };
         
-        // Create and register the suggestion
-        if (editor && !editor.isDestroyed) {
-          // Direct use of Suggestion without configure
-          const suggestionPlugin = Suggestion(options);
-          editor.registerPlugin(suggestionPlugin);
-          
-          return suggestionPlugin;
-        }
+        // Use the SuggestionOptions properly
+        editor.registerPlugin(Suggestion(options));
+        
+        // Return the plugin key for cleanup
+        return suggestionPluginKey;
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
       }
@@ -121,9 +125,9 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     return () => {
       // Cleanup on unmount
       if (extensionPromise) {
-        extensionPromise.then(plugin => {
-          if (editor && !editor.isDestroyed && plugin) {
-            editor.unregisterPlugin(plugin);
+        extensionPromise.then(pluginKey => {
+          if (editor && !editor.isDestroyed && pluginKey) {
+            editor.unregisterPlugin(pluginKey);
           }
         });
       }
