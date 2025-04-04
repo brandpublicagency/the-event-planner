@@ -1,6 +1,6 @@
 
 import { 
-  Bold, Italic, Link, Heading1, Heading2, Heading3, 
+  Bold, Italic, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
   Highlighter, Minus
 } from "lucide-react";
@@ -83,49 +83,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         title="Ordered List"
       >
         <ListOrdered size={18} />
-      </button>
-
-      <Separator orientation="vertical" className="h-6 mx-1" />
-
-      <button
-        onClick={() => {
-          const { from, to } = editor.state.selection;
-          const selectedText = editor.state.doc.textBetween(from, to, ' ');
-          
-          // Check if link is active and get the href
-          const isLinkActive = editor.isActive('link');
-          const currentHref = isLinkActive ? editor.getAttributes('link').href : '';
-          
-          // Prompt text based on whether we're updating or creating a new link
-          const promptText = isLinkActive 
-            ? `Update link URL (current: ${currentHref})` 
-            : 'Enter URL for link';
-          
-          // Show the prompt with the current URL if available
-          const url = window.prompt(promptText, isLinkActive ? currentHref : 'https://');
-          
-          // Handle different cases based on user input
-          if (url === null) {
-            // User canceled the prompt
-            return;
-          } else if (url === '') {
-            // User cleared the URL, remove the link
-            editor.chain().focus().unsetLink().run();
-          } else {
-            // User provided a URL
-            if (selectedText || isLinkActive) {
-              // Apply to selection or update existing link
-              editor.chain().focus().setLink({ href: url }).run();
-            } else {
-              // No selection and not on a link - insert the URL as a link
-              editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
-            }
-          }
-        }}
-        className={editor.isActive('link') ? 'is-active' : ''}
-        title="Link"
-      >
-        <Link size={18} />
       </button>
 
       <Separator orientation="vertical" className="h-6 mx-1" />
