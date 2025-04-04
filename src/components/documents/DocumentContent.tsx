@@ -38,45 +38,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
             <EditorContent editor={editor} className="flex-1 p-3 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none px-[25px]" />
           </div>
         </div>
-        <style jsx>{`
-          .editor-toolbar {
-            display: flex;
-            padding: 0.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            gap: 0.25rem;
-            flex-wrap: wrap;
-            background-color: white;
-            border-top-left-radius: 0.375rem;
-            border-top-right-radius: 0.375rem;
-          }
-          
-          .editor-toolbar button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 0.25rem;
-            color: #4b5563;
-            transition: all 0.2s;
-          }
-          
-          .editor-toolbar button:hover {
-            background-color: #f3f4f6;
-          }
-          
-          .editor-toolbar button.is-active {
-            color: #111827;
-            background-color: #e5e7eb;
-          }
-          
-          .editor-toolbar .divider {
-            width: 1px;
-            background-color: #e5e7eb;
-            margin: 0 0.25rem;
-            align-self: stretch;
-          }
-        `}</style>
       </div>;
 });
 
