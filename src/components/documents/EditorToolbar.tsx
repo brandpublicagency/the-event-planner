@@ -1,3 +1,4 @@
+
 import { 
   Bold, Italic, Link, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
@@ -58,21 +59,21 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={isHeadingActive(editor, 1) ? 'is-active' : ''}
+        className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
         title="Heading 1"
       >
         <Heading1 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={isHeadingActive(editor, 2) ? 'is-active' : ''}
+        className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
         title="Heading 2"
       >
         <Heading2 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={isHeadingActive(editor, 3) ? 'is-active' : ''}
+        className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''}
         title="Heading 3"
       >
         <Heading3 size={18} />
