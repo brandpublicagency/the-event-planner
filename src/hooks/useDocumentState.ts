@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
 import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
 import { supabase } from "@/integrations/supabase/client";
-import { Mention } from '@/integrations/supabase/types/tables';
+import { Mention, DocumentRow, TaskRow, EventRow, TablesUpdate } from '@/integrations/supabase/types/tables';
 
 // Define the interface for saveDocument parameters
 interface SaveDocumentOptions {
@@ -37,7 +38,9 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
     // First, update the current document's mentions list
     await supabase
       .from('documents')
-      .update({ mentions })
+      .update({ 
+        mentions: mentions 
+      } as TablesUpdate<'documents'>)
       .eq('id', documentId);
     
     // Then, update mentioned_in for each referenced item
@@ -61,9 +64,9 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
         
         if (targetDoc) {
           // Parse the mentioned_in array and check if this document is already there
-          const mentionedIn = targetDoc.mentioned_in || [];
+          const mentionedIn: Mention[] = targetDoc.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: Mention) => mention.id === documentId && mention.type === 'document'
+            (m: Mention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
@@ -72,7 +75,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
               .from('documents')
               .update({
                 mentioned_in: [...mentionedIn, mentionedInRef]
-              })
+              } as TablesUpdate<'documents'>)
               .eq('id', id);
           }
         }
@@ -85,9 +88,9 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
           .single();
         
         if (targetTask) {
-          const mentionedIn = targetTask.mentioned_in || [];
+          const mentionedIn: Mention[] = targetTask.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: Mention) => mention.id === documentId && mention.type === 'document'
+            (m: Mention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
@@ -95,7 +98,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
               .from('tasks')
               .update({
                 mentioned_in: [...mentionedIn, mentionedInRef]
-              })
+              } as TablesUpdate<'tasks'>)
               .eq('id', id);
           }
         }
@@ -108,9 +111,9 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
           .single();
         
         if (targetEvent) {
-          const mentionedIn = targetEvent.mentioned_in || [];
+          const mentionedIn: Mention[] = targetEvent.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: Mention) => mention.id === documentId && mention.type === 'document'
+            (m: Mention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
@@ -118,7 +121,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
               .from('events')
               .update({
                 mentioned_in: [...mentionedIn, mentionedInRef]
-              })
+              } as TablesUpdate<'events'>)
               .eq('event_code', id);
           }
         }

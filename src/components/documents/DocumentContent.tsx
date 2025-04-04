@@ -77,9 +77,9 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     
     // Import Suggestion here to avoid issues with SSR
     const importSuggestion = async () => {
-      const Suggestion = (await import('@tiptap/suggestion')).default;
+      const { default: Suggestion } = await import('@tiptap/suggestion');
       
-      const mentionExtension = Suggestion.configure({
+      const mentionExtension = Suggestion({
         char: '@',
         items: ({ query }) => {
           return mentionItems;
@@ -100,8 +100,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       });
       
       // Add the extension to the editor
-      if (mentionExtension && mentionExtension.plugin) {
-        editor.registerPlugin(mentionExtension.plugin);
+      if (mentionExtension) {
+        editor.registerPlugin(mentionExtension);
       }
       
       return mentionExtension;
@@ -113,8 +113,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     return () => {
       // Cleanup on unmount
       extensionPromise.then(mentionExtension => {
-        if (editor && !editor.isDestroyed && mentionExtension && mentionExtension.plugin) {
-          editor.unregisterPlugin(mentionExtension.plugin);
+        if (editor && !editor.isDestroyed && mentionExtension) {
+          editor.unregisterPlugin(mentionExtension);
         }
       });
     };
