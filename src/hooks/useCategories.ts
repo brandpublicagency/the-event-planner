@@ -80,13 +80,14 @@ export function useDocumentCategories(documentId: string | null) {
       return await updateDocumentCategories(documentId, categoryIds);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['document-categories', documentId] });
+      // Invalidate both queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['document-categories', variables.documentId] });
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       
       if (variables.showSuccessToast) {
         toast({
           title: "Success",
-          description: "Document saved",
+          description: "Category updated",
         });
       }
     },

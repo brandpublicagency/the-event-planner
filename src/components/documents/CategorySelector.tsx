@@ -28,7 +28,10 @@ export function CategorySelector({
     <div className={className}>
       <Select 
         value={selectedCategory || ""}
-        onValueChange={(value) => onChange(value === "all" ? null : value)}
+        onValueChange={(value) => {
+          // Use empty string check to handle the case where value is empty
+          onChange(value === "all" || value === "" ? null : value);
+        }}
       >
         <SelectTrigger className={cn("w-full h-9 bg-white", className)}>
           <div className="flex items-center gap-2">

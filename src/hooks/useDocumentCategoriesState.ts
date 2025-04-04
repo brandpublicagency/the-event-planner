@@ -30,7 +30,7 @@ export function useDocumentCategoriesState(documentId: string | null) {
     if (JSON.stringify(selected) !== JSON.stringify(selectedCategories)) {
       setSelectedCategories(selected);
     }
-  }, [documentCategories, categories]);
+  }, [documentCategories, categories, selectedCategories]);
 
   // Memoize the update function to prevent recreating it on each render
   const handleUpdateCategories = useCallback(async (categoryId: string | null) => {

@@ -49,11 +49,19 @@ export default function DocumentEditorHeader({
     navigate("/documents");
   };
   
+  // Get the first category ID from document if available
+  const selectedCategoryId = 
+    selectedCategories && selectedCategories.length > 0 
+      ? selectedCategories[0].id 
+      : document.category_ids && document.category_ids.length > 0 
+        ? document.category_ids[0] 
+        : null;
+  
   return (
     <div className="flex items-center justify-between border-b px-4 py-2">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <CategorySelector 
-          selectedCategory={document.category_ids && document.category_ids.length > 0 ? document.category_ids[0] : null}
+          selectedCategory={selectedCategoryId}
           onChange={handleCategoryChange}
           placeholder="Select category"
         />
