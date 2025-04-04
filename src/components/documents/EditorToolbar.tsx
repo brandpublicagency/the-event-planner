@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Link, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
-  Highlighter, Image
+  Highlighter
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
@@ -12,18 +12,6 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
-  // Function to handle paste event to detect URLs
-  const handleLinkPreview = () => {
-    const url = window.prompt('Enter URL');
-    
-    if (url && editor) {
-      editor.chain().focus().insertContent({
-        type: 'linkPreview',
-        attrs: { url }
-      }).run();
-    }
-  };
-
   return (
     <div className="editor-toolbar">
       <button
@@ -109,13 +97,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         title="Link"
       >
         <Link size={18} />
-      </button>
-      
-      <button
-        onClick={handleLinkPreview}
-        title="Insert Link Preview"
-      >
-        <Image size={18} />
       </button>
 
       <div className="divider"></div>

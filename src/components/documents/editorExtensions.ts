@@ -6,8 +6,47 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
+import { Extension } from '@tiptap/core';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
 
 const lowlight = createLowlight(common);
+
+// URL matching regex
+const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+
+// Create a paste handler extension
+const PasteHandler = Extension.create({
+  name: 'pasteHandler',
+  
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('pasteHandler'),
+        props: {
+          handlePaste: (view, event) => {
+            const clipboardText = event.clipboardData?.getData('text/plain');
+            if (!clipboardText) return false;
+            
+            // Check if the clipboard text is a URL
+            if (urlRegex.test(clipboardText)) {
+              const url = clipboardText.match(urlRegex)?.[0];
+              if (url) {
+                // Insert link preview
+                this.editor.commands.insertContent({
+                  type: 'linkPreview',
+                  attrs: { url }
+                });
+                return true; // Stop propagation
+              }
+            }
+            
+            return false; // Allow other paste handlers to continue
+          }
+        }
+      })
+    ];
+  }
+});
 
 // Export all extensions
 export const getEditorExtensions = () => [
@@ -33,6 +72,7 @@ export const getEditorExtensions = () => [
     lowlight,
   }),
   LinkPreviewNode,
+  PasteHandler, // Add the paste handler extension
 ];
 
 // Helper function to check if mark is active
