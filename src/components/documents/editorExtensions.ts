@@ -85,10 +85,11 @@ export const getEditorExtensions = () => [
       levels: [1, 2, 3]
     },
     codeBlock: false, // Disable the default code block to avoid conflicts
+    horizontalRule: true, // Ensure horizontal rule is enabled
   }),
   Underline,
   Link.configure({
-    openOnClick: true, // Open links on click
+    openOnClick: false, // Don't open links on click in editor
     HTMLAttributes: {
       class: 'text-primary underline decoration-primary cursor-pointer',
       rel: 'noopener noreferrer', // Security best practice for external links

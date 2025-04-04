@@ -143,6 +143,13 @@
   background-color: #FAF089;
 }
 
+/* Horizontal rule style */
+.document-content hr {
+  border: none;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  margin: 1.5em 0;
+}
+
 /* Link preview styles */
 .link-preview-node {
   position: relative;
@@ -173,13 +180,11 @@
   @apply bg-zinc-100 text-zinc-900;
 }
 
-.editor-toolbar .separator-vertical {
-  @apply h-6 text-zinc-300 mx-1;
-}
-
-/* Customize the Separator component when used in the toolbar */
+/* Separator styling */
 .editor-toolbar [role="separator"] {
   @apply bg-zinc-200 mx-1;
+  height: 24px !important;
+  display: inline-block;
 }
 
 /* Document list item styling */

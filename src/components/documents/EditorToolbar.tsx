@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Link, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
-  Highlighter
+  Highlighter, Minus
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
@@ -143,6 +143,15 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         title="Quote"
       >
         <Quote size={18} />
+      </button>
+
+      <Separator orientation="vertical" className="h-6 mx-1" />
+
+      <button
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        title="Horizontal Rule"
+      >
+        <Minus size={18} />
       </button>
     </div>
   );
