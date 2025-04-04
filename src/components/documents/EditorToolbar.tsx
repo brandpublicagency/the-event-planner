@@ -24,6 +24,11 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
     }
   };
 
+  // Check if heading is active - explicitly checking for level
+  const isHeadingActive = (level: number) => {
+    return editor.isActive('heading', { level });
+  };
+
   return (
     <div className="editor-toolbar">
       <button
@@ -59,21 +64,21 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
+        className={isHeadingActive(1) ? 'is-active' : ''}
         title="Heading 1"
       >
         <Heading1 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
+        className={isHeadingActive(2) ? 'is-active' : ''}
         title="Heading 2"
       >
         <Heading2 size={18} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''}
+        className={isHeadingActive(3) ? 'is-active' : ''}
         title="Heading 3"
       >
         <Heading3 size={18} />
