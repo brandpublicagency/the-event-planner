@@ -85,7 +85,7 @@ export const getEditorExtensions = () => [
       levels: [1, 2, 3]
     },
     codeBlock: false, // Disable the default code block to avoid conflicts
-    horizontalRule: true, // Ensure horizontal rule is enabled
+    horizontalRule: {}, // Configure horizontal rule with default options
   }),
   Underline,
   Link.configure({
