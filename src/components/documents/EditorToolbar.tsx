@@ -5,7 +5,7 @@ import {
   Highlighter, Image
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
-import { isHeadingActive, isMarkActive } from "./editorExtensions";
+import { isMarkActive } from "./editorExtensions";
 
 interface EditorToolbarProps {
   editor: Editor;

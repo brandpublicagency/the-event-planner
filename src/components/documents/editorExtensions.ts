@@ -35,11 +35,7 @@ export const getEditorExtensions = () => [
   LinkPreviewNode,
 ];
 
-// Helper function to check if button is active
-export const isHeadingActive = (editor: any, level: number) => {
-  return editor.isActive('heading', { level });
-};
-
+// Helper function to check if mark is active
 export const isMarkActive = (editor: any, type: string) => {
   return editor.isActive(type);
 };
