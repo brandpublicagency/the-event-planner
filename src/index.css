@@ -167,6 +167,16 @@
   transition: opacity 0.2s;
 }
 
+/* Mention styles */
+.mention {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.3em;
+  padding: 0.1em 0.3em;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #1a73e8;
+}
+
 /* Toolbar button styles */
 .editor-toolbar {
   @apply flex items-center gap-0.5 p-1 bg-white border border-zinc-200 rounded-md mb-2;

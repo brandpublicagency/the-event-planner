@@ -6,8 +6,10 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
+import { MentionNode } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import Suggestion from '@tiptap/suggestion';
 
 const lowlight = createLowlight(common);
 
@@ -107,6 +109,12 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
+  // Add the mention extension
+  MentionNode.configure({
+    HTMLAttributes: {
+      class: 'mention',
+    },
+  }),
 ];
 
 // Helper function to check if mark is active
