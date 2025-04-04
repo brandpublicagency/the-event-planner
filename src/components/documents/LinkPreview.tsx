@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LinkPreviewProps {
   url: string;
@@ -49,28 +50,65 @@ export function LinkPreview({ url }: LinkPreviewProps) {
           domain = formattedUrl;
         }
         
-        // Use the linkpreview.net API
-        const API_KEY = '9da1016eb780c52e283ab0eb4f099b7c';
-        const apiUrl = `https://api.linkpreview.net/?key=${API_KEY}&q=${encodeURIComponent(formattedUrl)}`;
-        
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-          // Create a fallback preview if API fails
-          throw new Error(`API error: ${response.status}`);
+        // Use our Supabase Edge Function instead of the external API
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+            body: { url: formattedUrl }
+          });
+          
+          if (error) throw new Error(error.message);
+          
+          if (data) {
+            const previewData: PreviewData = {
+              title: data.title || domain,
+              description: data.description || null,
+              image: data.image_url || null,
+              url: formattedUrl,
+              domain: data.domain || domain
+            };
+            
+            setPreview(previewData);
+            return;
+          }
+        } catch (functionError) {
+          console.warn("Edge function error:", functionError);
+          // Continue to fallback
         }
         
-        const data = await response.json();
+        // If edge function fails, try direct fetch method
+        const response = await fetch(formattedUrl, {
+          headers: {
+            'Accept': 'text/html',
+            'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)'
+          }
+        });
         
-        // Parse domain from URL
-        const responseDomain = new URL(data.url).hostname;
+        if (!response.ok) {
+          throw new Error(`Failed to fetch URL: ${response.status}`);
+        }
         
+        const html = await response.text();
+        
+        // Extract metadata from HTML
+        const title = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() ||
+                     html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                     html.match(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() || 
+                     domain;
+                     
+        const description = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                           html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                           html.match(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+        
+        const image = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                     html.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+        
+        // Create preview data
         const previewData: PreviewData = {
-          title: data.title || domain,
-          description: data.description || null,
-          image: data.image || null,
-          url: data.url,
-          domain: responseDomain
+          title: title || domain,
+          description: description || null,
+          image: image || null,
+          url: formattedUrl,
+          domain: domain
         };
         
         setPreview(previewData);
@@ -88,7 +126,7 @@ export function LinkPreview({ url }: LinkPreviewProps) {
             // Set a fallback preview with minimal information
             setPreview({
               title: fallbackDomain,
-              description: "No preview available",
+              description: null,
               image: null,
               url: fallbackUrl,
               domain: fallbackDomain
