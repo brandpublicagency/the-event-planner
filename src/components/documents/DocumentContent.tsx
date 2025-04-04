@@ -77,34 +77,41 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     
     // Import Suggestion here to avoid issues with SSR
     const importSuggestion = async () => {
-      const { default: Suggestion } = await import('@tiptap/suggestion');
-      
-      const mentionExtension = Suggestion({
-        char: '@',
-        items: ({ query }) => {
-          return mentionItems;
-        },
-        render: mentionSuggestionHandler,
-        command: ({ editor, range, props }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setMention({
-              id: props.id,
-              label: props.label,
-              type: props.type
-            })
-            .run();
+      try {
+        const { default: Suggestion } = await import('@tiptap/suggestion');
+        
+        const options = {
+          char: '@',
+          items: ({ query }: { query: string }) => {
+            return mentionItems;
+          },
+          render: () => mentionSuggestionHandler,
+          command: ({ editor, range, props }: any) => {
+            editor
+              .chain()
+              .focus()
+              .deleteRange(range)
+              .setMention({
+                id: props.id,
+                label: props.label,
+                type: props.type
+              })
+              .run();
+          }
+        };
+        
+        // Create and register the suggestion
+        if (editor && !editor.isDestroyed) {
+          const mentionExtension = Suggestion.configure(options);
+          editor.registerPlugin(mentionExtension);
+          
+          return mentionExtension;
         }
-      });
-      
-      // Add the extension to the editor
-      if (mentionExtension) {
-        editor.registerPlugin(mentionExtension);
+      } catch (error) {
+        console.error("Error loading suggestion extension:", error);
       }
       
-      return mentionExtension;
+      return null;
     };
 
     // Execute the import and setup
@@ -112,11 +119,13 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     
     return () => {
       // Cleanup on unmount
-      extensionPromise.then(mentionExtension => {
-        if (editor && !editor.isDestroyed && mentionExtension) {
-          editor.unregisterPlugin(mentionExtension);
-        }
-      });
+      if (extensionPromise) {
+        extensionPromise.then(extension => {
+          if (editor && !editor.isDestroyed && extension) {
+            editor.unregisterPlugin(extension);
+          }
+        });
+      }
     };
   }, [editor, mentionItems, mentionSuggestionHandler]);
 
