@@ -79,6 +79,7 @@ export default function DocumentEditorHeader({
             successText="Saved!"
             timeout={2000}
             size="sm"
+            className="h-7 w-auto px-2"
           />
         )}
         
