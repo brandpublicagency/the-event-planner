@@ -21,6 +21,7 @@ interface DocumentEditorHeaderProps {
   contentRef?: React.RefObject<HTMLDivElement>;
   documentCategories?: any[];
   categories?: any[];
+  onCategoryChange?: (categoryId: string | null) => void;
 }
 
 export default function DocumentEditorHeader({
@@ -32,16 +33,15 @@ export default function DocumentEditorHeader({
   isLoadingDocumentCategories = false,
   handleSave,
   isSaving = false,
-  categories = []
+  categories = [],
+  onCategoryChange
 }: DocumentEditorHeaderProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   
   const handleCategoryChange = (categoryId: string | null) => {
-    if (!document.id) return;
-    
-    // This is handled by the parent component now
-    console.log("Category changed to:", categoryId);
+    if (!document.id || !onCategoryChange) return;
+    onCategoryChange(categoryId);
   };
 
   const handleDeleteConfirmed = () => {

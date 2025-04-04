@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDocumentCategories, useCategories } from "@/hooks/useCategories";
 import type { Category } from "@/types/category";
 
@@ -25,8 +25,24 @@ export function useDocumentCategoriesState(documentId: string | null) {
       return fullCategory || docCat;
     });
     
-    setSelectedCategories(selected);
+    // Only update if the selection has actually changed
+    // This prevents the infinite loop
+    if (JSON.stringify(selected) !== JSON.stringify(selectedCategories)) {
+      setSelectedCategories(selected);
+    }
   }, [documentCategories, categories]);
+
+  // Memoize the update function to prevent recreating it on each render
+  const handleUpdateCategories = useCallback(async (categoryId: string | null) => {
+    if (!documentId) return;
+
+    const categoryIds = categoryId ? [categoryId] : [];
+    await updateDocumentCategories({
+      documentId,
+      categoryIds,
+      showSuccessToast: true
+    });
+  }, [documentId, updateDocumentCategories]);
 
   return {
     selectedCategories,
@@ -34,6 +50,7 @@ export function useDocumentCategoriesState(documentId: string | null) {
     categories,
     documentCategories,
     isLoadingDocumentCategories,
-    updateDocumentCategories
+    updateDocumentCategories,
+    handleUpdateCategories
   };
 }

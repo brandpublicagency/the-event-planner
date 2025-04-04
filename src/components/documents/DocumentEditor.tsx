@@ -41,11 +41,10 @@ export default function DocumentEditor({
 
   const {
     selectedCategories,
-    setSelectedCategories,
     categories,
     documentCategories,
     isLoadingDocumentCategories,
-    updateDocumentCategories
+    handleUpdateCategories
   } = useDocumentCategoriesState(documentId);
 
   const handleSave = async () => {
@@ -53,14 +52,6 @@ export default function DocumentEditor({
       await saveDocument({
         showToast: true
       });
-      
-      if (documentId) {
-        await updateDocumentCategories({
-          documentId,
-          categoryIds: selectedCategories.map(c => c.id),
-          showSuccessToast: false
-        });
-      }
     } catch (error) {
       console.error("Failed to save document:", error);
     }
@@ -95,6 +86,7 @@ export default function DocumentEditor({
         categories={categories}
         content={editor?.getHTML()}
         printRef={contentRef}
+        onCategoryChange={handleUpdateCategories}
       />
       <div className="flex-1 overflow-hidden p-4">
         <DocumentContent editor={editor} ref={contentRef} />
