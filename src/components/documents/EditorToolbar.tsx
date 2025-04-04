@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Link, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
-  Highlighter, SeparatorVertical
+  Highlighter
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
@@ -44,7 +44,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Highlighter size={18} />
       </button>
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -68,7 +68,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Heading3 size={18} />
       </button>
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -85,38 +85,41 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <ListOrdered size={18} />
       </button>
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
       <button
         onClick={() => {
-          // Get the selected text
           const { from, to } = editor.state.selection;
           const selectedText = editor.state.doc.textBetween(from, to, ' ');
           
-          // Get the current link attributes if a link is selected
-          const attrs = editor.getAttributes('link');
-          const currentLink = attrs.href || '';
+          // Check if link is active and get the href
+          const isLinkActive = editor.isActive('link');
+          const currentHref = isLinkActive ? editor.getAttributes('link').href : '';
           
-          // Determine the prompt text based on whether we're updating or creating
-          const promptText = currentLink 
-            ? `Update link URL (current: ${currentLink})` 
+          // Prompt text based on whether we're updating or creating a new link
+          const promptText = isLinkActive 
+            ? `Update link URL (current: ${currentHref})` 
             : 'Enter URL for link';
           
           // Show the prompt with the current URL if available
-          const url = window.prompt(promptText, currentLink || 'https://');
+          const url = window.prompt(promptText, isLinkActive ? currentHref : 'https://');
           
-          // If URL is provided and not canceled
-          if (url) {
-            // If text is selected or we're updating an existing link
-            if (selectedText || editor.isActive('link')) {
+          // Handle different cases based on user input
+          if (url === null) {
+            // User canceled the prompt
+            return;
+          } else if (url === '') {
+            // User cleared the URL, remove the link
+            editor.chain().focus().unsetLink().run();
+          } else {
+            // User provided a URL
+            if (selectedText || isLinkActive) {
+              // Apply to selection or update existing link
               editor.chain().focus().setLink({ href: url }).run();
             } else {
-              // No selection and not on link - insert the URL as a link
+              // No selection and not on a link - insert the URL as a link
               editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
             }
-          } else if (url === '') {
-            // Empty string means remove the link
-            editor.chain().focus().unsetLink().run();
           }
         }}
         className={editor.isActive('link') ? 'is-active' : ''}
@@ -125,7 +128,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Link size={18} />
       </button>
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
       <button
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}

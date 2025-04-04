@@ -177,6 +177,11 @@
   @apply h-6 text-zinc-300 mx-1;
 }
 
+/* Customize the Separator component when used in the toolbar */
+.editor-toolbar [role="separator"] {
+  @apply bg-zinc-200 mx-1;
+}
+
 /* Document list item styling */
 .document-list-item {
   @apply p-2 rounded-md cursor-pointer hover:bg-zinc-100 transition-colors;
