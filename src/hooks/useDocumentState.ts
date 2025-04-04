@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
 import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
 import { supabase } from "@/integrations/supabase/client";
+import { Mention } from '@/integrations/supabase/types/tables';
 
 // Define the interface for saveDocument parameters
 interface SaveDocumentOptions {
@@ -13,15 +15,15 @@ interface SaveDocumentOptions {
 }
 
 // Utility to extract mentions from HTML content
-const extractMentions = (content: string) => {
+const extractMentions = (content: string): Mention[] => {
   const mentionRegex = /<span[^>]*data-mention[^>]*data-id="([^"]*)"[^>]*data-type="([^"]*)"[^>]*>/g;
-  const mentions: { id: string; type: string }[] = [];
+  const mentions: Mention[] = [];
   let match;
   
   while ((match = mentionRegex.exec(content)) !== null) {
     mentions.push({
       id: match[1],
-      type: match[2]
+      type: match[2] as 'document' | 'task' | 'event'
     });
   }
   
@@ -29,7 +31,7 @@ const extractMentions = (content: string) => {
 };
 
 // Update mentions tracking in database
-const updateMentions = async (documentId: string, mentions: { id: string; type: string }[]) => {
+const updateMentions = async (documentId: string, mentions: Mention[]) => {
   if (!documentId || !mentions.length) return;
   
   try {
@@ -44,7 +46,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
       const { id, type } = mention;
       
       // Construct the reference to this document
-      const mentionedInRef = {
+      const mentionedInRef: Mention = {
         id: documentId,
         type: 'document'
       };
@@ -62,7 +64,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
           // Parse the mentioned_in array and check if this document is already there
           const mentionedIn = targetDoc.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: any) => mention.id === documentId && mention.type === 'document'
+            (mention: Mention) => mention.id === documentId && mention.type === 'document'
           );
           
           if (!alreadyMentioned) {
@@ -86,7 +88,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
         if (targetTask) {
           const mentionedIn = targetTask.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: any) => mention.id === documentId && mention.type === 'document'
+            (mention: Mention) => mention.id === documentId && mention.type === 'document'
           );
           
           if (!alreadyMentioned) {
@@ -109,7 +111,7 @@ const updateMentions = async (documentId: string, mentions: { id: string; type: 
         if (targetEvent) {
           const mentionedIn = targetEvent.mentioned_in || [];
           const alreadyMentioned = mentionedIn.some(
-            (mention: any) => mention.id === documentId && mention.type === 'document'
+            (mention: Mention) => mention.id === documentId && mention.type === 'document'
           );
           
           if (!alreadyMentioned) {

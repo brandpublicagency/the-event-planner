@@ -5,7 +5,8 @@ import { File, Calendar, CheckSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
 
-export interface MentionViewProps extends NodeViewProps {
+// Extend NodeViewProps but override the node type
+export interface MentionViewProps extends Omit<NodeViewProps, 'node'> {
   node: {
     attrs: {
       id: string;

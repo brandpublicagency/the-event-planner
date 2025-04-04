@@ -6,18 +6,24 @@ export type TablesInsert<T extends keyof Tables> = Tables[T]['Insert'];
 export type TablesUpdate<T extends keyof Tables> = Tables[T]['Update'];
 export type TablesRow<T extends keyof Tables> = Tables[T]['Row'];
 
+// Define mention types
+export interface Mention {
+  id: string;
+  type: 'document' | 'task' | 'event';
+}
+
 // Update these interfaces to include the mentions fields
-export interface DocumentRow extends TablesRow<'documents'> {
-  mentions?: any[];
-  mentioned_in?: any[];
+export interface DocumentRow extends Omit<TablesRow<'documents'>, 'mentions' | 'mentioned_in'> {
+  mentions?: Mention[];
+  mentioned_in?: Mention[];
 }
 
-export interface TaskRow extends TablesRow<'tasks'> {
-  mentions?: any[];
-  mentioned_in?: any[];
+export interface TaskRow extends Omit<TablesRow<'tasks'>, 'mentions' | 'mentioned_in'> {
+  mentions?: Mention[];
+  mentioned_in?: Mention[];
 }
 
-export interface EventRow extends TablesRow<'events'> {
-  mentions?: any[];
-  mentioned_in?: any[];
+export interface EventRow extends Omit<TablesRow<'events'>, 'mentions' | 'mentioned_in'> {
+  mentions?: Mention[];
+  mentioned_in?: Mention[];
 }

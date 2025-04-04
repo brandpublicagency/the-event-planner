@@ -1,11 +1,11 @@
 
-import { Editor, EditorContent, Range, Extension } from '@tiptap/react';
+import { Editor, EditorContent, Range } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
 import { forwardRef, useEffect, useState, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionItems } from '@/hooks/useMentionItems';
-import Suggestion, { SuggestionOptions } from '@tiptap/suggestion';
+import Suggestion from '@tiptap/suggestion';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -75,7 +75,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   useEffect(() => {
     if (!editor) return;
     
-    const mentionExtension = Suggestion({
+    const mentionExtension = Suggestion.configure({
       char: '@',
       items: ({ query }) => {
         return mentionItems;
@@ -96,11 +96,13 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     });
     
     // Add the extension to the editor
-    editor.registerPlugin(mentionExtension);
+    editor.registerPlugin(mentionExtension.plugin);
     
     return () => {
       // Cleanup on unmount
-      editor.unregisterPlugin(mentionExtension);
+      if (mentionExtension.plugin) {
+        editor.unregisterPlugin(mentionExtension.plugin);
+      }
     };
   }, [editor, mentionItems, mentionSuggestionHandler]);
 
