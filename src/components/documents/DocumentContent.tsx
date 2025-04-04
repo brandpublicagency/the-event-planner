@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useState, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionItems } from '@/hooks/useMentionItems';
-import Suggestion from '@tiptap/suggestion';
+import { SuggestionOptions } from '@tiptap/suggestion';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -75,34 +75,48 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   useEffect(() => {
     if (!editor) return;
     
-    const mentionExtension = Suggestion.configure({
-      char: '@',
-      items: ({ query }) => {
-        return mentionItems;
-      },
-      render: mentionSuggestionHandler,
-      command: ({ editor, range, props }) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setMention({
-            id: props.id,
-            label: props.label,
-            type: props.type
-          })
-          .run();
+    // Import Suggestion here to avoid issues with SSR
+    const importSuggestion = async () => {
+      const Suggestion = (await import('@tiptap/suggestion')).default;
+      
+      const mentionExtension = Suggestion.configure({
+        char: '@',
+        items: ({ query }) => {
+          return mentionItems;
+        },
+        render: mentionSuggestionHandler,
+        command: ({ editor, range, props }) => {
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .setMention({
+              id: props.id,
+              label: props.label,
+              type: props.type
+            })
+            .run();
+        }
+      });
+      
+      // Add the extension to the editor
+      if (mentionExtension && mentionExtension.plugin) {
+        editor.registerPlugin(mentionExtension.plugin);
       }
-    });
-    
-    // Add the extension to the editor
-    editor.registerPlugin(mentionExtension.plugin);
+      
+      return mentionExtension;
+    };
+
+    // Execute the import and setup
+    const extensionPromise = importSuggestion();
     
     return () => {
       // Cleanup on unmount
-      if (mentionExtension.plugin) {
-        editor.unregisterPlugin(mentionExtension.plugin);
-      }
+      extensionPromise.then(mentionExtension => {
+        if (editor && !editor.isDestroyed && mentionExtension && mentionExtension.plugin) {
+          editor.unregisterPlugin(mentionExtension.plugin);
+        }
+      });
     };
   }, [editor, mentionItems, mentionSuggestionHandler]);
 

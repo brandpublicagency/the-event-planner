@@ -9,7 +9,6 @@ import { LinkPreviewNode } from './LinkPreviewExtension';
 import { MentionNode } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import Suggestion from '@tiptap/suggestion';
 
 const lowlight = createLowlight(common);
 

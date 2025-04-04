@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
@@ -38,7 +37,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
     // First, update the current document's mentions list
     await supabase
       .from('documents')
-      .update({ mentions: mentions })
+      .update({ mentions })
       .eq('id', documentId);
     
     // Then, update mentioned_in for each referenced item
@@ -53,7 +52,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
       
       // Update the appropriate table based on the mention type
       if (type === 'document') {
-        // Check if mentioned_in already contains this document
+        // Get the document to check if it already has the mention
         const { data: targetDoc } = await supabase
           .from('documents')
           .select('*')
