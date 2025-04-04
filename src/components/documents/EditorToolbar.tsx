@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Link, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
-  Highlighter
+  Highlighter, SeparatorVertical
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
@@ -89,33 +89,30 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <button
         onClick={() => {
-          // Check if there's text selected
+          // Get the selected text
           const { from, to } = editor.state.selection;
           const selectedText = editor.state.doc.textBetween(from, to, ' ');
           
           // Get the current link attributes if a link is selected
-          const currentLink = editor.isActive('link') ? editor.getAttributes('link').href : '';
+          const attrs = editor.getAttributes('link');
+          const currentLink = attrs.href || '';
           
-          // Default prompt text based on whether we're updating or creating
+          // Determine the prompt text based on whether we're updating or creating
           const promptText = currentLink 
             ? `Update link URL (current: ${currentLink})` 
             : 'Enter URL for link';
           
+          // Show the prompt with the current URL if available
           const url = window.prompt(promptText, currentLink || 'https://');
           
           // If URL is provided and not canceled
           if (url) {
-            // If text is selected, apply link to selection
-            if (selectedText) {
+            // If text is selected or we're updating an existing link
+            if (selectedText || editor.isActive('link')) {
               editor.chain().focus().setLink({ href: url }).run();
             } else {
-              // If nothing is selected and we're on a link, update it
-              if (editor.isActive('link')) {
-                editor.chain().focus().updateAttributes('link', { href: url }).run();
-              } else {
-                // No selection and not on link - just insert URL as a link
-                editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
-              }
+              // No selection and not on link - insert the URL as a link
+              editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
             }
           } else if (url === '') {
             // Empty string means remove the link
