@@ -1,5 +1,6 @@
 
 import { Database } from './base';
+import { Json } from './json';
 
 export type Tables = Database['public']['Tables'];
 export type TablesInsert<T extends keyof Tables> = Tables[T]['Insert'];
@@ -13,9 +14,9 @@ export interface Mention {
 }
 
 // Define the document row with mentions fields
-export interface DocumentRow extends TablesRow<'documents'> {
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+export interface DocumentRow extends Omit<TablesRow<'documents'>, 'mentions' | 'mentioned_in'> {
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 // Define the task row with mentions fields
@@ -33,8 +34,8 @@ export interface TaskRow {
   assigned_to: string | null;
   notes: string[] | null;
   todos: string[] | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 // Define the event row with mentions fields
@@ -65,8 +66,8 @@ export interface EventRow {
   event_notes: string | null;
   vat_number: string | null;
   external_event_id: string | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 // Define the task insert with mentions fields
@@ -84,8 +85,8 @@ export interface TaskInsert {
   assigned_to?: string | null;
   notes?: string[] | null;
   todos?: string[] | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 // Define the task update with mentions fields
@@ -103,8 +104,8 @@ export interface TaskUpdate {
   assigned_to?: string | null;
   notes?: string[] | null;
   todos?: string[] | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 // Define the event insert and update with mentions fields
@@ -135,8 +136,8 @@ export interface EventInsert {
   event_notes?: string | null;
   vat_number?: string | null;
   external_event_id?: string | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }
 
 export interface EventUpdate {
@@ -166,6 +167,6 @@ export interface EventUpdate {
   event_notes?: string | null;
   vat_number?: string | null;
   external_event_id?: string | null;
-  mentions?: Mention[];
-  mentioned_in?: Mention[];
+  mentions?: Json;
+  mentioned_in?: Json;
 }

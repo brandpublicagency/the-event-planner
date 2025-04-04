@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useDocument } from './useDocument';
@@ -6,6 +5,7 @@ import type { DocumentContent } from "@/types/document";
 import { isDocumentContent } from "@/types/document";
 import { supabase } from "@/integrations/supabase/client";
 import { Mention, DocumentRow, TablesRow } from '@/integrations/supabase/types/tables';
+import { Json, jsonToMentions, mentionsToJson, JsonMention } from '@/integrations/supabase/types/json';
 
 // Define the interface for saveDocument parameters
 interface SaveDocumentOptions {
@@ -15,9 +15,9 @@ interface SaveDocumentOptions {
 }
 
 // Utility to extract mentions from HTML content
-const extractMentions = (content: string): Mention[] => {
+const extractMentions = (content: string): JsonMention[] => {
   const mentionRegex = /<span[^>]*data-mention[^>]*data-id="([^"]*)"[^>]*data-type="([^"]*)"[^>]*>/g;
-  const mentions: Mention[] = [];
+  const mentions: JsonMention[] = [];
   let match;
   
   while ((match = mentionRegex.exec(content)) !== null) {
@@ -31,7 +31,7 @@ const extractMentions = (content: string): Mention[] => {
 };
 
 // Update mentions tracking in database
-const updateMentions = async (documentId: string, mentions: Mention[]) => {
+const updateMentions = async (documentId: string, mentions: JsonMention[]) => {
   if (!documentId || !mentions.length) return;
   
   try {
@@ -39,7 +39,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
     await supabase
       .from('documents')
       .update({ 
-        mentions: mentions 
+        mentions: mentionsToJson(mentions)
       })
       .eq('id', documentId);
     
@@ -48,7 +48,7 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
       const { id, type } = mention;
       
       // Construct the reference to this document
-      const mentionedInRef: Mention = {
+      const mentionedInRef: JsonMention = {
         id: documentId,
         type: 'document'
       };
@@ -64,17 +64,17 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
         
         if (targetDoc) {
           // Parse the mentioned_in array and check if this document is already there
-          const mentionedIn: Mention[] = targetDoc.mentioned_in as Mention[] || [];
+          const mentionedIn = jsonToMentions(targetDoc.mentioned_in);
           const alreadyMentioned = mentionedIn.some(
-            (m: Mention) => m.id === documentId && m.type === 'document'
+            (m: JsonMention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
-            // Add this document to the mentioned_in array
+            // Add this document to the mentioned_in array and convert back to Json
             await supabase
               .from('documents')
               .update({
-                mentioned_in: [...mentionedIn, mentionedInRef]
+                mentioned_in: mentionsToJson([...mentionedIn, mentionedInRef])
               })
               .eq('id', id);
           }
@@ -88,16 +88,16 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
           .single();
         
         if (targetTask) {
-          const mentionedIn: Mention[] = targetTask.mentioned_in as Mention[] || [];
+          const mentionedIn = jsonToMentions(targetTask.mentioned_in);
           const alreadyMentioned = mentionedIn.some(
-            (m: Mention) => m.id === documentId && m.type === 'document'
+            (m: JsonMention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
             await supabase
               .from('tasks')
               .update({
-                mentioned_in: [...mentionedIn, mentionedInRef]
+                mentioned_in: mentionsToJson([...mentionedIn, mentionedInRef])
               })
               .eq('id', id);
           }
@@ -111,16 +111,16 @@ const updateMentions = async (documentId: string, mentions: Mention[]) => {
           .single();
         
         if (targetEvent) {
-          const mentionedIn: Mention[] = targetEvent.mentioned_in as Mention[] || [];
+          const mentionedIn = jsonToMentions(targetEvent.mentioned_in);
           const alreadyMentioned = mentionedIn.some(
-            (m: Mention) => m.id === documentId && m.type === 'document'
+            (m: JsonMention) => m.id === documentId && m.type === 'document'
           );
           
           if (!alreadyMentioned) {
             await supabase
               .from('events')
               .update({
-                mentioned_in: [...mentionedIn, mentionedInRef]
+                mentioned_in: mentionsToJson([...mentionedIn, mentionedInRef])
               })
               .eq('event_code', id);
           }
@@ -138,7 +138,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
   const [contentSet, setContentSet] = useState(false);
   const [editorReady, setEditorReady] = useState(false);
 
-  // Track when the editor is ready for content
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
       setEditorReady(true);
@@ -147,14 +146,12 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
   }, [editor]);
 
-  // Reset contentSet when document changes
   useEffect(() => {
     if (documentId) {
       setContentSet(false);
     }
   }, [documentId]);
 
-  // Load initial document content
   useEffect(() => {
     if (!editorReady || !document?.content || contentSet) return;
 
@@ -193,17 +190,14 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
 
     setIsSaving(true);
     try {
-      // Extract mentions from content
       const mentions = extractMentions(currentContent);
       
-      // Update the document content
       await updateDocument.mutateAsync({ 
         title: firstLine,
         content: content,
         showToast 
       });
       
-      // Update mentions tracking in database
       await updateMentions(documentId, mentions);
       
       console.log("Document saved successfully");

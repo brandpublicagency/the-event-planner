@@ -85,7 +85,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           items: ({ query }: { query: string }) => {
             return mentionItems;
           },
-          render: () => mentionSuggestionHandler,
+          render: mentionSuggestionHandler,
           command: ({ editor, range, props }: any) => {
             editor
               .chain()
@@ -102,10 +102,11 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         
         // Create and register the suggestion
         if (editor && !editor.isDestroyed) {
-          const mentionExtension = Suggestion.configure(options);
-          editor.registerPlugin(mentionExtension);
+          // Direct use of Suggestion without configure
+          const suggestionPlugin = Suggestion(options);
+          editor.registerPlugin(suggestionPlugin);
           
-          return mentionExtension;
+          return suggestionPlugin;
         }
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
@@ -120,9 +121,9 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     return () => {
       // Cleanup on unmount
       if (extensionPromise) {
-        extensionPromise.then(extension => {
-          if (editor && !editor.isDestroyed && extension) {
-            editor.unregisterPlugin(extension);
+        extensionPromise.then(plugin => {
+          if (editor && !editor.isDestroyed && plugin) {
+            editor.unregisterPlugin(plugin);
           }
         });
       }
