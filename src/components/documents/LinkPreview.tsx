@@ -2,20 +2,17 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface LinkPreviewProps {
   url: string;
 }
 
 interface PreviewData {
-  url: string;
   title: string;
   description: string | null;
-  image_url: string | null;
+  image: string | null;
+  url: string;
   domain: string;
-  site_name: string | null;
-  favicon: string | null;
 }
 
 export function LinkPreview({ url }: LinkPreviewProps) {
@@ -31,12 +28,30 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         setLoading(true);
         setError(null);
         
-        const { data, error } = await supabase.functions.invoke("fetch-link-preview", {
-          body: { url }
-        });
+        // Use the linkpreview.net API
+        const API_KEY = '9da1016eb780c52e283ab0eb4f099b7c';
+        const apiUrl = `https://api.linkpreview.net/?key=${API_KEY}&q=${encodeURIComponent(url)}`;
         
-        if (error) throw new Error(error.message);
-        setPreview(data);
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Parse domain from URL
+        const domain = new URL(data.url).hostname;
+        
+        const previewData: PreviewData = {
+          title: data.title || domain,
+          description: data.description || null,
+          image: data.image || null,
+          url: data.url,
+          domain: domain
+        };
+        
+        setPreview(previewData);
       } catch (err) {
         console.error("Error fetching link preview:", err);
         setError(err instanceof Error ? err.message : "Failed to load preview");
@@ -84,10 +99,10 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       rel="noopener noreferrer"
       className="border rounded-md overflow-hidden flex no-underline text-foreground hover:bg-zinc-50 transition-colors max-w-lg"
     >
-      {preview.image_url && (
+      {preview.image && (
         <div className="w-24 h-24 flex-shrink-0">
           <img 
-            src={preview.image_url} 
+            src={preview.image} 
             alt={preview.title || "Link preview"} 
             className="w-full h-full object-cover"
             onError={(e) => (e.currentTarget.style.display = 'none')}
@@ -96,14 +111,6 @@ export function LinkPreview({ url }: LinkPreviewProps) {
       )}
       <div className="p-3 flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          {preview.favicon && (
-            <img 
-              src={preview.favicon} 
-              alt="" 
-              className="w-4 h-4"
-              onError={(e) => (e.currentTarget.style.display = 'none')}
-            />
-          )}
           <span className="text-xs text-zinc-500 truncate">{preview.domain}</span>
         </div>
         <h4 className="font-medium text-sm truncate mb-1">{preview.title || preview.url}</h4>
