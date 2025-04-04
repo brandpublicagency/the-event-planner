@@ -27,7 +27,7 @@ export const LinkPreviewNode = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes({ 'data-type': 'link-preview' }, HTMLAttributes), 0];
+    return ['div', mergeAttributes({ 'data-type': 'link-preview' }, HTMLAttributes)];
   },
 
   addNodeView() {
