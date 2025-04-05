@@ -1,7 +1,7 @@
 
 import { Editor, EditorContent, Range } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect, useState, useCallback } from 'react';
+import { forwardRef, useEffect, useState, useCallback, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionItems } from '@/hooks/useMentionItems';
@@ -21,8 +21,10 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionRange, setMentionRange] = useState<Range | null>(null);
   const [mentionClientRect, setMentionClientRect] = useState<DOMRect | null>(null);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery);
-
+  const mentionSelectorRef = useRef<HTMLDivElement>(null);
+  
   // Suggestion handler for mentions
   const mentionSuggestionHandler = useCallback((props: SuggestionProps) => {
     const { editor, range, query, command } = props;
@@ -57,23 +59,75 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       setMentionClientRect(null);
     };
     
-    return {
-      onExit: () => {
-        setMentionQuery(null);
-        setMentionRange(null);
-        setMentionClientRect(null);
-      },
-      reactRenderer: () => (
+    // Only render the mention selector if we have a valid query and client rect
+    if (mentionQuery !== null && mentionClientRect) {
+      return (
         <MentionSelector
           items={mentionItems}
           command={onSelectMention}
           query={query}
           clientRect={mentionClientRect}
           loading={mentionLoading}
+          selectedIndex={selectedItemIndex}
+          setSelectedIndex={setSelectedItemIndex}
+          ref={mentionSelectorRef}
         />
-      )
+      );
+    }
+    
+    return null;
+  }, [mentionItems, mentionLoading, mentionQuery, mentionClientRect, selectedItemIndex]);
+
+  // Handle keyboard events for navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!mentionItems.length || mentionQuery === null) return;
+      
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setSelectedItemIndex((prev) => (prev + 1) % mentionItems.length);
+      }
+      
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setSelectedItemIndex((prev) => (prev - 1 + mentionItems.length) % mentionItems.length);
+      }
+      
+      if (event.key === 'Enter' && mentionQuery !== null) {
+        event.preventDefault();
+        if (mentionItems[selectedItemIndex]) {
+          // Find the editor command function
+          const command = editor?.commands.setMention;
+          if (command) {
+            command({
+              id: mentionItems[selectedItemIndex].id,
+              label: mentionItems[selectedItemIndex].label,
+              type: mentionItems[selectedItemIndex].type,
+            });
+            
+            // Reset mention state
+            setMentionQuery(null);
+            setMentionRange(null);
+            setMentionClientRect(null);
+          }
+        }
+      }
+      
+      if (event.key === 'Escape') {
+        setMentionQuery(null);
+        setMentionRange(null);
+        setMentionClientRect(null);
+      }
     };
-  }, [mentionItems, mentionLoading]);
+    
+    if (mentionQuery !== null) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mentionItems, mentionQuery, selectedItemIndex, editor]);
 
   // Configure the mention suggestion extension
   useEffect(() => {
@@ -86,8 +140,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         
         // Define complete options object with all required properties
         const options: SuggestionOptions = {
+          editor: editor,
           pluginKey: suggestionPluginKey,
-          editor: editor, 
           char: '@',
           items: ({ query }) => {
             return mentionItems;
@@ -95,8 +149,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           render: () => ({
             onStart: (props) => {
               // Call the handler with the props to set up the suggestion UI
-              const result = mentionSuggestionHandler(props);
-              // We don't need to do anything on start, just return
+              mentionSuggestionHandler(props);
             },
             onUpdate: (props) => {
               // Update the suggestion UI when needed
@@ -107,13 +160,14 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
               setMentionQuery(null);
               setMentionRange(null);
               setMentionClientRect(null);
+              setSelectedItemIndex(0);
             },
             onKeyDown: (props) => {
               // Handle keyboard navigation
               const { event } = props;
               
               // Handle arrow up/down and enter
-              if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter') {
+              if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter' || event.key === 'Escape') {
                 // Prevent default to stop cursor movement
                 return true; // Returning true prevents default behavior
               }
@@ -135,28 +189,28 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           }
         };
         
-        // Use the SuggestionOptions properly
-        editor.registerPlugin(Suggestion(options));
+        // Register the suggestion plugin
+        const extension = Suggestion(options);
+        editor.registerPlugin(extension);
         
-        // Return the plugin key for cleanup
-        return suggestionPluginKey;
+        return () => {
+          // Clean up
+          if (!editor.isDestroyed) {
+            editor.unregisterPlugin(suggestionPluginKey);
+          }
+        };
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
       }
-      
-      return null;
     };
-
-    // Execute the import and setup
-    const extensionPromise = importSuggestion();
+    
+    const cleanup = importSuggestion();
     
     return () => {
-      // Cleanup on unmount
-      if (extensionPromise) {
-        extensionPromise.then(pluginKey => {
-          if (editor && !editor.isDestroyed && pluginKey) {
-            editor.unregisterPlugin(pluginKey);
-          }
+      // Handle cleanup when the component unmounts
+      if (cleanup) {
+        Promise.resolve(cleanup).then(cleanupFn => {
+          if (cleanupFn) cleanupFn();
         });
       }
     };

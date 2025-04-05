@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import { Calendar, CheckSquare, File, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -17,18 +17,19 @@ interface MentionSelectorProps {
   query: string;
   clientRect: DOMRect | null;
   loading: boolean;
+  selectedIndex: number;
+  setSelectedIndex: (index: number) => void;
 }
 
-export const MentionSelector: React.FC<MentionSelectorProps> = ({
+export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(({
   items, 
   command, 
   query,
   clientRect,
-  loading
-}) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectorRef = useRef<HTMLDivElement>(null);
-  
+  loading,
+  selectedIndex,
+  setSelectedIndex
+}, ref) => {
   // Filter the items based on the query
   const filteredItems = useMemo(() => {
     if (!query) return items;
@@ -54,38 +55,10 @@ export const MentionSelector: React.FC<MentionSelectorProps> = ({
     return grouped;
   }, [filteredItems]);
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex((selectedIndex + 1) % filteredItems.length);
-      }
-      
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex((selectedIndex - 1 + filteredItems.length) % filteredItems.length);
-      }
-      
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (filteredItems[selectedIndex]) {
-          command(filteredItems[selectedIndex]);
-        }
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedIndex, filteredItems, command]);
-  
-  // Reset selected index when items change
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [filteredItems]);
+  // Handle mouse click
+  const handleItemClick = (item: MentionItem) => {
+    command(item);
+  };
   
   if (!clientRect) return null;
   
@@ -127,7 +100,7 @@ export const MentionSelector: React.FC<MentionSelectorProps> = ({
           className={`w-full flex items-center px-2 py-1.5 text-sm ${
             isSelected ? 'bg-zinc-100' : ''
           }`}
-          onClick={() => command(item)}
+          onClick={() => handleItemClick(item)}
           onMouseEnter={() => setSelectedIndex(startIndex + index)}
         >
           <span className="mr-2">{getTypeIcon(item.type)}</span>
@@ -140,7 +113,7 @@ export const MentionSelector: React.FC<MentionSelectorProps> = ({
   return (
     <Portal>
       <div
-        ref={selectorRef}
+        ref={ref}
         className="absolute z-50 bg-white border border-zinc-200 rounded-md shadow-md w-64 max-h-72 overflow-y-auto"
         style={{
           top: `${position.top}px`,
@@ -178,4 +151,6 @@ export const MentionSelector: React.FC<MentionSelectorProps> = ({
       </div>
     </Portal>
   );
-};
+});
+
+MentionSelector.displayName = 'MentionSelector';
