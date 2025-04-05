@@ -20,6 +20,13 @@ declare module 'tributejs' {
     replaceTextSuffix?: string;
     menuItemLimit?: number;
     menuShowMinLength?: number;
+    keys?: {
+      tab?: number;
+      enter?: number | null;
+      up?: number;
+      down?: number;
+      escape?: number;
+    };
   }
 
   export interface TributeOptions {
@@ -42,6 +49,7 @@ declare module 'tributejs' {
     requireLeadingSpace?: boolean;
     allowSpaces?: boolean;
     replaceTextSuffix?: string;
+    loadingTemplate?: () => string;
   }
 
   export default class Tribute {
