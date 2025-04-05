@@ -24,9 +24,36 @@ const debounce = (func: Function, delay: number) => {
   };
 };
 
-// Function to generate ID labels based on type
-const generateIdLabel = (id: string): string => {
-  return `#${id.substring(0, 6).toUpperCase()}`;
+// Generate hex color codes based on type
+const getColorHex = (type: string): string => {
+  switch (type) {
+    case 'document':
+      return '#FFA245';
+    case 'task':
+      return '#F70848';
+    case 'event':
+      return '#0EC392';
+    case 'user':
+      return '#1414DE';
+    default:
+      return '#64748b';
+  }
+};
+
+// Get icon SVG based on type
+const getIconSvg = (type: string): string => {
+  switch (type) {
+    case 'document':
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+    case 'task':
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>';
+    case 'event':
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+    case 'user':
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+    default:
+      return '';
+  }
 };
 
 export const MentionExtension = Extension.create({
@@ -74,10 +101,10 @@ export const MentionExtension = Extension.create({
           
           // Define display order and icons
           const groups = [
-            { type: 'document', label: 'Documents', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>', color: 'text-amber-500' },
-            { type: 'task', label: 'Tasks', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-square"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>', color: 'text-red-500' },
-            { type: 'event', label: 'Events', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>', color: 'text-green-500' },
-            { type: 'user', label: 'Users', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', color: 'text-blue-500' }
+            { type: 'document', label: 'Documents' },
+            { type: 'task', label: 'Tasks' },
+            { type: 'event', label: 'Events' },
+            { type: 'user', label: 'Users' }
           ];
           
           groups.forEach(group => {
@@ -91,9 +118,9 @@ export const MentionExtension = Extension.create({
               
               // Add items with icons and colors
               grouped[group.type].forEach(item => {
-                item.icon = group.icon;
-                item.color = group.color;
-                item.idLabel = generateIdLabel(item.id);
+                item.icon = getIconSvg(group.type);
+                item.color = getColorHex(group.type);
+                item.idLabel = `#${item.id.substring(0, 6).toUpperCase()}`;
                 result.push(item);
               });
             }
@@ -209,30 +236,22 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Get color hex codes based on type
-              const typeColorHex = {
-                'document': '#FFA245',
-                'task': '#F70848',
-                'event': '#0EC392',
-                'user': '#1414DE'
-              };
-              
-              const colorHex = typeColorHex[item.original.type] || '#64748b';
+              // Get color based on type
+              const colorHex = getColorHex(item.original.type);
+              const idLabel = `#${item.original.id.substring(0, 6).toUpperCase()}`;
               
               // Content inside the editor - this is the mention button with the ID displayed next to it
-              return `<span 
-                class="mention-wrapper"
-                contenteditable="false">
+              return `<span class="mention-wrapper" contenteditable="false">
                 <span 
                   class="mention mention-${item.original.type}" 
                   data-mention-id="${item.original.id}" 
                   data-mention-type="${item.original.type}" 
                   data-mention-url="${item.original.url}"
                   data-mention-title="${item.original.title}">
-                  <span class="mention-icon">${item.original.icon}</span>
+                  <span class="mention-icon">${getIconSvg(item.original.type)}</span>
                   <span class="mention-title">${item.original.title}</span>
                 </span>
-                <span class="mention-id" style="margin-left: 6px; font-size: 0.75rem; opacity: 0.75;">${item.original.idLabel}</span>
+                <span class="mention-id">${idLabel}</span>
               </span>`;
             },
             menuItemTemplate: (item) => {
@@ -243,7 +262,7 @@ export const MentionExtension = Extension.create({
               }
               
               return `<div class="tribute-item tribute-item-${item.original.type}">
-                <span class="mention-icon">${item.original.icon}</span>
+                <span class="mention-icon">${getIconSvg(item.original.type)}</span>
                 <div class="mention-info">
                   <span class="mention-title">${item.original.title}</span>
                 </div>
