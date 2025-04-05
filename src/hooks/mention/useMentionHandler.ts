@@ -18,7 +18,7 @@ export function useMentionHandler(editor: Editor | null) {
   // Use commands hook for editor interactions
   const { handleMentionSelect } = useMentionCommands(editor);
   
-  // State for mention suggestions (no longer using separate mentionType)
+  // State for mention suggestions
   const [mentionSuggestion, setMentionSuggestion] = useState<MentionSuggestionState>({
     active: false,
     position: null,

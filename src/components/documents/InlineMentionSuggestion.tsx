@@ -29,18 +29,6 @@ export const InlineMentionSuggestions = ({
     const fetchSuggestions = async () => {
       try {
         setIsLoading(true);
-        // If there's no query, show a list of entity types
-        if (!query) {
-          setSuggestions([
-            { id: 'task', label: 'Task', type: 'task' },
-            { id: 'event', label: 'Event', type: 'event' },
-            { id: 'document', label: 'Document', type: 'document' },
-            { id: 'user', label: 'User', type: 'user' }
-          ]);
-          return;
-        }
-        
-        // Search all entity types at once
         const results = await searchAllEntities(query);
         setSuggestions(results);
       } catch (error) {
