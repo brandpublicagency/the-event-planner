@@ -20,6 +20,7 @@ export const MentionCommands = Extension.create({
   addCommands() {
     return {
       setMention: (attrs) => ({ commands }) => {
+        console.log('setMention command called with attrs:', attrs);
         return commands.insertContent({
           type: 'mention',
           attrs
@@ -42,7 +43,9 @@ export const MentionNode = Node.create<MentionOptions>({
       },
       suggestion: {
         char: '/',
-        command: () => {},
+        command: () => {
+          console.log('Default mention command called - this should be overridden');
+        },
         items: () => [],
       },
     };
@@ -118,6 +121,7 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addProseMirrorPlugins() {
+    console.log('Adding ProseMirror plugins for mentions with char:', this.options.suggestion.char);
     return [
       Suggestion({
         editor: this.editor,

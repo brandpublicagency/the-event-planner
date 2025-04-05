@@ -13,81 +13,112 @@ interface MentionItem {
  */
 export function useMentionItems(query: string | null) {
   const fetchMentionItems = async (q: string | null) => {
-    if (!q) return [];
+    if (!q) {
+      console.log('No query provided for mention items');
+      return [];
+    }
     
     const lowerQuery = q.toLowerCase();
+    console.log('Fetching mention items for query:', lowerQuery);
+    
     const items: MentionItem[] = [];
     
-    // Fetch documents
-    const { data: documents } = await supabase
-      .from('documents')
-      .select('id, title')
-      .ilike('title', `%${lowerQuery}%`)
-      .is('deleted_at', null)
-      .limit(5);
-    
-    if (documents) {
-      documents.forEach(doc => {
-        items.push({
-          id: doc.id,
-          label: doc.title || 'Untitled Document',
-          type: 'document'
+    try {
+      // Fetch documents
+      const { data: documents, error: docError } = await supabase
+        .from('documents')
+        .select('id, title')
+        .ilike('title', `%${lowerQuery}%`)
+        .is('deleted_at', null)
+        .limit(5);
+      
+      if (docError) {
+        console.error('Error fetching document mention items:', docError);
+      }
+      
+      if (documents) {
+        console.log('Found document mentions:', documents.length);
+        documents.forEach(doc => {
+          items.push({
+            id: doc.id,
+            label: doc.title || 'Untitled Document',
+            type: 'document'
+          });
         });
-      });
-    }
-    
-    // Fetch tasks
-    const { data: tasks } = await supabase
-      .from('tasks')
-      .select('id, title')
-      .ilike('title', `%${lowerQuery}%`)
-      .limit(5);
-    
-    if (tasks) {
-      tasks.forEach(task => {
-        items.push({
-          id: task.id,
-          label: task.title,
-          type: 'task'
+      }
+      
+      // Fetch tasks
+      const { data: tasks, error: taskError } = await supabase
+        .from('tasks')
+        .select('id, title')
+        .ilike('title', `%${lowerQuery}%`)
+        .limit(5);
+      
+      if (taskError) {
+        console.error('Error fetching task mention items:', taskError);
+      }
+      
+      if (tasks) {
+        console.log('Found task mentions:', tasks.length);
+        tasks.forEach(task => {
+          items.push({
+            id: task.id,
+            label: task.title,
+            type: 'task'
+          });
         });
-      });
-    }
-    
-    // Fetch events - using correct column names (event_code and name)
-    const { data: events } = await supabase
-      .from('events')
-      .select('event_code, name')
-      .ilike('name', `%${lowerQuery}%`)
-      .limit(5);
-    
-    if (events) {
-      events.forEach(event => {
-        items.push({
-          id: event.event_code,
-          label: event.name,
-          type: 'event'
+      }
+      
+      // Fetch events - using correct column names (event_code and name)
+      const { data: events, error: eventError } = await supabase
+        .from('events')
+        .select('event_code, name')
+        .ilike('name', `%${lowerQuery}%`)
+        .limit(5);
+      
+      if (eventError) {
+        console.error('Error fetching event mention items:', eventError);
+      }
+      
+      if (events) {
+        console.log('Found event mentions:', events.length);
+        events.forEach(event => {
+          items.push({
+            id: event.event_code,
+            label: event.name,
+            type: 'event'
+          });
         });
-      });
-    }
-    
-    // Fetch users
-    const { data: users } = await supabase
-      .from('profiles')
-      .select('id, full_name')
-      .ilike('full_name', `%${lowerQuery}%`)
-      .limit(5);
-    
-    if (users) {
-      users.forEach(user => {
-        items.push({
-          id: user.id,
-          label: user.full_name || 'Unknown User',
-          type: 'user'
+      }
+      
+      // Fetch users
+      const { data: users, error: userError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .ilike('full_name', `%${lowerQuery}%`)
+        .limit(5);
+      
+      if (userError) {
+        console.error('Error fetching user mention items:', userError);
+      }
+      
+      if (users) {
+        console.log('Found user mentions:', users.length);
+        users.forEach(user => {
+          items.push({
+            id: user.id,
+            label: user.full_name || 'Unknown User',
+            type: 'user'
+          });
         });
-      });
+      }
+      
+      console.log('Total mention items found:', items.length);
+      return items;
+    } catch (error) {
+      console.error('Unexpected error in fetchMentionItems:', error);
+      return [];
     }
-    
-    return items;
   };
   
   const { data: items = [], isLoading, error } = useQuery({
@@ -98,7 +129,7 @@ export function useMentionItems(query: string | null) {
   });
   
   if (error) {
-    console.error('Error fetching mention items:', error);
+    console.error('Error in useMentionItems query:', error);
   }
   
   return {

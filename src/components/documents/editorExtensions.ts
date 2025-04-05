@@ -109,17 +109,22 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
+  // Important: MentionNode must come before MentionCommands
   MentionNode.configure({
     suggestion: {
       char: '/',
       command: ({ editor, range, props }) => {
+        console.log('Default mention command executing from extension config', props);
         editor.chain().focus().deleteRange(range).run();
         editor.commands.insertContent({
           type: 'mention',
           attrs: props
         });
       },
-      items: () => [], // This will be overridden by our suggestion configuration
+      items: () => {
+        console.log('Default items function called - this should be overridden');
+        return [];
+      },
     }
   }),
   MentionCommands, // Add the mention commands extension

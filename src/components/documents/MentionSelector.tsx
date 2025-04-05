@@ -28,20 +28,28 @@ export const MentionSelector = memo(forwardRef<HTMLDivElement, MentionSelectorPr
     return (
       <div 
         ref={ref} 
-        className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60"
+        className="absolute z-50 bg-white shadow-lg rounded-md border border-zinc-200 py-3 px-4 w-60"
       >
-        <p className="text-sm text-zinc-500">Loading suggestions...</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-zinc-500">Loading suggestions...</p>
+          <div className="animate-spin h-4 w-4 border-2 border-zinc-500 border-t-transparent rounded-full"></div>
+        </div>
       </div>
     );
   }
+  
+  // Debug - check if items are available
+  React.useEffect(() => {
+    console.log('MentionSelector rendered with items:', items.length);
+  }, [items]);
   
   if (items.length === 0) {
     return (
       <div 
         ref={ref} 
-        className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60"
+        className="absolute z-50 bg-white shadow-lg rounded-md border border-zinc-200 py-3 px-4 w-60"
       >
-        <p className="text-sm text-zinc-500">No results found</p>
+        <p className="text-sm text-zinc-500">No results found for "{query}"</p>
       </div>
     );
   }
@@ -62,8 +70,11 @@ export const MentionSelector = memo(forwardRef<HTMLDivElement, MentionSelectorPr
   return (
     <div 
       ref={ref}
-      className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-1 w-60 max-h-48 overflow-y-auto"
+      className="absolute z-50 bg-white shadow-lg rounded-md border border-zinc-200 py-1 w-60 max-h-48 overflow-y-auto"
     >
+      <div className="p-2 border-b border-zinc-100 bg-zinc-50">
+        <p className="text-xs text-zinc-500">Results for "{query}"</p>
+      </div>
       {items.map((item, index) => (
         <div
           key={item.id}
