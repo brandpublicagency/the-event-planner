@@ -96,7 +96,8 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addNodeView() {
-    return ReactNodeViewRenderer(MentionView);
+    // Cast the component to the expected type
+    return ReactNodeViewRenderer(MentionView as any);
   },
   
   addCommands() {

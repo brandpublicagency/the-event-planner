@@ -30,6 +30,29 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   selectedIndex,
   setSelectedIndex
 }, ref) => {
+  // State to track if the component has been mounted
+  const [mounted, setMounted] = useState(false);
+  
+  // Set mounted state on component mount
+  useEffect(() => {
+    setMounted(true);
+    
+    // Event handler for clicks outside the dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref && 'current' in ref && ref.current && !ref.current.contains(event.target as Node)) {
+        // Let the user click outside if they want to close the dropdown
+        // This intentionally doesn't close the dropdown - we let the editor handle this
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Filter the items based on the query
   const filteredItems = useMemo(() => {
     if (!query) return items;
@@ -60,7 +83,22 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     command(item);
   };
   
-  if (!clientRect) return null;
+  // Prevent the dropdown from closing on mouse down
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+  
+  // Scroll selected item into view
+  useEffect(() => {
+    if (ref && 'current' in ref && ref.current) {
+      const selectedElement = ref.current.querySelector(`[data-selected="true"]`);
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [selectedIndex, ref]);
+  
+  if (!clientRect || !mounted) return null;
   
   const position = {
     top: clientRect.top + clientRect.height,
@@ -101,7 +139,9 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
             isSelected ? 'bg-zinc-100' : ''
           }`}
           onClick={() => handleItemClick(item)}
+          onMouseDown={handleMouseDown}
           onMouseEnter={() => setSelectedIndex(startIndex + index)}
+          data-selected={isSelected ? "true" : "false"}
         >
           <span className="mr-2">{getTypeIcon(item.type)}</span>
           <span className="truncate">{item.label}</span>
@@ -119,6 +159,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
           top: `${position.top}px`,
           left: `${position.left}px`,
         }}
+        onMouseDown={handleMouseDown}
       >
         {loading ? (
           <div className="flex items-center justify-center py-4">

@@ -18,11 +18,17 @@ export function useMentionItems(query: string | null) {
       return;
     }
     
+    // Set loading state immediately
+    setLoading(true);
+    
+    // Use a flag to track if the component is still mounted
+    let isMounted = true;
+    
     const fetchItems = async () => {
-      setLoading(true);
-      
       try {
-        // Fetch events
+        console.log("Fetching mention items for query:", query);
+        
+        // Fetch events even with empty query to show initial results
         const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('event_code, name')
@@ -51,36 +57,50 @@ export function useMentionItems(query: string | null) {
           
         if (documentsError) console.error('Error fetching documents:', documentsError);
         
-        // Combine and transform results
-        const mentionItems: MentionItem[] = [
-          ...(events?.map(event => ({
-            id: event.event_code,
-            label: event.name,
-            type: 'event' as const
-          })) || []),
+        // Check if the component is still mounted before updating state
+        if (isMounted) {
+          // Combine and transform results
+          const mentionItems: MentionItem[] = [
+            ...(events?.map(event => ({
+              id: event.event_code,
+              label: event.name,
+              type: 'event' as const
+            })) || []),
+            
+            ...(tasks?.map(task => ({
+              id: task.id,
+              label: task.title,
+              type: 'task' as const
+            })) || []),
+            
+            ...(documents?.map(doc => ({
+              id: doc.id,
+              label: doc.title,
+              type: 'document' as const
+            })) || [])
+          ];
           
-          ...(tasks?.map(task => ({
-            id: task.id,
-            label: task.title,
-            type: 'task' as const
-          })) || []),
-          
-          ...(documents?.map(doc => ({
-            id: doc.id,
-            label: doc.title,
-            type: 'document' as const
-          })) || [])
-        ];
-        
-        setItems(mentionItems);
+          console.log("Fetched mention items:", mentionItems.length);
+          setItems(mentionItems);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching mention items:', error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
-    fetchItems();
+    // Delay fetch slightly to avoid excessive database calls while typing
+    const timeoutId = setTimeout(() => {
+      fetchItems();
+    }, 100);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [query]);
   
   return { items, loading };

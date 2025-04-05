@@ -84,7 +84,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 }
               },
               onKeyDown: (props) => {
-                const { event } = props;
+                const { event, range } = props;
                 
                 // Handle keyboard navigation
                 if (event.key === 'ArrowUp') {
@@ -104,13 +104,17 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 if (event.key === 'Enter' && mentionItems.length && selectedItemIndex >= 0) {
                   const item = mentionItems[selectedItemIndex];
                   if (item) {
-                    props.command(item);
+                    // Updated: Handle command through handleMentionSelect
+                    handleMentionSelect(item);
+                    return true;
                   }
-                  return true;
                 }
                 
                 if (event.key === 'Escape') {
-                  props.exit();
+                  // Clear mention state - this is effectively the same as exit
+                  setMentionQuery(null);
+                  setMentionRange(null);
+                  setMentionClientRect(null);
                   return true;
                 }
                 
@@ -118,10 +122,15 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
               },
               onExit: () => {
                 // Clean up when exiting
-                setMentionQuery(null);
-                setMentionRange(null);
-                setMentionClientRect(null);
-                setSelectedItemIndex(0);
+                // Adding a delay to prevent too quick disappearance
+                setTimeout(() => {
+                  if (mentionQuery !== null) {
+                    setMentionQuery(null);
+                    setMentionRange(null);
+                    setMentionClientRect(null);
+                    setSelectedItemIndex(0);
+                  }
+                }, 150); // Small delay to allow for interaction
               }
             };
           },
@@ -179,6 +188,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         })
         .run();
       
+      // Clear mention state
       setMentionQuery(null);
       setMentionRange(null);
       setMentionClientRect(null);
