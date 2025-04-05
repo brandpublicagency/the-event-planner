@@ -2,7 +2,7 @@
 import { Json, Database } from './base';
 
 // Re-export types
-export { Json, Database } from './base';
+export type { Json, Database } from './base';
 export type { DatabaseFunctions } from './functions';
 
 // The rest of the Database interface is now imported from base.ts

@@ -3,7 +3,7 @@ import { Json, Database } from './base';
 import { DatabaseFunctions } from './functions';
 
 // Re-export types
-export { Json, Database } from './base';
+export type { Json, Database } from './base';
 export type { DatabaseFunctions } from './functions';
 
 export interface Database {
