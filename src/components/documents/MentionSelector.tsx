@@ -1,5 +1,5 @@
 
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 
 interface MentionItem {
@@ -10,31 +10,30 @@ interface MentionItem {
 
 interface MentionSelectorProps {
   items: MentionItem[];
-  command: (item: MentionItem) => void;
+  onSelect: (item: MentionItem) => void;
   query: string;
   loading: boolean;
   selectedIndex: number;
-  setSelectedIndex: (index: number) => void;
 }
 
 export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(({
   items, 
-  command, 
+  onSelect, 
   query,
   loading,
   selectedIndex,
-  setSelectedIndex,
 }, ref) => {
-  // Auto-select first item when items change
-  useEffect(() => {
-    if (items.length > 0 && selectedIndex >= items.length) {
-      setSelectedIndex(0);
-    }
-  }, [items, selectedIndex, setSelectedIndex]);
-  
   // If there are no items or we're loading, don't show anything
-  if (loading || items.length === 0) {
-    return null;
+  if (loading) {
+    return <div ref={ref} className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60">
+      <p className="text-sm text-zinc-500">Loading suggestions...</p>
+    </div>;
+  }
+  
+  if (items.length === 0) {
+    return <div ref={ref} className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60">
+      <p className="text-sm text-zinc-500">No results found</p>
+    </div>;
   }
   
   const getTypeIcon = (type: 'event' | 'task' | 'document' | 'user') => {
@@ -58,7 +57,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
       {items.map((item, index) => (
         <div
           key={item.id}
-          onClick={() => command(item)}
+          onClick={() => onSelect(item)}
           className={`px-2 py-1.5 flex items-center hover:bg-zinc-100 cursor-pointer ${
             index === selectedIndex ? 'bg-zinc-100' : ''
           }`}

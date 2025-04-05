@@ -22,14 +22,13 @@ export function useMentionHandler(editor: Editor | null) {
     mentionSelectorRef,
     mentionPosition,
     closeAndResetMention,
-    selectItem: navigateSelection,
+    navigateSelection,
     updatePosition
   } = useMentionSelector();
   
   // Use commands hook for editor interactions
   const {
-    handleMentionSelect,
-    selectMentionItem
+    handleMentionSelect
   } = useMentionCommands(editor);
   
   // Handle mention item selection
@@ -39,7 +38,7 @@ export function useMentionHandler(editor: Editor | null) {
   };
   
   // Select an item by direction or current index
-  const handleSelectionNavigation = (direction: number) => {
+  const selectMentionItem = (direction: number) => {
     if (direction === 0) {
       // Select current item
       if (selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
@@ -79,6 +78,6 @@ export function useMentionHandler(editor: Editor | null) {
     handleMentionSelect: handleItemSelect,
     closeAndResetMention,
     configureSuggestion,
-    selectMentionItem: handleSelectionNavigation
+    selectMentionItem
   };
 }

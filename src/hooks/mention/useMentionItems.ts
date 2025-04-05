@@ -30,80 +30,80 @@ export function useMentionItems(query: string | null) {
     
     const fetchItems = async () => {
       try {
-        // Always fetch some results even with empty query for "/" activation
-        const searchTerm = query.trim() || '';
-        console.log(`Fetching items for query:`, searchTerm);
+        const searchTerm = query.trim();
         
-        let allItems: MentionItem[] = [];
+        // Only fetch 3 items of each type to optimize performance
+        const fetchLimit = 3;
+        const promises = [
+          // Fetch events
+          supabase
+            .from('events')
+            .select('event_code, name')
+            .ilike('name', `%${searchTerm}%`)
+            .is('deleted_at', null)
+            .limit(fetchLimit),
+            
+          // Fetch tasks
+          supabase
+            .from('tasks')
+            .select('id, title')
+            .ilike('title', `%${searchTerm}%`)
+            .limit(fetchLimit),
+            
+          // Fetch documents
+          supabase
+            .from('documents')
+            .select('id, title')
+            .ilike('title', `%${searchTerm}%`)
+            .is('deleted_at', null)
+            .limit(fetchLimit),
+            
+          // Fetch users
+          supabase
+            .from('profiles')
+            .select('id, full_name')
+            .ilike('full_name', `%${searchTerm}%`)
+            .limit(fetchLimit)
+        ];
         
-        // Fetch events
-        const { data: events, error: eventsError } = await supabase
-          .from('events')
-          .select('event_code, name')
-          .ilike('name', `%${searchTerm}%`)
-          .is('deleted_at', null)
-          .limit(5);
-          
-        if (eventsError) console.error('Error fetching events:', eventsError);
+        const [eventsResult, tasksResult, documentsResult, usersResult] = await Promise.all(promises);
         
-        const eventItems = events?.map(event => ({
+        // Handle errors
+        if (eventsResult.error) console.error('Error fetching events:', eventsResult.error);
+        if (tasksResult.error) console.error('Error fetching tasks:', tasksResult.error);
+        if (documentsResult.error) console.error('Error fetching documents:', documentsResult.error);
+        if (usersResult.error) console.error('Error fetching users:', usersResult.error);
+        
+        // Map results to MentionItem format
+        const eventItems = (eventsResult.data || []).map(event => ({
           id: event.event_code,
           label: event.name,
           type: 'event' as const
-        })) || [];
+        }));
         
-        // Fetch tasks
-        const { data: tasks, error: tasksError } = await supabase
-          .from('tasks')
-          .select('id, title')
-          .ilike('title', `%${searchTerm}%`)
-          .limit(5);
-          
-        if (tasksError) console.error('Error fetching tasks:', tasksError);
-        
-        const taskItems = tasks?.map(task => ({
+        const taskItems = (tasksResult.data || []).map(task => ({
           id: task.id,
           label: task.title,
           type: 'task' as const
-        })) || [];
+        }));
         
-        // Fetch documents
-        const { data: documents, error: documentsError } = await supabase
-          .from('documents')
-          .select('id, title')
-          .ilike('title', `%${searchTerm}%`)
-          .is('deleted_at', null)
-          .limit(5);
-          
-        if (documentsError) console.error('Error fetching documents:', documentsError);
-        
-        const documentItems = documents?.map(doc => ({
+        const documentItems = (documentsResult.data || []).map(doc => ({
           id: doc.id,
           label: doc.title,
           type: 'document' as const
-        })) || [];
+        }));
         
-        // Fetch users
-        const { data: users, error: usersError } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .ilike('full_name', `%${searchTerm}%`)
-          .limit(5);
-          
-        if (usersError) console.error('Error fetching users:', usersError);
-        
-        const userItems = users?.map(user => ({
+        const userItems = (usersResult.data || []).map(user => ({
           id: user.id,
           label: user.full_name,
           type: 'user' as const
-        })) || [];
+        }));
         
         // Combine all items
-        allItems = [...eventItems, ...taskItems, ...documentItems, ...userItems];
+        const allItems = [...eventItems, ...taskItems, ...documentItems, ...userItems];
         
         // Check if the component is still mounted before updating state
         if (isMounted) {
-          console.log(`Fetched items:`, allItems.length);
           setItems(allItems);
           setLoading(false);
         }
@@ -115,11 +115,12 @@ export function useMentionItems(query: string | null) {
       }
     };
     
-    // Fetch immediately for better responsiveness
-    fetchItems();
+    // Use a short debounce to avoid too many requests
+    const timeoutId = setTimeout(fetchItems, 100);
     
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
     };
   }, [query]);
   

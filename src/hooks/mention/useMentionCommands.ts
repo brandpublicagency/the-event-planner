@@ -1,11 +1,12 @@
+
 import { Editor, Range } from '@tiptap/react';
 import { useCallback } from 'react';
 
 /**
- * Hook for handling mention commands (insertion, deletion)
+ * Hook for handling mention commands (insertion)
  */
 export function useMentionCommands(editor: Editor | null) {
-  // Handle mention selection
+  // Handle mention selection - inserts the mention at the current position
   const handleMentionSelect = useCallback((mentionRange: Range | null, item: any) => {
     if (!editor || !mentionRange) return;
 
@@ -27,13 +28,7 @@ export function useMentionCommands(editor: Editor | null) {
     }, 10);
   }, [editor]);
   
-  // We're not using this function anymore but keeping it for API compatibility
-  const selectMentionItem = useCallback(() => {
-    // This functionality is now handled by useMentionHandler directly
-  }, []);
-  
   return {
-    handleMentionSelect,
-    selectMentionItem,
+    handleMentionSelect
   };
 }

@@ -54,10 +54,7 @@ export function useMentionSuggestion(
             setMentionQuery(query);
             setMentionRange(range);
           },
-          onKeyDown: () => {
-            // We handle keyboard interactions through useInlineMentionCommands
-            return false;
-          },
+          onKeyDown: () => false, // We handle keyboard interactions through useInlineMentionCommands
           onExit: () => {
             resetMention();
           }

@@ -1,6 +1,7 @@
 
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useMentionItems } from './useMentionItems';
+import { Editor } from '@tiptap/react';
 
 /**
  * Hook for managing mention selector UI state
@@ -29,14 +30,9 @@ export function useMentionSelector() {
     }
   }, [mentionQuery]);
   
-  // Select item relatively (next/previous)
-  const selectItem = useCallback((direction: number) => {
+  // Navigate item selection (next/previous)
+  const navigateSelection = useCallback((direction: number) => {
     if (mentionItems.length === 0) return;
-    
-    if (direction === 0) {
-      // Select current item - handled by parent component
-      return;
-    }
     
     setSelectedItemIndex((prevIndex) => {
       let newIndex = prevIndex + direction;
@@ -50,24 +46,25 @@ export function useMentionSelector() {
   }, [mentionItems]);
   
   // Update mention position
-  const updatePosition = useCallback((editor: any) => {
-    if (mentionQuery !== null && editor) {
-      const { view } = editor;
-      const { state } = view;
-      const { selection } = state;
-      const { ranges } = selection;
-      const from = Math.min(...ranges.map(range => range.$from.pos));
-      
-      // Get coordinates for the current selection
-      const start = view.coordsAtPos(from);
-      
-      setMentionPosition({
-        top: start.bottom + 10,
-        left: start.left,
-      });
-    } else {
+  const updatePosition = useCallback((editor: Editor) => {
+    if (mentionQuery === null) {
       setMentionPosition(null);
+      return;
     }
+    
+    const { view } = editor;
+    const { state } = view;
+    const { selection } = state;
+    const { ranges } = selection;
+    const from = Math.min(...ranges.map(range => range.$from.pos));
+    
+    // Get coordinates for the current selection
+    const start = view.coordsAtPos(from);
+    
+    setMentionPosition({
+      top: start.bottom + 10,
+      left: start.left,
+    });
   }, [mentionQuery]);
   
   return {
@@ -80,7 +77,7 @@ export function useMentionSelector() {
     mentionSelectorRef,
     mentionPosition,
     closeAndResetMention,
-    selectItem,
+    navigateSelection,
     updatePosition
   };
 }

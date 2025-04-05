@@ -7,18 +7,17 @@ import { useEffect } from 'react';
  */
 export function useInlineMentionCommands(
   editor: Editor | null,
-  setMentionQuery: (query: string | null) => void,
-  setMentionRange: (range: any) => void,
-  selectMentionItem: (direction: number) => void
+  mentionQuery: string | null,
+  onClose: () => void,
+  onSelect: (direction: number) => void
 ) {
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || mentionQuery === null) return;
 
     // Function to handle keyboard events when mention is active
     const handleMentionKeydown = (event: KeyboardEvent) => {
       // Only handle events when mention is active
-      const mentionActive = document.querySelector('[data-mention-active="true"]');
-      if (!mentionActive) return;
+      if (mentionQuery === null) return;
 
       // Prevent default behavior for our handled keys
       if (
@@ -32,13 +31,13 @@ export function useInlineMentionCommands(
 
       // Handle navigation
       if (event.key === 'ArrowUp') {
-        selectMentionItem(-1); // Go up
+        onSelect(-1); // Go up
       } else if (event.key === 'ArrowDown') {
-        selectMentionItem(1); // Go down
+        onSelect(1); // Go down
       } else if (event.key === 'Enter') {
-        selectMentionItem(0); // Select current
+        onSelect(0); // Select current
       } else if (event.key === 'Escape') {
-        setMentionQuery(null); // Close
+        onClose(); // Close
       }
     };
 
@@ -49,5 +48,5 @@ export function useInlineMentionCommands(
     return () => {
       document.removeEventListener('keydown', handleMentionKeydown);
     };
-  }, [editor, selectMentionItem, setMentionQuery, setMentionRange]);
+  }, [editor, mentionQuery, onSelect, onClose]);
 }

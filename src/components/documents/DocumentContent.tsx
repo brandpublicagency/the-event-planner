@@ -18,23 +18,21 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   const {
     mentionQuery,
     selectedItemIndex,
-    setSelectedItemIndex,
     mentionItems,
     mentionLoading,
     mentionSelectorRef,
     handleMentionSelect,
-    setMentionQuery,
-    setMentionRange,
+    closeAndResetMention,
     configureSuggestion,
     selectMentionItem,
     mentionPosition
   } = useMentionHandler(editor);
   
-  // Set up inline mention commands
+  // Set up inline mention commands with simplified API
   useInlineMentionCommands(
-    editor, 
-    setMentionQuery, 
-    setMentionRange,
+    editor,
+    mentionQuery,
+    closeAndResetMention,
     selectMentionItem
   );
 
@@ -75,23 +73,21 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         <div ref={ref} className="bg-white rounded-md border border-zinc-200 h-full overflow-y-auto flex flex-col print-document">
           <EditorContent editor={editor} className="flex-1 p-3 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none px-[25px] document-content" />
           
-          {mentionQuery !== null && mentionItems.length > 0 && mentionPosition && (
+          {mentionQuery !== null && mentionPosition && (
             <div 
               className="fixed z-50"
               style={{
                 top: `${mentionPosition.top}px`,
                 left: `${mentionPosition.left}px`,
               }}
-              data-mention-active="true"
             >
               <MentionSelector
                 ref={mentionSelectorRef}
                 items={mentionItems}
-                command={handleMentionSelect}
+                onSelect={handleMentionSelect}
                 query={mentionQuery}
                 loading={mentionLoading}
                 selectedIndex={selectedItemIndex}
-                setSelectedIndex={setSelectedItemIndex}
               />
             </div>
           )}
