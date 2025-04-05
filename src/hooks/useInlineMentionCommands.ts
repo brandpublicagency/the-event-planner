@@ -67,6 +67,27 @@ export function useInlineMentionCommands(
       return false;
     };
     
+    // Add keyboard handlers to capture and prevent key events
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        // Let the mention handler handle arrow keys when dropdown is active
+        const isDropdownActive = document.querySelector('[data-selected="true"]');
+        if (isDropdownActive) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+      
+      if (event.key === 'Enter') {
+        // Let the mention handler handle Enter when dropdown is active
+        const isDropdownActive = document.querySelector('[data-selected="true"]');
+        if (isDropdownActive) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+    };
+    
     // We don't actually register this as an extension,
     // we just check for it on each editor update
     const checkForShortcuts = () => {
@@ -76,8 +97,12 @@ export function useInlineMentionCommands(
     // Add event listener for editor updates
     editor.on('update', checkForShortcuts);
     
+    // Add global event listeners to capture keyboard events
+    editor.view.dom.addEventListener('keydown', handleKeyDown, true);
+    
     return () => {
       editor.off('update', checkForShortcuts);
+      editor.view.dom.removeEventListener('keydown', handleKeyDown, true);
     };
   }, [editor, setSelectedCategory, setMentionQuery, setMentionRange, setMentionClientRect]);
 }

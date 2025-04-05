@@ -159,7 +159,7 @@ export function useMentionHandler(editor: Editor | null) {
           onKeyDown: (props) => {
             const { event } = props;
             
-            // Handle keyboard navigation
+            // Handle keyboard navigation - fixed to properly stop event propagation
             if (event.key === 'ArrowUp') {
               event.preventDefault(); // Prevent cursor movement
               setSelectedItemIndex((prev) => {
@@ -183,7 +183,10 @@ export function useMentionHandler(editor: Editor | null) {
             }
             
             if (event.key === 'Enter' || event.key === 'Tab') {
-              event.preventDefault(); // Prevent newline insertion
+              // Fixed Enter/Tab handling to prevent default action and select the item
+              event.preventDefault();
+              event.stopPropagation();
+              
               if (mentionItems.length && selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
                 const item = mentionItems[selectedItemIndex];
                 if (item) {
@@ -192,12 +195,11 @@ export function useMentionHandler(editor: Editor | null) {
                     setSelectedCategory(item.type as MentionCategory);
                     setSelectedItemIndex(0);
                     setMentionQuery(''); // Clear the query when selecting a category
-                    return true;
                   } else {
                     // Handle item selection
                     handleMentionSelect(item);
-                    return true;
                   }
+                  return true;
                 }
               }
               return false;

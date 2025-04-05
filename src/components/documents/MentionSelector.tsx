@@ -111,17 +111,6 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     }
   };
   
-  // Get label for category in header
-  const getCategoryLabel = (cat: MentionCategory): string => {
-    switch (cat) {
-      case 'event': return '/e - Events';
-      case 'task': return '/t - Tasks';
-      case 'document': return '/d - Documents';
-      case 'user': return '/u - Users';
-      default: return 'Select a category';
-    }
-  };
-  
   return (
     <Portal>
       <div
@@ -146,16 +135,6 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
           </div>
         ) : (
           <div>
-            {/* Category header showing current shortcut */}
-            <div className="px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100 flex items-center justify-between">
-              <span>{getCategoryLabel(category)}</span>
-              {category && (
-                <span className="text-xs text-zinc-400">
-                  Press ↑↓ to navigate, Enter to select
-                </span>
-              )}
-            </div>
-            
             {items.map((item, index) => {
               const isSelected = index === selectedIndex;
               
