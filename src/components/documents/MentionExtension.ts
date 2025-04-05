@@ -96,8 +96,7 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addNodeView() {
-    // Cast the MentionView to make TypeScript happy
-    return ReactNodeViewRenderer(MentionView as any);
+    return ReactNodeViewRenderer(MentionView);
   },
   
   addCommands() {

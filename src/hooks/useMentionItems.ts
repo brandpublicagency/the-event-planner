@@ -13,7 +13,10 @@ export function useMentionItems(query: string | null) {
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    if (query === null) return;
+    if (query === null) {
+      setItems([]);
+      return;
+    }
     
     const fetchItems = async () => {
       setLoading(true);
