@@ -110,6 +110,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                     if (item.id.startsWith('category-') && selectedCategory === null) {
                       setSelectedCategory(item.type as MentionCategory);
                       setSelectedItemIndex(0);
+                      setMentionQuery(''); // Clear the query when selecting a category
                       return true;
                     } else {
                       // Handle item selection

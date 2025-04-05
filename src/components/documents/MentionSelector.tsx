@@ -116,7 +116,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
         {loading ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
-            <span className="ml-2 text-sm text-zinc-600">Loading...</span>
+            <span className="ml-2 text-sm">Loading...</span>
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-4 text-zinc-500">

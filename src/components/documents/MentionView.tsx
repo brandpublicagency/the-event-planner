@@ -1,17 +1,16 @@
 
 import React from 'react';
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
-import { File, Calendar, CheckSquare } from 'lucide-react';
+import { File, Calendar, CheckSquare, User } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
 
-// Extend NodeViewProps but override the node type
 export interface MentionViewProps extends Omit<NodeViewProps, 'node'> {
   node: {
     attrs: {
       id: string;
       label: string;
-      type: 'event' | 'task' | 'document';
+      type: 'event' | 'task' | 'document' | 'user';
     };
   };
 }
@@ -34,6 +33,10 @@ export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
       case 'document':
         navigate(`/documents?id=${id}`);
         break;
+      case 'user':
+        // For user mentions, we could navigate to a profile page
+        // or simply do nothing for now
+        break;
     }
   };
   
@@ -45,6 +48,8 @@ export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
         return <CheckSquare className="h-3.5 w-3.5 text-amber-500" />;
       case 'document':
         return <File className="h-3.5 w-3.5 text-emerald-500" />;
+      case 'user':
+        return <User className="h-3.5 w-3.5 text-purple-500" />;
     }
   };
   
@@ -56,6 +61,8 @@ export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
         return `Task: ${label}`;
       case 'document':
         return `Document: ${label}`;
+      case 'user':
+        return `User: ${label}`;
     }
   };
 

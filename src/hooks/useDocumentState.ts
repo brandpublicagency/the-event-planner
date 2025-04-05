@@ -23,7 +23,7 @@ const extractMentions = (content: string): JsonMention[] => {
   while ((match = mentionRegex.exec(content)) !== null) {
     mentions.push({
       id: match[1],
-      type: match[2] as 'document' | 'task' | 'event'
+      type: match[2] as 'document' | 'task' | 'event' | 'user'
     });
   }
   
@@ -125,7 +125,8 @@ const updateMentions = async (documentId: string, mentions: JsonMention[]) => {
               .eq('event_code', id);
           }
         }
-      }
+      } 
+      // Handle user mentions (we don't track mentioned_in for users currently)
     }
   } catch (error) {
     console.error('Error updating mentions:', error);

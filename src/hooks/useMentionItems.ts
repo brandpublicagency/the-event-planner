@@ -16,7 +16,14 @@ export function useMentionItems(query: string | null, category: MentionCategory 
   
   // If no query or just the slash, and no category selected, return category options
   useEffect(() => {
-    if ((query === '' || query === null) && !category) {
+    if (query === null) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+    
+    if (category === null) {
+      // If we're at the category selection stage, show category options
       setItems([
         { id: 'category-user', label: 'User', type: 'user' },
         { id: 'category-event', label: 'Event', type: 'event' },
@@ -24,10 +31,6 @@ export function useMentionItems(query: string | null, category: MentionCategory 
         { id: 'category-document', label: 'Document', type: 'document' },
       ]);
       setLoading(false);
-      return;
-    }
-    
-    if (category === null) {
       return;
     }
     
