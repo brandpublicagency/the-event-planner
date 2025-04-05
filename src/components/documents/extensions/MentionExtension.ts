@@ -12,7 +12,6 @@ interface MentionResult {
   url: string;
   icon?: string;
   color?: string;
-  idLabel?: string;
 }
 
 // Create a debounced search function
@@ -24,29 +23,13 @@ const debounce = (func: Function, delay: number) => {
   };
 };
 
-// Generate hex color codes based on type
-const getColorHex = (type: string): string => {
-  switch (type) {
-    case 'document':
-      return '#FFA245';
-    case 'task':
-      return '#F70848';
-    case 'event':
-      return '#0EC392';
-    case 'user':
-      return '#1414DE';
-    default:
-      return '#64748b';
-  }
-};
-
 // Get icon SVG based on type
 const getIconSvg = (type: string): string => {
   switch (type) {
     case 'document':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>';
     case 'task':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="3" height="9" x="4" y="15" rx="1"/><rect width="3" height="5" x="12" y="15" rx="1"/><rect width="3" height="14" x="20" y="10" rx="1"/><path d="M4 9l4-4 4 4 8-8"/></svg>';
     case 'event':
       return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
     case 'user':
@@ -119,8 +102,6 @@ export const MentionExtension = Extension.create({
               // Add items with icons and colors
               grouped[group.type].forEach(item => {
                 item.icon = getIconSvg(group.type);
-                item.color = getColorHex(group.type);
-                item.idLabel = `#${item.id.substring(0, 6).toUpperCase()}`;
                 result.push(item);
               });
             }
@@ -236,22 +217,16 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Get color based on type
-              const colorHex = getColorHex(item.original.type);
-              const idLabel = `#${item.original.id.substring(0, 6).toUpperCase()}`;
-              
-              // Content inside the editor - this is the mention button with the ID displayed next to it
-              return `<span class="mention-wrapper" contenteditable="false">
-                <span 
-                  class="mention mention-${item.original.type}" 
-                  data-mention-id="${item.original.id}" 
-                  data-mention-type="${item.original.type}" 
-                  data-mention-url="${item.original.url}"
-                  data-mention-title="${item.original.title}">
-                  <span class="mention-icon">${getIconSvg(item.original.type)}</span>
-                  <span class="mention-title">${item.original.title}</span>
-                </span>
-                <span class="mention-id">${idLabel}</span>
+              // Content inside the editor - just the button without ID
+              return `<span 
+                class="mention mention-${item.original.type}" 
+                data-mention-id="${item.original.id}" 
+                data-mention-type="${item.original.type}" 
+                data-mention-url="${item.original.url}"
+                data-mention-title="${item.original.title}"
+                contenteditable="false">
+                <span class="mention-icon">${getIconSvg(item.original.type)}</span>
+                <span class="mention-title">${item.original.title}</span>
               </span>`;
             },
             menuItemTemplate: (item) => {
@@ -262,7 +237,7 @@ export const MentionExtension = Extension.create({
               }
               
               return `<div class="tribute-item tribute-item-${item.original.type}">
-                <span class="mention-icon">${getIconSvg(item.original.type)}</span>
+                <span class="mention-icon">${item.original.icon}</span>
                 <div class="mention-info">
                   <span class="mention-title">${item.original.title}</span>
                 </div>
