@@ -30,7 +30,7 @@ export const InlineMentionSuggestions = ({
       try {
         setIsLoading(true);
         const results = await searchAllEntities(query);
-        setSuggestions(results);
+        setSuggestions(results || []);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
         setSuggestions([]);
@@ -39,8 +39,11 @@ export const InlineMentionSuggestions = ({
       }
     };
     
-    fetchSuggestions();
-  }, [query, searchAllEntities]);
+    // Only fetch if we have a position (i.e., the suggestion is active)
+    if (position) {
+      fetchSuggestions();
+    }
+  }, [query, searchAllEntities, position]);
   
   useEffect(() => {
     setSelectedIndex(0);
@@ -106,13 +109,7 @@ export const InlineMentionSuggestions = ({
     };
   }, [onClose]);
   
-  const rowVirtualizer = useVirtualizer({
-    count: suggestions.length,
-    getScrollElement: () => containerRef.current,
-    estimateSize: () => 24, // Smaller row height for inline suggestions
-    overscan: 5,
-  });
-  
+  // Don't render anything if no position
   if (!position) return null;
   
   const getMentionIcon = (type: string) => {
@@ -129,6 +126,14 @@ export const InlineMentionSuggestions = ({
         return null;
     }
   };
+  
+  // Setup the virtualizer - but only if we have actual suggestions
+  const rowVirtualizer = useVirtualizer({
+    count: suggestions.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => 24, // Smaller row height for inline suggestions
+    overscan: 5,
+  });
   
   // Render suggestions inline with the text
   return (

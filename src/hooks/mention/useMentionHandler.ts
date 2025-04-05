@@ -28,7 +28,16 @@ export function useMentionHandler(editor: Editor | null) {
   // Search all entity types at once when query changes
   const searchAllEntities = useCallback(async (query: string) => {
     try {
-      const results = await Promise.all([
+      console.log('Searching entities for:', query);
+      
+      // Default empty results
+      let taskResults: MentionItem[] = [];
+      let eventResults: MentionItem[] = [];
+      let documentResults: MentionItem[] = [];
+      let userResults: MentionItem[] = [];
+
+      // Execute search queries in parallel
+      const [taskResponse, eventResponse, documentResponse, userResponse] = await Promise.all([
         // Search tasks
         supabase
           .from('tasks')
@@ -58,35 +67,49 @@ export function useMentionHandler(editor: Editor | null) {
           .limit(5)
       ]);
       
-      // Format results
-      const [taskResult, eventResult, documentResult, userResult] = results;
-      
-      // Combine all results into a single array
-      return [
-        ...(taskResult.data?.map(task => ({
+      // Format and check each result set separately to prevent errors
+      if (taskResponse.data && !taskResponse.error) {
+        taskResults = taskResponse.data.map(task => ({
           id: task.id,
           label: task.title,
           type: 'task' as const
-        })) || []),
-        
-        ...(eventResult.data?.map(event => ({
+        }));
+      }
+      
+      if (eventResponse.data && !eventResponse.error) {
+        eventResults = eventResponse.data.map(event => ({
           id: event.event_code,
           label: event.name,
           type: 'event' as const
-        })) || []),
-        
-        ...(documentResult.data?.map(doc => ({
+        }));
+      }
+      
+      if (documentResponse.data && !documentResponse.error) {
+        documentResults = documentResponse.data.map(doc => ({
           id: doc.id,
           label: doc.title,
           type: 'document' as const
-        })) || []),
-        
-        ...(userResult.data?.map(user => ({
+        }));
+      }
+      
+      if (userResponse.data && !userResponse.error) {
+        userResults = userResponse.data.map(user => ({
           id: user.id,
           label: user.full_name,
           type: 'user' as const
-        })) || [])
+        }));
+      }
+      
+      // Combine all results
+      const combinedResults = [
+        ...taskResults,
+        ...eventResults,
+        ...documentResults,
+        ...userResults
       ];
+      
+      console.log('Search results:', combinedResults.length);
+      return combinedResults;
     } catch (error) {
       console.error('Error searching entities:', error);
       return [];
