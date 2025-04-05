@@ -15,10 +15,10 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
 }, ref) => {
   // Use our custom hooks for handling mentions and editor setup
   const { 
-    handleMentionSelect, 
-    slashCommand, 
+    mentionSuggestion, 
     handleSelect, 
-    handleClose 
+    handleClose,
+    searchAllEntities
   } = useMentionHandler(editor);
 
   // Handle key events at the component level
@@ -63,13 +63,13 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           <EditorContent editor={editor} className="flex-1 p-3 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none px-[25px] document-content" />
           
           {/* Inline Mention Suggestions */}
-          {slashCommand.active && (
+          {mentionSuggestion.active && (
             <InlineMentionSuggestions
-              query={slashCommand.query}
+              query={mentionSuggestion.query}
               onSelect={handleSelect}
               onClose={handleClose}
-              position={slashCommand.position}
-              mentionType={slashCommand.mentionType}
+              position={mentionSuggestion.position}
+              searchAllEntities={searchAllEntities}
             />
           )}
         </div>

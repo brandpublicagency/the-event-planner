@@ -3,58 +3,123 @@ import { Editor } from '@tiptap/react';
 import { useCallback, useState, useEffect } from 'react';
 import { useMentionCommands } from './useMentionCommands';
 import { MentionItem } from '@/components/documents/MentionSelector';
+import { supabase } from '@/integrations/supabase/client';
 
-interface SlashCommandState {
+interface MentionSuggestionState {
   active: boolean;
   position: { top: number; left: number } | null;
   query: string;
-  mentionType: string | null;
 }
 
 /**
- * Main hook that combines all mention functionality
+ * Main hook that combines all mention functionality for inline autocomplete
  */
 export function useMentionHandler(editor: Editor | null) {
   // Use commands hook for editor interactions
   const { handleMentionSelect } = useMentionCommands(editor);
   
-  // State for slash command suggestions
-  const [slashCommand, setSlashCommand] = useState<SlashCommandState>({
+  // State for mention suggestions (no longer using separate mentionType)
+  const [mentionSuggestion, setMentionSuggestion] = useState<MentionSuggestionState>({
     active: false,
     position: null,
-    query: '',
-    mentionType: null
+    query: ''
   });
+
+  // Search all entity types at once when query changes
+  const searchAllEntities = useCallback(async (query: string) => {
+    try {
+      const results = await Promise.all([
+        // Search tasks
+        supabase
+          .from('tasks')
+          .select('id, title')
+          .ilike('title', `%${query}%`)
+          .limit(5),
+        
+        // Search events
+        supabase
+          .from('events')
+          .select('event_code, name')
+          .ilike('name', `%${query}%`)
+          .limit(5),
+        
+        // Search documents
+        supabase
+          .from('documents')
+          .select('id, title')
+          .ilike('title', `%${query}%`)
+          .limit(5),
+        
+        // Search users
+        supabase
+          .from('profiles')
+          .select('id, full_name')
+          .ilike('full_name', `%${query}%`)
+          .limit(5)
+      ]);
+      
+      // Format results
+      const [taskResult, eventResult, documentResult, userResult] = results;
+      
+      // Combine all results into a single array
+      return [
+        ...(taskResult.data?.map(task => ({
+          id: task.id,
+          label: task.title,
+          type: 'task' as const
+        })) || []),
+        
+        ...(eventResult.data?.map(event => ({
+          id: event.event_code,
+          label: event.name,
+          type: 'event' as const
+        })) || []),
+        
+        ...(documentResult.data?.map(doc => ({
+          id: doc.id,
+          label: doc.title,
+          type: 'document' as const
+        })) || []),
+        
+        ...(userResult.data?.map(user => ({
+          id: user.id,
+          label: user.full_name,
+          type: 'user' as const
+        })) || [])
+      ];
+    } catch (error) {
+      console.error('Error searching entities:', error);
+      return [];
+    }
+  }, []);
 
   // Handle mention selection and close the suggestion popup
   const handleSelect = useCallback((item: MentionItem) => {
     if (editor) {
       handleMentionSelect(item);
-      setSlashCommand({
+      setMentionSuggestion({
         active: false,
         position: null,
-        query: '',
-        mentionType: null
+        query: ''
       });
     }
   }, [editor, handleMentionSelect]);
 
   // Close the suggestion popup
   const handleClose = useCallback(() => {
-    setSlashCommand({
+    setMentionSuggestion({
       active: false,
       position: null,
-      query: '',
-      mentionType: null
+      query: ''
     });
   }, []);
 
-  // Listen for slash command keypress and update state accordingly
+  // Listen for slash keypress and update state accordingly
   useEffect(() => {
     if (!editor) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // We need to detect slash inside the editor
+      // We only want to handle the slash key
       if (event.key === '/' && event.target instanceof HTMLElement && 
           event.target.closest('.ProseMirror')) {
         
@@ -69,74 +134,49 @@ export function useMentionHandler(editor: Editor | null) {
         const editorDOM = view.dom as HTMLElement;
         const editorRect = editorDOM.getBoundingClientRect();
         
-        setSlashCommand({
+        // Activate mention suggestion
+        setMentionSuggestion({
           active: true,
           position: {
             top: coords.top - editorRect.top + 24, // Adjust below the cursor
             left: coords.left - editorRect.left
           },
-          query: '',
-          mentionType: null
+          query: ''
         });
       }
     };
     
-    // Handle editor input to detect mention types (/task, /event, etc.)
-    const handleInput = () => {
-      if (!slashCommand.active) return;
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Watch for input to update the query
+    const updateQueryOnInput = () => {
+      if (!mentionSuggestion.active || !editor) return;
       
+      // Get the text from the start of the line to the cursor
       const { state } = editor;
       const { selection } = state;
       const { $from } = selection;
-      
-      // Get the current line text up to cursor
       const lineStart = $from.start();
       const text = $from.doc.textBetween(lineStart, $from.pos, '\n', '\n');
       
-      // Check for mention type patterns
-      const taskMatch = text.match(/\/task\s*(.*)$/);
-      const eventMatch = text.match(/\/event\s*(.*)$/);
-      const documentMatch = text.match(/\/document\s*(.*)$/);
-      const docMatch = text.match(/\/doc\s*(.*)$/);
-      const userMatch = text.match(/\/user\s*(.*)$/);
+      // Extract the query text after the slash
+      const match = text.match(/\/([^\s]*)$/);
       
-      // Update state based on detected pattern
-      if (taskMatch) {
-        setSlashCommand(prev => ({
+      if (match) {
+        // Update the query
+        setMentionSuggestion(prev => ({
           ...prev,
-          mentionType: 'task',
-          query: taskMatch[1] || ''
+          query: match[1] || ''
         }));
-      } else if (eventMatch) {
-        setSlashCommand(prev => ({
-          ...prev,
-          mentionType: 'event',
-          query: eventMatch[1] || ''
-        }));
-      } else if (documentMatch || docMatch) {
-        setSlashCommand(prev => ({
-          ...prev,
-          mentionType: 'document',
-          query: (documentMatch?.[1] || docMatch?.[1] || '')
-        }));
-      } else if (userMatch) {
-        setSlashCommand(prev => ({
-          ...prev,
-          mentionType: 'user',
-          query: userMatch[1] || ''
-        }));
-      }
-      
-      // If we don't have a valid command anymore, close the popup
-      const hasValidCommand = text.match(/\/(?:task|event|doc|document|user)\s/);
-      if (!hasValidCommand && slashCommand.mentionType) {
+      } else {
+        // If there's no match (user deleted the slash), close the popup
         handleClose();
       }
     };
     
     // Create a mutation observer to watch for editor changes
     const editorDOM = editor.view.dom;
-    const observer = new MutationObserver(handleInput);
+    const observer = new MutationObserver(updateQueryOnInput);
     
     observer.observe(editorDOM, {
       childList: true,
@@ -144,18 +184,17 @@ export function useMentionHandler(editor: Editor | null) {
       characterData: true
     });
     
-    document.addEventListener('keydown', handleKeyDown);
-    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       observer.disconnect();
     };
-  }, [editor, slashCommand.active, handleClose]);
+  }, [editor, mentionSuggestion.active, handleClose]);
   
   return {
     handleMentionSelect,
-    slashCommand,
+    mentionSuggestion,
     handleSelect,
-    handleClose
+    handleClose,
+    searchAllEntities
   };
 }

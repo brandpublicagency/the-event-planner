@@ -8,7 +8,14 @@ export const TabKeyHandler = Extension.create({
   addKeyboardShortcuts() {
     return {
       Tab: ({ editor }) => {
-        // Instead of capturing the Tab key globally, we'll handle it in our InlineMentionSuggestions component
+        // First check if we're in a mention suggestion
+        const isMentionSuggestionActive = document.querySelector('.mention-suggestion-active');
+        
+        if (isMentionSuggestionActive) {
+          // Let the Tab be handled by the InlineMentionSuggestions component
+          return true;
+        }
+        
         // Let the default Tab behavior happen normally when not in an active mention suggestion
         return false;
       }

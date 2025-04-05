@@ -1,16 +1,15 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 import { MentionItem } from './MentionSelector';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface InlineMentionSuggestionsProps {
   query: string;
   onSelect: (item: MentionItem) => void;
   onClose: () => void;
   position: { top: number; left: number } | null;
-  mentionType: string | null;
+  searchAllEntities: (query: string) => Promise<MentionItem[]>;
 }
 
 export const InlineMentionSuggestions = ({
@@ -18,16 +17,20 @@ export const InlineMentionSuggestions = ({
   onSelect,
   onClose,
   position,
-  mentionType
+  searchAllEntities
 }: InlineMentionSuggestionsProps) => {
   const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
+  // Search for suggestions based on query - now searches all entity types at once
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        if (!mentionType) {
+        setIsLoading(true);
+        // If there's no query, show a list of entity types
+        if (!query) {
           setSuggestions([
             { id: 'task', label: 'Task', type: 'task' },
             { id: 'event', label: 'Event', type: 'event' },
@@ -37,78 +40,19 @@ export const InlineMentionSuggestions = ({
           return;
         }
         
-        switch (mentionType) {
-          case 'task':
-            const { data: tasks } = await supabase
-              .from('tasks')
-              .select('id, title')
-              .ilike('title', `%${query}%`)
-              .limit(10);
-            
-            setSuggestions(
-              tasks?.map(task => ({
-                id: task.id,
-                label: task.title,
-                type: 'task'
-              })) || []
-            );
-            break;
-            
-          case 'event':
-            const { data: events } = await supabase
-              .from('events')
-              .select('event_code, name')
-              .ilike('name', `%${query}%`)
-              .limit(10);
-            
-            setSuggestions(
-              events?.map(event => ({
-                id: event.event_code,
-                label: event.name,
-                type: 'event'
-              })) || []
-            );
-            break;
-            
-          case 'document':
-            const { data: documents } = await supabase
-              .from('documents')
-              .select('id, title')
-              .ilike('title', `%${query}%`)
-              .limit(10);
-            
-            setSuggestions(
-              documents?.map(doc => ({
-                id: doc.id,
-                label: doc.title,
-                type: 'document'
-              })) || []
-            );
-            break;
-            
-          case 'user':
-            const { data: users } = await supabase
-              .from('profiles')
-              .select('id, full_name')
-              .ilike('full_name', `%${query}%`)
-              .limit(10);
-            
-            setSuggestions(
-              users?.map(user => ({
-                id: user.id,
-                label: user.full_name,
-                type: 'user'
-              })) || []
-            );
-            break;
-        }
+        // Search all entity types at once
+        const results = await searchAllEntities(query);
+        setSuggestions(results);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchSuggestions();
-  }, [query, mentionType]);
+  }, [query, searchAllEntities]);
   
   useEffect(() => {
     setSelectedIndex(0);
@@ -183,11 +127,26 @@ export const InlineMentionSuggestions = ({
   
   if (!position) return null;
   
+  if (isLoading) {
+    return (
+      <div
+        ref={containerRef}
+        className="absolute z-10 min-w-[200px] max-w-[300px] p-2 bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
+        style={{
+          top: `${position.top}px`,
+          left: `${position.left}px`
+        }}
+      >
+        <div className="p-2 text-sm text-gray-500">Loading suggestions...</div>
+      </div>
+    );
+  }
+  
   if (suggestions.length === 0) {
     return (
       <div
         ref={containerRef}
-        className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md"
+        className="absolute z-10 min-w-[200px] max-w-[300px] p-2 bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`
@@ -216,7 +175,7 @@ export const InlineMentionSuggestions = ({
   return (
     <div
       ref={containerRef}
-      className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md"
+      className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
