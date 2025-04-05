@@ -1,3 +1,4 @@
+
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,7 +28,7 @@ const debounce = (func: Function, delay: number) => {
 const getIconSvg = (type: string): string => {
   switch (type) {
     case 'document':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
     case 'task':
       return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="3" height="9" x="4" y="15" rx="1"/><rect width="3" height="5" x="12" y="15" rx="1"/><rect width="3" height="14" x="20" y="10" rx="1"/><path d="M4 9l4-4 4 4 8-8"/></svg>';
     case 'event':
@@ -217,7 +218,7 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Content inside the editor - just the button without ID
+              // Content inside the editor - updated to match the design in the image
               return `<span 
                 class="mention mention-${item.original.type}" 
                 data-mention-id="${item.original.id}" 
@@ -290,6 +291,9 @@ export const MentionExtension = Extension.create({
               const title = mentionElement.getAttribute('data-mention-title');
               
               if (url) {
+                // Show a toast notification before navigating
+                toast.info(`Navigating to ${title}`);
+                
                 // Navigate to the URL
                 window.location.href = url;
               }
