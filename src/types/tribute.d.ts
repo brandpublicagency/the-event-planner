@@ -18,7 +18,7 @@ declare module 'tributejs' {
     requireLeadingSpace?: boolean;
     allowSpaces?: boolean;
     replaceTextSuffix?: string;
-    menuContainer?: Element;
+    menuItemLimit?: number;
     menuShowMinLength?: number;
   }
 
@@ -35,6 +35,13 @@ declare module 'tributejs' {
     noMatchTemplate?: () => string;
     menuItemLimit?: number;
     menuShowMinLength?: number;
+    fillAttr?: string;
+    selectTemplate?: (item: any) => string;
+    menuItemTemplate?: (item: any) => string;
+    lookup?: string;
+    requireLeadingSpace?: boolean;
+    allowSpaces?: boolean;
+    replaceTextSuffix?: string;
   }
 
   export default class Tribute {

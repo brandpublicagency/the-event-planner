@@ -1,8 +1,8 @@
 
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import Tribute from 'tributejs';
 import { supabase } from '@/integrations/supabase/client';
+import Tribute from 'tributejs';
 
 // Type for mention items
 interface MentionResult {
@@ -29,7 +29,6 @@ export const MentionExtension = Extension.create({
       key: new PluginKey('mentions'),
       view: (editorView) => {
         const tribute = new Tribute({
-          trigger: '/',
           collection: [{
             trigger: '/',
             values: async (text: string, callback: (items: MentionResult[]) => void) => {
@@ -109,7 +108,6 @@ export const MentionExtension = Extension.create({
             },
             lookup: 'title',
             fillAttr: 'title',
-            menuItemLimit: 10,
             menuShowMinLength: 2,
             selectTemplate: (item) => {
               return `<span 
