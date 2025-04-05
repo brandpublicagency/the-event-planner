@@ -28,6 +28,11 @@ export function useMentionHandler(editor: Editor | null) {
   // Search all entity types at once when query changes
   const searchAllEntities = useCallback(async (query: string) => {
     try {
+      // If query is too short, return early with empty results
+      if (!query || query.length === 0) {
+        return [];
+      }
+      
       console.log('Searching entities for:', query);
       
       // Default empty results
@@ -74,6 +79,8 @@ export function useMentionHandler(editor: Editor | null) {
           label: task.title,
           type: 'task' as const
         }));
+      } else if (taskResponse.error) {
+        console.error('Error fetching tasks:', taskResponse.error);
       }
       
       if (eventResponse.data && !eventResponse.error) {
@@ -82,6 +89,8 @@ export function useMentionHandler(editor: Editor | null) {
           label: event.name,
           type: 'event' as const
         }));
+      } else if (eventResponse.error) {
+        console.error('Error fetching events:', eventResponse.error);
       }
       
       if (documentResponse.data && !documentResponse.error) {
@@ -90,6 +99,8 @@ export function useMentionHandler(editor: Editor | null) {
           label: doc.title,
           type: 'document' as const
         }));
+      } else if (documentResponse.error) {
+        console.error('Error fetching documents:', documentResponse.error);
       }
       
       if (userResponse.data && !userResponse.error) {
@@ -98,6 +109,8 @@ export function useMentionHandler(editor: Editor | null) {
           label: user.full_name,
           type: 'user' as const
         }));
+      } else if (userResponse.error) {
+        console.error('Error fetching users:', userResponse.error);
       }
       
       // Combine all results
@@ -112,7 +125,7 @@ export function useMentionHandler(editor: Editor | null) {
       return combinedResults;
     } catch (error) {
       console.error('Error searching entities:', error);
-      return [];
+      throw error; // Propagate error to be handled in the component
     }
   }, []);
 

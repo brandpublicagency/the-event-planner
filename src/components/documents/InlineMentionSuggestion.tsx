@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 import { MentionItem } from './MentionSelector';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { Spinner } from '../ui/spinner';
 
 interface InlineMentionSuggestionsProps {
   query: string;
@@ -22,6 +23,7 @@ export const InlineMentionSuggestions = ({
   const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Search for suggestions based on query
@@ -29,10 +31,12 @@ export const InlineMentionSuggestions = ({
     const fetchSuggestions = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         const results = await searchAllEntities(query);
         setSuggestions(results || []);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
+        setError('Failed to load suggestions');
         setSuggestions([]);
       } finally {
         setIsLoading(false);
@@ -41,7 +45,11 @@ export const InlineMentionSuggestions = ({
     
     // Only fetch if we have a position (i.e., the suggestion is active)
     if (position) {
-      fetchSuggestions();
+      const timeoutId = setTimeout(() => {
+        fetchSuggestions();
+      }, 50); // Small delay to prevent too many simultaneous requests
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [query, searchAllEntities, position]);
   
@@ -51,7 +59,7 @@ export const InlineMentionSuggestions = ({
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!suggestions.length) return;
+      if (!suggestions.length && !isLoading) return;
       
       switch (e.key) {
         case 'ArrowDown':
@@ -91,7 +99,7 @@ export const InlineMentionSuggestions = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [suggestions, selectedIndex, onSelect, onClose]);
+  }, [suggestions, selectedIndex, onSelect, onClose, isLoading]);
   
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -127,14 +135,6 @@ export const InlineMentionSuggestions = ({
     }
   };
   
-  // Setup the virtualizer - but only if we have actual suggestions
-  const rowVirtualizer = useVirtualizer({
-    count: suggestions.length,
-    getScrollElement: () => containerRef.current,
-    estimateSize: () => 24, // Smaller row height for inline suggestions
-    overscan: 5,
-  });
-  
   // Render suggestions inline with the text
   return (
     <div
@@ -146,12 +146,17 @@ export const InlineMentionSuggestions = ({
       }}
     >
       {isLoading ? (
-        <div className="text-xs text-gray-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
-          Loading...
+        <div className="text-xs flex items-center gap-1.5 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
+          <Spinner className="h-3 w-3 text-primary-600" />
+          <span>Loading...</span>
+        </div>
+      ) : error ? (
+        <div className="text-xs text-red-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
+          {error}
         </div>
       ) : suggestions.length === 0 ? (
         <div className="text-xs text-gray-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
-          No results
+          No results found
         </div>
       ) : (
         <div 
@@ -161,33 +166,18 @@ export const InlineMentionSuggestions = ({
             height: suggestions.length > 5 ? '120px' : 'auto'
           }}
         >
-          <div
-            style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative'
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map(virtualRow => {
-              const item = suggestions[virtualRow.index];
-              return (
-                <div
-                  key={virtualRow.index}
-                  className={`absolute top-0 left-0 w-full text-xs flex items-center cursor-pointer px-2 py-1 ${
-                    virtualRow.index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
-                  }`}
-                  style={{
-                    height: `${virtualRow.size}px`,
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                  onClick={() => onSelect(item)}
-                >
-                  <span className="mr-1">{getMentionIcon(item.type)}</span>
-                  <span className="truncate">{item.label}</span>
-                </div>
-              );
-            })}
-          </div>
+          {suggestions.map((item, index) => (
+            <div
+              key={`${item.type}-${item.id}`}
+              className={`text-xs flex items-center cursor-pointer px-2 py-1 ${
+                index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
+              }`}
+              onClick={() => onSelect(item)}
+            >
+              <span className="mr-1">{getMentionIcon(item.type)}</span>
+              <span className="truncate">{item.label}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>
