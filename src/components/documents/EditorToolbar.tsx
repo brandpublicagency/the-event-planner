@@ -2,12 +2,14 @@
 import { 
   Bold, Italic, Underline, Heading1, Heading2, Heading3,
   Link, List, ListOrdered, SeparatorHorizontal, Code,
-  Highlighter, Quote, 
+  Highlighter, Quote, ExternalLink
 } from "lucide-react";
 import { Editor } from '@tiptap/react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { LinkPreviewDialog } from "./LinkPreviewDialog";
 
 interface MenuButtonProps {
   onClick: () => void;
@@ -40,6 +42,8 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+  const [linkPreviewDialogOpen, setLinkPreviewDialogOpen] = useState(false);
+
   if (!editor) {
     return null;
   }
@@ -109,6 +113,12 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         tooltip="Add Link"
       />
       <MenuButton
+        onClick={() => setLinkPreviewDialogOpen(true)}
+        active={editor.isActive('linkPreview')}
+        icon={ExternalLink}
+        tooltip="Add Link Preview"
+      />
+      <MenuButton
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         active={editor.isActive('codeBlock')}
         icon={Code}
@@ -130,6 +140,12 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
         icon={SeparatorHorizontal}
         tooltip="Add Divider"
+      />
+      
+      <LinkPreviewDialog 
+        editor={editor} 
+        open={linkPreviewDialogOpen} 
+        onOpenChange={setLinkPreviewDialogOpen} 
       />
     </div>
   );

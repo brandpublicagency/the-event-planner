@@ -5,6 +5,8 @@ import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import { LinkPreviewExtension } from './extensions/LinkPreviewExtension';
+import { LinkPasteHandler } from './extensions/LinkPasteHandler';
 
 const lowlight = createLowlight(common);
 
@@ -31,6 +33,8 @@ export const getEditorExtensions = () => [
   CodeBlockLowlight.configure({
     lowlight,
   }),
+  LinkPreviewExtension,
+  LinkPasteHandler,
 ];
 
 // Helper function to check if button is active

@@ -40,6 +40,8 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
+          mentioned_in: Json | null
+          mentions: Json | null
           template: boolean | null
           title: string
           updated_at: string
@@ -51,6 +53,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          mentioned_in?: Json | null
+          mentions?: Json | null
           template?: boolean | null
           title: string
           updated_at?: string
@@ -62,6 +66,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          mentioned_in?: Json | null
+          mentions?: Json | null
           template?: boolean | null
           title?: string
           updated_at?: string
@@ -122,6 +128,8 @@ export type Database = {
           event_notes: string | null
           event_type: string
           external_event_id: string | null
+          mentioned_in: Json | null
+          mentions: Json | null
           name: string
           package_id: string | null
           pax: number | null
@@ -150,6 +158,8 @@ export type Database = {
           event_notes?: string | null
           event_type: string
           external_event_id?: string | null
+          mentioned_in?: Json | null
+          mentions?: Json | null
           name: string
           package_id?: string | null
           pax?: number | null
@@ -178,6 +188,8 @@ export type Database = {
           event_notes?: string | null
           event_type?: string
           external_event_id?: string | null
+          mentioned_in?: Json | null
+          mentions?: Json | null
           name?: string
           package_id?: string | null
           pax?: number | null
@@ -593,6 +605,8 @@ export type Database = {
           created_at: string
           due_date: string | null
           id: string
+          mentioned_in: Json | null
+          mentions: Json | null
           notes: string[] | null
           priority: string | null
           status: string | null
@@ -608,6 +622,8 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          mentioned_in?: Json | null
+          mentions?: Json | null
           notes?: string[] | null
           priority?: string | null
           status?: string | null
@@ -623,6 +639,8 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          mentioned_in?: Json | null
+          mentions?: Json | null
           notes?: string[] | null
           priority?: string | null
           status?: string | null
