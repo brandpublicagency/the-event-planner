@@ -31,7 +31,8 @@ export function useInlineMentionCommands(
     } else if (event.key === 'ArrowDown') {
       onSelect(1); // Go down
     } else if (event.key === 'Enter') {
-      onSelect(0); // Select current
+      // Select current item (0 indicates "select current")
+      onSelect(0); 
     } else if (event.key === 'Escape') {
       onClose(); // Close
     }
@@ -41,11 +42,11 @@ export function useInlineMentionCommands(
     if (!editor || mentionQuery === null) return;
 
     // Add event listener
-    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keydown', handleKeydown, { capture: true });
 
     // Clean up
     return () => {
-      document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('keydown', handleKeydown, { capture: true });
     };
   }, [editor, mentionQuery, handleKeydown]);
 }

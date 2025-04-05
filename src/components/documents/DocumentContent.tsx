@@ -5,8 +5,6 @@ import { forwardRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
-import { useInlineMentionCommands } from '@/hooks/useInlineMentionCommands';
-import { SuggestionOptions } from '@tiptap/suggestion';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -23,39 +21,11 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     mentionLoading,
     mentionSelectorRef,
     handleMentionSelect,
-    closeAndResetMention,
-    configureSuggestion,
-    selectMentionItem,
     mentionPosition
   } = useMentionHandler(editor);
-  
-  // Set up inline mention commands with simplified API
-  useInlineMentionCommands(
-    editor,
-    mentionQuery,
-    closeAndResetMention,
-    selectMentionItem
-  );
 
-  // Initialize suggestion plugin only once on editor mount
-  useEffect(() => {
-    if (!editor) return;
-    
-    // Import Suggestion here to avoid issues with SSR
-    const importSuggestion = async () => {
-      try {
-        const { default: Suggestion } = await import('@tiptap/suggestion');
-        const suggestionConfig = configureSuggestion() as SuggestionOptions;
-        
-        // Register the suggestion plugin with our configuration
-        editor.registerPlugin(Suggestion(suggestionConfig));
-      } catch (error) {
-        console.error("Error loading suggestion extension:", error);
-      }
-    };
-    
-    importSuggestion();
-  }, [editor, configureSuggestion]);
+  // No need to separately register suggestion plugin or keyboard handlers
+  // as they're now handled within useMentionHandler
 
   if (!editor) {
     return <div className="flex flex-col h-full gap-4">

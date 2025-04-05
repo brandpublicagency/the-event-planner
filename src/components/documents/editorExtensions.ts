@@ -1,4 +1,3 @@
-
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -108,7 +107,13 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
-  MentionNode, // Add the mention extension
+  MentionNode.configure({
+    suggestion: {
+      char: '/',
+      command: () => {},
+      items: () => []
+    }
+  }), // Add the mention extension with basic config
   MentionCommands, // Add the mention commands extension
 ];
 

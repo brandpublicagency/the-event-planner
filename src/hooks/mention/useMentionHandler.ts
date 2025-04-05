@@ -38,10 +38,22 @@ export function useMentionHandler(editor: Editor | null) {
   
   // Select an item by direction or current index
   const selectMentionItem = (direction: number) => {
+    // If there are no items or we're still loading, don't do anything
+    if (mentionLoading) {
+      return;
+    }
+    
+    if (mentionItems.length === 0) {
+      // No items to select, just close the mention
+      closeAndResetMention();
+      return;
+    }
+    
     if (direction === 0) {
-      // Select current item
-      if (selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
-        handleItemSelect(mentionItems[selectedItemIndex]);
+      // Select current item - make sure selectedItemIndex is within bounds
+      const validIndex = Math.max(0, Math.min(selectedItemIndex, mentionItems.length - 1));
+      if (validIndex >= 0 && validIndex < mentionItems.length) {
+        handleItemSelect(mentionItems[validIndex]);
       }
     } else {
       // Move selection up/down

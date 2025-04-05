@@ -11,7 +11,7 @@ export function useMentionSelector() {
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const { items: mentionItems, isLoading: mentionLoading } = useMentionItems(mentionQuery);
   
-  // Selection state
+  // Selection state - default to 0 (first item)
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   
   // Position state for the dropdown
@@ -41,6 +41,14 @@ export function useMentionSelector() {
       }
     });
   }, [mentionItems]);
+  
+  // Reset selected index when items change
+  useEffect(() => {
+    // When items load, ensure the selected index is valid
+    if (mentionItems.length > 0 && selectedItemIndex >= mentionItems.length) {
+      setSelectedItemIndex(0);
+    }
+  }, [mentionItems, selectedItemIndex]);
   
   // Update the position of the dropdown based on editor cursor position
   const updatePosition = useCallback((editor: Editor) => {
