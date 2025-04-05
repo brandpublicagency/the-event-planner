@@ -1,5 +1,5 @@
 
-import { Database } from './base';
+import { Database } from './index';
 import { Json } from './base';
 
 export type Tables = Database['public']['Tables'];
