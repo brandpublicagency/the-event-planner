@@ -1,4 +1,3 @@
-
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -6,7 +5,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
-import { MentionNode, MentionCommands } from './MentionExtension';
+import { MentionNode, MentionCommands, DirectMentionExtensions } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import Suggestion from '@tiptap/suggestion';
@@ -127,24 +126,9 @@ export const getEditorExtensions = () => [
   SlashKeyHandler, // Add the slash key handler
   
   // Important: MentionNode must come before MentionCommands
-  MentionNode.configure({
-    suggestion: {
-      char: '/',
-      command: ({ editor, range, props }) => {
-        console.log('Default mention command executing from extension config', props);
-        editor.chain().focus().deleteRange(range).run();
-        editor.commands.insertContent({
-          type: 'mention',
-          attrs: props
-        });
-      },
-      items: () => {
-        console.log('Default items function called - this should be overridden');
-        return [];
-      },
-    }
-  }),
+  MentionNode,
   MentionCommands, // Add the mention commands extension
+  DirectMentionExtensions, // Add our new direct mention extensions
 ];
 
 // Helper function to check if mark is active

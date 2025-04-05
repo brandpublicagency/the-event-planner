@@ -1,5 +1,5 @@
 
-import { Editor, Range } from '@tiptap/react';
+import { Editor } from '@tiptap/react';
 import { useCallback } from 'react';
 import { MentionItem } from '@/components/documents/MentionSelector';
 
@@ -8,13 +8,12 @@ import { MentionItem } from '@/components/documents/MentionSelector';
  */
 export function useMentionCommands(editor: Editor | null) {
   // Handle mention selection - inserts the mention at the current position
-  const handleMentionSelect = useCallback((mentionRange: Range | null, item: MentionItem) => {
-    if (!editor || !mentionRange) return;
+  const handleMentionSelect = useCallback((item: MentionItem) => {
+    if (!editor) return;
 
-    // First delete the range (the slash command)
-    editor.chain().focus().deleteRange(mentionRange).run();
+    console.log('Adding mention:', item);
     
-    // Then insert the mention
+    // Insert the mention
     editor.commands.insertContent({
       type: 'mention',
       attrs: {
@@ -32,15 +31,7 @@ export function useMentionCommands(editor: Editor | null) {
     }, 10);
   }, [editor]);
   
-  // Handle changing the selected index in the mention dropdown
-  const handleSelectionNavigation = useCallback((direction: number) => {
-    // This function is implemented in useMentionSelector
-    // We just provide it here as an interface
-    return direction;
-  }, []);
-  
   return {
-    handleMentionSelect,
-    handleSelectionNavigation
+    handleMentionSelect
   };
 }

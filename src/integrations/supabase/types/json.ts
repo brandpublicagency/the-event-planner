@@ -21,7 +21,7 @@ export interface JsonMention {
 
 // Convert mention array to JSON
 export function mentionsToJson(mentions: JsonMention[]): Json {
-  return mentions as Json;
+  return mentions as unknown as Json;
 }
 
 // Convert JSON to mention array

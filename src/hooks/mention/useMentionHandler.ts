@@ -1,74 +1,33 @@
 
-import { Editor, Range } from '@tiptap/react';
-import { useState, useEffect, useCallback } from 'react';
-import { useMentionSelector } from './useMentionSelector';
+import { Editor } from '@tiptap/react';
+import { useCallback } from 'react';
 import { useMentionCommands } from './useMentionCommands';
-import { useMentionSuggestion } from './useMentionSuggestion';
-import { useInlineMentionCommands } from '../useInlineMentionCommands';
-import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Main hook that combines all mention functionality
  */
 export function useMentionHandler(editor: Editor | null) {
-  const [mentionRange, setMentionRange] = useState<Range | null>(null);
-  
-  // Use selector hook for UI state
-  const {
-    mentionQuery,
-    setMentionQuery,
-    mentionItems,
-    mentionLoading,
-    selectedItemIndex,
-    setSelectedItemIndex,
-    mentionSelectorRef,
-    mentionPosition,
-    closeAndResetMention,
-    navigateSelection,
-    updatePosition
-  } = useMentionSelector();
-  
   // Use commands hook for editor interactions
   const { handleMentionSelect } = useMentionCommands(editor);
   
-  // Log active state for debugging
-  useEffect(() => {
-    if (mentionQuery !== null) {
-      console.log('Mention active:', { 
-        query: mentionQuery,
-        itemsCount: mentionItems.length,
-        loading: mentionLoading,
-        selectedIndex: selectedItemIndex,
-        position: mentionPosition
-      });
-    }
-  }, [mentionQuery, mentionItems, mentionLoading, selectedItemIndex, mentionPosition]);
-  
-  // Direct slash key handler as a fallback
+  // Direct slash key handler - we don't need this for direct commands
   const handleSlashKey = useCallback(() => {
     if (editor && editor.isActive) {
-      console.log('Slash key handler activated');
-      
-      // Force update mention query if no mention is active
-      if (mentionQuery === null) {
-        // Set initial empty query to show default items
-        setMentionQuery('');
-        
-        setTimeout(() => {
-          updatePosition(editor);
-        }, 10);
-      }
+      console.log('Slash command typed - now use /task, /event, /user, or /doc to mention items');
     }
-  }, [editor, mentionQuery, setMentionQuery, updatePosition]);
+  }, [editor]);
   
-  // Add a direct key listener as fallback
+  // Add a direct key listener for general slash info
   useEffect(() => {
     if (!editor) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '/' && e.target instanceof HTMLElement && e.target.closest('.ProseMirror')) {
-        console.log('Slash key detected in global handler');
-        handleSlashKey();
+        console.log('Slash key detected - use specific commands:');
+        console.log('  /task - Mention a task');
+        console.log('  /event - Mention an event');
+        console.log('  /user - Mention a user');
+        console.log('  /doc - Mention a document');
       }
     };
     
@@ -77,86 +36,12 @@ export function useMentionHandler(editor: Editor | null) {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, handleSlashKey]);
-  
-  // Handle mention item selection
-  const handleItemSelect = (item: MentionItem) => {
-    console.log('handleItemSelect called with item:', item);
-    handleMentionSelect(mentionRange, item);
-    closeAndResetMention();
-  };
-  
-  // Select an item by direction or current index
-  const selectMentionItem = (direction: number) => {
-    console.log('selectMentionItem called with direction:', direction);
-    
-    // If there are no items or we're still loading, don't do anything
-    if (mentionLoading) {
-      console.log('Cannot select item: still loading');
-      return;
-    }
-    
-    if (mentionItems.length === 0) {
-      console.log('No items to select, closing mention');
-      // No items to select, just close the mention
-      closeAndResetMention();
-      return;
-    }
-    
-    if (direction === 0) {
-      // Select current item - make sure selectedItemIndex is within bounds
-      const validIndex = Math.max(0, Math.min(selectedItemIndex, mentionItems.length - 1));
-      console.log('Selecting current item at index:', validIndex);
-      
-      if (validIndex >= 0 && validIndex < mentionItems.length) {
-        handleItemSelect(mentionItems[validIndex]);
-      }
-    } else {
-      // Move selection up/down
-      console.log('Navigating selection with direction:', direction);
-      navigateSelection(direction);
-    }
-  };
-  
-  // Register keyboard handlers
-  useInlineMentionCommands(
-    editor,
-    mentionQuery,
-    closeAndResetMention,
-    selectMentionItem
-  );
-  
-  // Use suggestion hook for tiptap suggestion plugin
-  const { configureSuggestion } = useMentionSuggestion(
-    editor,
-    mentionItems,
-    setMentionQuery,
-    setMentionRange,
-    closeAndResetMention
-  );
-  
-  // Update position when query changes
-  useEffect(() => {
-    if (editor && mentionQuery !== null) {
-      console.log('Updating mention position');
-      updatePosition(editor);
-    }
-  }, [editor, mentionQuery, updatePosition]);
+  }, [editor]);
   
   return {
-    mentionQuery,
-    setMentionQuery,
-    mentionRange,
-    setMentionRange,
-    selectedItemIndex,
-    setSelectedItemIndex,
-    mentionItems,
-    mentionLoading,
-    mentionSelectorRef,
-    mentionPosition,
-    handleMentionSelect: handleItemSelect,
-    closeAndResetMention,
-    configureSuggestion,
-    selectMentionItem
+    handleMentionSelect
   };
 }
+
+// Add the missing import
+import { useEffect } from 'react';

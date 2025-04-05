@@ -8,8 +8,12 @@ import { Extension } from '@tiptap/core';
 import { RawCommands } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 
-// Create a dedicated plugin key for mention suggestions
+// Create dedicated plugin keys for different mention types
 export const mentionSuggestionKey = new PluginKey('mentionSuggestion');
+export const taskMentionKey = new PluginKey('taskMention');
+export const eventMentionKey = new PluginKey('eventMention');
+export const userMentionKey = new PluginKey('userMention');
+export const documentMentionKey = new PluginKey('documentMention');
 
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>;
@@ -50,7 +54,7 @@ export const MentionNode = Node.create<MentionOptions>({
         command: ({ editor, range, props }) => {
           console.log('Mention suggestion command executing with props:', props);
           
-          // Delete the slash command
+          // Delete the command text
           editor.chain().focus().deleteRange(range).run();
           
           // Insert the mention
@@ -153,12 +157,114 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addProseMirrorPlugins() {
-    console.log('Adding ProseMirror plugins for mentions with char:', this.options.suggestion.char);
-    return [
+    // We'll replace this with direct commands instead of suggestions
+    return [];
+  },
+});
+
+// Create extensions for direct mention commands
+export const DirectMentionExtensions = Extension.create({
+  name: 'directMentions',
+  
+  addProseMirrorPlugins() {
+    const plugins = [
+      // Task mention
       Suggestion({
         editor: this.editor,
-        ...this.options.suggestion,
+        char: '/task',
+        pluginKey: taskMentionKey,
+        command: ({ editor, range }) => {
+          console.log('Task mention command triggered');
+          
+          // Delete the command
+          editor.chain().focus().deleteRange(range).run();
+          
+          // Insert a task mention placeholder
+          editor.commands.insertContent({
+            type: 'mention',
+            attrs: {
+              id: 'task_placeholder',
+              label: 'Task',
+              type: 'task'
+            }
+          });
+        },
+        items: () => [],
+      }),
+      
+      // Event mention
+      Suggestion({
+        editor: this.editor,
+        char: '/event',
+        pluginKey: eventMentionKey,
+        command: ({ editor, range }) => {
+          console.log('Event mention command triggered');
+          
+          // Delete the command
+          editor.chain().focus().deleteRange(range).run();
+          
+          // Insert an event mention placeholder
+          editor.commands.insertContent({
+            type: 'mention',
+            attrs: {
+              id: 'event_placeholder',
+              label: 'Event',
+              type: 'event'
+            }
+          });
+        },
+        items: () => [],
+      }),
+      
+      // User mention
+      Suggestion({
+        editor: this.editor,
+        char: '/user',
+        pluginKey: userMentionKey,
+        command: ({ editor, range }) => {
+          console.log('User mention command triggered');
+          
+          // Delete the command
+          editor.chain().focus().deleteRange(range).run();
+          
+          // Insert a user mention placeholder
+          editor.commands.insertContent({
+            type: 'mention',
+            attrs: {
+              id: 'user_placeholder',
+              label: 'User',
+              type: 'user'
+            }
+          });
+        },
+        items: () => [],
+      }),
+      
+      // Document mention
+      Suggestion({
+        editor: this.editor,
+        char: '/doc',
+        pluginKey: documentMentionKey,
+        command: ({ editor, range }) => {
+          console.log('Document mention command triggered');
+          
+          // Delete the command
+          editor.chain().focus().deleteRange(range).run();
+          
+          // Insert a document mention placeholder
+          editor.commands.insertContent({
+            type: 'mention',
+            attrs: {
+              id: 'document_placeholder',
+              label: 'Document',
+              type: 'document'
+            }
+          });
+        },
+        items: () => [],
       }),
     ];
-  },
+    
+    return plugins;
+  }
 });
