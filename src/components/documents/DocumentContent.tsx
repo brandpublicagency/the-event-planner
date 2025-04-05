@@ -31,12 +31,13 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     setMentionRange,
     setMentionClientRect,
     setSelectedCategory,
+    configureSuggestion
   } = useMentionHandler(editor);
 
   // Set up editor extensions and features
   useEditorSetup(editor);
   
-  // Set up inline mention commands
+  // Set up inline mention commands for shortcuts like /e, /t, etc.
   useInlineMentionCommands(
     editor, 
     setSelectedCategory, 
@@ -53,7 +54,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     const importSuggestion = async () => {
       try {
         const { default: Suggestion } = await import('@tiptap/suggestion');
-        const { configureSuggestion } = useMentionHandler(editor);
         
         // Register the suggestion plugin with our configuration
         editor.registerPlugin(Suggestion(configureSuggestion()));
@@ -67,7 +67,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     };
     
     importSuggestion();
-  }, [editor]);
+  }, [editor, configureSuggestion]);
 
   if (!editor) {
     return <div className="flex flex-col h-full gap-4">

@@ -72,11 +72,31 @@ export function useMentionHandler(editor: Editor | null) {
           onStart: (props) => {
             const { editor, range, query } = props;
             
-            // Update the mention state
-            setMentionQuery(query);
+            // Auto-select category based on prefix
+            if (query.startsWith('e ') || query === 'e') {
+              // Auto-select event category
+              setSelectedCategory('event');
+              setMentionQuery(query.startsWith('e ') ? query.substring(2) : '');
+            } else if (query.startsWith('t ') || query === 't') {
+              // Auto-select task category
+              setSelectedCategory('task');
+              setMentionQuery(query.startsWith('t ') ? query.substring(2) : '');
+            } else if (query.startsWith('d ') || query === 'd') {
+              // Auto-select document category
+              setSelectedCategory('document');
+              setMentionQuery(query.startsWith('d ') ? query.substring(2) : '');
+            } else if (query.startsWith('u ') || query === 'u') {
+              // Auto-select user category
+              setSelectedCategory('user');
+              setMentionQuery(query.startsWith('u ') ? query.substring(2) : '');
+            } else {
+              // Regular behavior
+              setMentionQuery(query);
+              setSelectedItemIndex(0);
+              setSelectedCategory(null);
+            }
+            
             setMentionRange(range);
-            setSelectedItemIndex(0);
-            setSelectedCategory(null);
             
             // Get client rect of the current position
             if (editor.view.domAtPos(range.from)) {
@@ -93,8 +113,35 @@ export function useMentionHandler(editor: Editor | null) {
           onUpdate: (props) => {
             const { editor, range, query } = props;
             
-            // Update the mention state
-            setMentionQuery(query);
+            // Auto-select category based on prefix
+            if (query.startsWith('e ')) {
+              // Update event category query
+              setSelectedCategory('event');
+              setMentionQuery(query.substring(2));
+            } else if (query.startsWith('t ')) {
+              // Update task category query
+              setSelectedCategory('task');
+              setMentionQuery(query.substring(2));
+            } else if (query.startsWith('d ')) {
+              // Update document category query
+              setSelectedCategory('document');
+              setMentionQuery(query.substring(2));
+            } else if (query.startsWith('u ')) {
+              // Update user category query
+              setSelectedCategory('user');
+              setMentionQuery(query.substring(2));
+            } else if (query === 'e' || query === 't' || query === 'd' || query === 'u') {
+              // Just the prefix, set category but empty query
+              if (query === 'e') setSelectedCategory('event');
+              if (query === 't') setSelectedCategory('task');
+              if (query === 'd') setSelectedCategory('document');
+              if (query === 'u') setSelectedCategory('user');
+              setMentionQuery('');
+            } else {
+              // Regular behavior for other queries
+              setMentionQuery(query);
+            }
+            
             setMentionRange(range);
             
             // Get client rect of the current position
@@ -199,13 +246,11 @@ export function useMentionHandler(editor: Editor | null) {
         }).run();
         
         // Ensure cursor position is after the mention
-        const transaction = editor.state.tr;
-        transaction.setSelection(editor.state.selection.constructor.create(
-          editor.state.doc,
-          editor.state.selection.anchor,
-          editor.state.selection.head
-        ));
-        editor.view.dispatch(transaction);
+        setTimeout(() => {
+          if (!editor.isDestroyed) {
+            editor.commands.focus();
+          }
+        }, 10);
       }
     };
   }, [

@@ -67,6 +67,9 @@ export const MentionView: React.FC<NodeViewProps> = (props) => {
               contentEditable={false}
               onClick={handleClick}
               data-mention
+              data-id={id}
+              data-type={type}
+              data-label={label}
             >
               <span className="mr-1">{getIcon()}</span>
               <span>{label}</span>

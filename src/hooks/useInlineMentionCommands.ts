@@ -24,15 +24,15 @@ export function useInlineMentionCommands(
       const lineEnd = $from.end();
       const line = state.doc.textBetween(lineStart, lineEnd, ' ');
       
-      // Check for direct category commands at the start of a line
-      const directCommands = [
-        { pattern: /^\/event\s+(.+)$/, type: 'event' },
-        { pattern: /^\/task\s+(.+)$/, type: 'task' },
-        { pattern: /^\/doc\s+(.+)$/, type: 'document' },
-        { pattern: /^\/user\s+(.+)$/, type: 'user' }
+      // Check for simplified shortcut prefixes at the start of a line
+      const shortcutPrefixes = [
+        { pattern: /^\/e\s+(.+)$/, type: 'event' },
+        { pattern: /^\/t\s+(.+)$/, type: 'task' },
+        { pattern: /^\/d\s+(.+)$/, type: 'document' },
+        { pattern: /^\/u\s+(.+)$/, type: 'user' }
       ];
       
-      for (const { pattern, type } of directCommands) {
+      for (const { pattern, type } of shortcutPrefixes) {
         const match = line.match(pattern);
         if (match) {
           const query = match[1].trim();

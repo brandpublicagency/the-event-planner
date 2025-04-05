@@ -82,16 +82,17 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   
   // Scroll selected item into view
   useEffect(() => {
-    if (ref && 'current' in ref && ref.current) {
+    if (ref && 'current' in ref && ref.current && items.length > 0) {
       const selectedElement = ref.current.querySelector(`[data-selected="true"]`);
       if (selectedElement) {
         selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
-  }, [selectedIndex, ref]);
+  }, [selectedIndex, items, ref]);
   
   if (!clientRect || !mounted) return null;
   
+  // Calculate position based on client rect
   const position = {
     top: clientRect.top + clientRect.height,
     left: clientRect.left,
@@ -107,6 +108,17 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
         return <File className="h-4 w-4 text-emerald-500" />;
       case 'user':
         return <User className="h-4 w-4 text-purple-500" />;
+    }
+  };
+  
+  // Get label for category in header
+  const getCategoryLabel = (cat: MentionCategory): string => {
+    switch (cat) {
+      case 'event': return '/e - Events';
+      case 'task': return '/t - Tasks';
+      case 'document': return '/d - Documents';
+      case 'user': return '/u - Users';
+      default: return 'Select a category';
     }
   };
   
@@ -129,20 +141,20 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-4 text-zinc-500">
             <Search className="h-5 w-5" />
-            <p className="mt-1 text-sm">No results for "{query}"</p>
+            <p className="mt-1 text-sm">No results found</p>
+            {query && <p className="text-xs text-zinc-400">Try a different search term</p>}
           </div>
         ) : (
           <div>
-            {category === null ? (
-              <div className="px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100">
-                Select a category
-              </div>
-            ) : (
-              <div className="flex items-center px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100">
-                <span>{getTypeIcon(category)}</span>
-                <span className="ml-1 capitalize">{category}s</span>
-              </div>
-            )}
+            {/* Category header showing current shortcut */}
+            <div className="px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100 flex items-center justify-between">
+              <span>{getCategoryLabel(category)}</span>
+              {category && (
+                <span className="text-xs text-zinc-400">
+                  Press ↑↓ to navigate, Enter to select
+                </span>
+              )}
+            </div>
             
             {items.map((item, index) => {
               const isSelected = index === selectedIndex;
