@@ -129,16 +129,16 @@ export function useMentionHandler(editor: Editor | null) {
         const { selection } = state;
         const { $from } = selection;
         
-        // Get coordinates relative to the editor
+        // Calculate cursor position for inline suggestions
         const coords = view.coordsAtPos($from.pos);
         const editorDOM = view.dom as HTMLElement;
         const editorRect = editorDOM.getBoundingClientRect();
         
-        // Activate mention suggestion
+        // Activate mention suggestion at cursor position
         setMentionSuggestion({
           active: true,
           position: {
-            top: coords.top - editorRect.top + 24, // Adjust below the cursor
+            top: coords.top - editorRect.top + 24, // Adjust slightly below the cursor
             left: coords.left - editorRect.left
           },
           query: ''

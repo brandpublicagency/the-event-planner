@@ -21,10 +21,10 @@ export const InlineMentionSuggestions = ({
 }: InlineMentionSuggestionsProps) => {
   const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
-  // Search for suggestions based on query - now searches all entity types at once
+  // Search for suggestions based on query
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
@@ -109,94 +109,82 @@ export const InlineMentionSuggestions = ({
   const rowVirtualizer = useVirtualizer({
     count: suggestions.length,
     getScrollElement: () => containerRef.current,
-    estimateSize: () => 40,
+    estimateSize: () => 24, // Smaller row height for inline suggestions
     overscan: 5,
   });
   
   if (!position) return null;
   
-  if (isLoading) {
-    return (
-      <div
-        ref={containerRef}
-        className="absolute z-10 min-w-[200px] max-w-[300px] p-2 bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
-        style={{
-          top: `${position.top}px`,
-          left: `${position.left}px`
-        }}
-      >
-        <div className="p-2 text-sm text-gray-500">Loading suggestions...</div>
-      </div>
-    );
-  }
-  
-  if (suggestions.length === 0) {
-    return (
-      <div
-        ref={containerRef}
-        className="absolute z-10 min-w-[200px] max-w-[300px] p-2 bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
-        style={{
-          top: `${position.top}px`,
-          left: `${position.left}px`
-        }}
-      >
-        <div className="p-2 text-sm text-gray-500">No results found</div>
-      </div>
-    );
-  }
-  
   const getMentionIcon = (type: string) => {
     switch (type) {
       case 'event':
-        return <Calendar className="h-4 w-4" />;
+        return <Calendar className="h-3 w-3" />;
       case 'task':
-        return <CheckSquare className="h-4 w-4" />;
+        return <CheckSquare className="h-3 w-3" />;
       case 'document':
-        return <File className="h-4 w-4" />;
+        return <File className="h-3 w-3" />;
       case 'user':
-        return <User className="h-4 w-4" />;
+        return <User className="h-3 w-3" />;
       default:
         return null;
     }
   };
   
+  // Render suggestions inline with the text
   return (
     <div
       ref={containerRef}
-      className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md mention-suggestion-active"
+      className="absolute z-10 max-w-[300px] inline-flex flex-col bg-transparent mention-suggestion-active"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
-        height: suggestions.length > 7 ? '300px' : 'auto'
       }}
     >
-      <div
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative'
-        }}
-      >
-        {rowVirtualizer.getVirtualItems().map(virtualRow => {
-          const item = suggestions[virtualRow.index];
-          return (
-            <div
-              key={virtualRow.index}
-              className={`absolute top-0 left-0 w-full p-2 cursor-pointer flex items-center ${
-                virtualRow.index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
-              }`}
-              style={{
-                height: virtualRow.size,
-                transform: `translateY(${virtualRow.start}px)`
-              }}
-              onClick={() => onSelect(item)}
-            >
-              <span className="mr-2">{getMentionIcon(item.type)}</span>
-              <span className="truncate">{item.label}</span>
-            </div>
-          );
-        })}
-      </div>
+      {isLoading ? (
+        <div className="text-xs text-gray-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
+          Loading...
+        </div>
+      ) : suggestions.length === 0 ? (
+        <div className="text-xs text-gray-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
+          No results
+        </div>
+      ) : (
+        <div 
+          className="inline-flex flex-col max-h-[120px] overflow-auto bg-white bg-opacity-90 rounded-md shadow-sm border border-gray-200" 
+          style={{
+            width: 'auto',
+            height: suggestions.length > 5 ? '120px' : 'auto'
+          }}
+        >
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative'
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map(virtualRow => {
+              const item = suggestions[virtualRow.index];
+              return (
+                <div
+                  key={virtualRow.index}
+                  className={`absolute top-0 left-0 w-full text-xs flex items-center cursor-pointer px-2 py-1 ${
+                    virtualRow.index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
+                  }`}
+                  style={{
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`
+                  }}
+                  onClick={() => onSelect(item)}
+                >
+                  <span className="mr-1">{getMentionIcon(item.type)}</span>
+                  <span className="truncate">{item.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
