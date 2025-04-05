@@ -26,14 +26,16 @@ export const useMentionKeyboardNavigation = ({
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setSelectedIndex(prev => 
-            prev < suggestions.length - 1 ? prev + 1 : prev
-          );
+          // Calculate the new index directly instead of using a function
+          const nextIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : selectedIndex;
+          setSelectedIndex(nextIndex);
           break;
           
         case 'ArrowUp':
           e.preventDefault();
-          setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
+          // Calculate the new index directly instead of using a function
+          const prevIndex = selectedIndex > 0 ? selectedIndex - 1 : selectedIndex;
+          setSelectedIndex(prevIndex);
           break;
           
         case 'Enter':
