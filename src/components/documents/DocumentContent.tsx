@@ -1,10 +1,10 @@
 
 import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
-import { useMentionHandler } from '@/hooks/useMentionHandler';
+import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
 import { useInlineMentionCommands } from '@/hooks/useInlineMentionCommands';
 
 interface DocumentContentProps {
@@ -14,8 +14,6 @@ interface DocumentContentProps {
 export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(({
   editor
 }, ref) => {
-  const [mentionPosition, setMentionPosition] = useState<{ top: number; left: number } | null>(null);
-  
   // Use our custom hooks for handling mentions and editor setup
   const {
     mentionQuery,
@@ -28,7 +26,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     setMentionQuery,
     setMentionRange,
     configureSuggestion,
-    selectMentionItem
+    selectMentionItem,
+    mentionPosition
   } = useMentionHandler(editor);
   
   // Set up inline mention commands
@@ -57,27 +56,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     
     importSuggestion();
   }, [editor, configureSuggestion]);
-
-  // Update mention position whenever mentionQuery changes
-  useEffect(() => {
-    if (mentionQuery !== null && editor) {
-      const { view } = editor;
-      const { state } = view;
-      const { selection } = state;
-      const { ranges } = selection;
-      const from = Math.min(...ranges.map(range => range.$from.pos));
-      
-      // Get coordinates for the current selection
-      const start = view.coordsAtPos(from);
-      
-      setMentionPosition({
-        top: start.bottom + 10,
-        left: start.left,
-      });
-    } else {
-      setMentionPosition(null);
-    }
-  }, [mentionQuery, editor]);
 
   if (!editor) {
     return <div className="flex flex-col h-full gap-4">

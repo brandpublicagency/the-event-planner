@@ -8,6 +8,9 @@ export interface MentionItem {
   type: 'event' | 'task' | 'document' | 'user';
 }
 
+/**
+ * Hook to fetch mention items based on a query
+ */
 export function useMentionItems(query: string | null) {
   const [items, setItems] = useState<MentionItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +30,9 @@ export function useMentionItems(query: string | null) {
     
     const fetchItems = async () => {
       try {
-        console.log(`Fetching items for query:`, query);
+        // Always fetch some results even with empty query for "/" activation
+        const searchTerm = query.trim() || '';
+        console.log(`Fetching items for query:`, searchTerm);
         
         let allItems: MentionItem[] = [];
         
@@ -35,7 +40,7 @@ export function useMentionItems(query: string | null) {
         const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('event_code, name')
-          .ilike('name', `%${query}%`)
+          .ilike('name', `%${searchTerm}%`)
           .is('deleted_at', null)
           .limit(5);
           
@@ -51,7 +56,7 @@ export function useMentionItems(query: string | null) {
         const { data: tasks, error: tasksError } = await supabase
           .from('tasks')
           .select('id, title')
-          .ilike('title', `%${query}%`)
+          .ilike('title', `%${searchTerm}%`)
           .limit(5);
           
         if (tasksError) console.error('Error fetching tasks:', tasksError);
@@ -66,7 +71,7 @@ export function useMentionItems(query: string | null) {
         const { data: documents, error: documentsError } = await supabase
           .from('documents')
           .select('id, title')
-          .ilike('title', `%${query}%`)
+          .ilike('title', `%${searchTerm}%`)
           .is('deleted_at', null)
           .limit(5);
           
@@ -82,7 +87,7 @@ export function useMentionItems(query: string | null) {
         const { data: users, error: usersError } = await supabase
           .from('profiles')
           .select('id, full_name')
-          .ilike('full_name', `%${query}%`)
+          .ilike('full_name', `%${searchTerm}%`)
           .limit(5);
           
         if (usersError) console.error('Error fetching users:', usersError);
@@ -110,14 +115,11 @@ export function useMentionItems(query: string | null) {
       }
     };
     
-    // Delay fetch slightly to avoid excessive database calls while typing
-    const timeoutId = setTimeout(() => {
-      fetchItems();
-    }, 200);
+    // Fetch immediately for better responsiveness
+    fetchItems();
     
     return () => {
       isMounted = false;
-      clearTimeout(timeoutId);
     };
   }, [query]);
   

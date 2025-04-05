@@ -2,6 +2,9 @@
 import { Editor } from '@tiptap/react';
 import { useEffect } from 'react';
 
+/**
+ * Hook for handling keyboard shortcuts for mention commands
+ */
 export function useInlineMentionCommands(
   editor: Editor | null,
   setMentionQuery: (query: string | null) => void,
