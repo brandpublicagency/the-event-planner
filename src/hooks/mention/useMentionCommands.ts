@@ -14,11 +14,14 @@ export function useMentionCommands(editor: Editor | null) {
     editor.chain().focus().deleteRange(mentionRange).run();
     
     // Then insert the mention
-    editor.chain().focus().setMention({
-      id: item.id,
-      label: item.label,
-      type: item.type,
-    }).run();
+    editor.commands.insertContent({
+      type: 'mention',
+      attrs: {
+        id: item.id,
+        label: item.label,
+        type: item.type,
+      }
+    });
     
     // Manually set cursor position after the mention
     setTimeout(() => {

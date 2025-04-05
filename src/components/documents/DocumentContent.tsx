@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
 import { useInlineMentionCommands } from '@/hooks/useInlineMentionCommands';
+import { SuggestionOptions } from '@tiptap/suggestion';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -44,9 +45,10 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     const importSuggestion = async () => {
       try {
         const { default: Suggestion } = await import('@tiptap/suggestion');
+        const suggestionConfig = configureSuggestion() as SuggestionOptions;
         
         // Register the suggestion plugin with our configuration
-        editor.registerPlugin(Suggestion(configureSuggestion()));
+        editor.registerPlugin(Suggestion(suggestionConfig));
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
       }

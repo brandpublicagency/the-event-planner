@@ -53,18 +53,18 @@ export function useMentionItems(query: string | null) {
       });
     }
     
-    // Fetch events
+    // Fetch events - using correct column names
     const { data: events } = await supabase
       .from('events')
-      .select('event_code, title')
-      .ilike('title', `%${lowerQuery}%`)
+      .select('event_code, name')
+      .ilike('name', `%${lowerQuery}%`)
       .limit(5);
     
     if (events) {
       events.forEach(event => {
         items.push({
           id: event.event_code,
-          label: event.title,
+          label: event.name,
           type: 'event'
         });
       });

@@ -3,12 +3,31 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { MentionView } from './MentionView';
 import { SuggestionOptions } from '@tiptap/suggestion';
+import { Extension } from '@tiptap/core';
 
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>;
   renderLabel: (props: { options: MentionOptions; node: any }) => string;
   suggestion: Omit<SuggestionOptions, 'editor'>;
 }
+
+// Create the setMention command extension
+export const MentionCommands = Extension.create({
+  name: 'mentionCommands',
+  
+  addCommands() {
+    return {
+      setMention: (attrs) => ({ chain }) => {
+        return chain()
+          .insertContent({
+            type: 'mention',
+            attrs
+          })
+          .run();
+      }
+    };
+  }
+});
 
 export const MentionNode = Node.create<MentionOptions>({
   name: 'mention',

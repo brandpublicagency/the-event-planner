@@ -32,11 +32,14 @@ export function useMentionSuggestion(
         editor.chain().focus().deleteRange(range).run();
         
         // Insert the mention at the current position
-        editor.chain().focus().setMention({
-          id: props.id,
-          label: props.label,
-          type: props.type
-        }).run();
+        editor.commands.insertContent({
+          type: 'mention',
+          attrs: {
+            id: props.id,
+            label: props.label,
+            type: props.type
+          }
+        });
         
         // Ensure cursor position is after the mention
         setTimeout(() => {

@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -5,7 +6,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
-import { MentionNode } from './MentionExtension';
+import { MentionNode, MentionCommands } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 
@@ -108,6 +109,7 @@ export const getEditorExtensions = () => [
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
   MentionNode, // Add the mention extension
+  MentionCommands, // Add the mention commands extension
 ];
 
 // Helper function to check if mark is active

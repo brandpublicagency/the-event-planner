@@ -1,20 +1,17 @@
 
 import React from 'react';
-import { NodeViewWrapper } from '@tiptap/react';
+import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 
-interface MentionViewProps {
-  node: {
-    attrs: {
-      id: string;
-      label: string;
-      type: 'event' | 'task' | 'document' | 'user';
-    }
-  };
+interface MentionAttributes {
+  id: string;
+  label: string;
+  type: 'event' | 'task' | 'document' | 'user';
 }
 
-export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
-  const { id, label, type } = node.attrs;
+// Making this compatible with NodeViewProps
+export const MentionView: React.FC<NodeViewProps> = (props) => {
+  const { id, label, type } = props.node.attrs as MentionAttributes;
   
   // Function to get the appropriate icon based on mention type
   const getMentionIcon = () => {
