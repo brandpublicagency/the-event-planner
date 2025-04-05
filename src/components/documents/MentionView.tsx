@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const MentionView: React.FC<NodeViewProps> = (props) => {
   const navigate = useNavigate();
-  const { node } = props;
+  const { node, getPos } = props;
   const { id, label, type } = node.attrs as { id: string; label: string; type: 'event' | 'task' | 'document' | 'user' };
   
   const handleClick = (e: React.MouseEvent) => {
@@ -58,7 +58,7 @@ export const MentionView: React.FC<NodeViewProps> = (props) => {
   };
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper as="span" className="inline">
       <TooltipProvider>
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>

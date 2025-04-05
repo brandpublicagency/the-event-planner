@@ -57,6 +57,14 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     };
   }, []);
   
+  // Reset selectedIndex when items change
+  useEffect(() => {
+    // Only reset if the selected index is out of bounds
+    if (selectedIndex >= items.length) {
+      setSelectedIndex(0);
+    }
+  }, [items, selectedIndex, setSelectedIndex]);
+  
   // Handle mouse click
   const handleItemClick = (item: MentionItem) => {
     // Check if this is a category selection

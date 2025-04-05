@@ -22,15 +22,25 @@ export function useMentionItems(query: string | null, category: MentionCategory 
       return;
     }
     
+    // Always show category options when there's no specific category selected
     if (category === null) {
-      // Always show category options when there's no specific category selected,
-      // even if query is empty (just after typing "/")
-      setItems([
+      const categoryItems = [
         { id: 'category-user', label: 'User', type: 'user' },
         { id: 'category-event', label: 'Event', type: 'event' },
         { id: 'category-task', label: 'Task', type: 'task' },
         { id: 'category-document', label: 'Document', type: 'document' },
-      ]);
+      ];
+      
+      // If there's a query, filter the categories
+      if (query && query.trim() !== '') {
+        const filteredCategories = categoryItems.filter(item => 
+          item.label.toLowerCase().includes(query.toLowerCase())
+        );
+        setItems(filteredCategories.length > 0 ? filteredCategories : categoryItems);
+      } else {
+        setItems(categoryItems);
+      }
+      
       setLoading(false);
       return;
     }

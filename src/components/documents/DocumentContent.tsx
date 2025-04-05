@@ -91,36 +91,45 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 // Handle keyboard navigation
                 if (event.key === 'ArrowUp') {
                   event.preventDefault(); // Prevent cursor movement
-                  setSelectedItemIndex((prev) => 
-                    prev > 0 ? prev - 1 : mentionItems.length - 1
-                  );
+                  setSelectedItemIndex((prev) => {
+                    if (prev <= 0) {
+                      return mentionItems.length - 1;
+                    }
+                    return prev - 1;
+                  });
                   return true;
                 }
                 
                 if (event.key === 'ArrowDown') {
                   event.preventDefault(); // Prevent cursor movement
-                  setSelectedItemIndex((prev) => 
-                    prev < mentionItems.length - 1 ? prev + 1 : 0
-                  );
+                  setSelectedItemIndex((prev) => {
+                    if (prev >= mentionItems.length - 1) {
+                      return 0;
+                    }
+                    return prev + 1;
+                  });
                   return true;
                 }
                 
-                if (event.key === 'Enter' && mentionItems.length && selectedItemIndex >= 0) {
+                if (event.key === 'Enter' || event.key === 'Tab') {
                   event.preventDefault(); // Prevent newline insertion
-                  const item = mentionItems[selectedItemIndex];
-                  if (item) {
-                    // Check if this is a category selection
-                    if (item.id.startsWith('category-') && selectedCategory === null) {
-                      setSelectedCategory(item.type as MentionCategory);
-                      setSelectedItemIndex(0);
-                      setMentionQuery(''); // Clear the query when selecting a category
-                      return true;
-                    } else {
-                      // Handle item selection
-                      handleMentionSelect(item);
-                      return true;
+                  if (mentionItems.length && selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
+                    const item = mentionItems[selectedItemIndex];
+                    if (item) {
+                      // Check if this is a category selection
+                      if (item.id.startsWith('category-') && selectedCategory === null) {
+                        setSelectedCategory(item.type as MentionCategory);
+                        setSelectedItemIndex(0);
+                        setMentionQuery(''); // Clear the query when selecting a category
+                        return true;
+                      } else {
+                        // Handle item selection
+                        handleMentionSelect(item);
+                        return true;
+                      }
                     }
                   }
+                  return false;
                 }
                 
                 if (event.key === 'Escape') {
@@ -155,21 +164,21 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
             };
           },
           command: ({ editor, range, props }) => {
-            // Insert the mention at the current position and place cursor after it
-            editor
-              .chain()
-              .focus()
-              .deleteRange(range)
-              .setMention({
-                id: props.id,
-                label: props.label,
-                type: props.type
-              })
-              .run();
+            // Delete the slash command from the document
+            editor.chain().focus().deleteRange(range).run();
             
-            // Move cursor after the mention to allow continued typing
+            // Insert the mention at the current position
+            editor.chain().focus().setMention({
+              id: props.id,
+              label: props.label,
+              type: props.type
+            }).run();
+            
+            // Ensure cursor position is after the mention
+            const transaction = editor.state.tr;
             const currentPos = editor.state.selection.anchor;
-            editor.commands.setTextSelection(currentPos);
+            transaction.setSelection({ anchor: currentPos, head: currentPos });
+            editor.view.dispatch(transaction);
           }
         };
         
@@ -220,16 +229,22 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   // Handle mention selection
   const handleMentionSelect = useCallback((item: any) => {
     if (editor && mentionRange) {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(mentionRange)
-        .setMention({
-          id: item.id,
-          label: item.label,
-          type: item.type,
-        })
-        .run();
+      // First delete the range (the slash command)
+      editor.chain().focus().deleteRange(mentionRange).run();
+      
+      // Then insert the mention
+      editor.chain().focus().setMention({
+        id: item.id,
+        label: item.label,
+        type: item.type,
+      }).run();
+      
+      // Manually set cursor position after the mention
+      setTimeout(() => {
+        if (!editor.isDestroyed) {
+          editor.commands.focus();
+        }
+      }, 10);
       
       // Clear mention state
       closeAndResetMention();

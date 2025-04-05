@@ -33,7 +33,7 @@ export const MentionNode = Node.create<MentionOptions>({
   
   inline: true,
   
-  selectable: false,
+  selectable: true,
   
   atom: true,
   
@@ -92,7 +92,6 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   renderHTML({ HTMLAttributes }) {
-    // Fix here: Remove the 0 at the end that was causing the content hole error
     return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-mention': '' })];
   },
   
@@ -102,11 +101,13 @@ export const MentionNode = Node.create<MentionOptions>({
   
   addCommands() {
     return {
-      setMention: options => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
+      setMention: options => ({ commands, chain }) => {
+        return chain()
+          .insertContent({
+            type: this.name,
+            attrs: options,
+          })
+          .run();
       },
     };
   },
