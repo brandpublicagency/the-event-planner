@@ -1,6 +1,9 @@
 
 import { Json } from "./base";
 
+// Re-export Json type to ensure it's available
+export { Json } from "./base";
+
 // JSON handling for array types
 export function parseJsonArray<T>(json: Json | null): T[] {
   if (!json) return [];

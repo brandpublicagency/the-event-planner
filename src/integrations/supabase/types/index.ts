@@ -1,7 +1,9 @@
-import { Json } from './json';
+
+import { Json, Database } from './base';
 import { DatabaseFunctions } from './functions';
 
-export type { Json } from './json';
+// Re-export types
+export { Json, Database } from './base';
 export type { DatabaseFunctions } from './functions';
 
 export interface Database {
