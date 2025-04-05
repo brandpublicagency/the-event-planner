@@ -1,5 +1,5 @@
 
-import { Editor } from '@tiptap/react';
+import { Editor, Range } from '@tiptap/react';
 import { useCallback } from 'react';
 import { PluginKey } from '@tiptap/pm/state';
 import { SuggestionOptions } from '@tiptap/suggestion';
@@ -19,8 +19,12 @@ export function useMentionSuggestion(
 ) {
   // Configure the mention suggestion extension
   const configureSuggestion = useCallback((): SuggestionOptions => {
+    if (!editor) {
+      throw new Error('Editor is required for mention suggestions');
+    }
+    
     return {
-      editor: editor!,
+      editor,
       pluginKey: mentionPluginKey,
       char: '/',
       command: ({ editor, range, props }) => {
@@ -41,7 +45,13 @@ export function useMentionSuggestion(
           }
         }, 10);
       },
-      items: () => mentionItems,
+      items: ({ query }) => {
+        // Filter items based on query
+        return mentionItems.filter(item => 
+          item.label.toLowerCase().includes(query.toLowerCase()) ||
+          item.type.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 10); // Limit to 10 items for performance
+      },
       render: () => {
         return {
           onStart: (props) => {
@@ -61,13 +71,7 @@ export function useMentionSuggestion(
         };
       }
     };
-  }, [
-    editor, 
-    mentionItems, 
-    setMentionQuery,
-    setMentionRange,
-    resetMention
-  ]);
+  }, [editor, mentionItems, setMentionQuery, setMentionRange, resetMention]);
 
   return {
     configureSuggestion,

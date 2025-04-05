@@ -1,9 +1,10 @@
 
 import { Editor, Range } from '@tiptap/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMentionSelector } from './useMentionSelector';
 import { useMentionCommands } from './useMentionCommands';
 import { useMentionSuggestion } from './useMentionSuggestion';
+import { useInlineMentionCommands } from '../useInlineMentionCommands';
 
 /**
  * Main hook that combines all mention functionality
@@ -27,9 +28,7 @@ export function useMentionHandler(editor: Editor | null) {
   } = useMentionSelector();
   
   // Use commands hook for editor interactions
-  const {
-    handleMentionSelect
-  } = useMentionCommands(editor);
+  const { handleMentionSelect } = useMentionCommands(editor);
   
   // Handle mention item selection
   const handleItemSelect = (item: any) => {
@@ -50,6 +49,14 @@ export function useMentionHandler(editor: Editor | null) {
     }
   };
   
+  // Register keyboard handlers
+  useInlineMentionCommands(
+    editor,
+    mentionQuery,
+    closeAndResetMention,
+    selectMentionItem
+  );
+  
   // Use suggestion hook for tiptap suggestion plugin
   const { configureSuggestion } = useMentionSuggestion(
     editor,
@@ -60,9 +67,11 @@ export function useMentionHandler(editor: Editor | null) {
   );
   
   // Update position when query changes
-  if (editor && mentionQuery !== null) {
-    updatePosition(editor);
-  }
+  useEffect(() => {
+    if (editor && mentionQuery !== null) {
+      updatePosition(editor);
+    }
+  }, [editor, mentionQuery, updatePosition]);
   
   return {
     mentionQuery,

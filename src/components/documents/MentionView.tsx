@@ -1,85 +1,64 @@
 
 import React from 'react';
-import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
-import { File, Calendar, CheckSquare, User } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useNavigate } from 'react-router-dom';
+import { NodeViewWrapper } from '@tiptap/react';
+import { Calendar, CheckSquare, File, User } from 'lucide-react';
 
-export const MentionView: React.FC<NodeViewProps> = (props) => {
-  const navigate = useNavigate();
-  const { node, getPos } = props;
-  const { id, label, type } = node.attrs as { id: string; label: string; type: 'event' | 'task' | 'document' | 'user' };
-  
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    switch (type) {
-      case 'event':
-        navigate(`/event-details/${id}`);
-        break;
-      case 'task':
-        navigate(`/task-details/${id}`);
-        break;
-      case 'document':
-        navigate(`/documents?id=${id}`);
-        break;
-      case 'user':
-        // For user mentions, we could navigate to a profile page
-        // or simply do nothing for now
-        break;
+interface MentionViewProps {
+  node: {
+    attrs: {
+      id: string;
+      label: string;
+      type: 'event' | 'task' | 'document' | 'user';
     }
   };
-  
-  const getIcon = () => {
-    switch (type) {
-      case 'event':
-        return <Calendar className="h-3.5 w-3.5 text-blue-500" />;
-      case 'task':
-        return <CheckSquare className="h-3.5 w-3.5 text-amber-500" />;
-      case 'document':
-        return <File className="h-3.5 w-3.5 text-emerald-500" />;
-      case 'user':
-        return <User className="h-3.5 w-3.5 text-purple-500" />;
-    }
-  };
-  
-  const getTooltipContent = () => {
-    switch (type) {
-      case 'event':
-        return `Event: ${label}`;
-      case 'task':
-        return `Task: ${label}`;
-      case 'document':
-        return `Document: ${label}`;
-      case 'user':
-        return `User: ${label}`;
-    }
-  };
+}
 
+export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
+  const { id, label, type } = node.attrs;
+  
+  // Function to get the appropriate icon based on mention type
+  const getMentionIcon = () => {
+    switch (type) {
+      case 'event':
+        return <Calendar className="h-3.5 w-3.5" />;
+      case 'task':
+        return <CheckSquare className="h-3.5 w-3.5" />;
+      case 'document':
+        return <File className="h-3.5 w-3.5" />;
+      case 'user':
+        return <User className="h-3.5 w-3.5" />;
+      default:
+        return null;
+    }
+  };
+  
+  // Determine the color class based on mention type
+  const getColorClass = () => {
+    switch (type) {
+      case 'event':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'task':
+        return 'bg-amber-100 text-amber-800 border-amber-300';
+      case 'document':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'user':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+  
   return (
-    <NodeViewWrapper as="span" className="inline">
-      <TooltipProvider>
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            <span 
-              className="inline-flex items-center px-1.5 py-0.5 rounded-md text-sm bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
-              contentEditable={false}
-              onClick={handleClick}
-              data-mention
-              data-id={id}
-              data-type={type}
-              data-label={label}
-            >
-              <span className="mr-1">{getIcon()}</span>
-              <span>{label}</span>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            {getTooltipContent()}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <NodeViewWrapper as="span">
+      <span
+        data-mention=""
+        data-id={id}
+        data-type={type}
+        className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium border ${getColorClass()}`}
+      >
+        <span className="mr-1">{getMentionIcon()}</span>
+        {label}
+      </span>
     </NodeViewWrapper>
   );
 };

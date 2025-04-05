@@ -2,20 +2,12 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { MentionView } from './MentionView';
+import { SuggestionOptions } from '@tiptap/suggestion';
 
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>;
-}
-
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    mention: {
-      /**
-       * Add a mention at the current position
-       */
-      setMention: (options: { id: string; label: string; type: 'event' | 'task' | 'document' | 'user' }) => ReturnType;
-    };
-  }
+  renderLabel: (props: { options: MentionOptions; node: any }) => string;
+  suggestion: Omit<SuggestionOptions, 'editor'>;
 }
 
 export const MentionNode = Node.create<MentionOptions>({
@@ -26,6 +18,14 @@ export const MentionNode = Node.create<MentionOptions>({
       HTMLAttributes: {
         class: 'mention',
       },
+      renderLabel({ options, node }) {
+        return `${node.attrs.label ?? node.attrs.id}`;
+      },
+      suggestion: {
+        char: '/',
+        command: () => {},
+        items: () => [],
+      },
     };
   },
   
@@ -33,7 +33,7 @@ export const MentionNode = Node.create<MentionOptions>({
   
   inline: true,
   
-  selectable: true,
+  selectable: false,
   
   atom: true,
   
@@ -41,44 +41,12 @@ export const MentionNode = Node.create<MentionOptions>({
     return {
       id: {
         default: null,
-        parseHTML: element => element.getAttribute('data-id'),
-        renderHTML: attributes => {
-          if (!attributes.id) {
-            return {};
-          }
-          
-          return {
-            'data-id': attributes.id,
-          };
-        },
       },
-      
       label: {
         default: null,
-        parseHTML: element => element.getAttribute('data-label'),
-        renderHTML: attributes => {
-          if (!attributes.label) {
-            return {};
-          }
-          
-          return {
-            'data-label': attributes.label,
-          };
-        },
       },
-      
       type: {
-        default: 'document',
-        parseHTML: element => element.getAttribute('data-type'),
-        renderHTML: attributes => {
-          if (!attributes.type) {
-            return {};
-          }
-          
-          return {
-            'data-type': attributes.type,
-          };
-        },
+        default: null,
       },
     };
   },
@@ -87,26 +55,46 @@ export const MentionNode = Node.create<MentionOptions>({
     return [
       {
         tag: 'span[data-mention]',
+        getAttrs: (element) => {
+          if (typeof element === 'string') {
+            return false;
+          }
+          
+          const id = element.getAttribute('data-id');
+          const type = element.getAttribute('data-type');
+          
+          if (!id || !type) {
+            return false;
+          }
+          
+          return {
+            id,
+            type,
+            label: element.textContent,
+          };
+        },
       },
     ];
   },
   
-  renderHTML({ HTMLAttributes }) {
-    return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-mention': '' })];
+  renderHTML({ node, HTMLAttributes }) {
+    return [
+      'span',
+      mergeAttributes(
+        { 'data-mention': '' },
+        { 'data-id': node.attrs.id },
+        { 'data-type': node.attrs.type },
+        this.options.HTMLAttributes,
+        HTMLAttributes
+      ),
+      this.options.renderLabel({
+        options: this.options,
+        node,
+      }),
+    ];
   },
   
   addNodeView() {
     return ReactNodeViewRenderer(MentionView);
-  },
-  
-  addCommands() {
-    return {
-      setMention: options => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
-      },
-    };
   },
 });

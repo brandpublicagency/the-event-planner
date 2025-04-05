@@ -28,7 +28,15 @@ export function useMentionCommands(editor: Editor | null) {
     }, 10);
   }, [editor]);
   
+  // Handle changing the selected index in the mention dropdown
+  const handleSelectionNavigation = useCallback((direction: number) => {
+    // This function is implemented in useMentionSelector
+    // We just provide it here as an interface
+    return direction;
+  }, []);
+  
   return {
-    handleMentionSelect
+    handleMentionSelect,
+    handleSelectionNavigation
   };
 }

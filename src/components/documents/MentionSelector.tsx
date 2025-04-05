@@ -1,5 +1,5 @@
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, memo } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 
 interface MentionItem {
@@ -16,7 +16,7 @@ interface MentionSelectorProps {
   selectedIndex: number;
 }
 
-export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(({
+export const MentionSelector = memo(forwardRef<HTMLDivElement, MentionSelectorProps>(({
   items, 
   onSelect, 
   query,
@@ -25,15 +25,25 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
 }, ref) => {
   // If there are no items or we're loading, don't show anything
   if (loading) {
-    return <div ref={ref} className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60">
-      <p className="text-sm text-zinc-500">Loading suggestions...</p>
-    </div>;
+    return (
+      <div 
+        ref={ref} 
+        className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60"
+      >
+        <p className="text-sm text-zinc-500">Loading suggestions...</p>
+      </div>
+    );
   }
   
   if (items.length === 0) {
-    return <div ref={ref} className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60">
-      <p className="text-sm text-zinc-500">No results found</p>
-    </div>;
+    return (
+      <div 
+        ref={ref} 
+        className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-3 px-4 w-60"
+      >
+        <p className="text-sm text-zinc-500">No results found</p>
+      </div>
+    );
   }
   
   const getTypeIcon = (type: 'event' | 'task' | 'document' | 'user') => {
@@ -69,6 +79,6 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
       ))}
     </div>
   );
-});
+}));
 
 MentionSelector.displayName = 'MentionSelector';
