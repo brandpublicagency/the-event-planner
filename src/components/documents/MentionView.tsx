@@ -5,19 +5,10 @@ import { File, Calendar, CheckSquare, User } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
 
-export interface MentionViewProps extends Omit<NodeViewProps, 'node'> {
-  node: {
-    attrs: {
-      id: string;
-      label: string;
-      type: 'event' | 'task' | 'document' | 'user';
-    };
-  };
-}
-
-export const MentionView: React.FC<MentionViewProps> = ({ node }) => {
+export const MentionView: React.FC<NodeViewProps> = (props) => {
   const navigate = useNavigate();
-  const { id, label, type } = node.attrs;
+  const { node } = props;
+  const { id, label, type } = node.attrs as { id: string; label: string; type: 'event' | 'task' | 'document' | 'user' };
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();

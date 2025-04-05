@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { Calendar, CheckSquare, File, Search, User } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Portal } from '@/components/ui/portal';
@@ -77,7 +77,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     if (ref && 'current' in ref && ref.current) {
       const selectedElement = ref.current.querySelector(`[data-selected="true"]`);
       if (selectedElement) {
-        selectedElement.scrollIntoView({ block: 'nearest' });
+        selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
   }, [selectedIndex, ref]);
@@ -143,7 +143,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
                 <button
                   key={`${item.type}-${item.id}`}
                   className={`w-full flex items-center px-2 py-1.5 text-sm ${
-                    isSelected ? 'bg-zinc-100' : ''
+                    isSelected ? 'bg-zinc-100 font-medium' : ''
                   }`}
                   onClick={() => handleItemClick(item)}
                   onMouseDown={handleMouseDown}
