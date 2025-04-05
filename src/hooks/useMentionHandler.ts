@@ -1,7 +1,7 @@
 
 import { Editor, Range } from '@tiptap/react';
 import { useCallback, useRef, useState } from 'react';
-import { useMentionItems, MentionCategory } from './useMentionItems';
+import { useMentionItems } from './useMentionItems';
 import { PluginKey } from '@tiptap/pm/state';
 import { SuggestionOptions } from '@tiptap/suggestion';
 
@@ -13,16 +13,8 @@ export function useMentionHandler(editor: Editor | null) {
   const [mentionRange, setMentionRange] = useState<Range | null>(null);
   const [mentionClientRect, setMentionClientRect] = useState<DOMRect | null>(null);
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<MentionCategory>(null);
-  const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery, selectedCategory);
+  const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery);
   const mentionSelectorRef = useRef<HTMLDivElement>(null);
-
-  // Handle category selection
-  const handleCategorySelect = useCallback((category: MentionCategory) => {
-    setSelectedCategory(category);
-    setSelectedItemIndex(0);
-    setMentionQuery('');
-  }, []);
 
   // Close and reset mention state
   const closeAndResetMention = useCallback(() => {
@@ -31,7 +23,6 @@ export function useMentionHandler(editor: Editor | null) {
       setMentionRange(null);
       setMentionClientRect(null);
       setSelectedItemIndex(0);
-      setSelectedCategory(null);
     }
   }, [mentionQuery]);
 
@@ -72,30 +63,9 @@ export function useMentionHandler(editor: Editor | null) {
           onStart: (props) => {
             const { editor, range, query } = props;
             
-            // Auto-select category based on prefix
-            if (query.startsWith('e ') || query === 'e') {
-              // Auto-select event category
-              setSelectedCategory('event');
-              setMentionQuery(query.startsWith('e ') ? query.substring(2) : '');
-            } else if (query.startsWith('t ') || query === 't') {
-              // Auto-select task category
-              setSelectedCategory('task');
-              setMentionQuery(query.startsWith('t ') ? query.substring(2) : '');
-            } else if (query.startsWith('d ') || query === 'd') {
-              // Auto-select document category
-              setSelectedCategory('document');
-              setMentionQuery(query.startsWith('d ') ? query.substring(2) : '');
-            } else if (query.startsWith('u ') || query === 'u') {
-              // Auto-select user category
-              setSelectedCategory('user');
-              setMentionQuery(query.startsWith('u ') ? query.substring(2) : '');
-            } else {
-              // Regular behavior
-              setMentionQuery(query);
-              setSelectedItemIndex(0);
-              setSelectedCategory(null);
-            }
-            
+            // Just set the query directly
+            setMentionQuery(query);
+            setSelectedItemIndex(0);
             setMentionRange(range);
             
             // Get client rect of the current position
@@ -113,35 +83,8 @@ export function useMentionHandler(editor: Editor | null) {
           onUpdate: (props) => {
             const { editor, range, query } = props;
             
-            // Auto-select category based on prefix
-            if (query.startsWith('e ')) {
-              // Update event category query
-              setSelectedCategory('event');
-              setMentionQuery(query.substring(2));
-            } else if (query.startsWith('t ')) {
-              // Update task category query
-              setSelectedCategory('task');
-              setMentionQuery(query.substring(2));
-            } else if (query.startsWith('d ')) {
-              // Update document category query
-              setSelectedCategory('document');
-              setMentionQuery(query.substring(2));
-            } else if (query.startsWith('u ')) {
-              // Update user category query
-              setSelectedCategory('user');
-              setMentionQuery(query.substring(2));
-            } else if (query === 'e' || query === 't' || query === 'd' || query === 'u') {
-              // Just the prefix, set category but empty query
-              if (query === 'e') setSelectedCategory('event');
-              if (query === 't') setSelectedCategory('task');
-              if (query === 'd') setSelectedCategory('document');
-              if (query === 'u') setSelectedCategory('user');
-              setMentionQuery('');
-            } else {
-              // Regular behavior for other queries
-              setMentionQuery(query);
-            }
-            
+            // Just update the query
+            setMentionQuery(query);
             setMentionRange(range);
             
             // Get client rect of the current position
@@ -196,15 +139,7 @@ export function useMentionHandler(editor: Editor | null) {
               if (mentionItems.length && selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
                 const item = mentionItems[selectedItemIndex];
                 if (item) {
-                  // Check if this is a category selection
-                  if (item.id.startsWith('category-') && selectedCategory === null) {
-                    setSelectedCategory(item.type as MentionCategory);
-                    setSelectedItemIndex(0);
-                    setMentionQuery(''); // Clear the query when selecting a category
-                  } else {
-                    // Handle item selection
-                    handleMentionSelect(item);
-                  }
+                  handleMentionSelect(item);
                   return true;
                 }
               }
@@ -212,23 +147,9 @@ export function useMentionHandler(editor: Editor | null) {
             }
             
             if (event.key === 'Escape') {
-              // If category is selected, go back to categories
-              if (selectedCategory !== null) {
-                setSelectedCategory(null);
-                setSelectedItemIndex(0);
-                return true;
-              } else {
-                // Clear mention state completely
-                closeAndResetMention();
-                return true;
-              }
-            }
-            
-            if (event.key === 'Backspace' && selectedCategory !== null && !mentionQuery) {
-              // If query is empty and backspace is pressed, go back to categories
-              setSelectedCategory(null);
-              setSelectedItemIndex(0);
-              return false; // Let the editor handle the backspace
+              // Clear mention state completely
+              closeAndResetMention();
+              return true;
             }
             
             // Allow normal typing for all other keys
@@ -265,7 +186,6 @@ export function useMentionHandler(editor: Editor | null) {
     editor, 
     mentionItems, 
     selectedItemIndex, 
-    selectedCategory, 
     closeAndResetMention, 
     handleMentionSelect
   ]);
@@ -279,14 +199,11 @@ export function useMentionHandler(editor: Editor | null) {
     setMentionClientRect,
     selectedItemIndex,
     setSelectedItemIndex,
-    selectedCategory,
-    setSelectedCategory,
     mentionItems,
     mentionLoading,
     mentionSelectorRef,
-    handleCategorySelect,
-    closeAndResetMention,
     handleMentionSelect,
+    closeAndResetMention,
     configureSuggestion
   };
 }

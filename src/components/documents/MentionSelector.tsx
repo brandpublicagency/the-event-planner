@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { Calendar, CheckSquare, File, Search, User } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Portal } from '@/components/ui/portal';
-import { MentionCategory } from '@/hooks/useMentionItems';
 
 interface MentionItem {
   id: string;
@@ -19,8 +18,6 @@ interface MentionSelectorProps {
   loading: boolean;
   selectedIndex: number;
   setSelectedIndex: (index: number) => void;
-  onCategorySelect?: (category: MentionCategory) => void;
-  category: MentionCategory;
 }
 
 export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(({
@@ -31,10 +28,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   loading,
   selectedIndex,
   setSelectedIndex,
-  onCategorySelect,
-  category
 }, ref) => {
-  // State to track if the component has been mounted
   const [mounted, setMounted] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   
@@ -46,11 +40,9 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     const handleClickOutside = (event: MouseEvent) => {
       if (ref && 'current' in ref && ref.current && !ref.current.contains(event.target as Node)) {
         // Let the user click outside if they want to close the dropdown
-        // This intentionally doesn't close the dropdown - we let the editor handle this
       }
     };
     
-    // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
     
     return () => {
@@ -60,7 +52,6 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   
   // Reset selectedIndex when items change
   useEffect(() => {
-    // Only reset if the selected index is out of bounds
     if (selectedIndex >= items.length) {
       setSelectedIndex(0);
     }
@@ -68,12 +59,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   
   // Handle mouse click
   const handleItemClick = (item: MentionItem) => {
-    // Check if this is a category selection
-    if (item.id.startsWith('category-') && onCategorySelect) {
-      onCategorySelect(item.type as MentionCategory);
-    } else {
-      command(item);
-    }
+    command(item);
   };
   
   // Prevent the dropdown from closing on mouse down
@@ -116,7 +102,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     <Portal>
       <div
         ref={ref}
-        className="absolute z-50 bg-white border border-zinc-200 rounded-md shadow-md w-64 max-h-72 overflow-y-auto"
+        className="absolute z-50 bg-white border border-zinc-200 rounded-md shadow-md max-w-sm max-h-72 overflow-y-auto"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,

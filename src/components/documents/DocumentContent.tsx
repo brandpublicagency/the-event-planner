@@ -20,23 +20,19 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     mentionClientRect,
     selectedItemIndex,
     setSelectedItemIndex,
-    selectedCategory,
     mentionItems,
     mentionLoading,
     mentionSelectorRef,
-    handleCategorySelect,
     handleMentionSelect,
     setMentionQuery,
     setMentionRange,
     setMentionClientRect,
-    setSelectedCategory,
     configureSuggestion
   } = useMentionHandler(editor);
   
-  // Set up inline mention commands for shortcuts like /e, /t, etc.
+  // Set up inline mention commands
   useInlineMentionCommands(
     editor, 
-    setSelectedCategory, 
     setMentionQuery, 
     setMentionRange, 
     setMentionClientRect
@@ -91,8 +87,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
               loading={mentionLoading}
               selectedIndex={selectedItemIndex}
               setSelectedIndex={setSelectedItemIndex}
-              onCategorySelect={handleCategorySelect}
-              category={selectedCategory}
             />
           )}
         </div>
