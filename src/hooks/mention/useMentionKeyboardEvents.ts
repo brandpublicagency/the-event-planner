@@ -21,6 +21,7 @@ export function useMentionKeyboardEvents(
       // We only want to handle the slash key
       if (event.key === '/' && event.target instanceof HTMLElement && 
           event.target.closest('.ProseMirror')) {
+        console.log('Slash key detected in useMentionKeyboardEvents - activating suggestion');
         
         // Get the position for the popup
         const { view } = editor;
@@ -54,21 +55,28 @@ export function useMentionKeyboardEvents(
     
     // Function to update query based on current text
     const updateQueryFromText = () => {
-      // Get the text from the start of the line to the cursor
-      const { state } = editor;
-      const { selection } = state;
-      const { $from } = selection;
-      const lineStart = $from.start();
-      const text = $from.doc.textBetween(lineStart, $from.pos, '\n', '\n');
-      
-      // Extract the query text after the slash
-      const match = text.match(/\/([^\s]*)$/);
-      
-      if (match) {
-        // Update the query
-        updateQuery(match[1] || '');
-      } else {
-        // If there's no match (user deleted the slash), close the popup
+      try {
+        // Get the text from the start of the line to the cursor
+        const { state } = editor;
+        const { selection } = state;
+        const { $from } = selection;
+        const lineStart = $from.start();
+        const text = $from.doc.textBetween(lineStart, $from.pos, '\n', '\n');
+        
+        // Extract the query text after the slash
+        const match = text.match(/\/([^\s]*)$/);
+        
+        if (match) {
+          // Update the query
+          console.log('Updating mention query to:', match[1] || '');
+          updateQuery(match[1] || '');
+        } else {
+          // If there's no match (user deleted the slash), close the popup
+          console.log('No slash found, closing suggestion');
+          handleClose();
+        }
+      } catch (error) {
+        console.error('Error updating query from text:', error);
         handleClose();
       }
     };
@@ -90,8 +98,4 @@ export function useMentionKeyboardEvents(
       observer.disconnect();
     };
   }, [editor, mentionSuggestion.active, updateQuery, handleClose]);
-
-  return {
-    // This hook primarily works through effects
-  };
 }

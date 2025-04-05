@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MentionItem } from '@/components/documents/MentionSelector';
 
@@ -8,6 +8,8 @@ import { MentionItem } from '@/components/documents/MentionSelector';
  * for mention suggestions
  */
 export function useSearchEntities() {
+  const [isSearching, setIsSearching] = useState(false);
+  
   // Search all entity types at once when query changes
   const searchAllEntities = useCallback(async (query: string) => {
     try {
@@ -17,6 +19,7 @@ export function useSearchEntities() {
       }
       
       console.log('Searching entities for:', query);
+      setIsSearching(true);
       
       // Default empty results
       let taskResults: MentionItem[] = [];
@@ -108,9 +111,11 @@ export function useSearchEntities() {
       return combinedResults;
     } catch (error) {
       console.error('Error searching entities:', error);
-      throw error; // Propagate error to be handled in the component
+      return []; // Return empty array on error instead of throwing
+    } finally {
+      setIsSearching(false);
     }
   }, []);
 
-  return { searchAllEntities };
+  return { searchAllEntities, isSearching };
 }

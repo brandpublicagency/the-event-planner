@@ -2,46 +2,62 @@
 import { useState, useEffect } from 'react';
 import { MentionItem } from '../MentionSelector';
 
-interface UseMentionSuggestionSearchProps {
+interface MentionSuggestionSearchProps {
   query: string;
   position: { top: number; left: number } | null;
   searchAllEntities: (query: string) => Promise<MentionItem[]>;
 }
 
-export const useMentionSuggestionSearch = ({
+export function useMentionSuggestionSearch({
   query,
   position,
   searchAllEntities
-}: UseMentionSuggestionSearchProps) => {
+}: MentionSuggestionSearchProps) {
   const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // When the query changes, update the suggestions
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const results = await searchAllEntities(query);
-        setSuggestions(results || []);
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        setError('Failed to load suggestions');
-        setSuggestions([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!position) return;
     
-    // Only fetch if we have a position (i.e., the suggestion is active)
-    if (position) {
-      const timeoutId = setTimeout(() => {
-        fetchSuggestions();
-      }, 50); // Small delay to prevent too many simultaneous requests
-      
-      return () => clearTimeout(timeoutId);
+    // Don't search until the user has typed something
+    if (query === '') {
+      setIsLoading(false);
+      setSuggestions([]);
+      setError(null);
+      return;
     }
-  }, [query, searchAllEntities, position]);
+    
+    let isMounted = true;
+    setIsLoading(true);
+    setError(null);
+    
+    // Debounce the search to avoid too many requests
+    const timeoutId = setTimeout(async () => {
+      try {
+        console.log('Searching for mentions with query:', query);
+        const results = await searchAllEntities(query);
+        
+        if (isMounted) {
+          setSuggestions(results);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Error searching for mentions:', err);
+        if (isMounted) {
+          setError('Failed to load suggestions');
+          setSuggestions([]);
+          setIsLoading(false);
+        }
+      }
+    }, 300);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [query, position, searchAllEntities]);
   
   return { suggestions, isLoading, error };
-};
+}

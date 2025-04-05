@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { MentionItem } from '../MentionSelector';
 
-interface UseMentionKeyboardNavigationProps {
+interface MentionKeyboardNavigationProps {
   suggestions: MentionItem[];
   isLoading: boolean;
   selectedIndex: number;
@@ -11,57 +11,46 @@ interface UseMentionKeyboardNavigationProps {
   onClose: () => void;
 }
 
-export const useMentionKeyboardNavigation = ({
+export function useMentionKeyboardNavigation({
   suggestions,
   isLoading,
   selectedIndex,
   setSelectedIndex,
   onSelect,
   onClose
-}: UseMentionKeyboardNavigationProps) => {
+}: MentionKeyboardNavigationProps) {
+  // Handle keyboard events for navigating the suggestions
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!suggestions.length && !isLoading) return;
-      
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          // Calculate the new index directly instead of using a function
-          const nextIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : selectedIndex;
-          setSelectedIndex(nextIndex);
-          break;
-          
-        case 'ArrowUp':
-          e.preventDefault();
-          // Calculate the new index directly instead of using a function
-          const prevIndex = selectedIndex > 0 ? selectedIndex - 1 : selectedIndex;
-          setSelectedIndex(prevIndex);
-          break;
-          
-        case 'Enter':
-          e.preventDefault();
-          if (suggestions[selectedIndex]) {
-            onSelect(suggestions[selectedIndex]);
-          }
-          break;
-          
-        case 'Tab':
-          e.preventDefault();
-          if (suggestions[selectedIndex]) {
-            onSelect(suggestions[selectedIndex]);
-          }
-          break;
-          
-        case 'Escape':
-          e.preventDefault();
-          onClose();
-          break;
+      if (!suggestions.length || isLoading) return;
+
+      // Handle navigation keys
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        // Fixed: Calculate new index directly instead of using a function
+        const newIndex = (selectedIndex + 1) % suggestions.length;
+        setSelectedIndex(newIndex);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        // Fixed: Calculate new index directly instead of using a function
+        const newIndex = (selectedIndex - 1 + suggestions.length) % suggestions.length;
+        setSelectedIndex(newIndex);
+      } else if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (suggestions[selectedIndex]) {
+          onSelect(suggestions[selectedIndex]);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
+    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [suggestions, selectedIndex, onSelect, onClose, isLoading, setSelectedIndex]);
-};
+  }, [suggestions, selectedIndex, setSelectedIndex, onSelect, onClose, isLoading]);
+}

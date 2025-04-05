@@ -14,6 +14,7 @@ interface InlineMentionSuggestionsProps {
   onClose: () => void;
   position: { top: number; left: number } | null;
   searchAllEntities: (query: string) => Promise<MentionItem[]>;
+  isSearching?: boolean;
 }
 
 export const InlineMentionSuggestions = ({
@@ -21,7 +22,8 @@ export const InlineMentionSuggestions = ({
   onSelect,
   onClose,
   position,
-  searchAllEntities
+  searchAllEntities,
+  isSearching = false
 }: InlineMentionSuggestionsProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,7 +43,7 @@ export const InlineMentionSuggestions = ({
   // Use custom hook for keyboard navigation
   useMentionKeyboardNavigation({
     suggestions,
-    isLoading,
+    isLoading: isLoading || isSearching,
     selectedIndex,
     setSelectedIndex,
     onSelect,
@@ -63,8 +65,9 @@ export const InlineMentionSuggestions = ({
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
+      data-testid="mention-suggestions"
     >
-      {isLoading ? (
+      {isLoading || isSearching ? (
         <MentionLoadingState />
       ) : error || suggestions.length === 0 ? (
         <MentionEmptyState error={error} />
@@ -77,4 +80,4 @@ export const InlineMentionSuggestions = ({
       )}
     </div>
   );
-};
+}

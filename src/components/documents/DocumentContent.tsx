@@ -18,7 +18,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     mentionSuggestion, 
     handleSelect, 
     handleClose,
-    searchAllEntities
+    searchAllEntities,
+    isSearching
   } = useMentionHandler(editor);
 
   // Handle key events at the component level
@@ -70,6 +71,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
               onClose={handleClose}
               position={mentionSuggestion.position}
               searchAllEntities={searchAllEntities}
+              isSearching={isSearching}
             />
           )}
         </div>

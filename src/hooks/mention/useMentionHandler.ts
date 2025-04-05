@@ -1,6 +1,6 @@
 
 import { Editor } from '@tiptap/react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useMentionCommands } from './useMentionCommands';
 import { useSearchEntities } from './useSearchEntities';
 import { useMentionSuggestionState } from './useMentionSuggestionState';
@@ -15,7 +15,7 @@ export function useMentionHandler(editor: Editor | null) {
   const { handleMentionSelect } = useMentionCommands(editor);
   
   // Use hook for searching entities
-  const { searchAllEntities } = useSearchEntities();
+  const { searchAllEntities, isSearching } = useSearchEntities();
   
   // Use hook for managing mention suggestion state
   const { 
@@ -41,11 +41,19 @@ export function useMentionHandler(editor: Editor | null) {
     handleClose
   );
   
+  // Debug logging to track mention system status
+  useEffect(() => {
+    if (mentionSuggestion.active) {
+      console.log('Mention suggestion activated with query:', mentionSuggestion.query);
+    }
+  }, [mentionSuggestion.active, mentionSuggestion.query]);
+  
   return {
     handleMentionSelect,
     mentionSuggestion,
     handleSelect,
     handleClose,
-    searchAllEntities
+    searchAllEntities,
+    isSearching
   };
 }
