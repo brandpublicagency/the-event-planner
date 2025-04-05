@@ -1,18 +1,25 @@
-/* Mention styles */
+/* Mention wrapper styles */
+.ProseMirror .mention-wrapper {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  user-select: none;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+/* Mention button styles */
 .ProseMirror .mention {
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 0.875rem;
   font-weight: 500;
-  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  margin: 0 2px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  user-select: none;
   border-width: 1px;
   border-style: solid;
   line-height: 1.2;
@@ -37,6 +44,12 @@
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ID Label styles */
+.ProseMirror .mention-id {
+  color: #64748b;
+  font-family: monospace;
 }
 
 /* Type-specific styles */
@@ -146,6 +159,7 @@
   text-overflow: ellipsis;
 }
 
+/* Color-coded icons in dropdown */
 .tribute-container .tribute-item-document .mention-icon {
   color: #D97706;
 }
