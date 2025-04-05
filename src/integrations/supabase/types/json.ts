@@ -1,24 +1,30 @@
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+import { Json } from "./base";
 
-// Export a utility type to help with JSON serialization of Mention objects
-export type JsonMention = {
+// JSON handling for array types
+export function parseJsonArray<T>(json: Json | null): T[] {
+  if (!json) return [];
+  try {
+    if (Array.isArray(json)) return json as T[];
+    return [];
+  } catch (error) {
+    console.error('Error parsing JSON array:', error);
+    return [];
+  }
+}
+
+// JSON mention type
+export interface JsonMention {
   id: string;
-  type: string;
-};
+  type: 'document' | 'task' | 'event' | 'user';
+}
 
-// Utility functions for type conversion
-export const jsonToMentions = (json: Json | null): JsonMention[] => {
-  if (!json || !Array.isArray(json)) return [];
-  return json as JsonMention[];
-};
+// Convert mention array to JSON
+export function mentionsToJson(mentions: JsonMention[]): Json {
+  return mentions as Json;
+}
 
-export const mentionsToJson = (mentions: JsonMention[]): Json => {
-  return mentions as unknown as Json;
-};
+// Convert JSON to mention array
+export function jsonToMentions(json: Json | null): JsonMention[] {
+  return parseJsonArray<JsonMention>(json);
+}

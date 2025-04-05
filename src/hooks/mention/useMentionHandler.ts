@@ -66,7 +66,7 @@ export function useMentionHandler(editor: Editor | null) {
     if (!editor) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '/') {
+      if (e.key === '/' && e.target instanceof HTMLElement && e.target.closest('.ProseMirror')) {
         console.log('Slash key detected in global handler');
         handleSlashKey();
       }

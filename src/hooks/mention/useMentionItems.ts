@@ -16,11 +16,12 @@ export function useMentionItems(query: string | null) {
     // For empty queries (right after typing '/'), return a basic set of items
     if (q === '') {
       console.log('Empty query, returning default mention items');
+      // Return fewer default items for a cleaner initial view
       return [
-        { id: 'document_example', label: 'Documents', type: 'document' },
-        { id: 'task_example', label: 'Tasks', type: 'task' },
-        { id: 'event_example', label: 'Events', type: 'event' },
-        { id: 'user_example', label: 'Users', type: 'user' },
+        { id: 'document_recent', label: 'Recent Documents', type: 'document' },
+        { id: 'task_recent', label: 'My Tasks', type: 'task' },
+        { id: 'event_recent', label: 'Upcoming Events', type: 'event' },
+        { id: 'user_recent', label: 'Team Members', type: 'user' },
       ];
     }
     
