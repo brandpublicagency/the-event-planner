@@ -155,6 +155,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
             };
           },
           command: ({ editor, range, props }) => {
+            // Insert the mention at the current position and place cursor after it
             editor
               .chain()
               .focus()
@@ -165,6 +166,10 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 type: props.type
               })
               .run();
+            
+            // Move cursor after the mention to allow continued typing
+            const currentPos = editor.state.selection.anchor;
+            editor.commands.setTextSelection(currentPos);
           }
         };
         
