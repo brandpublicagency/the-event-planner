@@ -15,6 +15,7 @@ declare module 'tributejs' {
     containerClass?: string;
     itemClass?: string;
     noMatchTemplate?: () => string;
+    loadingTemplate?: () => string;
     requireLeadingSpace?: boolean;
     allowSpaces?: boolean;
     replaceTextSuffix?: string;
@@ -40,6 +41,7 @@ declare module 'tributejs' {
     trigger?: string;
     autocompleteMode?: boolean;
     noMatchTemplate?: () => string;
+    loadingTemplate?: () => string;
     menuItemLimit?: number;
     menuShowMinLength?: number;
     fillAttr?: string;
@@ -49,7 +51,6 @@ declare module 'tributejs' {
     requireLeadingSpace?: boolean;
     allowSpaces?: boolean;
     replaceTextSuffix?: string;
-    loadingTemplate?: () => string;
   }
 
   export default class Tribute {
