@@ -69,27 +69,21 @@ const EventsTable: React.FC<EventsTableProps> = ({
     // Keep the dashboard view unchanged but reduce spacing between cards
     return (
       <div className="space-y-1.5 pt-2">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-6 text-zinc-500">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading events...</span>
-          </div>
-        ) : Object.keys(filteredGroupedEvents).length === 0 ? (
+        {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
+          <EventMonthGroup 
+            key={monthYear} 
+            monthYear={monthYear} 
+            events={monthEvents} 
+            handleDelete={handleDelete} 
+            isDashboard={true} 
+            onDelete={onDelete} 
+          />
+        ))}
+        {Object.keys(filteredGroupedEvents).length === 0 && (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <CalendarX className="h-10 w-10 mb-2 text-muted-foreground/40" />
             <p>No upcoming events</p>
           </div>
-        ) : (
-          Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
-            <EventMonthGroup 
-              key={monthYear} 
-              monthYear={monthYear} 
-              events={monthEvents} 
-              handleDelete={handleDelete} 
-              isDashboard={true} 
-              onDelete={onDelete} 
-            />
-          ))
         )}
       </div>
     );
@@ -100,10 +94,7 @@ const EventsTable: React.FC<EventsTableProps> = ({
       <div className="space-y-4 pb-4 bg-transparent">
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <span className="text-zinc-600">Loading events...</span>
-            </div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : Object.keys(filteredGroupedEvents).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-zinc-500 bg-transparent rounded-lg">

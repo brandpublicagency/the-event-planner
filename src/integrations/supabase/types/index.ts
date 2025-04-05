@@ -1,12 +1,9 @@
-// Import types
-import { Json } from './base';
+import { Json } from './json';
 import { DatabaseFunctions } from './functions';
 
-// Re-export types
-export type { Json } from './base';
+export type { Json } from './json';
 export type { DatabaseFunctions } from './functions';
 
-// Define the Database interface here instead of importing it
 export interface Database {
   public: {
     Tables: {

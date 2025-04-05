@@ -1,99 +1,116 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
-import { corsHeaders } from '../_shared/cors.ts'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-// Define response interface
-interface LinkPreviewResponse {
-  title: string;
-  description: string | null;
-  image_url: string | null;
-  domain: string;
-  url: string;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 }
 
-Deno.serve(async (req) => {
+serve(async (req) => {
+  console.log('Function called with request:', req.method);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    console.log('Handling CORS preflight request');
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const { url } = await req.json();
-    
+    console.log('Processing URL:', url);
+
     if (!url) {
-      return new Response(
-        JSON.stringify({ error: 'URL is required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+      throw new Error('URL is required');
     }
-    
-    // Make sure URL is properly formatted
-    let formattedUrl = url;
-    if (!/^https?:\/\//i.test(url)) {
-      formattedUrl = 'https://' + url;
-    }
-    
+
     // Validate URL format
     try {
-      new URL(formattedUrl);
-    } catch (e) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid URL format' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+      new URL(url);
+    } catch {
+      throw new Error('Invalid URL format');
     }
-    
-    // Extract domain for fallback display
-    const domain = new URL(formattedUrl).hostname.replace(/^www\./, '');
-    
-    // Fetch the URL content
-    console.log(`Fetching URL: ${formattedUrl}`);
-    const response = await fetch(formattedUrl, {
+
+    console.log('Fetching URL:', url);
+    const response = await fetch(url, {
       headers: {
-        'Accept': 'text/html',
-        'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)'
-      }
+        'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+      },
     });
-    
+
+    console.log('Response status:', response.status);
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.status}`);
     }
+
+    const contentType = response.headers.get('content-type');
+    console.log('Content-Type:', contentType);
     
+    if (!contentType?.includes('text/html')) {
+      throw new Error('URL does not point to an HTML page');
+    }
+
     const html = await response.text();
-    
-    // Extract metadata from HTML (simple regex approach)
+    console.log('Successfully fetched HTML, length:', html.length);
+
+    // Extract metadata
     const title = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() ||
                  html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
-                 html.match(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() || 
-                 domain;
-                 
+                 html.match(/<meta[^>]*name="twitter:title"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+
     const description = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
                        html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
                        html.match(/<meta[^>]*name="twitter:description"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+
+    const image = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                 html.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
+
+    const siteName = html.match(/<meta[^>]*property="og:site_name"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
     
-    const imageUrl = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
-                   html.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]*)"[^>]*>/i)?.[1]?.trim();
-    
-    // Create response data
-    const previewData: LinkPreviewResponse = {
+    const favicon = html.match(/<link[^>]*rel="icon"[^>]*href="([^"]*)"[^>]*>/i)?.[1]?.trim() ||
+                  html.match(/<link[^>]*rel="shortcut icon"[^>]*href="([^"]*)"[^>]*>/i)?.[1]?.trim();
+
+    const domain = new URL(url).hostname;
+
+    // Normalize relative URLs for favicon and image
+    const baseUrl = new URL(url).origin;
+    const normalizedImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`) : null;
+    const normalizedFavicon = favicon ? (favicon.startsWith('http') ? favicon : `${baseUrl}${favicon.startsWith('/') ? '' : '/'}${favicon}`) : `${baseUrl}/favicon.ico`;
+
+    const preview = {
+      url,
       title: title || domain,
-      description: description || null,
-      image_url: imageUrl || null,
+      description,
+      image_url: normalizedImage,
       domain,
-      url: formattedUrl
+      site_name: siteName || domain,
+      favicon: normalizedFavicon
     };
-    
+
+    console.log('Generated preview:', preview);
+
     return new Response(
-      JSON.stringify(previewData),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      JSON.stringify(preview),
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
+      }
     );
-    
   } catch (error) {
-    console.error('Error in fetch-link-preview:', error);
-    
+    console.error('Error:', error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: error.message 
+      }),
+      { 
+        status: 400,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
-});
+})

@@ -20,7 +20,7 @@ interface EventsListProps {
 }
 
 export const EventsList: React.FC<EventsListProps> = ({
-  groupedEvents = {},
+  groupedEvents,
   isLoading = false,
   onDelete,
   searchQuery = "",

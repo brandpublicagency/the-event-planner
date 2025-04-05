@@ -1,5 +1,5 @@
 
-import { Json } from "@/integrations/supabase/types/base";
+import { Json } from "@/integrations/supabase/types/json";
 
 export interface Document {
   id: string;

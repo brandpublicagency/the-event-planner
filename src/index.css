@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -143,40 +142,6 @@
   background-color: #FAF089;
 }
 
-/* Horizontal rule style */
-.document-content hr {
-  border: none;
-  border-top: 2px solid rgba(0, 0, 0, 0.1);
-  margin: 1.5em 0;
-}
-
-/* Link preview styles */
-.link-preview-node {
-  position: relative;
-}
-
-.link-preview-node:hover .link-preview-actions {
-  opacity: 1;
-}
-
-.link-preview-actions {
-  position: absolute;
-  top: 0;
-  right: 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-/* Mention styles */
-.mention {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 0.3em;
-  padding: 0.1em 0.3em;
-  white-space: nowrap;
-  font-weight: 500;
-  color: #1a73e8;
-}
-
 /* Toolbar button styles */
 .editor-toolbar {
   @apply flex items-center gap-0.5 p-1 bg-white border border-zinc-200 rounded-md mb-2;
@@ -190,11 +155,8 @@
   @apply bg-zinc-100 text-zinc-900;
 }
 
-/* Separator styling */
-.editor-toolbar [role="separator"] {
-  @apply bg-zinc-200 mx-1;
-  height: 24px !important;
-  display: inline-block;
+.editor-toolbar .divider {
+  @apply h-6 w-px mx-1 bg-zinc-200;
 }
 
 /* Document list item styling */

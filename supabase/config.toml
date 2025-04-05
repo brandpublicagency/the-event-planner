@@ -1,30 +1,18 @@
 
 project_id = "gqkhnmlytbvklkyktcwt"
 
-[api]
-enabled = true
-port = 54321
-schemas = ["public", "storage", "graphql_public"]
-
-[db]
-port = 54322
-
-[studio]
-port = 54323
-
-[inbucket]
-port = 54324
-
-[auth]
-enabled = true
-port = 54325
-
-[realtime]
-enabled = true
-
-[storage]
-enabled = true
-
-[edge_functions]
-[edge_functions.fetch-link-preview]
+[functions.whatsapp-webhook]
 verify_jwt = false
+
+[functions.fetch-link-preview]
+verify_jwt = false
+
+[functions.fluent-forms-webhook]
+verify_jwt = false
+
+[functions.event-contract-webhook]
+verify_jwt = false
+
+[functions.generate-dashboard-message]
+verify_jwt = false
+

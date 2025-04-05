@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAfter, parseISO } from "date-fns";
 import { toast } from "sonner";
@@ -22,7 +22,10 @@ export function useEvents() {
   } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      console.log("Fetching events...");
+      toast.info("Loading events...", {
+        id: "loading-events",
+        duration: 0 // No auto dismiss 
+      });
       try {
         const {
           data,
@@ -30,16 +33,18 @@ export function useEvents() {
         } = await supabase.from("events").select("*").is("deleted_at", null).order("event_date", {
           ascending: true
         });
-        
-        if (error) {
-          console.error("Supabase error fetching events:", error);
-          throw error;
-        }
-        
-        console.log("Events data received:", data ? data.length : 0, "events");
+        if (error) throw error;
+        toast.success("Events loaded successfully", {
+          id: "loading-events",
+          duration: 1500
+        });
         return data as Event[];
       } catch (err) {
         console.error("Error fetching events:", err);
+        toast.error("Failed to load events", {
+          id: "loading-events",
+          duration: 5000
+        });
         return [];
       }
     },
@@ -47,21 +52,30 @@ export function useEvents() {
     refetchOnWindowFocus: true
   });
   
-  const handleDeleteEvent = useCallback((event: Event) => {
+  const handleDeleteEvent = (event: Event) => {
     setEventToDelete(event);
     setIsPermanentDelete(false); // Reset to soft delete by default
     setIsDeleteDialogOpen(true);
-  }, []);
+  };
   
-  const confirmDelete = useCallback(async () => {
+  const confirmDelete = async () => {
     if (!eventToDelete) return;
     setIsDeleting(true);
+    
+    const toastId = "delete-event";
+    toast.info(`${isPermanentDelete ? 'Permanently deleting' : 'Deleting'} event...`, {
+      id: toastId,
+      duration: 0 // No auto dismiss
+    });
     
     try {
       if (isPermanentDelete) {
         // Permanent delete
         await permanentlyDeleteEvent(eventToDelete.event_code);
-        toast.success("Event permanently deleted");
+        toast.success("Event permanently deleted", {
+          id: toastId,
+          duration: 3000
+        });
       } else {
         // Soft delete
         const { error } = await supabase
@@ -69,12 +83,12 @@ export function useEvents() {
           .update({ deleted_at: new Date().toISOString() })
           .eq("event_code", eventToDelete.event_code);
           
-        if (error) {
-          console.error("Supabase error during soft delete:", error);
-          throw error;
-        }
+        if (error) throw error;
         
-        toast.success("Event deleted successfully");
+        toast.success("Event deleted successfully", {
+          id: toastId,
+          duration: 3000
+        });
       }
       
       setIsDeleteDialogOpen(false);
@@ -89,17 +103,20 @@ export function useEvents() {
       });
     } catch (err) {
       console.error("Error deleting event:", err);
-      toast.error(`Failed to ${isPermanentDelete ? 'permanently delete' : 'delete'} event`);
+      toast.error(`Failed to ${isPermanentDelete ? 'permanently delete' : 'delete'} event`, {
+        id: toastId,
+        duration: 5000
+      });
     } finally {
       setIsDeleting(false);
     }
-  }, [eventToDelete, isPermanentDelete, queryClient]);
+  };
   
   // Process events data
-  const upcomingEvents = events?.filter(event => {
+  const upcomingEvents = events.filter(event => {
     if (!event.event_date) return true;
     return isAfter(parseISO(event.event_date), new Date());
-  }) || [];
+  });
   
   const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
     if (!event.event_date) {
