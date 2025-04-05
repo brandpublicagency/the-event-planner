@@ -1,5 +1,7 @@
 
 import { Extension } from '@tiptap/core';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Slice } from '@tiptap/pm/model';
 
 export const isValidUrl = (url: string): boolean => {
   try {
@@ -18,29 +20,40 @@ export const isValidUrl = (url: string): boolean => {
   }
 };
 
+// Regular expression for matching URLs in pasted text
+const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}\/[^\s]+)/g;
+
 export const LinkPasteHandler = Extension.create({
   name: 'linkPasteHandler',
 
-  addPasteRules() {
-    return [
-      {
-        type: 'text',
-        priority: 100,
-        regexp: /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}\/[^\s]+)/g,
-        handler: ({ state, range, match, chain }) => {
-          // Get the matched URL
-          const url = match[0];
+  addProseMirrorPlugins() {
+    const plugin = new Plugin({
+      key: new PluginKey('linkPasteHandler'),
+      props: {
+        handlePaste: (view, event, slice) => {
+          const { state, dispatch } = view;
+          const pastedText = slice.content.textBetween(0, slice.content.size, '\n');
+          
+          // Check for URLs in pasted text
+          const urlMatches = pastedText.match(urlRegex);
+          
+          if (!urlMatches) return false;
+          
+          // Process the first URL found
+          const url = urlMatches[0];
           
           if (!isValidUrl(url)) return false;
           
-          // Add link preview using the detected URL
-          chain()
-            .deleteRange(range)
-            .setLinkPreview({ url });
+          // Insert a link preview at current position
+          dispatch(state.tr.replaceSelectionWith(
+            state.schema.nodes.linkPreview.create({ url })
+          ));
           
           return true;
-        },
-      },
-    ];
-  },
+        }
+      }
+    });
+    
+    return [plugin];
+  }
 });
