@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface MentionItem {
+export interface MentionItem {
   id: string;
   label: string;
   type: 'event' | 'task' | 'document' | 'user';
@@ -24,7 +24,7 @@ export function useMentionItems(query: string | null, category: MentionCategory 
     
     // Always show category options when there's no specific category selected
     if (category === null) {
-      const categoryItems = [
+      const categoryItems: MentionItem[] = [
         { id: 'category-user', label: 'User', type: 'user' },
         { id: 'category-event', label: 'Event', type: 'event' },
         { id: 'category-task', label: 'Task', type: 'task' },

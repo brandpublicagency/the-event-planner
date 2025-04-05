@@ -1,32 +1,51 @@
 
 import { Editor, EditorContent, Range } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect, useState, useCallback, useRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
-import { useMentionItems, MentionCategory } from '@/hooks/useMentionItems';
-import { SuggestionOptions } from '@tiptap/suggestion';
-import { PluginKey } from '@tiptap/pm/state';
+import { useMentionHandler } from '@/hooks/useMentionHandler';
+import { useEditorSetup } from '@/hooks/useEditorSetup';
+import { useInlineMentionCommands } from '@/hooks/useInlineMentionCommands';
 
 interface DocumentContentProps {
   editor: Editor | null;
 }
 
-// Create a plugin key for the suggestion
-const suggestionPluginKey = new PluginKey('mention-suggestion');
-
 export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(({
   editor
 }, ref) => {
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
-  const [mentionRange, setMentionRange] = useState<Range | null>(null);
-  const [mentionClientRect, setMentionClientRect] = useState<DOMRect | null>(null);
-  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<MentionCategory>(null);
-  const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery, selectedCategory);
-  const mentionSelectorRef = useRef<HTMLDivElement>(null);
+  // Use our custom hooks for handling mentions and editor setup
+  const {
+    mentionQuery,
+    mentionClientRect,
+    selectedItemIndex,
+    setSelectedItemIndex,
+    selectedCategory,
+    mentionItems,
+    mentionLoading,
+    mentionSelectorRef,
+    handleCategorySelect,
+    handleMentionSelect,
+    setMentionQuery,
+    setMentionRange,
+    setMentionClientRect,
+    setSelectedCategory,
+  } = useMentionHandler(editor);
+
+  // Set up editor extensions and features
+  useEditorSetup(editor);
   
-  // Configure the mention suggestion extension
+  // Set up inline mention commands
+  useInlineMentionCommands(
+    editor, 
+    setSelectedCategory, 
+    setMentionQuery, 
+    setMentionRange, 
+    setMentionClientRect
+  );
+
+  // Load the suggestion extension with our configuration
   useEffect(() => {
     if (!editor) return;
     
@@ -34,301 +53,20 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     const importSuggestion = async () => {
       try {
         const { default: Suggestion } = await import('@tiptap/suggestion');
+        const { configureSuggestion } = useMentionHandler(editor);
         
-        // Define complete options object with all required properties
-        const options: SuggestionOptions = {
-          editor: editor,
-          pluginKey: suggestionPluginKey,
-          char: '/',
-          items: ({ query }) => {
-            return mentionItems;
-          },
-          render: () => {
-            return {
-              onStart: (props) => {
-                const { editor, range, query } = props;
-                
-                // Update the mention state
-                setMentionQuery(query);
-                setMentionRange(range);
-                setSelectedItemIndex(0);
-                setSelectedCategory(null);
-                
-                // Get client rect of the current position
-                if (editor.view.domAtPos(range.from)) {
-                  const domAtPos = editor.view.domAtPos(range.from);
-                  if (domAtPos && domAtPos.node) {
-                    const element = domAtPos.node.parentElement;
-                    if (element) {
-                      const rect = element.getBoundingClientRect();
-                      setMentionClientRect(rect);
-                    }
-                  }
-                }
-              },
-              onUpdate: (props) => {
-                const { editor, range, query } = props;
-                
-                // Update the mention state
-                setMentionQuery(query);
-                setMentionRange(range);
-                
-                // Get client rect of the current position
-                if (editor.view.domAtPos(range.from)) {
-                  const domAtPos = editor.view.domAtPos(range.from);
-                  if (domAtPos && domAtPos.node) {
-                    const element = domAtPos.node.parentElement;
-                    if (element) {
-                      const rect = element.getBoundingClientRect();
-                      setMentionClientRect(rect);
-                    }
-                  }
-                }
-              },
-              onKeyDown: (props) => {
-                const { event } = props;
-                
-                // Handle keyboard navigation
-                if (event.key === 'ArrowUp') {
-                  event.preventDefault(); // Prevent cursor movement
-                  setSelectedItemIndex((prev) => {
-                    if (prev <= 0) {
-                      return mentionItems.length - 1;
-                    }
-                    return prev - 1;
-                  });
-                  return true;
-                }
-                
-                if (event.key === 'ArrowDown') {
-                  event.preventDefault(); // Prevent cursor movement
-                  setSelectedItemIndex((prev) => {
-                    if (prev >= mentionItems.length - 1) {
-                      return 0;
-                    }
-                    return prev + 1;
-                  });
-                  return true;
-                }
-                
-                if (event.key === 'Enter' || event.key === 'Tab') {
-                  event.preventDefault(); // Prevent newline insertion
-                  if (mentionItems.length && selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
-                    const item = mentionItems[selectedItemIndex];
-                    if (item) {
-                      // Check if this is a category selection
-                      if (item.id.startsWith('category-') && selectedCategory === null) {
-                        setSelectedCategory(item.type as MentionCategory);
-                        setSelectedItemIndex(0);
-                        setMentionQuery(''); // Clear the query when selecting a category
-                        return true;
-                      } else {
-                        // Handle item selection
-                        handleMentionSelect(item);
-                        return true;
-                      }
-                    }
-                  }
-                  return false;
-                }
-                
-                if (event.key === 'Escape') {
-                  // If category is selected, go back to categories
-                  if (selectedCategory !== null) {
-                    setSelectedCategory(null);
-                    setSelectedItemIndex(0);
-                    return true;
-                  } else {
-                    // Clear mention state completely
-                    closeAndResetMention();
-                    return true;
-                  }
-                }
-                
-                if (event.key === 'Backspace' && selectedCategory !== null && !mentionQuery) {
-                  // If query is empty and backspace is pressed, go back to categories
-                  setSelectedCategory(null);
-                  setSelectedItemIndex(0);
-                  return false; // Let the editor handle the backspace
-                }
-                
-                // Allow normal typing for all other keys
-                return false;
-              },
-              onExit: () => {
-                // Adding a delay to prevent too quick disappearance
-                setTimeout(() => {
-                  closeAndResetMention();
-                }, 250); // Increased delay to allow for interaction
-              }
-            };
-          },
-          command: ({ editor, range, props }) => {
-            // Delete the slash command from the document
-            editor.chain().focus().deleteRange(range).run();
-            
-            // Insert the mention at the current position
-            editor.chain().focus().setMention({
-              id: props.id,
-              label: props.label,
-              type: props.type
-            }).run();
-            
-            // Ensure cursor position is after the mention
-            const transaction = editor.state.tr;
-            const currentPos = editor.state.selection.anchor;
-            transaction.setSelection({ anchor: currentPos, head: currentPos });
-            editor.view.dispatch(transaction);
-          }
-        };
-        
-        // Register the suggestion plugin
-        editor.registerPlugin(Suggestion(options));
+        // Register the suggestion plugin with our configuration
+        editor.registerPlugin(Suggestion(configureSuggestion()));
         
         return () => {
-          // Clean up
-          if (editor && !editor.isDestroyed) {
-            editor.unregisterPlugin(suggestionPluginKey);
-          }
+          // Clean up is handled by useEditorSetup
         };
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
       }
     };
     
-    const cleanup = importSuggestion();
-    
-    return () => {
-      // Handle cleanup when the component unmounts
-      if (cleanup) {
-        Promise.resolve(cleanup).then(cleanupFn => {
-          if (cleanupFn) cleanupFn();
-        });
-      }
-    };
-  }, [editor, mentionItems, selectedItemIndex, selectedCategory]);
-
-  // Handle category selection
-  const handleCategorySelect = useCallback((category: MentionCategory) => {
-    setSelectedCategory(category);
-    setSelectedItemIndex(0);
-    setMentionQuery('');
-  }, []);
-
-  // Close and reset mention state
-  const closeAndResetMention = useCallback(() => {
-    if (mentionQuery !== null) {
-      setMentionQuery(null);
-      setMentionRange(null);
-      setMentionClientRect(null);
-      setSelectedItemIndex(0);
-      setSelectedCategory(null);
-    }
-  }, [mentionQuery]);
-
-  // Handle mention selection
-  const handleMentionSelect = useCallback((item: any) => {
-    if (editor && mentionRange) {
-      // First delete the range (the slash command)
-      editor.chain().focus().deleteRange(mentionRange).run();
-      
-      // Then insert the mention
-      editor.chain().focus().setMention({
-        id: item.id,
-        label: item.label,
-        type: item.type,
-      }).run();
-      
-      // Manually set cursor position after the mention
-      setTimeout(() => {
-        if (!editor.isDestroyed) {
-          editor.commands.focus();
-        }
-      }, 10);
-      
-      // Clear mention state
-      closeAndResetMention();
-    }
-  }, [editor, mentionRange, closeAndResetMention]);
-
-  // Add inline mention support for direct category selection
-  useEffect(() => {
-    if (!editor) return;
-    
-    const handleMentionShortcut = ({ editor }: { editor: Editor }) => {
-      const { state } = editor;
-      const { selection } = state;
-      const { $from } = selection;
-      
-      // Get the current line content
-      const lineStart = $from.start();
-      const lineEnd = $from.end();
-      const line = state.doc.textBetween(lineStart, lineEnd, ' ');
-      
-      // Check for direct category commands at the start of a line
-      const directCommands = [
-        { pattern: /^\/event\s+(.+)$/, type: 'event' },
-        { pattern: /^\/task\s+(.+)$/, type: 'task' },
-        { pattern: /^\/doc\s+(.+)$/, type: 'document' },
-        { pattern: /^\/user\s+(.+)$/, type: 'user' }
-      ];
-      
-      for (const { pattern, type } of directCommands) {
-        const match = line.match(pattern);
-        if (match) {
-          const query = match[1].trim();
-          if (query) {
-            // Set the category and trigger a search
-            setSelectedCategory(type as MentionCategory);
-            setMentionQuery(query);
-            
-            // Create a range to replace the command
-            const from = lineStart;
-            const to = lineStart + match[0].length;
-            const range = { from, to };
-            setMentionRange(range);
-            
-            // Get client rect
-            if (editor.view.domAtPos(from)) {
-              const domAtPos = editor.view.domAtPos(from);
-              if (domAtPos && domAtPos.node) {
-                const element = domAtPos.node.parentElement;
-                if (element) {
-                  const rect = element.getBoundingClientRect();
-                  setMentionClientRect(rect);
-                }
-              }
-            }
-            
-            return true;
-          }
-        }
-      }
-      
-      return false;
-    };
-    
-    // We don't actually register this as an extension,
-    // we just check for it on each editor update
-    const checkForShortcuts = () => {
-      handleMentionShortcut({ editor });
-    };
-    
-    // Add event listener for editor updates
-    editor.on('update', checkForShortcuts);
-    
-    return () => {
-      editor.off('update', checkForShortcuts);
-    };
-  }, [editor]);
-
-  // Force editor focus when it becomes available
-  useEffect(() => {
-    if (editor && !editor.isDestroyed) {
-      setTimeout(() => {
-        editor.commands.focus('end');
-      }, 100);
-    }
+    importSuggestion();
   }, [editor]);
 
   if (!editor) {
