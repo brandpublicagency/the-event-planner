@@ -29,7 +29,7 @@ export function useMentionHandler(editor: Editor | null) {
   // Use commands hook for editor interactions
   const {
     handleMentionSelect,
-    selectMentionItem: selectItem
+    selectMentionItem
   } = useMentionCommands(editor);
   
   // Handle mention item selection
