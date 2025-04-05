@@ -23,11 +23,12 @@ const Events = () => {
   
   // Add effect to refetch when component mounts
   useEffect(() => {
+    console.log("Events component mounted, refetching events data");
     refetch();
   }, [refetch]);
   
   // Filter events based on search query
-  const filteredEvents = Object.entries(groupedUpcomingEvents).reduce(
+  const filteredEvents = Object.entries(groupedUpcomingEvents || {}).reduce(
     (acc: Record<string, any[]>, [monthYear, monthEvents]) => {
       if (!searchQuery) {
         acc[monthYear] = monthEvents;

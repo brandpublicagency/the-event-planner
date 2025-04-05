@@ -22,7 +22,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (error) {
           console.error("Auth check error:", error);
-          toast.error("Authentication error: " + error.message);
           setIsAuthenticated(false);
           return;
         }
@@ -36,7 +35,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         }
       } catch (error: any) {
         console.error("Auth check error:", error);
-        toast.error("Authentication check failed: " + error.message);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -62,6 +60,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     };
   }, [location.pathname]);
 
+  // For development purposes, bypass authentication check
+  // IMPORTANT: This is only for development and should be removed in production
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -73,10 +73,16 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
+  // For development purposes, allow access regardless of authentication status
+  // Remove or uncomment the next line for proper authentication
+  // return <>{children}</>;
+  
   if (!isAuthenticated) {
     // Redirect to login with the intended destination
+    console.log("User is not authenticated, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  console.log("User is authenticated, rendering protected content");
   return <>{children}</>;
 };
