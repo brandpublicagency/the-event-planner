@@ -1,4 +1,3 @@
-
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { MentionView } from './MentionView';
@@ -35,6 +34,21 @@ export const MentionCommands = Extension.create({
         });
       }
     } as Partial<RawCommands>;
+  }
+});
+
+// Create a Tab key handler extension to improve tab navigation for mentions
+export const TabKeyHandler = Extension.create({
+  name: 'tabKeyHandler',
+  
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        // Instead of capturing the Tab key globally, we'll handle it in our InlineMentionSuggestions component
+        // Let the default Tab behavior happen normally when not in an active mention suggestion
+        return false;
+      }
+    };
   }
 });
 
@@ -157,114 +171,18 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addProseMirrorPlugins() {
-    // We'll replace this with direct commands instead of suggestions
+    // We'll use our custom inline suggestions instead
     return [];
   },
 });
 
-// Create extensions for direct mention commands
+// Improved extension for handling slash commands - will work with our inline suggestions
 export const DirectMentionExtensions = Extension.create({
   name: 'directMentions',
   
   addProseMirrorPlugins() {
-    const plugins = [
-      // Task mention
-      Suggestion({
-        editor: this.editor,
-        char: '/task',
-        pluginKey: taskMentionKey,
-        command: ({ editor, range }) => {
-          console.log('Task mention command triggered');
-          
-          // Delete the command
-          editor.chain().focus().deleteRange(range).run();
-          
-          // Insert a task mention placeholder
-          editor.commands.insertContent({
-            type: 'mention',
-            attrs: {
-              id: 'task_placeholder',
-              label: 'Task',
-              type: 'task'
-            }
-          });
-        },
-        items: () => [],
-      }),
-      
-      // Event mention
-      Suggestion({
-        editor: this.editor,
-        char: '/event',
-        pluginKey: eventMentionKey,
-        command: ({ editor, range }) => {
-          console.log('Event mention command triggered');
-          
-          // Delete the command
-          editor.chain().focus().deleteRange(range).run();
-          
-          // Insert an event mention placeholder
-          editor.commands.insertContent({
-            type: 'mention',
-            attrs: {
-              id: 'event_placeholder',
-              label: 'Event',
-              type: 'event'
-            }
-          });
-        },
-        items: () => [],
-      }),
-      
-      // User mention
-      Suggestion({
-        editor: this.editor,
-        char: '/user',
-        pluginKey: userMentionKey,
-        command: ({ editor, range }) => {
-          console.log('User mention command triggered');
-          
-          // Delete the command
-          editor.chain().focus().deleteRange(range).run();
-          
-          // Insert a user mention placeholder
-          editor.commands.insertContent({
-            type: 'mention',
-            attrs: {
-              id: 'user_placeholder',
-              label: 'User',
-              type: 'user'
-            }
-          });
-        },
-        items: () => [],
-      }),
-      
-      // Document mention
-      Suggestion({
-        editor: this.editor,
-        char: '/doc',
-        pluginKey: documentMentionKey,
-        command: ({ editor, range }) => {
-          console.log('Document mention command triggered');
-          
-          // Delete the command
-          editor.chain().focus().deleteRange(range).run();
-          
-          // Insert a document mention placeholder
-          editor.commands.insertContent({
-            type: 'mention',
-            attrs: {
-              id: 'document_placeholder',
-              label: 'Document',
-              type: 'document'
-            }
-          });
-        },
-        items: () => [],
-      }),
-    ];
-    
-    return plugins;
+    // Here we're intentionally not adding Suggestion plugins since
+    // we'll handle the suggestions with our custom InlineMentionSuggestions component
+    return [];
   }
 });

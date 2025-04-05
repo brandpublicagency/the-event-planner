@@ -4,6 +4,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { forwardRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
+import { InlineMentionSuggestions } from './InlineMentionSuggestion';
 
 interface DocumentContentProps {
   editor: Editor | null;
@@ -13,7 +14,12 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   editor
 }, ref) => {
   // Use our custom hooks for handling mentions and editor setup
-  const { handleMentionSelect } = useMentionHandler(editor);
+  const { 
+    handleMentionSelect, 
+    slashCommand, 
+    handleSelect, 
+    handleClose 
+  } = useMentionHandler(editor);
 
   // Handle key events at the component level
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -55,6 +61,17 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       <div className="flex-1 overflow-hidden relative">
         <div ref={ref} className="bg-white rounded-md border border-zinc-200 h-full overflow-y-auto flex flex-col print-document">
           <EditorContent editor={editor} className="flex-1 p-3 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none px-[25px] document-content" />
+          
+          {/* Inline Mention Suggestions */}
+          {slashCommand.active && (
+            <InlineMentionSuggestions
+              query={slashCommand.query}
+              onSelect={handleSelect}
+              onClose={handleClose}
+              position={slashCommand.position}
+              mentionType={slashCommand.mentionType}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -5,7 +6,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
-import { MentionNode, MentionCommands, DirectMentionExtensions } from './MentionExtension';
+import { MentionNode, MentionCommands, DirectMentionExtensions, TabKeyHandler } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import Suggestion from '@tiptap/suggestion';
@@ -124,6 +125,7 @@ export const getEditorExtensions = () => [
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
   SlashKeyHandler, // Add the slash key handler
+  TabKeyHandler, // Add our new Tab key handler
   
   // Important: MentionNode must come before MentionCommands
   MentionNode,
