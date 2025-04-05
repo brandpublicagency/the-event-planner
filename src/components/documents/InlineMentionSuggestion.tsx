@@ -1,9 +1,12 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Calendar, CheckSquare, File, User } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
 import { MentionItem } from './MentionSelector';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { Spinner } from '../ui/spinner';
+import { MentionSuggestionList } from './mention/MentionSuggestionList';
+import { MentionLoadingState } from './mention/MentionLoadingState';
+import { MentionEmptyState } from './mention/MentionEmptyState';
+import { useMentionKeyboardNavigation } from './mention/useMentionKeyboardNavigation';
+import { useClickOutside } from './mention/useClickOutside';
+import { useMentionSuggestionSearch } from './mention/useMentionSuggestionSearch';
 
 interface InlineMentionSuggestionsProps {
   query: string;
@@ -20,120 +23,36 @@ export const InlineMentionSuggestions = ({
   position,
   searchAllEntities
 }: InlineMentionSuggestionsProps) => {
-  const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Search for suggestions based on query
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const results = await searchAllEntities(query);
-        setSuggestions(results || []);
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        setError('Failed to load suggestions');
-        setSuggestions([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    // Only fetch if we have a position (i.e., the suggestion is active)
-    if (position) {
-      const timeoutId = setTimeout(() => {
-        fetchSuggestions();
-      }, 50); // Small delay to prevent too many simultaneous requests
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [query, searchAllEntities, position]);
+  // Use custom hooks for search functionality
+  const { suggestions, isLoading, error } = useMentionSuggestionSearch({
+    query,
+    position,
+    searchAllEntities
+  });
   
+  // Reset selected index when suggestions change
   useEffect(() => {
     setSelectedIndex(0);
   }, [suggestions]);
   
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!suggestions.length && !isLoading) return;
-      
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex(prev => 
-            prev < suggestions.length - 1 ? prev + 1 : prev
-          );
-          break;
-          
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
-          break;
-          
-        case 'Enter':
-          e.preventDefault();
-          if (suggestions[selectedIndex]) {
-            onSelect(suggestions[selectedIndex]);
-          }
-          break;
-          
-        case 'Tab':
-          e.preventDefault();
-          if (suggestions[selectedIndex]) {
-            onSelect(suggestions[selectedIndex]);
-          }
-          break;
-          
-        case 'Escape':
-          e.preventDefault();
-          onClose();
-          break;
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [suggestions, selectedIndex, onSelect, onClose, isLoading]);
+  // Use custom hook for keyboard navigation
+  useMentionKeyboardNavigation({
+    suggestions,
+    isLoading,
+    selectedIndex,
+    setSelectedIndex,
+    onSelect,
+    onClose
+  });
   
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current && 
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        onClose();
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
+  // Use custom hook for handling clicks outside the component
+  useClickOutside(containerRef, onClose);
   
   // Don't render anything if no position
   if (!position) return null;
-  
-  const getMentionIcon = (type: string) => {
-    switch (type) {
-      case 'event':
-        return <Calendar className="h-3 w-3" />;
-      case 'task':
-        return <CheckSquare className="h-3 w-3" />;
-      case 'document':
-        return <File className="h-3 w-3" />;
-      case 'user':
-        return <User className="h-3 w-3" />;
-      default:
-        return null;
-    }
-  };
   
   // Render suggestions inline with the text
   return (
@@ -146,39 +65,15 @@ export const InlineMentionSuggestions = ({
       }}
     >
       {isLoading ? (
-        <div className="text-xs flex items-center gap-1.5 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
-          <Spinner className="h-3 w-3 text-primary-600" />
-          <span>Loading...</span>
-        </div>
-      ) : error ? (
-        <div className="text-xs text-red-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
-          {error}
-        </div>
-      ) : suggestions.length === 0 ? (
-        <div className="text-xs text-gray-500 bg-white bg-opacity-90 px-2 py-1 rounded-md shadow-sm border border-gray-200">
-          No results found
-        </div>
+        <MentionLoadingState />
+      ) : error || suggestions.length === 0 ? (
+        <MentionEmptyState error={error} />
       ) : (
-        <div 
-          className="inline-flex flex-col max-h-[120px] overflow-auto bg-white bg-opacity-90 rounded-md shadow-sm border border-gray-200" 
-          style={{
-            width: 'auto',
-            height: suggestions.length > 5 ? '120px' : 'auto'
-          }}
-        >
-          {suggestions.map((item, index) => (
-            <div
-              key={`${item.type}-${item.id}`}
-              className={`text-xs flex items-center cursor-pointer px-2 py-1 ${
-                index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
-              }`}
-              onClick={() => onSelect(item)}
-            >
-              <span className="mr-1">{getMentionIcon(item.type)}</span>
-              <span className="truncate">{item.label}</span>
-            </div>
-          ))}
-        </div>
+        <MentionSuggestionList
+          suggestions={suggestions}
+          selectedIndex={selectedIndex}
+          onSelect={onSelect}
+        />
       )}
     </div>
   );
