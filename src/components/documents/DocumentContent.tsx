@@ -1,7 +1,7 @@
 
-import { Editor, EditorContent, Range } from '@tiptap/react';
+import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/useMentionHandler';
@@ -17,7 +17,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   // Use our custom hooks for handling mentions and editor setup
   const {
     mentionQuery,
-    mentionClientRect,
     selectedItemIndex,
     setSelectedItemIndex,
     mentionItems,
@@ -26,16 +25,16 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     handleMentionSelect,
     setMentionQuery,
     setMentionRange,
-    setMentionClientRect,
-    configureSuggestion
+    configureSuggestion,
+    selectMentionItem
   } = useMentionHandler(editor);
   
   // Set up inline mention commands
   useInlineMentionCommands(
     editor, 
     setMentionQuery, 
-    setMentionRange, 
-    setMentionClientRect
+    setMentionRange,
+    selectMentionItem
   );
 
   // Initialize suggestion plugin only once on editor mount
@@ -77,17 +76,18 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         <div ref={ref} className="bg-white rounded-md border border-zinc-200 h-full overflow-y-auto flex flex-col print-document">
           <EditorContent editor={editor} className="flex-1 p-3 h-full prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none px-[25px] document-content" />
           
-          {mentionQuery !== null && mentionClientRect && (
-            <MentionSelector
-              ref={mentionSelectorRef}
-              items={mentionItems}
-              command={handleMentionSelect}
-              query={mentionQuery}
-              clientRect={mentionClientRect}
-              loading={mentionLoading}
-              selectedIndex={selectedItemIndex}
-              setSelectedIndex={setSelectedItemIndex}
-            />
+          {mentionQuery !== null && mentionItems.length > 0 && (
+            <div className="fixed inset-0 pointer-events-none">
+              <MentionSelector
+                ref={mentionSelectorRef}
+                items={mentionItems}
+                command={handleMentionSelect}
+                query={mentionQuery}
+                loading={mentionLoading}
+                selectedIndex={selectedItemIndex}
+                setSelectedIndex={setSelectedItemIndex}
+              />
+            </div>
           )}
         </div>
       </div>

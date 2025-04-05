@@ -8,8 +8,6 @@ export interface MentionItem {
   type: 'event' | 'task' | 'document' | 'user';
 }
 
-export type MentionCategory = 'event' | 'task' | 'document' | 'user' | null;
-
 export function useMentionItems(query: string | null) {
   const [items, setItems] = useState<MentionItem[]>([]);
   const [loading, setLoading] = useState(false);
