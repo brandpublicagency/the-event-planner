@@ -12,7 +12,6 @@ interface MentionResult {
   url: string;
   icon?: string;
   color?: string;
-  idLabel?: string;
 }
 
 // Create a debounced search function
@@ -22,11 +21,6 @@ const debounce = (func: Function, delay: number) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   };
-};
-
-// Function to generate ID labels based on type
-const generateIdLabel = (id: string): string => {
-  return `#${id.substring(0, 6).toUpperCase()}`;
 };
 
 export const MentionExtension = Extension.create({
@@ -93,7 +87,6 @@ export const MentionExtension = Extension.create({
               grouped[group.type].forEach(item => {
                 item.icon = group.icon;
                 item.color = group.color;
-                item.idLabel = generateIdLabel(item.id);
                 result.push(item);
               });
             }
@@ -209,30 +202,15 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Get color hex codes based on type
-              const typeColorHex = {
-                'document': '#FFA245',
-                'task': '#F70848',
-                'event': '#0EC392',
-                'user': '#1414DE'
-              };
-              
-              const colorHex = typeColorHex[item.original.type] || '#64748b';
-              
-              // Content inside the editor - this is the mention button with the ID displayed next to it
               return `<span 
-                class="mention-wrapper"
+                class="mention mention-${item.original.type}" 
+                data-mention-id="${item.original.id}" 
+                data-mention-type="${item.original.type}" 
+                data-mention-url="${item.original.url}"
+                data-mention-title="${item.original.title}"
                 contenteditable="false">
-                <span 
-                  class="mention mention-${item.original.type}" 
-                  data-mention-id="${item.original.id}" 
-                  data-mention-type="${item.original.type}" 
-                  data-mention-url="${item.original.url}"
-                  data-mention-title="${item.original.title}">
-                  <span class="mention-icon">${item.original.icon}</span>
-                  <span class="mention-title">${item.original.title}</span>
-                </span>
-                <span class="mention-id" style="margin-left: 6px; font-size: 0.75rem; opacity: 0.75;">${item.original.idLabel}</span>
+                <span class="mention-icon">${item.original.icon}</span>
+                <span class="mention-title">${item.original.title}</span>
               </span>`;
             },
             menuItemTemplate: (item) => {
