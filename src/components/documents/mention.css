@@ -1,3 +1,4 @@
+
 /* Mention button styles */
 .ProseMirror .mention {
   border-radius: 4px;
@@ -14,9 +15,10 @@
   vertical-align: middle;
   margin: 0 1px;
   user-select: none;
-  background-color: #f8f8f8 !important;
-  color: #000000 !important;
+  background-color: #f8f8f8;
+  color: #000000;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
 }
 
 .ProseMirror .mention:hover {
@@ -40,7 +42,7 @@
 
 /* Type-specific styles */
 .mention-document {
-  border-color: #FFA245 !important;
+  border-color: #FFA245;
 }
 
 .mention-document .mention-icon {
@@ -48,7 +50,7 @@
 }
 
 .mention-task {
-  border-color: #F70848 !important;
+  border-color: #F70848;
 }
 
 .mention-task .mention-icon {
@@ -56,7 +58,7 @@
 }
 
 .mention-event {
-  border-color: #0EC392 !important;
+  border-color: #0EC392;
 }
 
 .mention-event .mention-icon {
@@ -64,7 +66,7 @@
 }
 
 .mention-user {
-  border-color: #1414DE !important;
+  border-color: #1414DE;
 }
 
 .mention-user .mention-icon {

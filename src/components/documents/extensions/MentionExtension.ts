@@ -218,17 +218,15 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Content inside the editor - fixed to match the design in the image
+              // Content inside the editor - properly styled as a button
               return `<span 
+                contenteditable="false"
                 class="mention mention-${item.original.type}" 
                 data-mention-id="${item.original.id}" 
                 data-mention-type="${item.original.type}" 
                 data-mention-url="${item.original.url}"
                 data-mention-title="${item.original.title}"
-                contenteditable="false">
-                <span class="mention-icon">${getIconSvg(item.original.type)}</span>
-                <span class="mention-title">${item.original.title}</span>
-              </span>`;
+              ><span class="mention-icon">${getIconSvg(item.original.type)}</span><span class="mention-title">${item.original.title}</span></span>`;
             },
             menuItemTemplate: (item) => {
               if (item.original.isHeader) {
@@ -263,7 +261,7 @@ export const MentionExtension = Extension.create({
               return;
             }
             
-            // Insert the slash character - Fixed: use proper dispatch method
+            // Insert the slash character
             editorView.dispatch(state.tr.insertText('/'));
             e.preventDefault();
           }
