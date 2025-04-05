@@ -4,7 +4,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { forwardRef, useEffect, useState, useCallback, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
-import { useMentionItems } from '@/hooks/useMentionItems';
+import { useMentionItems, MentionCategory } from '@/hooks/useMentionItems';
 import { SuggestionOptions } from '@tiptap/suggestion';
 import { PluginKey } from '@tiptap/pm/state';
 
@@ -22,7 +22,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
   const [mentionRange, setMentionRange] = useState<Range | null>(null);
   const [mentionClientRect, setMentionClientRect] = useState<DOMRect | null>(null);
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery);
+  const [selectedCategory, setSelectedCategory] = useState<MentionCategory>(null);
+  const { items: mentionItems, loading: mentionLoading } = useMentionItems(mentionQuery, selectedCategory);
   const mentionSelectorRef = useRef<HTMLDivElement>(null);
   
   // Configure the mention suggestion extension
@@ -38,7 +39,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         const options: SuggestionOptions = {
           editor: editor,
           pluginKey: suggestionPluginKey,
-          char: '@',
+          char: '/',
           items: ({ query }) => {
             return mentionItems;
           },
@@ -51,6 +52,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 setMentionQuery(query);
                 setMentionRange(range);
                 setSelectedItemIndex(0);
+                setSelectedCategory(null);
                 
                 // Get client rect of the current position
                 if (editor.view.domAtPos(range.from)) {
@@ -84,7 +86,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 }
               },
               onKeyDown: (props) => {
-                const { event, range } = props;
+                const { event } = props;
                 
                 // Handle keyboard navigation
                 if (event.key === 'ArrowUp') {
@@ -104,33 +106,46 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 if (event.key === 'Enter' && mentionItems.length && selectedItemIndex >= 0) {
                   const item = mentionItems[selectedItemIndex];
                   if (item) {
-                    // Updated: Handle command through handleMentionSelect
-                    handleMentionSelect(item);
-                    return true;
+                    // Check if this is a category selection
+                    if (item.id.startsWith('category-') && selectedCategory === null) {
+                      setSelectedCategory(item.type as MentionCategory);
+                      setSelectedItemIndex(0);
+                      return true;
+                    } else {
+                      // Handle item selection
+                      handleMentionSelect(item);
+                      return true;
+                    }
                   }
                 }
                 
                 if (event.key === 'Escape') {
-                  // Clear mention state - this is effectively the same as exit
-                  setMentionQuery(null);
-                  setMentionRange(null);
-                  setMentionClientRect(null);
-                  return true;
+                  // If category is selected, go back to categories
+                  if (selectedCategory !== null) {
+                    setSelectedCategory(null);
+                    setSelectedItemIndex(0);
+                    return true;
+                  } else {
+                    // Clear mention state completely
+                    closeAndResetMention();
+                    return true;
+                  }
+                }
+                
+                if (event.key === 'Backspace' && selectedCategory !== null && !mentionQuery) {
+                  // If query is empty and backspace is pressed, go back to categories
+                  setSelectedCategory(null);
+                  setSelectedItemIndex(0);
+                  return false; // Let the editor handle the backspace
                 }
                 
                 return false;
               },
               onExit: () => {
-                // Clean up when exiting
                 // Adding a delay to prevent too quick disappearance
                 setTimeout(() => {
-                  if (mentionQuery !== null) {
-                    setMentionQuery(null);
-                    setMentionRange(null);
-                    setMentionClientRect(null);
-                    setSelectedItemIndex(0);
-                  }
-                }, 150); // Small delay to allow for interaction
+                  closeAndResetMention();
+                }, 250); // Increased delay to allow for interaction
               }
             };
           },
@@ -172,7 +187,25 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         });
       }
     };
-  }, [editor, mentionItems, selectedItemIndex]);
+  }, [editor, mentionItems, selectedItemIndex, selectedCategory]);
+
+  // Handle category selection
+  const handleCategorySelect = useCallback((category: MentionCategory) => {
+    setSelectedCategory(category);
+    setSelectedItemIndex(0);
+    setMentionQuery('');
+  }, []);
+
+  // Close and reset mention state
+  const closeAndResetMention = useCallback(() => {
+    if (mentionQuery !== null) {
+      setMentionQuery(null);
+      setMentionRange(null);
+      setMentionClientRect(null);
+      setSelectedItemIndex(0);
+      setSelectedCategory(null);
+    }
+  }, [mentionQuery]);
 
   // Handle mention selection
   const handleMentionSelect = useCallback((item: any) => {
@@ -189,11 +222,9 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
         .run();
       
       // Clear mention state
-      setMentionQuery(null);
-      setMentionRange(null);
-      setMentionClientRect(null);
+      closeAndResetMention();
     }
-  }, [editor, mentionRange]);
+  }, [editor, mentionRange, closeAndResetMention]);
 
   // Force editor focus when it becomes available
   useEffect(() => {
@@ -232,6 +263,8 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
               loading={mentionLoading}
               selectedIndex={selectedItemIndex}
               setSelectedIndex={setSelectedItemIndex}
+              onCategorySelect={handleCategorySelect}
+              category={selectedCategory}
             />
           )}
         </div>

@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Heading1, Heading2, Heading3, 
   List, ListOrdered, Code, Quote, Underline, 
-  Highlighter, Minus, AtSign
+  Highlighter, Minus, Slash
 } from "lucide-react";
 import { Editor } from "@tiptap/react";
 import { isMarkActive, isHeadingActive } from "./editorExtensions";
@@ -14,8 +14,8 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
-  const insertMention = () => {
-    editor.chain().focus().insertContent('@').run();
+  const insertSlashCommand = () => {
+    editor.chain().focus().insertContent('/').run();
   };
 
   return (
@@ -189,13 +189,13 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              onClick={insertMention}
+              onClick={insertSlashCommand}
               title="Mention"
             >
-              <AtSign size={18} />
+              <Slash size={18} />
             </button>
           </TooltipTrigger>
-          <TooltipContent>Mention (@)</TooltipContent>
+          <TooltipContent>Mention (/)</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>

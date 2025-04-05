@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
-import { Calendar, CheckSquare, File, Search } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Calendar, CheckSquare, File, Search, User } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Portal } from '@/components/ui/portal';
+import { MentionCategory } from '@/hooks/useMentionItems';
 
 interface MentionItem {
   id: string;
   label: string;
-  type: 'event' | 'task' | 'document';
+  type: 'event' | 'task' | 'document' | 'user';
 }
 
 interface MentionSelectorProps {
@@ -19,6 +19,8 @@ interface MentionSelectorProps {
   loading: boolean;
   selectedIndex: number;
   setSelectedIndex: (index: number) => void;
+  onCategorySelect?: (category: MentionCategory) => void;
+  category: MentionCategory;
 }
 
 export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(({
@@ -28,7 +30,9 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   clientRect,
   loading,
   selectedIndex,
-  setSelectedIndex
+  setSelectedIndex,
+  onCategorySelect,
+  category
 }, ref) => {
   // State to track if the component has been mounted
   const [mounted, setMounted] = useState(false);
@@ -52,35 +56,15 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // Filter the items based on the query
-  const filteredItems = useMemo(() => {
-    if (!query) return items;
-    
-    const lowerCaseQuery = query.toLowerCase();
-    return items.filter(item => 
-      item.label.toLowerCase().includes(lowerCaseQuery)
-    );
-  }, [items, query]);
   
-  // Group items by type
-  const groupedItems = useMemo(() => {
-    const grouped = {
-      event: [] as MentionItem[],
-      task: [] as MentionItem[],
-      document: [] as MentionItem[]
-    };
-    
-    filteredItems.forEach(item => {
-      grouped[item.type].push(item);
-    });
-    
-    return grouped;
-  }, [filteredItems]);
-
   // Handle mouse click
   const handleItemClick = (item: MentionItem) => {
-    command(item);
+    // Check if this is a category selection
+    if (item.id.startsWith('category-') && onCategorySelect) {
+      onCategorySelect(item.type as MentionCategory);
+    } else {
+      command(item);
+    }
   };
   
   // Prevent the dropdown from closing on mouse down
@@ -105,7 +89,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     left: clientRect.left,
   };
   
-  const getTypeIcon = (type: 'event' | 'task' | 'document') => {
+  const getTypeIcon = (type: 'event' | 'task' | 'document' | 'user') => {
     switch (type) {
       case 'event':
         return <Calendar className="h-4 w-4 text-blue-500" />;
@@ -113,41 +97,9 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
         return <CheckSquare className="h-4 w-4 text-amber-500" />;
       case 'document':
         return <File className="h-4 w-4 text-emerald-500" />;
+      case 'user':
+        return <User className="h-4 w-4 text-purple-500" />;
     }
-  };
-  
-  const renderSectionTitle = (title: string, count: number) => {
-    if (count === 0) return null;
-    
-    return (
-      <div className="px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100">
-        {title} ({count})
-      </div>
-    );
-  };
-  
-  const renderItems = (items: MentionItem[], startIndex: number) => {
-    if (items.length === 0) return null;
-    
-    return items.map((item, index) => {
-      const isSelected = startIndex + index === selectedIndex;
-      
-      return (
-        <button
-          key={`${item.type}-${item.id}`}
-          className={`w-full flex items-center px-2 py-1.5 text-sm ${
-            isSelected ? 'bg-zinc-100' : ''
-          }`}
-          onClick={() => handleItemClick(item)}
-          onMouseDown={handleMouseDown}
-          onMouseEnter={() => setSelectedIndex(startIndex + index)}
-          data-selected={isSelected ? "true" : "false"}
-        >
-          <span className="mr-2">{getTypeIcon(item.type)}</span>
-          <span className="truncate">{item.label}</span>
-        </button>
-      );
-    });
   };
   
   return (
@@ -166,28 +118,44 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
             <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
             <span className="ml-2 text-sm text-zinc-600">Loading...</span>
           </div>
-        ) : filteredItems.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-4 text-zinc-500">
             <Search className="h-5 w-5" />
             <p className="mt-1 text-sm">No results for "{query}"</p>
           </div>
         ) : (
-          <>
-            {/* Events section */}
-            {renderSectionTitle('Events', groupedItems.event.length)}
-            {renderItems(groupedItems.event, 0)}
-            
-            {/* Tasks section */}
-            {renderSectionTitle('Tasks', groupedItems.task.length)}
-            {renderItems(groupedItems.task, groupedItems.event.length)}
-            
-            {/* Documents section */}
-            {renderSectionTitle('Documents', groupedItems.document.length)}
-            {renderItems(
-              groupedItems.document, 
-              groupedItems.event.length + groupedItems.task.length
+          <div>
+            {category === null ? (
+              <div className="px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100">
+                Select a category
+              </div>
+            ) : (
+              <div className="flex items-center px-2 py-1 text-xs font-medium text-zinc-500 bg-zinc-100">
+                <span>{getTypeIcon(category)}</span>
+                <span className="ml-1 capitalize">{category}s</span>
+              </div>
             )}
-          </>
+            
+            {items.map((item, index) => {
+              const isSelected = index === selectedIndex;
+              
+              return (
+                <button
+                  key={`${item.type}-${item.id}`}
+                  className={`w-full flex items-center px-2 py-1.5 text-sm ${
+                    isSelected ? 'bg-zinc-100' : ''
+                  }`}
+                  onClick={() => handleItemClick(item)}
+                  onMouseDown={handleMouseDown}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  data-selected={isSelected ? "true" : "false"}
+                >
+                  <span className="mr-2">{getTypeIcon(item.type)}</span>
+                  <span className="truncate">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </Portal>

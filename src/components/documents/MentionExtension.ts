@@ -13,7 +13,7 @@ declare module '@tiptap/core' {
       /**
        * Add a mention at the current position
        */
-      setMention: (options: { id: string; label: string; type: 'event' | 'task' | 'document' }) => ReturnType;
+      setMention: (options: { id: string; label: string; type: 'event' | 'task' | 'document' | 'user' }) => ReturnType;
     };
   }
 }
@@ -96,8 +96,7 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   addNodeView() {
-    // Cast the component to the expected type
-    return ReactNodeViewRenderer(MentionView as any);
+    return ReactNodeViewRenderer(MentionView);
   },
   
   addCommands() {
