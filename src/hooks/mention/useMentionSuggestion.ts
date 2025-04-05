@@ -1,6 +1,6 @@
 
 import { Editor, Range } from '@tiptap/react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { PluginKey } from '@tiptap/pm/state';
 import { SuggestionOptions } from '@tiptap/suggestion';
 
@@ -14,7 +14,7 @@ export function useMentionSuggestion(
   editor: Editor | null,
   mentionItems: any[],
   setMentionQuery: (query: string | null) => void,
-  setMentionRange: (range: any) => void,
+  setMentionRange: (range: Range | null) => void,
   resetMention: () => void
 ) {
   // Configure the mention suggestion extension
@@ -75,6 +75,24 @@ export function useMentionSuggestion(
       }
     };
   }, [editor, mentionItems, setMentionQuery, setMentionRange, resetMention]);
+
+  // Apply the suggestion configuration to the MentionNode extension
+  useEffect(() => {
+    if (!editor) return;
+    
+    // Get the mention node extension
+    const mentionExtension = editor.extensionManager.extensions.find(
+      ext => ext.name === 'mention'
+    );
+    
+    if (mentionExtension && mentionExtension.options) {
+      // Apply the suggestion configuration
+      mentionExtension.options.suggestion = configureSuggestion();
+      
+      // Force a re-render of the editor to apply the new configuration
+      editor.view.updateState(editor.view.state);
+    }
+  }, [editor, configureSuggestion]);
 
   return {
     configureSuggestion,

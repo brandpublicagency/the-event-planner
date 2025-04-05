@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -8,6 +9,7 @@ import { LinkPreviewNode } from './LinkPreviewExtension';
 import { MentionNode, MentionCommands } from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import Suggestion from '@tiptap/suggestion';
 
 const lowlight = createLowlight(common);
 
@@ -110,10 +112,16 @@ export const getEditorExtensions = () => [
   MentionNode.configure({
     suggestion: {
       char: '/',
-      command: () => {},
-      items: () => []
+      command: ({ editor, range, props }) => {
+        editor.chain().focus().deleteRange(range).run();
+        editor.commands.insertContent({
+          type: 'mention',
+          attrs: props
+        });
+      },
+      items: () => [], // This will be overridden by our suggestion configuration
     }
-  }), // Add the mention extension with basic config
+  }),
   MentionCommands, // Add the mention commands extension
 ];
 

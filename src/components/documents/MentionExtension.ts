@@ -3,6 +3,7 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { MentionView } from './MentionView';
 import { SuggestionOptions } from '@tiptap/suggestion';
+import Suggestion from '@tiptap/suggestion';
 import { Extension } from '@tiptap/core';
 import { RawCommands } from '@tiptap/core';
 
@@ -114,5 +115,14 @@ export const MentionNode = Node.create<MentionOptions>({
   
   addNodeView() {
     return ReactNodeViewRenderer(MentionView);
+  },
+  
+  addProseMirrorPlugins() {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion,
+      }),
+    ];
   },
 });
