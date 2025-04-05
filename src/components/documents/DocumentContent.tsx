@@ -1,7 +1,7 @@
 
 import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
@@ -24,26 +24,34 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     mentionPosition
   } = useMentionHandler(editor);
 
+  // Handle key events at the component level
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === '/') {
+      console.log('Slash key detected in DocumentContent');
+    }
+  }, []);
+
   // Debug mentions system
   useEffect(() => {
     if (editor) {
       console.log('DocumentContent: Editor initialized');
       
       // Log when user types '/'
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === '/') {
-          console.log('Slash key pressed in editor');
-        }
-      };
-      
-      // Add global listener to see if slash is being detected
       document.addEventListener('keydown', handleKeyDown);
       
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [editor]);
+  }, [editor, handleKeyDown]);
+
+  // Debug mention query changes
+  useEffect(() => {
+    if (mentionQuery !== null) {
+      console.log('Mention query active:', mentionQuery);
+      console.log('Mention items:', mentionItems.length);
+    }
+  }, [mentionQuery, mentionItems]);
 
   if (!editor) {
     return <div className="flex flex-col h-full gap-4">

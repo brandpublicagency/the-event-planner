@@ -6,6 +6,10 @@ import { SuggestionOptions } from '@tiptap/suggestion';
 import Suggestion from '@tiptap/suggestion';
 import { Extension } from '@tiptap/core';
 import { RawCommands } from '@tiptap/core';
+import { PluginKey } from '@tiptap/pm/state';
+
+// Create a dedicated plugin key for mention suggestions
+export const mentionSuggestionKey = new PluginKey('mentionSuggestion');
 
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>;
@@ -43,10 +47,28 @@ export const MentionNode = Node.create<MentionOptions>({
       },
       suggestion: {
         char: '/',
-        command: () => {
-          console.log('Default mention command called - this should be overridden');
+        command: ({ editor, range, props }) => {
+          console.log('Mention suggestion command executing with props:', props);
+          
+          // Delete the slash command
+          editor.chain().focus().deleteRange(range).run();
+          
+          // Insert the mention
+          editor.commands.insertContent({
+            type: 'mention',
+            attrs: props
+          });
+          
+          // Ensure cursor position is after the mention
+          editor.commands.focus();
         },
-        items: () => [],
+        items: ({ query }) => {
+          console.log('Default items function called with query:', query);
+          return [];
+        },
+        pluginKey: mentionSuggestionKey,
+        allowSpaces: false,
+        startOfLine: false,
       },
     };
   },

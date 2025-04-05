@@ -13,9 +13,20 @@ interface MentionItem {
  */
 export function useMentionItems(query: string | null) {
   const fetchMentionItems = async (q: string | null) => {
-    if (!q) {
+    if (q === null) {
       console.log('No query provided for mention items');
       return [];
+    }
+    
+    // For empty queries (right after typing '/'), return a basic set of items
+    if (q === '') {
+      console.log('Empty query, returning default mention items');
+      return [
+        { id: 'document_example', label: 'Documents', type: 'document' },
+        { id: 'task_example', label: 'Tasks', type: 'task' },
+        { id: 'event_example', label: 'Events', type: 'event' },
+        { id: 'user_example', label: 'Users', type: 'user' },
+      ];
     }
     
     const lowerQuery = q.toLowerCase();
@@ -124,7 +135,7 @@ export function useMentionItems(query: string | null) {
   const { data: items = [], isLoading, error } = useQuery({
     queryKey: ['mentionItems', query],
     queryFn: () => fetchMentionItems(query),
-    enabled: !!query,
+    enabled: query !== null,
     staleTime: 30000, // Cache results for 30 seconds
   });
   

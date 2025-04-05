@@ -1,11 +1,8 @@
 
 import { Editor, Range } from '@tiptap/react';
 import { useCallback, useEffect } from 'react';
-import { PluginKey } from '@tiptap/pm/state';
+import { mentionSuggestionKey } from '@/components/documents/MentionExtension';
 import { SuggestionOptions } from '@tiptap/suggestion';
-
-// Create a plugin key for the suggestion
-export const mentionPluginKey = new PluginKey('mention-suggestion');
 
 /**
  * Hook for configuring the mention suggestion plugin
@@ -27,8 +24,10 @@ export function useMentionSuggestion(
     
     return {
       editor,
-      pluginKey: mentionPluginKey,
+      pluginKey: mentionSuggestionKey,
       char: '/',
+      allowSpaces: false,
+      startOfLine: false,
       command: ({ editor, range, props }) => {
         console.log('Mention suggestion command triggered', { range, props });
         
@@ -48,18 +47,22 @@ export function useMentionSuggestion(
         console.log('Mention inserted', props);
         
         // Ensure cursor position is after the mention
-        setTimeout(() => {
-          if (!editor.isDestroyed) {
-            editor.commands.focus();
-          }
-        }, 10);
+        editor.commands.focus();
       },
       items: ({ query }) => {
         console.log('Filtering mention items with query:', query);
+        
+        // Return all items if query is empty
+        if (!query || query.length === 0) {
+          console.log('Empty query, returning all items:', mentionItems.length);
+          return mentionItems.slice(0, 10);
+        }
+        
         // Filter items based on query
+        const lowerQuery = query.toLowerCase();
         const filtered = mentionItems.filter(item => 
-          item.label.toLowerCase().includes(query.toLowerCase()) ||
-          item.type.toLowerCase().includes(query.toLowerCase())
+          item.label.toLowerCase().includes(lowerQuery) ||
+          item.type.toLowerCase().includes(lowerQuery)
         ).slice(0, 10); // Limit to 10 items for performance
         
         console.log('Filtered mention items:', filtered.length);
@@ -70,18 +73,21 @@ export function useMentionSuggestion(
           onStart: (props) => {
             console.log('Mention suggestion started:', props);
             const { range, query } = props;
+            
             setMentionQuery(query);
             setMentionRange(range);
           },
           onUpdate: (props) => {
             console.log('Mention suggestion updated:', props);
             const { range, query } = props;
+            
             setMentionQuery(query);
             setMentionRange(range);
           },
           onKeyDown: (props) => {
             console.log('Mention suggestion keydown:', props);
-            return false; // We handle keyboard interactions through useInlineMentionCommands
+            // Let our custom keyboard handler take care of it
+            return false;
           },
           onExit: () => {
             console.log('Mention suggestion exited');
@@ -92,32 +98,8 @@ export function useMentionSuggestion(
     };
   }, [editor, mentionItems, setMentionQuery, setMentionRange, resetMention]);
 
-  // Apply the suggestion configuration to the MentionNode extension
-  useEffect(() => {
-    if (!editor) return;
-    
-    console.log('Applying mention suggestion configuration to editor');
-    
-    // Get the mention node extension
-    const mentionExtension = editor.extensionManager.extensions.find(
-      ext => ext.name === 'mention'
-    );
-    
-    if (mentionExtension && mentionExtension.options) {
-      console.log('Found mention extension, applying suggestion configuration');
-      // Apply the suggestion configuration
-      mentionExtension.options.suggestion = configureSuggestion();
-      
-      // Force a re-render of the editor to apply the new configuration
-      editor.view.updateState(editor.view.state);
-      console.log('Editor updated with new mention configuration');
-    } else {
-      console.warn('Mention extension not found or has no options');
-    }
-  }, [editor, configureSuggestion]);
-
   return {
     configureSuggestion,
-    mentionPluginKey
+    mentionSuggestionKey
   };
 }

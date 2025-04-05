@@ -1,6 +1,6 @@
 
 import { Editor, Range } from '@tiptap/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMentionSelector } from './useMentionSelector';
 import { useMentionCommands } from './useMentionCommands';
 import { useMentionSuggestion } from './useMentionSuggestion';
@@ -42,6 +42,38 @@ export function useMentionHandler(editor: Editor | null) {
       });
     }
   }, [mentionQuery, mentionItems, mentionLoading, selectedItemIndex, mentionPosition]);
+  
+  // Direct slash key handler as a fallback
+  const handleSlashKey = useCallback(() => {
+    if (editor && editor.isActive) {
+      console.log('Slash key handler activated');
+      
+      // Force update mention query if no mention is active
+      if (mentionQuery === null) {
+        setTimeout(() => {
+          updatePosition(editor);
+        }, 10);
+      }
+    }
+  }, [editor, mentionQuery, updatePosition]);
+  
+  // Add a direct key listener as fallback
+  useEffect(() => {
+    if (!editor) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/') {
+        console.log('Slash key detected in global handler');
+        handleSlashKey();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor, handleSlashKey]);
   
   // Handle mention item selection
   const handleItemSelect = (item: any) => {
