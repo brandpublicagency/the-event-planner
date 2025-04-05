@@ -92,7 +92,8 @@ export const MentionNode = Node.create<MentionOptions>({
   },
   
   renderHTML({ HTMLAttributes }) {
-    return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-mention': '' }), 0];
+    // Fix here: Remove the 0 at the end that was causing the content hole error
+    return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { 'data-mention': '' })];
   },
   
   addNodeView() {

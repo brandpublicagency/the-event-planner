@@ -23,8 +23,8 @@ export function useMentionItems(query: string | null, category: MentionCategory 
     }
     
     if (category === null) {
-      // If we're at the category selection stage, show category options
-      // regardless of query (even if it's just "/")
+      // Always show category options when there's no specific category selected,
+      // even if query is empty (just after typing "/")
       setItems([
         { id: 'category-user', label: 'User', type: 'user' },
         { id: 'category-event', label: 'Event', type: 'event' },
