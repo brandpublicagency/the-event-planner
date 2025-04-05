@@ -1,4 +1,3 @@
-
 declare module 'tributejs' {
   export interface TributeItem {
     [key: string]: any;

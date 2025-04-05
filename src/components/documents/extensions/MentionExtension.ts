@@ -1,11 +1,8 @@
-
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { supabase } from '@/integrations/supabase/client';
 import Tribute from 'tributejs';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/toast';
-import { FileText, CheckSquare, Calendar, User } from 'lucide-react';
 
 // Type for mention items
 interface MentionResult {
@@ -15,7 +12,6 @@ interface MentionResult {
   url: string;
   icon?: string;
   color?: string;
-  idLabel?: string;
 }
 
 // Create a debounced search function
@@ -25,22 +21,6 @@ const debounce = (func: Function, delay: number) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   };
-};
-
-// Function to generate ID labels based on type
-const generateIdLabel = (id: string, type: string): string => {
-  switch (type) {
-    case 'event':
-      return `#${id.substring(0, 6)}`;
-    case 'task':
-      return `#${id.substring(0, 6)}`;
-    case 'document':
-      return `#${id.substring(0, 6)}`;
-    case 'user':
-      return `#${id.substring(0, 6)}`;
-    default:
-      return `#${id.substring(0, 6)}`;
-  }
 };
 
 export const MentionExtension = Extension.create({
@@ -107,7 +87,6 @@ export const MentionExtension = Extension.create({
               grouped[group.type].forEach(item => {
                 item.icon = group.icon;
                 item.color = group.color;
-                item.idLabel = generateIdLabel(item.id, item.type);
                 result.push(item);
               });
             }
@@ -168,21 +147,21 @@ export const MentionExtension = Extension.create({
                 const results: MentionResult[] = [
                   ...(documents?.map(doc => ({
                     id: doc.id,
-                    title: doc.title,
+                    title: doc.title || 'Untitled',
                     type: 'document' as const,
-                    url: `/documents?id=${doc.id}`,
+                    url: `/documents?selected=${doc.id}`,
                   })) || []),
                   ...(tasks?.map(task => ({
                     id: task.id,
                     title: task.title,
                     type: 'task' as const,
-                    url: `/tasks/${task.id}`,
+                    url: `/tasks?selected=${task.id}`,
                   })) || []),
                   ...(events?.map(event => ({
                     id: event.event_code,
                     title: event.name,
                     type: 'event' as const,
-                    url: `/event-details/${event.event_code}`,
+                    url: `/events/${event.event_code}`,
                   })) || []),
                   ...(users?.map(user => ({
                     id: user.id,
@@ -232,7 +211,6 @@ export const MentionExtension = Extension.create({
                 contenteditable="false">
                 <span class="mention-icon">${item.original.icon}</span>
                 <span class="mention-title">${item.original.title}</span>
-                <span class="mention-id">${item.original.idLabel || ''}</span>
               </span>`;
             },
             menuItemTemplate: (item) => {
@@ -246,7 +224,6 @@ export const MentionExtension = Extension.create({
                 <span class="mention-icon">${item.original.icon}</span>
                 <div class="mention-info">
                   <span class="mention-title">${item.original.title}</span>
-                  <span class="mention-id">${item.original.idLabel || ''}</span>
                 </div>
               </div>`;
             },
@@ -257,11 +234,32 @@ export const MentionExtension = Extension.create({
           containerClass: 'tribute-container',
         });
 
+        // Support for Tab key to insert mention
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'Tab') {
+            // Insert a slash to trigger the mention menu
+            const { state, view } = editorView;
+            const { $head } = state.selection;
+            
+            // Only trigger if not already in a mention
+            if (!$head.nodeBefore || $head.nodeBefore.text?.endsWith('/')) {
+              return;
+            }
+            
+            // Insert the slash character
+            view.dispatch(state.tr.insertText('/'));
+            e.preventDefault();
+          }
+        };
+
         // Find the editable DOM element
         const editorDOM = editorView.dom;
         if (editorDOM) {
           // Attach tribute to the editor
           tribute.attach(editorDOM);
+          
+          // Add Tab key handler
+          editorDOM.addEventListener('keydown', handleKeyDown);
           
           // Add click handler for mentions
           editorDOM.addEventListener('click', (e) => {
@@ -276,34 +274,7 @@ export const MentionExtension = Extension.create({
               const title = mentionElement.getAttribute('data-mention-title');
               
               if (url) {
-                // Show a toast notification for user mentions
-                if (type === 'user') {
-                  toast({
-                    title: "User Profile",
-                    description: `Viewing profile for ${title}`,
-                    variant: "info"
-                  });
-                } else if (type === 'document') {
-                  toast({
-                    title: "Document",
-                    description: `Opening document: ${title}`,
-                    variant: "info"
-                  });
-                } else if (type === 'task') {
-                  toast({
-                    title: "Task",
-                    description: `Opening task: ${title}`,
-                    variant: "info"
-                  });
-                } else if (type === 'event') {
-                  toast({
-                    title: "Event",
-                    description: `Opening event: ${title}`,
-                    variant: "info"
-                  });
-                }
-                
-                // Use window.location for navigation since we don't have access to React Router's navigate here
+                // Navigate to the URL
                 window.location.href = url;
               }
             }
@@ -358,6 +329,7 @@ export const MentionExtension = Extension.create({
           destroy: () => {
             if (editorDOM) {
               tribute.detach(editorDOM);
+              editorDOM.removeEventListener('keydown', handleKeyDown);
             }
           },
         };

@@ -1,8 +1,7 @@
-
 /* Mention styles */
 .ProseMirror .mention {
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 2px 8px;
   font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
@@ -38,12 +37,6 @@
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.ProseMirror .mention .mention-id {
-  font-size: 0.75rem;
-  opacity: 0.8;
-  font-weight: 400;
 }
 
 /* Type-specific styles */
@@ -151,11 +144,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.tribute-container .mention-id {
-  font-size: 0.75rem;
-  opacity: 0.7;
 }
 
 .tribute-container .tribute-item-document .mention-icon {
