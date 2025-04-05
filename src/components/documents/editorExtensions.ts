@@ -6,10 +6,15 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewNode } from './LinkPreviewExtension';
-import { MentionNode, MentionCommands, DirectMentionExtensions, TabKeyHandler } from './MentionExtension';
+import { 
+  MentionNode, 
+  MentionCommands, 
+  DirectMentionExtensions, 
+  TabKeyHandler,
+  SlashKeyHandler 
+} from './MentionExtension';
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import Suggestion from '@tiptap/suggestion';
 
 const lowlight = createLowlight(common);
 
@@ -77,21 +82,6 @@ const PasteHandler = Extension.create({
         }
       })
     ];
-  }
-});
-
-// Create a slash key handler extension to help ensure the mention system works
-const SlashKeyHandler = Extension.create({
-  name: 'slashKeyHandler',
-  
-  addKeyboardShortcuts() {
-    return {
-      '/': ({ editor }) => {
-        console.log('Slash key shortcut triggered');
-        // Don't handle the key, let it be typed, just log it
-        return false;
-      }
-    };
   }
 });
 

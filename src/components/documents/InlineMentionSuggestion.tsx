@@ -1,9 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { MentionItem } from './MentionSelector';
-import { supabase } from '@/integrations/supabase/client';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MentionItem } from './MentionSelector';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InlineMentionSuggestionsProps {
   query: string;
@@ -13,138 +14,207 @@ interface InlineMentionSuggestionsProps {
   mentionType: string | null;
 }
 
-export const InlineMentionSuggestions: React.FC<InlineMentionSuggestionsProps> = ({
+export const InlineMentionSuggestions = ({
   query,
   onSelect,
   onClose,
   position,
   mentionType
-}) => {
-  const [items, setItems] = useState<MentionItem[]>([]);
-  const [loading, setLoading] = useState(false);
+}: InlineMentionSuggestionsProps) => {
+  const [suggestions, setSuggestions] = useState<MentionItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  
+  // Search for suggestions based on type and query
   useEffect(() => {
-    // Reset selected index when query changes
+    const fetchSuggestions = async () => {
+      try {
+        // Default items if no specific type
+        if (!mentionType) {
+          setSuggestions([
+            { id: 'task', label: 'Task', type: 'task' },
+            { id: 'event', label: 'Event', type: 'event' },
+            { id: 'document', label: 'Document', type: 'document' },
+            { id: 'user', label: 'User', type: 'user' }
+          ]);
+          return;
+        }
+        
+        // Search based on the mention type
+        switch (mentionType) {
+          case 'task':
+            const { data: tasks } = await supabase
+              .from('tasks')
+              .select('id, title')
+              .ilike('title', `%${query}%`)
+              .limit(10);
+            
+            setSuggestions(
+              tasks?.map(task => ({
+                id: task.id,
+                label: task.title,
+                type: 'task'
+              })) || []
+            );
+            break;
+            
+          case 'event':
+            const { data: events } = await supabase
+              .from('events')
+              .select('event_code, name')
+              .ilike('name', `%${query}%`)
+              .limit(10);
+            
+            setSuggestions(
+              events?.map(event => ({
+                id: event.event_code,
+                label: event.name,
+                type: 'event'
+              })) || []
+            );
+            break;
+            
+          case 'document':
+            const { data: documents } = await supabase
+              .from('documents')
+              .select('id, title')
+              .ilike('title', `%${query}%`)
+              .limit(10);
+            
+            setSuggestions(
+              documents?.map(doc => ({
+                id: doc.id,
+                label: doc.title,
+                type: 'document'
+              })) || []
+            );
+            break;
+            
+          case 'user':
+            const { data: users } = await supabase
+              .from('profiles')
+              .select('id, full_name')
+              .ilike('full_name', `%${query}%`)
+              .limit(10);
+            
+            setSuggestions(
+              users?.map(user => ({
+                id: user.id,
+                label: user.full_name,
+                type: 'user'
+              })) || []
+            );
+            break;
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      }
+    };
+    
+    fetchSuggestions();
+  }, [query, mentionType]);
+  
+  // Reset selected index when suggestions change
+  useEffect(() => {
     setSelectedIndex(0);
-  }, [query]);
-
+  }, [suggestions]);
+  
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!position) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % Math.max(items.length, 1));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + items.length) % Math.max(items.length, 1));
-      } else if (e.key === 'Tab') {
-        e.preventDefault();
-        if (items.length > 0) {
-          onSelect(items[selectedIndex]);
-        }
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
+      if (!suggestions.length) return;
+      
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedIndex(prev => 
+            prev < suggestions.length - 1 ? prev + 1 : prev
+          );
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
+          break;
+          
+        case 'Enter':
+          e.preventDefault();
+          if (suggestions[selectedIndex]) {
+            onSelect(suggestions[selectedIndex]);
+          }
+          break;
+          
+        case 'Tab':
+          e.preventDefault();
+          if (suggestions[selectedIndex]) {
+            onSelect(suggestions[selectedIndex]);
+          }
+          break;
+          
+        case 'Escape':
+          e.preventDefault();
+          onClose();
+          break;
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [suggestions, selectedIndex, onSelect, onClose]);
+  
+  // Handle clicks outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(e.target as Node)
+      ) {
         onClose();
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [items, selectedIndex, onSelect, onClose, position]);
-
-  // Fetch items based on query and mention type
-  useEffect(() => {
-    if (!mentionType || !position) return;
-
-    const fetchItems = async () => {
-      setLoading(true);
-      
-      try {
-        if (mentionType === 'task') {
-          const { data } = await supabase
-            .from('tasks')
-            .select('id, title')
-            .ilike('title', `%${query}%`)
-            .limit(5);
-            
-          setItems(
-            (data || []).map(task => ({
-              id: task.id,
-              type: 'task',
-              label: task.title
-            }))
-          );
-        } else if (mentionType === 'event') {
-          const { data } = await supabase
-            .from('events')
-            .select('event_code, name')
-            .or(`name.ilike.%${query}%,event_code.ilike.%${query}%`)
-            .is('deleted_at', null)
-            .limit(5);
-            
-          setItems(
-            (data || []).map(event => ({
-              id: event.event_code,
-              type: 'event',
-              label: event.name
-            }))
-          );
-        } else if (mentionType === 'document') {
-          const { data } = await supabase
-            .from('documents')
-            .select('id, title')
-            .ilike('title', `%${query}%`)
-            .is('deleted_at', null)
-            .limit(5);
-            
-          setItems(
-            (data || []).map(doc => ({
-              id: doc.id,
-              type: 'document',
-              label: doc.title
-            }))
-          );
-        } else if (mentionType === 'user') {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, full_name')
-            .ilike('full_name', `%${query}%`)
-            .limit(5);
-            
-          setItems(
-            (data || []).map(user => ({
-              id: user.id,
-              type: 'user',
-              label: user.full_name
-            }))
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching mention suggestions:', error);
-      } finally {
-        setLoading(false);
-      }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-
-    // Only fetch if we have a query or it's the initial "/type" command
-    if (position) {
-      fetchItems();
-    }
-  }, [query, mentionType, position]);
-
+  }, [onClose]);
+  
+  // Setup virtualizer for performance with many items
+  const rowVirtualizer = useVirtualizer({
+    count: suggestions.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => 40,
+    overscan: 5,
+  });
+  
+  // If no position, don't render
   if (!position) return null;
-
-  // Function to get icon for item type
-  const getItemIcon = (type: string) => {
+  
+  // If no suggestions, show a message
+  if (suggestions.length === 0) {
+    return (
+      <div
+        ref={containerRef}
+        className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md"
+        style={{
+          top: `${position.top}px`,
+          left: `${position.left}px`
+        }}
+      >
+        <div className="p-2 text-sm text-gray-500">No results found</div>
+      </div>
+    );
+  }
+  
+  // Get the icon for a mention type
+  const getMentionIcon = (type: string) => {
     switch (type) {
-      case 'task':
-        return <CheckSquare className="h-4 w-4" />;
       case 'event':
         return <Calendar className="h-4 w-4" />;
+      case 'task':
+        return <CheckSquare className="h-4 w-4" />;
       case 'document':
         return <File className="h-4 w-4" />;
       case 'user':
@@ -153,51 +223,44 @@ export const InlineMentionSuggestions: React.FC<InlineMentionSuggestionsProps> =
         return null;
     }
   };
-
+  
   return (
     <div
       ref={containerRef}
-      className="absolute z-50 bg-white rounded-md shadow-md border border-gray-200 w-64 max-h-60 overflow-y-auto"
+      className="absolute z-10 min-w-[200px] max-w-[300px] max-h-[300px] overflow-auto bg-white border border-gray-200 shadow-lg rounded-md"
       style={{
-        top: position.top + 'px',
-        left: position.left + 'px'
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        height: suggestions.length > 7 ? '300px' : 'auto'
       }}
     >
-      {loading ? (
-        <div className="p-2 space-y-2">
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-        </div>
-      ) : items.length > 0 ? (
-        <div className="py-1">
-          {items.map((item, index) => (
+      <div
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative'
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map(virtualRow => {
+          const item = suggestions[virtualRow.index];
+          return (
             <div
-              key={`${item.type}-${item.id}`}
-              className={`flex items-center px-3 py-2 cursor-pointer ${
-                index === selectedIndex ? 'bg-blue-100' : 'hover:bg-gray-100'
+              key={virtualRow.index}
+              className={`absolute top-0 left-0 w-full p-2 cursor-pointer flex items-center ${
+                virtualRow.index === selectedIndex ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
               }`}
+              style={{
+                height: virtualRow.size,
+                transform: `translateY(${virtualRow.start}px)`
+              }}
               onClick={() => onSelect(item)}
             >
-              <div className="mr-2 text-gray-500">
-                {getItemIcon(item.type)}
-              </div>
-              <div className="flex-1 truncate">{item.label}</div>
-              {index === selectedIndex && (
-                <div className="text-xs text-gray-500 ml-2">Press Tab</div>
-              )}
+              <span className="mr-2">{getMentionIcon(item.type)}</span>
+              <span className="truncate">{item.label}</span>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="p-3 text-sm text-gray-500">
-          {mentionType ? (
-            query ? `No ${mentionType}s found matching "${query}"` : `Type to search ${mentionType}s`
-          ) : (
-            'Type /task, /event, /document, or /user'
-          )}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 };

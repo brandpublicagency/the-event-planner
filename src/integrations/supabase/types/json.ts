@@ -17,7 +17,11 @@ export const mentionsToJson = (mentions: JsonMention[]): Json => {
 export const jsonToMentions = (json: Json): JsonMention[] => {
   if (!json) return [];
   if (Array.isArray(json)) {
-    return json as JsonMention[];
+    // Cast with type assertion after checking it's an array
+    return (json as any[]).map(item => ({
+      id: item.id || '',
+      type: item.type || 'document'
+    })) as JsonMention[];
   }
   return [];
 };
