@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 import { MentionItem } from './MentionSelector';
@@ -25,11 +24,9 @@ export const InlineMentionSuggestions = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Search for suggestions based on type and query
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        // Default items if no specific type
         if (!mentionType) {
           setSuggestions([
             { id: 'task', label: 'Task', type: 'task' },
@@ -40,7 +37,6 @@ export const InlineMentionSuggestions = ({
           return;
         }
         
-        // Search based on the mention type
         switch (mentionType) {
           case 'task':
             const { data: tasks } = await supabase
@@ -114,12 +110,10 @@ export const InlineMentionSuggestions = ({
     fetchSuggestions();
   }, [query, mentionType]);
   
-  // Reset selected index when suggestions change
   useEffect(() => {
     setSelectedIndex(0);
   }, [suggestions]);
   
-  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!suggestions.length) return;
@@ -164,7 +158,6 @@ export const InlineMentionSuggestions = ({
     };
   }, [suggestions, selectedIndex, onSelect, onClose]);
   
-  // Handle clicks outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -181,7 +174,6 @@ export const InlineMentionSuggestions = ({
     };
   }, [onClose]);
   
-  // Setup virtualizer for performance with many items
   const rowVirtualizer = useVirtualizer({
     count: suggestions.length,
     getScrollElement: () => containerRef.current,
@@ -189,10 +181,8 @@ export const InlineMentionSuggestions = ({
     overscan: 5,
   });
   
-  // If no position, don't render
   if (!position) return null;
   
-  // If no suggestions, show a message
   if (suggestions.length === 0) {
     return (
       <div
@@ -208,7 +198,6 @@ export const InlineMentionSuggestions = ({
     );
   }
   
-  // Get the icon for a mention type
   const getMentionIcon = (type: string) => {
     switch (type) {
       case 'event':
