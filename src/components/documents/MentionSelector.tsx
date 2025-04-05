@@ -1,7 +1,6 @@
 
 import React, { forwardRef, useEffect } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
 
 interface MentionItem {
   id: string;
@@ -26,11 +25,6 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   selectedIndex,
   setSelectedIndex,
 }, ref) => {
-  // Handle item selection
-  const handleItemSelect = (item: MentionItem) => {
-    command(item);
-  };
-  
   // Auto-select first item when items change
   useEffect(() => {
     if (items.length > 0 && selectedIndex >= items.length) {
@@ -38,8 +32,8 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     }
   }, [items, selectedIndex, setSelectedIndex]);
   
-  // If there are no matching items or the query is too short, don't show anything
-  if (loading || items.length === 0 || !query || query.length < 3) {
+  // If there are no items or we're loading, don't show anything
+  if (loading || items.length === 0) {
     return null;
   }
   
@@ -56,20 +50,24 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
     }
   };
   
-  // Only show the selected item
-  const item = items[selectedIndex];
-  
-  if (!item) return null;
-  
   return (
     <div 
       ref={ref}
-      data-mention-active="true"
-      className="inline-flex items-center px-1.5 py-0.5 bg-zinc-100 rounded-md text-sm mx-1"
-      onClick={() => handleItemSelect(item)}
+      className="absolute z-50 bg-white shadow-md rounded-md border border-zinc-200 py-1 w-60 max-h-48 overflow-y-auto"
     >
-      <span className="mr-1">{getTypeIcon(item.type)}</span>
-      <span>{item.label}</span>
+      {items.map((item, index) => (
+        <div
+          key={item.id}
+          onClick={() => command(item)}
+          className={`px-2 py-1.5 flex items-center hover:bg-zinc-100 cursor-pointer ${
+            index === selectedIndex ? 'bg-zinc-100' : ''
+          }`}
+        >
+          <span className="mr-2">{getTypeIcon(item.type)}</span>
+          <span className="text-sm font-medium">{item.label}</span>
+          <span className="ml-auto text-xs text-zinc-500">{item.type}</span>
+        </div>
+      ))}
     </div>
   );
 });

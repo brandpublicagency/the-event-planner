@@ -14,7 +14,7 @@ export function useInlineMentionCommands(
     
     // Enhanced keyboard event handler with improved event capture
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Check if we're currently in mention mode
+      // If we have an active mention selector
       if (document.querySelector('[data-mention-active="true"]')) {
         if (event.key === 'ArrowDown') {
           event.preventDefault();

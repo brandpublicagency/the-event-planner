@@ -10,6 +10,7 @@ import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
 import { DocumentEditorError } from "./DocumentEditorError";
 import { useDocumentCategoriesState } from "@/hooks/useDocumentCategoriesState";
+import { useEditorSetup } from "@/hooks/useEditorSetup";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -30,6 +31,9 @@ export default function DocumentEditor({
       }
     }
   });
+  
+  // Apply our editor setup hook
+  useEditorSetup(editor);
   
   const {
     document,

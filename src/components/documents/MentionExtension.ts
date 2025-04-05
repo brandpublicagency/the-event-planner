@@ -101,13 +101,11 @@ export const MentionNode = Node.create<MentionOptions>({
   
   addCommands() {
     return {
-      setMention: options => ({ commands, chain }) => {
-        return chain()
-          .insertContent({
-            type: this.name,
-            attrs: options,
-          })
-          .run();
+      setMention: options => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
       },
     };
   },

@@ -107,8 +107,7 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
-  // Add the mention extension - removing .configure to fix TS error
-  MentionNode,
+  MentionNode, // Add the mention extension
 ];
 
 // Helper function to check if mark is active

@@ -19,13 +19,6 @@ export function useMentionItems(query: string | null) {
       return;
     }
     
-    // Only start searching when the user has typed at least 3 characters
-    if (query.trim().length < 3) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
-    
     // Set loading state immediately
     setLoading(true);
     

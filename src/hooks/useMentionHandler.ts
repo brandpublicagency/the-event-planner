@@ -77,38 +77,6 @@ export function useMentionHandler(editor: Editor | null) {
       editor: editor!,
       pluginKey: suggestionPluginKey,
       char: '/',
-      items: () => mentionItems,
-      render: () => {
-        return {
-          onStart: (props) => {
-            const { range, query } = props;
-            // Only activate if query has at least 3 characters
-            if (query && query.length >= 3) {
-              setMentionQuery(query);
-              setMentionRange(range);
-              setSelectedItemIndex(0);
-            }
-          },
-          onUpdate: (props) => {
-            const { range, query } = props;
-            // Only show if query has at least 3 characters
-            if (query && query.length >= 3) {
-              setMentionQuery(query);
-              setMentionRange(range);
-              setSelectedItemIndex(0);
-            } else {
-              setMentionQuery(null);
-            }
-          },
-          onKeyDown: () => {
-            // Handle all keyboard interactions through useInlineMentionCommands hook
-            return false;
-          },
-          onExit: () => {
-            closeAndResetMention();
-          }
-        };
-      },
       command: ({ editor, range, props }) => {
         // Delete the slash command from the document
         editor.chain().focus().deleteRange(range).run();
@@ -126,6 +94,29 @@ export function useMentionHandler(editor: Editor | null) {
             editor.commands.focus();
           }
         }, 10);
+      },
+      items: () => mentionItems,
+      render: () => {
+        return {
+          onStart: (props) => {
+            const { range, query } = props;
+            setMentionQuery(query);
+            setMentionRange(range);
+            setSelectedItemIndex(0);
+          },
+          onUpdate: (props) => {
+            const { range, query } = props;
+            setMentionQuery(query);
+            setMentionRange(range);
+          },
+          onKeyDown: (props) => {
+            // We'll handle keyboard interaction through the useInlineMentionCommands hook
+            return false;
+          },
+          onExit: () => {
+            closeAndResetMention();
+          }
+        };
       }
     };
   }, [
