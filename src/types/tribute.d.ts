@@ -21,6 +21,11 @@ declare module 'tributejs' {
     replaceTextSuffix?: string;
     menuItemLimit?: number;
     menuShowMinLength?: number;
+    searchOpts?: {
+      pre: string;
+      post: string;
+      skip: boolean;
+    };
     keys?: {
       tab?: number;
       enter?: number | null;
@@ -51,6 +56,11 @@ declare module 'tributejs' {
     requireLeadingSpace?: boolean;
     allowSpaces?: boolean;
     replaceTextSuffix?: string;
+    searchOpts?: {
+      pre: string;
+      post: string;
+      skip: boolean;
+    };
   }
 
   export default class Tribute {

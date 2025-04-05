@@ -1,17 +1,22 @@
 
 /* Mention styles */
 .ProseMirror .mention {
-  border-radius: 0.25rem;
-  padding: 0.125rem 0.25rem;
+  border-radius: 6px;
+  padding: 4px 8px;
   font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   cursor: pointer;
-  margin: 0 0.125rem;
+  margin: 0 2px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  border-width: 1px;
+  border-style: solid;
+  line-height: 1.2;
 }
 
 .ProseMirror .mention:hover {
@@ -20,62 +25,71 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.ProseMirror .mention .mention-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.ProseMirror .mention .mention-title {
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ProseMirror .mention .mention-id {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+/* Type-specific styles */
 .mention-document {
-  background-color: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+  background-color: #FFF7E6;
+  color: #D97706;
+  border-color: #FBBF24;
 }
 
 .mention-task {
-  background-color: #dcfce7;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
+  background-color: #FEE2E2;
+  color: #DC2626;
+  border-color: #F87171;
 }
 
 .mention-event {
-  background-color: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background-color: #D1FAE5;
+  color: #059669;
+  border-color: #6EE7B7;
 }
 
 .mention-user {
-  background-color: #f3e8ff;
-  color: #7e22ce;
-  border: 1px solid #e9d5ff;
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border-color: #93C5FD;
 }
 
-/* Tribute dropdown styling */
+/* Tribute dropdown styling - made to look like category selector */
 .tribute-container {
   position: absolute;
   top: 0;
   left: 0;
-  height: auto;
   max-height: 300px;
-  max-width: 500px;
+  max-width: 300px;
   overflow: auto;
   display: block;
   z-index: 999999;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   background-color: white;
   border: 1px solid #e2e8f0;
-}
-
-.tribute-wrapper {
-  margin-top: 5px;
+  padding: 4px;
 }
 
 .tribute-container:before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 10px;
-  width: 10px;
-  height: 10px;
-  transform: rotate(45deg);
-  background: white;
-  border-left: 1px solid #e2e8f0;
-  border-top: 1px solid #e2e8f0;
+  display: none;
 }
 
 .tribute-container ul {
@@ -92,20 +106,24 @@
 .tribute-container .tribute-item {
   display: flex;
   align-items: center;
+  gap: 8px;
   font-size: 0.875rem;
-  padding: 0.5rem 1rem;
+  padding: 8px 10px;
   cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
 }
 
 .tribute-container .tribute-header {
-  background-color: #f8fafc;
-  padding: 0.25rem 0.5rem;
+  background-color: transparent;
+  padding: 4px 8px;
   font-size: 0.75rem;
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: default;
+  margin-top: 4px;
 }
 
 .tribute-container .mention-header-title {
@@ -113,31 +131,47 @@
 }
 
 .tribute-container .mention-icon {
-  margin-right: 0.5rem;
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
-.tribute-container .mention-type {
-  font-weight: 600;
-  margin-right: 0.5rem;
-  text-transform: capitalize;
-  min-width: 60px;
+.tribute-container .mention-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-grow: 1;
 }
 
-.tribute-container .tribute-item-document .mention-type {
-  color: #0369a1;
+.tribute-container .mention-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.tribute-container .tribute-item-task .mention-type {
-  color: #15803d;
+.tribute-container .mention-id {
+  font-size: 0.75rem;
+  opacity: 0.7;
 }
 
-.tribute-container .tribute-item-event .mention-type {
-  color: #b45309;
+.tribute-container .tribute-item-document .mention-icon {
+  color: #D97706;
 }
 
-.tribute-container .tribute-item-user .mention-type {
-  color: #7e22ce;
+.tribute-container .tribute-item-task .mention-icon {
+  color: #DC2626;
+}
+
+.tribute-container .tribute-item-event .mention-icon {
+  color: #059669;
+}
+
+.tribute-container .tribute-item-user .mention-icon {
+  color: #2563EB;
 }
 
 .tribute-container .tribute-item-loading {
@@ -148,12 +182,9 @@
   color: #64748b;
 }
 
-.tribute-container li.highlight {
-  background-color: #f1f5f9;
-}
-
-.tribute-container li:hover {
-  background-color: #f1f5f9;
+.tribute-container li.highlight,
+.tribute-container .tribute-item:hover {
+  background-color: #f8fafc;
 }
 
 .tribute-container .tribute-no-match {
@@ -181,18 +212,25 @@
   }
 }
 
+/* Highlighted text in search results */
+.highlighted {
+  background-color: #fffbeb;
+  font-weight: bold;
+}
+
 /* Tooltip styles */
 .mention-tooltip {
   position: absolute;
   background-color: #1e293b;
   color: white;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
+  padding: 6px 10px;
+  border-radius: 4px;
   font-size: 0.75rem;
   z-index: 1000;
   max-width: 300px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   animation: tooltip-in 0.2s ease-out;
+  pointer-events: none;
 }
 
 @keyframes tooltip-in {
