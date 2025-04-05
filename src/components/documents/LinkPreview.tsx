@@ -62,6 +62,18 @@ export function LinkPreview({ url }: { url: string }) {
     return null;
   }
   
+  // Check if the URL is valid before trying to display it
+  let displayHostname = "";
+  try {
+    if (preview.url) {
+      const urlObj = new URL(preview.url);
+      displayHostname = urlObj.hostname;
+    }
+  } catch (e) {
+    console.error("Invalid URL:", preview.url);
+    displayHostname = preview.url || "unknown";
+  }
+  
   return (
     <div className="my-4 border rounded-md overflow-hidden max-w-2xl hover:shadow-md transition-shadow">
       <a 
@@ -106,7 +118,7 @@ export function LinkPreview({ url }: { url: string }) {
                 }} 
               />
             )}
-            <span className="truncate">{new URL(preview.url).hostname}</span>
+            <span className="truncate">{displayHostname}</span>
           </div>
         </div>
       </a>
