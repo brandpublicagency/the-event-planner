@@ -90,6 +90,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 
                 // Handle keyboard navigation
                 if (event.key === 'ArrowUp') {
+                  event.preventDefault(); // Prevent cursor movement
                   setSelectedItemIndex((prev) => 
                     prev > 0 ? prev - 1 : mentionItems.length - 1
                   );
@@ -97,6 +98,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 }
                 
                 if (event.key === 'ArrowDown') {
+                  event.preventDefault(); // Prevent cursor movement
                   setSelectedItemIndex((prev) => 
                     prev < mentionItems.length - 1 ? prev + 1 : 0
                   );
@@ -104,6 +106,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
                 }
                 
                 if (event.key === 'Enter' && mentionItems.length && selectedItemIndex >= 0) {
+                  event.preventDefault(); // Prevent newline insertion
                   const item = mentionItems[selectedItemIndex];
                   if (item) {
                     // Check if this is a category selection
