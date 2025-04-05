@@ -1,4 +1,3 @@
-
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { supabase } from '@/integrations/supabase/client';
@@ -255,7 +254,7 @@ export const MentionExtension = Extension.create({
         const handleKeyDown = (e: KeyboardEvent) => {
           if (e.key === 'Tab') {
             // Insert a slash to trigger the mention menu
-            const { state, view } = editorView;
+            const { state } = editorView;
             const { $head } = state.selection;
             
             // Only trigger if not already in a mention
@@ -263,8 +262,8 @@ export const MentionExtension = Extension.create({
               return;
             }
             
-            // Insert the slash character
-            view.dispatch(state.tr.insertText('/'));
+            // Insert the slash character - Fixed: use proper dispatch method
+            editorView.dispatch(state.tr.insertText('/'));
             e.preventDefault();
           }
         };
