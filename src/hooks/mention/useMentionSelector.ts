@@ -1,5 +1,5 @@
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { useMentionItems } from './useMentionItems';
 
 /**
@@ -84,5 +84,3 @@ export function useMentionSelector() {
     updatePosition
   };
 }
-
-import { useEffect } from 'react';

@@ -1,4 +1,3 @@
-
 import { Editor, Range } from '@tiptap/react';
 import { useCallback } from 'react';
 
@@ -28,23 +27,10 @@ export function useMentionCommands(editor: Editor | null) {
     }, 10);
   }, [editor]);
   
-  // Select item by index and handle insertion
-  const selectMentionItem = useCallback((
-    direction: number, 
-    selectedItemIndex: number, 
-    mentionItems: any[], 
-    mentionRange: Range | null
-  ) => {
-    if (mentionItems.length === 0) return;
-    
-    if (direction === 0) {
-      // Select current item
-      if (selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
-        handleMentionSelect(mentionRange, mentionItems[selectedItemIndex]);
-      }
-    }
-    // Direction handling for up/down is handled by useMentionSelector
-  }, [handleMentionSelect]);
+  // We're not using this function anymore but keeping it for API compatibility
+  const selectMentionItem = useCallback(() => {
+    // This functionality is now handled by useMentionHandler directly
+  }, []);
   
   return {
     handleMentionSelect,

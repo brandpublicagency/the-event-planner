@@ -22,7 +22,7 @@ export function useMentionHandler(editor: Editor | null) {
     mentionSelectorRef,
     mentionPosition,
     closeAndResetMention,
-    selectItem,
+    selectItem: navigateSelection,
     updatePosition
   } = useMentionSelector();
   
@@ -39,7 +39,7 @@ export function useMentionHandler(editor: Editor | null) {
   };
   
   // Select an item by direction or current index
-  const selectMentionItem = (direction: number) => {
+  const handleSelectionNavigation = (direction: number) => {
     if (direction === 0) {
       // Select current item
       if (selectedItemIndex >= 0 && selectedItemIndex < mentionItems.length) {
@@ -47,7 +47,7 @@ export function useMentionHandler(editor: Editor | null) {
       }
     } else {
       // Move selection up/down
-      selectItem(direction);
+      navigateSelection(direction);
     }
   };
   
@@ -79,6 +79,6 @@ export function useMentionHandler(editor: Editor | null) {
     handleMentionSelect: handleItemSelect,
     closeAndResetMention,
     configureSuggestion,
-    selectMentionItem
+    selectMentionItem: handleSelectionNavigation
   };
 }
