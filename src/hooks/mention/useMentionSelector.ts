@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useMentionItems } from './useMentionItems';
 
