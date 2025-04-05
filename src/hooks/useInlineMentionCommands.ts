@@ -67,21 +67,16 @@ export function useInlineMentionCommands(
       return false;
     };
     
-    // Add keyboard handlers to capture and prevent key events
+    // Enhanced keyboard event handler with improved event capture
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-        // Let the mention handler handle arrow keys when dropdown is active
-        const isDropdownActive = document.querySelector('[data-selected="true"]');
-        if (isDropdownActive) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
+      // Prevent default behavior and stop propagation for navigation keys
+      // when dropdown is active to allow proper dropdown navigation
+      const isDropdownActive = document.querySelector('[data-selected="true"]');
       
-      if (event.key === 'Enter') {
-        // Let the mention handler handle Enter when dropdown is active
-        const isDropdownActive = document.querySelector('[data-selected="true"]');
-        if (isDropdownActive) {
+      if (isDropdownActive) {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || 
+            event.key === 'Enter' || event.key === 'Tab') {
+          // Completely stop propagation for these keys when dropdown is active
           event.preventDefault();
           event.stopPropagation();
         }
@@ -98,6 +93,7 @@ export function useInlineMentionCommands(
     editor.on('update', checkForShortcuts);
     
     // Add global event listeners to capture keyboard events
+    // Use capture phase (true) to ensure we get the events before other handlers
     editor.view.dom.addEventListener('keydown', handleKeyDown, true);
     
     return () => {

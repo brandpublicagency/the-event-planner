@@ -159,9 +159,12 @@ export function useMentionHandler(editor: Editor | null) {
           onKeyDown: (props) => {
             const { event } = props;
             
-            // Handle keyboard navigation - fixed to properly stop event propagation
+            // Enhanced keyboard navigation with better event handling
             if (event.key === 'ArrowUp') {
-              event.preventDefault(); // Prevent cursor movement
+              // Stop event propagation completely
+              event.preventDefault();
+              event.stopPropagation();
+              
               setSelectedItemIndex((prev) => {
                 if (prev <= 0) {
                   return mentionItems.length - 1;
@@ -172,7 +175,10 @@ export function useMentionHandler(editor: Editor | null) {
             }
             
             if (event.key === 'ArrowDown') {
-              event.preventDefault(); // Prevent cursor movement
+              // Stop event propagation completely
+              event.preventDefault();
+              event.stopPropagation();
+              
               setSelectedItemIndex((prev) => {
                 if (prev >= mentionItems.length - 1) {
                   return 0;

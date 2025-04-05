@@ -36,6 +36,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
 }, ref) => {
   // State to track if the component has been mounted
   const [mounted, setMounted] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
   
   // Set mounted state on component mount
   useEffect(() => {
@@ -82,13 +83,13 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
   
   // Scroll selected item into view
   useEffect(() => {
-    if (ref && 'current' in ref && ref.current && items.length > 0) {
-      const selectedElement = ref.current.querySelector(`[data-selected="true"]`);
+    if (listRef.current && items.length > 0) {
+      const selectedElement = listRef.current.querySelector(`[data-selected="true"]`);
       if (selectedElement) {
         selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
-  }, [selectedIndex, items, ref]);
+  }, [selectedIndex, items]);
   
   if (!clientRect || !mounted) return null;
   
@@ -134,7 +135,7 @@ export const MentionSelector = forwardRef<HTMLDivElement, MentionSelectorProps>(
             {query && <p className="text-xs text-zinc-400">Try a different search term</p>}
           </div>
         ) : (
-          <div>
+          <div ref={listRef}>
             {items.map((item, index) => {
               const isSelected = index === selectedIndex;
               

@@ -1,11 +1,10 @@
 
 import { Editor, EditorContent, Range } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MentionSelector } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/useMentionHandler';
-import { useEditorSetup } from '@/hooks/useEditorSetup';
 import { useInlineMentionCommands } from '@/hooks/useInlineMentionCommands';
 
 interface DocumentContentProps {
@@ -33,9 +32,6 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     setSelectedCategory,
     configureSuggestion
   } = useMentionHandler(editor);
-
-  // Set up editor extensions and features
-  useEditorSetup(editor);
   
   // Set up inline mention commands for shortcuts like /e, /t, etc.
   useInlineMentionCommands(
@@ -46,7 +42,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
     setMentionClientRect
   );
 
-  // Load the suggestion extension with our configuration
+  // Initialize suggestion plugin only once on editor mount
   useEffect(() => {
     if (!editor) return;
     
@@ -55,18 +51,16 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       try {
         const { default: Suggestion } = await import('@tiptap/suggestion');
         
-        // Register the suggestion plugin with our configuration
+        // Register the suggestion plugin with our configuration only once
         editor.registerPlugin(Suggestion(configureSuggestion()));
-        
-        return () => {
-          // Clean up is handled by useEditorSetup
-        };
       } catch (error) {
         console.error("Error loading suggestion extension:", error);
       }
     };
     
     importSuggestion();
+    
+    // No cleanup needed - handled by editor destruction
   }, [editor, configureSuggestion]);
 
   if (!editor) {
