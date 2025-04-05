@@ -80,6 +80,21 @@ const PasteHandler = Extension.create({
   }
 });
 
+// Create a slash key handler extension to help ensure the mention system works
+const SlashKeyHandler = Extension.create({
+  name: 'slashKeyHandler',
+  
+  addKeyboardShortcuts() {
+    return {
+      '/': ({ editor }) => {
+        console.log('Slash key shortcut triggered');
+        // Don't handle the key, let it be typed, just log it
+        return false;
+      }
+    };
+  }
+});
+
 // Export all extensions
 export const getEditorExtensions = () => [
   StarterKit.configure({
@@ -109,6 +124,8 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewNode,
   PasteHandler, // Add the paste handler extension
+  SlashKeyHandler, // Add the slash key handler
+  
   // Important: MentionNode must come before MentionCommands
   MentionNode.configure({
     suggestion: {

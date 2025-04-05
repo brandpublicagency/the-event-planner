@@ -1,18 +1,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-
-interface MentionItem {
-  id: string;
-  label: string;
-  type: 'event' | 'task' | 'document' | 'user';
-}
+import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Hook to fetch mention items based on query
  */
 export function useMentionItems(query: string | null) {
-  const fetchMentionItems = async (q: string | null) => {
+  const fetchMentionItems = async (q: string | null): Promise<MentionItem[]> => {
     if (q === null) {
       console.log('No query provided for mention items');
       return [];

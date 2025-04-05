@@ -3,7 +3,7 @@ import { Editor, EditorContent } from '@tiptap/react';
 import { EditorToolbar } from "./EditorToolbar";
 import { forwardRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MentionSelector } from './MentionSelector';
+import { MentionSelector, MentionItem } from './MentionSelector';
 import { useMentionHandler } from '@/hooks/mention/useMentionHandler';
 
 interface DocumentContentProps {

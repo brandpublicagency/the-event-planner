@@ -2,6 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { useMentionItems } from './useMentionItems';
+import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Hook for managing the mention selector UI state

@@ -3,13 +3,14 @@ import { Editor, Range } from '@tiptap/react';
 import { useCallback, useEffect } from 'react';
 import { mentionSuggestionKey } from '@/components/documents/MentionExtension';
 import { SuggestionOptions } from '@tiptap/suggestion';
+import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Hook for configuring the mention suggestion plugin
  */
 export function useMentionSuggestion(
   editor: Editor | null,
-  mentionItems: any[],
+  mentionItems: MentionItem[],
   setMentionQuery: (query: string | null) => void,
   setMentionRange: (range: Range | null) => void,
   resetMention: () => void

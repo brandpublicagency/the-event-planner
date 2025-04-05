@@ -1,13 +1,14 @@
 
 import { Editor, Range } from '@tiptap/react';
 import { useCallback } from 'react';
+import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Hook for handling mention commands (insertion)
  */
 export function useMentionCommands(editor: Editor | null) {
   // Handle mention selection - inserts the mention at the current position
-  const handleMentionSelect = useCallback((mentionRange: Range | null, item: any) => {
+  const handleMentionSelect = useCallback((mentionRange: Range | null, item: MentionItem) => {
     if (!editor || !mentionRange) return;
 
     // First delete the range (the slash command)

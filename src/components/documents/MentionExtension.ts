@@ -91,6 +91,16 @@ export const MentionNode = Node.create<MentionOptions>({
       },
       type: {
         default: null,
+        parseHTML: element => element.getAttribute('data-type'),
+        renderHTML: attributes => {
+          if (!attributes.type) {
+            return {};
+          }
+          
+          return {
+            'data-type': attributes.type,
+          };
+        },
       },
     };
   },

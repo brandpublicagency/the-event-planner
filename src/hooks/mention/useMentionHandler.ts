@@ -5,6 +5,7 @@ import { useMentionSelector } from './useMentionSelector';
 import { useMentionCommands } from './useMentionCommands';
 import { useMentionSuggestion } from './useMentionSuggestion';
 import { useInlineMentionCommands } from '../useInlineMentionCommands';
+import { MentionItem } from '@/components/documents/MentionSelector';
 
 /**
  * Main hook that combines all mention functionality
@@ -50,12 +51,15 @@ export function useMentionHandler(editor: Editor | null) {
       
       // Force update mention query if no mention is active
       if (mentionQuery === null) {
+        // Set initial empty query to show default items
+        setMentionQuery('');
+        
         setTimeout(() => {
           updatePosition(editor);
         }, 10);
       }
     }
-  }, [editor, mentionQuery, updatePosition]);
+  }, [editor, mentionQuery, setMentionQuery, updatePosition]);
   
   // Add a direct key listener as fallback
   useEffect(() => {
@@ -76,7 +80,7 @@ export function useMentionHandler(editor: Editor | null) {
   }, [editor, handleSlashKey]);
   
   // Handle mention item selection
-  const handleItemSelect = (item: any) => {
+  const handleItemSelect = (item: MentionItem) => {
     console.log('handleItemSelect called with item:', item);
     handleMentionSelect(mentionRange, item);
     closeAndResetMention();

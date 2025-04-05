@@ -2,7 +2,7 @@
 import React, { forwardRef, memo } from 'react';
 import { Calendar, CheckSquare, File, User } from 'lucide-react';
 
-interface MentionItem {
+export interface MentionItem {
   id: string;
   label: string;
   type: 'event' | 'task' | 'document' | 'user';
