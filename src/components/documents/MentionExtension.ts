@@ -4,6 +4,7 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 import { MentionView } from './MentionView';
 import { SuggestionOptions } from '@tiptap/suggestion';
 import { Extension } from '@tiptap/core';
+import { RawCommands } from '@tiptap/core';
 
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>;
@@ -17,15 +18,13 @@ export const MentionCommands = Extension.create({
   
   addCommands() {
     return {
-      setMention: (attrs) => ({ chain }) => {
-        return chain()
-          .insertContent({
-            type: 'mention',
-            attrs
-          })
-          .run();
+      setMention: (attrs) => ({ commands }) => {
+        return commands.insertContent({
+          type: 'mention',
+          attrs
+        });
       }
-    };
+    } as Partial<RawCommands>;
   }
 });
 

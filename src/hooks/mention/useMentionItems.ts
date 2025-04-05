@@ -53,7 +53,7 @@ export function useMentionItems(query: string | null) {
       });
     }
     
-    // Fetch events - using correct column names
+    // Fetch events - using correct column names (event_code and name)
     const { data: events } = await supabase
       .from('events')
       .select('event_code, name')
