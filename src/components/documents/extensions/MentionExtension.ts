@@ -1,3 +1,4 @@
+
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { supabase } from '@/integrations/supabase/client';
@@ -217,7 +218,7 @@ export const MentionExtension = Extension.create({
                 return ''; // Don't insert headers
               }
               
-              // Content inside the editor - updated to match the design in the image
+              // Content inside the editor - fixed to match the design in the image
               return `<span 
                 class="mention mention-${item.original.type}" 
                 data-mention-id="${item.original.id}" 
