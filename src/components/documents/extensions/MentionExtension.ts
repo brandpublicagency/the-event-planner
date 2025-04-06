@@ -1,4 +1,3 @@
-
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Suggestion } from '@tiptap/suggestion';
@@ -31,12 +30,11 @@ export const MentionExtension = Extension.create({
               .is('deleted_at', null)
               .limit(5);
 
-            // Search for tasks
+            // Search for tasks - removed the deleted_at filter since tasks don't have this column
             const { data: tasks } = await supabase
               .from('tasks')
               .select('id, title')
               .ilike('title', `%${query}%`)
-              .is('deleted_at', null)
               .limit(5);
 
             // Search for events
