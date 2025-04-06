@@ -136,10 +136,16 @@ export const MentionExtension = Extension.create({
             },
             onKeyDown: props => {
               // Let the MentionList component handle the keyboard navigation
-              // We'll just prevent default behavior for these keys
               if (['ArrowUp', 'ArrowDown', 'Enter', 'Tab'].includes(props.event.key)) {
                 props.event.preventDefault();
-                // The actual handling is in the MentionList component
+                
+                // Enter or Tab should apply the mention
+                if (props.event.key === 'Enter' || props.event.key === 'Tab') {
+                  const item = component.ref?.getSelectedItem();
+                  if (item) {
+                    component.ref?.selectItem(item);
+                  }
+                }
                 return true;
               }
               
@@ -156,8 +162,13 @@ export const MentionExtension = Extension.create({
             },
           };
         },
-        // Modified command for mentions that allows typing before/after
+        // Modified command for mentions to properly handle inline editing
         command: ({ editor, range, props }) => {
+          // Skip if the suggestion is a header
+          if (props.isHeader) {
+            return false;
+          }
+          
           const nodeAttrs = {
             id: props.id,
             label: props.title,
@@ -181,13 +192,11 @@ export const MentionExtension = Extension.create({
               attrs: nodeAttrs,
             })
             .run();
-          
-          // Move cursor after the mention node
-          // This allows typing after the mention
+            
+          // Critical fix: Set selection after the mention node to allow typing after it
           const { selection } = editor.state;
           editor.commands.setTextSelection(selection.from);
-            
-          // Return true to indicate the command was handled
+          
           return true;
         },
       },

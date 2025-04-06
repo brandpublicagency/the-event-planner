@@ -91,7 +91,7 @@ export const MentionNode = Node.create<MentionOptions>({
     ];
   },
 
-  // Use React component for mentions when available
+  // Use React component for mentions
   addNodeView() {
     return ReactNodeViewRenderer(MentionComponent);
   },

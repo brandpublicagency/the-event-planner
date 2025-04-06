@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { FileIcon, CalendarDaysIcon, ClipboardListIcon, UserIcon } from 'lucide-react';
 
 interface MentionItem {
@@ -16,14 +16,38 @@ interface MentionListProps {
   editor: any;
 }
 
-const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => {
+// Export the ref interface to allow parent components to access internal methods
+export interface MentionListRef {
+  selectItem: (item: MentionItem) => void;
+  getSelectedItem: () => MentionItem | null;
+}
+
+const MentionList = forwardRef<MentionListRef, MentionListProps>(({ items, command, editor }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  // Filter out header items when selecting
+  const selectableItems = items.filter(item => !item.isHeader);
+  
+  // Expose methods to parent components via ref
+  useImperativeHandle(ref, () => ({
+    selectItem: (item: MentionItem) => {
+      command(item);
+    },
+    getSelectedItem: () => {
+      if (selectableItems.length === 0) return null;
+      
+      const currentItem = items[selectedIndex];
+      if (currentItem?.isHeader) {
+        // If header is selected, find the next non-header item
+        const nextIndex = items.findIndex((item, idx) => idx > selectedIndex && !item.isHeader);
+        return nextIndex >= 0 ? items[nextIndex] : selectableItems[0];
+      }
+      return currentItem;
+    }
+  }));
+  
   const selectItem = (index: number) => {
-    // Filter out header items when selecting
-    const selectableItems = items.filter(item => !item.isHeader);
-    
     if (selectableItems.length > 0) {
       // Find the actual index in the original items array
       const actualItem = selectableItems[index % selectableItems.length];
@@ -35,8 +59,6 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Filter out header items for navigation
-      const selectableItems = items.filter(item => !item.isHeader);
       if (!selectableItems.length) return false;
       
       // Find current index within selectable items
@@ -63,12 +85,6 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
         return true;
       }
       
-      if (event.key === 'Enter' || event.key === 'Tab') {
-        event.preventDefault();
-        command(items[selectedIndex]);
-        return true;
-      }
-      
       return false;
     };
     
@@ -78,7 +94,7 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [items, selectedIndex, command]);
+  }, [items, selectedIndex, selectableItems]);
   
   // Scroll selected item into view
   useEffect(() => {
@@ -165,6 +181,8 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
       ))}
     </div>
   );
-};
+});
+
+MentionList.displayName = 'MentionList';
 
 export default MentionList;
