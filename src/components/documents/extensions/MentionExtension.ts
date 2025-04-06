@@ -1,6 +1,5 @@
 
-import { Extension, Editor } from '@tiptap/core';
-import { Node } from '@tiptap/pm/model';
+import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Suggestion } from '@tiptap/suggestion';
 import { ReactRenderer } from '@tiptap/react';
@@ -8,11 +7,10 @@ import tippy from 'tippy.js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/toast';
 import { FileIcon, CalendarDaysIcon, ClipboardListIcon, UserIcon } from 'lucide-react';
+import React from 'react';
 
 // MentionList component rendered in the suggestions dropdown
-function MentionList(props) {
-  const { items, command, editor } = props;
-  
+function MentionList({ items, command, editor }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   
   React.useEffect(() => {
@@ -82,7 +80,7 @@ function MentionList(props) {
             </span>
           </div>
           
-          {groupItems.map((item, index) => {
+          {groupItems.map((item) => {
             const isSelected = items.indexOf(item) === selectedIndex;
             
             return (
