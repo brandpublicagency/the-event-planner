@@ -1,3 +1,4 @@
+
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Suggestion } from '@tiptap/suggestion';
@@ -155,7 +156,7 @@ export const MentionExtension = Extension.create({
             },
           };
         },
-        // Custom render for mentions
+        // Modified command for mentions that allows typing before/after
         command: ({ editor, range, props }) => {
           const nodeAttrs = {
             id: props.id,
@@ -164,17 +165,30 @@ export const MentionExtension = Extension.create({
             url: props.url,
           };
           
+          // Delete the suggestion text (including the '/' character)
           editor
             .chain()
             .focus()
             .deleteRange(range)
+            .run();
+          
+          // Insert the mention node
+          editor
+            .chain()
+            .focus()
             .insertContent({
               type: 'mention',
               attrs: nodeAttrs,
             })
             .run();
+          
+          // Move cursor after the mention node
+          // This allows typing after the mention
+          const { selection } = editor.state;
+          editor.commands.setTextSelection(selection.from);
             
-          window.getSelection()?.collapseToEnd();
+          // Return true to indicate the command was handled
+          return true;
         },
       },
     };
