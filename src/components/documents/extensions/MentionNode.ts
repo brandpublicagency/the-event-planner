@@ -16,7 +16,8 @@ export const MentionNode = Node.create<MentionOptions>({
   
   selectable: false,
   
-  atom: true,
+  // Changed from atom: true to atom: false to allow cursor positioning
+  atom: false,
   
   addOptions() {
     return {
@@ -76,6 +77,7 @@ export const MentionNode = Node.create<MentionOptions>({
         { 'data-id': id },
         { 'data-type': type },
         { 'data-url': url },
+        { contenteditable: 'false' }, // Make the mention itself non-editable
         HTMLAttributes,
       ),
       [

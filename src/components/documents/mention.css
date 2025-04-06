@@ -19,6 +19,16 @@
   color: #000000 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
+  /* These properties are crucial for proper cursor positioning */
+  position: relative;
+  display: inline-flex;
+}
+
+/* Make sure cursor placement works properly */
+.ProseMirror .mention::before,
+.ProseMirror .mention::after {
+  content: "\200B"; /* Zero-width space */
+  display: inline;
 }
 
 .ProseMirror .mention:hover {
@@ -71,6 +81,24 @@
 
 .ProseMirror .mention-user .mention-icon {
   color: #1414DE;
+}
+
+/* Document-specific styles */
+.document-save-button {
+  background-color: black !important;
+  color: white !important;
+  border-color: black !important;
+}
+
+.document-save-button:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Divider styling */
+.ProseMirror hr {
+  border: none;
+  border-top: 0.25px solid black;
+  margin: 1em 0;
 }
 
 /* Tippy.js styling for mention suggestions dropdown */
@@ -223,15 +251,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Document-specific styles */
-.document-save-button {
-  background-color: black !important;
-  color: white !important;
-  border-color: black !important;
-}
-
-.document-save-button:hover {
-  background-color: rgba(0, 0, 0, 0.8) !important;
 }

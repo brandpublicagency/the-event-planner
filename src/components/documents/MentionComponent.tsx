@@ -35,13 +35,14 @@ const MentionComponent: React.FC<NodeViewProps> = ({ node }) => {
   }
   
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper as="span">
       <span 
         className={`mention mention-${type}`}
         data-id={id}
         data-type={type}
         data-url={url}
         onClick={handleClick}
+        contentEditable={false}
       >
         <span className="mention-icon">
           <Icon size={16} />

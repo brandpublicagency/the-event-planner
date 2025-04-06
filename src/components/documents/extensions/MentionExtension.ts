@@ -31,7 +31,7 @@ export const MentionExtension = Extension.create({
               .is('deleted_at', null)
               .limit(5);
 
-            // Search for tasks - removed the deleted_at filter since tasks don't have this column
+            // Search for tasks
             const { data: tasks } = await supabase
               .from('tasks')
               .select('id, title')
@@ -144,6 +144,7 @@ export const MentionExtension = Extension.create({
                   const item = component.ref?.getSelectedItem();
                   if (item) {
                     component.ref?.selectItem(item);
+                    return true;
                   }
                 }
                 return true;
@@ -193,9 +194,17 @@ export const MentionExtension = Extension.create({
             })
             .run();
             
-          // Critical fix: Set selection after the mention node to allow typing after it
-          const { selection } = editor.state;
-          editor.commands.setTextSelection(selection.from);
+          // Critical fix: Position cursor after the mention
+          const { tr } = editor.view.state;
+          const position = tr.selection.from;
+          
+          editor.view.dispatch(
+            editor.view.state.tr.setSelection(
+              editor.view.state.selection.constructor.near(
+                editor.view.state.doc.resolve(position)
+              )
+            )
+          );
           
           return true;
         },
