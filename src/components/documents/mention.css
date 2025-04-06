@@ -1,5 +1,5 @@
 
-/* Mention button styles */
+/* Mention button styles - updated for TipTap implementation */
 .ProseMirror .mention {
   border-radius: 4px;
   padding: 2px 6px;
@@ -73,50 +73,29 @@
   color: #1414DE;
 }
 
-/* Tribute dropdown styling - made to look like category selector */
-.tribute-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  max-height: 300px;
-  max-width: 300px;
-  overflow: auto;
-  display: block;
-  z-index: 999999;
+/* Tippy.js styling for mention suggestions dropdown */
+.tippy-box[data-theme="mention"] {
   border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   background-color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
   padding: 4px;
+  color: black;
+  overflow: hidden;
 }
 
-.tribute-container:before {
-  display: none;
-}
-
-.tribute-container ul {
-  margin: 0;
+.tippy-box[data-theme="mention"] .tippy-content {
   padding: 0;
-  list-style: none;
 }
 
-.tribute-container li {
-  padding: 0;
-  margin: 0;
+.mention-dropdown-container {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.tribute-container .tribute-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  padding: 8px 10px;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
-}
-
-.tribute-container .tribute-header {
+/* Mention suggestions dropdown styling */
+.mention-dropdown-container .tribute-header {
   background-color: transparent;
   padding: 4px 8px;
   font-size: 0.75rem;
@@ -128,11 +107,27 @@
   margin-top: 4px;
 }
 
-.tribute-container .mention-header-title {
-  padding-left: 0.5rem;
+.mention-dropdown-container .tribute-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
 }
 
-.tribute-container .mention-icon {
+.mention-dropdown-container .tribute-item:hover,
+.mention-dropdown-container .tribute-item.highlight {
+  background-color: #f8fafc;
+}
+
+.mention-dropdown-container .mention-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,14 +136,14 @@
   flex-shrink: 0;
 }
 
-.tribute-container .mention-info {
+.mention-dropdown-container .mention-info {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-grow: 1;
 }
 
-.tribute-container .mention-title {
+.mention-dropdown-container .mention-title {
   font-weight: normal;
   white-space: nowrap;
   overflow: hidden;
@@ -156,40 +151,28 @@
 }
 
 /* Color-coded icons in dropdown */
-.tribute-container .tribute-item-document .mention-icon {
+.mention-dropdown-container .tribute-item-document .mention-icon {
   color: #FFA245;
 }
 
-.tribute-container .tribute-item-task .mention-icon {
+.mention-dropdown-container .tribute-item-task .mention-icon {
   color: #F70848;
 }
 
-.tribute-container .tribute-item-event .mention-icon {
+.mention-dropdown-container .tribute-item-event .mention-icon {
   color: #0EC392;
 }
 
-.tribute-container .tribute-item-user .mention-icon {
+.mention-dropdown-container .tribute-item-user .mention-icon {
   color: #1414DE;
 }
 
-.tribute-container .tribute-item-loading {
+.mention-dropdown-container .tribute-item-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   color: #64748b;
-}
-
-.tribute-container li.highlight,
-.tribute-container .tribute-item:hover {
-  background-color: #f8fafc;
-}
-
-.tribute-container .tribute-no-match {
-  padding: 1rem;
-  text-align: center;
-  color: #64748b;
-  font-style: italic;
 }
 
 /* Loading spinner */

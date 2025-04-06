@@ -1,328 +1,350 @@
 
-import { Extension } from '@tiptap/core';
+import { Extension, Editor } from '@tiptap/core';
+import { Node } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Suggestion } from '@tiptap/suggestion';
+import { ReactRenderer } from '@tiptap/react';
+import tippy from 'tippy.js';
 import { supabase } from '@/integrations/supabase/client';
-import Tribute from 'tributejs';
 import { toast } from '@/components/ui/toast';
+import { FileIcon, CalendarDaysIcon, ClipboardListIcon, UserIcon } from 'lucide-react';
 
-// Type for mention items
-interface MentionResult {
-  id: string;
-  title: string;
-  type: 'event' | 'task' | 'document' | 'user';
-  url: string;
-  icon?: string;
-  color?: string;
+// MentionList component rendered in the suggestions dropdown
+function MentionList(props) {
+  const { items, command, editor } = props;
+  
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  
+  React.useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowUp') {
+        setSelectedIndex((selectedIndex + items.length - 1) % items.length);
+        return true;
+      }
+      
+      if (event.key === 'ArrowDown') {
+        setSelectedIndex((selectedIndex + 1) % items.length);
+        return true;
+      }
+      
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        command(items[selectedIndex]);
+        return true;
+      }
+      
+      return false;
+    };
+    
+    if (editor.isFocused) {
+      editor.view.dom.addEventListener('keydown', handleKeyDown);
+    }
+    
+    return () => {
+      editor.view.dom.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor, items, selectedIndex, command]);
+  
+  // Group items by type
+  const groupedItems = items.reduce((acc, item) => {
+    if (item.isHeader) {
+      return acc;
+    }
+    
+    if (!acc[item.type]) {
+      acc[item.type] = [];
+    }
+    
+    acc[item.type].push(item);
+    return acc;
+  }, {});
+  
+  // If no items, show loading or no results
+  if (items.length === 0) {
+    return (
+      <div className="mention-dropdown-container">
+        <div className="tribute-item tribute-item-loading">
+          <div className="loading-spinner"></div>
+          <span>No results found</span>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="mention-dropdown-container">
+      {Object.entries(groupedItems).map(([type, groupItems]) => (
+        <React.Fragment key={type}>
+          <div className="tribute-header">
+            <span className="mention-header-title">
+              {type === 'document' ? 'Documents' : 
+               type === 'task' ? 'Tasks' : 
+               type === 'event' ? 'Events' : 'Users'}
+            </span>
+          </div>
+          
+          {groupItems.map((item, index) => {
+            const isSelected = items.indexOf(item) === selectedIndex;
+            
+            return (
+              <button
+                key={item.id}
+                className={`tribute-item tribute-item-${item.type} ${isSelected ? 'highlight' : ''}`}
+                onClick={() => command(item)}
+              >
+                <span className="mention-icon">
+                  {item.type === 'document' ? <FileIcon className="h-4 w-4" /> : 
+                   item.type === 'task' ? <ClipboardListIcon className="h-4 w-4" /> : 
+                   item.type === 'event' ? <CalendarDaysIcon className="h-4 w-4" /> : 
+                   <UserIcon className="h-4 w-4" />}
+                </span>
+                <div className="mention-info">
+                  <span className="mention-title">{item.title}</span>
+                </div>
+              </button>
+            );
+          })}
+        </React.Fragment>
+      ))}
+    </div>
+  );
 }
 
-// Create a debounced search function
-const debounce = (func: Function, delay: number) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
-
-// Get icon SVG based on type
-const getIconSvg = (type: string): string => {
-  switch (type) {
-    case 'document':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
-    case 'task':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="3" height="9" x="4" y="15" rx="1"/><rect width="3" height="5" x="12" y="15" rx="1"/><rect width="3" height="14" x="20" y="10" rx="1"/><path d="M4 9l4-4 4 4 8-8"/></svg>';
-    case 'event':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
-    case 'user':
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
-    default:
-      return '';
-  }
-};
-
 export const MentionExtension = Extension.create({
-  name: 'mentions',
+  name: 'mention',
 
   addOptions() {
     return {
-      HTMLAttributes: {
-        class: 'mention',
+      suggestion: {
+        char: '/',
+        startOfLine: false,
+        allowSpaces: true,
+        items: async ({ query }) => {
+          if (query.length < 2) {
+            return [];
+          }
+          
+          try {
+            // Search for documents
+            const { data: documents } = await supabase
+              .from('documents')
+              .select('id, title')
+              .ilike('title', `%${query}%`)
+              .is('deleted_at', null)
+              .limit(5);
+
+            // Search for tasks
+            const { data: tasks } = await supabase
+              .from('tasks')
+              .select('id, title')
+              .ilike('title', `%${query}%`)
+              .is('deleted_at', null)
+              .limit(5);
+
+            // Search for events
+            const { data: events } = await supabase
+              .from('events')
+              .select('event_code, name')
+              .ilike('name', `%${query}%`)
+              .is('deleted_at', null)
+              .limit(5);
+
+            // Search for users
+            const { data: users } = await supabase
+              .from('profiles')
+              .select('id, full_name')
+              .ilike('full_name', `%${query}%`)
+              .limit(5);
+
+            // Format results
+            const result = [];
+            
+            // Add grouped headers and items
+            if (documents?.length) {
+              result.push({ id: 'header-document', isHeader: true, title: 'Documents', type: 'header' });
+              result.push(...documents.map(doc => ({
+                id: doc.id,
+                title: doc.title || 'Untitled',
+                type: 'document',
+                url: `/documents?selected=${doc.id}`,
+              })));
+            }
+            
+            if (tasks?.length) {
+              result.push({ id: 'header-task', isHeader: true, title: 'Tasks', type: 'header' });
+              result.push(...tasks.map(task => ({
+                id: task.id,
+                title: task.title,
+                type: 'task',
+                url: `/tasks?selected=${task.id}`,
+              })));
+            }
+            
+            if (events?.length) {
+              result.push({ id: 'header-event', isHeader: true, title: 'Events', type: 'header' });
+              result.push(...events.map(event => ({
+                id: event.event_code,
+                title: event.name,
+                type: 'event',
+                url: `/events/${event.event_code}`,
+              })));
+            }
+            
+            if (users?.length) {
+              result.push({ id: 'header-user', isHeader: true, title: 'Users', type: 'header' });
+              result.push(...users.map(user => ({
+                id: user.id,
+                title: user.full_name,
+                type: 'user',
+                url: `/profile/${user.id}`,
+              })));
+            }
+            
+            return result;
+          } catch (error) {
+            console.error('Error fetching mention suggestions:', error);
+            return [];
+          }
+        },
+        render: () => {
+          let component;
+          let popup;
+          
+          return {
+            onStart: props => {
+              component = new ReactRenderer(MentionList, {
+                props,
+                editor: props.editor,
+              });
+              
+              popup = tippy('body', {
+                getReferenceClientRect: props.clientRect,
+                appendTo: () => document.body,
+                content: component.element,
+                showOnCreate: true,
+                interactive: true,
+                trigger: 'manual',
+                placement: 'bottom-start',
+                animation: 'scale',
+                theme: 'mention',
+                maxWidth: '400px',
+              })[0];
+            },
+            onUpdate: props => {
+              component.updateProps(props);
+              
+              popup.setProps({
+                getReferenceClientRect: props.clientRect,
+              });
+            },
+            onKeyDown: props => {
+              if (props.event.key === 'Escape') {
+                popup.hide();
+                return true;
+              }
+              
+              return component.ref?.handleKeyDown(props);
+            },
+            onExit: () => {
+              popup.destroy();
+              component.destroy();
+            },
+          };
+        },
+        // Custom render for mentions
+        command: ({ editor, range, props }) => {
+          const nodeAttrs = {
+            id: props.id,
+            label: props.title,
+            type: props.type,
+            url: props.url,
+          };
+          
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .insertContent({
+              type: 'mention',
+              attrs: nodeAttrs,
+            })
+            .run();
+            
+          window.getSelection()?.collapseToEnd();
+        },
       },
-      suggestionClass: 'mention-suggestion',
     };
   },
 
   addProseMirrorPlugins() {
-    const plugin = new Plugin({
-      key: new PluginKey('mentions'),
-      view: (editorView) => {
-        let isSearching = false;
-        let tribute: Tribute | null = null;
-
-        const loadingTemplate = () => {
-          return '<div class="tribute-item tribute-item-loading">' +
-            '<div class="loading-spinner"></div>' +
-            '<span>Searching...</span>' +
-          '</div>';
-        };
-
-        // Group items by type
-        const groupItems = (items: MentionResult[]) => {
-          const grouped: {[key: string]: MentionResult[]} = {
-            document: [],
-            task: [],
-            event: [],
-            user: []
-          };
-          
-          items.forEach(item => {
-            if (grouped[item.type]) {
-              grouped[item.type].push(item);
-            }
-          });
-          
-          // Return a flattened array with group headers
-          const result: any[] = [];
-          
-          // Define display order and icons
-          const groups = [
-            { type: 'document', label: 'Documents' },
-            { type: 'task', label: 'Tasks' },
-            { type: 'event', label: 'Events' },
-            { type: 'user', label: 'Users' }
-          ];
-          
-          groups.forEach(group => {
-            if (grouped[group.type].length > 0) {
-              // Add header
-              result.push({
-                type: 'header',
-                title: group.label,
-                isHeader: true
-              });
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion,
+      }),
+      
+      // Add click handler for mentions
+      new Plugin({
+        key: new PluginKey('mention-click-handler'),
+        props: {
+          handleClick: (view, pos, event) => {
+            const { state } = view;
+            const { doc } = state;
+            const target = event.target;
+            
+            if (target instanceof HTMLElement && target.closest('.mention, .mention-container')) {
+              const mentionEl = target.closest('.mention, .mention-container');
+              if (!mentionEl) return false;
               
-              // Add items with icons and colors
-              grouped[group.type].forEach(item => {
-                item.icon = getIconSvg(group.type);
-                result.push(item);
-              });
-            }
-          });
-          
-          return result;
-        };
-
-        const initTribute = () => {
-          // Clean up any existing tribute instance
-          if (tribute) {
-            tribute.detach(editorView.dom);
-          }
-
-          tribute = new Tribute({
-            collection: [{
-              trigger: '/',
-              values: debounce(async (text: string, callback: (items: any[]) => void) => {
-                // Skip the / character in the search
-                const searchQuery = text.substring(1);
-                
-                // Set searching state
-                isSearching = true;
-                
-                if (searchQuery.length < 2) {
-                  callback([]);
-                  isSearching = false;
-                  return;
-                }
-
-                try {
-                  // Search for documents
-                  const { data: documents } = await supabase
-                    .from('documents')
-                    .select('id, title')
-                    .ilike('title', `%${searchQuery}%`)
-                    .is('deleted_at', null)
-                    .limit(5);
-
-                  // Search for tasks
-                  const { data: tasks } = await supabase
-                    .from('tasks')
-                    .select('id, title')
-                    .ilike('title', `%${searchQuery}%`)
-                    .is('deleted_at', null)
-                    .limit(5);
-
-                  // Search for events
-                  const { data: events } = await supabase
-                    .from('events')
-                    .select('event_code, name')
-                    .ilike('name', `%${searchQuery}%`)
-                    .is('deleted_at', null)
-                    .limit(5);
-
-                  // Search for users
-                  const { data: users } = await supabase
-                    .from('profiles')
-                    .select('id, full_name')
-                    .ilike('full_name', `%${searchQuery}%`)
-                    .limit(5);
-
-                  // Format results
-                  const results: MentionResult[] = [
-                    ...(documents?.map(doc => ({
-                      id: doc.id,
-                      title: doc.title || 'Untitled',
-                      type: 'document' as const,
-                      url: `/documents?selected=${doc.id}`,
-                    })) || []),
-                    ...(tasks?.map(task => ({
-                      id: task.id,
-                      title: task.title,
-                      type: 'task' as const,
-                      url: `/tasks?selected=${task.id}`,
-                    })) || []),
-                    ...(events?.map(event => ({
-                      id: event.event_code,
-                      title: event.name,
-                      type: 'event' as const,
-                      url: `/events/${event.event_code}`,
-                    })) || []),
-                    ...(users?.map(user => ({
-                      id: user.id,
-                      title: user.full_name,
-                      type: 'user' as const,
-                      url: `/profile/${user.id}`,
-                    })) || []),
-                  ];
-
-                  // Group and organize the results
-                  const groupedResults = groupItems(results);
-                  callback(groupedResults);
-                } catch (error) {
-                  console.error('Error fetching mention suggestions:', error);
-                  callback([]);
-                } finally {
-                  isSearching = false;
-                }
-              }, 300),
-              lookup: 'title',
-              fillAttr: 'title',
-              menuShowMinLength: 2,
-              requireLeadingSpace: false,
-              allowSpaces: true,
-              searchOpts: {
-                pre: '<span class="highlighted">',
-                post: '</span>',
-                skip: false
-              },
-              keys: {
-                tab: 9,
-                enter: 13,
-                up: 38,
-                down: 40
-              },
-              selectTemplate: (item) => {
-                if (item.original.isHeader) {
-                  return ''; // Don't insert headers
-                }
-                
-                // Content inside the editor - properly styled as a button
-                return `<span 
-                  contenteditable="false" 
-                  class="mention mention-${item.original.type}" 
-                  data-mention-id="${item.original.id}" 
-                  data-mention-type="${item.original.type}" 
-                  data-mention-url="${item.original.url}" 
-                  data-mention-title="${item.original.title}"
-                ><span class="mention-icon">${getIconSvg(item.original.type)}</span><span class="mention-title">${item.original.title}</span></span>`;
-              },
-              menuItemTemplate: (item) => {
-                if (item.original.isHeader) {
-                  return `<div class="tribute-item tribute-header">
-                    <span class="mention-header-title">${item.original.title}</span>
-                  </div>`;
-                }
-                
-                return `<div class="tribute-item tribute-item-${item.original.type}">
-                  <span class="mention-icon">${item.original.icon}</span>
-                  <div class="mention-info">
-                    <span class="mention-title">${item.original.title}</span>
-                  </div>
-                </div>`;
-              },
-              noMatchTemplate: () => '<div class="tribute-item tribute-no-match">No matches found</div>',
-              loadingTemplate: loadingTemplate,
-            }],
-            positionMenu: true,
-            containerClass: 'tribute-container',
-          });
-
-          return tribute;
-        };
-
-        // Initialize tribute
-        tribute = initTribute();
-
-        // Support for Tab key to insert mention
-        const handleKeyDown = (e: KeyboardEvent) => {
-          if (e.key === 'Tab') {
-            // Check if we're in a position to insert a mention
-            const { state } = editorView;
-            const { $head } = state.selection;
-            
-            // Only trigger if not already in a mention
-            if (!$head.nodeBefore || $head.nodeBefore.text?.endsWith('/')) {
-              return;
-            }
-            
-            // Insert the slash character
-            editorView.dispatch(state.tr.insertText('/'));
-            e.preventDefault();
-          }
-        };
-
-        // Find the editable DOM element
-        const editorDOM = editorView.dom;
-        
-        if (editorDOM) {
-          // Attach tribute to the editor
-          tribute.attach(editorDOM);
-          
-          // Add Tab key handler
-          editorDOM.addEventListener('keydown', handleKeyDown);
-          
-          // Add click handler for mentions
-          editorDOM.addEventListener('click', (e) => {
-            const target = e.target as HTMLElement;
-            const mentionElement = target.closest('.mention');
-            
-            if (mentionElement) {
-              e.preventDefault();
-              e.stopPropagation(); // Stop event propagation
+              let url;
               
-              const url = mentionElement.getAttribute('data-mention-url');
-              const type = mentionElement.getAttribute('data-mention-type');
-              const title = mentionElement.getAttribute('data-mention-title');
+              // Handle potentially different DOM structures
+              if (mentionEl.hasAttribute('data-url')) {
+                url = mentionEl.getAttribute('data-url');
+              } else {
+                url = mentionEl.querySelector('[data-url]')?.getAttribute('data-url');
+              }
               
               if (url) {
-                // Show a toast notification before navigating
-                toast.info(`Navigating to ${title}`);
+                event.preventDefault();
                 
-                // Navigate to the URL
+                toast.info(`Navigating to ${mentionEl.textContent.trim()}`);
                 window.location.href = url;
+                return true;
               }
             }
-          });
-
-          // Add tooltip behavior for mentions
-          let currentTooltip: HTMLElement | null = null;
-          
-          editorDOM.addEventListener('mouseover', (e) => {
-            const target = e.target as HTMLElement;
-            const mentionElement = target.closest('.mention');
             
-            if (mentionElement && !currentTooltip) {
-              const type = mentionElement.getAttribute('data-mention-type');
-              const title = mentionElement.getAttribute('data-mention-title');
+            return false;
+          },
+        },
+      }),
+      
+      // Add tooltip behavior for mentions
+      new Plugin({
+        key: new PluginKey('mention-tooltip'),
+        view: () => {
+          let tooltip = null;
+          
+          const handleMouseOver = (event) => {
+            const target = event.target;
+            
+            if (target instanceof HTMLElement && target.closest('.mention, .mention-container')) {
+              const mentionEl = target.closest('.mention, .mention-container');
+              if (!mentionEl || tooltip) return;
+              
+              let type, title, url;
+              
+              // Handle potentially different DOM structures
+              if (mentionEl.hasAttribute('data-type')) {
+                type = mentionEl.getAttribute('data-type');
+                title = mentionEl.textContent.trim();
+                url = mentionEl.getAttribute('data-url');
+              } else {
+                type = mentionEl.querySelector('[data-type]')?.getAttribute('data-type');
+                title = mentionEl.textContent.trim();
+                url = mentionEl.querySelector('[data-url]')?.getAttribute('data-url');
+              }
+              
+              if (!type || !url) return;
               
               let tooltipText = '';
               switch (type) {
@@ -340,44 +362,44 @@ export const MentionExtension = Extension.create({
                   break;
               }
               
-              // Add tooltip
-              const tooltip = document.createElement('div');
+              // Create tooltip
+              tooltip = document.createElement('div');
               tooltip.className = 'mention-tooltip';
               tooltip.textContent = tooltipText;
               
               // Position tooltip
-              const rect = mentionElement.getBoundingClientRect();
+              const rect = mentionEl.getBoundingClientRect();
               tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
               tooltip.style.left = `${rect.left + window.scrollX}px`;
               
               document.body.appendChild(tooltip);
-              currentTooltip = tooltip;
               
-              // Remove tooltip on mouseout
+              // Add mouseout event to remove tooltip
               const removeTooltip = () => {
-                if (currentTooltip && document.body.contains(currentTooltip)) {
-                  document.body.removeChild(currentTooltip);
+                if (tooltip && document.body.contains(tooltip)) {
+                  document.body.removeChild(tooltip);
                 }
-                currentTooltip = null;
-                mentionElement.removeEventListener('mouseout', removeTooltip);
+                tooltip = null;
+                mentionEl.removeEventListener('mouseout', removeTooltip);
               };
               
-              mentionElement.addEventListener('mouseout', removeTooltip);
+              mentionEl.addEventListener('mouseout', removeTooltip);
             }
-          });
-        }
-
-        return {
-          destroy: () => {
-            if (editorDOM && tribute) {
-              tribute.detach(editorDOM);
-              editorDOM.removeEventListener('keydown', handleKeyDown);
-            }
-          },
-        };
-      },
-    });
-
-    return [plugin];
+          };
+          
+          document.addEventListener('mouseover', handleMouseOver);
+          
+          return {
+            destroy: () => {
+              document.removeEventListener('mouseover', handleMouseOver);
+              
+              if (tooltip && document.body.contains(tooltip)) {
+                document.body.removeChild(tooltip);
+              }
+            },
+          };
+        },
+      }),
+    ];
   },
 });

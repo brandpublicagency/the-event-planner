@@ -8,6 +8,7 @@ import { common, createLowlight } from 'lowlight';
 import { LinkPreviewExtension } from './extensions/LinkPreviewExtension';
 import { LinkPasteHandler } from './extensions/LinkPasteHandler';
 import { MentionExtension } from './extensions/MentionExtension';
+import { MentionNode } from './extensions/MentionNode';
 import './mention.css';
 
 const lowlight = createLowlight(common);
@@ -37,6 +38,7 @@ export const getEditorExtensions = () => [
   }),
   LinkPreviewExtension,
   LinkPasteHandler,
+  MentionNode,
   MentionExtension,
 ];
 
