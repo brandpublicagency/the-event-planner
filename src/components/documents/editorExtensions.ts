@@ -1,4 +1,3 @@
-
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -9,7 +8,7 @@ import { LinkPreviewExtension } from './extensions/LinkPreviewExtension';
 import { LinkPasteHandler } from './extensions/LinkPasteHandler';
 import { MentionExtension } from './extensions/MentionExtension';
 import { MentionNode } from './extensions/MentionNode';
-import './mention.css';
+import './styles/mention/index.css';
 
 const lowlight = createLowlight(common);
 

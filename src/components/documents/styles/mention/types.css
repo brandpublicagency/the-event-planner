@@ -1,0 +1,38 @@
+
+/* Type-specific styles for different mention types */
+
+/* Document mention */
+.ProseMirror .mention-document {
+  border-color: #FFA245 !important;
+}
+
+.ProseMirror .mention-document .mention-icon {
+  color: #FFA245;
+}
+
+/* Task mention */
+.ProseMirror .mention-task {
+  border-color: #F70848 !important;
+}
+
+.ProseMirror .mention-task .mention-icon {
+  color: #F70848;
+}
+
+/* Event mention */
+.ProseMirror .mention-event {
+  border-color: #0EC392 !important;
+}
+
+.ProseMirror .mention-event .mention-icon {
+  color: #0EC392;
+}
+
+/* User mention */
+.ProseMirror .mention-user {
+  border-color: #1414DE !important;
+}
+
+.ProseMirror .mention-user .mention-icon {
+  color: #1414DE;
+}

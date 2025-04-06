@@ -1,0 +1,25 @@
+
+/* Color-coded icons in dropdown based on entity types */
+.mention-dropdown-container .tribute-item-document .mention-icon {
+  color: #FFA245;
+}
+
+.mention-dropdown-container .tribute-item-task .mention-icon {
+  color: #F70848;
+}
+
+.mention-dropdown-container .tribute-item-event .mention-icon {
+  color: #0EC392;
+}
+
+.mention-dropdown-container .tribute-item-user .mention-icon {
+  color: #1414DE;
+}
+
+.mention-dropdown-container .tribute-item-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: #64748b;
+}

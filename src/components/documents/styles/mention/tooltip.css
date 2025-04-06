@@ -1,0 +1,21 @@
+
+/* Highlighted text in search results */
+.highlighted {
+  background-color: #fffbeb;
+  font-weight: bold;
+}
+
+/* Tooltip styles */
+.mention-tooltip {
+  position: absolute;
+  background-color: #1e293b;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  z-index: 1000;
+  max-width: 300px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  animation: tooltip-in 0.2s ease-out;
+  pointer-events: none;
+}

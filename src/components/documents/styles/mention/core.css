@@ -1,0 +1,69 @@
+
+/* Core mention button styles - base styling for all mentions */
+.ProseMirror .mention {
+  border-radius: 4px;
+  padding: 2px 4px 2px 2px;
+  font-size: 0.75rem;
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  line-height: 1.2;
+  vertical-align: middle;
+  margin: 0 1px;
+  user-select: none;
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  color: #000000 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  /* These properties are crucial for proper cursor positioning */
+  position: relative;
+  display: inline-flex;
+}
+
+/* Make sure cursor placement works properly */
+.ProseMirror .mention::before,
+.ProseMirror .mention::after {
+  content: "\200B"; /* Zero-width space */
+  display: inline;
+}
+
+.ProseMirror .mention:hover {
+  filter: brightness(98%);
+}
+
+.ProseMirror .mention .mention-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.ProseMirror .mention .mention-title {
+  font-weight: normal;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Document-specific styles */
+.document-save-button {
+  background-color: black !important;
+  color: white !important;
+  border-color: black !important;
+}
+
+.document-save-button:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Divider styling */
+.ProseMirror hr {
+  border: none;
+  border-top: 0.25px solid black;
+  margin: 1em 0;
+}

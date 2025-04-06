@@ -1,0 +1,77 @@
+
+/* Tippy.js styling for mention suggestions dropdown */
+.tippy-box[data-theme="mention"] {
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+  color: black;
+  overflow: hidden;
+}
+
+.tippy-box[data-theme="mention"] .tippy-content {
+  padding: 0;
+}
+
+.mention-dropdown-container {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Mention suggestions dropdown styling */
+.mention-dropdown-container .tribute-header {
+  background-color: transparent;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: default;
+  margin-top: 4px;
+}
+
+.mention-dropdown-container .tribute-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+}
+
+.mention-dropdown-container .tribute-item:hover,
+.mention-dropdown-container .tribute-item.highlight {
+  background-color: #f8fafc;
+}
+
+.mention-dropdown-container .mention-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.mention-dropdown-container .mention-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.mention-dropdown-container .mention-title {
+  font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
