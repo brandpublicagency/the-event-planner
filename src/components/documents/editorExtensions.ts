@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -6,7 +7,7 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { LinkPreviewExtension } from './extensions/LinkPreviewExtension';
 import { LinkPasteHandler } from './extensions/LinkPasteHandler';
-import { MentionExtension } from './extensions/MentionExtension';
+import { MentionExtension } from './extensions/mention';
 import { MentionNode } from './extensions/MentionNode';
 import './styles/mention/index.css';
 
