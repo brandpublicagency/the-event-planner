@@ -58,15 +58,13 @@ export default function DocumentEditorHeader({
         : null;
   
   return (
-    <div className="flex items-center justify-between border-b px-4 py-2">
+    <div className="flex items-center justify-between border-b border-black/25 border-opacity-100 px-4 py-2">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <CategorySelector 
           selectedCategory={selectedCategoryId}
           onChange={handleCategoryChange}
           placeholder="Select category"
         />
-        
-        {/* Removed the redundant category badges display */}
       </div>
       
       <div className="flex items-center gap-2">
@@ -79,7 +77,8 @@ export default function DocumentEditorHeader({
             successText="Saved!"
             timeout={2000}
             size="sm"
-            className="h-7 w-auto px-2"
+            className="h-7 w-auto px-2 document-save-button bg-black text-white hover:bg-black/80"
+            variant="secondary"
           />
         )}
         

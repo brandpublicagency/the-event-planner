@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -166,6 +167,13 @@
 
 .document-list-item.selected {
   @apply bg-white border border-zinc-900/10;
+}
+
+/* Document page specific styles */
+.document-page .border-b {
+  border-bottom-width: 0.25px;
+  border-color: black;
+  border-opacity: 25%;
 }
 
 /* Print styles */
