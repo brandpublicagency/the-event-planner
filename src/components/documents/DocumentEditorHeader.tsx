@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useState } from "react";
 import { DocumentActions } from "./DocumentActions";
 import { CategorySelector } from "./CategorySelector";
@@ -58,7 +58,7 @@ export default function DocumentEditorHeader({
         : null;
   
   return (
-    <div className="flex items-center justify-between border-b border-black/25 border-opacity-100 px-4 py-2">
+    <div className="flex items-center justify-between border-b border-black/25 px-4 py-2">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <CategorySelector 
           selectedCategory={selectedCategoryId}

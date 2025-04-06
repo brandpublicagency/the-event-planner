@@ -38,8 +38,10 @@ const DocumentList: React.FC<DocumentListProps> = ({
         <div 
           key={doc.id}
           className={cn(
-            "group flex items-center justify-between p-2 text-sm rounded-md cursor-pointer",
-            selectedId === doc.id ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-accent"
+            "group flex items-center justify-between p-1.5 text-sm rounded-md cursor-pointer",
+            selectedId === doc.id 
+              ? "bg-white text-black border border-black/70" 
+              : "hover:bg-accent"
           )}
           onClick={() => onSelect(doc.id)}
         >
