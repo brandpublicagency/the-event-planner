@@ -136,12 +136,20 @@ export const MentionExtension = Extension.create({
               });
             },
             onKeyDown: props => {
+              // Let the MentionList component handle the keyboard navigation
+              // We'll just prevent default behavior for these keys
+              if (['ArrowUp', 'ArrowDown', 'Enter', 'Tab'].includes(props.event.key)) {
+                props.event.preventDefault();
+                // The actual handling is in the MentionList component
+                return true;
+              }
+              
               if (props.event.key === 'Escape') {
                 popup.hide();
                 return true;
               }
               
-              return component.ref?.handleKeyDown(props);
+              return false;
             },
             onExit: () => {
               popup.destroy();

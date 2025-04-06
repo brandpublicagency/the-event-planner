@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileIcon, CalendarDaysIcon, ClipboardListIcon, UserIcon } from 'lucide-react';
 
 interface MentionItem {
@@ -18,20 +18,53 @@ interface MentionListProps {
 
 const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   
+  const selectItem = (index: number) => {
+    // Filter out header items when selecting
+    const selectableItems = items.filter(item => !item.isHeader);
+    
+    if (selectableItems.length > 0) {
+      // Find the actual index in the original items array
+      const actualItem = selectableItems[index % selectableItems.length];
+      const actualIndex = items.findIndex(item => item.id === actualItem.id);
+      setSelectedIndex(actualIndex);
+    }
+  };
+  
+  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Filter out header items for navigation
+      const selectableItems = items.filter(item => !item.isHeader);
+      if (!selectableItems.length) return false;
+      
+      // Find current index within selectable items
+      const currentItem = items[selectedIndex];
+      const currentSelectableIndex = selectableItems.findIndex(item => 
+        item.id === currentItem?.id);
+      
       if (event.key === 'ArrowUp') {
-        setSelectedIndex((selectedIndex + items.length - 1) % items.length);
+        event.preventDefault();
+        // Move to previous selectable item
+        const newIndex = currentSelectableIndex > 0 
+          ? currentSelectableIndex - 1 
+          : selectableItems.length - 1;
+        
+        selectItem(newIndex);
         return true;
       }
       
       if (event.key === 'ArrowDown') {
-        setSelectedIndex((selectedIndex + 1) % items.length);
+        event.preventDefault();
+        // Move to next selectable item
+        const newIndex = (currentSelectableIndex + 1) % selectableItems.length;
+        selectItem(newIndex);
         return true;
       }
       
       if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
         command(items[selectedIndex]);
         return true;
       }
@@ -39,14 +72,34 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
       return false;
     };
     
-    if (editor.isFocused) {
-      editor.view.dom.addEventListener('keydown', handleKeyDown);
-    }
+    // Add event listener to document to catch all keydown events
+    document.addEventListener('keydown', handleKeyDown);
     
     return () => {
-      editor.view.dom.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, items, selectedIndex, command]);
+  }, [items, selectedIndex, command]);
+  
+  // Scroll selected item into view
+  useEffect(() => {
+    if (containerRef.current && selectedIndex >= 0) {
+      const selectedElement = containerRef.current.querySelector(`.tribute-item.highlight`);
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+    }
+  }, [selectedIndex]);
+  
+  // Initialize with first non-header item selected
+  useEffect(() => {
+    const firstSelectableIndex = items.findIndex(item => !item.isHeader);
+    if (firstSelectableIndex >= 0) {
+      setSelectedIndex(firstSelectableIndex);
+    }
+  }, [items]);
   
   // Group items by type
   const groupedItems = items.reduce<Record<string, MentionItem[]>>((acc, item) => {
@@ -75,7 +128,7 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
   }
   
   return (
-    <div className="mention-dropdown-container">
+    <div className="mention-dropdown-container" ref={containerRef}>
       {Object.entries(groupedItems).map(([type, groupItems]) => (
         <React.Fragment key={type}>
           <div className="tribute-header">
@@ -94,6 +147,7 @@ const MentionList: React.FC<MentionListProps> = ({ items, command, editor }) => 
                 key={item.id}
                 className={`tribute-item tribute-item-${item.type} ${isSelected ? 'highlight' : ''}`}
                 onClick={() => command(item)}
+                onMouseEnter={() => setSelectedIndex(items.indexOf(item))}
               >
                 <span className="mention-icon">
                   {item.type === 'document' ? <FileIcon className="h-4 w-4" /> : 
