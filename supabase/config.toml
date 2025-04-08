@@ -15,4 +15,3 @@ verify_jwt = false
 
 [functions.generate-dashboard-message]
 verify_jwt = false
-

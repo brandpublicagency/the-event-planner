@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 // These values MUST match exactly what's expected in the database trigger
@@ -20,49 +21,57 @@ const ALLOWED_VENUES = [
 ];
 
 serve(async (req) => {
+  console.log("Received request to fluent-forms-webhook");
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    console.log("Handling OPTIONS request with CORS headers");
+    return new Response(null, { 
+      status: 204,
+      headers: corsHeaders 
+    });
   }
 
   try {
     if (req.method !== 'POST') {
-      throw new Error('Method not allowed')
+      console.log(`Method not allowed: ${req.method}`);
+      throw new Error('Method not allowed');
     }
 
     // Parse the raw request body as text first
-    const rawBody = await req.text()
-    console.log('Raw request body:', rawBody)
+    const rawBody = await req.text();
+    console.log('Raw request body:', rawBody);
 
     // Try to parse as JSON if possible
-    let formData
+    let formData;
     try {
-      formData = JSON.parse(rawBody)
+      formData = JSON.parse(rawBody);
     } catch (e) {
       // If JSON parsing fails, try to parse as URL-encoded form data
-      const formDataObj = new URLSearchParams(rawBody)
-      formData = Object.fromEntries(formDataObj.entries())
+      const formDataObj = new URLSearchParams(rawBody);
+      formData = Object.fromEntries(formDataObj.entries());
     }
     
-    console.log('Processed form data:', formData)
+    console.log('Processed form data:', formData);
     
     // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
     if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Missing Supabase environment variables')
+      console.error("Missing Supabase environment variables");
+      throw new Error('Missing Supabase environment variables');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     // Generate a unique event code
-    const date = new Date()
-    const timestamp = date.getTime().toString().slice(-4)
-    const eventCode = `EVENT-${date.getDate()}${date.getMonth() + 1}-${timestamp}`
+    const date = new Date();
+    const timestamp = date.getTime().toString().slice(-4);
+    const eventCode = `EVENT-${date.getDate()}${date.getMonth() + 1}-${timestamp}`;
 
     // Improved address handling
-    let formattedAddress = null
+    let formattedAddress = null;
     
     // Check if we have address fields in the correct format
     if (formData['address_1[address_line_2]'] || formData['address_1[city]'] || 
@@ -156,7 +165,7 @@ serve(async (req) => {
       description: `Contract signed by ${formData.contract_signee || 'Unknown'} on ${formData.terms_date || new Date().toISOString().split('T')[0]}` || null,
     }
 
-    console.log('Mapped event data:', eventData)
+    console.log('Mapped event data:', eventData);
 
     // Check for duplicates within the last 5 minutes
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
@@ -194,14 +203,14 @@ serve(async (req) => {
       .from('events')
       .insert(eventData)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error inserting event:', error)
-      throw error
+      console.error('Error inserting event:', error);
+      throw error;
     }
 
-    console.log('Successfully created event:', data)
+    console.log('Successfully created event:', data);
 
     return new Response(
       JSON.stringify({ success: true, data }),
@@ -211,10 +220,10 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    )
+    );
 
   } catch (error) {
-    console.error('Error processing webhook:', error)
+    console.error('Error processing webhook:', error);
     
     return new Response(
       JSON.stringify({ 
@@ -228,6 +237,6 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    )
+    );
   }
-})
+});
