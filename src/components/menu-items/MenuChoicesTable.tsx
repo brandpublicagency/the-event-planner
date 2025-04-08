@@ -7,9 +7,11 @@ import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
+
 interface MenuChoicesTableProps {
   sectionId: string;
 }
+
 const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
   sectionId
 }) => {
@@ -27,45 +29,58 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     isUpdating,
     isDeleting
   } = useMenuChoices(sectionId);
+  
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
   const [showInlineForm, setShowInlineForm] = useState(false);
+  
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
   };
+  
   const handleDeleteClick = (choice: MenuChoice) => {
     setChoiceToDelete(choice);
   };
+  
   const confirmDelete = () => {
     if (choiceToDelete) {
       handleDeleteChoice(choiceToDelete.id);
       setChoiceToDelete(null);
     }
   };
-  return <div className="space-y-4">
-      <Button size="sm" onClick={() => setShowInlineForm(true)} className="mb-4 font-normal text-xs">
-        <PlusIcon className="h-3 w-3 mr-1.5" />
-        Add Choice
-      </Button>
 
-      {showInlineForm && <MenuChoiceInlineForm onSubmit={data => {
-      handleAddChoice(data);
-      setShowInlineForm(false);
-    }} onCancel={() => setShowInlineForm(false)} isSubmitting={isCreating} sectionId={sectionId} />}
-
-      {isLoading ? <div className="text-center py-4">Loading choices...</div> : <div className="space-y-5">
-          {choices.length === 0 ? <div className="text-center py-4 text-gray-500">
+  return (
+    <div className="space-y-4">
+      {isLoading ? (
+        <div className="text-center py-4">Loading choices...</div>
+      ) : (
+        <div className="space-y-5">
+          {choices.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
               No choices added yet
-            </div> : choices.map(choice => <div key={choice.id} className="mb-5">
+            </div>
+          ) : (
+            choices.map(choice => (
+              <div key={choice.id} className="mb-5">
                 <div className="flex justify-between items-center mb-2">
                   <div>
                     <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
                     <p className="text-[10px] text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
                   </div>
                   <div className="flex space-x-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)} className="h-6 w-6">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleEditClick(choice)} 
+                      className="h-6 w-6"
+                    >
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(choice)} className="h-6 w-6">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDeleteClick(choice)} 
+                      className="h-6 w-6"
+                    >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -74,14 +89,49 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                 <div className="mt-2">
                   <MenuItemsManager choiceId={choice.id} choiceLabel={choice.label} />
                 </div>
-              </div>)}
-        </div>}
+              </div>
+            ))
+          )}
+          
+          <Button 
+            size="sm" 
+            onClick={() => setShowInlineForm(true)} 
+            className="mb-4 font-normal text-xs"
+          >
+            <PlusIcon className="h-3 w-3 mr-1.5" />
+            Add Choice
+          </Button>
+          
+          {showInlineForm && (
+            <MenuChoiceInlineForm 
+              onSubmit={data => {
+                handleAddChoice(data);
+                setShowInlineForm(false);
+              }} 
+              onCancel={() => setShowInlineForm(false)} 
+              isSubmitting={isCreating} 
+              sectionId={sectionId} 
+            />
+          )}
+        </div>
+      )}
 
-      {/* Edit Dialog - we still keep this for editing choices */}
-      {editingChoice && <MenuChoiceDialog open={!!editingChoice} onOpenChange={open => !open && setEditingChoice(null)} onSubmit={data => handleUpdateChoice(editingChoice.id, data)} isSubmitting={isUpdating} initialData={editingChoice} title="Edit Choice" sectionId={sectionId} />}
+      {editingChoice && (
+        <MenuChoiceDialog 
+          open={!!editingChoice} 
+          onOpenChange={open => !open && setEditingChoice(null)} 
+          onSubmit={data => handleUpdateChoice(editingChoice.id, data)} 
+          isSubmitting={isUpdating} 
+          initialData={editingChoice} 
+          title="Edit Choice" 
+          sectionId={sectionId} 
+        />
+      )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!choiceToDelete} onOpenChange={open => !open && setChoiceToDelete(null)}>
+      <AlertDialog 
+        open={!!choiceToDelete} 
+        onOpenChange={open => !open && setChoiceToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -98,6 +148,8 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>;
+    </div>
+  );
 };
+
 export default MenuChoicesTable;
