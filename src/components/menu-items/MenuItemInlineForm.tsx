@@ -62,7 +62,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
             id="label"
             placeholder="Item name"
             {...register('label')}
-            error={errors.label?.message}
             className="text-xs"
           />
           {errors.label && (
@@ -78,7 +77,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
             id="value"
             placeholder="Unique identifier"
             {...register('value')}
-            error={errors.value?.message}
             className="text-xs"
           />
           {errors.value && (
