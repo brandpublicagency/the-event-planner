@@ -1,85 +1,126 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MenuItemFormData } from '@/api/menuItemsApi';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+
 interface MenuItemInlineFormProps {
   onSubmit: (data: MenuItemFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
 }
+
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  choice_id: z.string().min(1, "Choice is required")
+  description: z.string().nullable().optional(),
 });
+
 type FormValues = z.infer<typeof formSchema>;
+
 const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting,
-  choiceId
+  choiceId,
 }) => {
-  const form = useForm<FormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       label: '',
       value: '',
-      choice_id: choiceId
-    }
+      description: '',
+    },
   });
-  const handleSubmit = (values: FormValues) => {
-    // Create the menu item data
+
+  const onFormSubmit = (values: FormValues) => {
+    // Send the form data to parent component
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
+      description: values.description || null,
       choice_id: choiceId,
-      description: null,
-      image_url: null
+      image_url: null, // Keep this to maintain compatibility with the existing API
     };
+    
     onSubmit(menuItemData);
-    form.reset();
   };
-  return <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 mt-3 p-3 border border-gray-100 rounded-md bg-white">
-        <div className="flex justify-between items-center mb-2">
-          <h5 className="text-sm font-medium">Add New Item</h5>
-          <Button type="button" variant="ghost" size="icon" onClick={onCancel} className="h-6 w-6">
-            <X className="h-4 w-4" />
-          </Button>
+
+  return (
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 border rounded-md p-3 bg-zinc-50">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="label" className="block text-xs font-medium text-gray-700 mb-1">
+            Display Name
+          </label>
+          <Input
+            id="label"
+            placeholder="Item name"
+            {...register('label')}
+            error={errors.label?.message}
+            className="text-xs"
+          />
+          {errors.label && (
+            <p className="text-xs text-red-500 mt-1">{errors.label.message}</p>
+          )}
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
-          <FormField control={form.control} name="label" render={({
-          field
-        }) => <FormItem>
-                <FormControl>
-                  <Input placeholder="Display name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>} />
-          
-          <FormField control={form.control} name="value" render={({
-          field
-        }) => <FormItem>
-                <FormControl>
-                  <Input placeholder="Value identifier" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>} />
+        <div>
+          <label htmlFor="value" className="block text-xs font-medium text-gray-700 mb-1">
+            Value
+          </label>
+          <Input
+            id="value"
+            placeholder="Unique identifier"
+            {...register('value')}
+            error={errors.value?.message}
+            className="text-xs"
+          />
+          {errors.value && (
+            <p className="text-xs text-red-500 mt-1">{errors.value.message}</p>
+          )}
         </div>
-        
-        <div className="flex justify-end">
-          <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Item'}
-          </Button>
-        </div>
-      </form>
-    </Form>;
+      </div>
+      
+      <div>
+        <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
+          Description (Optional)
+        </label>
+        <Textarea
+          id="description"
+          placeholder="Item description"
+          {...register('description')}
+          className="text-xs resize-none"
+          rows={2}
+        />
+      </div>
+      
+      <div className="flex justify-end space-x-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onCancel}
+          className="text-xs"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={isSubmitting}
+          className="text-xs"
+        >
+          {isSubmitting ? 'Adding...' : 'Add Item'}
+        </Button>
+      </div>
+    </form>
+  );
 };
+
 export default MenuItemInlineForm;

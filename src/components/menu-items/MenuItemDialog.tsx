@@ -38,7 +38,6 @@ const formSchema = z.object({
   value: z.string().min(1, "Value is required"),
   description: z.string().nullable(),
   choice_id: z.string().min(1, "Choice is required"),
-  image_url: z.string().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,7 +58,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       value: initialData?.value || '',
       description: initialData?.description || null,
       choice_id: choiceId || initialData?.choice_id || '',
-      image_url: initialData?.image_url || null,
     },
   });
 
@@ -70,7 +68,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       value: values.value,
       description: values.description,
       choice_id: choiceId || values.choice_id,
-      image_url: values.image_url,
+      image_url: null, // Keep this to maintain compatibility with the existing API
     };
     
     onSubmit(menuItemData);

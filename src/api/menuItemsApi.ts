@@ -38,7 +38,7 @@ export type MenuItemFormData = {
   description: string | null;
   choice_id: string;
   choice?: string;  // Adding this as optional for form data
-  image_url: string | null;
+  image_url: string | null; // Keep this to maintain existing interfaces
   display_order?: number;
 };
 
@@ -138,7 +138,7 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       description: menuItem.description,
       choice_id: menuItem.choice_id,
       choice: choiceData.value, // Use the choice value from the choice record
-      image_url: menuItem.image_url,
+      image_url: null, // Always set to null now that we've removed the image functionality
       display_order: menuItem.display_order || 0
     };
 
@@ -195,6 +195,9 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       // Add the choice value
       itemToUpdate.choice = choiceData.value;
     }
+
+    // Always set image_url to null when updating
+    itemToUpdate.image_url = null;
 
     const { data, error } = await supabase
       .from('menu_items')
@@ -272,55 +275,6 @@ export const deleteMenuItem = async (id: string) => {
     return true;
   } catch (error) {
     console.error('Error in deleteMenuItem:', error);
-    throw error;
-  }
-};
-
-export const uploadMenuItemImage = async (file: File, menuItemId: string): Promise<string> => {
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${menuItemId}-${Date.now()}.${fileExt}`;
-    const filePath = `menu-items/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('menu-images')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error('Error uploading file:', uploadError);
-      throw uploadError;
-    }
-
-    const { data } = supabase.storage
-      .from('menu-images')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
-  } catch (error) {
-    console.error('Error in uploadMenuItemImage:', error);
-    throw error;
-  }
-};
-
-export const deleteMenuItemImage = async (url: string): Promise<void> => {
-  try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split('/');
-    const bucketName = pathParts[1];
-    const filePath = pathParts.slice(2).join('/');
-
-    if (bucketName && filePath) {
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .remove([filePath]);
-
-      if (error) {
-        console.error('Error deleting file:', error);
-        throw error;
-      }
-    }
-  } catch (error) {
-    console.error('Error in deleteMenuItemImage:', error);
     throw error;
   }
 };
