@@ -124,12 +124,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                                   </Button>
                                 </div>
                               </div>
-                              
-                              {item.description && (
-                                <div className="text-xs text-gray-700 mt-2">
-                                  {item.description}
-                                </div>
-                              )}
                             </div>
                           </div>
                         )}

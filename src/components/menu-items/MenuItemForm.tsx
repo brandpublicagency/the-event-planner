@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { MenuItemFormData } from '@/api/menuItemsApi';
 import { 
   Select,
@@ -22,7 +21,6 @@ const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   label: z.string().min(1, 'Label is required'),
   choice_id: z.string().min(1, 'Choice is required'),
-  description: z.string().nullable(),
   category: z.string().nullable(),
   image_url: z.string().nullable(),
 });
@@ -50,7 +48,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       value: initialData.value || '',
       label: initialData.label || '',
       choice_id: initialData.choice_id || '',
-      description: initialData.description || null,
       category: initialData.category || null,
       image_url: initialData.image_url || null,
     },
@@ -61,7 +58,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       value: values.value,
       label: values.label,
       choice_id: values.choice_id,
-      description: values.description,
       category: values.category,
       image_url: values.image_url,
     };
@@ -157,26 +153,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   placeholder="e.g., MEAT SELECTION, VEGETABLES, etc."
                   value={field.value || ''}
                   onChange={e => field.onChange(e.target.value || null)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea 
-                  {...field} 
-                  value={field.value || ''}
-                  onChange={e => field.onChange(e.target.value || null)}
-                  placeholder="Enter description" 
-                  className="min-h-[100px]"
                 />
               </FormControl>
               <FormMessage />

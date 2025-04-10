@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MenuItemFormData } from '@/api/menuItemsApi';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +21,6 @@ interface MenuItemInlineFormProps {
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  description: z.string().nullable().optional(),
   category: z.string().nullable().optional(),
 });
 
@@ -40,7 +38,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     defaultValues: {
       label: '',
       value: '',
-      description: '',
       category: '',
     },
   });
@@ -80,7 +77,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
-      description: values.description || null,
       category: values.category || null,
       choice_id: choiceId,
       image_url: null, // Keep this to maintain compatibility with the existing API
@@ -155,19 +151,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           )}
         </div>
       )}
-      
-      <div>
-        <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
-          Description (Optional)
-        </label>
-        <Textarea
-          id="description"
-          placeholder="Item description"
-          {...register('description')}
-          className="text-xs resize-none"
-          rows={2}
-        />
-      </div>
       
       <div className="flex justify-end space-x-2">
         <Button

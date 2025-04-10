@@ -4,7 +4,6 @@ export type MenuItem = {
   id: string;
   value: string;
   label: string;
-  description: string | null;
   category: string | null;
   choice_id: string;
   choice: string;
@@ -37,7 +36,6 @@ export type MenuChoice = {
 export type MenuItemFormData = {
   value: string;
   label: string;
-  description: string | null;
   category: string | null;
   choice_id: string;
   choice?: string;
@@ -66,7 +64,6 @@ export const fetchMenuItems = async () => {
       id: item.id,
       value: item.value,
       label: item.label,
-      description: item.description,
       category: item.category || null,
       choice_id: item.choice_id,
       choice: item.choice || '',
@@ -103,7 +100,6 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       id: item.id,
       value: item.value,
       label: item.label,
-      description: item.description,
       category: item.category || null,
       choice_id: item.choice_id,
       choice: item.choice || '',
@@ -136,7 +132,6 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
     const itemToCreate = {
       value: menuItem.value,
       label: menuItem.label,
-      description: menuItem.description,
       category: menuItem.category,
       choice_id: menuItem.choice_id,
       choice: choiceData.value,
@@ -159,7 +154,6 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       id: data.id,
       value: data.value,
       label: data.label,
-      description: data.description,
       category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,
@@ -213,7 +207,6 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       id: data.id,
       value: data.value,
       label: data.label,
-      description: data.description,
       category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,

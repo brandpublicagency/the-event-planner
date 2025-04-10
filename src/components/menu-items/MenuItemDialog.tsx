@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +38,6 @@ interface MenuItemDialogProps {
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
-  description: z.string().nullable(),
   category: z.string().nullable().optional(),
   choice_id: z.string().min(1, "Choice is required"),
 });
@@ -96,7 +94,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     defaultValues: {
       label: initialData?.label || '',
       value: initialData?.value || '',
-      description: initialData?.description || null,
       category: initialData?.category || null,
       choice_id: choiceId || initialData?.choice_id || '',
     },
@@ -111,7 +108,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
-      description: values.description,
       category: values.category || null,
       choice_id: choiceId || values.choice_id,
       image_url: null, // Keep this to maintain compatibility with the existing API
@@ -184,25 +180,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                 )}
               />
             )}
-            
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Item description" 
-                      className="resize-none"
-                      {...field}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             
             <FormField
               control={form.control}
