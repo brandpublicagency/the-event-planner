@@ -5,8 +5,9 @@ export type MenuItem = {
   value: string;
   label: string;
   description: string | null;
+  category: string | null;
   choice_id: string;
-  choice: string;  // Adding this field to match database schema
+  choice: string;
   image_url: string | null;
   display_order?: number;
   created_at: string;
@@ -30,15 +31,17 @@ export type MenuChoice = {
   display_order: number;
   created_at: string;
   updated_at: string;
+  choice_type?: string;
 };
 
 export type MenuItemFormData = {
   value: string;
   label: string;
   description: string | null;
+  category: string | null;
   choice_id: string;
-  choice?: string;  // Adding this as optional for form data
-  image_url: string | null; // Keep this to maintain existing interfaces
+  choice?: string;
+  image_url: string | null;
   display_order?: number;
 };
 
@@ -59,14 +62,14 @@ export const fetchMenuItems = async () => {
       throw error;
     }
     
-    // Transform the data to match our MenuItem type
     const menuItems: MenuItem[] = data.map((item: any) => ({
       id: item.id,
       value: item.value,
       label: item.label,
       description: item.description,
+      category: item.category || null,
       choice_id: item.choice_id,
-      choice: item.choice || '',  // Ensure choice is included
+      choice: item.choice || '',
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -88,6 +91,7 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       .select('*')
       .eq('choice_id', choiceId)
       .order('display_order', { ascending: true })
+      .order('category', { ascending: true, nullsFirst: false })
       .order('label', { ascending: true });
     
     if (error) {
@@ -95,14 +99,14 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       throw error;
     }
     
-    // Transform the data to match our MenuItem type
     const menuItems: MenuItem[] = data.map((item: any) => ({
       id: item.id,
       value: item.value,
       label: item.label,
       description: item.description,
+      category: item.category || null,
       choice_id: item.choice_id,
-      choice: item.choice || '',  // Ensure choice is included
+      choice: item.choice || '',
       image_url: item.image_url || null,
       display_order: item.display_order || 0,
       created_at: item.created_at,
@@ -118,7 +122,6 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
 
 export const createMenuItem = async (menuItem: MenuItemFormData) => {
   try {
-    // Get choice info based on choice_id
     const { data: choiceData, error: choiceError } = await supabase
       .from('menu_choices')
       .select('*')
@@ -130,15 +133,14 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       throw choiceError;
     }
     
-    // Prepare the item for insertion - make sure we're sending the right fields
-    // that match the database schema
     const itemToCreate = {
       value: menuItem.value,
       label: menuItem.label,
       description: menuItem.description,
+      category: menuItem.category,
       choice_id: menuItem.choice_id,
-      choice: choiceData.value, // Use the choice value from the choice record
-      image_url: null, // Always set to null now that we've removed the image functionality
+      choice: choiceData.value,
+      image_url: null,
       display_order: menuItem.display_order || 0
     };
 
@@ -153,12 +155,12 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       throw error;
     }
     
-    // Transform the returned data to match our MenuItem type
     const createdItem: MenuItem = {
       id: data.id,
       value: data.value,
       label: data.label,
       description: data.description,
+      category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,
       image_url: data.image_url || null,
@@ -176,11 +178,9 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
 
 export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormData>) => {
   try {
-    // If choice_id is being updated, we need to update the choice field as well
     let itemToUpdate: any = { ...menuItem };
     
     if (menuItem.choice_id) {
-      // Get choice info based on choice_id
       const { data: choiceData, error: choiceError } = await supabase
         .from('menu_choices')
         .select('*')
@@ -192,11 +192,9 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
         throw choiceError;
       }
       
-      // Add the choice value
       itemToUpdate.choice = choiceData.value;
     }
 
-    // Always set image_url to null when updating
     itemToUpdate.image_url = null;
 
     const { data, error } = await supabase
@@ -211,12 +209,12 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       throw error;
     }
     
-    // Transform the returned data to match our MenuItem type
     const updatedItem: MenuItem = {
       id: data.id,
       value: data.value,
       label: data.label,
       description: data.description,
+      category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,
       image_url: data.image_url || null,
@@ -234,16 +232,15 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
 
 export const reorderMenuItems = async (items: MenuItem[]) => {
   try {
-    // Prepare updates with display_order values and required fields for upsert
     const updates = items.map((item, index) => ({
       id: item.id,
       display_order: index,
       value: item.value,
       label: item.label,
-      choice: item.choice // Add the choice field required by the database
+      choice: item.choice,
+      category: item.category
     }));
 
-    // Perform batch update
     const { error } = await supabase
       .from('menu_items')
       .upsert(updates, { onConflict: 'id' });

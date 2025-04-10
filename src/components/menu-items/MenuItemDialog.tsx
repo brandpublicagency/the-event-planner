@@ -22,6 +22,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MenuItemDialogProps {
   open: boolean;
@@ -33,10 +34,18 @@ interface MenuItemDialogProps {
   choiceId: string;
 }
 
+const DEFAULT_CATEGORIES = [
+  "MEAT SELECTION",
+  "VEGETABLES",
+  "STARCH SELECTION",
+  "SALAD"
+];
+
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
   value: z.string().min(1, "Value is required"),
   description: z.string().nullable(),
+  category: z.string().nullable().optional(),
   choice_id: z.string().min(1, "Choice is required"),
 });
 
@@ -57,9 +66,15 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       label: initialData?.label || '',
       value: initialData?.value || '',
       description: initialData?.description || null,
+      category: initialData?.category || null,
       choice_id: choiceId || initialData?.choice_id || '',
     },
   });
+
+  // Determine if we need to show category selection 
+  // Multi-category menu choices like buffet or karoo need categories
+  const showCategoryField = true; // For simplicity, always show the field
+  const availableCategories = DEFAULT_CATEGORIES;
 
   const handleSubmit = (values: FormValues) => {
     // Ensure all required fields are present
@@ -67,6 +82,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       label: values.label,
       value: values.value,
       description: values.description,
+      category: values.category || null,
       choice_id: choiceId || values.choice_id,
       image_url: null, // Keep this to maintain compatibility with the existing API
     };
@@ -110,6 +126,34 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                 </FormItem>
               )}
             />
+            
+            {showCategoryField && (
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableCategories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             
             <FormField
               control={form.control}

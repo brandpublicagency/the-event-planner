@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { PlusIcon } from 'lucide-react';
@@ -7,11 +7,17 @@ import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
 import { MenuItem } from '@/api/menuItemsApi';
 import MenuItemInlineForm from './MenuItemInlineForm';
+import MenuItemsByCategory from './MenuItemsByCategory';
 
 interface MenuItemsManagerProps {
   choiceId: string;
   choiceLabel: string;
 }
+
+const MULTI_CATEGORY_CHOICE_VALUES = [
+  'buffet-menu',
+  'warm-karoo-feast'
+];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   choiceId,
@@ -38,7 +44,35 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   const [showInlineForm, setShowInlineForm] = useState(false);
 
   // Get items for this choice
-  const choiceItems = menuItems.filter(item => item.choice_id === choiceId);
+  const choiceItems = useMemo(() => {
+    return menuItems.filter(item => item.choice_id === choiceId);
+  }, [menuItems, choiceId]);
+
+  // Determine if this choice should use categories
+  const useCategories = useMemo(() => {
+    if (!choiceItems.length) return false;
+    
+    // Check if this is a known multi-category choice like buffet menu
+    const choiceValue = choiceItems[0]?.choice;
+    return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
+  }, [choiceItems]);
+
+  // Determine the available categories based on the choice
+  const availableCategories = useMemo(() => {
+    if (!useCategories) return [];
+    
+    const choiceValue = choiceItems[0]?.choice;
+    
+    if (choiceValue === 'buffet-menu') {
+      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    }
+    
+    if (choiceValue === 'warm-karoo-feast') {
+      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    }
+    
+    return [];
+  }, [choiceItems, useCategories]);
 
   return (
     <div className="mt-2">
@@ -63,13 +97,24 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
               No items added to this choice yet
             </div>
           ) : (
-            <MenuItemsTable 
-              items={choiceItems} 
-              onEdit={item => setEditingItem(item)} 
-              onDelete={handleDeleteItem} 
-              onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
-              isDeleting={isDeleting} 
-            />
+            <>
+              {useCategories ? (
+                <MenuItemsByCategory 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  isDeleting={isDeleting} 
+                />
+              ) : (
+                <MenuItemsTable 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
+                  isDeleting={isDeleting} 
+                />
+              )}
+            </>
           )}
         </>
       )}
@@ -80,7 +125,8 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
           onSubmit={handleAddItem} 
           onCancel={() => setShowInlineForm(false)} 
           isSubmitting={isCreating} 
-          choiceId={choiceId} 
+          choiceId={choiceId}
+          availableCategories={availableCategories}
         />
       )}
 
