@@ -3,7 +3,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MenuItemFormData } from '@/api/menuItemsApi';
+import { MenuItemFormData, MenuItem } from '@/api/menuItemsApi';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ interface MenuItemInlineFormProps {
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
+  initialData?: Partial<MenuItem>;
   availableCategories?: string[];
 }
 
@@ -38,15 +39,16 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onCancel,
   isSubmitting,
   choiceId,
+  initialData = {},
   availableCategories = DEFAULT_CATEGORIES,
 }) => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      label: '',
-      value: '',
-      description: '',
-      category: '',
+      label: initialData.label || '',
+      value: initialData.value || '',
+      description: initialData.description || '',
+      category: initialData.category || '',
     },
   });
 
@@ -66,13 +68,8 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     onSubmit(menuItemData);
   };
 
-  // Determine if we need to show category selection
-  // Only show for multi-category menu choices like buffet or karoo
-  const showCategoryField = choiceId && (
-    // This is where we'd check if the choice is a multi-category choice
-    // For now, we're just showing it for all items as a simplification
-    availableCategories.length > 0
-  );
+  // Always show category selection to improve UI consistency
+  const showCategoryField = true;
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 border rounded-md p-3 bg-zinc-50">
@@ -126,6 +123,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
                   {category}
                 </SelectItem>
               ))}
+              <SelectItem value="Uncategorized">Uncategorized</SelectItem>
             </SelectContent>
           </Select>
           {errors.category && (
@@ -163,7 +161,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           disabled={isSubmitting}
           className="text-xs"
         >
-          {isSubmitting ? 'Adding...' : 'Add Item'}
+          {isSubmitting ? 'Saving...' : initialData.id ? 'Update' : 'Add Item'}
         </Button>
       </div>
     </form>
