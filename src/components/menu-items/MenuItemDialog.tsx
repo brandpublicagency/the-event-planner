@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +23,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MenuItemDialogProps {
   open: boolean;
@@ -33,13 +35,6 @@ interface MenuItemDialogProps {
   title: string;
   choiceId: string;
 }
-
-const DEFAULT_CATEGORIES = [
-  "MEAT SELECTION",
-  "VEGETABLES",
-  "STARCH SELECTION",
-  "SALAD"
-];
 
 const formSchema = z.object({
   label: z.string().min(1, "Name is required"),
@@ -60,6 +55,42 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   title,
   choiceId,
 }) => {
+  const [categories, setCategories] = useState<string[]>([
+    "MEAT SELECTION",
+    "VEGETABLES",
+    "STARCH SELECTION",
+    "SALAD"
+  ]);
+
+  // Fetch existing categories from menu items
+  const { data: existingCategories } = useQuery({
+    queryKey: ['menu-categories'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('menu_items')
+        .select('category')
+        .not('category', 'is', null);
+      
+      if (data) {
+        // Extract unique categories
+        const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
+        return uniqueCategories as string[];
+      }
+      return [];
+    },
+    enabled: open, // Only fetch when dialog is open
+  });
+
+  // Update categories when data loads
+  useEffect(() => {
+    if (existingCategories && existingCategories.length > 0) {
+      // Combine default categories with existing ones, removing duplicates
+      const defaultCategories = ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+      const allCategories = [...new Set([...defaultCategories, ...existingCategories])];
+      setCategories(allCategories);
+    }
+  }, [existingCategories]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -72,9 +103,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   });
 
   // Determine if we need to show category selection 
-  // Multi-category menu choices like buffet or karoo need categories
-  const showCategoryField = true; // For simplicity, always show the field
-  const availableCategories = DEFAULT_CATEGORIES;
+  // Always show the field for now
+  const showCategoryField = true;
 
   const handleSubmit = (values: FormValues) => {
     // Ensure all required fields are present
@@ -144,7 +174,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {availableCategories.map(category => (
+                        {categories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
                       </SelectContent>
