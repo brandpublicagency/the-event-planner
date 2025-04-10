@@ -1,179 +1,153 @@
-
 import React, { useState } from 'react';
-import { useMenuChoices } from '@/hooks/useMenuChoices';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Edit2, Trash2, Plus } from 'lucide-react';
-import MenuItemsTable from './MenuItemsTable';
+import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
+import { useMenuChoices } from '@/hooks/useMenuChoices';
 import MenuChoiceDialog from './MenuChoiceDialog';
+import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { MenuChoice } from '@/api/menuItemsApi';
 
 interface MenuChoicesTableProps {
   sectionId: string;
 }
 
-// Define standard categories used across menu types
-const STANDARD_CATEGORIES = [
-  "MEAT SELECTION",
-  "VEGETABLES",
-  "STARCH SELECTION",
-  "SALAD",
-  "DESSERT",
-  "STARTER"
-];
-
-const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({ sectionId }) => {
+const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
+  sectionId
+}) => {
   const {
     choices,
     isLoading,
     handleAddChoice,
     handleUpdateChoice,
     handleDeleteChoice,
+    editingChoice,
+    setEditingChoice,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
     isCreating,
     isUpdating,
     isDeleting
   } = useMenuChoices(sectionId);
-
-  const [expandedChoices, setExpandedChoices] = useState<Record<string, boolean>>({});
-  const [editingChoiceId, setEditingChoiceId] = useState<string | null>(null);
-  const [isAddingChoice, setIsAddingChoice] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const toggleChoice = (choiceId: string) => {
-    setExpandedChoices(prev => ({
-      ...prev,
-      [choiceId]: !prev[choiceId]
-    }));
+  
+  const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
+  const [showInlineForm, setShowInlineForm] = useState(false);
+  
+  const handleEditClick = (choice: MenuChoice) => {
+    setEditingChoice(choice);
   };
-
-  if (isLoading) {
-    return <div className="text-center py-4">Loading menu choices...</div>;
-  }
+  
+  const handleDeleteClick = (choice: MenuChoice) => {
+    setChoiceToDelete(choice);
+  };
+  
+  const confirmDelete = () => {
+    if (choiceToDelete) {
+      handleDeleteChoice(choiceToDelete.id);
+      setChoiceToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
-      {choices.length > 0 ? (
-        <div className="divide-y border rounded-md">
-          {choices.map(choice => (
-            <div key={choice.id} className="bg-white">
-              <div className="flex items-center justify-between p-3">
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="p-0 h-6 w-6"
-                    onClick={() => toggleChoice(choice.id)}
-                  >
-                    {expandedChoices[choice.id] ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
+      {isLoading ? (
+        <div className="text-center py-4">Loading choices...</div>
+      ) : (
+        <div className="space-y-5">
+          {choices.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              No choices added yet
+            </div>
+          ) : (
+            choices.map(choice => (
+              <div key={choice.id} className="mb-5">
+                <div className="flex justify-between items-center mb-2">
                   <div>
-                    <h3 className="text-sm font-medium">
-                      {choice.label}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {choice.value}
-                    </p>
+                    <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
+                    <p className="text-[10px] text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
+                  </div>
+                  <div className="flex space-x-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleEditClick(choice)} 
+                      className="h-6 w-6"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDeleteClick(choice)} 
+                      className="h-6 w-6"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditingChoiceId(choice.id)}
-                    disabled={isDeleting || editingChoiceId !== null}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteChoice(choice.id)}
-                    disabled={isDeleting || editingChoiceId !== null}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+
+                <div className="mt-2">
+                  <MenuItemsManager choiceId={choice.id} choiceLabel={choice.label} />
                 </div>
               </div>
-              
-              {editingChoiceId === choice.id && (
-                <div className="p-3 border-t bg-muted/20">
-                  <MenuChoiceInlineForm
-                    initialData={choice}
-                    onSubmit={(data) => {
-                      handleUpdateChoice(choice.id, data);
-                      setEditingChoiceId(null);
-                    }}
-                    onCancel={() => setEditingChoiceId(null)}
-                    isSubmitting={isUpdating}
-                    sectionId={sectionId}
-                  />
-                </div>
-              )}
-              
-              {expandedChoices[choice.id] && (
-                <div className="p-3 border-t bg-gray-50">
-                  <MenuItemsTable 
-                    choiceId={choice.id} 
-                    availableCategories={STANDARD_CATEGORIES}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground border rounded-md">
-          No menu choices found. Add the first one below.
-        </div>
-      )}
-      
-      {isAddingChoice ? (
-        <div className="border rounded-md p-4 bg-muted/20">
-          <h3 className="text-sm font-medium mb-2">Add New Choice</h3>
-          <MenuChoiceInlineForm
-            onSubmit={(data) => {
-              handleAddChoice(data);
-              setIsAddingChoice(false);
-            }}
-            onCancel={() => setIsAddingChoice(false)}
-            isSubmitting={isCreating}
-            sectionId={sectionId}
-          />
-        </div>
-      ) : (
-        <div className="flex space-x-2">
-          <Button
-            onClick={() => setIsAddingChoice(true)}
-            disabled={editingChoiceId !== null}
-            variant="outline"
-            size="sm"
+            ))
+          )}
+          
+          <Button 
+            size="sm" 
+            onClick={() => setShowInlineForm(true)} 
+            className="mb-4 font-normal text-xs"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Choice Inline
-          </Button>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            disabled={editingChoiceId !== null}
-            variant="default"
-            size="sm"
-          >
-            <Plus className="h-4 w-4 mr-2" />
+            <PlusIcon className="h-3 w-3 mr-1.5" />
             Add Choice
           </Button>
+          
+          {showInlineForm && (
+            <MenuChoiceInlineForm 
+              onSubmit={data => {
+                handleAddChoice(data);
+                setShowInlineForm(false);
+              }} 
+              onCancel={() => setShowInlineForm(false)} 
+              isSubmitting={isCreating} 
+              sectionId={sectionId} 
+            />
+          )}
         </div>
       )}
-      
-      <MenuChoiceDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSubmit={handleAddChoice}
-        isSubmitting={isCreating}
-        title="Add Menu Choice"
-        sectionId={sectionId}
-      />
+
+      {editingChoice && (
+        <MenuChoiceDialog 
+          open={!!editingChoice} 
+          onOpenChange={open => !open && setEditingChoice(null)} 
+          onSubmit={data => handleUpdateChoice(editingChoice.id, data)} 
+          isSubmitting={isUpdating} 
+          initialData={editingChoice} 
+          title="Edit Choice" 
+          sectionId={sectionId} 
+        />
+      )}
+
+      <AlertDialog 
+        open={!!choiceToDelete} 
+        onOpenChange={open => !open && setChoiceToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the menu choice
+              {choiceToDelete && ` "${choiceToDelete.label}"`} and all associated items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
