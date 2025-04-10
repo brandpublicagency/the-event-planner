@@ -68,9 +68,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{item.label}</p>
-                  {item.description && (
-                    <p className="text-xs text-gray-500 truncate">{item.description}</p>
-                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
