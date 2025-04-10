@@ -33,9 +33,28 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
-    const reorderedItems = Array.from(items);
+    
+    // If dragging between different categories, we need to handle differently
+    const sourceDroppableId = result.source.droppableId;
+    const destinationDroppableId = result.destination.droppableId;
+    
+    // Make a copy of the items
+    const reorderedItems = [...items];
+    
+    // If dragging within the same category
     const [reorderedItem] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, reorderedItem);
+    
+    // If category changed, update the item's category
+    if (sourceDroppableId !== destinationDroppableId) {
+      const categoryId = destinationDroppableId.replace('category-', '');
+      if (categoryId !== 'Uncategorized') {
+        reorderedItem.category = categoryId;
+      } else {
+        reorderedItem.category = null;
+      }
+    }
+    
     onReorder(reorderedItems);
   };
 
@@ -69,7 +88,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                   <div 
                     {...provided.droppableProps} 
                     ref={provided.innerRef} 
-                    className="space-y-2"
+                    className="space-y-2 border border-dashed border-gray-200 rounded-md p-2"
                   >
                     {categoryItems.map((item, index) => (
                       <Draggable 
@@ -82,7 +101,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                           <div 
                             ref={provided.innerRef} 
                             {...provided.draggableProps} 
-                            className="flex items-start mb-3"
+                            className="flex items-start bg-white border rounded-md p-2 mb-2"
                           >
                             {onReorder && (
                               <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
@@ -93,8 +112,8 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                             <div className="flex-1">
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <div className="text-xs text-gray-800">{item.label}</div>
-                                  <div className="text-[10px] text-gray-500 py-px">{item.value}</div>
+                                  <div className="text-sm font-medium text-gray-800">{item.label}</div>
+                                  <div className="text-xs text-gray-500 py-px">{item.value}</div>
                                 </div>
                                 <div className="flex space-x-1">
                                   <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="h-6 w-6">
