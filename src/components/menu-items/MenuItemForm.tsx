@@ -23,6 +23,7 @@ const formSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   choice_id: z.string().min(1, 'Choice is required'),
   description: z.string().nullable(),
+  category: z.string().nullable(),
   image_url: z.string().nullable(),
 });
 
@@ -50,6 +51,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: initialData.label || '',
       choice_id: initialData.choice_id || '',
       description: initialData.description || null,
+      category: initialData.category || null,
       image_url: initialData.image_url || null,
     },
   });
@@ -60,6 +62,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       label: values.label,
       choice_id: values.choice_id,
       description: values.description,
+      category: values.category,
       image_url: values.image_url,
     };
     onSubmit(formData);
@@ -141,6 +144,25 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
             )}
           />
         </div>
+        
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category (Optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  {...field} 
+                  placeholder="e.g., MEAT SELECTION, VEGETABLES, etc."
+                  value={field.value || ''}
+                  onChange={e => field.onChange(e.target.value || null)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
