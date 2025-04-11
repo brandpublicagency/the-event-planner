@@ -128,7 +128,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     });
     
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         {Object.entries(categoryGroups).map(([category, categoryItems]) => {
           // Skip empty categories except uncategorized
           if (category !== 'uncategorized' && categoryItems.length === 0 && !onAddItem) {
@@ -138,8 +138,8 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           return (
             <div key={category} className="mb-4">
               {category !== 'uncategorized' && (
-                <div className="mb-1 px-1">
-                  <div className="inline-flex items-center text-xs font-semibold py-1 px-3 rounded-md bg-gray-100 text-gray-700">
+                <div className="mb-2">
+                  <div className="inline-flex items-center text-sm font-semibold py-1 px-3 rounded-md bg-gray-100 text-gray-800">
                     {category}
                   </div>
                 </div>
@@ -150,7 +150,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                   <div 
                     {...provided.droppableProps} 
                     ref={provided.innerRef}
-                    className="space-y-1 min-h-10"
+                    className="space-y-2 min-h-10 border border-dashed border-gray-200 rounded-md p-2"
                   >
                     {categoryItems.map((item, index) => (
                       <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>

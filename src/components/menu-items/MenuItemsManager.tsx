@@ -15,7 +15,11 @@ interface MenuItemsManagerProps {
 
 const MULTI_CATEGORY_CHOICE_VALUES = [
   'buffet-menu',
-  'warm-karoo-feast'
+  'warm-karoo-feast',
+  'plated-menu',
+  'dessert-canapes',
+  'individual-cakes',
+  'baked-desserts'
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
@@ -49,29 +53,58 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   // Determine if this choice should use categories
   const useCategories = useMemo(() => {
-    if (!choiceItems.length) return false;
+    if (!choiceItems.length) {
+      // Check choice value from the first item
+      const choiceValue = choiceItems[0]?.choice;
+      if (choiceValue) {
+        return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
+      }
+      
+      // If no items yet, check the choice label for keywords
+      const lowerLabel = choiceLabel.toLowerCase();
+      return lowerLabel.includes('buffet') || 
+             lowerLabel.includes('karoo') || 
+             lowerLabel.includes('dessert');
+    }
     
     // Check if this is a known multi-category choice like buffet menu
     const choiceValue = choiceItems[0]?.choice;
     return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
-  }, [choiceItems]);
+  }, [choiceItems, choiceLabel]);
 
   // Determine the available categories based on the choice
   const availableCategories = useMemo(() => {
     if (!useCategories) return [];
     
-    const choiceValue = choiceItems[0]?.choice;
+    // Get choice value from first item or infer from label
+    const choiceValue = choiceItems[0]?.choice || choiceLabel.toLowerCase().replace(/\s+/g, '-');
     
-    if (choiceValue === 'buffet-menu') {
+    if (choiceValue === 'buffet-menu' || choiceLabel.toLowerCase().includes('buffet')) {
       return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
     }
     
-    if (choiceValue === 'warm-karoo-feast') {
+    if (choiceValue === 'warm-karoo-feast' || choiceLabel.toLowerCase().includes('karoo')) {
       return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    }
+    
+    if (choiceValue === 'plated-menu' || choiceLabel.toLowerCase().includes('plated')) {
+      return ["MAIN SELECTION", "SALAD"];
+    }
+    
+    if (choiceValue === 'dessert-canapes' || choiceLabel.toLowerCase().includes('canape')) {
+      return ["DESSERT CANAPÉS"];
+    }
+    
+    if (choiceValue === 'individual-cakes' || choiceLabel.toLowerCase().includes('cake')) {
+      return ["INDIVIDUAL CAKES"];
+    }
+    
+    if (choiceValue === 'baked-desserts' || choiceLabel.toLowerCase().includes('baked')) {
+      return ["BAKED DESSERTS"];
     }
     
     return [];
-  }, [choiceItems, useCategories]);
+  }, [choiceItems, useCategories, choiceLabel]);
 
   // Handler for when "Add Item" is clicked within a category
   const handleAddInCategory = (category: string | null) => {
@@ -91,25 +124,19 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
             </div>
           )}
           
-          {choiceItems.length === 0 ? (
-            <div className="text-center py-4 text-sm text-gray-500">
-              No items added yet
-            </div>
-          ) : (
-            <MenuItemsTable 
-              items={choiceItems} 
-              onEdit={item => setEditingItem(item)} 
-              onDelete={handleDeleteItem} 
-              onReorder={handleReorderItems} 
-              isDeleting={isDeleting}
-              useCategories={useCategories}
-              availableCategories={availableCategories}
-              onAddItem={handleAddInCategory}
-            />
-          )}
+          <MenuItemsTable 
+            items={choiceItems} 
+            onEdit={item => setEditingItem(item)} 
+            onDelete={handleDeleteItem} 
+            onReorder={handleReorderItems} 
+            isDeleting={isDeleting}
+            useCategories={useCategories}
+            availableCategories={availableCategories}
+            onAddItem={handleAddInCategory}
+          />
           
           {/* Add Item button */}
-          {!showInlineForm && (
+          {!showInlineForm && !useCategories && (
             <Button 
               size="sm" 
               onClick={() => setShowInlineForm(true)} 
