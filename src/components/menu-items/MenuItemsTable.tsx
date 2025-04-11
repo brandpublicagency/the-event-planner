@@ -78,11 +78,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         <DragDropContext onDragEnd={handleDragEnd}>
           {Object.entries(groupedItems).map(([category, categoryItems]) => (
             <div key={category} className="mb-6">
-              <div className="mb-2">
-                <Badge variant="outline" className="text-xs font-medium">
-                  {category}
-                </Badge>
-              </div>
               <Droppable droppableId={`category-${category}`} direction="vertical">
                 {provided => (
                   <div 
@@ -90,6 +85,11 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                     ref={provided.innerRef} 
                     className="space-y-2 border border-dashed border-gray-200 rounded-md p-2"
                   >
+                    <div className="mb-1 px-1">
+                      <Badge variant="outline" className="text-xs font-medium">
+                        {category}
+                      </Badge>
+                    </div>
                     {categoryItems.map((item, index) => (
                       <Draggable 
                         key={item.id} 
