@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { MenuChoiceFormData } from '@/api/menuItemsApi';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { toSlug } from '@/utils/menuStructureUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -51,9 +51,9 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
   const watchType = watch('choice_type');
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-3 space-y-3 bg-white mt-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-4 space-y-4 bg-white mt-2 shadow-sm">
       <div className="flex justify-between items-center mb-2">
-        <h5 className="text-sm font-medium">Add Choice</h5>
+        <h5 className="text-sm font-medium">Add Menu Choice</h5>
         <Button 
           type="button" 
           variant="ghost" 
@@ -65,7 +65,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
         </Button>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
           <Label htmlFor="label" className="text-xs">Display Name:</Label>
           <Input
@@ -73,7 +73,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             {...register('label', { required: true })}
             onChange={handleLabelChange}
             placeholder="Choice display name"
-            className="h-8 text-sm"
+            className="h-9 text-sm mt-1"
           />
           {errors.label && <p className="text-xs text-red-500 mt-1">Display name is required</p>}
         </div>
@@ -84,7 +84,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             value={watchType} 
             onValueChange={(value) => setValue('choice_type', value)}
           >
-            <SelectTrigger className="h-8 text-sm">
+            <SelectTrigger className="h-9 text-sm mt-1">
               <SelectValue placeholder="Select choice type" />
             </SelectTrigger>
             <SelectContent>
@@ -114,7 +114,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             variant="outline" 
             size="sm" 
             onClick={onCancel} 
-            className="h-7 text-xs"
+            className="h-8 text-xs"
           >
             Cancel
           </Button>
@@ -122,9 +122,14 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             type="submit" 
             size="sm" 
             disabled={isSubmitting}
-            className="h-7 text-xs"
+            className="h-8 text-xs"
           >
-            {isSubmitting ? 'Adding...' : 'Add Choice'}
+            {isSubmitting ? 'Adding...' : (
+              <span className="flex items-center">
+                <Plus className="h-3 w-3 mr-1.5" />
+                Add Choice
+              </span>
+            )}
           </Button>
         </div>
       </div>

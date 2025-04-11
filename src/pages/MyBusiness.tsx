@@ -1,9 +1,9 @@
 
 import React from "react";
-import MenuManagement from "@/pages/MenuManagement";
+import { Navigate } from "react-router-dom";
 
 const MyBusiness = () => {
-  return <MenuManagement />;
+  return <Navigate to="/menu-management" replace />;
 };
 
 export default MyBusiness;
