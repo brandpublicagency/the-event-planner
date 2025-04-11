@@ -77,7 +77,8 @@ export const convertTemplateToApiFormat = (template: MenuTemplateData): {
         value: toSlug(choice.name),
         section_id: '', // Will be filled in after sections are created
         sectionIndex,
-        display_order: choiceIndex
+        display_order: choiceIndex,
+        choice_type: 'menu' // Default choice type
       });
 
       // Process items - either from categories or direct items
@@ -174,28 +175,11 @@ export const shouldUseCategories = (choice: MenuChoice, items?: MenuItem[]): boo
 
 // Get appropriate categories for a choice
 export const getCategoriesForChoice = (choiceValue: string): string[] => {
-  switch (choiceValue) {
-    case 'buffet-menu':
-      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
-    case 'warm-karoo-feast':
-      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
-    case 'plated-menu':
-      return ["MAIN SELECTION", "SALAD"];
-    case 'starters':
-    case 'plated-starter':
-      return ["STARTERS"];
-    case 'dessert-canapes':
-      return ["DESSERT CANAPÉS"];
-    case 'individual-cakes':
-      return ["INDIVIDUAL CAKES"];
-    case 'baked-desserts':
-      return ["BAKED DESSERTS"];
-    default:
-      return [];
-  }
+  const categories = getPredefinedCategories()[choiceValue] || [];
+  return categories;
 };
 
-// Export the getPredefinedCategories function to fix build error
+// Get predefined categories for menu choices
 export const getPredefinedCategories = (): Record<string, string[]> => {
   return {
     'buffet-menu': ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"],

@@ -75,7 +75,7 @@ const MenuTemplateEditor: React.FC<MenuTemplateEditorProps> = ({
 
   // Update predefined categories when template type changes
   useEffect(() => {
-    const categories = getPredefinedCategories(selectedType);
+    const categories = getPredefinedCategories()[selectedType] || [];
     setPredefinedCategories(categories);
   }, [selectedType]);
 
