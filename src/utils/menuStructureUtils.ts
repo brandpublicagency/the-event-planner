@@ -75,6 +75,7 @@ export const convertTemplateToApiFormat = (template: MenuTemplateData): {
       choices.push({
         label: choice.name,
         value: toSlug(choice.name),
+        section_id: '', // Will be filled in after sections are created
         sectionIndex,
         display_order: choiceIndex
       });
@@ -88,6 +89,8 @@ export const convertTemplateToApiFormat = (template: MenuTemplateData): {
               label: item.name,
               value: toSlug(item.name),
               category: category.name,
+              choice_id: '', // Will be filled in after choices are created
+              image_url: null,
               choiceIndex: choices.length - 1,
               display_order: itemIndex
             });
@@ -100,6 +103,8 @@ export const convertTemplateToApiFormat = (template: MenuTemplateData): {
             label: item.name,
             value: toSlug(item.name),
             category: item.category || null,
+            choice_id: '', // Will be filled in after choices are created
+            image_url: null,
             choiceIndex: choices.length - 1,
             display_order: itemIndex
           });
@@ -188,6 +193,20 @@ export const getCategoriesForChoice = (choiceValue: string): string[] => {
     default:
       return [];
   }
+};
+
+// Export the getPredefinedCategories function to fix build error
+export const getPredefinedCategories = (): Record<string, string[]> => {
+  return {
+    'buffet-menu': ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"],
+    'warm-karoo-feast': ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"],
+    'plated-menu': ["MAIN SELECTION", "SALAD"],
+    'starters': ["STARTERS"],
+    'plated-starter': ["STARTERS"],
+    'dessert-canapes': ["DESSERT CANAPÉS"],
+    'individual-cakes': ["INDIVIDUAL CAKES"],
+    'baked-desserts': ["BAKED DESSERTS"]
+  };
 };
 
 // Helper to get a display-friendly name from a price code
