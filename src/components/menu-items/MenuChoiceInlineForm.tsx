@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { MenuChoiceFormData } from '@/api/menuItemsApi';
-import { X as XIcon } from 'lucide-react';
+import { X } from 'lucide-react';
 import { toSlug } from '@/utils/menuStructureUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -61,7 +61,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
           onClick={onCancel} 
           className="h-6 w-6"
         >
-          <XIcon className="h-3 w-3" />
+          <X className="h-3 w-3" />
         </Button>
       </div>
       

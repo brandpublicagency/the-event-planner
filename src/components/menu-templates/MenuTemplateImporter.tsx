@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Check, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Check, ChevronRight, RefreshCw } from "lucide-react";
 import { 
   createMenuSection, 
   createMenuChoice, 
@@ -303,6 +303,8 @@ const MenuTemplateImporter = () => {
   const [importStatus, setImportStatus] = useState<string>("");
   const [importComplete, setImportComplete] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("templates");
+  const [importedSections, setImportedSections] = useState<{id: string, label: string}[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Calculate the total number of items to import
   const calculateTotalItems = (template: MenuTemplate) => {
@@ -337,6 +339,29 @@ const MenuTemplateImporter = () => {
     return newValue;
   };
 
+  // Refresh the list of recently imported sections
+  const refreshImportedSections = async () => {
+    try {
+      const sections = await fetchMenuSections();
+      // Only show recently imported sections (assuming they're the latest ones based on created time)
+      // In a real app, you might want to add a "source" or "imported_from" field to track this properly
+      const recentSections = sections.slice(0, 5); // Show the 5 most recent sections
+      setImportedSections(recentSections.map(section => ({
+        id: section.id,
+        label: section.label
+      })));
+    } catch (error) {
+      console.error("Error fetching imported sections:", error);
+    }
+  };
+
+  // Trigger a refresh after import
+  useEffect(() => {
+    if (importComplete) {
+      refreshImportedSections();
+    }
+  }, [importComplete, refreshTrigger]);
+
   // Import the selected template
   const importTemplate = async () => {
     if (!selectedTemplate) return;
@@ -345,6 +370,7 @@ const MenuTemplateImporter = () => {
     setImportProgress(0);
     setImportStatus("Starting import...");
     setImportComplete(false);
+    setImportedSections([]);
     
     const totalItems = calculateTotalItems(selectedTemplate);
     let importedItems = 0;
@@ -357,6 +383,7 @@ const MenuTemplateImporter = () => {
       
       // Track created sections and choices for this import operation
       const createdSections: Record<string, string> = {};
+      const newlyImportedSections: {id: string, label: string}[] = [];
       
       // Import each section
       for (const section of selectedTemplate.sections) {
@@ -379,6 +406,10 @@ const MenuTemplateImporter = () => {
           const createdSection = await createMenuSection(sectionData);
           // Store the mapping between template section value and created section id
           createdSections[section.value] = createdSection.id;
+          newlyImportedSections.push({
+            id: createdSection.id,
+            label: createdSection.label
+          });
           importedItems++;
           setImportProgress(Math.floor((importedItems / totalItems) * 100));
           
@@ -427,6 +458,7 @@ const MenuTemplateImporter = () => {
         }
       }
       
+      setImportedSections(newlyImportedSections);
       setImportStatus("Import completed successfully!");
       setImportComplete(true);
       toast.success("Menu template imported", {
@@ -443,12 +475,19 @@ const MenuTemplateImporter = () => {
     }
   };
 
+  // Force refresh of imported sections
+  const handleRefreshImportedItems = () => {
+    refreshImportedSections();
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="import" disabled={!selectedTemplate}>Import</TabsTrigger>
+          {importComplete && <TabsTrigger value="results">Results</TabsTrigger>}
         </TabsList>
         
         <TabsContent value="templates" className="space-y-6">
@@ -553,6 +592,46 @@ const MenuTemplateImporter = () => {
                 </Alert>
               )}
             </>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="results" className="space-y-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Imported Menu Sections</h2>
+            <Button variant="outline" size="sm" onClick={handleRefreshImportedItems} className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
+          
+          {importedSections.length > 0 ? (
+            <div className="space-y-3">
+              <p className="text-muted-foreground text-sm mb-4">
+                The following sections were imported. You can now edit them in the Menu Structure tab.
+              </p>
+              {importedSections.map((section, index) => (
+                <Card key={index} className="border-green-100">
+                  <CardHeader className="py-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base flex items-center">
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                        {section.label}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+              
+              <div className="mt-6 flex justify-center">
+                <Button onClick={() => window.location.href = "/menu-management?tab=structure"}>
+                  Go to Menu Structure
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center p-6 border rounded-md">
+              <p className="text-muted-foreground">No sections imported or loading results...</p>
+            </div>
           )}
         </TabsContent>
       </Tabs>

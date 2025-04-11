@@ -1,9 +1,9 @@
 
 import React from "react";
-import MenuManagementPage from "@/components/menu-items/MenuManagementPage";
+import MenuManagement from "@/pages/MenuManagement";
 
 const MyBusiness = () => {
-  return <MenuManagementPage />;
+  return <MenuManagement />;
 };
 
 export default MyBusiness;
