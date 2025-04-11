@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight, Briefcase, Menu } from "lucide-react";
+import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight, Briefcase, Menu, Utensils } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarActionsProps {
@@ -27,6 +27,10 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   const navigateToMyBusiness = () => {
     navigate('/my-business');
+  };
+  
+  const navigateToMenuTemplates = () => {
+    navigate('/menu-management');
   };
 
   return (
@@ -75,6 +79,14 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             </button>
             
             <button 
+              onClick={navigateToMenuTemplates} 
+              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              title="Menu Templates"
+            >
+              <Utensils className="h-4 w-4 transition-transform group-hover:scale-110" />
+            </button>
+            
+            <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 
               className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Expand Sidebar"
@@ -116,6 +128,14 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             >
               <Menu className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Menu Management</span>
+            </button>
+            
+            <button 
+              onClick={navigateToMenuTemplates} 
+              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+            >
+              <Utensils className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <span className="text-xs font-medium">Menu Templates</span>
             </button>
             
             <button 
