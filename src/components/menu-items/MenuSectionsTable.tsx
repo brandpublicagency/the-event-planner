@@ -66,14 +66,6 @@ const MenuSectionsTable = () => {
                     <p className="text-[10px] text-gray-500">Value: {section.value}, Order: {section.display_order}</p>
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
-                      size="sm" 
-                      onClick={() => setIsAddDialogOpen(true)} 
-                      className="mr-2 font-normal text-xs"
-                    >
-                      <PlusIcon className="h-3 w-3 mr-1.5" />
-                      Add Choice
-                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(section)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
