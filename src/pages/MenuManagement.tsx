@@ -5,21 +5,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Search, Package, ListTree, Plus, ChefHat, 
-  ArrowRight, Check, Menu as MenuIcon, Layers, RefreshCw 
+  ArrowRight, Menu as MenuIcon, Layers, RefreshCw 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMenuSections } from '@/hooks/useMenuSections';
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { MenuSectionsManager } from '@/components/menu-items/MenuSectionsManager';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 import { getPredefinedCategories } from '@/utils/menuStructureUtils';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+
+// Import new components
+import TemplatesGrid from '@/components/menu-templates/TemplatesGrid';
+import ImportProgress from '@/components/menu-templates/ImportProgress';
+import EmptyStructure from '@/components/menu-management/EmptyStructure';
+import SuccessAlert from '@/components/menu-management/SuccessAlert';
 
 const MenuManagement = () => {
   const [activeTab, setActiveTab] = useState<string>('structure');
@@ -140,31 +141,18 @@ const MenuManagement = () => {
       }
     }, interval);
   };
+  
+  const handleManualAddSection = () => {
+    const btn = document.getElementById('add-section-button');
+    if (btn) btn.click();
+  };
 
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Menu Management" />
       
       <div className="flex-1 p-6 bg-gray-50 overflow-auto">
-        <AnimatePresence>
-          {showSuccessAlert && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="mb-4"
-            >
-              <Alert className="bg-green-50 border-green-200 text-green-800">
-                <Check className="h-4 w-4 text-green-600" />
-                <AlertTitle>Success!</AlertTitle>
-                <AlertDescription>
-                  Template imported successfully. Your menu structure is ready to use.
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <SuccessAlert show={showSuccessAlert} />
         
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight">Menu Management</h1>
@@ -219,42 +207,10 @@ const MenuManagement = () => {
                 </div>
               </div>
             ) : sections.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center justify-center p-12 border border-dashed border-gray-300 rounded-lg bg-white"
-              >
-                <div className="max-w-md text-center space-y-4">
-                  <div className="bg-blue-50 rounded-full p-4 w-20 h-20 flex items-center justify-center mx-auto">
-                    <ListTree className="h-8 w-8 text-blue-500" />
-                  </div>
-                  <h3 className="text-xl font-medium">No Menu Structure Yet</h3>
-                  <p className="text-gray-500">
-                    Get started by importing a template or creating your menu structure from scratch.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4 justify-center">
-                    <Button 
-                      onClick={() => setActiveTab('templates')}
-                      className="w-full sm:w-auto flex items-center gap-2"
-                    >
-                      <Package className="h-4 w-4" />
-                      Use Template
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full sm:w-auto flex items-center gap-2"
-                      onClick={() => {
-                        const btn = document.getElementById('add-section-button');
-                        if (btn) btn.click();
-                      }}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Create Manually
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+              <EmptyStructure 
+                onUseTemplate={() => setActiveTab('templates')}
+                onCreateManually={handleManualAddSection}
+              />
             ) : (
               <Card className="bg-white shadow-sm border-gray-200">
                 <CardHeader className="pb-2">
@@ -272,40 +228,11 @@ const MenuManagement = () => {
           
           <TabsContent value="templates" className="space-y-6">
             {isImporting ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="max-w-md mx-auto bg-white p-8 rounded-lg border shadow-sm"
-              >
-                <div className="text-center mb-6">
-                  <div className="mx-auto w-16 h-16 mb-4 relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-700"></div>
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      {selectedTemplate && 
-                        templates.find(t => t.id === selectedTemplate)?.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Importing Template</h3>
-                  <p className="text-gray-500 mb-6">
-                    {selectedTemplate && 
-                      templates.find(t => t.id === selectedTemplate)?.title}
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Import progress</span>
-                    <span>{importProgress}%</span>
-                  </div>
-                  <Progress value={importProgress} className="h-2" />
-                </div>
-                
-                <p className="text-center text-sm text-gray-400 italic mt-6">
-                  This will only take a moment...
-                </p>
-              </motion.div>
+              <ImportProgress
+                selectedTemplate={selectedTemplate}
+                importProgress={importProgress}
+                templates={templates}
+              />
             ) : (
               <>
                 <div className="mb-4">
@@ -315,97 +242,11 @@ const MenuManagement = () => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {templates.map((template) => (
-                    <Dialog key={template.id}>
-                      <motion.div
-                        whileHover={{ y: -4 }}
-                        transition={{ duration: 0.2 }}
-                        className={cn(
-                          "border rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all",
-                          template.color
-                        )}
-                        onClick={() => {
-                          setSelectedTemplate(template.id);
-                        }}
-                      >
-                        <div className="h-32 bg-white flex items-center justify-center">
-                          {template.icon}
-                        </div>
-                        
-                        <div className="p-4 bg-white border-t">
-                          <h3 className="font-medium text-lg mb-1">{template.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{template.description}</p>
-                          
-                          {template.categories.length > 0 ? (
-                            <div className="space-y-1">
-                              <p className="text-xs text-gray-500">Includes:</p>
-                              <div className="space-y-1">
-                                {template.categories.map((category, i) => (
-                                  <div key={i} className="flex items-center text-xs">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2"></span>
-                                    <span className="text-gray-700 truncate">{category}</span>
-                                  </div>
-                                )).slice(0, 3)}
-                                
-                                {template.categories.length > 3 && (
-                                  <div className="text-xs text-gray-500">
-                                    +{template.categories.length - 3} more
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="py-2 flex items-center justify-center">
-                              <p className="text-xs text-gray-500 italic">Build custom structure</p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center justify-between p-3 bg-white border-t border-gray-100">
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-sm w-full flex justify-center"
-                            >
-                              <span>Use Template</span>
-                              <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                            </Button>
-                          </DialogTrigger>
-                        </div>
-                      </motion.div>
-                      
-                      {/* Confirmation dialog content */}
-                      <AlertDialog>
-                        <AlertDialogTrigger className="hidden" />
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Import Template</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to import the {template.title} template?
-                              {sections.length > 0 && (
-                                <p className="mt-2 text-amber-600">
-                                  Your existing menu structure will not be deleted, but this will add new sections.
-                                </p>
-                              )}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => importTemplate(template.id)}
-                            >
-                              Import
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </Dialog>
-                  ))}
-                </div>
+                <TemplatesGrid 
+                  templates={templates}
+                  sections={sections}
+                  onImportTemplate={importTemplate}
+                />
               </>
             )}
           </TabsContent>
@@ -416,4 +257,3 @@ const MenuManagement = () => {
 };
 
 export default MenuManagement;
-

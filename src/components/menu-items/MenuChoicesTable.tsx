@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { MenuChoice } from '@/api/menuItemsApi';
 import { Dialog } from '@/components/ui/dialog';
 import MenuChoiceDialog from './MenuChoiceDialog';
+import { motion } from 'framer-motion';
 
 interface MenuChoicesTableProps {
   sectionId: string;
@@ -51,7 +52,10 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
   return (
     <div className="space-y-4">
       {isLoading ? (
-        <div className="text-center py-4">Loading choices...</div>
+        <div className="text-center py-4">
+          <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-700 mb-2"></div>
+          <p className="text-sm text-gray-500">Loading choices...</p>
+        </div>
       ) : (
         <div className="space-y-5">
           {choices.length === 0 ? (
@@ -60,8 +64,14 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             </div>
           ) : (
             choices.map(choice => (
-              <div key={choice.id} className="mb-5">
-                <div className="flex justify-between items-center mb-2 border border-gray-200 rounded-md p-3 bg-white">
+              <motion.div 
+                key={choice.id} 
+                className="mb-5"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex justify-between items-center mb-2 border border-gray-200 rounded-md p-3 bg-white hover:shadow-sm transition-shadow">
                   <div className="flex items-center">
                     <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
                     <p className="text-[10px] text-gray-500 ml-2">Value: {choice.value}, Order: {choice.display_order}</p>
@@ -71,7 +81,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEditClick(choice)} 
-                      className="h-6 w-6"
+                      className="h-6 w-6 hover:bg-gray-100"
                     >
                       <Pencil className="h-3 w-3" />
                     </Button>
@@ -79,7 +89,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleDeleteClick(choice)} 
-                      className="h-6 w-6"
+                      className="h-6 w-6 hover:bg-red-50 text-red-500 hover:text-red-600"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -89,7 +99,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                 <div className="mt-2">
                   <MenuItemsManager choiceId={choice.id} choiceLabel={choice.label} hideChoiceLabel={true} />
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
           
@@ -97,7 +107,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
           <Button 
             size="sm" 
             onClick={() => setShowInlineForm(true)} 
-            className="w-full mt-4 border border-dashed border-gray-300 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700"
+            className="w-full mt-4 border border-dashed border-gray-300 bg-transparent hover:bg-gray-100 text-gray-600 hover:text-gray-800"
           >
             <PlusIcon className="h-3 w-3 mr-1.5" />
             Add Choice
@@ -107,15 +117,21 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
 
       {/* Inline form for adding choices */}
       {showInlineForm && (
-        <MenuChoiceInlineForm 
-          onSubmit={data => {
-            handleAddChoice(data);
-            setShowInlineForm(false);
-          }} 
-          onCancel={() => setShowInlineForm(false)} 
-          isSubmitting={isCreating} 
-          sectionId={sectionId} 
-        />
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ duration: 0.2 }}
+        >
+          <MenuChoiceInlineForm 
+            onSubmit={data => {
+              handleAddChoice(data);
+              setShowInlineForm(false);
+            }} 
+            onCancel={() => setShowInlineForm(false)} 
+            isSubmitting={isCreating} 
+            sectionId={sectionId} 
+          />
+        </motion.div>
       )}
 
       {/* Edit Dialog - Properly wrapped in Dialog component */}
@@ -141,7 +157,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
         open={!!choiceToDelete} 
         onOpenChange={open => !open && setChoiceToDelete(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -151,7 +167,10 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

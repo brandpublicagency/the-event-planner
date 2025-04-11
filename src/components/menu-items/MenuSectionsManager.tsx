@@ -4,14 +4,6 @@ import { useMenuSections } from '@/hooks/useMenuSections';
 import { Button } from '@/components/ui/button';
 import { MenuSection } from '@/api/menuItemsApi';
 import MenuSectionDialog from './MenuSectionDialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { EditIcon, Trash2Icon, PlusIcon, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   AlertDialog,
@@ -25,7 +17,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import MenuChoicesTable from './MenuChoicesTable';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { motion } from 'framer-motion';
 
@@ -61,9 +52,10 @@ export const MenuSectionsManager: React.FC = () => {
           <p className="text-sm text-gray-500">Manage sections, choices, and items</p>
         </div>
         <Button 
+          id="add-section-button"
           size="sm" 
           onClick={() => setIsAddDialogOpen(true)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
         >
           <PlusIcon className="h-4 w-4" />
           Add Section
@@ -97,60 +89,68 @@ export const MenuSectionsManager: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {sections.map((section) => (
-            <Collapsible
+            <motion.div
               key={section.id}
-              open={expandedSections[section.id]}
-              onOpenChange={() => toggleSection(section.id)}
-              className="border rounded-md overflow-hidden bg-white"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <CollapsibleTrigger className="flex items-center justify-center h-6 w-6 rounded-full">
-                    {expandedSections[section.id] ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </CollapsibleTrigger>
-                  <div>
-                    <div className="font-medium">{section.label}</div>
-                    <div className="text-xs text-gray-500 flex gap-2">
-                      <span>Value: {section.value}</span>
-                      <span>•</span>
-                      <span>Order: {section.display_order}</span>
+              <Collapsible
+                open={expandedSections[section.id]}
+                onOpenChange={() => toggleSection(section.id)}
+                className="border rounded-md overflow-hidden bg-white hover:shadow-sm transition-shadow"
+              >
+                <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <CollapsibleTrigger className="flex items-center justify-center h-6 w-6 rounded-full hover:bg-gray-100">
+                      {expandedSections[section.id] ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </CollapsibleTrigger>
+                    <div>
+                      <div className="font-medium">{section.label}</div>
+                      <div className="text-xs text-gray-500 flex gap-2">
+                        <span>Value: {section.value}</span>
+                        <span>•</span>
+                        <span>Order: {section.display_order}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingSection(section);
+                      }}
+                      className="hover:bg-gray-100"
+                    >
+                      <EditIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSectionToDelete(section);
+                      }}
+                      className="hover:bg-red-50 text-red-500 hover:text-red-600"
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingSection(section);
-                    }}
-                  >
-                    <EditIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSectionToDelete(section);
-                    }}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <CollapsibleContent>
-                <Separator />
-                <div className="p-4 bg-gray-50">
-                  <MenuChoicesTable sectionId={section.id} />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+                <CollapsibleContent>
+                  <Separator />
+                  <div className="p-4 bg-gray-50">
+                    <MenuChoicesTable sectionId={section.id} />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </motion.div>
           ))}
         </div>
       )}
@@ -197,7 +197,7 @@ export const MenuSectionsManager: React.FC = () => {
                 }
               }}
               disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
