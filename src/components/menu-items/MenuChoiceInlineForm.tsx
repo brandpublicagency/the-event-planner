@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { MenuChoiceFormData } from '@/api/menuItemsApi';
 import { X as XIcon } from 'lucide-react';
 import { toSlug } from '@/utils/menuStructureUtils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MenuChoiceInlineFormProps {
   onSubmit: (data: MenuChoiceFormData) => void;
@@ -31,6 +32,12 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
     }
   });
   
+  const choiceTypeOptions = [
+    { label: 'Menu Choice', value: 'menu' },
+    { label: 'Add-on Item', value: 'addon' },
+    { label: 'Multi-select', value: 'multiselect' }
+  ];
+  
   // Auto-generate value from label (kebab case)
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const label = e.target.value;
@@ -40,6 +47,8 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
     const value = toSlug(label);
     setValue('value', value);
   };
+  
+  const watchType = watch('choice_type');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-3 space-y-3 bg-white mt-2">
@@ -69,9 +78,35 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
           {errors.label && <p className="text-xs text-red-500 mt-1">Display name is required</p>}
         </div>
         
+        <div>
+          <Label htmlFor="choice_type" className="text-xs">Choice Type:</Label>
+          <Select 
+            value={watchType} 
+            onValueChange={(value) => setValue('choice_type', value)}
+          >
+            <SelectTrigger className="h-8 text-sm">
+              <SelectValue placeholder="Select choice type" />
+            </SelectTrigger>
+            <SelectContent>
+              {choiceTypeOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            {watchType === 'menu' 
+              ? 'Simple menu choice' 
+              : watchType === 'multiselect'
+              ? 'Allow multiple selections'
+              : 'Add-on items, with costs'}
+          </p>
+        </div>
+        
         <input type="hidden" {...register('section_id')} />
         <input type="hidden" {...register('display_order')} />
-        <input type="hidden" {...register('choice_type')} />
+        <input type="hidden" {...register('value')} />
         
         <div className="flex justify-end space-x-2 pt-2">
           <Button 

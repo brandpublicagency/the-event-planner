@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,11 +9,13 @@ import {
   createMenuItem, 
   MenuSectionFormData, 
   MenuChoiceFormData,
-  MenuItemFormData
+  MenuItemFormData,
+  fetchMenuSections
 } from '@/api/menuItemsApi';
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toSlug } from '@/utils/menuStructureUtils';
 
 // Define the structure for menu templates
 interface MenuItem {
@@ -321,6 +322,21 @@ const MenuTemplateImporter = () => {
     return total;
   };
 
+  // Generate a unique value for section if it already exists
+  const makeUniqueValue = (baseValue: string, existing: string[]): string => {
+    if (!existing.includes(baseValue)) return baseValue;
+    
+    let counter = 1;
+    let newValue = `${baseValue}-${counter}`;
+    
+    while (existing.includes(newValue)) {
+      counter++;
+      newValue = `${baseValue}-${counter}`;
+    }
+    
+    return newValue;
+  };
+
   // Import the selected template
   const importTemplate = async () => {
     if (!selectedTemplate) return;
@@ -334,56 +350,80 @@ const MenuTemplateImporter = () => {
     let importedItems = 0;
     
     try {
+      // First fetch existing sections to avoid conflicts
+      setImportStatus("Checking existing menu structure...");
+      const existingSections = await fetchMenuSections();
+      const existingSectionValues = existingSections.map(section => section.value);
+      
+      // Track created sections and choices for this import operation
+      const createdSections: Record<string, string> = {};
+      
       // Import each section
       for (const section of selectedTemplate.sections) {
         setImportStatus(`Importing section: ${section.label}`);
         
+        // Create a unique value if needed
+        const uniqueSectionValue = makeUniqueValue(section.value, existingSectionValues);
+        if (uniqueSectionValue !== section.value) {
+          console.log(`Section value "${section.value}" already exists, using "${uniqueSectionValue}" instead`);
+        }
+        
         // Create the section
         const sectionData: MenuSectionFormData = {
           label: section.label,
-          value: section.value,
+          value: uniqueSectionValue,
           display_order: 0 // This will be set automatically
         };
         
-        const createdSection = await createMenuSection(sectionData);
-        importedItems++;
-        setImportProgress(Math.floor((importedItems / totalItems) * 100));
-        
-        // Import choices for this section
-        for (const choice of section.choices) {
-          setImportStatus(`Importing choice: ${choice.label}`);
-          
-          // Create the choice
-          const choiceData: MenuChoiceFormData = {
-            section_id: createdSection.id,
-            label: choice.label,
-            value: choice.value,
-            display_order: 0, // This will be set automatically
-            choice_type: "menu"
-          };
-          
-          const createdChoice = await createMenuChoice(choiceData);
+        try {
+          const createdSection = await createMenuSection(sectionData);
+          // Store the mapping between template section value and created section id
+          createdSections[section.value] = createdSection.id;
           importedItems++;
           setImportProgress(Math.floor((importedItems / totalItems) * 100));
           
-          // Import items for this choice
-          for (const item of choice.items) {
-            setImportStatus(`Importing item: ${item.label}`);
+          // Import choices for this section
+          for (const choice of section.choices) {
+            setImportStatus(`Importing choice: ${choice.label}`);
             
-            // Create the item
-            const itemData: MenuItemFormData = {
-              label: item.label,
-              value: item.value,
-              category: item.category || null,
-              choice_id: createdChoice.id,
-              image_url: null,
-              display_order: 0 // This will be set automatically
+            // Create the choice
+            const choiceData: MenuChoiceFormData = {
+              section_id: createdSection.id,
+              label: choice.label,
+              value: choice.value,
+              display_order: 0, // This will be set automatically
+              choice_type: "menu"
             };
             
-            await createMenuItem(itemData);
+            const createdChoice = await createMenuChoice(choiceData);
             importedItems++;
             setImportProgress(Math.floor((importedItems / totalItems) * 100));
+            
+            // Import items for this choice
+            for (const item of choice.items) {
+              setImportStatus(`Importing item: ${item.label}`);
+              
+              // Create the item
+              const itemData: MenuItemFormData = {
+                label: item.label,
+                value: item.value,
+                category: item.category || null,
+                choice_id: createdChoice.id,
+                image_url: null,
+                display_order: 0 // This will be set automatically
+              };
+              
+              await createMenuItem(itemData);
+              importedItems++;
+              setImportProgress(Math.floor((importedItems / totalItems) * 100));
+            }
           }
+        } catch (error) {
+          console.error(`Error creating section "${section.label}":`, error);
+          // Continue with the next section instead of stopping the entire import
+          toast.error(`Failed to import section "${section.label}"`, {
+            description: "Import will continue with remaining sections"
+          });
         }
       }
       
