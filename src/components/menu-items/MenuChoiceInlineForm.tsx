@@ -1,13 +1,10 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Loader2, Save, X } from 'lucide-react';
 import { MenuChoiceFormData } from '@/api/menuItemsApi';
-import { X, Plus } from 'lucide-react';
 import { toSlug } from '@/utils/menuStructureUtils';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MenuChoiceInlineFormProps {
   onSubmit: (data: MenuChoiceFormData) => void;
@@ -22,116 +19,126 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
   isSubmitting,
   sectionId
 }) => {
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<MenuChoiceFormData>({
-    defaultValues: {
-      label: '',
-      value: '',
-      section_id: sectionId,
-      display_order: 0,
-      choice_type: 'menu'
-    }
+  const [formData, setFormData] = useState<MenuChoiceFormData>({
+    section_id: sectionId,
+    label: '',
+    value: '',
+    display_order: 0
   });
-  
-  const choiceTypeOptions = [
-    { label: 'Menu Choice', value: 'menu' },
-    { label: 'Add-on Item', value: 'addon' },
-    { label: 'Multi-select', value: 'multiselect' }
-  ];
-  
-  // Auto-generate value from label (kebab case)
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const label = e.target.value;
-    setValue('label', label);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     
-    // Generate kebab case value from label
-    const value = toSlug(label);
-    setValue('value', value);
+    setFormData(prev => {
+      const updatedData = { ...prev, [name]: value };
+      
+      // Auto-generate value from label if value is empty
+      if (name === 'label' && !prev.value) {
+        updatedData.value = toSlug(value);
+      }
+      
+      return updatedData;
+    });
   };
-  
-  const watchType = watch('choice_type');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form
+    if (!formData.label.trim()) {
+      return;
+    }
+    
+    onSubmit({
+      ...formData,
+      label: formData.label.trim(),
+      value: formData.value.trim() || toSlug(formData.label),
+      display_order: typeof formData.display_order === 'number' 
+        ? formData.display_order 
+        : parseInt(formData.display_order as unknown as string) || 0
+    });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-4 space-y-4 bg-white mt-2 shadow-sm">
-      <div className="flex justify-between items-center mb-2">
-        <h5 className="text-sm font-medium">Add Menu Choice</h5>
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="icon" 
-          onClick={onCancel} 
-          className="h-6 w-6"
-        >
-          <X className="h-3 w-3" />
-        </Button>
+    <form 
+      onSubmit={handleSubmit} 
+      className="border border-blue-200 rounded-md p-3 bg-blue-50 mb-4 shadow-sm"
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">
+            Choice Name
+          </label>
+          <Input
+            name="label"
+            value={formData.label}
+            onChange={handleChange}
+            placeholder="e.g., Buffet Menu"
+            required
+            className="bg-white"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">
+            Value
+          </label>
+          <Input
+            name="value"
+            value={formData.value}
+            onChange={handleChange}
+            placeholder="e.g., buffet-menu"
+            className="bg-white"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">
+            Display Order
+          </label>
+          <Input
+            name="display_order"
+            type="number"
+            min={0}
+            value={formData.display_order}
+            onChange={handleChange}
+            placeholder="0"
+            className="bg-white"
+          />
+        </div>
       </div>
       
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="label" className="text-xs">Display Name:</Label>
-          <Input
-            id="label"
-            {...register('label', { required: true })}
-            onChange={handleLabelChange}
-            placeholder="Choice display name"
-            className="h-9 text-sm mt-1"
-          />
-          {errors.label && <p className="text-xs text-red-500 mt-1">Display name is required</p>}
-        </div>
+      <div className="flex justify-end space-x-2">
+        <Button 
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="flex items-center"
+        >
+          <X className="h-4 w-4 mr-1" />
+          Cancel
+        </Button>
         
-        <div>
-          <Label htmlFor="choice_type" className="text-xs">Choice Type:</Label>
-          <Select 
-            value={watchType} 
-            onValueChange={(value) => setValue('choice_type', value)}
-          >
-            <SelectTrigger className="h-9 text-sm mt-1">
-              <SelectValue placeholder="Select choice type" />
-            </SelectTrigger>
-            <SelectContent>
-              {choiceTypeOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground mt-1">
-            {watchType === 'menu' 
-              ? 'Simple menu choice' 
-              : watchType === 'multiselect'
-              ? 'Allow multiple selections'
-              : 'Add-on items, with costs'}
-          </p>
-        </div>
-        
-        <input type="hidden" {...register('section_id')} />
-        <input type="hidden" {...register('display_order')} />
-        <input type="hidden" {...register('value')} />
-        
-        <div className="flex justify-end space-x-2 pt-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm" 
-            onClick={onCancel} 
-            className="h-8 text-xs"
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            size="sm" 
-            disabled={isSubmitting}
-            className="h-8 text-xs"
-          >
-            {isSubmitting ? 'Adding...' : (
-              <span className="flex items-center">
-                <Plus className="h-3 w-3 mr-1.5" />
-                Add Choice
-              </span>
-            )}
-          </Button>
-        </div>
+        <Button 
+          type="submit"
+          size="sm"
+          disabled={isSubmitting || !formData.label.trim()}
+          className="flex items-center bg-blue-600 hover:bg-blue-700"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-1" />
+              Add Choice
+            </>
+          )}
+        </Button>
       </div>
     </form>
   );

@@ -1,67 +1,86 @@
 
 import React from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { MenuSection, MenuSectionFormData } from '@/api/menuItemsApi';
+import { Loader2 } from 'lucide-react';
+import { toSlug } from '@/utils/menuStructureUtils';
 
+// Form validation schema
 const formSchema = z.object({
-  value: z.string().min(1, 'Value is required'),
-  label: z.string().min(1, 'Label is required'),
-  display_order: z.number().int().min(0, 'Order must be a positive number'),
+  label: z.string().min(2, { message: 'Section name must be at least 2 characters' }),
+  value: z.string().min(2, { message: 'Value must be at least 2 characters' }),
+  display_order: z.number().int().min(0),
 });
 
-type MenuSectionDialogProps = {
+interface MenuSectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: MenuSectionFormData) => void;
-  isSubmitting?: boolean;
+  isSubmitting: boolean;
   initialData?: MenuSection;
   title: string;
-};
+}
 
 const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
   open,
   onOpenChange,
   onSubmit,
-  isSubmitting = false,
+  isSubmitting,
   initialData,
   title,
 }) => {
+  // Initialize form with default values or existing section data
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      value: initialData?.value || '',
       label: initialData?.label || '',
+      value: initialData?.value || '',
       display_order: initialData?.display_order || 0,
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values as MenuSectionFormData);
+  // Handle form submission
+  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+    onSubmit(data);
+  };
+
+  // Auto-generate value from label if empty
+  const autoGenerateValue = (label: string) => {
+    if (!form.getValues('value')) {
+      form.setValue('value', toSlug(label));
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            {initialData 
+              ? 'Update the details for this menu section' 
+              : 'Create a new section for your menu structure'}
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -71,9 +90,16 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
               name="label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Display Name</FormLabel>
+                  <FormLabel>Section Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Section display name" />
+                    <Input
+                      {...field}
+                      placeholder="e.g., Main Courses"
+                      onChange={(e) => {
+                        field.onChange(e);
+                        autoGenerateValue(e.target.value);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,12 +111,11 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
               name="value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Value (Unique ID)</FormLabel>
+                  <FormLabel>Section Value</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="section_id" 
-                      disabled={!!initialData} // Can't change value for existing sections
+                    <Input
+                      {...field}
+                      placeholder="e.g., main-courses"
                     />
                   </FormControl>
                   <FormMessage />
@@ -105,12 +130,12 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
                 <FormItem>
                   <FormLabel>Display Order</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
+                    <Input
+                      {...field}
+                      type="number"
                       min={0}
-                      step={10}
+                      placeholder="0"
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -118,14 +143,26 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
               )}
             />
             
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <DialogFooter className="pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {initialData ? 'Updating...' : 'Creating...'}
+                  </>
+                ) : (
+                  <>{initialData ? 'Update' : 'Create'}</>
+                )}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

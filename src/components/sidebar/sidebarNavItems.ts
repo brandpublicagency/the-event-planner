@@ -8,7 +8,7 @@ import {
   CalendarDays,
   Users as UsersIcon,
   Building,
-  Utensils
+  Menu
 } from "lucide-react";
 
 export interface NavItem {
@@ -67,7 +67,7 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
       label: "Past Events"
     },
     {
-      icon: Utensils,
+      icon: Menu,
       path: "/menu-management",
       label: "Menu Management"
     }
