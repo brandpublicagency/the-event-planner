@@ -5,7 +5,7 @@ import MenuTemplateImporter from '@/components/menu-templates/MenuTemplateImport
 import MenuSectionsTable from '@/components/menu-items/MenuSectionsTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, PackageOpen, Info, ListTree, Check, Search, Settings, Plus } from "lucide-react";
+import { FileText, PackageOpen, Info, ListTree, Check, Search, Settings, Plus, ChefHat, Library, ArrowRight } from "lucide-react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useMenuSections } from '@/hooks/useMenuSections';
@@ -16,6 +16,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MenuSectionsManager } from '@/components/menu-items/MenuSectionsManager';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 const MenuManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +26,8 @@ const MenuManagement = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [importProgress, setImportProgress] = useState(0);
+  const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
   const { sections, refetch, isLoading } = useMenuSections();
   
@@ -37,8 +41,30 @@ const MenuManagement = () => {
     window.scrollTo(0, 0);
   };
   
+  const handleImportStart = () => {
+    setIsImporting(true);
+    setImportProgress(0);
+    
+    // Simulate import progress
+    const interval = setInterval(() => {
+      setImportProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+  };
+  
   const handleImportSuccess = () => {
-    toast.success("Template imported successfully!");
+    setIsImporting(false);
+    setImportProgress(100);
+    
+    toast.success("Template imported successfully!", {
+      description: "Your menu structure is now ready to use."
+    });
+    
     setShowSuccessAlert(true);
     
     // Refresh sections to show newly imported data
@@ -54,6 +80,45 @@ const MenuManagement = () => {
       setShowSuccessAlert(false);
     }, 5000);
   };
+  
+  // Templates with visual previews
+  const templateExamples = [
+    {
+      id: 'buffet-menu',
+      title: 'Buffet Menu',
+      description: 'Selection of meats, vegetables, starches and salads',
+      sections: ['Meat Selection', 'Vegetables', 'Starch Selection', 'Salad'],
+      image: '/images/buffet.jpg',
+      color: 'bg-amber-50 border-amber-100',
+      icon: <ChefHat className="h-6 w-6 text-amber-600" />
+    },
+    {
+      id: 'plated-menu',
+      title: 'Plated Menu',
+      description: 'Elegant plated options with main course and salad',
+      sections: ['Main Selection', 'Salad'],
+      image: '/images/plated.jpg',
+      color: 'bg-emerald-50 border-emerald-100',
+      icon: <Library className="h-6 w-6 text-emerald-600" />
+    },
+    {
+      id: 'dessert-menu',
+      title: 'Dessert Menu',
+      description: 'Sweet endings with canapés and individual cakes',
+      sections: ['Dessert Canapés', 'Individual Cakes'],
+      image: '/images/dessert.jpg',
+      color: 'bg-purple-50 border-purple-100',
+      icon: <Utensils className="h-6 w-6 text-purple-600" />
+    },
+    {
+      id: 'custom',
+      title: 'Custom Template',
+      description: 'Create your own menu structure from scratch',
+      sections: [],
+      color: 'bg-blue-50 border-blue-100',
+      icon: <Plus className="h-6 w-6 text-blue-600" />
+    }
+  ];
 
   return (
     <div className="flex flex-col h-full">
@@ -174,27 +239,75 @@ const MenuManagement = () => {
                   <p className="text-sm text-gray-500">Loading menu structure...</p>
                 </div>
               </div>
-            ) : (
-              viewMode === 'table' ? (
-                <Card className="bg-white shadow-sm border-gray-200">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Menu Sections</CardTitle>
-                    <CardDescription>
-                      Manage your menu sections and their choices
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <MenuSectionsManager />
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className={cn(
-                  "transition-all duration-300 ease-in-out",
-                  viewMode === 'grid' ? 'opacity-100' : 'opacity-0'
-                )}>
-                  <MenuSectionsTable />
+            ) : sections.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-center p-10 border border-dashed rounded-lg border-gray-300 bg-gray-50"
+              >
+                <div className="flex flex-col items-center gap-3 max-w-md mx-auto">
+                  <div className="p-3 rounded-full bg-blue-50">
+                    <PackageOpen className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-medium">No menu structure yet</h3>
+                  <p className="text-gray-500 mb-2">
+                    Start by importing a template or creating a new menu structure from scratch.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-sm mt-2">
+                    <Button 
+                      onClick={() => setActiveTab('templates')}
+                      className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                    >
+                      <PackageOpen className="h-4 w-4" />
+                      Use Template
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        setViewMode('table');
+                        const newSectionDialog = document.getElementById('add-section-button');
+                        if (newSectionDialog) {
+                          setTimeout(() => {
+                            newSectionDialog.click();
+                          }, 100);
+                        }
+                      }}
+                      variant="outline"
+                      className="flex items-center justify-center gap-2 bg-white"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Manually
+                    </Button>
+                  </div>
                 </div>
-              )
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {viewMode === 'table' ? (
+                  <Card className="bg-white shadow-sm border-gray-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">Menu Sections</CardTitle>
+                      <CardDescription>
+                        Manage your menu sections and their choices
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <MenuSectionsManager />
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className={cn(
+                    "transition-all duration-300 ease-in-out",
+                    viewMode === 'grid' ? 'opacity-100' : 'opacity-0'
+                  )}>
+                    <MenuSectionsTable />
+                  </div>
+                )}
+              </motion.div>
             )}
           </TabsContent>
           
@@ -205,8 +318,128 @@ const MenuManagement = () => {
                 Import predefined menu templates to quickly set up your menu structure
               </p>
             </div>
-            <Card className="bg-white shadow-sm border-gray-200">
-              <CardContent className="pt-6">
+            
+            {isImporting ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-lg mx-auto bg-white p-8 rounded-lg border shadow-sm"
+              >
+                <div className="text-center mb-6">
+                  <div className="mx-auto w-16 h-16 mb-4 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-700"></div>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ChefHat className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Importing Template</h3>
+                  <p className="text-gray-500 mb-6">Please wait while we prepare your menu structure</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Import progress</span>
+                    <span>{importProgress}%</span>
+                  </div>
+                  <Progress value={importProgress} className="h-2" />
+                </div>
+                
+                <div className="mt-8 text-sm text-gray-500 italic text-center">
+                  This will only take a few moments...
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ staggerChildren: 0.1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                {templateExamples.map((template, i) => (
+                  <motion.div
+                    key={template.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className={cn(
+                      "border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer group",
+                      template.color
+                    )}
+                    onClick={() => {
+                      handleImportStart();
+                      setTimeout(() => {
+                        handleImportSuccess();
+                      }, 2500);
+                    }}
+                  >
+                    <div className="h-36 bg-white relative overflow-hidden">
+                      {template.id !== 'custom' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                          {template.icon}
+                        </div>
+                      )}
+                      
+                      {template.id === 'custom' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-blue-50">
+                          {template.icon}
+                        </div>
+                      )}
+                      
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent p-4 flex flex-col items-start justify-end h-1/2">
+                        <h3 className="text-white font-semibold text-lg drop-shadow-sm mb-1">
+                          {template.title}
+                        </h3>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-white">
+                      <p className="text-sm text-gray-600 mb-3">
+                        {template.description}
+                      </p>
+                      
+                      {template.sections.length > 0 ? (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-gray-500 mb-2">Includes sections:</p>
+                          <div className="space-y-1.5">
+                            {template.sections.map((section, idx) => (
+                              <div key={idx} className="flex items-center text-xs text-gray-700">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                                {section}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-20 flex items-center justify-center">
+                          <p className="text-xs text-gray-500 italic">Create your own structure</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-3 bg-white border-t border-gray-100 group-hover:bg-gray-50 transition-colors">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full flex items-center justify-center text-sm"
+                      >
+                        <span>Use Template</span>
+                        <ArrowRight className="ml-2 h-3.5 w-3.5 opacity-70" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+            
+            <Card className="bg-white shadow-sm border-gray-200 mt-8">
+              <CardHeader>
+                <CardTitle className="text-lg">Advanced Import Options</CardTitle>
+                <CardDescription>
+                  Use our import tool for more detailed menu template configuration
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <MenuTemplateImporter onImportSuccess={handleImportSuccess} />
               </CardContent>
             </Card>
