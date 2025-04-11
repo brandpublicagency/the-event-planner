@@ -42,7 +42,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   // State for showing the inline form
   const [showInlineForm, setShowInlineForm] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Get items for this choice
   const choiceItems = useMemo(() => {
@@ -75,15 +74,18 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     return [];
   }, [choiceItems, useCategories]);
 
-  const handleAddItemClick = (category: string | null) => {
-    setSelectedCategory(category);
-    setShowInlineForm(true);
-  };
-
   return (
     <div className="mt-2">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-xs font-normal text-zinc-900">Items for {choiceLabel}</h4>
+        <Button 
+          size="sm" 
+          onClick={() => setShowInlineForm(true)} 
+          className="font-light text-xs bg-white hover:bg-zinc-900 hover:text-white"
+        >
+          <PlusIcon className="h-3.5 w-3.5 mr-1" />
+          Add Items
+        </Button>
       </div>
 
       {isLoading ? (
@@ -93,16 +95,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
           {choiceItems.length === 0 ? (
             <div className="text-center py-4 text-sm text-gray-500">
               No items added to this choice yet
-              <div className="mt-3">
-                <Button 
-                  size="sm" 
-                  onClick={() => setShowInlineForm(true)} 
-                  className="font-light text-xs bg-white hover:bg-zinc-900 hover:text-white"
-                >
-                  <PlusIcon className="h-3.5 w-3.5 mr-1" />
-                  Add Items
-                </Button>
-              </div>
             </div>
           ) : (
             <>
@@ -120,7 +112,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
                   onDelete={handleDeleteItem} 
                   onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
                   isDeleting={isDeleting} 
-                  onAddItem={handleAddItemClick}
                 />
               )}
             </>
@@ -131,24 +122,11 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
       {/* Inline form for adding items - moved below the items table */}
       {showInlineForm && (
         <MenuItemInlineForm 
-          onSubmit={(data) => {
-            // Add category to the data if one is selected
-            handleAddItem({
-              ...data,
-              category: selectedCategory
-            });
-            // Reset category after submission
-            setSelectedCategory(null);
-            setShowInlineForm(false);
-          }} 
-          onCancel={() => {
-            setShowInlineForm(false);
-            setSelectedCategory(null);
-          }} 
+          onSubmit={handleAddItem} 
+          onCancel={() => setShowInlineForm(false)} 
           isSubmitting={isCreating} 
           choiceId={choiceId}
           availableCategories={availableCategories}
-          selectedCategory={selectedCategory}
         />
       )}
 

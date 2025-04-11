@@ -1,38 +1,31 @@
-
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, GripVertical, Plus } from 'lucide-react';
+import { Edit, Trash2, GripVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
-
 type MenuItemsTableProps = {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   onReorder?: (reorderedItems: MenuItem[]) => void;
   isDeleting: boolean;
-  onAddItem?: (category: string | null) => void;
 };
-
 const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   items,
   onEdit,
   onDelete,
   onReorder,
-  isDeleting,
-  onAddItem
+  isDeleting
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
-
   const handleDelete = () => {
     if (itemToDelete) {
       onDelete(itemToDelete.id);
       setItemToDelete(null);
     }
   };
-
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
 
@@ -70,7 +63,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
     groupedItems[category].push(item);
   });
-
   return <div className="space-y-4">
       {items.length === 0 ? <div className="text-center py-4 text-gray-500">
           No menu items found
@@ -78,12 +70,11 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           {Object.entries(groupedItems).map(([category, categoryItems]) => <div key={category} className="mb-6">
               <Droppable droppableId={`category-${category}`} direction="vertical">
                 {provided => <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-200 rounded-md p-2">
-                    <div className="mb-1 px-1 pt-1">
+                    <div className="mb-1 px-1">
                       <div className="inline-flex items-center border border-zinc-600 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
                         {category}
                       </div>
                     </div>
-                    
                     {categoryItems.map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
                         {provided => <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-start bg-white border rounded-md p-2 mb-2">
                             {onReorder && <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
@@ -110,18 +101,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                           </div>}
                       </Draggable>)}
                     {provided.placeholder}
-                    
-                    {/* Add Item button within the category container */}
-                    {onAddItem && (
-                      <Button 
-                        size="sm" 
-                        onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} 
-                        className="font-light text-xs bg-white hover:bg-zinc-900 hover:text-white mt-2 w-full"
-                      >
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        Add Item
-                      </Button>
-                    )}
                   </div>}
               </Droppable>
             </div>)}
@@ -145,5 +124,4 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
       </AlertDialog>
     </div>;
 };
-
 export default MenuItemsTable;
