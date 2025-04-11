@@ -1,19 +1,12 @@
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { MenuChoiceFormData } from '@/api/menuItemsApi';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { MenuChoiceFormData } from '@/api/menuItemsApi';
+import { X as XIcon } from 'lucide-react';
+import { toSlug } from '@/utils/menuStructureUtils';
 
 interface MenuChoiceInlineFormProps {
   onSubmit: (data: MenuChoiceFormData) => void;
@@ -22,112 +15,85 @@ interface MenuChoiceInlineFormProps {
   sectionId: string;
 }
 
-const formSchema = z.object({
-  label: z.string().min(1, "Label is required"),
-  value: z.string().min(1, "Value is required"),
-  display_order: z.number().default(0),
-  section_id: z.string().min(1),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting,
-  sectionId,
+  sectionId
 }) => {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<MenuChoiceFormData>({
     defaultValues: {
       label: '',
       value: '',
+      section_id: sectionId,
       display_order: 0,
-      section_id: sectionId,
-    },
+      choice_type: 'menu'
+    }
   });
-
-  const handleSubmit = (values: FormValues) => {
-    const formData: MenuChoiceFormData = {
-      label: values.label,
-      value: values.value,
-      display_order: values.display_order,
-      section_id: sectionId,
-    };
+  
+  // Auto-generate value from label (kebab case)
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const label = e.target.value;
+    setValue('label', label);
     
-    onSubmit(formData);
-    form.reset();
+    // Generate kebab case value from label
+    const value = toSlug(label);
+    setValue('value', value);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 mb-6 p-3 border border-gray-100 bg-gray-50 rounded-md">
-        <div className="flex justify-between items-center mb-2">
-          <h5 className="text-sm font-medium">Add New Choice</h5>
+    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-3 space-y-3 bg-white mt-2">
+      <div className="flex justify-between items-center mb-2">
+        <h5 className="text-sm font-medium">Add Choice</h5>
+        <Button 
+          type="button" 
+          variant="ghost" 
+          size="icon" 
+          onClick={onCancel} 
+          className="h-6 w-6"
+        >
+          <XIcon className="h-3 w-3" />
+        </Button>
+      </div>
+      
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="label" className="text-xs">Display Name:</Label>
+          <Input
+            id="label"
+            {...register('label', { required: true })}
+            onChange={handleLabelChange}
+            placeholder="Choice display name"
+            className="h-8 text-sm"
+          />
+          {errors.label && <p className="text-xs text-red-500 mt-1">Display name is required</p>}
+        </div>
+        
+        <input type="hidden" {...register('section_id')} />
+        <input type="hidden" {...register('display_order')} />
+        <input type="hidden" {...register('choice_type')} />
+        
+        <div className="flex justify-end space-x-2 pt-2">
           <Button 
             type="button" 
-            variant="ghost" 
-            size="icon" 
-            onClick={onCancel}
-            className="h-6 w-6"
+            variant="outline" 
+            size="sm" 
+            onClick={onCancel} 
+            className="h-7 text-xs"
           >
-            <X className="h-4 w-4" />
+            Cancel
           </Button>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="label"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="Display label" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="value"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="Value identifier" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="display_order"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Display order" 
-                  {...field} 
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="flex justify-end">
-          <Button type="submit" size="sm" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            size="sm" 
+            disabled={isSubmitting}
+            className="h-7 text-xs"
+          >
             {isSubmitting ? 'Adding...' : 'Add Choice'}
           </Button>
         </div>
-      </form>
-    </Form>
+      </div>
+    </form>
   );
 };
 
