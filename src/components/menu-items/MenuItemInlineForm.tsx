@@ -1,18 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import { Loader2, Save, X } from 'lucide-react';
-import { MenuItemFormData } from '@/api/menuItemsApi';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toSlug } from '@/utils/menuStructureUtils';
 
-interface MenuItemInlineFormProps {
-  onSubmit: (data: MenuItemFormData) => void;
+const formSchema = z.object({
+  label: z.string().min(1, "Label is required"),
+  value: z.string().min(1, "Value is required"),
+  category: z.string().nullable()
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export interface MenuItemInlineFormProps {
+  onSubmit: (data: any) => void;
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
-  availableCategories?: string[];
+  availableCategories: string[];
   preSelectedCategory?: string | null;
 }
 
@@ -24,151 +33,102 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   availableCategories = [],
   preSelectedCategory = null
 }) => {
-  const [formData, setFormData] = useState<MenuItemFormData>({
-    label: '',
-    value: '',
-    category: preSelectedCategory || null,
-    choice_id: choiceId,
-    image_url: null
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      label: '',
+      value: '',
+      category: preSelectedCategory
+    }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    
-    setFormData(prev => {
-      const updatedData = { ...prev, [name]: value };
-      
-      // Auto-generate value from label
-      if (name === 'label' && !prev.value) {
-        updatedData.value = toSlug(value);
-      }
-      
-      return updatedData;
-    });
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      category: value || null
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.label.trim()) {
-      return;
-    }
-    
-    onSubmit({
-      ...formData,
-      label: formData.label.trim(),
-      value: formData.value.trim() || toSlug(formData.label),
-    });
-  };
-
-  // Set preselected category when it changes
+  // Update form value when preSelectedCategory changes
   useEffect(() => {
-    if (preSelectedCategory !== null) {
-      setFormData(prev => ({
-        ...prev,
-        category: preSelectedCategory
-      }));
+    if (preSelectedCategory !== undefined) {
+      form.setValue('category', preSelectedCategory);
     }
-  }, [preSelectedCategory]);
+  }, [preSelectedCategory, form]);
 
-  return (
-    <form 
-      onSubmit={handleSubmit} 
-      className="border border-green-200 rounded-md p-3 bg-green-50 mb-4 shadow-sm"
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-        <div className={availableCategories.length > 0 ? "sm:col-span-2" : "sm:col-span-3"}>
-          <label className="block text-xs text-gray-600 mb-1">
-            Item Name
-          </label>
-          <Input
-            name="label"
-            value={formData.label}
-            onChange={handleChange}
-            placeholder="e.g., Roast Beef"
-            required
-            className="bg-white"
-          />
-          <div className="mt-2">
-            <label className="block text-xs text-gray-600 mb-1">
-              Value
-            </label>
-            <Input
-              name="value"
-              value={formData.value}
-              onChange={handleChange}
-              placeholder="e.g., roast-beef"
-              className="bg-white"
-            />
-          </div>
-        </div>
-        
-        {availableCategories.length > 0 && (
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">
-              Category
-            </label>
-            <Select
-              value={formData.category || ""}
-              onValueChange={handleCategoryChange}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">No Category</SelectItem>
-                {availableCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
+  // Watch the label field to automatically generate the value
+  const labelValue = form.watch('label');
+  
+  // Update the value field when label changes
+  useEffect(() => {
+    if (labelValue) {
+      // Convert to lowercase, replace spaces with hyphens, and remove special characters
+      const generatedValue = labelValue
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
       
-      <div className="flex justify-end space-x-2">
-        <Button 
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="flex items-center"
-        >
-          <X className="h-4 w-4 mr-1" />
-          Cancel
-        </Button>
-        
-        <Button 
-          type="submit"
-          size="sm"
-          disabled={isSubmitting || !formData.label.trim()}
-          className="flex items-center bg-green-600 hover:bg-green-700"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-1" />
-              Add Item
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
-  );
+      form.setValue('value', generatedValue);
+    }
+  }, [labelValue, form]);
+
+  const handleSubmit = (values: FormValues) => {
+    onSubmit({
+      ...values,
+      choice_id: choiceId
+    });
+    form.reset();
+  };
+
+  return <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
+          <div className="flex space-x-3">
+            <FormField control={form.control} name="label" render={({
+            field
+          }) => <FormItem className="flex-1">
+                  <FormLabel className="text-xs">Display Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Menu Item Name" {...field} className="h-8 text-xs" />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>} />
+            
+            <FormField control={form.control} name="value" render={({
+            field
+          }) => <FormItem className="flex-1">
+                  <FormLabel className="text-xs">Value</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" disabled />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>} />
+          </div>
+          
+          {availableCategories.length > 0 && <FormField control={form.control} name="category" render={({
+          field
+        }) => <FormItem>
+                  <FormLabel className="text-xs">Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
+                    <FormControl>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {availableCategories.map(category => <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage className="text-xs" />
+                </FormItem>} />}
+          
+          <div className="flex justify-end space-x-2 pt-2">
+            <Button type="button" onClick={onCancel} variant="outline" size="sm" className="h-7 text-xs">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting} size="sm" className="h-7 text-xs">
+              {isSubmitting ? 'Adding...' : 'Add Item'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>;
 };
 
 export default MenuItemInlineForm;

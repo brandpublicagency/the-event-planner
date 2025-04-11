@@ -44,6 +44,11 @@ const MenuSectionsTable = () => {
 
   return (
     <div className="space-y-6">
+      <Button size="sm" onClick={() => setIsAddDialogOpen(true)} className="mb-4">
+        <PlusIcon className="h-4 w-4 mr-2" />
+        Add Section
+      </Button>
+
       {isLoading ? (
         <div className="text-center py-4">Loading sections...</div>
       ) : (
@@ -54,7 +59,7 @@ const MenuSectionsTable = () => {
             </div>
           ) : (
             sections.map(section => (
-              <div key={section.id} className="mb-8 border border-gray-200 rounded-md p-4 bg-white">
+              <div key={section.id} className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-lg font-medium">{section.label}</h3>
@@ -78,16 +83,6 @@ const MenuSectionsTable = () => {
               </div>
             ))
           )}
-          
-          {/* Add Section button at the bottom */}
-          <Button 
-            size="sm" 
-            onClick={() => setIsAddDialogOpen(true)} 
-            className="w-full mt-4 border border-dashed border-gray-300 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add Section
-          </Button>
         </div>
       )}
 

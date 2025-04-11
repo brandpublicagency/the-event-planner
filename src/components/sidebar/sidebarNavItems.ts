@@ -68,7 +68,7 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
     },
     {
       icon: Menu,
-      path: "/menu-management",
+      path: "/my-business",
       label: "Menu Management"
     }
   ];

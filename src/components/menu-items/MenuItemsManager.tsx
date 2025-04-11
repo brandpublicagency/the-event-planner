@@ -6,6 +6,7 @@ import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
 import { MenuItem } from '@/api/menuItemsApi';
 import MenuItemInlineForm from './MenuItemInlineForm';
+import MenuItemsByCategory from './MenuItemsByCategory';
 
 interface MenuItemsManagerProps {
   choiceId: string;
@@ -13,13 +14,18 @@ interface MenuItemsManagerProps {
   hideChoiceLabel?: boolean;
 }
 
+interface MenuItemInlineFormProps {
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+  isSubmitting: boolean;
+  choiceId: string;
+  availableCategories: string[];
+  preSelectedCategory?: string | null;
+}
+
 const MULTI_CATEGORY_CHOICE_VALUES = [
   'buffet-menu',
-  'warm-karoo-feast',
-  'plated-menu',
-  'dessert-canapes',
-  'individual-cakes',
-  'baked-desserts'
+  'warm-karoo-feast'
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
@@ -36,6 +42,8 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     handleReorderItems,
     setEditingItem,
     editingItem,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
     isCreating,
     isUpdating,
     isDeleting,
@@ -53,58 +61,29 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   // Determine if this choice should use categories
   const useCategories = useMemo(() => {
-    if (!choiceItems.length) {
-      // Check choice value from the first item
-      const choiceValue = choiceItems[0]?.choice;
-      if (choiceValue) {
-        return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
-      }
-      
-      // If no items yet, check the choice label for keywords
-      const lowerLabel = choiceLabel.toLowerCase();
-      return lowerLabel.includes('buffet') || 
-             lowerLabel.includes('karoo') || 
-             lowerLabel.includes('dessert');
-    }
+    if (!choiceItems.length) return false;
     
     // Check if this is a known multi-category choice like buffet menu
     const choiceValue = choiceItems[0]?.choice;
     return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
-  }, [choiceItems, choiceLabel]);
+  }, [choiceItems]);
 
   // Determine the available categories based on the choice
   const availableCategories = useMemo(() => {
     if (!useCategories) return [];
     
-    // Get choice value from first item or infer from label
-    const choiceValue = choiceItems[0]?.choice || choiceLabel.toLowerCase().replace(/\s+/g, '-');
+    const choiceValue = choiceItems[0]?.choice;
     
-    if (choiceValue === 'buffet-menu' || choiceLabel.toLowerCase().includes('buffet')) {
+    if (choiceValue === 'buffet-menu') {
       return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
     }
     
-    if (choiceValue === 'warm-karoo-feast' || choiceLabel.toLowerCase().includes('karoo')) {
+    if (choiceValue === 'warm-karoo-feast') {
       return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
-    }
-    
-    if (choiceValue === 'plated-menu' || choiceLabel.toLowerCase().includes('plated')) {
-      return ["MAIN SELECTION", "SALAD"];
-    }
-    
-    if (choiceValue === 'dessert-canapes' || choiceLabel.toLowerCase().includes('canape')) {
-      return ["DESSERT CANAPÉS"];
-    }
-    
-    if (choiceValue === 'individual-cakes' || choiceLabel.toLowerCase().includes('cake')) {
-      return ["INDIVIDUAL CAKES"];
-    }
-    
-    if (choiceValue === 'baked-desserts' || choiceLabel.toLowerCase().includes('baked')) {
-      return ["BAKED DESSERTS"];
     }
     
     return [];
-  }, [choiceItems, useCategories, choiceLabel]);
+  }, [choiceItems, useCategories]);
 
   // Handler for when "Add Item" is clicked within a category
   const handleAddInCategory = (category: string | null) => {
@@ -113,63 +92,66 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   };
 
   return (
-    <div className="mt-2 border-l-2 border-gray-200 pl-3">
+    <div className="mt-2">
       {isLoading ? (
         <div className="text-center py-4 text-sm text-gray-500">Loading items...</div>
       ) : (
         <>
-          {!hideChoiceLabel && (
-            <div className="mb-2">
-              <h6 className="text-sm font-medium">{choiceLabel}</h6>
+          {choiceItems.length === 0 ? (
+            <div className="text-center py-4 text-sm text-gray-500">
+              No items added to this choice yet
             </div>
-          )}
-          
-          <MenuItemsTable 
-            items={choiceItems} 
-            onEdit={item => setEditingItem(item)} 
-            onDelete={handleDeleteItem} 
-            onReorder={handleReorderItems} 
-            isDeleting={isDeleting}
-            useCategories={useCategories}
-            availableCategories={availableCategories}
-            onAddItem={handleAddInCategory}
-          />
-          
-          {/* Add Item button */}
-          {!showInlineForm && !useCategories && (
-            <Button 
-              size="sm" 
-              onClick={() => setShowInlineForm(true)} 
-              className="w-full mt-3 border border-dashed border-gray-200 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700"
-            >
-              <span className="text-xs">+ Add Item</span>
-            </Button>
-          )}
-          
-          {/* Inline form for adding items */}
-          {showInlineForm && (
-            <MenuItemInlineForm 
-              onSubmit={data => {
-                handleAddItem({
-                  ...data,
-                  choice_id: choiceId,
-                  category: selectedCategory
-                });
-                setShowInlineForm(false);
-                setSelectedCategory(null);
-              }} 
-              onCancel={() => {
-                setShowInlineForm(false);
-                setSelectedCategory(null);
-              }} 
-              isSubmitting={isCreating} 
-              choiceId={choiceId}
-              availableCategories={availableCategories}
-              preSelectedCategory={selectedCategory}
-            />
+          ) : (
+            <>
+              {useCategories ? (
+                <MenuItemsByCategory 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  isDeleting={isDeleting} 
+                />
+              ) : (
+                <MenuItemsTable 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
+                  isDeleting={isDeleting}
+                  onAddItem={handleAddInCategory}
+                />
+              )}
+            </>
           )}
         </>
       )}
+
+      {/* Inline form for adding items - moved below the items table */}
+      {showInlineForm && (
+        <MenuItemInlineForm 
+          onSubmit={handleAddItem} 
+          onCancel={() => {
+            setShowInlineForm(false);
+            setSelectedCategory(null);
+          }} 
+          isSubmitting={isCreating} 
+          choiceId={choiceId}
+          availableCategories={availableCategories}
+          preSelectedCategory={selectedCategory}
+        />
+      )}
+
+      {/* Add Dialog */}
+      <MenuItemDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen} 
+        onSubmit={data => handleAddItem({
+          ...data,
+          choice_id: choiceId
+        })} 
+        isSubmitting={isCreating} 
+        title="Add Menu Item" 
+        choiceId={choiceId} 
+      />
 
       {/* Edit Dialog */}
       {editingItem && (

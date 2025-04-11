@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight, Briefcase, Utensils } from "lucide-react";
+import { Plus, CheckSquare, FilePlus, ChevronLeft, ChevronRight, Briefcase, Menu } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarActionsProps {
@@ -27,10 +27,6 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   const navigateToMyBusiness = () => {
     navigate('/my-business');
-  };
-  
-  const navigateToMenuManagement = () => {
-    navigate('/menu-management');
   };
 
   return (
@@ -73,17 +69,9 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             <button 
               onClick={navigateToMyBusiness} 
               className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
-              title="My Business"
-            >
-              <Briefcase className="h-4 w-4 transition-transform group-hover:scale-110" />
-            </button>
-            
-            <button 
-              onClick={navigateToMenuManagement} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Menu Management"
             >
-              <Utensils className="h-4 w-4 transition-transform group-hover:scale-110" />
+              <Menu className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
             <button 
@@ -126,15 +114,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               onClick={navigateToMyBusiness} 
               className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
-              <Briefcase className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
-              <span className="text-xs font-medium">My Business</span>
-            </button>
-            
-            <button 
-              onClick={navigateToMenuManagement} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
-            >
-              <Utensils className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+              <Menu className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Menu Management</span>
             </button>
             
