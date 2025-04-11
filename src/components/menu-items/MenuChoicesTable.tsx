@@ -51,18 +51,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-md font-medium text-base">Choices</h4>
-        <Button 
-          size="sm" 
-          onClick={() => setShowInlineForm(true)} 
-          className="font-normal text-xs"
-        >
-          <PlusIcon className="h-3 w-3 mr-1.5" />
-          Add Choice
-        </Button>
-      </div>
-      
       {isLoading ? (
         <div className="text-center py-4">Loading choices...</div>
       ) : (
@@ -105,6 +93,16 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
               </div>
             ))
           )}
+          
+          {/* Add Choice button placed below item containers */}
+          <Button 
+            size="sm" 
+            onClick={() => setShowInlineForm(true)} 
+            className="w-full mt-4 border border-dashed border-gray-300 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700"
+          >
+            <PlusIcon className="h-3 w-3 mr-1.5" />
+            Add Choice
+          </Button>
           
           {showInlineForm && (
             <MenuChoiceInlineForm 
