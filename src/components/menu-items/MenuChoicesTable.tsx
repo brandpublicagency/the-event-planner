@@ -63,9 +63,9 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             choices.map(choice => (
               <div key={choice.id} className="mb-5">
                 <div className="flex justify-between items-center mb-2">
-                  <div>
+                  <div className="flex items-center">
                     <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
-                    <p className="text-[10px] text-gray-500">Value: {choice.value}, Order: {choice.display_order}</p>
+                    <p className="text-[10px] text-gray-500 ml-2">Value: {choice.value}, Order: {choice.display_order}</p>
                   </div>
                   <div className="flex space-x-1">
                     <Button 
@@ -88,7 +88,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                 </div>
 
                 <div className="mt-2">
-                  <MenuItemsManager choiceId={choice.id} choiceLabel={choice.label} />
+                  <MenuItemsManager choiceId={choice.id} choiceLabel={choice.label} hideChoiceLabel={true} />
                 </div>
               </div>
             ))
