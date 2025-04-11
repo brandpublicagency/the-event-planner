@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -7,15 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 const formSchema = z.object({
   label: z.string().min(1, "Label is required"),
   value: z.string().min(1, "Value is required"),
   category: z.string().nullable()
 });
-
 type FormValues = z.infer<typeof formSchema>;
-
 export interface MenuItemInlineFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
@@ -24,7 +20,6 @@ export interface MenuItemInlineFormProps {
   availableCategories: string[];
   preSelectedCategory?: string | null;
 }
-
 const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onSubmit,
   onCancel,
@@ -48,7 +43,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       form.setValue('category', preSelectedCategory);
     }
   }, [preSelectedCategory, form]);
-
   const handleSubmit = (values: FormValues) => {
     onSubmit({
       ...values,
@@ -56,61 +50,36 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     });
     form.reset();
   };
-
-  return (
-    <div className="border rounded-md p-4 mb-4 bg-white">
+  return <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
           <div className="flex space-x-3">
-            <FormField
-              control={form.control}
-              name="label"
-              render={({ field }) => (
-                <FormItem className="flex-1">
+            <FormField control={form.control} name="label" render={({
+            field
+          }) => <FormItem className="flex-1">
                   <FormLabel className="text-xs">Display Name</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Roast Beef" 
-                      {...field} 
-                      className="h-8 text-xs" 
-                    />
+                    <Input placeholder="Roast Beef" {...field} className="h-8 text-xs" />
                   </FormControl>
                   <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                </FormItem>} />
             
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem className="flex-1">
+            <FormField control={form.control} name="value" render={({
+            field
+          }) => <FormItem className="flex-1">
                   <FormLabel className="text-xs">Value</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="roast-beef" 
-                      {...field} 
-                      className="h-8 text-xs" 
-                    />
+                    <Input placeholder="roast-beef" {...field} className="h-8 text-xs" />
                   </FormControl>
                   <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                </FormItem>} />
           </div>
           
-          {availableCategories.length > 0 && (
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
+          {availableCategories.length > 0 && <FormField control={form.control} name="category" render={({
+          field
+        }) => <FormItem>
                   <FormLabel className="text-xs">Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value || undefined}
-                    value={field.value || undefined}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
                     <FormControl>
                       <SelectTrigger className="h-8 text-xs">
                         <SelectValue placeholder="Select a category" />
@@ -118,42 +87,24 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="">None</SelectItem>
-                      {availableCategories.map(category => (
-                        <SelectItem key={category} value={category}>
+                      {availableCategories.map(category => <SelectItem key={category} value={category}>
                           {category}
-                        </SelectItem>
-                      ))}
+                        </SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          )}
+                </FormItem>} />}
           
           <div className="flex justify-end space-x-2 pt-2">
-            <Button 
-              type="button" 
-              onClick={onCancel}
-              variant="outline" 
-              size="sm"
-              className="h-7 text-xs"
-            >
+            <Button type="button" onClick={onCancel} variant="outline" size="sm" className="h-7 text-xs">
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              size="sm"
-              className="h-7 text-xs"
-            >
+            <Button type="submit" disabled={isSubmitting} size="sm" className="h-7 text-xs">
               {isSubmitting ? 'Adding...' : 'Add Item'}
             </Button>
           </div>
         </form>
       </Form>
-    </div>
-  );
+    </div>;
 };
-
 export default MenuItemInlineForm;
