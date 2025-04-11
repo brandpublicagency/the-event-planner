@@ -14,6 +14,15 @@ interface MenuItemsManagerProps {
   choiceLabel: string;
 }
 
+interface MenuItemInlineFormProps {
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+  isSubmitting: boolean;
+  choiceId: string;
+  availableCategories: string[];
+  preSelectedCategory?: string | null;
+}
+
 const MULTI_CATEGORY_CHOICE_VALUES = [
   'buffet-menu',
   'warm-karoo-feast'
@@ -42,6 +51,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   // State for showing the inline form
   const [showInlineForm, setShowInlineForm] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Get items for this choice
   const choiceItems = useMemo(() => {
@@ -73,6 +83,12 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     
     return [];
   }, [choiceItems, useCategories]);
+
+  // Handler for when "Add Item" is clicked within a category
+  const handleAddInCategory = (category: string | null) => {
+    setSelectedCategory(category);
+    setShowInlineForm(true);
+  };
 
   return (
     <div className="mt-2">
@@ -111,7 +127,8 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
                   onEdit={item => setEditingItem(item)} 
                   onDelete={handleDeleteItem} 
                   onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
-                  isDeleting={isDeleting} 
+                  isDeleting={isDeleting}
+                  onAddItem={handleAddInCategory}
                 />
               )}
             </>
@@ -123,10 +140,14 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
       {showInlineForm && (
         <MenuItemInlineForm 
           onSubmit={handleAddItem} 
-          onCancel={() => setShowInlineForm(false)} 
+          onCancel={() => {
+            setShowInlineForm(false);
+            setSelectedCategory(null);
+          }} 
           isSubmitting={isCreating} 
           choiceId={choiceId}
           availableCategories={availableCategories}
+          preSelectedCategory={selectedCategory}
         />
       )}
 
