@@ -32,6 +32,9 @@ const formSchema = z.object({
   display_order: z.number().int().min(0),
 });
 
+// Define the form values type to match our schema
+type FormValues = z.infer<typeof formSchema>;
+
 interface MenuSectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -50,7 +53,7 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
   title,
 }) => {
   // Initialize form with default values or existing section data
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       label: initialData?.label || '',
@@ -60,8 +63,14 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
   });
 
   // Handle form submission
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    onSubmit(data);
+  const handleSubmit = (data: FormValues) => {
+    // Ensure all fields are provided as required by MenuSectionFormData
+    const formData: MenuSectionFormData = {
+      label: data.label,
+      value: data.value,
+      display_order: data.display_order,
+    };
+    onSubmit(formData);
   };
 
   // Auto-generate value from label if empty
