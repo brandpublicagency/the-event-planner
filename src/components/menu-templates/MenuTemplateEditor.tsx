@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -185,7 +184,7 @@ const MenuTemplateEditor: React.FC<MenuTemplateEditorProps> = ({
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={onSaved}
+                  onClick={onBack}
                 >
                   Cancel
                 </Button>
