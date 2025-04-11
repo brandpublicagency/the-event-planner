@@ -1,27 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useForm } from 'react-hook-form';
+import { MenuItemFormData } from '@/api/menuItemsApi';
+import { XIcon } from 'lucide-react';
 
-const formSchema = z.object({
-  label: z.string().min(1, "Label is required"),
-  value: z.string().min(1, "Value is required"),
-  category: z.string().nullable()
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-export interface MenuItemInlineFormProps {
-  onSubmit: (data: any) => void;
+interface MenuItemInlineFormProps {
+  onSubmit: (data: MenuItemFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
-  availableCategories: string[];
+  availableCategories?: string[];
   preSelectedCategory?: string | null;
 }
 
@@ -33,102 +25,107 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   availableCategories = [],
   preSelectedCategory = null
 }) => {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<MenuItemFormData>({
     defaultValues: {
       label: '',
       value: '',
-      category: preSelectedCategory
+      category: preSelectedCategory || null,
+      choice_id: choiceId,
+      display_order: 0
     }
   });
 
-  // Update form value when preSelectedCategory changes
-  useEffect(() => {
-    if (preSelectedCategory !== undefined) {
-      form.setValue('category', preSelectedCategory);
-    }
-  }, [preSelectedCategory, form]);
-
-  // Watch the label field to automatically generate the value
-  const labelValue = form.watch('label');
+  const selectedCategory = watch('category');
+  const showCategorySelect = availableCategories.length > 0;
   
-  // Update the value field when label changes
-  useEffect(() => {
-    if (labelValue) {
-      // Convert to lowercase, replace spaces with hyphens, and remove special characters
-      const generatedValue = labelValue
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
-      
-      form.setValue('value', generatedValue);
-    }
-  }, [labelValue, form]);
-
-  const handleSubmit = (values: FormValues) => {
-    onSubmit({
-      ...values,
-      choice_id: choiceId
-    });
-    form.reset();
+  // Auto-generate value from label (kebab case)
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const label = e.target.value;
+    setValue('label', label);
+    
+    // Generate kebab case value from label
+    const value = label
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    
+    setValue('value', value);
   };
-
-  return <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
-          <div className="flex space-x-3">
-            <FormField control={form.control} name="label" render={({
-            field
-          }) => <FormItem className="flex-1">
-                  <FormLabel className="text-xs">Display Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Menu Item Name" {...field} className="h-8 text-xs" />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>} />
-            
-            <FormField control={form.control} name="value" render={({
-            field
-          }) => <FormItem className="flex-1">
-                  <FormLabel className="text-xs">Value</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" disabled />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>} />
+  
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-md p-3 space-y-3 bg-white mt-2">
+      <div className="flex justify-between items-center mb-2">
+        <h5 className="text-sm font-medium">Add Item</h5>
+        <Button 
+          type="button" 
+          variant="ghost" 
+          size="icon" 
+          onClick={onCancel} 
+          className="h-6 w-6"
+        >
+          <XIcon className="h-3 w-3" />
+        </Button>
+      </div>
+      
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="label" className="text-xs">Display Name:</Label>
+          <Input
+            id="label"
+            {...register('label', { required: true })}
+            onChange={handleLabelChange}
+            placeholder="Menu item name"
+            className="h-8 text-sm"
+          />
+          {errors.label && <p className="text-xs text-red-500 mt-1">Display name is required</p>}
+        </div>
+        
+        {showCategorySelect && (
+          <div>
+            <Label htmlFor="category" className="text-xs">Category:</Label>
+            <Select
+              value={selectedCategory || ''}
+              onValueChange={(value) => setValue('category', value === '' ? null : value)}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {availableCategories.map(category => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          
-          {availableCategories.length > 0 && <FormField control={form.control} name="category" render={({
-          field
-        }) => <FormItem>
-                  <FormLabel className="text-xs">Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
-                    <FormControl>
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">None</SelectItem>
-                      {availableCategories.map(category => <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>} />}
-          
-          <div className="flex justify-end space-x-2 pt-2">
-            <Button type="button" onClick={onCancel} variant="outline" size="sm" className="h-7 text-xs">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} size="sm" className="h-7 text-xs">
-              {isSubmitting ? 'Adding...' : 'Add Item'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>;
+        )}
+        
+        <input type="hidden" {...register('choice_id')} />
+        <input type="hidden" {...register('display_order')} />
+        
+        <div className="flex justify-end space-x-2 pt-2">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={onCancel} 
+            className="h-7 text-xs"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            size="sm" 
+            disabled={isSubmitting}
+            className="h-7 text-xs"
+          >
+            {isSubmitting ? 'Adding...' : 'Add Item'}
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
 };
 
 export default MenuItemInlineForm;

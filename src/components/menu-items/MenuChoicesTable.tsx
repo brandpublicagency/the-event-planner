@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
-import MenuChoiceDialog from './MenuChoiceDialog';
 import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -24,8 +23,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     handleDeleteChoice,
     editingChoice,
     setEditingChoice,
-    isAddDialogOpen,
-    setIsAddDialogOpen,
     isCreating,
     isUpdating,
     isDeleting
@@ -94,7 +91,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             ))
           )}
           
-          {/* Add Choice button placed below item containers */}
+          {/* Add Choice button */}
           <Button 
             size="sm" 
             onClick={() => setShowInlineForm(true)} 
@@ -103,21 +100,23 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             <PlusIcon className="h-3 w-3 mr-1.5" />
             Add Choice
           </Button>
-          
-          {showInlineForm && (
-            <MenuChoiceInlineForm 
-              onSubmit={data => {
-                handleAddChoice(data);
-                setShowInlineForm(false);
-              }} 
-              onCancel={() => setShowInlineForm(false)} 
-              isSubmitting={isCreating} 
-              sectionId={sectionId} 
-            />
-          )}
         </div>
       )}
 
+      {/* Inline form for adding choices */}
+      {showInlineForm && (
+        <MenuChoiceInlineForm 
+          onSubmit={data => {
+            handleAddChoice(data);
+            setShowInlineForm(false);
+          }} 
+          onCancel={() => setShowInlineForm(false)} 
+          isSubmitting={isCreating} 
+          sectionId={sectionId} 
+        />
+      )}
+
+      {/* Edit Dialog */}
       {editingChoice && (
         <MenuChoiceDialog 
           open={!!editingChoice} 
@@ -130,6 +129,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
         />
       )}
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog 
         open={!!choiceToDelete} 
         onOpenChange={open => !open && setChoiceToDelete(null)}
@@ -155,3 +155,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
 };
 
 export default MenuChoicesTable;
+
+// Import at the top
+import MenuChoiceDialog from './MenuChoiceDialog';

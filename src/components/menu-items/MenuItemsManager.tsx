@@ -6,21 +6,11 @@ import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
 import { MenuItem } from '@/api/menuItemsApi';
 import MenuItemInlineForm from './MenuItemInlineForm';
-import MenuItemsByCategory from './MenuItemsByCategory';
 
 interface MenuItemsManagerProps {
   choiceId: string;
   choiceLabel: string;
   hideChoiceLabel?: boolean;
-}
-
-interface MenuItemInlineFormProps {
-  onSubmit: (data: any) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
-  choiceId: string;
-  availableCategories: string[];
-  preSelectedCategory?: string | null;
 }
 
 const MULTI_CATEGORY_CHOICE_VALUES = [
@@ -42,8 +32,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     handleReorderItems,
     setEditingItem,
     editingItem,
-    isAddDialogOpen,
-    setIsAddDialogOpen,
     isCreating,
     isUpdating,
     isDeleting,
@@ -92,66 +80,69 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   };
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 border-l-2 border-gray-200 pl-3">
       {isLoading ? (
         <div className="text-center py-4 text-sm text-gray-500">Loading items...</div>
       ) : (
         <>
+          {!hideChoiceLabel && (
+            <div className="mb-2">
+              <h6 className="text-sm font-medium">{choiceLabel}</h6>
+            </div>
+          )}
+          
           {choiceItems.length === 0 ? (
             <div className="text-center py-4 text-sm text-gray-500">
-              No items added to this choice yet
+              No items added yet
             </div>
           ) : (
-            <>
-              {useCategories ? (
-                <MenuItemsByCategory 
-                  items={choiceItems} 
-                  onEdit={item => setEditingItem(item)} 
-                  onDelete={handleDeleteItem} 
-                  isDeleting={isDeleting} 
-                />
-              ) : (
-                <MenuItemsTable 
-                  items={choiceItems} 
-                  onEdit={item => setEditingItem(item)} 
-                  onDelete={handleDeleteItem} 
-                  onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
-                  isDeleting={isDeleting}
-                  onAddItem={handleAddInCategory}
-                />
-              )}
-            </>
+            <MenuItemsTable 
+              items={choiceItems} 
+              onEdit={item => setEditingItem(item)} 
+              onDelete={handleDeleteItem} 
+              onReorder={handleReorderItems} 
+              isDeleting={isDeleting}
+              useCategories={useCategories}
+              availableCategories={availableCategories}
+              onAddItem={handleAddInCategory}
+            />
+          )}
+          
+          {/* Add Item button */}
+          {!showInlineForm && (
+            <Button 
+              size="sm" 
+              onClick={() => setShowInlineForm(true)} 
+              className="w-full mt-3 border border-dashed border-gray-200 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700"
+            >
+              <span className="text-xs">+ Add Item</span>
+            </Button>
+          )}
+          
+          {/* Inline form for adding items */}
+          {showInlineForm && (
+            <MenuItemInlineForm 
+              onSubmit={data => {
+                handleAddItem({
+                  ...data,
+                  choice_id: choiceId,
+                  category: selectedCategory
+                });
+                setShowInlineForm(false);
+                setSelectedCategory(null);
+              }} 
+              onCancel={() => {
+                setShowInlineForm(false);
+                setSelectedCategory(null);
+              }} 
+              isSubmitting={isCreating} 
+              choiceId={choiceId}
+              availableCategories={availableCategories}
+              preSelectedCategory={selectedCategory}
+            />
           )}
         </>
       )}
-
-      {/* Inline form for adding items - moved below the items table */}
-      {showInlineForm && (
-        <MenuItemInlineForm 
-          onSubmit={handleAddItem} 
-          onCancel={() => {
-            setShowInlineForm(false);
-            setSelectedCategory(null);
-          }} 
-          isSubmitting={isCreating} 
-          choiceId={choiceId}
-          availableCategories={availableCategories}
-          preSelectedCategory={selectedCategory}
-        />
-      )}
-
-      {/* Add Dialog */}
-      <MenuItemDialog 
-        open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen} 
-        onSubmit={data => handleAddItem({
-          ...data,
-          choice_id: choiceId
-        })} 
-        isSubmitting={isCreating} 
-        title="Add Menu Item" 
-        choiceId={choiceId} 
-      />
 
       {/* Edit Dialog */}
       {editingItem && (
