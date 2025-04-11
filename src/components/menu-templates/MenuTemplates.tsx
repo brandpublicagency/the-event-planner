@@ -1,95 +1,68 @@
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useMenuSections } from '@/hooks/useMenuSections';
-import { Plus } from 'lucide-react';
 import MenuTemplatesList from './MenuTemplatesList';
+import MenuTemplateImporter from './MenuTemplateImporter';
 import MenuTemplateEditor from './MenuTemplateEditor';
+import { Plus } from 'lucide-react';
 
-const MenuTemplates = () => {
-  const [activeTab, setActiveTab] = useState<string>('templates');
-  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+const MenuTemplates: React.FC = () => {
   const { sections, isLoading } = useMenuSections();
+  const [activeTab, setActiveTab] = useState('list');
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
 
   const handleEditTemplate = (templateId: string) => {
     setEditingTemplateId(templateId);
     setActiveTab('editor');
   };
 
-  const handleCreateTemplate = () => {
-    setEditingTemplateId(null);
-    setActiveTab('editor');
-  };
-
   const handleBackToList = () => {
     setEditingTemplateId(null);
-    setActiveTab('templates');
+    setActiveTab('list');
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">Menu Templates</h2>
+        {activeTab === 'list' && (
+          <Button onClick={() => setActiveTab('import')} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Import Template
+          </Button>
+        )}
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-between items-center mb-6">
-          <TabsList>
-            <TabsTrigger value="templates">Menu Templates</TabsTrigger>
-            <TabsTrigger value="editor" disabled={activeTab !== 'editor'}>
-              {editingTemplateId ? 'Edit Template' : 'Create Template'}
-            </TabsTrigger>
-          </TabsList>
-          
-          {activeTab === 'templates' && (
-            <Button onClick={handleCreateTemplate} className="gap-1">
-              <Plus className="h-4 w-4" />
-              Create Template
-            </Button>
+        <TabsList className="mb-4">
+          <TabsTrigger value="list">All Templates</TabsTrigger>
+          <TabsTrigger value="import">Import Template</TabsTrigger>
+          {editingTemplateId && (
+            <TabsTrigger value="editor">Edit Template</TabsTrigger>
           )}
-        </div>
-        
-        <TabsContent value="templates" className="mt-0">
-          <div className="bg-gray-50 border border-gray-100 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="tracking-tight text-xl font-medium">Menu Templates</h2>
-                <p className="text-muted-foreground text-sm">
-                  Manage your reusable menu templates for different event types
-                </p>
-              </div>
-            </div>
-            
-            <MenuTemplatesList 
-              isLoading={isLoading} 
-              sections={sections} 
-              onEditTemplate={handleEditTemplate}
-            />
-          </div>
+        </TabsList>
+
+        <TabsContent value="list">
+          <MenuTemplatesList 
+            isLoading={isLoading} 
+            sections={sections} 
+            onEditTemplate={handleEditTemplate}
+          />
         </TabsContent>
-        
-        <TabsContent value="editor" className="mt-0">
-          <div className="bg-gray-50 border border-gray-100 rounded-lg p-6">
-            <div className="flex items-center mb-6">
-              <Button variant="ghost" onClick={handleBackToList} className="mr-4">
-                ← Back to Templates
-              </Button>
-              
-              <div>
-                <h2 className="tracking-tight text-xl font-medium">
-                  {editingTemplateId ? 'Edit Menu Template' : 'Create Menu Template'}
-                </h2>
-                <p className="text-muted-foreground text-sm">
-                  {editingTemplateId 
-                    ? 'Modify your existing menu template' 
-                    : 'Design a new reusable menu template'
-                  }
-                </p>
-              </div>
-            </div>
-            
+
+        <TabsContent value="import">
+          <MenuTemplateImporter />
+        </TabsContent>
+
+        <TabsContent value="editor">
+          {editingTemplateId && (
             <MenuTemplateEditor 
               templateId={editingTemplateId} 
-              onSaved={handleBackToList} 
+              onBack={handleBackToList}
             />
-          </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
