@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -53,6 +53,26 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
     },
   });
 
+  // Watch the label field to automatically generate the value (only when creating a new section)
+  const labelValue = form.watch('label');
+  
+  // Update the value field when label changes - generate with sec- prefix
+  useEffect(() => {
+    if (labelValue && !initialData) {  // Only auto-generate for new sections
+      // Create a value with the required prefix
+      let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
+      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars
+      generatedValue = generatedValue
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ''); // Remove special characters
+      
+      // Add the sec- prefix
+      generatedValue = `sec-${generatedValue}`;
+      
+      form.setValue('value', generatedValue);
+    }
+  }, [labelValue, form, initialData]);
+
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values as MenuSectionFormData);
   };
@@ -89,7 +109,7 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
                   <FormControl>
                     <Input 
                       {...field} 
-                      placeholder="section_id" 
+                      placeholder="Auto-generated with sec-" 
                       disabled={!!initialData} // Can't change value for existing sections
                     />
                   </FormControl>

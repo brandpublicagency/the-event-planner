@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,6 +46,26 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
       section_id: sectionId,
     },
   });
+
+  // Watch the label field to automatically generate the value
+  const labelValue = form.watch('label');
+  
+  // Update the value field when label changes - generate with cho- prefix
+  useEffect(() => {
+    if (labelValue) {
+      // Create a value with the required prefix
+      let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
+      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars
+      generatedValue = generatedValue
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ''); // Remove special characters
+      
+      // Add the cho- prefix
+      generatedValue = `cho-${generatedValue}`;
+      
+      form.setValue('value', generatedValue);
+    }
+  }, [labelValue, form]);
 
   const handleSubmit = (values: FormValues) => {
     const formData: MenuChoiceFormData = {
@@ -95,7 +115,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Value identifier" {...field} />
+                  <Input placeholder="Auto-generated with cho-" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

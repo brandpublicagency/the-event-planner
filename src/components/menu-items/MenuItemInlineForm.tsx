@@ -55,15 +55,15 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   // Update the value field when label changes - generate a shorter value
   useEffect(() => {
     if (labelValue) {
-      // Create a more concise value by:
-      // 1. Taking only the first word if multiple words exist
-      // 2. Or taking up to 10 characters of a single word
-      // 3. Converting to lowercase and removing special characters
+      // Create a value with the required prefix
       let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
-      generatedValue = generatedValue.substring(0, 10); // Limit to 10 chars
+      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars to keep the total length reasonable
       generatedValue = generatedValue
         .toLowerCase()
         .replace(/[^a-z0-9]/g, ''); // Remove special characters
+      
+      // Add the itm- prefix
+      generatedValue = `itm-${generatedValue}`;
       
       form.setValue('value', generatedValue);
     }
