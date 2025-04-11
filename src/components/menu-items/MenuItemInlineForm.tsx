@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -6,12 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 const formSchema = z.object({
   label: z.string().min(1, "Label is required"),
   value: z.string().min(1, "Value is required"),
   category: z.string().nullable()
 });
+
 type FormValues = z.infer<typeof formSchema>;
+
 export interface MenuItemInlineFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
@@ -20,6 +24,7 @@ export interface MenuItemInlineFormProps {
   availableCategories: string[];
   preSelectedCategory?: string | null;
 }
+
 const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onSubmit,
   onCancel,
@@ -43,6 +48,23 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       form.setValue('category', preSelectedCategory);
     }
   }, [preSelectedCategory, form]);
+
+  // Watch the label field to automatically generate the value
+  const labelValue = form.watch('label');
+  
+  // Update the value field when label changes
+  useEffect(() => {
+    if (labelValue) {
+      // Convert to lowercase, replace spaces with hyphens, and remove special characters
+      const generatedValue = labelValue
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+      
+      form.setValue('value', generatedValue);
+    }
+  }, [labelValue, form]);
+
   const handleSubmit = (values: FormValues) => {
     onSubmit({
       ...values,
@@ -50,6 +72,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     });
     form.reset();
   };
+
   return <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
@@ -59,7 +82,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           }) => <FormItem className="flex-1">
                   <FormLabel className="text-xs">Display Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Roast Beef" {...field} className="h-8 text-xs" />
+                    <Input placeholder="Menu Item Name" {...field} className="h-8 text-xs" />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>} />
@@ -69,7 +92,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           }) => <FormItem className="flex-1">
                   <FormLabel className="text-xs">Value</FormLabel>
                   <FormControl>
-                    <Input placeholder="roast-beef" {...field} className="h-8 text-xs" />
+                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" disabled />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>} />
@@ -107,4 +130,5 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       </Form>
     </div>;
 };
+
 export default MenuItemInlineForm;
