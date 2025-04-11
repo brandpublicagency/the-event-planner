@@ -1,15 +1,14 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, Check, FileJson, ArrowRight, ChevronRight, PackageOpen } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { createMenuSection, createMenuChoice, createMenuItem } from '@/api/menuItemsApi';
-import { toSlug } from '@/utils/menuStructureUtils';
-import { useMenuSections } from '@/hooks/useMenuSections';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PackageOpen, Check, AlertCircle, Info } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { createMenuSection, createMenuChoice, createMenuItem } from "@/api/menuItemsApi";
+import { toSlug } from "@/utils/menuStructureUtils";
+import { useMenuSections } from "@/hooks/useMenuSections";
+import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
 
 const TEMPLATES = [
