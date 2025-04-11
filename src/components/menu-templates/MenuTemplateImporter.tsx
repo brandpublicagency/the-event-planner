@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PackageOpen, Check, AlertCircle, Info } from "lucide-react";
+import { PackageOpen, Check, AlertCircle, Info, FileText, ChevronRight } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createMenuSection, createMenuChoice, createMenuItem } from "@/api/menuItemsApi";
-import { toSlug } from "@/utils/menuStructureUtils";
+import { createMenuSection, createMenuChoice, createMenuItem, MenuItemFormData } from "@/api/menuItemsApi";
+import { toSlug, getPredefinedCategories } from "@/utils/menuStructureUtils";
 import { useMenuSections } from "@/hooks/useMenuSections";
 import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
@@ -181,7 +182,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
     choices: 0,
     items: 0
   });
-  const { sections: existingSections, refreshSections } = useMenuSections();
+  const { sections: existingSections, refetch } = useMenuSections();
 
   const handleTemplateSelection = (id: string) => {
     setSelectedTemplate(id);
@@ -239,12 +240,13 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
           
           // Create items for this choice
           for (const [itemIndex, item] of choice.items.entries()) {
-            const itemData = {
+            const itemData: MenuItemFormData = {
               label: item.label,
               value: toSlug(item.label),
               choice_id: createdChoice.id,
-              category: item.category || null,
-              display_order: itemIndex
+              category: (item as any).category || null,
+              display_order: itemIndex,
+              image_url: null,
             };
             
             await createMenuItem(itemData);
@@ -255,7 +257,13 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
       
       setImportStats(stats);
       setImportSuccess(true);
-      refreshSections();
+      
+      // Refresh sections after import
+      if (refetch) {
+        setTimeout(() => {
+          refetch();
+        }, 500);
+      }
       
       if (onImportSuccess) {
         onImportSuccess();
@@ -329,7 +337,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
             {selectedTemplateData && (
               <div className="space-y-3">
                 <h3 className="text-sm font-medium flex items-center">
-                  <FileJson className="h-4 w-4 mr-2" /> 
+                  <FileText className="h-4 w-4 mr-2" /> 
                   Template Structure
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1.5">

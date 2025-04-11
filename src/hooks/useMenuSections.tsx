@@ -1,83 +1,101 @@
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   fetchMenuSections, 
-  createMenuSection, 
-  updateMenuSection, 
+  createMenuSection,
+  updateMenuSection,
   deleteMenuSection,
   MenuSection,
   MenuSectionFormData
 } from '@/api/menuItemsApi';
+import { toast } from 'sonner';
 
 export const useMenuSections = () => {
-  const queryClient = useQueryClient();
-  const [editingSection, setEditingSection] = useState<MenuSection | null>(null);
+  const [sections, setSections] = useState<MenuSection[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const { 
-    data: sections = [], 
-    isLoading,
-    error 
-  } = useQuery({
-    queryKey: ['menuSections'],
-    queryFn: fetchMenuSections,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createMenuSection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menuSections'] });
-      // Also invalidate menu items as they depend on sections
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu section created successfully');
+  const [editingSection, setEditingSection] = useState<MenuSection | null>(null);
+  
+  // State for tracking async operations
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const fetchSections = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchMenuSections();
+      setSections(data);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching menu sections:', err);
+      setError(err);
+      toast.error('Failed to load menu sections');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  
+  useEffect(() => {
+    fetchSections();
+  }, [fetchSections]);
+  
+  const handleAddSection = useCallback(async (data: MenuSectionFormData) => {
+    setIsCreating(true);
+    try {
+      // Add display_order if not provided
+      if (data.display_order === undefined) {
+        data.display_order = sections.length;
+      }
+      
+      const newSection = await createMenuSection(data);
+      setSections(prev => [...prev, newSection]);
       setIsAddDialogOpen(false);
-    },
-    onError: (error) => {
-      toast.error(`Failed to create menu section: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.success('Section added successfully');
+    } catch (err: any) {
+      console.error('Error adding section:', err);
+      toast.error('Failed to add section');
+    } finally {
+      setIsCreating(false);
     }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<MenuSectionFormData> }) => 
-      updateMenuSection(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menuSections'] });
-      // Also invalidate menu items as they depend on sections
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu section updated successfully');
+  }, [sections]);
+  
+  const handleUpdateSection = useCallback(async (id: string, data: Partial<MenuSectionFormData>) => {
+    setIsUpdating(true);
+    try {
+      const updatedSection = await updateMenuSection(id, data);
+      setSections(prev => prev.map(section => 
+        section.id === id ? updatedSection : section
+      ));
       setEditingSection(null);
-    },
-    onError: (error) => {
-      toast.error(`Failed to update menu section: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.success('Section updated successfully');
+    } catch (err: any) {
+      console.error('Error updating section:', err);
+      toast.error('Failed to update section');
+    } finally {
+      setIsUpdating(false);
     }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteMenuSection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menuSections'] });
-      // Also invalidate menu items as they depend on sections
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu section deleted successfully');
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete menu section: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }, []);
+  
+  const handleDeleteSection = useCallback(async (id: string) => {
+    setIsDeleting(true);
+    try {
+      await deleteMenuSection(id);
+      setSections(prev => prev.filter(section => section.id !== id));
+      toast.success('Section deleted successfully');
+    } catch (err: any) {
+      console.error('Error deleting section:', err);
+      toast.error('Failed to delete section');
+    } finally {
+      setIsDeleting(false);
     }
-  });
-
-  const handleAddSection = (data: MenuSectionFormData) => {
-    createMutation.mutate(data);
-  };
-
-  const handleUpdateSection = (id: string, data: Partial<MenuSectionFormData>) => {
-    updateMutation.mutate({ id, data });
-  };
-
-  const handleDeleteSection = (id: string) => {
-    deleteMutation.mutate(id);
-  };
+  }, []);
+  
+  // Function to manually refresh sections
+  const refetch = useCallback(() => {
+    return fetchSections();
+  }, [fetchSections]);
 
   return {
     sections,
@@ -86,12 +104,13 @@ export const useMenuSections = () => {
     handleAddSection,
     handleUpdateSection,
     handleDeleteSection,
-    editingSection,
-    setEditingSection,
     isAddDialogOpen,
     setIsAddDialogOpen,
-    isCreating: createMutation.isPending,
-    isUpdating: updateMutation.isPending,
-    isDeleting: deleteMutation.isPending
+    editingSection,
+    setEditingSection,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    refetch
   };
 };

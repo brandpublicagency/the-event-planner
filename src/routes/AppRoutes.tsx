@@ -22,6 +22,7 @@ import ScheduleMeeting from "@/pages/ScheduleMeeting";
 import ScheduleSiteVisit from "@/pages/ScheduleSiteVisit";
 import NewTask from "@/pages/NewTask";
 import MenuManagement from "@/pages/MenuManagement";
+import MyBusiness from "@/pages/MyBusiness";
 
 export const AppRoutes = () => {
   return (
@@ -54,7 +55,7 @@ export const AppRoutes = () => {
         <Route path="/schedule/meeting" element={<ScheduleMeeting />} />
         <Route path="/schedule/site-visit" element={<ScheduleSiteVisit />} />
         <Route path="/menu-management" element={<MenuManagement />} />
-        <Route path="/my-business" element={<MenuManagement />} />
+        <Route path="/my-business" element={<MyBusiness />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -5,7 +5,7 @@ import MenuTemplateImporter from '@/components/menu-templates/MenuTemplateImport
 import MenuSectionsTable from '@/components/menu-items/MenuSectionsTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, PackageOpen, Settings, PlusCircle, Info, Grid, Check, ListTree } from "lucide-react";
+import { FileText, PackageOpen, Info, PlusCircle, ListTree, Check } from "lucide-react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useMenuSections } from '@/hooks/useMenuSections';
@@ -17,7 +17,7 @@ const MenuManagement = () => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const navigate = useNavigate();
-  const { sections } = useMenuSections();
+  const { sections, refetch } = useMenuSections();
   
   useEffect(() => {
     // Update URL when tab changes
@@ -32,6 +32,10 @@ const MenuManagement = () => {
   const handleImportSuccess = () => {
     toast.success("Template imported successfully!");
     setShowSuccessAlert(true);
+    
+    // Refresh sections to show newly imported data
+    refetch();
+    
     // Switch to structure tab after successful import
     setTimeout(() => {
       setActiveTab('structure');
