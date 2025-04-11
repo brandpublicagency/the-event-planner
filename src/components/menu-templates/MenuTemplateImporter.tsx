@@ -2,15 +2,17 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PackageOpen, Check, AlertCircle, Info, FileText, ChevronRight } from "lucide-react";
+import { PackageOpen, Check, AlertCircle, Info, FileText, ChevronRight, ArrowRight } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createMenuSection, createMenuChoice, createMenuItem, MenuItemFormData } from "@/api/menuItemsApi";
-import { toSlug, getPredefinedCategories } from "@/utils/menuStructureUtils";
+import { toSlug, getPredefinedCategories, generateUniqueValue } from "@/utils/menuStructureUtils";
 import { useMenuSections } from "@/hooks/useMenuSections";
 import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
+import { Progress } from "@/components/ui/progress";
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TEMPLATES = [
   {
@@ -165,6 +167,64 @@ const TEMPLATES = [
         ]
       }
     ]
+  },
+  {
+    id: 'warm-karoo-special',
+    name: 'Warm Karoo Special Menu',
+    description: 'Authentic Karoo flavors for special occasions and celebrations',
+    sections: [
+      {
+        label: 'Starters',
+        choices: [
+          {
+            label: 'Light Starters',
+            items: [
+              { label: 'Karoo Biltong Soup' },
+              { label: 'Roasted Butternut & Feta Salad' },
+              { label: 'Wild Mushroom Bruschetta' },
+              { label: 'Venison Carpaccio' }
+            ]
+          }
+        ]
+      },
+      {
+        label: 'Main Course',
+        choices: [
+          {
+            label: 'Warm Karoo Feast',
+            items: [
+              { label: 'Karoo Lamb Chops', category: 'MEAT SELECTION' },
+              { label: 'Venison Potjie', category: 'MEAT SELECTION' },
+              { label: 'Spiced Beef Ribeye', category: 'MEAT SELECTION' },
+              { label: 'Ostrich Fillet', category: 'MEAT SELECTION' },
+              { label: 'Pap & Sous', category: 'STARCH SELECTION' },
+              { label: 'Saffron Rice', category: 'STARCH SELECTION' },
+              { label: 'Roasted Sweet Potatoes', category: 'STARCH SELECTION' },
+              { label: 'Gem Squash with Corn', category: 'VEGETABLES' },
+              { label: 'Grilled Mixed Vegetables', category: 'VEGETABLES' },
+              { label: 'Braised Red Cabbage', category: 'VEGETABLES' },
+              { label: 'Farm Style Potato Salad', category: 'SALAD' },
+              { label: 'Spiced Beetroot Salad', category: 'SALAD' },
+              { label: 'Fresh Garden Salad', category: 'SALAD' }
+            ]
+          }
+        ]
+      },
+      {
+        label: 'Desserts',
+        choices: [
+          {
+            label: 'Traditional South African',
+            items: [
+              { label: 'Milk Tart' },
+              { label: 'Malva Pudding' },
+              { label: 'Koeksisters' },
+              { label: 'Peppermint Crisp Tart' }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -177,6 +237,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
   const [importStats, setImportStats] = useState<{sections: number, choices: number, items: number}>({
     sections: 0,
     choices: 0,
@@ -194,6 +255,18 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
     return TEMPLATES.find(template => template.id === selectedTemplate);
   };
 
+  const getSectionsTotalItems = (template: any) => {
+    let total = 0;
+    for (const section of template.sections) {
+      total++; // Count the section
+      for (const choice of section.choices) {
+        total++; // Count the choice
+        total += choice.items.length; // Count all items in this choice
+      }
+    }
+    return total;
+  };
+
   const importTemplate = async () => {
     const template = getSelectedTemplateData();
     if (!template) return;
@@ -201,29 +274,42 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
     setIsImporting(true);
     setImportError(null);
     setImportSuccess(false);
+    setImportProgress(0);
     
     try {
       const stats = {sections: 0, choices: 0, items: 0};
+      const totalItemsToProcess = getSectionsTotalItems(template);
+      let processedItems = 0;
       
-      // Check for duplicate sections
+      // Check for duplicate section values
       const sectionValues = existingSections.map(s => s.value);
-      const hasDuplicates = template.sections.some(s => sectionValues.includes(toSlug(s.label)));
+      const duplicateSections = template.sections
+        .filter(s => sectionValues.includes(toSlug(s.label)))
+        .map(s => s.label);
       
-      if (hasDuplicates) {
-        throw new Error("Some sections from this template already exist in your menu structure.");
+      if (duplicateSections.length > 0) {
+        throw new Error(`These sections already exist: ${duplicateSections.join(', ')}. Please remove them first or choose a different template.`);
       }
       
       // Import sections, choices, and items
       for (const section of template.sections) {
+        // Generate a unique value for this section
+        const sectionValue = generateUniqueValue(
+          section.label, 
+          existingSections.map(s => s.value)
+        );
+        
         // Create section
         const sectionData = {
           label: section.label,
-          value: toSlug(section.label),
+          value: sectionValue,
           display_order: existingSections.length + stats.sections
         };
         
         const createdSection = await createMenuSection(sectionData);
         stats.sections++;
+        processedItems++;
+        setImportProgress(Math.round((processedItems / totalItemsToProcess) * 100));
         
         // Create choices for this section
         for (const [choiceIndex, choice] of section.choices.entries()) {
@@ -237,6 +323,8 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
           
           const createdChoice = await createMenuChoice(choiceData);
           stats.choices++;
+          processedItems++;
+          setImportProgress(Math.round((processedItems / totalItemsToProcess) * 100));
           
           // Create items for this choice
           for (const [itemIndex, item] of choice.items.entries()) {
@@ -251,6 +339,8 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
             
             await createMenuItem(itemData);
             stats.items++;
+            processedItems++;
+            setImportProgress(Math.round((processedItems / totalItemsToProcess) * 100));
           }
         }
       }
@@ -276,6 +366,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
       toast.error('Import failed: ' + (error.message || 'Unknown error'));
     } finally {
       setIsImporting(false);
+      setImportProgress(100);
     }
   };
 
@@ -283,25 +374,41 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
 
   return (
     <div className="space-y-6">
-      {importError && (
-        <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-900">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Import Failed</AlertTitle>
-          <AlertDescription>{importError}</AlertDescription>
-        </Alert>
-      )}
+      <AnimatePresence>
+        {importError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-900">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Import Failed</AlertTitle>
+              <AlertDescription>{importError}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+        
+        {importSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Alert className="bg-green-50 border-green-200 text-green-800">
+              <Check className="h-4 w-4" />
+              <AlertTitle>Import Successful</AlertTitle>
+              <AlertDescription>
+                Created {importStats.sections} sections, {importStats.choices} choices, and {importStats.items} items.
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
-      {importSuccess && (
-        <Alert className="bg-green-50 border-green-200 text-green-800">
-          <Check className="h-4 w-4" />
-          <AlertTitle>Import Successful</AlertTitle>
-          <AlertDescription>
-            Created {importStats.sections} sections, {importStats.choices} choices, and {importStats.items} items.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      <Card>
+      <Card className="bg-white shadow-sm border-gray-200">
         <CardHeader>
           <CardTitle>Available Templates</CardTitle>
           <CardDescription>
@@ -315,14 +422,14 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
             className="space-y-3"
           >
             {TEMPLATES.map(template => (
-              <div key={template.id} className={`flex items-start space-x-3 border rounded-lg p-4 ${
-                selectedTemplate === template.id ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+              <div key={template.id} className={`flex items-start space-x-3 border rounded-lg p-4 transition-all duration-200 ${
+                selectedTemplate === template.id ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}>
-                <RadioGroupItem value={template.id} id={template.id} />
+                <RadioGroupItem value={template.id} id={template.id} className="mt-1" />
                 <div className="flex-1">
                   <Label 
                     htmlFor={template.id} 
-                    className={`text-base font-medium ${selectedTemplate === template.id ? 'text-blue-800' : ''}`}
+                    className={`text-base font-medium ${selectedTemplate === template.id ? 'text-blue-800' : ''} cursor-pointer`}
                   >
                     {template.name}
                   </Label>
@@ -331,6 +438,16 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
               </div>
             ))}
           </RadioGroup>
+          
+          {isImporting && (
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Importing template...</span>
+                <span>{importProgress}%</span>
+              </div>
+              <Progress value={importProgress} className="h-2" />
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between items-start border-t pt-6">
           <div className="w-2/3">
@@ -364,7 +481,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
           <Button 
             onClick={importTemplate} 
             disabled={isImporting || !selectedTemplate}
-            className="min-w-[120px]"
+            className="min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isImporting ? (
               <span className="flex items-center">
@@ -373,7 +490,7 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
             ) : (
               <span className="flex items-center">
                 <PackageOpen className="h-4 w-4 mr-2" />
-                Import
+                Import Template
               </span>
             )}
           </Button>
@@ -385,7 +502,15 @@ const MenuTemplateImporter: React.FC<MenuTemplateImporterProps> = ({ onImportSuc
       <div className="text-sm text-gray-500">
         <h3 className="font-medium text-gray-700 mb-2">Custom Templates</h3>
         <p>You can create a custom template by exporting your existing menu structure, modifying it, and then importing it back.</p>
-        <p className="mt-2">To export your menu structure, contact the system administrator.</p>
+        <div className="bg-blue-50 p-4 rounded-md border border-blue-100 mt-4">
+          <div className="flex items-start">
+            <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-blue-700">
+              To export your menu structure or create a fully custom template, contact your account administrator
+              or reach out to support for assistance.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

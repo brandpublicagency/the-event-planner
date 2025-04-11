@@ -5,19 +5,27 @@ import MenuTemplateImporter from '@/components/menu-templates/MenuTemplateImport
 import MenuSectionsTable from '@/components/menu-items/MenuSectionsTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, PackageOpen, Info, PlusCircle, ListTree, Check } from "lucide-react";
+import { FileText, PackageOpen, Info, ListTree, Check, Search, Settings, Plus } from "lucide-react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useMenuSections } from '@/hooks/useMenuSections';
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MenuSectionsManager } from '@/components/menu-items/MenuSectionsManager';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MenuManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'structure';
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const navigate = useNavigate();
-  const { sections, refetch } = useMenuSections();
+  const { sections, refetch, isLoading } = useMenuSections();
   
   useEffect(() => {
     // Update URL when tab changes
@@ -54,38 +62,60 @@ const MenuManagement = () => {
       />
       
       <div className="flex-1 p-6 py-5 px-6 bg-gray-50 overflow-auto">
-        {showSuccessAlert && (
-          <Alert className="mb-6 bg-green-50 border-green-200 text-green-800">
-            <Check className="h-4 w-4 text-green-600" />
-            <AlertTitle>Success!</AlertTitle>
-            <AlertDescription>
-              Your template was successfully imported. The menu structure is now available.
-            </AlertDescription>
-          </Alert>
-        )}
+        <AnimatePresence>
+          {showSuccessAlert && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Alert className="mb-6 bg-green-50 border-green-200 text-green-800">
+                <Check className="h-4 w-4 text-green-600" />
+                <AlertTitle>Success!</AlertTitle>
+                <AlertDescription>
+                  Your template was successfully imported. The menu structure is now available.
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Menu Management</h1>
               <p className="text-muted-foreground mt-1">
                 Create and manage your menu structure, choices, and items
               </p>
             </div>
-            <TabsList className="bg-white border border-gray-200">
-              <TabsTrigger value="structure" className="flex items-center gap-2">
-                <ListTree className="h-4 w-4" />
-                Structure
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="flex items-center gap-2">
-                <PackageOpen className="h-4 w-4" />
-                Templates
-              </TabsTrigger>
-              <TabsTrigger value="guide" className="flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                Guide
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {activeTab === 'structure' && (
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search menus..."
+                    className="pl-9 bg-white"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              )}
+              <TabsList className="bg-white border border-gray-200">
+                <TabsTrigger value="structure" className="flex items-center gap-2">
+                  <ListTree className="h-4 w-4" />
+                  Structure
+                </TabsTrigger>
+                <TabsTrigger value="templates" className="flex items-center gap-2">
+                  <PackageOpen className="h-4 w-4" />
+                  Templates
+                </TabsTrigger>
+                <TabsTrigger value="guide" className="flex items-center gap-2">
+                  <Info className="h-4 w-4" />
+                  Guide
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
           
           <TabsContent value="structure" className="space-y-4">
@@ -96,19 +126,76 @@ const MenuManagement = () => {
                   Manage your menu sections, choices, and items
                 </p>
               </div>
-              {sections.length === 0 && (
-                <div className="flex gap-3">
-                  <button 
+              <div className="flex gap-3">
+                {sections.length === 0 && (
+                  <Button 
                     onClick={() => setActiveTab('templates')}
-                    className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <PackageOpen className="h-4 w-4" />
                     Import Template
-                  </button>
-                </div>
-              )}
+                  </Button>
+                )}
+                {sections.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="bg-white">
+                        <Settings className="h-4 w-4 mr-2" />
+                        <span>Options</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                      <DropdownMenuItem onClick={() => setViewMode('table')}>
+                        Table View
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setViewMode('grid')}>
+                        Expanded View
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                {sections.length > 0 && (
+                  <Button 
+                    onClick={() => setActiveTab('templates')}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                  >
+                    <PackageOpen className="h-4 w-4" />
+                    Import More
+                  </Button>
+                )}
+              </div>
             </div>
-            <MenuSectionsTable />
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+                  <p className="text-sm text-gray-500">Loading menu structure...</p>
+                </div>
+              </div>
+            ) : (
+              viewMode === 'table' ? (
+                <Card className="bg-white shadow-sm border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Menu Sections</CardTitle>
+                    <CardDescription>
+                      Manage your menu sections and their choices
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <MenuSectionsManager />
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className={cn(
+                  "transition-all duration-300 ease-in-out",
+                  viewMode === 'grid' ? 'opacity-100' : 'opacity-0'
+                )}>
+                  <MenuSectionsTable />
+                </div>
+              )
+            )}
           </TabsContent>
           
           <TabsContent value="templates" className="space-y-4">
@@ -118,11 +205,15 @@ const MenuManagement = () => {
                 Import predefined menu templates to quickly set up your menu structure
               </p>
             </div>
-            <MenuTemplateImporter onImportSuccess={handleImportSuccess} />
+            <Card className="bg-white shadow-sm border-gray-200">
+              <CardContent className="pt-6">
+                <MenuTemplateImporter onImportSuccess={handleImportSuccess} />
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="guide" className="space-y-4">
-            <Card>
+            <Card className="bg-white shadow-sm border-gray-200">
               <CardHeader>
                 <CardTitle>Menu Management Guide</CardTitle>
                 <CardDescription>

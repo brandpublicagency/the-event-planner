@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { EditIcon, Trash2Icon, PlusIcon } from 'lucide-react';
+import { EditIcon, Trash2Icon, PlusIcon, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +23,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import MenuChoicesTable from './MenuChoicesTable';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { motion } from 'framer-motion';
 
-const MenuSectionsManager: React.FC = () => {
+export const MenuSectionsManager: React.FC = () => {
   const { 
     sections, 
     isLoading, 
@@ -39,60 +44,114 @@ const MenuSectionsManager: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<MenuSection | null>(null);
   const [sectionToDelete, setSectionToDelete] = useState<MenuSection | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Menu Sections</h3>
-        <Button size="sm" onClick={() => setIsAddDialogOpen(true)}>
-          <PlusIcon className="h-4 w-4 mr-2" />
+        <div>
+          <h3 className="text-lg font-medium">Menu Structure</h3>
+          <p className="text-sm text-gray-500">Manage sections, choices, and items</p>
+        </div>
+        <Button 
+          size="sm" 
+          onClick={() => setIsAddDialogOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <PlusIcon className="h-4 w-4" />
           Add Section
         </Button>
       </div>
       
+      <Separator className="my-4" />
+      
       {isLoading ? (
-        <div className="text-center py-4">Loading sections...</div>
+        <div className="flex items-center justify-center h-40">
+          <div className="flex flex-col items-center gap-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+            <p className="text-sm text-gray-500">Loading sections...</p>
+          </div>
+        </div>
       ) : sections.length === 0 ? (
-        <div className="text-center py-4 text-gray-500">No sections defined yet</div>
+        <div className="text-center p-10 border border-dashed rounded-lg border-gray-300 bg-gray-50">
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-gray-500">No sections defined yet</p>
+            <Button 
+              size="sm" 
+              onClick={() => setIsAddDialogOpen(true)}
+              variant="outline"
+              className="mt-2"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add Your First Section
+            </Button>
+          </div>
+        </div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Display Name</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Display Order</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sections.map((section) => (
-                <TableRow key={section.id}>
-                  <TableCell>{section.label}</TableCell>
-                  <TableCell>{section.value}</TableCell>
-                  <TableCell>{section.display_order}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingSection(section)}
-                      >
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setSectionToDelete(section)}
-                      >
-                        <Trash2Icon className="h-4 w-4" />
-                      </Button>
+        <div className="space-y-4">
+          {sections.map((section) => (
+            <Collapsible
+              key={section.id}
+              open={expandedSections[section.id]}
+              onOpenChange={() => toggleSection(section.id)}
+              className="border rounded-md overflow-hidden bg-white"
+            >
+              <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <CollapsibleTrigger className="flex items-center justify-center h-6 w-6 rounded-full">
+                    {expandedSections[section.id] ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </CollapsibleTrigger>
+                  <div>
+                    <div className="font-medium">{section.label}</div>
+                    <div className="text-xs text-gray-500 flex gap-2">
+                      <span>Value: {section.value}</span>
+                      <span>•</span>
+                      <span>Order: {section.display_order}</span>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSection(section);
+                    }}
+                  >
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSectionToDelete(section);
+                    }}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <CollapsibleContent>
+                <Separator />
+                <div className="p-4 bg-gray-50">
+                  <MenuChoicesTable sectionId={section.id} />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
         </div>
       )}
       
@@ -125,8 +184,7 @@ const MenuSectionsManager: React.FC = () => {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the "{sectionToDelete?.label}" section.
-              <br /><br />
-              <strong className="text-destructive">Warning:</strong> Any menu items in this section will also be deleted!
+              <p className="mt-2 text-red-600 font-medium">Warning: Any menu items in this section will also be deleted!</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -149,5 +207,3 @@ const MenuSectionsManager: React.FC = () => {
     </div>
   );
 };
-
-export default MenuSectionsManager;

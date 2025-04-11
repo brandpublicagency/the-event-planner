@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Users as UsersIcon,
   Building,
-  Menu,
   Utensils
 } from "lucide-react";
 
@@ -68,14 +67,9 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
       label: "Past Events"
     },
     {
-      icon: Menu,
-      path: "/my-business",
-      label: "Menu Management"
-    },
-    {
       icon: Utensils,
       path: "/menu-management",
-      label: "Menu Templates"
+      label: "Menu Management"
     }
   ];
 }
