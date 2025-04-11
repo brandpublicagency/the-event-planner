@@ -2,7 +2,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMenuItems } from '@/hooks/useMenuItems';
-import { PlusIcon } from 'lucide-react';
 import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
 import { MenuItem } from '@/api/menuItemsApi';
@@ -94,20 +93,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   return (
     <div className="mt-2">
-      <div className="flex justify-between items-center mb-3">
-        {!hideChoiceLabel && (
-          <h4 className="text-xs font-normal text-zinc-900">Items for {choiceLabel}</h4>
-        )}
-        <Button 
-          size="sm" 
-          onClick={() => setShowInlineForm(true)} 
-          className="font-light text-xs bg-white hover:bg-zinc-900 hover:text-white ml-auto"
-        >
-          <PlusIcon className="h-3.5 w-3.5 mr-1" />
-          Add Items
-        </Button>
-      </div>
-
       {isLoading ? (
         <div className="text-center py-4 text-sm text-gray-500">Loading items...</div>
       ) : (

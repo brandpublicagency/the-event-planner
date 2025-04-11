@@ -62,12 +62,20 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
           ) : (
             choices.map(choice => (
               <div key={choice.id} className="mb-5">
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-2 border border-gray-200 rounded-md p-3 bg-white">
                   <div className="flex items-center">
                     <h5 className="font-medium text-sm text-zinc-950">{choice.label}</h5>
                     <p className="text-[10px] text-gray-500 ml-2">Value: {choice.value}, Order: {choice.display_order}</p>
                   </div>
-                  <div className="flex space-x-1">
+                  <div className="flex items-center space-x-1">
+                    <Button 
+                      size="sm" 
+                      onClick={() => setShowInlineForm(true)} 
+                      className="mr-2 font-normal text-xs"
+                    >
+                      <PlusIcon className="h-3 w-3 mr-1.5" />
+                      Add Choice
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -94,14 +102,16 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
             ))
           )}
           
-          <Button 
-            size="sm" 
-            onClick={() => setShowInlineForm(true)} 
-            className="mb-4 font-normal text-xs"
-          >
-            <PlusIcon className="h-3 w-3 mr-1.5" />
-            Add Choice
-          </Button>
+          {choices.length === 0 && (
+            <Button 
+              size="sm" 
+              onClick={() => setShowInlineForm(true)} 
+              className="mb-4 font-normal text-xs"
+            >
+              <PlusIcon className="h-3 w-3 mr-1.5" />
+              Add Choice
+            </Button>
+          )}
           
           {showInlineForm && (
             <MenuChoiceInlineForm 
