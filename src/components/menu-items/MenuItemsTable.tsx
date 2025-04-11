@@ -86,9 +86,9 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                     className="space-y-2 border border-dashed border-gray-200 rounded-md p-2"
                   >
                     <div className="mb-1 px-1">
-                      <Badge variant="outline" className="text-xs font-medium">
+                      <div className="inline-flex items-center bg-white border border-zinc-400 rounded-md px-2.5 py-1 text-xs font-semibold">
                         {category}
-                      </Badge>
+                      </div>
                     </div>
                     {categoryItems.map((item, index) => (
                       <Draggable 
