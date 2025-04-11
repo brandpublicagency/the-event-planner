@@ -7,6 +7,8 @@ import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
+import { Dialog } from '@/components/ui/dialog';
+import MenuChoiceDialog from './MenuChoiceDialog';
 
 interface MenuChoicesTableProps {
   sectionId: string;
@@ -116,17 +118,22 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
         />
       )}
 
-      {/* Edit Dialog */}
+      {/* Edit Dialog - Properly wrapped in Dialog component */}
       {editingChoice && (
-        <MenuChoiceDialog 
+        <Dialog 
           open={!!editingChoice} 
-          onOpenChange={open => !open && setEditingChoice(null)} 
-          onSubmit={data => handleUpdateChoice(editingChoice.id, data)} 
-          isSubmitting={isUpdating} 
-          initialData={editingChoice} 
-          title="Edit Choice" 
-          sectionId={sectionId} 
-        />
+          onOpenChange={open => !open && setEditingChoice(null)}
+        >
+          <MenuChoiceDialog 
+            open={!!editingChoice} 
+            onOpenChange={open => !open && setEditingChoice(null)} 
+            onSubmit={data => handleUpdateChoice(editingChoice.id, data)} 
+            isSubmitting={isUpdating} 
+            initialData={editingChoice} 
+            title="Edit Choice" 
+            sectionId={sectionId} 
+          />
+        </Dialog>
       )}
 
       {/* Delete Confirmation Dialog */}
@@ -155,6 +162,3 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
 };
 
 export default MenuChoicesTable;
-
-// Import at the top
-import MenuChoiceDialog from './MenuChoiceDialog';
