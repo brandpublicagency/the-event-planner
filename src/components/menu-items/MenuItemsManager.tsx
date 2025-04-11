@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { PlusIcon, Square } from 'lucide-react';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
@@ -12,15 +13,6 @@ interface MenuItemsManagerProps {
   choiceId: string;
   choiceLabel: string;
   hideChoiceLabel?: boolean;
-}
-
-interface MenuItemInlineFormProps {
-  onSubmit: (data: any) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
-  choiceId: string;
-  availableCategories: string[];
-  preSelectedCategory?: string | null;
 }
 
 const MULTI_CATEGORY_CHOICE_VALUES = [
@@ -91,6 +83,11 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     setShowInlineForm(true);
   };
 
+  // Handler for adding an item from the empty container
+  const handleAddItemClick = () => {
+    setShowInlineForm(true);
+  };
+
   return (
     <div className="mt-2">
       {isLoading ? (
@@ -98,8 +95,16 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
       ) : (
         <>
           {choiceItems.length === 0 ? (
-            <div className="text-center py-4 text-sm text-gray-500">
-              No items added to this choice yet
+            <div className="border border-dashed border-gray-300 rounded-md p-4 bg-gray-50 flex flex-col items-center justify-center space-y-2">
+              <p className="text-sm text-gray-500">No items added yet</p>
+              <Button 
+                size="sm" 
+                onClick={handleAddItemClick}
+                className="mt-2"
+              >
+                <PlusIcon className="h-3 w-3 mr-1.5" />
+                Add Item
+              </Button>
             </div>
           ) : (
             <>
@@ -128,7 +133,14 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
       {/* Inline form for adding items - moved below the items table */}
       {showInlineForm && (
         <MenuItemInlineForm 
-          onSubmit={handleAddItem} 
+          onSubmit={data => {
+            handleAddItem({
+              ...data,
+              choice_id: choiceId
+            });
+            setShowInlineForm(false);
+            setSelectedCategory(null);
+          }} 
           onCancel={() => {
             setShowInlineForm(false);
             setSelectedCategory(null);
