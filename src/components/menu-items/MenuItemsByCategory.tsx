@@ -67,7 +67,9 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 className="flex items-center justify-between p-3 bg-white hover:bg-gray-50"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{item.label}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {item.label} <span className="text-xs text-gray-500">({item.value})</span>
+                  </p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
