@@ -22,7 +22,7 @@ import { ArrowRight, Plus, Save } from 'lucide-react';
 
 interface MenuTemplateEditorProps {
   templateId: string | null;
-  onSaved: () => void;
+  onBack: () => void;
 }
 
 interface TemplateFormValues {
@@ -45,7 +45,7 @@ const TEMPLATE_TYPES = [
 
 const MenuTemplateEditor: React.FC<MenuTemplateEditorProps> = ({ 
   templateId, 
-  onSaved 
+  onBack 
 }) => {
   const [activeTab, setActiveTab] = useState('details');
   const [selectedType, setSelectedType] = useState<string>('buffet-menu');
@@ -94,7 +94,7 @@ const MenuTemplateEditor: React.FC<MenuTemplateEditorProps> = ({
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      onSaved();
+      onBack();
     } catch (error) {
       console.error('Error saving template:', error);
     } finally {
