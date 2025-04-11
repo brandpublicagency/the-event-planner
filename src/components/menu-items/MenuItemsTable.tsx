@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,6 @@ import { Edit, Trash2, GripVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
-
 type MenuItemsTableProps = {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
@@ -14,7 +12,6 @@ type MenuItemsTableProps = {
   onReorder?: (reorderedItems: MenuItem[]) => void;
   isDeleting: boolean;
 };
-
 const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   items,
   onEdit,
@@ -23,28 +20,26 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   isDeleting
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
-  
   const handleDelete = () => {
     if (itemToDelete) {
       onDelete(itemToDelete.id);
       setItemToDelete(null);
     }
   };
-  
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
-    
+
     // If dragging between different categories, we need to handle differently
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
-    
+
     // Make a copy of the items
     const reorderedItems = [...items];
-    
+
     // If dragging within the same category
     const [reorderedItem] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, reorderedItem);
-    
+
     // If category changed, update the item's category
     if (sourceDroppableId !== destinationDroppableId) {
       const categoryId = destinationDroppableId.replace('category-', '');
@@ -54,12 +49,13 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         reorderedItem.category = null;
       }
     }
-    
     onReorder(reorderedItems);
   };
 
   // Group items by category
-  const groupedItems: { [key: string]: MenuItem[] } = {};
+  const groupedItems: {
+    [key: string]: MenuItem[];
+  } = {};
   items.forEach(item => {
     const category = item.category || 'Uncategorized';
     if (!groupedItems[category]) {
@@ -67,47 +63,23 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
     groupedItems[category].push(item);
   });
-
-  return (
-    <div className="space-y-4">
-      {items.length === 0 ? (
-        <div className="text-center py-4 text-gray-500">
+  return <div className="space-y-4">
+      {items.length === 0 ? <div className="text-center py-4 text-gray-500">
           No menu items found
-        </div>
-      ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
-          {Object.entries(groupedItems).map(([category, categoryItems]) => (
-            <div key={category} className="mb-6">
+        </div> : <DragDropContext onDragEnd={handleDragEnd}>
+          {Object.entries(groupedItems).map(([category, categoryItems]) => <div key={category} className="mb-6">
               <Droppable droppableId={`category-${category}`} direction="vertical">
-                {provided => (
-                  <div 
-                    {...provided.droppableProps} 
-                    ref={provided.innerRef} 
-                    className="space-y-2 border border-dashed border-gray-200 rounded-md p-2"
-                  >
+                {provided => <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-200 rounded-md p-2">
                     <div className="mb-1 px-1">
-                      <div className="inline-flex items-center bg-white border border-zinc-400 rounded-md px-2.5 py-1 text-xs font-semibold">
+                      <div className="inline-flex items-center border border-zinc-600 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
                         {category}
                       </div>
                     </div>
-                    {categoryItems.map((item, index) => (
-                      <Draggable 
-                        key={item.id} 
-                        draggableId={item.id} 
-                        index={index}
-                        isDragDisabled={!onReorder}
-                      >
-                        {provided => (
-                          <div 
-                            ref={provided.innerRef} 
-                            {...provided.draggableProps} 
-                            className="flex items-start bg-white border rounded-md p-2 mb-2"
-                          >
-                            {onReorder && (
-                              <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
+                    {categoryItems.map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
+                        {provided => <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-start bg-white border rounded-md p-2 mb-2">
+                            {onReorder && <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
                                 <GripVertical className="h-4 w-4 text-gray-400" />
-                              </div>
-                            )}
+                              </div>}
                             
                             <div className="flex-1">
                               <div className="flex items-start justify-between">
@@ -126,18 +98,13 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                          </div>}
+                      </Draggable>)}
                     {provided.placeholder}
-                  </div>
-                )}
+                  </div>}
               </Droppable>
-            </div>
-          ))}
-        </DragDropContext>
-      )}
+            </div>)}
+        </DragDropContext>}
 
       <AlertDialog open={!!itemToDelete} onOpenChange={open => !open && setItemToDelete(null)}>
         <AlertDialogContent>
@@ -155,8 +122,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
-
 export default MenuItemsTable;
