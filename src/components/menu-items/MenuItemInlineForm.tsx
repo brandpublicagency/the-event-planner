@@ -52,14 +52,18 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   // Watch the label field to automatically generate the value
   const labelValue = form.watch('label');
   
-  // Update the value field when label changes
+  // Update the value field when label changes - generate a shorter value
   useEffect(() => {
     if (labelValue) {
-      // Convert to lowercase, replace spaces with hyphens, and remove special characters
-      const generatedValue = labelValue
+      // Create a more concise value by:
+      // 1. Taking only the first word if multiple words exist
+      // 2. Or taking up to 10 characters of a single word
+      // 3. Converting to lowercase and removing special characters
+      let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
+      generatedValue = generatedValue.substring(0, 10); // Limit to 10 chars
+      generatedValue = generatedValue
         .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
+        .replace(/[^a-z0-9]/g, ''); // Remove special characters
       
       form.setValue('value', generatedValue);
     }
@@ -73,36 +77,52 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     form.reset();
   };
 
-  return <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
+  return (
+    <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
           <div className="flex space-x-3">
-            <FormField control={form.control} name="label" render={({
-            field
-          }) => <FormItem className="flex-1">
+            <FormField 
+              control={form.control} 
+              name="label" 
+              render={({ field }) => (
+                <FormItem className="flex-1">
                   <FormLabel className="text-xs">Display Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Menu Item Name" {...field} className="h-8 text-xs" />
                   </FormControl>
                   <FormMessage className="text-xs" />
-                </FormItem>} />
+                </FormItem>
+              )} 
+            />
             
-            <FormField control={form.control} name="value" render={({
-            field
-          }) => <FormItem className="flex-1">
+            <FormField 
+              control={form.control} 
+              name="value" 
+              render={({ field }) => (
+                <FormItem className="flex-1">
                   <FormLabel className="text-xs">Value</FormLabel>
                   <FormControl>
-                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" disabled />
+                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" />
                   </FormControl>
                   <FormMessage className="text-xs" />
-                </FormItem>} />
+                </FormItem>
+              )} 
+            />
           </div>
           
-          {availableCategories.length > 0 && <FormField control={form.control} name="category" render={({
-          field
-        }) => <FormItem>
+          {availableCategories.length > 0 && (
+            <FormField 
+              control={form.control} 
+              name="category" 
+              render={({ field }) => (
+                <FormItem>
                   <FormLabel className="text-xs">Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || undefined} value={field.value || undefined}>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value || undefined} 
+                    value={field.value || undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className="h-8 text-xs">
                         <SelectValue placeholder="Select a category" />
@@ -110,13 +130,18 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="">None</SelectItem>
-                      {availableCategories.map(category => <SelectItem key={category} value={category}>
+                      {availableCategories.map(category => (
+                        <SelectItem key={category} value={category}>
                           {category}
-                        </SelectItem>)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage className="text-xs" />
-                </FormItem>} />}
+                </FormItem>
+              )} 
+            />
+          )}
           
           <div className="flex justify-end space-x-2 pt-2">
             <Button type="button" onClick={onCancel} variant="outline" size="sm" className="h-7 text-xs">
@@ -128,7 +153,8 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           </div>
         </form>
       </Form>
-    </div>;
+    </div>
+  );
 };
 
 export default MenuItemInlineForm;
