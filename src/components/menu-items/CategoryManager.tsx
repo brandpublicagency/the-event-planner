@@ -392,22 +392,19 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     setIsDeleteDialogOpen(true);
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Menu Categories</h3>
-        <Button onClick={() => setIsAddDialogOpen(true)} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
-          Add Category
-        </Button>
-      </div>
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center py-10">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-sm text-muted-foreground">Loading categories...</span>
+  // Main content renderer
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col justify-center items-center py-10">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <span className="text-sm text-muted-foreground">Loading categories...</span>
         </div>
-      ) : categories.length === 0 ? (
+      );
+    }
+
+    if (!categories || categories.length === 0) {
+      return (
         <div className="text-center py-8 border rounded-md bg-muted/20">
           <p className="text-muted-foreground">
             No categories found. Add your first category to organize menu items.
@@ -422,48 +419,64 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
             Add Category
           </Button>
         </div>
-      ) : (
-        <div className="grid gap-2">
-          {categories.map((category) => (
-            <div 
-              key={category.id}
-              className="flex justify-between items-center p-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
-            >
-              <span className="font-medium">{category.name}</span>
-              <div className="flex space-x-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => openEditDialog(category)}
-                  className="h-9 px-2.5"
-                  disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
-                >
-                  {editCategoryMutation.isPending && selectedCategory?.id === category.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                  ) : (
-                    <Edit className="h-4 w-4 text-blue-500" />
-                  )}
-                  <span className="sr-only">Edit</span>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => openDeleteDialog(category)}
-                  className="h-9 px-2.5"
-                  disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
-                >
-                  {deleteCategoryMutation.isPending && selectedCategory?.id === category.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-red-500" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  )}
-                  <span className="sr-only">Delete</span>
-                </Button>
-              </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-2">
+        {categories.map((category) => (
+          <div 
+            key={category.id}
+            className="flex justify-between items-center p-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-medium">{category.name}</span>
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => openEditDialog(category)}
+                className="h-9 px-2.5"
+                disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
+              >
+                {editCategoryMutation.isPending && selectedCategory?.id === category.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                ) : (
+                  <Edit className="h-4 w-4 text-blue-500" />
+                )}
+                <span className="sr-only">Edit</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => openDeleteDialog(category)}
+                className="h-9 px-2.5"
+                disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
+              >
+                {deleteCategoryMutation.isPending && selectedCategory?.id === category.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-red-500" />
+                ) : (
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                )}
+                <span className="sr-only">Delete</span>
+              </Button>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Menu Categories</h3>
+        <Button onClick={() => setIsAddDialogOpen(true)} size="sm">
+          <Plus className="h-4 w-4 mr-1" />
+          Add Category
+        </Button>
+      </div>
+      
+      {renderContent()}
       
       {/* Add Category Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
