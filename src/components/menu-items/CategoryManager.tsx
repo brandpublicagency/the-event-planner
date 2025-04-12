@@ -277,9 +277,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     // Show loading state
     if (isLoading) {
       return (
-        <div className="flex flex-col justify-center items-center py-10">
-          <Spinner className="h-12 w-12 text-primary mb-4" />
-          <span className="text-sm text-muted-foreground">Loading categories...</span>
+        <div className="flex flex-col justify-center items-center py-6">
+          <Loader2 className="h-6 w-6 text-primary animate-spin mb-2" />
+          <span className="text-xs text-muted-foreground">Loading categories...</span>
         </div>
       );
     }
@@ -287,8 +287,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     // Show empty state
     if (!categories || categories.length === 0) {
       return (
-        <div className="text-center py-8 border rounded-md bg-muted/20">
-          <p className="text-muted-foreground">
+        <div className="text-center py-6 border rounded-md bg-muted/20">
+          <p className="text-sm text-muted-foreground">
             No categories found. Add your first category to organize menu items.
           </p>
           <Button 
@@ -359,8 +359,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
           </Button>
         </div>
         
-        <div className="text-center py-8 border rounded-md bg-red-50">
-          <p className="text-red-500 mb-2">
+        <div className="text-center py-6 border rounded-md bg-red-50">
+          <p className="text-red-500 mb-2 text-sm">
             Failed to load categories. Please try again.
           </p>
           <Button 
