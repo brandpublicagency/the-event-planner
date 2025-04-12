@@ -1,27 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { MenuItemFormData } from '@/api/menuItemsApi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-const formSchema = z.object({
-  label: z.string().min(1, "Label is required"),
-  value: z.string().min(1, "Value is required"),
-  category: z.string().nullable()
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-export interface MenuItemInlineFormProps {
-  onSubmit: (data: any) => void;
+interface MenuItemInlineFormProps {
+  onSubmit: (data: MenuItemFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
   choiceId: string;
-  availableCategories: string[];
+  availableCategories?: string[];
   preSelectedCategory?: string | null;
 }
 
@@ -33,127 +25,97 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   availableCategories = [],
   preSelectedCategory = null
 }) => {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      label: '',
-      value: '',
-      category: preSelectedCategory
+  const { register, handleSubmit, formState: { errors } } = useForm<MenuItemFormData>();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(preSelectedCategory);
+
+  // Fetch categories specific to this choice
+  const { data: categories = [] } = useQuery({
+    queryKey: ['menu-categories-list', choiceId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('menu_items')
+        .select('category')
+        .eq('choice_id', choiceId)
+        .not('category', 'is', null);
+      
+      if (data) {
+        const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
+        return uniqueCategories;
+      }
+      return [];
     }
   });
 
-  // Update form value when preSelectedCategory changes
-  useEffect(() => {
-    if (preSelectedCategory !== undefined) {
-      form.setValue('category', preSelectedCategory);
-    }
-  }, [preSelectedCategory, form]);
+  // Combine hardcoded categories with fetched ones
+  const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
 
-  // Watch the label field to automatically generate the value
-  const labelValue = form.watch('label');
-  
-  // Update the value field when label changes - generate a shorter value
-  useEffect(() => {
-    if (labelValue) {
-      // Create a value with the required prefix
-      let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
-      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars to keep the total length reasonable
-      generatedValue = generatedValue
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, ''); // Remove special characters
-      
-      // Add the itm- prefix
-      generatedValue = `itm-${generatedValue}`;
-      
-      form.setValue('value', generatedValue);
-    }
-  }, [labelValue, form]);
-
-  const handleSubmit = (values: FormValues) => {
+  const submitWithCategory = (data: MenuItemFormData) => {
     onSubmit({
-      ...values,
+      ...data,
+      category: selectedCategory,
       choice_id: choiceId
     });
-    form.reset();
   };
 
   return (
-    <div className="border rounded-md p-4 mb-4 bg-white my-[16px]">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
-          <div className="flex space-x-3">
-            <FormField 
-              control={form.control} 
-              name="label" 
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-xs">Display Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Menu Item Name" {...field} className="h-8 text-xs" />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )} 
-            />
-            
-            <FormField 
-              control={form.control} 
-              name="value" 
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-xs">Value</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Auto-generated" {...field} className="h-8 text-xs" />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )} 
-            />
-          </div>
-          
-          {availableCategories.length > 0 && (
-            <FormField 
-              control={form.control} 
-              name="category" 
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Category</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value || undefined} 
-                    value={field.value || undefined}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">None</SelectItem>
-                      {availableCategories.map(category => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )} 
-            />
-          )}
-          
-          <div className="flex justify-end space-x-2 pt-2">
-            <Button type="button" onClick={onCancel} variant="outline" size="sm" className="h-7 text-xs">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} size="sm" className="h-7 text-xs">
-              {isSubmitting ? 'Adding...' : 'Add Item'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+    <form onSubmit={handleSubmit(submitWithCategory)} className="space-y-3 mt-2 p-3 border border-gray-200 rounded-md bg-gray-50">
+      <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+        <div className="flex-1">
+          <Input 
+            placeholder="Name" 
+            {...register("label", { required: true })}
+            className={errors.label ? "border-red-500" : ""}
+          />
+          {errors.label && <p className="text-red-500 text-xs mt-1">Name is required</p>}
+        </div>
+        
+        <div className="flex-1">
+          <Input 
+            placeholder="Value (machine-readable ID)" 
+            {...register("value", { required: true })}
+            className={errors.value ? "border-red-500" : ""}
+          />
+          {errors.value && <p className="text-red-500 text-xs mt-1">Value is required</p>}
+        </div>
+      </div>
+      
+      {allCategories.length > 0 && (
+        <div>
+          <Select 
+            value={selectedCategory || ""} 
+            onValueChange={setSelectedCategory}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select category (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No category</SelectItem>
+              {allCategories.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      
+      <div className="flex justify-end space-x-2">
+        <Button 
+          type="button" 
+          onClick={onCancel} 
+          variant="outline" 
+          size="sm"
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          size="sm" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </form>
   );
 };
 

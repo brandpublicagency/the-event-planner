@@ -29,7 +29,11 @@ interface Category {
   id: string;
 }
 
-const CategoryManager = () => {
+interface CategoryManagerProps {
+  choiceId?: string;
+}
+
+const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -39,14 +43,21 @@ const CategoryManager = () => {
   
   const queryClient = useQueryClient();
 
-  // Fetch all unique categories from menu_items table
+  // Modified to fetch categories either for a specific choice or globally
   const { data: categories = [], isLoading } = useQuery({
-    queryKey: ['menu-categories-list'],
+    queryKey: ['menu-categories-list', choiceId],
     queryFn: async () => {
-      const { data } = await supabase
+      let query = supabase
         .from('menu_items')
         .select('category')
         .not('category', 'is', null);
+      
+      // If choiceId is provided, filter by that choice
+      if (choiceId) {
+        query = query.eq('choice_id', choiceId);
+      }
+      
+      const { data } = await query;
       
       if (data) {
         // Extract unique categories and format them
@@ -69,7 +80,7 @@ const CategoryManager = () => {
     },
     onSuccess: () => {
       toast.success('Category added successfully');
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       setIsAddDialogOpen(false);
       setNewCategoryName('');
     },
@@ -81,17 +92,24 @@ const CategoryManager = () => {
   // Mutation for editing a category (updates all menu items with the old category)
   const editCategoryMutation = useMutation({
     mutationFn: async ({ oldName, newName }: { oldName: string, newName: string }) => {
-      const { error } = await supabase
+      let query = supabase
         .from('menu_items')
         .update({ category: newName })
         .eq('category', oldName);
+      
+      // If choiceId is provided, only update items for that choice
+      if (choiceId) {
+        query = query.eq('choice_id', choiceId);
+      }
+      
+      const { error } = await query;
       
       if (error) throw error;
       return { success: true };
     },
     onSuccess: () => {
       toast.success('Category updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
@@ -105,17 +123,24 @@ const CategoryManager = () => {
   // Mutation for deleting a category (removes category from menu items)
   const deleteCategoryMutation = useMutation({
     mutationFn: async (categoryName: string) => {
-      const { error } = await supabase
+      let query = supabase
         .from('menu_items')
         .update({ category: null })
         .eq('category', categoryName);
+      
+      // If choiceId is provided, only update items for that choice
+      if (choiceId) {
+        query = query.eq('choice_id', choiceId);
+      }
+      
+      const { error } = await query;
       
       if (error) throw error;
       return { success: true };
     },
     onSuccess: () => {
       toast.success('Category deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);

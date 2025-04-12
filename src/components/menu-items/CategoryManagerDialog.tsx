@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CategoryManager from './CategoryManager';
 
@@ -23,7 +23,7 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
           <DialogTitle>Manage Categories for {choiceLabel}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <CategoryManager />
+          <CategoryManager choiceId={choiceId} />
         </div>
       </DialogContent>
     </Dialog>
