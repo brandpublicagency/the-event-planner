@@ -18,12 +18,13 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
 }) => {
   const queryClient = useQueryClient();
   
-  // Force a refresh of the menu items when the component mounts
+  // Force a refresh of the menu items and categories when the component mounts
   useEffect(() => {
     // Invalidate cache to ensure we have the latest data with categories
     if (items.length > 0) {
       const choiceId = items[0].choice_id;
       queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
     }
   }, [items, queryClient]);
   

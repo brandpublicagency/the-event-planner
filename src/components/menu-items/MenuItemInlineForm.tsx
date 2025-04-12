@@ -25,8 +25,24 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   availableCategories = [],
   preSelectedCategory = null
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<MenuItemFormData>();
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<MenuItemFormData>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(preSelectedCategory);
+  const labelValue = watch('label', '');
+
+  // Auto-generate value from label
+  useEffect(() => {
+    if (labelValue) {
+      // Generate a URL-friendly value from the label
+      const generatedValue = labelValue
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')          // Replace spaces with hyphens
+        .replace(/-+/g, '-')           // Replace multiple hyphens with a single one
+        .trim();
+      
+      setValue('value', generatedValue);
+    }
+  }, [labelValue, setValue]);
 
   // Fetch categories specific to this choice
   const { data: categories = [], refetch: refetchCategories } = useQuery({
@@ -77,9 +93,10 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
         
         <div className="flex-1">
           <Input 
-            placeholder="Value (machine-readable ID)" 
+            placeholder="Value (auto-generated)" 
             {...register("value", { required: true })}
-            className={errors.value ? "border-red-500" : ""}
+            className={errors.value ? "border-red-500" : "bg-gray-100"}
+            readOnly
           />
           {errors.value && <p className="text-red-500 text-xs mt-1">Value is required</p>}
         </div>

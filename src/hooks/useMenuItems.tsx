@@ -35,18 +35,20 @@ export const useMenuItems = (choiceId?: string) => {
   } = useQuery({
     queryKey,
     queryFn,
-    staleTime: 5000, // 5 seconds - short enough to refresh often
+    staleTime: 1000, // Much shorter stale time to ensure more frequent refreshes
   });
 
   const createMutation = useMutation({
     mutationFn: createMenuItem,
     onSuccess: () => {
+      // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
       // Also invalidate the categories list to ensure new categories appear
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       toast.success('Menu item created successfully');
       setIsAddDialogOpen(false);
       
@@ -64,12 +66,14 @@ export const useMenuItems = (choiceId?: string) => {
     mutationFn: ({ id, data }: { id: string; data: Partial<MenuItemFormData> }) => 
       updateMenuItem(id, data),
     onSuccess: () => {
+      // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
       // Also invalidate the categories list
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       toast.success('Menu item updated successfully');
       setEditingItem(null);
       
@@ -86,12 +90,14 @@ export const useMenuItems = (choiceId?: string) => {
   const deleteMutation = useMutation({
     mutationFn: deleteMenuItem,
     onSuccess: () => {
+      // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
       // Also invalidate the categories list
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       toast.success('Menu item deleted successfully');
       
       // Give database time to update, then refresh
@@ -107,6 +113,7 @@ export const useMenuItems = (choiceId?: string) => {
   const reorderMutation = useMutation({
     mutationFn: reorderMenuItems,
     onSuccess: () => {
+      // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });

@@ -62,11 +62,12 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
 
   // Fetch existing categories from menu items
   const { data: existingCategories } = useQuery({
-    queryKey: ['menu-categories'],
+    queryKey: ['menu-categories', choiceId],
     queryFn: async () => {
       const { data } = await supabase
         .from('menu_items')
         .select('category')
+        .eq('choice_id', choiceId)
         .not('category', 'is', null);
       
       if (data) {
@@ -77,6 +78,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       return [];
     },
     enabled: open, // Only fetch when dialog is open
+    staleTime: 0 // Always refetch when dialog opens
   });
 
   // Update categories when data loads
@@ -98,6 +100,22 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       choice_id: choiceId || initialData?.choice_id || '',
     },
   });
+
+  // Auto-generate value from label for new items
+  const label = form.watch('label');
+  useEffect(() => {
+    if (!initialData && label) {
+      // Only auto-generate for new items, not when editing
+      const generatedValue = label
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')          // Replace spaces with hyphens
+        .replace(/-+/g, '-')           // Replace multiple hyphens with a single one
+        .trim();
+      
+      form.setValue('value', generatedValue);
+    }
+  }, [label, form, initialData]);
 
   // Determine if we need to show category selection 
   // Always show the field for now
@@ -146,7 +164,12 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                 <FormItem>
                   <FormLabel>Value</FormLabel>
                   <FormControl>
-                    <Input placeholder="Unique identifier" {...field} />
+                    <Input 
+                      placeholder="Auto-generated from name" 
+                      {...field} 
+                      className={!initialData ? "bg-gray-100" : ""}
+                      readOnly={!initialData}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,6 +193,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="">No category</SelectItem>
                         {categories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
