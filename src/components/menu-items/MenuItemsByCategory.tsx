@@ -2,6 +2,8 @@
 import React, { useMemo, useEffect } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { useQueryClient } from '@tanstack/react-query';
+import { Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -69,6 +71,53 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return categories;
   }, [categorizedItems]);
 
+  const handleEditCategory = (category: string) => {
+    if (category === 'Uncategorized') {
+      toast.error('Cannot edit the Uncategorized category');
+      return;
+    }
+    
+    // Find the first item with this category to get the choice_id
+    const itemInCategory = items.find(item => item.category === category);
+    if (!itemInCategory || !itemInCategory.choice_id) {
+      toast.error('Cannot determine choice for this category');
+      return;
+    }
+    
+    // Open the category manager with this category pre-selected for editing
+    // This requires integration with CategoryManager component
+    // For now, we'll just show a toast
+    toast.info(`Edit category: ${category} (Implementation pending)`);
+    
+    // In a real implementation, you would:
+    // 1. Set a state variable with the category to edit
+    // 2. Open a modal or dialog to edit the category
+    // 3. Send the update to the backend
+  };
+  
+  const handleDeleteCategory = (category: string) => {
+    if (category === 'Uncategorized') {
+      toast.error('Cannot delete the Uncategorized category');
+      return;
+    }
+    
+    // Find the first item with this category to get the choice_id
+    const itemInCategory = items.find(item => item.category === category);
+    if (!itemInCategory || !itemInCategory.choice_id) {
+      toast.error('Cannot determine choice for this category');
+      return;
+    }
+    
+    // Confirm deletion with the user
+    // For now, we'll just show a toast
+    toast.info(`Delete category: ${category} (Implementation pending)`);
+    
+    // In a real implementation, you would:
+    // 1. Show a confirmation dialog
+    // 2. Send a delete request to the backend
+    // 3. Update all items in this category to have no category
+  };
+
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
@@ -77,7 +126,31 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     <div className="space-y-6">
       {allCategories.map(category => (
         <div key={category} className="space-y-2">
-          <h3 className="font-medium text-sm text-zinc-900 mb-2">{category}</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-medium text-sm text-zinc-900">{category}</h3>
+            
+            {category !== 'Uncategorized' && (
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => handleEditCategory(category)}
+                  className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                  title={`Edit ${category} category`}
+                >
+                  <Edit className="h-3.5 w-3.5 text-blue-500" />
+                  <span className="sr-only">Edit category</span>
+                </button>
+                <button
+                  onClick={() => handleDeleteCategory(category)}
+                  className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                  title={`Delete ${category} category`}
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                  <span className="sr-only">Delete category</span>
+                </button>
+              </div>
+            )}
+          </div>
+          
           <div className="divide-y divide-gray-100 border rounded-md overflow-hidden">
             {categorizedItems[category].map(item => (
               <div 
