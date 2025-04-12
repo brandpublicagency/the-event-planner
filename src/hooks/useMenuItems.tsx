@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
@@ -35,8 +35,27 @@ export const useMenuItems = (choiceId?: string) => {
   } = useQuery({
     queryKey,
     queryFn,
-    staleTime: 1000, // Much shorter stale time to ensure more frequent refreshes
+    staleTime: 0, // No stale time to ensure frequent refreshes
   });
+
+  // Ensure we periodically refresh the data to catch any category changes
+  useEffect(() => {
+    // Initial fetch
+    refetchMenuItems();
+
+    // Set up interval for periodic refreshes
+    const intervalId = setInterval(() => {
+      console.log("Periodic refresh of menu items");
+      refetchMenuItems();
+      
+      // Also refresh categories
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      }
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, [refetchMenuItems, queryClient, choiceId]);
 
   const createMutation = useMutation({
     mutationFn: createMenuItem,
@@ -131,10 +150,12 @@ export const useMenuItems = (choiceId?: string) => {
   });
 
   const handleAddItem = (data: MenuItemFormData) => {
+    console.log("Adding item with data:", data);
     createMutation.mutate(data);
   };
 
   const handleUpdateItem = (id: string, data: Partial<MenuItemFormData>) => {
+    console.log("Updating item with data:", data);
     updateMutation.mutate({ id, data });
   };
 

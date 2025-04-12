@@ -17,7 +17,8 @@ interface MenuItemsManagerProps {
 
 const MULTI_CATEGORY_CHOICE_VALUES = [
   'buffet-menu',
-  'warm-karoo-feast'
+  'warm-karoo-feast',
+  'cho-buffet'  // Added to ensure "Buffet Menu" choice is recognized
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
@@ -49,13 +50,16 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
 
   // Get items for this choice
   const choiceItems = useMemo(() => {
-    return menuItems.filter(item => item.choice_id === choiceId);
-  }, [menuItems, choiceId]);
+    const items = menuItems.filter(item => item.choice_id === choiceId);
+    console.log(`MenuItemsManager: Found ${items.length} items for choice ${choiceId} (${choiceLabel})`);
+    return items;
+  }, [menuItems, choiceId, choiceLabel]);
 
   // Force a refresh of items when component mounts to ensure categories are loaded
   useEffect(() => {
+    console.log(`MenuItemsManager: Initial load for choice ${choiceId} (${choiceLabel})`);
     refetchMenuItems();
-  }, [refetchMenuItems]);
+  }, [refetchMenuItems, choiceId, choiceLabel]);
 
   // Determine if this choice should use categories
   const useCategories = useMemo(() => {
@@ -63,34 +67,54 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     
     // Check if this is a known multi-category choice like buffet menu
     const choiceValue = choiceItems[0]?.choice;
-    return MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue);
-  }, [choiceItems]);
+    console.log(`Choice value for ${choiceLabel}: ${choiceValue}`);
+    
+    // Also check the choice label for "buffet" to catch any labeling variations
+    const isBuffetLabel = choiceLabel.toLowerCase().includes('buffet');
+    const isKarooLabel = choiceLabel.toLowerCase().includes('karoo');
+    
+    const shouldUseCategories = MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue) || isBuffetLabel || isKarooLabel;
+    console.log(`Should use categories for ${choiceLabel}? ${shouldUseCategories}`);
+    
+    return shouldUseCategories;
+  }, [choiceItems, choiceLabel]);
 
   // Determine the available categories based on the choice
   const availableCategories = useMemo(() => {
     if (!useCategories) return [];
     
     const choiceValue = choiceItems[0]?.choice;
+    console.log(`Getting available categories for ${choiceLabel} (${choiceValue})`);
     
-    if (choiceValue === 'buffet-menu') {
-      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    // Default categories for buffet and karoo feast
+    const defaultCategories = ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    
+    if (choiceValue === 'buffet-menu' || choiceLabel.toLowerCase().includes('buffet')) {
+      return defaultCategories;
     }
     
-    if (choiceValue === 'warm-karoo-feast') {
-      return ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
+    if (choiceValue === 'warm-karoo-feast' || choiceLabel.toLowerCase().includes('karoo')) {
+      return defaultCategories;
+    }
+    
+    // For any other choice that should use categories, return default categories
+    if (useCategories) {
+      return defaultCategories;
     }
     
     return [];
-  }, [choiceItems, useCategories]);
+  }, [choiceItems, useCategories, choiceLabel]);
 
   // Handler for when "Add Item" is clicked within a category
   const handleAddInCategory = (category: string | null) => {
+    console.log(`Adding item in category: ${category || 'none'}`);
     setSelectedCategory(category);
     setShowInlineForm(true);
   };
 
   // Handler for adding an item from the empty container
   const handleAddItemClick = () => {
+    setSelectedCategory(null);
     setShowInlineForm(true);
   };
 

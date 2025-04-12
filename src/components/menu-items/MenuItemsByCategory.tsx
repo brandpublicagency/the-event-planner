@@ -22,6 +22,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   useEffect(() => {
     // Invalidate cache to ensure we have the latest data with categories
     if (items.length > 0) {
+      console.log("MenuItemsByCategory: Forcing refresh of menu items and categories");
       const choiceId = items[0].choice_id;
       queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
@@ -30,6 +31,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   
   // Group items by category
   const categorizedItems = useMemo(() => {
+    console.log("Grouping items by category:", items);
     const grouped: Record<string, MenuItem[]> = {};
     
     // First, handle items with no category
@@ -41,6 +43,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     // Then group items by their categories
     items.forEach(item => {
       if (item.category) {
+        console.log(`Found item with category: ${item.label} - ${item.category}`);
         if (!grouped[item.category]) {
           grouped[item.category] = [];
         }
@@ -48,6 +51,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       }
     });
     
+    console.log("Grouped items:", grouped);
     return grouped;
   }, [items]);
   
@@ -61,6 +65,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         ...categories.filter(c => c !== 'Uncategorized')
       ];
     }
+    console.log("All categories detected:", categories);
     return categories;
   }, [categorizedItems]);
 

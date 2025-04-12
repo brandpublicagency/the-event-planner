@@ -48,6 +48,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['menu-categories-list', choiceId],
     queryFn: async () => {
+      console.log(`Fetching categories for choice: ${choiceId}`);
       const { data } = await supabase
         .from('menu_items')
         .select('category')
@@ -56,6 +57,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       
       if (data) {
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
+        console.log(`Retrieved categories:`, uniqueCategories);
         return uniqueCategories;
       }
       return [];
@@ -65,13 +67,16 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
 
   // Effect to refetch categories when component mounts
   useEffect(() => {
+    console.log("MenuItemInlineForm: Fetching fresh categories");
     refetchCategories();
   }, [refetchCategories]);
 
   // Combine hardcoded categories with fetched ones
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
+  console.log("All available categories:", allCategories);
 
   const submitWithCategory = (data: MenuItemFormData) => {
+    console.log("Submitting with category:", selectedCategory);
     onSubmit({
       ...data,
       category: selectedCategory,
