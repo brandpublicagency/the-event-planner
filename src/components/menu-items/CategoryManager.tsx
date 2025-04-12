@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,8 +181,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is array before accessing length
-      const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
+      // Fix for TS error: Define the correct type for data to avoid "never" type issue
+      // By explicitly typing the response data, we can avoid the "Property 'length' does not exist on type 'never'" error
+      type QueryResponse = any[] | null;
+      const responseData = data as QueryResponse;
+      
+      // Now safely access length with proper type checking
+      const updatedCount = responseData ? responseData.length : 0;
       console.log(`CategoryManager: Updated ${updatedCount} items with new category name`);
       return { success: true };
     },
@@ -220,8 +226,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is array before accessing length
-      const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
+      // Fix for TS error: Define the correct type for data to avoid "never" type issue
+      // By explicitly typing the response data, we can avoid the "Property 'length' does not exist on type 'never'" error
+      type QueryResponse = any[] | null;
+      const responseData = data as QueryResponse;
+      
+      // Now safely access length with proper type checking
+      const updatedCount = responseData ? responseData.length : 0;
       console.log(`CategoryManager: Removed category from ${updatedCount} items`);
       return { success: true };
     },
