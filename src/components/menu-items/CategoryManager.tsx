@@ -80,7 +80,12 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     },
     onSuccess: () => {
       toast.success('Category added successfully');
+      // Invalidate both the categories list and menu items queries to force a refresh
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       setIsAddDialogOpen(false);
       setNewCategoryName('');
     },
@@ -111,6 +116,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       toast.success('Category updated successfully');
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
       setEditCategoryName('');
@@ -142,6 +150,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       toast.success('Category deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      }
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
     },

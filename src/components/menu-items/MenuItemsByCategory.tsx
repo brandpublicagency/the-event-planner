@@ -1,6 +1,7 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -15,6 +16,17 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   onDelete,
   isDeleting
 }) => {
+  const queryClient = useQueryClient();
+  
+  // Force a refresh of the menu items when the component mounts
+  useEffect(() => {
+    // Invalidate cache to ensure we have the latest data with categories
+    if (items.length > 0) {
+      const choiceId = items[0].choice_id;
+      queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+    }
+  }, [items, queryClient]);
+  
   // Group items by category
   const categorizedItems = useMemo(() => {
     const grouped: Record<string, MenuItem[]> = {};

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
@@ -29,7 +29,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(preSelectedCategory);
 
   // Fetch categories specific to this choice
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['menu-categories-list', choiceId],
     queryFn: async () => {
       const { data } = await supabase
@@ -43,8 +43,14 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
         return uniqueCategories;
       }
       return [];
-    }
+    },
+    staleTime: 0 // Always refetch the data when this component mounts
   });
+
+  // Effect to refetch categories when component mounts
+  useEffect(() => {
+    refetchCategories();
+  }, [refetchCategories]);
 
   // Combine hardcoded categories with fetched ones
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);

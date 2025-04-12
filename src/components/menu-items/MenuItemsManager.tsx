@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
 import { useMenuItems } from '@/hooks/useMenuItems';
@@ -39,7 +39,8 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     isCreating,
     isUpdating,
     isDeleting,
-    isReordering
+    isReordering,
+    refetchMenuItems
   } = useMenuItems(choiceId);
 
   // State for showing the inline form
@@ -50,6 +51,11 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   const choiceItems = useMemo(() => {
     return menuItems.filter(item => item.choice_id === choiceId);
   }, [menuItems, choiceId]);
+
+  // Force a refresh of items when component mounts to ensure categories are loaded
+  useEffect(() => {
+    refetchMenuItems();
+  }, [refetchMenuItems]);
 
   // Determine if this choice should use categories
   const useCategories = useMemo(() => {
@@ -130,7 +136,20 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
         </>
       )}
 
-      {/* Inline form for adding items - moved below the items table */}
+      {/* Add button below the items display to ensure it's always accessible */}
+      {choiceItems.length > 0 && (
+        <div className="mt-4">
+          <Button 
+            size="sm" 
+            onClick={handleAddItemClick}
+          >
+            <PlusIcon className="h-3 w-3 mr-1.5" />
+            Add New Item
+          </Button>
+        </div>
+      )}
+
+      {/* Inline form for adding items */}
       {showInlineForm && (
         <MenuItemInlineForm 
           onSubmit={data => {

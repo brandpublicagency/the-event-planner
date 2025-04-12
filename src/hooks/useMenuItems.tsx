@@ -30,11 +30,12 @@ export const useMenuItems = (choiceId?: string) => {
   const { 
     data: menuItems = [], 
     isLoading, 
-    error 
+    error,
+    refetch: refetchMenuItems
   } = useQuery({
     queryKey,
     queryFn,
-    enabled: true,
+    staleTime: 5000, // 5 seconds - short enough to refresh often
   });
 
   const createMutation = useMutation({
@@ -44,8 +45,15 @@ export const useMenuItems = (choiceId?: string) => {
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
+      // Also invalidate the categories list to ensure new categories appear
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       toast.success('Menu item created successfully');
       setIsAddDialogOpen(false);
+      
+      // Give database time to update, then refresh
+      setTimeout(() => {
+        refetchMenuItems();
+      }, 500);
     },
     onError: (error) => {
       toast.error(`Failed to create menu item: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -60,8 +68,15 @@ export const useMenuItems = (choiceId?: string) => {
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
+      // Also invalidate the categories list
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       toast.success('Menu item updated successfully');
       setEditingItem(null);
+      
+      // Give database time to update, then refresh
+      setTimeout(() => {
+        refetchMenuItems();
+      }, 500);
     },
     onError: (error) => {
       toast.error(`Failed to update menu item: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -75,7 +90,14 @@ export const useMenuItems = (choiceId?: string) => {
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
+      // Also invalidate the categories list
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       toast.success('Menu item deleted successfully');
+      
+      // Give database time to update, then refresh
+      setTimeout(() => {
+        refetchMenuItems();
+      }, 500);
     },
     onError: (error) => {
       toast.error(`Failed to delete menu item: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -90,6 +112,11 @@ export const useMenuItems = (choiceId?: string) => {
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
       }
       toast.success('Menu items reordered successfully');
+      
+      // Give database time to update, then refresh
+      setTimeout(() => {
+        refetchMenuItems();
+      }, 500);
     },
     onError: (error) => {
       toast.error(`Failed to reorder menu items: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -127,6 +154,7 @@ export const useMenuItems = (choiceId?: string) => {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    isReordering: reorderMutation.isPending
+    isReordering: reorderMutation.isPending,
+    refetchMenuItems
   };
 };
