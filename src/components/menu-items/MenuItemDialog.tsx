@@ -22,8 +22,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface MenuItemDialogProps {
   open: boolean;
@@ -59,17 +60,29 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     "STARCH SELECTION",
     "SALAD"
   ]);
+  
+  const queryClient = useQueryClient();
 
-  // Fetch existing categories from menu items with a unique key that includes a timestamp
+  // Generate a unique query key with timestamp to force refresh
+  const categoryQueryTimestamp = open ? Date.now() : 0;
+  const categoryQueryKey = ['menu-categories', choiceId, categoryQueryTimestamp];
+  
+  // Fetch existing categories from menu items with timestamp in key to force refresh
   const { data: existingCategories, refetch: refetchCategories } = useQuery({
-    queryKey: ['menu-categories', choiceId, Date.now()],
+    queryKey: categoryQueryKey,
     queryFn: async () => {
-      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId}`);
-      const { data } = await supabase
+      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} at timestamp ${categoryQueryTimestamp}`);
+      const { data, error } = await supabase
         .from('menu_items')
         .select('category')
         .eq('choice_id', choiceId)
         .not('category', 'is', null);
+      
+      if (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("Failed to load categories");
+        return [];
+      }
       
       if (data) {
         // Extract unique categories
@@ -80,7 +93,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       return [];
     },
     enabled: open, // Only fetch when dialog is open
-    staleTime: 0 // Always refetch when dialog opens
+    staleTime: 0, // Always refetch when opened
+    refetchInterval: 1000 // Refetch every second while open
   });
 
   // Refetch categories when dialog opens
@@ -88,8 +102,20 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     if (open) {
       console.log("MenuItemDialog: Dialog opened, refetching categories");
       refetchCategories();
+      
+      // Invalidate all category-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      
+      // Set up periodic refresh while dialog is open
+      const intervalId = setInterval(() => {
+        console.log("MenuItemDialog: Periodic refresh");
+        refetchCategories();
+      }, 1000);
+      
+      return () => clearInterval(intervalId);
     }
-  }, [open, refetchCategories]);
+  }, [open, refetchCategories, queryClient]);
 
   // Update categories when data loads
   useEffect(() => {
@@ -203,6 +229,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value || "no-category"}
+                      value={field.value || "no-category"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -210,7 +237,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {/* Fixed: Use "no-category" instead of empty string */}
                         <SelectItem value="no-category">No category</SelectItem>
                         {categories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>

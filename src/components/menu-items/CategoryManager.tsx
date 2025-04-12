@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -43,14 +43,15 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   
   const queryClient = useQueryClient();
 
-  // Use a unique query key that includes the timestamp to force refresh
-  const categoryQueryKey = ['menu-categories-list', choiceId, Date.now()];
+  // Use timestamp in query key to force refresh every time component mounts
+  const timestamp = Date.now();
+  const categoryQueryKey = ['menu-categories-list', choiceId, timestamp];
   
-  // Modified to fetch categories either for a specific choice or globally
+  // Modified to fetch categories with timestamp in key
   const { data: categories = [], isLoading, refetch } = useQuery({
     queryKey: categoryQueryKey,
     queryFn: async () => {
-      console.log(`CategoryManager: Fetching categories for choice: ${choiceId || 'all'}`);
+      console.log(`CategoryManager: Fetching categories for choice: ${choiceId || 'all'} at timestamp ${timestamp}`);
       let query = supabase
         .from('menu_items')
         .select('category')
@@ -61,12 +62,18 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
         query = query.eq('choice_id', choiceId);
       }
       
-      const { data } = await query;
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("Failed to load categories");
+        return [];
+      }
       
       if (data) {
         // Extract unique categories and format them
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
-        console.log(`CategoryManager: Found ${uniqueCategories.length} categories`, uniqueCategories);
+        console.log(`CategoryManager: Found ${uniqueCategories.length} categories:`, uniqueCategories);
         return uniqueCategories.map(name => ({ 
           name, 
           id: name // Using the name as ID since categories don't have their own table
@@ -74,15 +81,68 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       }
       return [];
     },
-    staleTime: 0 // Always fetch fresh data
+    staleTime: 0, // Always fetch fresh data
+    refetchInterval: 1000 // Refetch every second
   });
+  
+  // Helper function to force refresh all category-related queries
+  const refreshAllCategoryQueries = useCallback(() => {
+    console.log("CategoryManager: Force refreshing all category queries");
+    
+    // Invalidate with different patterns used across the app
+    queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+    queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
+    queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+    
+    // Using timestamps to force refresh
+    const refreshTimestamp = Date.now();
+    queryClient.invalidateQueries({ 
+      queryKey: ['menu-categories-list', refreshTimestamp] 
+    });
+    queryClient.invalidateQueries({ 
+      queryKey: ['menu-categories', refreshTimestamp] 
+    });
+    
+    // Specific queries for this choice if available
+    if (choiceId) {
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
+      
+      // With timestamp
+      queryClient.invalidateQueries({ 
+        queryKey: ['menu-categories-list', choiceId, refreshTimestamp] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['menu-categories', choiceId, refreshTimestamp] 
+      });
+    }
+    
+    // Refetch current data
+    refetch();
+  }, [queryClient, choiceId, refetch]);
   
   // Mutation for adding a new category (actually updates menu items with new category)
   const addCategoryMutation = useMutation({
     mutationFn: async (name: string) => {
       console.log(`CategoryManager: Adding new category: ${name}`);
-      // This is a dummy action since we don't have a categories table
-      // In a real scenario, you'd insert into a categories table
+      
+      // Since we don't have a dedicated categories table, we'll create a dummy item
+      // with the new category to make it available in the system
+      const { data, error } = await supabase
+        .from('menu_items')
+        .insert({
+          label: `Placeholder for ${name}`,
+          value: `placeholder-${name.toLowerCase().replace(/\s+/g, '-')}`,
+          category: name,
+          choice_id: choiceId,
+          choice: 'placeholder'
+        })
+        .select();
+      
+      if (error) throw error;
+      
+      console.log(`CategoryManager: Added placeholder item with category "${name}":`, data);
       return { name, id: name };
     },
     onSuccess: (_, newCategoryName) => {
@@ -90,15 +150,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       console.log(`CategoryManager: Category "${newCategoryName}" added successfully`);
       
       // Force immediate refresh of all relevant queries
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Force refetch after a short delay to ensure DB has updated
-      setTimeout(() => {
-        console.log("CategoryManager: Performing delayed refetch after category add");
-        refetch();
-      }, 500);
+      refreshAllCategoryQueries();
       
       setIsAddDialogOpen(false);
       setNewCategoryName('');
@@ -123,9 +175,11 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
         query = query.eq('choice_id', choiceId);
       }
       
-      const { error } = await query;
+      const { data, error } = await query;
       
       if (error) throw error;
+      
+      console.log(`CategoryManager: Updated ${data?.length || 0} items with new category name`);
       return { success: true };
     },
     onSuccess: () => {
@@ -133,15 +187,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       console.log("CategoryManager: Category updated successfully");
       
       // Force immediate refresh of all relevant queries
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Force refetch after a short delay to ensure DB has updated
-      setTimeout(() => {
-        console.log("CategoryManager: Performing delayed refetch after category update");
-        refetch();
-      }, 500);
+      refreshAllCategoryQueries();
       
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
@@ -167,9 +213,11 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
         query = query.eq('choice_id', choiceId);
       }
       
-      const { error } = await query;
+      const { data, error } = await query;
       
       if (error) throw error;
+      
+      console.log(`CategoryManager: Removed category from ${data?.length || 0} items`);
       return { success: true };
     },
     onSuccess: () => {
@@ -177,15 +225,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       console.log("CategoryManager: Category deleted successfully");
       
       // Force immediate refresh of all relevant queries
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Force refetch after a short delay to ensure DB has updated
-      setTimeout(() => {
-        console.log("CategoryManager: Performing delayed refetch after category delete");
-        refetch();
-      }, 500);
+      refreshAllCategoryQueries();
       
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
@@ -200,14 +240,22 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   useEffect(() => {
     console.log("CategoryManager: Initial load - forcing refetch");
     refetch();
-  }, [refetch]);
+    
+    // Set up periodic refresh
+    const intervalId = setInterval(() => {
+      console.log("CategoryManager: Periodic refresh");
+      refreshAllCategoryQueries();
+    }, 2000);
+    
+    return () => clearInterval(intervalId);
+  }, [refetch, refreshAllCategoryQueries]);
   
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) {
       toast.error('Category name cannot be empty');
       return;
     }
-    addCategoryMutation.mutate(newCategoryName);
+    addCategoryMutation.mutate(newCategoryName.trim());
   };
   
   const handleEditCategory = () => {
@@ -217,7 +265,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     }
     editCategoryMutation.mutate({ 
       oldName: selectedCategory.name, 
-      newName: editCategoryName 
+      newName: editCategoryName.trim() 
     });
   };
   
