@@ -1,9 +1,21 @@
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { useQueryClient } from '@tanstack/react-query';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import CategoryManagerDialog from './CategoryManagerDialog';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -19,6 +31,14 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   isDeleting
 }) => {
   const queryClient = useQueryClient();
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string>('');
+  const [selectedChoiceLabel, setSelectedChoiceLabel] = useState<string>('');
+  
+  // State for delete confirmation
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [isDeleting2, setIsDeleting2] = useState(false);
   
   // Force a refresh of the menu items and categories when the component mounts
   useEffect(() => {
@@ -84,15 +104,10 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       return;
     }
     
-    // Open the category manager with this category pre-selected for editing
-    // This requires integration with CategoryManager component
-    // For now, we'll just show a toast
-    toast.info(`Edit category: ${category} (Implementation pending)`);
-    
-    // In a real implementation, you would:
-    // 1. Set a state variable with the category to edit
-    // 2. Open a modal or dialog to edit the category
-    // 3. Send the update to the backend
+    // Open the category manager
+    setSelectedChoiceId(itemInCategory.choice_id);
+    setSelectedChoiceLabel(itemInCategory.choice || 'Menu Items');
+    setIsCategoryManagerOpen(true);
   };
   
   const handleDeleteCategory = (category: string) => {
@@ -108,14 +123,48 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       return;
     }
     
-    // Confirm deletion with the user
-    // For now, we'll just show a toast
-    toast.info(`Delete category: ${category} (Implementation pending)`);
+    // Set state for delete confirmation
+    setCategoryToDelete(category);
+    setSelectedChoiceId(itemInCategory.choice_id);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const performDelete = async () => {
+    if (!categoryToDelete || !selectedChoiceId) {
+      toast.error('Missing category or choice ID');
+      return;
+    }
     
-    // In a real implementation, you would:
-    // 1. Show a confirmation dialog
-    // 2. Send a delete request to the backend
-    // 3. Update all items in this category to have no category
+    setIsDeleting2(true);
+    
+    try {
+      // Update all items in this category to have null category
+      const { error } = await supabase
+        .from('menu_items')
+        .update({ category: null })
+        .eq('category', categoryToDelete)
+        .eq('choice_id', selectedChoiceId);
+      
+      if (error) throw error;
+      
+      toast.success(`Category "${categoryToDelete}" deleted successfully`);
+      
+      // Force refresh data
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      queryClient.invalidateQueries({ queryKey: ['menuItems', selectedChoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', selectedChoiceId] });
+      
+      // Close dialog and reset state
+      setIsDeleteDialogOpen(false);
+      setCategoryToDelete(null);
+      setSelectedChoiceId('');
+    } catch (error: any) {
+      toast.error(`Error deleting category: ${error.message}`);
+      console.error("Error deleting category:", error);
+    } finally {
+      setIsDeleting2(false);
+    }
   };
 
   if (allCategories.length === 0) {
@@ -182,6 +231,47 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
           </div>
         </div>
       ))}
+      
+      {/* Category Manager Dialog */}
+      {selectedChoiceId && (
+        <CategoryManagerDialog
+          open={isCategoryManagerOpen}
+          onOpenChange={setIsCategoryManagerOpen}
+          choiceId={selectedChoiceId}
+          choiceLabel={selectedChoiceLabel}
+        />
+      )}
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the category "{categoryToDelete}"? 
+              This will remove the category from all menu items. The items themselves will not be deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting2}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault(); // Prevent dialog from closing automatically
+                performDelete();
+              }}
+              disabled={isDeleting2}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting2 ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
