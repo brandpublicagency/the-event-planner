@@ -142,7 +142,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      console.log(`CategoryManager: Added placeholder item with category "${name}":`, data);
+      // Fix for TS error: Check if data is null before accessing it
+      console.log(`CategoryManager: Added placeholder item with category "${name}":`, data ? data : 'No data returned');
       return { name, id: name };
     },
     onSuccess: (_, newCategoryName) => {
@@ -179,7 +180,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      console.log(`CategoryManager: Updated ${data?.length || 0} items with new category name`);
+      // Fix for TS error: Check if data is null before accessing it
+      const updatedCount = data ? data.length : 0;
+      console.log(`CategoryManager: Updated ${updatedCount} items with new category name`);
       return { success: true };
     },
     onSuccess: () => {
@@ -217,7 +220,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      console.log(`CategoryManager: Removed category from ${data?.length || 0} items`);
+      // Fix for TS error: Check if data is null before accessing it
+      const updatedCount = data ? data.length : 0;
+      console.log(`CategoryManager: Removed category from ${updatedCount} items`);
       return { success: true };
     },
     onSuccess: () => {
