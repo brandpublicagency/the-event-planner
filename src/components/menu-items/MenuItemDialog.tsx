@@ -83,7 +83,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
         return [];
       }
       
-      if (data) {
+      if (data && Array.isArray(data)) {
         // Extract unique categories
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
         console.log(`MenuItemDialog: Found ${uniqueCategories.length} categories:`, uniqueCategories);

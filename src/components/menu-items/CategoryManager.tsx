@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -142,8 +141,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is null before accessing it
-      console.log(`CategoryManager: Added placeholder item with category "${name}":`, data ? data : 'No data returned');
+      // Fix for TS error: Check if data is array before accessing it
+      const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
+      console.log(`CategoryManager: Added placeholder item with category "${name}":`, updatedCount > 0 ? data : 'No data returned');
       return { name, id: name };
     },
     onSuccess: (_, newCategoryName) => {
@@ -180,7 +180,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is null before accessing it
+      // Fix for TS error: Check if data is array before accessing length
       const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Updated ${updatedCount} items with new category name`);
       return { success: true };
@@ -220,7 +220,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is null before accessing it
+      // Fix for TS error: Check if data is array before accessing length
       const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Removed category from ${updatedCount} items`);
       return { success: true };

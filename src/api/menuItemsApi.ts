@@ -194,6 +194,11 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       itemToUpdate.choice = choiceData.value;
     }
 
+    // Explicitly handle null category
+    if (menuItem.category === null) {
+      itemToUpdate.category = null;
+    }
+
     // Remove image_url from update payload as it no longer exists in the schema
     delete itemToUpdate.image_url;
     
