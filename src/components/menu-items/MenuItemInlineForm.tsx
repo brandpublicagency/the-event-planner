@@ -110,14 +110,15 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
       {allCategories.length > 0 && (
         <div>
           <Select 
-            value={selectedCategory || ""} 
+            value={selectedCategory || undefined} 
             onValueChange={setSelectedCategory}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select category (optional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No category</SelectItem>
+              {/* Fixed: Use "no-category" instead of empty string for "No category" option */}
+              <SelectItem value="no-category">No category</SelectItem>
               {allCategories.map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}

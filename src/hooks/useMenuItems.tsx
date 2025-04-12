@@ -58,7 +58,14 @@ export const useMenuItems = (choiceId?: string) => {
   }, [refetchMenuItems, queryClient, choiceId]);
 
   const createMutation = useMutation({
-    mutationFn: createMenuItem,
+    mutationFn: (data: MenuItemFormData) => {
+      // Handle the special "no-category" case
+      let processedData = { ...data };
+      if (processedData.category === "no-category") {
+        processedData.category = null;
+      }
+      return createMenuItem(processedData);
+    },
     onSuccess: () => {
       // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
@@ -82,8 +89,14 @@ export const useMenuItems = (choiceId?: string) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<MenuItemFormData> }) => 
-      updateMenuItem(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<MenuItemFormData> }) => {
+      // Handle the special "no-category" case
+      let processedData = { ...data };
+      if (processedData.category === "no-category") {
+        processedData.category = null;
+      }
+      return updateMenuItem(id, processedData);
+    },
     onSuccess: () => {
       // Invalidate all related queries for maximum refresh
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });

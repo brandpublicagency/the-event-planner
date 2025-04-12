@@ -122,11 +122,17 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   const showCategoryField = true;
 
   const handleSubmit = (values: FormValues) => {
+    // Handle the special "no-category" case
+    let categoryValue = values.category;
+    if (categoryValue === "no-category") {
+      categoryValue = null;
+    }
+    
     // Ensure all required fields are present
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
-      category: values.category || null,
+      category: categoryValue,
       choice_id: choiceId || values.choice_id,
       image_url: null, // Keep this to maintain compatibility with the existing API
     };
@@ -185,7 +191,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                     <FormLabel>Category</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value || ''}
+                      defaultValue={field.value || "no-category"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -193,7 +199,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No category</SelectItem>
+                        {/* Fixed: Use "no-category" instead of empty string */}
+                        <SelectItem value="no-category">No category</SelectItem>
                         {categories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
