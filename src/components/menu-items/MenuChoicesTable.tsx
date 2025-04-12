@@ -11,10 +11,12 @@ import { MenuChoice } from '@/api/menuItemsApi';
 
 interface MenuChoicesTableProps {
   sectionId: string;
+  isMainCourseSection?: boolean;
 }
 
 const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
-  sectionId
+  sectionId,
+  isMainCourseSection = false
 }) => {
   const {
     choices,
@@ -49,14 +51,6 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     }
   };
 
-  // We need to fetch the section details to check if this is a main course section
-  const isMainCourseSection = () => {
-    // Check if section's value is 'sec-mains' or its ID matches the main course section ID
-    // Since we only have the ID, we'll use that for now
-    // In the production code, you would fetch the section details to get its value
-    return sectionId === 'sec-mains';
-  };
-
   const handleAddCategory = (choice: MenuChoice) => {
     console.log("Add category clicked for choice:", choice);
     // Here you would implement the category add logic
@@ -84,7 +78,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)} className="h-6 w-6 text-zinc-400">
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    {isMainCourseSection() && (
+                    {isMainCourseSection && (
                       <Button 
                         variant="ghost" 
                         size="icon" 

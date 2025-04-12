@@ -41,6 +41,9 @@ const MenuSectionsTable = () => {
       setSectionToDelete(null);
     }
   };
+
+  // Find the main course section ID for passing to the MenuChoicesTable
+  const mainsSectionId = sections.find(section => section.value === 'sec-mains')?.id;
   
   return <div className="space-y-6">
       <Button size="sm" onClick={() => setIsAddDialogOpen(true)} className="mb-4">
@@ -70,8 +73,11 @@ const MenuSectionsTable = () => {
                 <Separator className="mb-4" />
 
                 <div>
-                  {/* Pass the section's value instead of ID for proper identification */}
-                  <MenuChoicesTable sectionId={section.value === 'sec-mains' ? 'sec-mains' : section.id} />
+                  {/* Always pass the actual section ID, but also pass the section value as a separate prop */}
+                  <MenuChoicesTable 
+                    sectionId={section.id} 
+                    isMainCourseSection={section.value === 'sec-mains'} 
+                  />
                 </div>
               </div>)}
         </div>}
