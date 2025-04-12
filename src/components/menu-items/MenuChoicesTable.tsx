@@ -49,16 +49,9 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     }
   };
 
-  // Check if a choice is for main courses
+  // Simplified function that only checks if the choice belongs to the main courses section
   const isMainCourseChoice = (choice: MenuChoice) => {
-    // Check if the choice is a main course by value 
-    const mainCourseValues = ['buffet-menu', 'warm-karoo-feast', 'plated'];
-    const isMainByValue = mainCourseValues.includes(choice.value);
-    
-    // Or check if it belongs to the main courses section
-    const isMainBySection = sectionId === 'sec-mains';
-    
-    return isMainByValue || isMainBySection;
+    return sectionId === 'sec-mains';
   };
 
   const handleAddCategory = (choice: MenuChoice) => {
