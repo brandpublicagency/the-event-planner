@@ -1,15 +1,18 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
+import { PlusIcon, Pencil, Trash2, FolderPlus } from 'lucide-react';
 import { useMenuChoices } from '@/hooks/useMenuChoices';
 import MenuChoiceDialog from './MenuChoiceDialog';
 import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
+
 interface MenuChoicesTableProps {
   sectionId: string;
 }
+
 const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
   sectionId
 }) => {
@@ -27,20 +30,30 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     isUpdating,
     isDeleting
   } = useMenuChoices(sectionId);
+  
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
   const [showInlineForm, setShowInlineForm] = useState(false);
+
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
   };
+
   const handleDeleteClick = (choice: MenuChoice) => {
     setChoiceToDelete(choice);
   };
+
   const confirmDelete = () => {
     if (choiceToDelete) {
       handleDeleteChoice(choiceToDelete.id);
       setChoiceToDelete(null);
     }
   };
+
+  // Check if a choice is for main courses
+  const isMainCourseChoice = (value: string) => {
+    return ['buffet-menu', 'warm-karoo-feast'].includes(value);
+  };
+
   return <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-md font-medium text-base">Choices</h4>
@@ -63,6 +76,11 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)} className="h-6 w-6 text-zinc-400">
                       <Pencil className="h-3 w-3" />
                     </Button>
+                    {isMainCourseChoice(choice.value) && (
+                      <Button variant="ghost" size="icon" onClick={() => {}} className="h-6 w-6 text-zinc-400" title="Add Category">
+                        <FolderPlus className="h-3 w-3" />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(choice)} className="h-6 w-6 text-zinc-400">
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -101,4 +119,5 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
       </AlertDialog>
     </div>;
 };
+
 export default MenuChoicesTable;
