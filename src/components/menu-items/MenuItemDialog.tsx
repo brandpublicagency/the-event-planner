@@ -54,7 +54,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   title,
   choiceId,
 }) => {
-  const [categories, setCategories] = useState<string[]>([
+  const [defaultCategories] = useState<string[]>([
     "MEAT SELECTION",
     "VEGETABLES",
     "STARCH SELECTION",
@@ -68,14 +68,13 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   const categoryQueryKey = ['menu-categories', choiceId, categoryQueryTimestamp];
   
   // Fetch existing categories from menu items with timestamp in key to force refresh
-  const { data: existingCategories, refetch: refetchCategories } = useQuery({
+  const { data: existingCategories = [], refetch: refetchCategories } = useQuery({
     queryKey: categoryQueryKey,
     queryFn: async () => {
       console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} at timestamp ${categoryQueryTimestamp}`);
       const { data, error } = await supabase
         .from('menu_items')
         .select('category')
-        .eq('choice_id', choiceId)
         .not('category', 'is', null);
       
       if (error) {
@@ -97,15 +96,36 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     refetchInterval: 1000 // Refetch every second while open
   });
 
+  const allCategories = React.useMemo(() => {
+    // Combine default categories with existing ones, removing duplicates
+    const combinedCategories = [...defaultCategories];
+    
+    if (existingCategories && existingCategories.length > 0) {
+      existingCategories.forEach(category => {
+        if (!combinedCategories.includes(category)) {
+          combinedCategories.push(category);
+        }
+      });
+    }
+    
+    console.log("MenuItemDialog: Combined categories:", combinedCategories);
+    return combinedCategories;
+  }, [defaultCategories, existingCategories]);
+
   // Refetch categories when dialog opens
   useEffect(() => {
     if (open) {
       console.log("MenuItemDialog: Dialog opened, refetching categories");
+      
+      // Force immediate refresh
       refetchCategories();
       
       // Invalidate all category-related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      
+      // Also invalidate the menu items to ensure they're updated
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       
       // Set up periodic refresh while dialog is open
       const intervalId = setInterval(() => {
@@ -116,17 +136,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       return () => clearInterval(intervalId);
     }
   }, [open, refetchCategories, queryClient]);
-
-  // Update categories when data loads
-  useEffect(() => {
-    if (existingCategories && existingCategories.length > 0) {
-      // Combine default categories with existing ones, removing duplicates
-      const defaultCategories = ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
-      const allCategories = [...new Set([...defaultCategories, ...existingCategories])];
-      console.log("MenuItemDialog: Setting combined categories:", allCategories);
-      setCategories(allCategories);
-    }
-  }, [existingCategories]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -174,6 +183,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       image_url: null, // Keep this to maintain compatibility with the existing API
     };
     
+    console.log("Submitting menu item:", menuItemData);
     onSubmit(menuItemData);
   };
 
@@ -238,7 +248,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="no-category">No category</SelectItem>
-                        {categories.map(category => (
+                        {allCategories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
                       </SelectContent>

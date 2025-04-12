@@ -181,7 +181,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       if (error) throw error;
       
       // Fix for TS error: Check if data is null before accessing it
-      const updatedCount = data ? data.length : 0;
+      const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Updated ${updatedCount} items with new category name`);
       return { success: true };
     },
@@ -221,7 +221,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       if (error) throw error;
       
       // Fix for TS error: Check if data is null before accessing it
-      const updatedCount = data ? data.length : 0;
+      const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Removed category from ${updatedCount} items`);
       return { success: true };
     },

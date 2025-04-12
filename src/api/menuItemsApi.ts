@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type MenuItem = {
@@ -67,7 +68,7 @@ export const fetchMenuItems = async () => {
       category: item.category || null,
       choice_id: item.choice_id,
       choice: item.choice || '',
-      image_url: item.image_url || null,
+      image_url: null, // Force null for image_url as it's been removed from the schema
       display_order: item.display_order || 0,
       created_at: item.created_at,
       updated_at: item.updated_at
@@ -103,7 +104,7 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       category: item.category || null,
       choice_id: item.choice_id,
       choice: item.choice || '',
-      image_url: item.image_url || null,
+      image_url: null, // Force null for image_url as it's been removed from the schema
       display_order: item.display_order || 0,
       created_at: item.created_at,
       updated_at: item.updated_at
@@ -135,10 +136,10 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       category: menuItem.category,
       choice_id: menuItem.choice_id,
       choice: choiceData.value,
-      image_url: null,
       display_order: menuItem.display_order || 0
     };
 
+    console.log('Creating menu item with data:', itemToCreate);
     const { data, error } = await supabase
       .from('menu_items')
       .insert(itemToCreate)
@@ -150,6 +151,8 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       throw error;
     }
     
+    console.log('Created menu item:', data);
+    
     const createdItem: MenuItem = {
       id: data.id,
       value: data.value,
@@ -157,7 +160,7 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,
-      image_url: data.image_url || null,
+      image_url: null, // Add null for image_url as it's part of MenuItem type
       display_order: data.display_order || 0,
       created_at: data.created_at,
       updated_at: data.updated_at
@@ -172,6 +175,8 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
 
 export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormData>) => {
   try {
+    console.log(`Updating menu item ${id} with data:`, menuItem);
+    
     let itemToUpdate: any = { ...menuItem };
     
     if (menuItem.choice_id) {
@@ -189,8 +194,10 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       itemToUpdate.choice = choiceData.value;
     }
 
-    itemToUpdate.image_url = null;
-
+    // Remove image_url from update payload as it no longer exists in the schema
+    delete itemToUpdate.image_url;
+    
+    console.log('Final update payload:', itemToUpdate);
     const { data, error } = await supabase
       .from('menu_items')
       .update(itemToUpdate)
@@ -203,6 +210,8 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       throw error;
     }
     
+    console.log('Updated menu item:', data);
+    
     const updatedItem: MenuItem = {
       id: data.id,
       value: data.value,
@@ -210,7 +219,7 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       category: data.category || null,
       choice_id: data.choice_id,
       choice: data.choice,
-      image_url: data.image_url || null,
+      image_url: null, // Add null for image_url as it's part of MenuItem type
       display_order: data.display_order || 0,
       created_at: data.created_at,
       updated_at: data.updated_at
