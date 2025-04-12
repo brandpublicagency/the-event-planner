@@ -49,9 +49,16 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     }
   };
 
-  // Check if a choice is for main courses - updated to include plated
-  const isMainCourseChoice = (value: string) => {
-    return ['buffet-menu', 'warm-karoo-feast', 'plated'].includes(value);
+  // Check if a choice is for main courses
+  const isMainCourseChoice = (choice: MenuChoice) => {
+    // Check if the choice is a main course by value 
+    const mainCourseValues = ['buffet-menu', 'warm-karoo-feast', 'plated'];
+    const isMainByValue = mainCourseValues.includes(choice.value);
+    
+    // Or check if it belongs to the main courses section
+    const isMainBySection = sectionId === 'sec-mains';
+    
+    return isMainByValue || isMainBySection;
   };
 
   const handleAddCategory = (choice: MenuChoice) => {
@@ -81,7 +88,7 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(choice)} className="h-6 w-6 text-zinc-400">
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    {isMainCourseChoice(choice.value) && (
+                    {isMainCourseChoice(choice) && (
                       <Button 
                         variant="ghost" 
                         size="icon" 
