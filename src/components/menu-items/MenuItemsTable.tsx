@@ -70,7 +70,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         </div> : <DragDropContext onDragEnd={handleDragEnd}>
           {Object.entries(groupedItems).map(([category, categoryItems]) => <div key={category} className="mb-6">
               <Droppable droppableId={`category-${category}`} direction="vertical">
-                {provided => <div ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-400 rounded-md p-2">
+                {provided => <div ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-300 rounded-md p-2">
                     {/* Only show category label for actual categories (not "Uncategorized") */}
                     {category !== 'Uncategorized' && <div className="mb-1 px-1">
                         <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
