@@ -24,27 +24,16 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
     const refreshCategories = () => {
       console.log("CategoryManagerDialog: Refreshing category data");
       
-      // Use a timestamp to force cache invalidation
-      const timestamp = Date.now();
-      
       // Invalidate all related category queries with different patterns used across the app
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Also invalidate with timestamp to force refresh
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', timestamp] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories', timestamp] });
       
       // Also invalidate the specific query for this choice
       if (choiceId) {
         queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
         queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
         queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
-        
-        // Timestamp versions
-        queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId, timestamp] });
-        queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId, timestamp] });
       }
     };
     
@@ -87,7 +76,7 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
           <DialogTitle>Manage Categories for {choiceLabel}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <CategoryManager choiceId={choiceId} />
+          {open && <CategoryManager choiceId={choiceId} />}
         </div>
       </DialogContent>
     </Dialog>
