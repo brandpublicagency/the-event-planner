@@ -21,52 +21,14 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
   
   // Force a refresh of category data when dialog opens or closes
   useEffect(() => {
-    const refreshCategories = () => {
-      console.log("CategoryManagerDialog: Refreshing category data");
-      
-      // Invalidate all related category queries with different patterns used across the app
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Also invalidate the specific query for this choice
-      if (choiceId) {
-        queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
-        queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
-        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
-      }
-    };
-    
-    // Refresh when dialog opens and closes
-    console.log(`CategoryManagerDialog state changed: open=${open} for: ${choiceLabel} (${choiceId})`);
-    refreshCategories();
-    
-    // Set up a periodic refresh while the dialog is open
-    let intervalId: number | undefined;
     if (open) {
-      // Initial refresh
-      refreshCategories();
+      console.log(`CategoryManagerDialog opened for: ${choiceLabel} (${choiceId})`);
       
-      // Then set interval
-      intervalId = window.setInterval(() => {
-        console.log("CategoryManagerDialog: Periodic category refresh");
-        refreshCategories();
-      }, 2000); // Refresh every 2 seconds
+      // Immediately invalidate queries to force fresh data
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
+      queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
     }
-    
-    return () => {
-      if (intervalId) {
-        window.clearInterval(intervalId);
-      }
-      
-      // One final refresh when component unmounts to ensure latest data
-      if (open) {
-        setTimeout(() => {
-          console.log("CategoryManagerDialog: Final refresh on unmount");
-          refreshCategories();
-        }, 500);
-      }
-    };
   }, [open, queryClient, choiceId, choiceLabel]);
   
   return (
@@ -76,6 +38,7 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
           <DialogTitle>Manage Categories for {choiceLabel}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
+          {/* Always render the CategoryManager when the dialog is open */}
           {open && <CategoryManager choiceId={choiceId} />}
         </div>
       </DialogContent>
