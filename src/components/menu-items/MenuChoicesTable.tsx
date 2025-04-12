@@ -54,6 +54,11 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     return ['buffet-menu', 'warm-karoo-feast', 'plated'].includes(value);
   };
 
+  const handleAddCategory = (choice: MenuChoice) => {
+    console.log("Add category clicked for choice:", choice);
+    // Here you would implement the category add logic
+  };
+
   return <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-md font-medium text-base">Choices</h4>
@@ -77,7 +82,13 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
                       <Pencil className="h-3 w-3" />
                     </Button>
                     {isMainCourseChoice(choice.value) && (
-                      <Button variant="ghost" size="icon" onClick={() => {}} className="h-6 w-6 text-zinc-400" title="Add Category">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleAddCategory(choice)} 
+                        className="h-6 w-6 text-zinc-400" 
+                        title="Add Category"
+                      >
                         <FolderPlus className="h-3 w-3" />
                       </Button>
                     )}
