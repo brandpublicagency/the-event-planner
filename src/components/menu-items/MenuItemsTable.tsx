@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Trash2, GripVertical, Plus } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
 type MenuItemsTableProps = {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
@@ -12,6 +13,7 @@ type MenuItemsTableProps = {
   isDeleting: boolean;
   onAddItem?: (category: string | null) => void;
 };
+
 const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   items,
   onEdit,
@@ -21,27 +23,25 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   onAddItem
 }) => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
+
   const handleDelete = () => {
     if (itemToDelete) {
       onDelete(itemToDelete.id);
       setItemToDelete(null);
     }
   };
+
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
 
-    // If dragging between different categories, we need to handle differently
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
 
-    // Make a copy of the items
     const reorderedItems = [...items];
 
-    // If dragging within the same category
     const [reorderedItem] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, reorderedItem);
 
-    // If category changed, update the item's category
     if (sourceDroppableId !== destinationDroppableId) {
       const categoryId = destinationDroppableId.replace('category-', '');
       if (categoryId !== 'Uncategorized') {
@@ -53,7 +53,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     onReorder(reorderedItems);
   };
 
-  // Group items by category
   const groupedItems: {
     [key: string]: MenuItem[];
   } = {};
@@ -64,6 +63,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
     groupedItems[category].push(item);
   });
+
   return <div className="space-y-4">
       {items.length === 0 ? <div className="text-center py-4 text-gray-500">
           No menu items found
@@ -71,7 +71,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           {Object.entries(groupedItems).map(([category, categoryItems]) => <div key={category} className="mb-6">
               <Droppable droppableId={`category-${category}`} direction="vertical">
                 {provided => <div ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-300 rounded-md p-2">
-                    {/* Only show category label for actual categories (not "Uncategorized") */}
                     {category !== 'Uncategorized' && <div className="mb-1 px-1">
                         <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
                           {category}
@@ -105,9 +104,8 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                       </Draggable>)}
                     {provided.placeholder}
                     
-                    {/* Add Item button inside each category container */}
                     {onAddItem && <div className="pt-2 py-[9px]">
-                        <Button variant="ghost" size="sm" onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} className="w-full flex items-center justify-center border border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-500 py-[6px]">
+                        <Button variant="ghost" size="sm" onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} className="w-full flex items-center justify-center border border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-500 py-[10px]">
                           <Plus className="h-3.5 w-3.5 mr-1" />
                           Add Item
                         </Button>
@@ -135,4 +133,5 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
       </AlertDialog>
     </div>;
 };
+
 export default MenuItemsTable;
