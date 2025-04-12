@@ -8,6 +8,7 @@ import MenuItemsManager from './MenuItemsManager';
 import MenuChoiceInlineForm from './MenuChoiceInlineForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MenuChoice } from '@/api/menuItemsApi';
+import CategoryManagerDialog from './CategoryManagerDialog';
 
 interface MenuChoicesTableProps {
   sectionId: string;
@@ -35,6 +36,8 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
   
   const [choiceToDelete, setChoiceToDelete] = useState<MenuChoice | null>(null);
   const [showInlineForm, setShowInlineForm] = useState(false);
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [selectedChoice, setSelectedChoice] = useState<MenuChoice | null>(null);
 
   const handleEditClick = (choice: MenuChoice) => {
     setEditingChoice(choice);
@@ -53,7 +56,8 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
 
   const handleAddCategory = (choice: MenuChoice) => {
     console.log("Add category clicked for choice:", choice);
-    // Here you would implement the category add logic
+    setSelectedChoice(choice);
+    setIsCategoryDialogOpen(true);
   };
 
   return <div className="space-y-4">
@@ -125,6 +129,16 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Manager Dialog */}
+      {selectedChoice && (
+        <CategoryManagerDialog 
+          open={isCategoryDialogOpen} 
+          onOpenChange={setIsCategoryDialogOpen} 
+          choiceId={selectedChoice.id}
+          choiceLabel={selectedChoice.label}
+        />
+      )}
     </div>;
 };
 
