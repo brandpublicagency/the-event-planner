@@ -56,15 +56,27 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
     // Set up a periodic refresh while the dialog is open
     let intervalId: number | undefined;
     if (open) {
+      // Initial refresh
+      refreshCategories();
+      
+      // Then set interval
       intervalId = window.setInterval(() => {
         console.log("CategoryManagerDialog: Periodic category refresh");
         refreshCategories();
-      }, 1000); // Refresh every second while dialog is open
+      }, 2000); // Increase to every 2 seconds to reduce load
     }
     
     return () => {
       if (intervalId) {
         window.clearInterval(intervalId);
+      }
+      
+      // One final refresh when component unmounts to ensure latest data
+      if (open) {
+        setTimeout(() => {
+          console.log("CategoryManagerDialog: Final refresh on unmount");
+          refreshCategories();
+        }, 500);
       }
     };
   }, [open, queryClient, choiceId, choiceLabel]);

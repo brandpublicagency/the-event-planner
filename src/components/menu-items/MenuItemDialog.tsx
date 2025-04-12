@@ -66,17 +66,25 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
 
   // Generate a unique query key with timestamp to force refresh
   const categoryQueryTimestamp = Date.now();
-  const categoryQueryKey = ['menu-categories', choiceId, categoryQueryTimestamp];
   
-  // Fetch existing categories from menu items with timestamp in key to force refresh
+  // Fix: Include choiceId in the query to get choice-specific categories
+  // This was the root cause of categories not showing up in the dropdown
   const { data: existingCategories = [], isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
-    queryKey: categoryQueryKey,
+    queryKey: ['menu-categories', choiceId, categoryQueryTimestamp],
     queryFn: async () => {
       console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} at timestamp ${categoryQueryTimestamp}`);
-      const { data, error } = await supabase
+      
+      // Query now properly filters by choice_id when available
+      let query = supabase
         .from('menu_items')
         .select('category')
         .not('category', 'is', null);
+      
+      if (choiceId) {
+        query = query.eq('choice_id', choiceId);
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         console.error("Error fetching categories:", error);
@@ -87,14 +95,14 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       if (data && Array.isArray(data)) {
         // Extract unique categories
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
-        console.log(`MenuItemDialog: Found ${uniqueCategories.length} categories:`, uniqueCategories);
+        console.log(`MenuItemDialog: Found ${uniqueCategories.length} categories for choice ${choiceId}:`, uniqueCategories);
         return uniqueCategories as string[];
       }
       return [];
     },
     enabled: open, // Only fetch when dialog is open
     staleTime: 0, // Always refetch when opened
-    refetchInterval: 500, // Refetch more frequently to catch new categories
+    refetchInterval: 1000, // Increased refetch frequency to catch new categories faster
     refetchOnWindowFocus: true
   });
 
@@ -126,6 +134,12 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
       
+      // Specifically invalidate queries for this choice
+      if (choiceId) {
+        queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
+        queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      }
+      
       // Also invalidate the menu items to ensure they're updated
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       
@@ -133,11 +147,11 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       const intervalId = setInterval(() => {
         console.log("MenuItemDialog: Periodic refresh");
         refetchCategories();
-      }, 500); // Reduce interval to catch changes faster
+      }, 1000); // Reduce interval to catch changes faster
       
       return () => clearInterval(intervalId);
     }
-  }, [open, refetchCategories, queryClient]);
+  }, [open, refetchCategories, queryClient, choiceId]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -165,8 +179,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     }
   }, [label, form, initialData]);
 
-  // Determine if we need to show category selection 
-  // Always show the field for now
+  // Always show the category field
   const showCategoryField = true;
 
   const handleSubmit = (values: FormValues) => {

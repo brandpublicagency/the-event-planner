@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,7 +136,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
           label: `Placeholder for ${name}`,
           value: `placeholder-${name.toLowerCase().replace(/\s+/g, '-')}`,
           category: name,
-          choice_id: choiceId,
+          choice_id: choiceId || '00000000-0000-0000-0000-000000000000', // Use a fallback ID if none provided
           choice: 'placeholder'
         })
         .select();
@@ -147,6 +146,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       // Check if data is array before accessing it
       const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Added placeholder item with category "${name}":`, updatedCount > 0 ? data : 'No data returned');
+      
+      // Return the newly created category
       return { name, id: name };
     },
     onSuccess: (_, newCategoryName) => {
@@ -169,6 +170,30 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   const editCategoryMutation = useMutation({
     mutationFn: async ({ oldName, newName }: { oldName: string, newName: string }) => {
       console.log(`CategoryManager: Updating category from "${oldName}" to "${newName}"`);
+      
+      // First, check if any items exist with this category and choice_id
+      let queryCheck = supabase
+        .from('menu_items')
+        .select('id')
+        .eq('category', oldName);
+      
+      if (choiceId) {
+        queryCheck = queryCheck.eq('choice_id', choiceId);
+      }
+      
+      const { data: checkData, error: checkError } = await queryCheck;
+      
+      if (checkError) {
+        throw checkError;
+      }
+      
+      // If no items found, we can't update - the category doesn't exist for this choice
+      if (!checkData || checkData.length === 0) {
+        console.log(`No items found with category "${oldName}" for choice ${choiceId}`);
+        throw new Error(`No items found with category "${oldName}"`);
+      }
+      
+      // Now update all items with the matching category
       let query = supabase
         .from('menu_items')
         .update({ category: newName })
@@ -183,29 +208,45 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Define the correct type for data to avoid "never" type issue
-      type QueryResponse = any[] | null;
-      const responseData = data as QueryResponse;
-      
-      // Now safely access length with proper type checking
-      const updatedCount = responseData ? responseData.length : 0;
-      console.log(`CategoryManager: Updated ${updatedCount} items with new category name`);
-      return { success: true };
+      console.log(`CategoryManager: Updated items with new category name`);
+      return { success: true, oldName, newName };
     },
-    onSuccess: () => {
-      toast.success('Category updated successfully');
+    onSuccess: (result) => {
+      if (result && result.oldName && result.newName) {
+        toast.success(`Category "${result.oldName}" updated to "${result.newName}"`);
+      } else {
+        toast.success('Category updated successfully');
+      }
+      
       console.log("CategoryManager: Category updated successfully");
       
       // Force immediate refresh of all relevant queries
       refreshAllCategoryQueries();
       
+      // Clear edit state
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
       setEditCategoryName('');
+      
+      // Additional cleanup: refetch after a short delay to ensure UI is updated
+      setTimeout(() => {
+        refetch();
+      }, 500);
     },
     onError: (error: any) => {
       toast.error(`Error updating category: ${error.message}`);
       console.error("CategoryManager: Error updating category:", error);
+      
+      // Keep dialog open in case of error so user can try again
+      // But clear selection if it's a fatal error
+      if (error.message.includes("No items found")) {
+        setIsEditDialogOpen(false);
+        setSelectedCategory(null);
+        setEditCategoryName('');
+        
+        // Refresh to get latest state
+        refreshAllCategoryQueries();
+      }
     }
   });
   
@@ -213,6 +254,30 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   const deleteCategoryMutation = useMutation({
     mutationFn: async (categoryName: string) => {
       console.log(`CategoryManager: Deleting category: ${categoryName}`);
+      
+      // First, check if any items exist with this category and choice_id
+      let queryCheck = supabase
+        .from('menu_items')
+        .select('id')
+        .eq('category', categoryName);
+      
+      if (choiceId) {
+        queryCheck = queryCheck.eq('choice_id', choiceId);
+      }
+      
+      const { data: checkData, error: checkError } = await queryCheck;
+      
+      if (checkError) {
+        throw checkError;
+      }
+      
+      // If no items found, we can't delete - the category doesn't exist for this choice
+      if (!checkData || checkData.length === 0) {
+        console.log(`No items found with category "${categoryName}" for choice ${choiceId}`);
+        throw new Error(`No items found with category "${categoryName}"`);
+      }
+      
+      // Now update all items with the matching category
       let query = supabase
         .from('menu_items')
         .update({ category: null })
@@ -227,17 +292,16 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Define the correct type for data to avoid "never" type issue
-      type QueryResponse = any[] | null;
-      const responseData = data as QueryResponse;
-      
-      // Now safely access length with proper type checking
-      const updatedCount = responseData ? responseData.length : 0;
-      console.log(`CategoryManager: Removed category from ${updatedCount} items`);
-      return { success: true };
+      console.log(`CategoryManager: Removed category from items`);
+      return { success: true, categoryName };
     },
-    onSuccess: () => {
-      toast.success('Category deleted successfully');
+    onSuccess: (result) => {
+      if (result && result.categoryName) {
+        toast.success(`Category "${result.categoryName}" deleted successfully`);
+      } else {
+        toast.success('Category deleted successfully');
+      }
+      
       console.log("CategoryManager: Category deleted successfully");
       
       // Force immediate refresh of all relevant queries
@@ -245,10 +309,25 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
+      
+      // Additional cleanup: refetch after a short delay to ensure UI is updated
+      setTimeout(() => {
+        refetch();
+      }, 500);
     },
     onError: (error: any) => {
       toast.error(`Error deleting category: ${error.message}`);
       console.error("CategoryManager: Error deleting category:", error);
+      
+      // Keep dialog open in case of error so user can try again
+      // But clear selection if it's a fatal error
+      if (error.message.includes("No items found")) {
+        setIsDeleteDialogOpen(false);
+        setSelectedCategory(null);
+        
+        // Refresh to get latest state
+        refreshAllCategoryQueries();
+      }
     }
   });
   
@@ -279,6 +358,14 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       toast.error('Category name cannot be empty');
       return;
     }
+    
+    // Check if name hasn't changed
+    if (editCategoryName.trim() === selectedCategory.name) {
+      toast.info('Category name was not changed');
+      setIsEditDialogOpen(false);
+      return;
+    }
+    
     editCategoryMutation.mutate({ 
       oldName: selectedCategory.name, 
       newName: editCategoryName.trim() 
@@ -286,7 +373,10 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   };
   
   const handleDeleteCategory = () => {
-    if (!selectedCategory) return;
+    if (!selectedCategory) {
+      toast.error('No category selected for deletion');
+      return;
+    }
     deleteCategoryMutation.mutate(selectedCategory.name);
   };
   
@@ -345,8 +435,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
                   size="sm"
                   onClick={() => openEditDialog(category)}
                   className="h-9 px-2.5"
+                  disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
                 >
-                  <Edit className="h-4 w-4 text-blue-500" />
+                  {editCategoryMutation.isPending && selectedCategory?.id === category.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                  ) : (
+                    <Edit className="h-4 w-4 text-blue-500" />
+                  )}
                   <span className="sr-only">Edit</span>
                 </Button>
                 <Button 
@@ -354,8 +449,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
                   size="sm"
                   onClick={() => openDeleteDialog(category)}
                   className="h-9 px-2.5"
+                  disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending}
                 >
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  {deleteCategoryMutation.isPending && selectedCategory?.id === category.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-red-500" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  )}
                   <span className="sr-only">Delete</span>
                 </Button>
               </div>
@@ -382,12 +482,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
             <Button 
               variant="outline" 
               onClick={() => setIsAddDialogOpen(false)}
+              disabled={addCategoryMutation.isPending}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleAddCategory}
-              disabled={addCategoryMutation.isPending}
+              disabled={addCategoryMutation.isPending || !newCategoryName.trim()}
             >
               {addCategoryMutation.isPending ? (
                 <>
@@ -401,7 +502,15 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       </Dialog>
       
       {/* Edit Category Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+        if (!editCategoryMutation.isPending) {
+          setIsEditDialogOpen(open);
+          if (!open) {
+            setSelectedCategory(null);
+            setEditCategoryName('');
+          }
+        }
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
@@ -418,12 +527,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
             <Button 
               variant="outline" 
               onClick={() => setIsEditDialogOpen(false)}
+              disabled={editCategoryMutation.isPending}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleEditCategory}
-              disabled={editCategoryMutation.isPending}
+              disabled={editCategoryMutation.isPending || !editCategoryName.trim()}
             >
               {editCategoryMutation.isPending ? (
                 <>
@@ -437,7 +547,14 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       </Dialog>
       
       {/* Delete Category Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => {
+        if (!deleteCategoryMutation.isPending) {
+          setIsDeleteDialogOpen(open);
+          if (!open) {
+            setSelectedCategory(null);
+          }
+        }
+      }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -447,9 +564,12 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteCategoryMutation.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDeleteCategory}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent the dialog from closing automatically
+                handleDeleteCategory();
+              }}
               disabled={deleteCategoryMutation.isPending}
               className="bg-red-500 hover:bg-red-600"
             >
