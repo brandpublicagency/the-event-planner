@@ -64,7 +64,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   const queryClient = useQueryClient();
 
   // Generate a unique query key with timestamp to force refresh
-  const categoryQueryTimestamp = open ? Date.now() : 0;
+  const categoryQueryTimestamp = Date.now();
   const categoryQueryKey = ['menu-categories', choiceId, categoryQueryTimestamp];
   
   // Fetch existing categories from menu items with timestamp in key to force refresh
@@ -93,7 +93,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     },
     enabled: open, // Only fetch when dialog is open
     staleTime: 0, // Always refetch when opened
-    refetchInterval: 1000 // Refetch every second while open
+    refetchInterval: 500 // Refetch more frequently to catch new categories
   });
 
   const allCategories = React.useMemo(() => {
@@ -131,7 +131,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       const intervalId = setInterval(() => {
         console.log("MenuItemDialog: Periodic refresh");
         refetchCategories();
-      }, 1000);
+      }, 500); // Reduce interval to catch changes faster
       
       return () => clearInterval(intervalId);
     }
@@ -246,7 +246,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="no-category">No category</SelectItem>
                         {allCategories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
