@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Pencil, Trash2 } from 'lucide-react';
@@ -7,6 +8,7 @@ import MenuChoicesTable from './MenuChoicesTable';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MenuSection } from '@/api/menuItemsApi';
 import { Separator } from "@/components/ui/separator";
+
 const MenuSectionsTable = () => {
   const {
     sections,
@@ -22,19 +24,24 @@ const MenuSectionsTable = () => {
     isUpdating,
     isDeleting
   } = useMenuSections();
+  
   const [sectionToDelete, setSectionToDelete] = useState<MenuSection | null>(null);
+  
   const handleEditClick = (section: MenuSection) => {
     setEditingSection(section);
   };
+  
   const handleDeleteClick = (section: MenuSection) => {
     setSectionToDelete(section);
   };
+  
   const confirmDelete = () => {
     if (sectionToDelete) {
       handleDeleteSection(sectionToDelete.id);
       setSectionToDelete(null);
     }
   };
+  
   return <div className="space-y-6">
       <Button size="sm" onClick={() => setIsAddDialogOpen(true)} className="mb-4">
         <PlusIcon className="h-4 w-4 mr-2" />
@@ -63,7 +70,8 @@ const MenuSectionsTable = () => {
                 <Separator className="mb-4" />
 
                 <div>
-                  <MenuChoicesTable sectionId={section.id} />
+                  {/* Pass the section's value instead of ID for proper identification */}
+                  <MenuChoicesTable sectionId={section.value === 'sec-mains' ? 'sec-mains' : section.id} />
                 </div>
               </div>)}
         </div>}
@@ -94,4 +102,5 @@ const MenuSectionsTable = () => {
       </AlertDialog>
     </div>;
 };
+
 export default MenuSectionsTable;
