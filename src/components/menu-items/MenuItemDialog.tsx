@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface MenuItemDialogProps {
   open: boolean;
@@ -68,7 +69,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   const categoryQueryKey = ['menu-categories', choiceId, categoryQueryTimestamp];
   
   // Fetch existing categories from menu items with timestamp in key to force refresh
-  const { data: existingCategories = [], refetch: refetchCategories } = useQuery({
+  const { data: existingCategories = [], isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
     queryKey: categoryQueryKey,
     queryFn: async () => {
       console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} at timestamp ${categoryQueryTimestamp}`);
@@ -93,7 +94,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     },
     enabled: open, // Only fetch when dialog is open
     staleTime: 0, // Always refetch when opened
-    refetchInterval: 500 // Refetch more frequently to catch new categories
+    refetchInterval: 500, // Refetch more frequently to catch new categories
+    refetchOnWindowFocus: true
   });
 
   const allCategories = React.useMemo(() => {
@@ -246,11 +248,20 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-white">
+                      <SelectContent className="bg-white max-h-60">
                         <SelectItem value="no-category">No category</SelectItem>
-                        {allCategories.map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
-                        ))}
+                        {isLoadingCategories ? (
+                          <div className="flex items-center justify-center py-2">
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <span>Loading categories...</span>
+                          </div>
+                        ) : allCategories.length === 0 ? (
+                          <div className="p-2 text-sm text-muted-foreground">No categories found</div>
+                        ) : (
+                          allCategories.map(category => (
+                            <SelectItem key={category} value={category}>{category}</SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -280,7 +291,12 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : 'Save'}
               </Button>
             </DialogFooter>
           </form>

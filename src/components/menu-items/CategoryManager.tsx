@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -82,7 +82,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       return [];
     },
     staleTime: 0, // Always fetch fresh data
-    refetchInterval: 1000 // Refetch every second
+    refetchInterval: 1000, // Refetch every second
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: true, // Refetch when component mounts
   });
   
   // Helper function to force refresh all category-related queries
@@ -142,7 +144,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Check if data is array before accessing it
+      // Check if data is array before accessing it
       const updatedCount = data ? (Array.isArray(data) ? data.length : 0) : 0;
       console.log(`CategoryManager: Added placeholder item with category "${name}":`, updatedCount > 0 ? data : 'No data returned');
       return { name, id: name };
@@ -181,8 +183,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Define the correct type for data to avoid "never" type issue
-      // By explicitly typing the response data, we can avoid the "Property 'length' does not exist on type 'never'" error
+      // Define the correct type for data to avoid "never" type issue
       type QueryResponse = any[] | null;
       const responseData = data as QueryResponse;
       
@@ -226,8 +227,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       
       if (error) throw error;
       
-      // Fix for TS error: Define the correct type for data to avoid "never" type issue
-      // By explicitly typing the response data, we can avoid the "Property 'length' does not exist on type 'never'" error
+      // Define the correct type for data to avoid "never" type issue
       type QueryResponse = any[] | null;
       const responseData = data as QueryResponse;
       
@@ -312,35 +312,51 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       </div>
       
       {isLoading ? (
-        <div className="text-center py-4">Loading categories...</div>
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-sm text-muted-foreground">Loading categories...</span>
+        </div>
       ) : categories.length === 0 ? (
-        <div className="text-center py-4 text-gray-500">
-          No categories found. Add your first category to organize menu items.
+        <div className="text-center py-8 border rounded-md bg-muted/20">
+          <p className="text-muted-foreground">
+            No categories found. Add your first category to organize menu items.
+          </p>
+          <Button 
+            onClick={() => setIsAddDialogOpen(true)} 
+            variant="outline" 
+            size="sm" 
+            className="mt-2"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Category
+          </Button>
         </div>
       ) : (
         <div className="grid gap-2">
           {categories.map((category) => (
             <div 
               key={category.id}
-              className="flex justify-between items-center p-2 border rounded-md bg-white"
+              className="flex justify-between items-center p-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
             >
-              <span>{category.name}</span>
-              <div className="flex space-x-1">
+              <span className="font-medium">{category.name}</span>
+              <div className="flex space-x-2">
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="sm"
                   onClick={() => openEditDialog(category)}
-                  className="h-8 w-8"
+                  className="h-9 px-2.5"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4 text-blue-500" />
+                  <span className="sr-only">Edit</span>
                 </Button>
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="sm"
                   onClick={() => openDeleteDialog(category)}
-                  className="h-8 w-8"
+                  className="h-9 px-2.5"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <span className="sr-only">Delete</span>
                 </Button>
               </div>
             </div>
@@ -359,6 +375,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
               placeholder="Category name"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
+              autoFocus
             />
           </div>
           <DialogFooter>
@@ -372,7 +389,12 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
               onClick={handleAddCategory}
               disabled={addCategoryMutation.isPending}
             >
-              {addCategoryMutation.isPending ? 'Adding...' : 'Add Category'}
+              {addCategoryMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : 'Add Category'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -389,6 +411,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
               placeholder="Category name"
               value={editCategoryName}
               onChange={(e) => setEditCategoryName(e.target.value)}
+              autoFocus
             />
           </div>
           <DialogFooter>
@@ -402,7 +425,12 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
               onClick={handleEditCategory}
               disabled={editCategoryMutation.isPending}
             >
-              {editCategoryMutation.isPending ? 'Updating...' : 'Update Category'}
+              {editCategoryMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : 'Update Category'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -423,8 +451,14 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
             <AlertDialogAction 
               onClick={handleDeleteCategory}
               disabled={deleteCategoryMutation.isPending}
+              className="bg-red-500 hover:bg-red-600"
             >
-              {deleteCategoryMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteCategoryMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CategoryManager from './CategoryManager';
 import { useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 interface CategoryManagerDialogProps {
   open: boolean;
@@ -74,9 +75,15 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Manage Categories for {choiceLabel}</DialogTitle>
         </DialogHeader>
-        <div className="py-4">
-          <CategoryManager choiceId={choiceId} />
-        </div>
+        {!open ? (
+          <div className="py-10 flex justify-center items-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : (
+          <div className="py-4">
+            <CategoryManager choiceId={choiceId} />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
