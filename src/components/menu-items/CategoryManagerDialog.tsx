@@ -63,7 +63,7 @@ const CategoryManagerDialog: React.FC<CategoryManagerDialogProps> = ({
       intervalId = window.setInterval(() => {
         console.log("CategoryManagerDialog: Periodic category refresh");
         refreshCategories();
-      }, 2000); // Increase to every 2 seconds to reduce load
+      }, 2000); // Refresh every 2 seconds
     }
     
     return () => {
