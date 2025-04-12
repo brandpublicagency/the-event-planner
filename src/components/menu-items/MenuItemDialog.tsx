@@ -60,10 +60,11 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     "SALAD"
   ]);
 
-  // Fetch existing categories from menu items
-  const { data: existingCategories } = useQuery({
-    queryKey: ['menu-categories', choiceId],
+  // Fetch existing categories from menu items with a unique key that includes a timestamp
+  const { data: existingCategories, refetch: refetchCategories } = useQuery({
+    queryKey: ['menu-categories', choiceId, Date.now()],
     queryFn: async () => {
+      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId}`);
       const { data } = await supabase
         .from('menu_items')
         .select('category')
@@ -73,6 +74,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       if (data) {
         // Extract unique categories
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
+        console.log(`MenuItemDialog: Found ${uniqueCategories.length} categories:`, uniqueCategories);
         return uniqueCategories as string[];
       }
       return [];
@@ -81,12 +83,21 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     staleTime: 0 // Always refetch when dialog opens
   });
 
+  // Refetch categories when dialog opens
+  useEffect(() => {
+    if (open) {
+      console.log("MenuItemDialog: Dialog opened, refetching categories");
+      refetchCategories();
+    }
+  }, [open, refetchCategories]);
+
   // Update categories when data loads
   useEffect(() => {
     if (existingCategories && existingCategories.length > 0) {
       // Combine default categories with existing ones, removing duplicates
       const defaultCategories = ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
       const allCategories = [...new Set([...defaultCategories, ...existingCategories])];
+      console.log("MenuItemDialog: Setting combined categories:", allCategories);
       setCategories(allCategories);
     }
   }, [existingCategories]);

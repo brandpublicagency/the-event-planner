@@ -43,10 +43,14 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
   
   const queryClient = useQueryClient();
 
+  // Use a unique query key that includes the timestamp to force refresh
+  const categoryQueryKey = ['menu-categories-list', choiceId, Date.now()];
+  
   // Modified to fetch categories either for a specific choice or globally
-  const { data: categories = [], isLoading } = useQuery({
-    queryKey: ['menu-categories-list', choiceId],
+  const { data: categories = [], isLoading, refetch } = useQuery({
+    queryKey: categoryQueryKey,
     queryFn: async () => {
+      console.log(`CategoryManager: Fetching categories for choice: ${choiceId || 'all'}`);
       let query = supabase
         .from('menu_items')
         .select('category')
@@ -62,41 +66,53 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
       if (data) {
         // Extract unique categories and format them
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
+        console.log(`CategoryManager: Found ${uniqueCategories.length} categories`, uniqueCategories);
         return uniqueCategories.map(name => ({ 
           name, 
           id: name // Using the name as ID since categories don't have their own table
         }));
       }
       return [];
-    }
+    },
+    staleTime: 0 // Always fetch fresh data
   });
   
   // Mutation for adding a new category (actually updates menu items with new category)
   const addCategoryMutation = useMutation({
     mutationFn: async (name: string) => {
+      console.log(`CategoryManager: Adding new category: ${name}`);
       // This is a dummy action since we don't have a categories table
       // In a real scenario, you'd insert into a categories table
       return { name, id: name };
     },
-    onSuccess: () => {
+    onSuccess: (_, newCategoryName) => {
       toast.success('Category added successfully');
-      // Invalidate both the categories list and menu items queries to force a refresh
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      console.log(`CategoryManager: Category "${newCategoryName}" added successfully`);
+      
+      // Force immediate refresh of all relevant queries
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      if (choiceId) {
-        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
-      }
+      
+      // Force refetch after a short delay to ensure DB has updated
+      setTimeout(() => {
+        console.log("CategoryManager: Performing delayed refetch after category add");
+        refetch();
+      }, 500);
+      
       setIsAddDialogOpen(false);
       setNewCategoryName('');
     },
     onError: (error: any) => {
       toast.error(`Error adding category: ${error.message}`);
+      console.error("CategoryManager: Error adding category:", error);
     }
   });
   
   // Mutation for editing a category (updates all menu items with the old category)
   const editCategoryMutation = useMutation({
     mutationFn: async ({ oldName, newName }: { oldName: string, newName: string }) => {
+      console.log(`CategoryManager: Updating category from "${oldName}" to "${newName}"`);
       let query = supabase
         .from('menu_items')
         .update({ category: newName })
@@ -114,23 +130,33 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     },
     onSuccess: () => {
       toast.success('Category updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      console.log("CategoryManager: Category updated successfully");
+      
+      // Force immediate refresh of all relevant queries
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      if (choiceId) {
-        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
-      }
+      
+      // Force refetch after a short delay to ensure DB has updated
+      setTimeout(() => {
+        console.log("CategoryManager: Performing delayed refetch after category update");
+        refetch();
+      }, 500);
+      
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
       setEditCategoryName('');
     },
     onError: (error: any) => {
       toast.error(`Error updating category: ${error.message}`);
+      console.error("CategoryManager: Error updating category:", error);
     }
   });
   
   // Mutation for deleting a category (removes category from menu items)
   const deleteCategoryMutation = useMutation({
     mutationFn: async (categoryName: string) => {
+      console.log(`CategoryManager: Deleting category: ${categoryName}`);
       let query = supabase
         .from('menu_items')
         .update({ category: null })
@@ -148,18 +174,33 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ choiceId }) => {
     },
     onSuccess: () => {
       toast.success('Category deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
+      console.log("CategoryManager: Category deleted successfully");
+      
+      // Force immediate refresh of all relevant queries
+      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      if (choiceId) {
-        queryClient.invalidateQueries({ queryKey: ['menuItems', choiceId] });
-      }
+      
+      // Force refetch after a short delay to ensure DB has updated
+      setTimeout(() => {
+        console.log("CategoryManager: Performing delayed refetch after category delete");
+        refetch();
+      }, 500);
+      
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
     },
     onError: (error: any) => {
       toast.error(`Error deleting category: ${error.message}`);
+      console.error("CategoryManager: Error deleting category:", error);
     }
   });
+  
+  // Force refetch when component mounts
+  useEffect(() => {
+    console.log("CategoryManager: Initial load - forcing refetch");
+    refetch();
+  }, [refetch]);
   
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) {
