@@ -49,9 +49,9 @@ const MenuChoicesTable: React.FC<MenuChoicesTableProps> = ({
     }
   };
 
-  // Check if a choice is for main courses
+  // Check if a choice is for main courses - updated to include plated
   const isMainCourseChoice = (value: string) => {
-    return ['buffet-menu', 'warm-karoo-feast'].includes(value);
+    return ['buffet-menu', 'warm-karoo-feast', 'plated'].includes(value);
   };
 
   return <div className="space-y-4">
