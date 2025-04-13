@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -56,26 +55,19 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   choiceId,
 }) => {
   const [defaultCategories] = useState<string[]>([
-    "MEAT SELECTION",
-    "VEGETABLES",
-    "STARCH SELECTION",
-    "SALAD"
+    "MEAT SELECTION"
   ]);
   
   const queryClient = useQueryClient();
   
-  // Create a stable query key that doesn't change on every render
-  // but does update when choiceId or initialData changes
   const stableId = initialData?.id || 'new';
   const queryKey = ['menu-categories', choiceId, stableId];
   
-  // Query specifically filtered by choiceId for choice-specific categories
   const { data: existingCategories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: queryKey,
     queryFn: async () => {
       console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} with item: ${stableId}`);
       
-      // Ensure we're querying by choice_id to get only relevant categories
       const { data, error } = await supabase
         .from('menu_items')
         .select('category')
@@ -89,19 +81,17 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       }
       
       if (data && Array.isArray(data)) {
-        // Extract unique categories
         const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
         console.log(`MenuItemDialog: Found ${uniqueCategories.length} categories for choice ${choiceId}:`, uniqueCategories);
         return uniqueCategories as string[];
       }
       return [];
     },
-    staleTime: 30000, // Cache for 30 seconds to prevent constant refetching
-    enabled: open, // Only fetch when dialog is open
+    staleTime: 30000,
+    enabled: open,
   });
 
   const allCategories = React.useMemo(() => {
-    // Combine default categories with existing ones, removing duplicates
     const combinedCategories = [...defaultCategories];
     
     if (existingCategories && existingCategories.length > 0) {
@@ -116,7 +106,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     return combinedCategories;
   }, [defaultCategories, existingCategories]);
 
-  // Reset form when initialData changes (switching between different items to edit)
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -128,15 +117,12 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     }
   }, [initialData]);
 
-  // Prefetch categories when dialog opens
   useEffect(() => {
     if (open) {
       console.log("MenuItemDialog: Dialog opened, prefetching categories");
       
-      // Invalidate categories queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
       
-      // Ensure initialData gets set in the form if provided
       if (initialData) {
         form.reset({
           label: initialData.label,
@@ -158,41 +144,35 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     },
   });
 
-  // Auto-generate value from label for new items with itm- prefix
   const label = form.watch('label');
   useEffect(() => {
     if (!initialData && label) {
-      // Only auto-generate for new items, not when editing
-      let generatedValue = label.split(/\s+/)[0]; // Get first word
-      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars
+      let generatedValue = label.split(/\s+/)[0];
+      generatedValue = generatedValue.substring(0, 8);
       generatedValue = generatedValue
         .toLowerCase()
-        .replace(/[^a-z0-9]/g, ''); // Remove special characters
+        .replace(/[^a-z0-9]/g, '');
       
-      // Add the itm- prefix
       generatedValue = `itm-${generatedValue}`;
       
       form.setValue('value', generatedValue);
     }
   }, [label, form, initialData]);
 
-  // Always show the category field
   const showCategoryField = true;
 
   const handleSubmit = (values: FormValues) => {
-    // Handle the special "no-category" case
     let categoryValue = values.category;
     if (categoryValue === "no-category") {
       categoryValue = null;
     }
     
-    // Ensure all required fields are present
     const menuItemData: MenuItemFormData = {
       label: values.label,
       value: values.value,
       category: categoryValue,
       choice_id: choiceId || values.choice_id,
-      image_url: null, // Keep this to maintain compatibility with the existing API
+      image_url: null,
     };
     
     console.log("Submitting menu item:", menuItemData);
