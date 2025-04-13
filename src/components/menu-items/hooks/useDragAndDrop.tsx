@@ -31,7 +31,7 @@ export const useDragAndDrop = ({
         const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);
         newCategoryOrder.splice(result.destination.index, 0, movedCategory);
         
-        console.log("Reordering categories:", newCategoryOrder);
+        console.log("New category order:", newCategoryOrder);
         onReorderCategories(newCategoryOrder);
         toast.success("Category order updated");
       } catch (error) {

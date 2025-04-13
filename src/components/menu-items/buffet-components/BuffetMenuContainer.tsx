@@ -40,7 +40,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
             >
               {categories.map((category, index) => (
                 <Draggable 
-                  key={`category-${category}`} 
+                  key={`category-draggable-${category}`} 
                   draggableId={`category-${category}`} 
                   index={index}
                 >
@@ -51,9 +51,9 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                       className="mb-4 last:mb-0"
                     >
                       <CategoryContainer
-                        key={category}
+                        key={`category-container-${category}`}
                         category={category}
-                        items={categorizedItems[category]}
+                        items={categorizedItems[category] || []}
                         onEdit={onEdit}
                         onDelete={onDelete}
                         isDeleting={isDeleting}
