@@ -6,12 +6,14 @@ import { toast } from 'sonner';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
+
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
 }
+
 const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   items,
   onEdit,
@@ -23,14 +25,11 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   const [selectedChoiceId, setSelectedChoiceId] = useState<string>('');
   const [selectedChoiceLabel, setSelectedChoiceLabel] = useState<string>('');
 
-  // State for delete confirmation
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting2, setIsDeleting2] = useState(false);
 
-  // Force a refresh of the menu items and categories when the component mounts
   useEffect(() => {
-    // Invalidate cache to ensure we have the latest data with categories
     if (items.length > 0) {
       console.log("MenuItemsByCategory: Forcing refresh of menu items and categories");
       const choiceId = items[0].choice_id;
@@ -43,18 +42,15 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     }
   }, [items, queryClient]);
 
-  // Group items by category
   const categorizedItems = useMemo(() => {
     console.log("Grouping items by category:", items);
     const grouped: Record<string, MenuItem[]> = {};
 
-    // First, handle items with no category
     const uncategorizedItems = items.filter(item => !item.category);
     if (uncategorizedItems.length > 0) {
       grouped['Uncategorized'] = uncategorizedItems;
     }
 
-    // Then group items by their categories
     items.forEach(item => {
       if (item.category) {
         console.log(`Found item with category: ${item.label} - ${item.category}`);
@@ -68,9 +64,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return grouped;
   }, [items]);
 
-  // Get all categories in sorted order
   const allCategories = useMemo(() => {
-    // Start with 'Uncategorized' if it exists, then add other categories alphabetically
     const categories = Object.keys(categorizedItems).sort();
     if (categories.includes('Uncategorized')) {
       return ['Uncategorized', ...categories.filter(c => c !== 'Uncategorized')];
@@ -78,42 +72,41 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("All categories detected:", categories);
     return categories;
   }, [categorizedItems]);
+
   const handleEditCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot edit the Uncategorized category');
       return;
     }
 
-    // Find the first item with this category to get the choice_id
     const itemInCategory = items.find(item => item.category === category);
     if (!itemInCategory || !itemInCategory.choice_id) {
       toast.error('Cannot determine choice for this category');
       return;
     }
 
-    // Open the category manager
     setSelectedChoiceId(itemInCategory.choice_id);
     setSelectedChoiceLabel(itemInCategory.choice || 'Menu Items');
     setIsCategoryManagerOpen(true);
   };
+
   const handleDeleteCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot delete the Uncategorized category');
       return;
     }
 
-    // Find the first item with this category to get the choice_id
     const itemInCategory = items.find(item => item.category === category);
     if (!itemInCategory || !itemInCategory.choice_id) {
       toast.error('Cannot determine choice for this category');
       return;
     }
 
-    // Set state for delete confirmation
     setCategoryToDelete(category);
     setSelectedChoiceId(itemInCategory.choice_id);
     setIsDeleteDialogOpen(true);
   };
+
   const performDelete = async () => {
     if (!categoryToDelete || !selectedChoiceId) {
       toast.error('Missing category or choice ID');
@@ -121,7 +114,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     }
     setIsDeleting2(true);
     try {
-      // Update all items in this category to have null category
       const {
         error
       } = await supabase.from('menu_items').update({
@@ -130,7 +122,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       if (error) throw error;
       toast.success(`Category "${categoryToDelete}" deleted successfully`);
 
-      // Force refresh data
       queryClient.invalidateQueries({
         queryKey: ['menuItems']
       });
@@ -144,7 +135,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         queryKey: ['menu-categories-list', selectedChoiceId]
       });
 
-      // Close dialog and reset state
       setIsDeleteDialogOpen(false);
       setCategoryToDelete(null);
       setSelectedChoiceId('');
@@ -155,76 +145,77 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       setIsDeleting2(false);
     }
   };
+
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
+
   return <div className="space-y-6">
-      {allCategories.map(category => <div key={category} className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
-          <div className="flex items-center justify-between mb-2 px-3 py-2 bg-gray-50 rounded-md">
-            <h3 className="border border-slate-400 px-3 py-1 rounded my-0.5 mx-0 font-medium text-sm text-slate-500">
-              {category}
-            </h3>
-            
-            {category !== 'Uncategorized' && <div className="flex items-center space-x-1">
-                <button onClick={() => handleEditCategory(category)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Edit ${category} category`}>
-                  <Edit className="h-3.5 w-3.5 text-gray-500" />
-                  <span className="sr-only">Edit category</span>
-                </button>
-                <button onClick={() => handleDeleteCategory(category)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Delete ${category} category`}>
-                  <Trash2 className="h-3.5 w-3.5 text-gray-500" />
-                  <span className="sr-only">Delete category</span>
-                </button>
-              </div>}
+    {allCategories.map(category => <div key={category} className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
+      <div className="flex items-center justify-between mb-2 px-3 py-2 bg-gray-50 rounded-md">
+        <h3 className="border border-black px-3 py-1 rounded text-base font-medium text-slate-500 ml-3">
+          {category}
+        </h3>
+        
+        {category !== 'Uncategorized' && <div className="flex items-center space-x-1">
+          <button onClick={() => handleEditCategory(category)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Edit ${category} category`}>
+            <Edit className="h-3.5 w-3.5 text-gray-500" />
+            <span className="sr-only">Edit category</span>
+          </button>
+          <button onClick={() => handleDeleteCategory(category)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Delete ${category} category`}>
+            <Trash2 className="h-3.5 w-3.5 text-gray-500" />
+            <span className="sr-only">Delete category</span>
+          </button>
+        </div>}
+      </div>
+      
+      <div className="space-y-2 ml-3 mr-3">
+        {categorizedItems[category].map(item => <div key={item.id} className="flex items-center justify-between p-3 bg-white hover:bg-gray-50 border rounded-md">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {item.label} <span className="text-xs text-gray-500">({item.value})</span>
+            </p>
           </div>
-          
-          <div className="space-y-2">
-            {categorizedItems[category].map(item => <div key={item.id} className="flex items-center justify-between p-3 bg-white hover:bg-gray-50 border rounded-md">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {item.label} <span className="text-xs text-gray-500">({item.value})</span>
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button onClick={() => onEdit(item)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Edit ${item.label}`}>
-                    <Edit className="h-3.5 w-3.5 text-gray-500" />
-                    <span className="sr-only">Edit</span>
-                  </button>
-                  <button onClick={() => onDelete(item.id)} disabled={isDeleting} className="p-1 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50" title={`Delete ${item.label}`}>
-                    <Trash2 className="h-3.5 w-3.5 text-gray-500" />
-                    <span className="sr-only">Delete</span>
-                  </button>
-                </div>
-              </div>)}
+          <div className="flex items-center space-x-2">
+            <button onClick={() => onEdit(item)} className="p-1 rounded-md hover:bg-gray-100 transition-colors" title={`Edit ${item.label}`}>
+              <Edit className="h-3.5 w-3.5 text-gray-500" />
+              <span className="sr-only">Edit</span>
+            </button>
+            <button onClick={() => onDelete(item.id)} disabled={isDeleting} className="p-1 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50" title={`Delete ${item.label}`}>
+              <Trash2 className="h-3.5 w-3.5 text-gray-500" />
+              <span className="sr-only">Delete</span>
+            </button>
           </div>
         </div>)}
-      
-      {/* Category Manager Dialog */}
-      {selectedChoiceId && <CategoryManagerDialog open={isCategoryManagerOpen} onOpenChange={setIsCategoryManagerOpen} choiceId={selectedChoiceId} choiceLabel={selectedChoiceLabel} />}
-      
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Category</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the category "{categoryToDelete}"? 
-              This will remove the category from all menu items. The items themselves will not be deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting2}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={e => {
-            e.preventDefault(); // Prevent dialog from closing automatically
+      </div>
+    </div>)}
+    
+    {selectedChoiceId && <CategoryManagerDialog open={isCategoryManagerOpen} onOpenChange={setIsCategoryManagerOpen} choiceId={selectedChoiceId} choiceLabel={selectedChoiceLabel} />}
+    
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent className="bg-white">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Category</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete the category "{categoryToDelete}"? 
+            This will remove the category from all menu items. The items themselves will not be deleted.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting2}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={e => {
+            e.preventDefault();
             performDelete();
           }} disabled={isDeleting2} className="bg-red-500 hover:bg-red-600">
-              {isDeleting2 ? <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Deleting...
-                </> : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>;
+            {isDeleting2 ? <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Deleting...
+              </> : 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>;
 };
+
 export default MenuItemsByCategory;

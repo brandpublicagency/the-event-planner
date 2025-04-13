@@ -258,7 +258,6 @@ export type Database = {
           choice: string
           choice_id: string | null
           created_at: string | null
-          description: string | null
           display_order: number | null
           id: string
           label: string
@@ -270,7 +269,6 @@ export type Database = {
           choice: string
           choice_id?: string | null
           created_at?: string | null
-          description?: string | null
           display_order?: number | null
           id?: string
           label: string
@@ -282,7 +280,6 @@ export type Database = {
           choice?: string
           choice_id?: string | null
           created_at?: string | null
-          description?: string | null
           display_order?: number | null
           id?: string
           label?: string
