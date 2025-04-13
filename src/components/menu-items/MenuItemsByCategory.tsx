@@ -180,7 +180,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             </div>
             
             <Droppable droppableId={`category-${category}`} direction="vertical">
-              {provided => <div ref={provided.innerRef} className="space-y-2 my-0 mx-[6px]">
+              {provided => <div ref={provided.innerRef} className="space-y-2 mx-[6px] my-0 py-[2px]">
                   {categorizedItems[category].map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
                       {(provided, snapshot) => <div ref={provided.innerRef} {...provided.draggableProps} className={`flex items-start bg-white border rounded-md p-2 mb-2 ${snapshot.isDragging ? 'opacity-70' : ''}`}>
                           <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
