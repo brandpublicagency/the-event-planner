@@ -64,14 +64,16 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   
   const queryClient = useQueryClient();
   
-  // Ensure we refetch categories when edit dialog opens with different initialData
-  const queryKey = ['menu-categories', choiceId, initialData?.id || 'new', Date.now()];
+  // Create a stable query key that doesn't change on every render
+  // but does update when choiceId or initialData changes
+  const stableId = initialData?.id || 'new';
+  const queryKey = ['menu-categories', choiceId, stableId];
   
   // Query specifically filtered by choiceId for choice-specific categories
-  const { data: existingCategories = [], isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
+  const { data: existingCategories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} with item: ${initialData?.id || 'new'}`);
+      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} with item: ${stableId}`);
       
       // Ensure we're querying by choice_id to get only relevant categories
       const { data, error } = await supabase
@@ -94,8 +96,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       }
       return [];
     },
+    staleTime: 30000, // Cache for 30 seconds to prevent constant refetching
     enabled: open, // Only fetch when dialog is open
-    staleTime: 0, // Always refetch when opened
   });
 
   const allCategories = React.useMemo(() => {
@@ -126,22 +128,25 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     }
   }, [initialData]);
 
-  // Refetch categories when dialog opens
+  // Prefetch categories when dialog opens
   useEffect(() => {
     if (open) {
-      console.log("MenuItemDialog: Dialog opened, refetching categories");
+      console.log("MenuItemDialog: Dialog opened, prefetching categories");
       
-      // Force immediate refresh
-      refetchCategories();
-      
-      // Invalidate all category-related queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ['menu-categories'] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list'] });
-      
-      // Specifically invalidate queries for this choice
+      // Invalidate categories queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
+      
+      // Ensure initialData gets set in the form if provided
+      if (initialData) {
+        form.reset({
+          label: initialData.label,
+          value: initialData.value,
+          category: initialData.category,
+          choice_id: initialData.choice_id,
+        });
+      }
     }
-  }, [open, refetchCategories, queryClient, choiceId, initialData]);
+  }, [open, queryClient, choiceId, initialData]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
