@@ -29,30 +29,35 @@ export const useDragAndDrop = ({
       type: result.type,
       source: result.source,
       destination: result.destination,
-      draggableId: result.draggableId
+      draggableId: result.draggableId,
+      reason: result.reason
     });
     
     // Handle category reordering
-    if (result.type === 'category' && onReorderCategories && categoryOrder) {
+    if (result.type === 'category' && onReorderCategories && categoryOrder && categoryOrder.length > 1) {
       try {
         console.log("Handling category drag end:", result);
         console.log("Current category order:", categoryOrder);
         
-        // Check if we actually have categories to reorder
-        if (categoryOrder.length <= 1) {
-          console.log("Not enough categories to reorder");
-          toast.error("Need at least two categories to reorder");
+        // Make a copy of the current order for reordering
+        const newCategoryOrder = [...categoryOrder];
+        
+        // Get the category name from the draggableId
+        const categoryName = result.draggableId.replace('category-', '');
+        console.log(`Moving category "${categoryName}" from index ${result.source.index} to ${result.destination.index}`);
+        
+        // Make sure the category exists in our order
+        if (!newCategoryOrder.includes(categoryName)) {
+          console.error(`Category "${categoryName}" not found in current order`, newCategoryOrder);
+          toast.error(`Cannot reorder: Category "${categoryName}" not found`);
           return;
         }
-        
-        // Get the current order and make a copy for reordering
-        const newCategoryOrder = [...categoryOrder];
         
         // Remove the item from its original position and insert at the new position
         const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);
         newCategoryOrder.splice(result.destination.index, 0, movedCategory);
         
-        console.log("New category order:", newCategoryOrder);
+        console.log("New category order after reordering:", newCategoryOrder);
         
         // Call the reorder function with the new order
         onReorderCategories(newCategoryOrder);

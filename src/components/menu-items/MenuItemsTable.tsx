@@ -34,23 +34,38 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   };
 
   const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      console.log("Drag cancelled - no destination");
+      return;
+    }
+    
     console.log("Drag end result:", result);
-
-    const sourceDroppableId = result.source.droppableId;
-    const destinationDroppableId = result.destination.droppableId;
 
     // If it's a category drag
     if (result.type === 'category') {
-      toast.info(`Category drag detected: ${result.draggableId}`);
-      return; // We need to handle category reordering differently
+      console.log("Category drag detected:", {
+        source: result.source.index,
+        destination: result.destination.index,
+        draggableId: result.draggableId
+      });
+      
+      // We need a proper category reordering handler which would be provided by the parent
+      // For now, just show a toast notification for feedback
+      const categoryName = result.draggableId.replace('category-', '');
+      toast.info(`Category reordering for "${categoryName}" is not implemented yet`);
+      return;
     }
 
     // Handle item reordering
+    const sourceDroppableId = result.source.droppableId;
+    const destinationDroppableId = result.destination.droppableId;
+
+    // Create a copy of the items array to modify
     const reorderedItems = [...items];
     const [reorderedItem] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, reorderedItem);
 
+    // If the item is moved to a different category, update its category
     if (sourceDroppableId !== destinationDroppableId) {
       const categoryId = destinationDroppableId.replace('category-', '');
       if (categoryId !== 'Uncategorized') {
@@ -61,6 +76,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     }
     
     if (onReorder) {
+      console.log("Calling onReorder with updated items:", reorderedItems.length);
       onReorder(reorderedItems);
       toast.success("Items reordered successfully");
     }
@@ -81,6 +97,10 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
 
   // Check if we have multiple categories to enable category dragging
   const hasMultipleCategories = Object.keys(groupedItems).length > 1;
+  const categories = Object.keys(groupedItems);
+  
+  console.log("Categories available:", categories);
+  console.log("Has multiple categories:", hasMultipleCategories);
 
   return (
     <div className="space-y-4">
@@ -97,9 +117,9 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                 {...provided.droppableProps}
                 className="space-y-4"
               >
-                {Object.entries(groupedItems).map(([category, categoryItems], categoryIndex) => (
+                {categories.map((category, categoryIndex) => (
                   <Draggable 
-                    key={`category-draggable-${category}`}
+                    key={`category-${category}`}
                     draggableId={`category-${category}`}
                     index={categoryIndex}
                     isDragDisabled={!hasMultipleCategories}
@@ -114,6 +134,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                           {(droppableProvided) => (
                             <div 
                               ref={droppableProvided.innerRef} 
+                              {...droppableProvided.droppableProps}
                               className={`space-y-2 border border-dashed ${snapshot.isDragging ? 'border-blue-400' : 'border-gray-300'} rounded-md p-2`}
                             >
                               {category !== 'Uncategorized' && (
@@ -135,7 +156,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                                 </div>
                               )}
                               
-                              {categoryItems.map((item, index) => (
+                              {groupedItems[category].map((item, index) => (
                                 <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
                                   {(provided) => (
                                     <div 

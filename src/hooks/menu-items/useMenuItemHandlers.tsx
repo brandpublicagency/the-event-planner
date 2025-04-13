@@ -28,6 +28,14 @@ export const useMenuItemHandlers = (
       toast.error("Cannot reorder: No items provided");
       return;
     }
+    
+    // Log the reordered items for debugging
+    console.log("Reordered items:", reorderedItems.map(item => ({
+      id: item.id,
+      label: item.label,
+      category: item.category || 'Uncategorized'
+    })));
+    
     reorderMutation.mutate(reorderedItems);
   };
 
