@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import CategoryManagerDialog from './CategoryManagerDialog';
@@ -72,91 +73,67 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             {(provided) => (
               <div 
                 {...provided.droppableProps} 
-                ref={provided.innerRef} 
-                className="space-y-6"
+                ref={provided.innerRef}
               >
-                {allCategories.map((category, index) => (
-                  <Draggable 
-                    key={category} 
-                    draggableId={`cat-${category}`}
-                    index={index}
-                    isDragDisabled={category === 'Uncategorized'}
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`${snapshot.isDragging ? 'opacity-70' : ''}`}
-                      >
-                        {isBuffetMenu ? (
-                          <BuffetMenuContainer
-                            categories={[category]}
-                            categorizedItems={{[category]: categorizedItems[category]}}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            isDeleting={isDeleting}
-                            onEditCategory={handleEditCategory}
-                            onDeleteCategory={handleDeleteCategory}
-                            onAddItem={onAddItem}
-                            handleDragEnd={handleDragEnd}
-                            dragHandleProps={provided.dragHandleProps}
-                            showDragHandle={true}
-                          />
-                        ) : (
-                          <RegularMenuContainer
-                            categories={[category]}
-                            categorizedItems={{[category]: categorizedItems[category]}}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            isDeleting={isDeleting}
-                            onEditCategory={handleEditCategory}
-                            onDeleteCategory={handleDeleteCategory}
-                            onAddItem={onAddItem}
-                            handleDragEnd={handleDragEnd}
-                            dragHandleProps={provided.dragHandleProps}
-                            showDragHandle={true}
-                          />
-                        )}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
+                {isBuffetMenu ? (
+                  <BuffetMenuContainer
+                    categories={allCategories}
+                    categorizedItems={categorizedItems}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isDeleting={isDeleting}
+                    onEditCategory={handleEditCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    onAddItem={onAddItem}
+                    handleDragEnd={handleDragEnd}
+                    showDragHandle={true}
+                  />
+                ) : (
+                  <RegularMenuContainer
+                    categories={allCategories}
+                    categorizedItems={categorizedItems}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isDeleting={isDeleting}
+                    onEditCategory={handleEditCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    onAddItem={onAddItem}
+                    handleDragEnd={handleDragEnd}
+                    showDragHandle={true}
+                  />
+                )}
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
         </DragDropContext>
       ) : (
-        <div className="space-y-6">
-          {allCategories.map(category => (
-            <div key={category}>
-              {isBuffetMenu ? (
-                <BuffetMenuContainer
-                  categories={[category]}
-                  categorizedItems={{[category]: categorizedItems[category]}}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  isDeleting={isDeleting}
-                  onEditCategory={handleEditCategory}
-                  onDeleteCategory={handleDeleteCategory}
-                  onAddItem={onAddItem}
-                  handleDragEnd={handleDragEnd}
-                />
-              ) : (
-                <RegularMenuContainer
-                  categories={[category]}
-                  categorizedItems={{[category]: categorizedItems[category]}}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  isDeleting={isDeleting}
-                  onEditCategory={handleEditCategory}
-                  onDeleteCategory={handleDeleteCategory}
-                  onAddItem={onAddItem}
-                  handleDragEnd={handleDragEnd}
-                />
-              )}
-            </div>
-          ))}
+        <div>
+          {isBuffetMenu ? (
+            <BuffetMenuContainer
+              categories={allCategories}
+              categorizedItems={categorizedItems}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+              onEditCategory={handleEditCategory}
+              onDeleteCategory={handleDeleteCategory}
+              onAddItem={onAddItem}
+              handleDragEnd={handleDragEnd}
+            />
+          ) : (
+            <RegularMenuContainer
+              categories={allCategories}
+              categorizedItems={categorizedItems}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+              onEditCategory={handleEditCategory}
+              onDeleteCategory={handleDeleteCategory}
+              onAddItem={onAddItem}
+              handleDragEnd={handleDragEnd}
+            />
+          )}
         </div>
       )}
       

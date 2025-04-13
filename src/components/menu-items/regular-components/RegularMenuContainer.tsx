@@ -33,23 +33,26 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="space-y-6">
-        {categories.map(category => (
-          <CategoryContainer
-            key={category}
-            category={category}
-            items={categorizedItems[category]}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-            onEditCategory={onEditCategory}
-            onDeleteCategory={onDeleteCategory}
-            onAddItem={onAddItem}
-            canReorder={!!onAddItem}
-            dragHandleProps={dragHandleProps}
-            showDragHandle={showDragHandle}
-          />
-        ))}
+      <div className="border border-dashed border-gray-300 rounded-md p-3">
+        <div className="space-y-4">
+          {categories.map(category => (
+            <CategoryContainer
+              key={category}
+              category={category}
+              items={categorizedItems[category]}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
+              onAddItem={onAddItem}
+              canReorder={!!onAddItem}
+              dragHandleProps={dragHandleProps}
+              showDragHandle={showDragHandle}
+              isGroupedLayout={true}
+            />
+          ))}
+        </div>
       </div>
     </DragDropContext>
   );

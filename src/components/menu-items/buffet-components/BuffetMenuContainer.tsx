@@ -33,24 +33,27 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="space-y-4">
-        {categories.map(category => (
-          <CategoryContainer
-            key={category}
-            category={category}
-            items={categorizedItems[category] || []}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-            onEditCategory={onEditCategory}
-            onDeleteCategory={onDeleteCategory}
-            onAddItem={onAddItem}
-            isBuffetCategory={true}
-            showAddItemButton={category === 'Uncategorized'}
-            dragHandleProps={dragHandleProps}
-            showDragHandle={showDragHandle}
-          />
-        ))}
+      <div className="border border-dashed border-gray-300 rounded-md p-3">
+        <div className="space-y-4">
+          {categories.map(category => (
+            <CategoryContainer
+              key={category}
+              category={category}
+              items={categorizedItems[category] || []}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
+              onAddItem={onAddItem}
+              isBuffetCategory={true}
+              showAddItemButton={category === 'Uncategorized'}
+              dragHandleProps={dragHandleProps}
+              showDragHandle={showDragHandle}
+              isGroupedLayout={true}
+            />
+          ))}
+        </div>
       </div>
     </DragDropContext>
   );
