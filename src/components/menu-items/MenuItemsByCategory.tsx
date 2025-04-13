@@ -185,7 +185,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                   className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                   title={`Edit ${category} category`}
                 >
-                  <Edit className="h-3.5 w-3.5 text-blue-500" />
+                  <Edit className="h-3.5 w-3.5 text-gray-500" />
                   <span className="sr-only">Edit category</span>
                 </button>
                 <button
@@ -193,7 +193,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                   className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                   title={`Delete ${category} category`}
                 >
-                  <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                  <Trash2 className="h-3.5 w-3.5 text-gray-500" />
                   <span className="sr-only">Delete category</span>
                 </button>
               </div>
@@ -214,14 +214,14 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => onEdit(item)}
-                    className="text-xs text-blue-600 hover:text-blue-800"
+                    className="text-xs text-gray-600 hover:text-gray-800"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(item.id)}
                     disabled={isDeleting}
-                    className="text-xs text-red-600 hover:text-red-800 disabled:opacity-50"
+                    className="text-xs text-gray-600 hover:text-gray-800 disabled:opacity-50"
                   >
                     Delete
                   </button>
