@@ -76,7 +76,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     refetchCategories();
   }, [refetchCategories]);
 
-  // Combine hardcoded categories with fetched ones
+  // Combine passed availableCategories with fetched ones
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
   console.log("All available categories:", allCategories);
 
@@ -122,7 +122,6 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
               <SelectValue placeholder="Select category (optional)" />
             </SelectTrigger>
             <SelectContent>
-              {/* Fixed: Use "no-category" instead of empty string for "No category" option */}
               <SelectItem value="no-category">No category</SelectItem>
               {allCategories.map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>

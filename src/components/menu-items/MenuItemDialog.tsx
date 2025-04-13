@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -54,10 +55,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   title,
   choiceId,
 }) => {
-  const [defaultCategories] = useState<string[]>([
-    "MEAT SELECTION"
-  ]);
-  
+  // Remove the default categories array
   const queryClient = useQueryClient();
   
   const stableId = initialData?.id || 'new';
@@ -91,20 +89,10 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     enabled: open,
   });
 
+  // Use existing categories directly without combining with defaults
   const allCategories = React.useMemo(() => {
-    const combinedCategories = [...defaultCategories];
-    
-    if (existingCategories && existingCategories.length > 0) {
-      existingCategories.forEach(category => {
-        if (!combinedCategories.includes(category)) {
-          combinedCategories.push(category);
-        }
-      });
-    }
-    
-    console.log("MenuItemDialog: Combined categories:", combinedCategories);
-    return combinedCategories;
-  }, [defaultCategories, existingCategories]);
+    return existingCategories || [];
+  }, [existingCategories]);
 
   useEffect(() => {
     if (initialData) {

@@ -79,31 +79,18 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     return shouldUseCategories;
   }, [choiceItems, choiceLabel]);
 
-  // Determine the available categories based on the choice
+  // Get available categories based on existing items in this choice
   const availableCategories = useMemo(() => {
-    if (!useCategories) return [];
+    if (!useCategories || !choiceItems.length) return [];
     
-    const choiceValue = choiceItems[0]?.choice;
-    console.log(`Getting available categories for ${choiceLabel} (${choiceValue})`);
-    
-    // Default categories for buffet and karoo feast
-    const defaultCategories = ["MEAT SELECTION", "VEGETABLES", "STARCH SELECTION", "SALAD"];
-    
-    if (choiceValue === 'buffet-menu' || choiceLabel.toLowerCase().includes('buffet')) {
-      return defaultCategories;
-    }
-    
-    if (choiceValue === 'warm-karoo-feast' || choiceLabel.toLowerCase().includes('karoo')) {
-      return defaultCategories;
-    }
-    
-    // For any other choice that should use categories, return default categories
-    if (useCategories) {
-      return defaultCategories;
-    }
-    
-    return [];
-  }, [choiceItems, useCategories, choiceLabel]);
+    // Extract categories from choice items
+    const categories = choiceItems
+      .map(item => item.category)
+      .filter(Boolean) as string[];
+      
+    // Return unique categories
+    return [...new Set(categories)];
+  }, [choiceItems, useCategories]);
 
   // Handler for when "Add Item" is clicked within a category
   const handleAddInCategory = (category: string | null) => {
