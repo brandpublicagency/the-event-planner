@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { DragDropContext } from '@hello-pangea/dnd';
@@ -46,6 +47,13 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     
     console.log("Grouped items:", grouped);
     return grouped;
+  }, [items]);
+
+  // Detect if this is a buffet menu by checking the choice value
+  const isBuffetMenu = useMemo(() => {
+    if (!items.length) return false;
+    const choiceValue = items[0]?.choice;
+    return choiceValue === 'buffet-menu' || choiceValue === 'cho-buffet';
   }, [items]);
 
   // Define the buffet category order
@@ -98,13 +106,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     handleDeleteCategory,
     performDelete
   } = useCategoryManager({ items });
-
-  // Detect if this is a buffet menu by checking the choice value
-  const isBuffetMenu = useMemo(() => {
-    if (!items.length) return false;
-    const choiceValue = items[0]?.choice;
-    return choiceValue === 'buffet-menu' || choiceValue === 'cho-buffet';
-  }, [items]);
 
   // Handle drag and drop
   const handleDragEnd = (result: any) => {
