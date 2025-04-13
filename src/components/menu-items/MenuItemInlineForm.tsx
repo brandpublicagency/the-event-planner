@@ -29,16 +29,21 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(preSelectedCategory);
   const labelValue = watch('label', '');
 
-  // Auto-generate value from label
+  // Auto-generate value from label with itm- prefix
   useEffect(() => {
     if (labelValue) {
-      // Generate a URL-friendly value from the label
-      const generatedValue = labelValue
+      // Get the first word and limit to 8 characters
+      let generatedValue = labelValue.split(/\s+/)[0];
+      generatedValue = generatedValue.substring(0, 8);
+      
+      // Format properly
+      generatedValue = generatedValue
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-')          // Replace spaces with hyphens
-        .replace(/-+/g, '-')           // Replace multiple hyphens with a single one
+        .replace(/[^a-z0-9]/g, '') // Remove special characters
         .trim();
+      
+      // Add the itm- prefix
+      generatedValue = `itm-${generatedValue}`;
       
       setValue('value', generatedValue);
     }
@@ -98,7 +103,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
         
         <div className="flex-1">
           <Input 
-            placeholder="Value (auto-generated)" 
+            placeholder="Value (auto-generated with itm- prefix)" 
             {...register("value", { required: true })}
             className={errors.value ? "border-red-500" : "bg-gray-100"}
             readOnly

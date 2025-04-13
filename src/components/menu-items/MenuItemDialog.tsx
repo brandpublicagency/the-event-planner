@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -154,17 +155,19 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     },
   });
 
-  // Auto-generate value from label for new items
+  // Auto-generate value from label for new items with itm- prefix
   const label = form.watch('label');
   useEffect(() => {
     if (!initialData && label) {
       // Only auto-generate for new items, not when editing
-      const generatedValue = label
+      let generatedValue = label.split(/\s+/)[0]; // Get first word
+      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars
+      generatedValue = generatedValue
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-')          // Replace spaces with hyphens
-        .replace(/-+/g, '-')           // Replace multiple hyphens with a single one
-        .trim();
+        .replace(/[^a-z0-9]/g, ''); // Remove special characters
+      
+      // Add the itm- prefix
+      generatedValue = `itm-${generatedValue}`;
       
       form.setValue('value', generatedValue);
     }
@@ -224,7 +227,7 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
                   <FormLabel>Value</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Auto-generated from name" 
+                      placeholder="Auto-generated with itm- prefix" 
                       {...field} 
                       className={!initialData ? "bg-gray-100" : ""}
                       readOnly={!initialData}

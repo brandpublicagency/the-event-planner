@@ -115,7 +115,7 @@ const MenuChoiceInlineForm: React.FC<MenuChoiceInlineFormProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Auto-generated with cho-" {...field} />
+                  <Input placeholder="Auto-generated with cho-" {...field} readOnly className="bg-gray-100" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

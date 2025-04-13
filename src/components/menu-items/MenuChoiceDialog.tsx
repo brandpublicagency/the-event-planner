@@ -20,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MenuChoice, MenuChoiceFormData } from '@/api/menuItemsApi';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   section_id: z.string().min(1, 'Section is required'),
@@ -56,6 +57,26 @@ const MenuChoiceDialog: React.FC<MenuChoiceDialogProps> = ({
       display_order: initialData?.display_order || 0,
     },
   });
+
+  // Watch the label field to automatically generate the value for new choices
+  const labelValue = form.watch('label');
+  
+  // Update the value field when label changes - generate with cho- prefix
+  useEffect(() => {
+    if (labelValue && !initialData) {  // Only auto-generate for new choices
+      // Create a value with the required prefix
+      let generatedValue = labelValue.split(/\s+/)[0]; // Get first word
+      generatedValue = generatedValue.substring(0, 8); // Limit to 8 chars
+      generatedValue = generatedValue
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ''); // Remove special characters
+      
+      // Add the cho- prefix
+      generatedValue = `cho-${generatedValue}`;
+      
+      form.setValue('value', generatedValue);
+    }
+  }, [labelValue, form, initialData]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values as MenuChoiceFormData);
@@ -95,7 +116,7 @@ const MenuChoiceDialog: React.FC<MenuChoiceDialogProps> = ({
                   <FormControl>
                     <Input 
                       {...field} 
-                      placeholder="choice_id" 
+                      placeholder="Auto-generated with cho- prefix" 
                       disabled={!!initialData} // Can't change value for existing choices
                     />
                   </FormControl>

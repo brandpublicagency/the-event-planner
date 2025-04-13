@@ -109,7 +109,7 @@ const MenuSectionDialog: React.FC<MenuSectionDialogProps> = ({
                   <FormControl>
                     <Input 
                       {...field} 
-                      placeholder="Auto-generated with sec-" 
+                      placeholder="Auto-generated with sec- prefix" 
                       disabled={!!initialData} // Can't change value for existing sections
                     />
                   </FormControl>
