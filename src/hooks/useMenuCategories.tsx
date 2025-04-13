@@ -9,6 +9,7 @@ const FIXED_CATEGORY_ORDER = {
   'buffet': ['Meat Selection (2)', 'Vegetables (2)', 'Starch (2)', 'Salad (1)'],
   'karoo': ['Meat Selection (1)', 'Vegetables (2)', 'Starch Selection (2)', 'Salad (1)'],
   'sec-mains': ['Meat Selection', 'Vegetables', 'Starch', 'Salad'], // Added explicit order for sec-mains
+  'default': ['Meat Selection', 'Vegetables', 'Starch', 'Salad']
 };
 
 export const useMenuCategories = (items: MenuItem[]) => {
@@ -17,7 +18,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
   // Types that should use categorization (expanded to catch more variations)
   const CATEGORY_MENU_TYPES = [
     'sec-mains', 'sec_mains', 'secondary mains', 'secondary-mains',
-    'secmains', 'secondary', 'mains', 'buffet'
+    'secmains', 'secondary', 'mains', 'buffet', 'karoo'
   ];
   
   const useCategorization = useMemo(() => {
@@ -45,8 +46,11 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     if (choice.includes('karoo')) return 'karoo';
     if (choice.includes('buffet')) return 'buffet';
-    if (choice.includes('sec-main')) return 'sec-mains'; // Improved detection for sec-mains
-    return null;
+    if (choice.includes('sec-main') || choice.includes('sec_main') || 
+        choice.includes('secondary main') || choice.includes('secondary-main') || 
+        choice.includes('secmain') || choice.includes('secondary') || 
+        choice.includes('main')) return 'sec-mains';
+    return 'default';
   }, [items]);
 
   // Categorize items
@@ -72,14 +76,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     if (!useCategorization) return ['Items'];
     
     const categories = Object.keys(categorizedItems)
-      .filter(category => categorizedItems[category].length > 0)
-      .sort((a, b) => {
-        // Always put Uncategorized at the end
-        if (a === 'Uncategorized') return 1;
-        if (b === 'Uncategorized') return -1;
-        // Otherwise, sort alphabetically
-        return a.localeCompare(b);
-      });
+      .filter(category => categorizedItems[category].length > 0);
     
     console.log("All detected categories:", categories);
     return categories;
@@ -87,16 +84,18 @@ export const useMenuCategories = (items: MenuItem[]) => {
 
   // If there's a fixed order for this menu type, use it to sort the categories
   const sortedCategories = useMemo(() => {
-    if (!menuType || !FIXED_CATEGORY_ORDER[menuType]) {
-      return allCategories;
-    }
-
-    // Get the fixed order for this menu type
-    const fixedOrder = FIXED_CATEGORY_ORDER[menuType];
+    if (!menuType) return allCategories;
+    
+    // Get the fixed order for this menu type or use default
+    const fixedOrder = FIXED_CATEGORY_ORDER[menuType] || FIXED_CATEGORY_ORDER['default'];
     console.log(`Applying fixed category order for ${menuType}:`, fixedOrder);
     
     // Sort based on the fixed order, keeping any categories that aren't in the fixed order at the end
     const sorted = [...allCategories].sort((a, b) => {
+      // Always put Uncategorized at the end
+      if (a === 'Uncategorized') return 1;
+      if (b === 'Uncategorized') return -1;
+      
       const aIndex = fixedOrder.indexOf(a);
       const bIndex = fixedOrder.indexOf(b);
       
@@ -119,7 +118,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return a.localeCompare(b);
     });
     
-    console.log(`Using fixed category order for ${menuType}:`, sorted);
+    console.log(`Final category order for ${menuType}:`, sorted);
     return sorted;
   }, [allCategories, menuType]);
 
@@ -153,39 +152,10 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return;
     }
     
-    // If this is a menu type with fixed categories, use the sorted categories
-    if (menuType && FIXED_CATEGORY_ORDER[menuType]) {
-      console.log(`Using fixed category order for ${menuType}`);
-      setCustomCategoryOrder(sortedCategories);
-      return;
-    }
-    
-    console.log("Updating category order with saved:", savedCategoryOrder);
-    console.log("All categories available:", allCategories);
-    
-    if (savedCategoryOrder && savedCategoryOrder.length > 0) {
-      // Filter out any categories that no longer exist
-      const validSavedCategories = savedCategoryOrder.filter(cat => 
-        allCategories.includes(cat)
-      );
-      
-      // Find categories that exist but aren't in the saved order
-      const missingCategories = allCategories.filter(cat => 
-        !savedCategoryOrder.includes(cat)
-      );
-      
-      // Combine valid saved categories with any new ones
-      if (validSavedCategories.length > 0 || missingCategories.length > 0) {
-        const combinedOrder = [...validSavedCategories, ...missingCategories];
-        console.log("Using combined category order:", combinedOrder);
-        setCustomCategoryOrder(combinedOrder);
-      }
-    } else {
-      // If no saved order exists, use the detected categories
-      console.log("No saved order, using detected categories:", allCategories);
-      setCustomCategoryOrder([...allCategories]);
-    }
-  }, [savedCategoryOrder, allCategories, useCategorization, menuType, sortedCategories]);
+    // ALWAYS use the sorted categories based on the fixed order
+    console.log(`Using fixed category order for ${menuType}`);
+    setCustomCategoryOrder(sortedCategories);
+  }, [sortedCategories, useCategorization, menuType]);
 
   // Create a mutation for updating category order
   const reorderCategoryMutation = useMutation({
@@ -208,25 +178,10 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const updateCategoryOrder = async (newOrder: string[]) => {
     if (!useCategorization) return;
     
-    // If this is a menu type with fixed categories, don't allow reordering
-    if (menuType && FIXED_CATEGORY_ORDER[menuType]) {
-      console.log(`Cannot reorder categories for ${menuType} - using fixed order`);
-      toast.info("Categories for this menu type are in a fixed order and cannot be changed");
-      return;
-    }
-    
-    console.log("Setting new category order:", newOrder);
-    setCustomCategoryOrder(newOrder);
-    
-    // Save to database if we have a choiceId
-    if (choiceId) {
-      try {
-        reorderCategoryMutation.mutate(newOrder);
-      } catch (error) {
-        console.error("Failed to save category order:", error);
-        toast.error("Failed to save category order");
-      }
-    }
+    // We now use fixed category orders for all menu types
+    console.log(`Cannot reorder categories for ${menuType} - using fixed order`);
+    toast.info("Categories are in a fixed order and cannot be changed");
+    return;
   };
 
   return {
@@ -234,7 +189,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     isBuffetMenu: useCategorization,
     allCategories,
     updateCategoryOrder,
-    customCategoryOrder: customCategoryOrder.length > 0 ? customCategoryOrder : allCategories,
+    customCategoryOrder: sortedCategories,
     choiceId,
     isLoadingCategoryOrder
   };

@@ -19,7 +19,6 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   items,
   onEdit,
   onDelete,
-  onReorder,
   isDeleting,
   onAddItem
 }) => {
@@ -66,11 +65,9 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                 className="space-y-2 border border-dashed border-gray-300 rounded-md p-2"
               >
                 {category !== 'Uncategorized' && (
-                  <div className="mb-1 px-1 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
-                        {category}
-                      </div>
+                  <div className="mb-1 px-1">
+                    <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
+                      {category}
                     </div>
                   </div>
                 )}

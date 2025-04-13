@@ -1,7 +1,7 @@
 
 import React from 'react';
-import MenuItemCard from './MenuItemCard';
 import { MenuItem } from '@/api/types/menuItems';
+import MenuItemCard from './MenuItemCard';
 
 interface CategoryItemsDroppableProps {
   category: string;
@@ -19,17 +19,22 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
   isDeleting
 }) => {
   return (
-    <div className="space-y-2 mx-[6px] my-0 py-0">
-      {items.map((item, index) => (
+    <div className="space-y-2">
+      {items.map((item) => (
         <MenuItemCard
           key={item.id}
           item={item}
-          index={index}
           onEdit={onEdit}
           onDelete={onDelete}
           isDeleting={isDeleting}
         />
       ))}
+      
+      {items.length === 0 && (
+        <div className="text-center py-2 text-sm text-gray-500 italic">
+          No items in this category
+        </div>
+      )}
     </div>
   );
 };
