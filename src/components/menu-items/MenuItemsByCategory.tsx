@@ -64,9 +64,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
 
   const isCategoryReorderingEnabled = onReorder && customCategoryOrder.length > 1 && customCategoryOrder[0] !== 'Uncategorized';
 
-  console.log("MenuItemsByCategory - Current category order:", customCategoryOrder);
-  console.log("MenuItemsByCategory - Category reordering enabled:", isCategoryReorderingEnabled);
-
   return (
     <>
       {isCategoryReorderingEnabled ? (
@@ -121,19 +118,17 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
           </Droppable>
         </DragDropContext>
       ) : (
-        <div>
-          <BuffetMenuContainer
-            categories={customCategoryOrder}
-            categorizedItems={categorizedItems}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-            onEditCategory={handleEditCategory}
-            onDeleteCategory={handleDeleteCategory}
-            onAddItem={onAddItem}
-            handleDragEnd={handleDragEnd}
-          />
-        </div>
+        <BuffetMenuContainer
+          categories={customCategoryOrder}
+          categorizedItems={categorizedItems}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          onEditCategory={handleEditCategory}
+          onDeleteCategory={handleDeleteCategory}
+          onAddItem={onAddItem}
+          handleDragEnd={handleDragEnd}
+        />
       )}
       
       {selectedChoiceId && (
