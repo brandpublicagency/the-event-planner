@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { GripVertical, Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { MenuItem } from '@/api/menuItemsApi';
-import { DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 
 interface MenuItemCardProps {
   item: MenuItem;
   index: number;
-  provided: DraggableProvided;
-  snapshot: DraggableStateSnapshot;
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
@@ -17,23 +14,12 @@ interface MenuItemCardProps {
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({
   item,
-  index,
-  provided,
-  snapshot,
   onEdit,
   onDelete,
-  isDeleting,
-  isDragDisabled = false
+  isDeleting
 }) => {
   return (
-    <div 
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      className={`flex items-start bg-white border rounded-md p-3 my-[2px] ${snapshot.isDragging ? 'opacity-70' : ''}`}
-    >
-      <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
-        <GripVertical className="h-4 w-4 text-gray-400" />
-      </div>
+    <div className="flex items-start bg-white border rounded-md p-3 my-[2px]">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">
           {item.label} <span className="text-xs text-gray-500">({item.value})</span>

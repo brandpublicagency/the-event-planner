@@ -25,8 +25,6 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onDeleteCategory,
   onAddItem
 }) => {
-  console.log('BuffetMenuContainer: categories=', categories);
-  
   return (
     <div className="border border-gray-300 rounded-md p-4">
       <div className="space-y-6">
@@ -44,7 +42,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
               isDeleting={isDeleting}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
-              canReorder={!!onAddItem}
+              canReorder={false}
               isBuffetCategory={true}
               noBorder={true}
             />
@@ -52,7 +50,6 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
         ))}
       </div>
       
-      {/* Single Add Item button at the bottom of the container */}
       {onAddItem && (
         <div className="mt-4">
           <AddItemButton 

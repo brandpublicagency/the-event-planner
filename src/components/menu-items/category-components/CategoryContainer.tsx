@@ -26,12 +26,11 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   isDeleting,
   onEditCategory,
   onDeleteCategory,
-  canReorder = true,
+  canReorder = false,
   isBuffetCategory = false,
   isGroupedLayout = false,
   noBorder = false
 }) => {
-  // Always use the space-y-2 class without any border when noBorder is true
   const containerClasses = noBorder
     ? "space-y-2 py-[10px] my-[4px]"
     : "space-y-2 py-[10px] my-[4px]";
@@ -50,7 +49,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
         onEdit={onEdit}
         onDelete={onDelete}
         isDeleting={isDeleting}
-        canReorder={canReorder}
+        canReorder={false}
       />
     </div>
   );
