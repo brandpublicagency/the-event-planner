@@ -9,7 +9,6 @@ interface MenuItemCardProps {
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  isDragDisabled?: boolean;
 }
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({

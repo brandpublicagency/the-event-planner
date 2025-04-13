@@ -12,7 +12,6 @@ interface CategoryContainerProps {
   isDeleting: boolean;
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
-  canReorder?: boolean;
   isBuffetCategory?: boolean;
   isGroupedLayout?: boolean;
   noBorder?: boolean;
@@ -26,7 +25,6 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   isDeleting,
   onEditCategory,
   onDeleteCategory,
-  canReorder = false,
   isBuffetCategory = false,
   isGroupedLayout = false,
   noBorder = false
@@ -49,7 +47,6 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
         onEdit={onEdit}
         onDelete={onDelete}
         isDeleting={isDeleting}
-        canReorder={false}
       />
     </div>
   );

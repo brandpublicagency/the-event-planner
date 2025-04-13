@@ -9,7 +9,6 @@ interface CategoryItemsDroppableProps {
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  canReorder?: boolean;
 }
 
 const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
@@ -17,8 +16,7 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
   items,
   onEdit,
   onDelete,
-  isDeleting,
-  canReorder = false
+  isDeleting
 }) => {
   return (
     <div className="space-y-2 mx-[6px] my-0 py-0">
@@ -30,7 +28,6 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
           onEdit={onEdit}
           onDelete={onDelete}
           isDeleting={isDeleting}
-          isDragDisabled={true}
         />
       ))}
     </div>

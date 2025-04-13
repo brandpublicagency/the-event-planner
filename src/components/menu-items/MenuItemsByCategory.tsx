@@ -12,7 +12,6 @@ interface MenuItemsByCategoryProps {
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  onReorder?: (reorderedItems: MenuItem[]) => void;
   onAddItem?: (category: string | null) => void;
 }
 

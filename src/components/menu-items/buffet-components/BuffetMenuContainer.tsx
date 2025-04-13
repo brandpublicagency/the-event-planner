@@ -42,7 +42,6 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
               isDeleting={isDeleting}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
-              canReorder={false}
               isBuffetCategory={true}
               noBorder={true}
             />

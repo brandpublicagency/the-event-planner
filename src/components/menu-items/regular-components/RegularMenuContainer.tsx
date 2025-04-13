@@ -38,7 +38,6 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
             isDeleting={isDeleting}
             onEditCategory={onEditCategory}
             onDeleteCategory={onDeleteCategory}
-            canReorder={false}
             isGroupedLayout={true}
             noBorder={true}
           />
