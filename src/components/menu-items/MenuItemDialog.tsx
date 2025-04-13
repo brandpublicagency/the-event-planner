@@ -63,15 +63,15 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
   ]);
   
   const queryClient = useQueryClient();
-
-  // Generate a unique query key with timestamp to force refresh
-  const categoryQueryTimestamp = Date.now();
+  
+  // Ensure we refetch categories when edit dialog opens with different initialData
+  const queryKey = ['menu-categories', choiceId, initialData?.id || 'new', Date.now()];
   
   // Query specifically filtered by choiceId for choice-specific categories
   const { data: existingCategories = [], isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
-    queryKey: ['menu-categories', choiceId, categoryQueryTimestamp],
+    queryKey: queryKey,
     queryFn: async () => {
-      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} at timestamp ${categoryQueryTimestamp}`);
+      console.log(`MenuItemDialog: Fetching categories for choice: ${choiceId} with item: ${initialData?.id || 'new'}`);
       
       // Ensure we're querying by choice_id to get only relevant categories
       const { data, error } = await supabase
@@ -96,8 +96,6 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     },
     enabled: open, // Only fetch when dialog is open
     staleTime: 0, // Always refetch when opened
-    refetchInterval: 1000, // Frequent refetch to catch new categories
-    refetchOnWindowFocus: true
   });
 
   const allCategories = React.useMemo(() => {
@@ -116,6 +114,18 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
     return combinedCategories;
   }, [defaultCategories, existingCategories]);
 
+  // Reset form when initialData changes (switching between different items to edit)
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        label: initialData.label,
+        value: initialData.value,
+        category: initialData.category,
+        choice_id: initialData.choice_id,
+      });
+    }
+  }, [initialData]);
+
   // Refetch categories when dialog opens
   useEffect(() => {
     if (open) {
@@ -130,20 +140,8 @@ const MenuItemDialog: React.FC<MenuItemDialogProps> = ({
       
       // Specifically invalidate queries for this choice
       queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
-      queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
-      
-      // Also invalidate the menu items to ensure they're updated
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      
-      // Set up periodic refresh while dialog is open
-      const intervalId = setInterval(() => {
-        console.log("MenuItemDialog: Periodic refresh");
-        refetchCategories();
-      }, 1000); // Refresh frequently to catch changes
-      
-      return () => clearInterval(intervalId);
     }
-  }, [open, refetchCategories, queryClient, choiceId]);
+  }, [open, refetchCategories, queryClient, choiceId, initialData]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
