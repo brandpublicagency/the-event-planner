@@ -150,7 +150,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         </div>}
       </div>
       
-      <div className="space-y-2 ml-3 mr-3 my-0 mx-0">
+      <div className="space-y-2 ml-3 mr-3 my-0 mx-px">
         {categorizedItems[category].map(item => <div key={item.id} className="flex items-start bg-white border rounded-md p-2 mb-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
