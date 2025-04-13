@@ -16,6 +16,8 @@ interface CategoryContainerProps {
   canReorder?: boolean;
   isBuffetCategory?: boolean;
   showAddItemButton?: boolean;
+  dragHandleProps?: any;
+  showDragHandle?: boolean;
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({
@@ -29,7 +31,9 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   onAddItem,
   canReorder = true,
   isBuffetCategory = false,
-  showAddItemButton = true
+  showAddItemButton = true,
+  dragHandleProps,
+  showDragHandle = false
 }) => {
   // For regular categories, maintain the existing container style
   if (!isBuffetCategory) {
@@ -39,6 +43,8 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
           category={category}
           onEditCategory={onEditCategory}
           onDeleteCategory={onDeleteCategory}
+          dragHandleProps={dragHandleProps}
+          showDragHandle={showDragHandle}
         />
         
         <CategoryItemsDroppable
@@ -57,11 +63,13 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   
   // For buffet categories, render without the outer container
   return (
-    <div className="space-y-2 my-[4px]">
+    <div className="space-y-2 border border-dashed border-gray-300 rounded-md p-3 px-[2px] py-[10px] my-[4px]">
       <CategoryHeader 
         category={category}
         onEditCategory={onEditCategory}
         onDeleteCategory={onDeleteCategory}
+        dragHandleProps={dragHandleProps}
+        showDragHandle={showDragHandle}
       />
       
       <CategoryItemsDroppable
@@ -72,7 +80,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
         isDeleting={isDeleting}
         onAddItem={onAddItem}
         canReorder={canReorder}
-        showAddItemButton={false} // Never show individual add buttons for buffet categories
+        showAddItemButton={showAddItemButton}
       />
     </div>
   );

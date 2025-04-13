@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import CategoryManagerDialog from './CategoryManagerDialog';
@@ -9,7 +8,6 @@ import { useDragAndDrop } from './hooks/useDragAndDrop';
 import BuffetMenuContainer from './buffet-components/BuffetMenuContainer';
 import RegularMenuContainer from './regular-components/RegularMenuContainer';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { MoveVertical } from 'lucide-react';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -91,49 +89,33 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                         className={`${snapshot.isDragging ? 'opacity-70' : ''}`}
                       >
                         {isBuffetMenu ? (
-                          <div className="relative">
-                            {category !== 'Uncategorized' && (
-                              <div 
-                                {...provided.dragHandleProps} 
-                                className="absolute -left-8 top-2 cursor-grab opacity-40 hover:opacity-100"
-                              >
-                                <MoveVertical className="h-5 w-5 text-gray-500" />
-                              </div>
-                            )}
-                            <BuffetMenuContainer
-                              categories={[category]}
-                              categorizedItems={{[category]: categorizedItems[category]}}
-                              onEdit={onEdit}
-                              onDelete={onDelete}
-                              isDeleting={isDeleting}
-                              onEditCategory={handleEditCategory}
-                              onDeleteCategory={handleDeleteCategory}
-                              onAddItem={onAddItem}
-                              handleDragEnd={handleDragEnd}
-                            />
-                          </div>
+                          <BuffetMenuContainer
+                            categories={[category]}
+                            categorizedItems={{[category]: categorizedItems[category]}}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                            isDeleting={isDeleting}
+                            onEditCategory={handleEditCategory}
+                            onDeleteCategory={handleDeleteCategory}
+                            onAddItem={onAddItem}
+                            handleDragEnd={handleDragEnd}
+                            dragHandleProps={provided.dragHandleProps}
+                            showDragHandle={true}
+                          />
                         ) : (
-                          <div className="relative">
-                            {category !== 'Uncategorized' && (
-                              <div 
-                                {...provided.dragHandleProps} 
-                                className="absolute -left-8 top-2 cursor-grab opacity-40 hover:opacity-100"
-                              >
-                                <MoveVertical className="h-5 w-5 text-gray-500" />
-                              </div>
-                            )}
-                            <RegularMenuContainer
-                              categories={[category]}
-                              categorizedItems={{[category]: categorizedItems[category]}}
-                              onEdit={onEdit}
-                              onDelete={onDelete}
-                              isDeleting={isDeleting}
-                              onEditCategory={handleEditCategory}
-                              onDeleteCategory={handleDeleteCategory}
-                              onAddItem={onAddItem}
-                              handleDragEnd={handleDragEnd}
-                            />
-                          </div>
+                          <RegularMenuContainer
+                            categories={[category]}
+                            categorizedItems={{[category]: categorizedItems[category]}}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                            isDeleting={isDeleting}
+                            onEditCategory={handleEditCategory}
+                            onDeleteCategory={handleDeleteCategory}
+                            onAddItem={onAddItem}
+                            handleDragEnd={handleDragEnd}
+                            dragHandleProps={provided.dragHandleProps}
+                            showDragHandle={true}
+                          />
                         )}
                       </div>
                     )}

@@ -14,6 +14,8 @@ interface RegularMenuContainerProps {
   onDeleteCategory: (category: string) => void;
   onAddItem?: (category: string | null) => void;
   handleDragEnd: (result: any) => void;
+  dragHandleProps?: any;
+  showDragHandle?: boolean;
 }
 
 const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
@@ -25,7 +27,9 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
   onEditCategory,
   onDeleteCategory,
   onAddItem,
-  handleDragEnd
+  handleDragEnd,
+  dragHandleProps,
+  showDragHandle = false
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -42,6 +46,8 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
             onDeleteCategory={onDeleteCategory}
             onAddItem={onAddItem}
             canReorder={!!onAddItem}
+            dragHandleProps={dragHandleProps}
+            showDragHandle={showDragHandle}
           />
         ))}
       </div>
