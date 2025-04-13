@@ -111,9 +111,9 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                         className={`mb-6 ${snapshot.isDragging ? 'bg-gray-100 opacity-90' : ''}`}
                       >
                         <Droppable droppableId={`category-${category}`} direction="vertical">
-                          {(provided) => (
+                          {(droppableProvided) => (
                             <div 
-                              ref={provided.innerRef} 
+                              ref={droppableProvided.innerRef} 
                               className={`space-y-2 border border-dashed ${snapshot.isDragging ? 'border-blue-400' : 'border-gray-300'} rounded-md p-2`}
                             >
                               {category !== 'Uncategorized' && (
@@ -183,7 +183,7 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
                                   )}
                                 </Draggable>
                               ))}
-                              {provided.placeholder}
+                              {droppableProvided.placeholder}
                               
                               {onAddItem && (
                                 <div className="pt-2 py-[9px]">
