@@ -23,14 +23,14 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
           <div className="flex items-center space-x-2 ml-2">
             <button 
               onClick={() => onEditCategory(category)} 
-              className="text-[10px] text-primary-purple hover:underline"
+              className="text-[10px] text-[#C8C8C9] hover:underline"
               title={`Edit ${category} category`}
             >
               Edit
             </button>
             <button 
               onClick={() => onDeleteCategory(category)} 
-              className="text-[10px] text-red-500 hover:underline"
+              className="text-[10px] text-[#C8C8C9] hover:underline"
               title={`Delete ${category} category`}
             >
               Delete
