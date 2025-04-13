@@ -15,7 +15,7 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0">
-      <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[8px]">
+      <h3 className="border border-slate-400 rounded ml-1 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[8px] uppercase">
         {category}
       </h3>
       
