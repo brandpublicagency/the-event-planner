@@ -121,13 +121,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
             </>}
         </>}
 
-      {/* Add button below the items display to ensure it's always accessible */}
-      {choiceItems.length > 0 && <div className="mt-4">
-          <Button size="sm" onClick={handleAddItemClick}>
-            <PlusIcon className="h-3 w-3 mr-1.5" />
-            Add New Item
-          </Button>
-        </div>}
+      {/* Removing the redundant "Add New Item" button that was here */}
 
       {/* Inline form for adding items */}
       {showInlineForm && <MenuItemInlineForm onSubmit={data => {
