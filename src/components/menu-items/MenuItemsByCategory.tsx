@@ -1,3 +1,4 @@
+
 import React, { useMemo, useEffect, useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { useQueryClient } from '@tanstack/react-query';
@@ -182,7 +183,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
 
   return <DragDropContext onDragEnd={handleDragEnd}>
       <div className="space-y-6">
-        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md px-3 py-3 my-[2px]">
+        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md p-3 my-[2px]">
             <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0">
               <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[4px]">
                 {category}
@@ -201,7 +202,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             </div>
             
             <Droppable droppableId={`category-${category}`} direction="vertical">
-              {provided => <div ref={provided.innerRef} className="space-y-2 ml-3 mr-3 my-0 mx-[2px]">
+              {provided => <div ref={provided.innerRef} className="space-y-2 mx-3 my-0">
                   {categorizedItems[category].map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
                       {(provided, snapshot) => <div ref={provided.innerRef} {...provided.draggableProps} className={`flex items-start bg-white border rounded-md p-2 mb-2 ${snapshot.isDragging ? 'opacity-70' : ''}`}>
                           <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
@@ -226,7 +227,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                     </Draggable>)}
                   {provided.placeholder}
                   
-                  {onAddItem && <div className="pt-2 py-[9px]">
+                  {onAddItem && <div className="pt-2 pb-3">
                       <Button variant="ghost" size="sm" onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} className="w-full flex items-center justify-center border border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-500 py-[10px]">
                         <Plus className="h-3.5 w-3.5 mr-1" />
                         Add Item
