@@ -74,64 +74,35 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
               <div 
                 {...provided.droppableProps} 
                 ref={provided.innerRef}
-                className="space-y-4"
               >
-                {(customCategoryOrder.length > 0 ? customCategoryOrder : allCategories).map((category, index) => (
-                  <Draggable 
-                    key={category} 
-                    draggableId={`category-${category}`} 
-                    index={index}
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`${snapshot.isDragging ? 'opacity-70' : ''}`}
-                      >
-                        {isBuffetMenu ? (
-                          <BuffetMenuContainer
-                            categories={[category]}
-                            categorizedItems={{ [category]: categorizedItems[category] || [] }}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            isDeleting={isDeleting}
-                            onEditCategory={handleEditCategory}
-                            onDeleteCategory={handleDeleteCategory}
-                            handleDragEnd={handleDragEnd}
-                            dragHandleProps={provided.dragHandleProps}
-                            showDragHandle={true}
-                          />
-                        ) : (
-                          <RegularMenuContainer
-                            categories={[category]}
-                            categorizedItems={{ [category]: categorizedItems[category] || [] }}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            isDeleting={isDeleting}
-                            onEditCategory={handleEditCategory}
-                            onDeleteCategory={handleDeleteCategory}
-                            handleDragEnd={handleDragEnd}
-                            dragHandleProps={provided.dragHandleProps}
-                            showDragHandle={true}
-                          />
-                        )}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                
-                {/* Single Add Item button at the bottom */}
-                {onAddItem && (
-                  <div className="mt-4">
-                    <button
-                      onClick={() => onAddItem(null)}
-                      className="w-full py-2 px-3 text-sm rounded-md border border-dashed border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center"
-                    >
-                      <span className="mr-1">+</span> Add Item
-                    </button>
-                  </div>
+                {isBuffetMenu ? (
+                  <BuffetMenuContainer
+                    categories={allCategories}
+                    categorizedItems={categorizedItems}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isDeleting={isDeleting}
+                    onEditCategory={handleEditCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    onAddItem={onAddItem}
+                    handleDragEnd={handleDragEnd}
+                    showDragHandle={true}
+                  />
+                ) : (
+                  <RegularMenuContainer
+                    categories={allCategories}
+                    categorizedItems={categorizedItems}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isDeleting={isDeleting}
+                    onEditCategory={handleEditCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    onAddItem={onAddItem}
+                    handleDragEnd={handleDragEnd}
+                    showDragHandle={true}
+                  />
                 )}
+                {provided.placeholder}
               </div>
             )}
           </Droppable>
