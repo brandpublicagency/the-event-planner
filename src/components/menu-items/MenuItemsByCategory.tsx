@@ -142,11 +142,13 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 onAddItem={onAddItem}
                 canReorder={!!onReorder}
                 isBuffetCategory={true}
+                showAddItemButton={false}
               />
             ))}
             
+            {/* Single Add Item button for the entire buffet menu */}
             {onAddItem && (
-              <div className="mt-4">
+              <div className="mt-4 mx-[6px]">
                 <AddItemButton 
                   onAddItem={onAddItem} 
                   category={allCategories[0] || 'Uncategorized'} 

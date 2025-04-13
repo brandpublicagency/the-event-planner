@@ -15,6 +15,7 @@ interface CategoryContainerProps {
   onAddItem?: (category: string | null) => void;
   canReorder?: boolean;
   isBuffetCategory?: boolean;
+  showAddItemButton?: boolean;
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({
@@ -27,7 +28,8 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   onDeleteCategory,
   onAddItem,
   canReorder = true,
-  isBuffetCategory = false
+  isBuffetCategory = false,
+  showAddItemButton = true
 }) => {
   // For regular categories, maintain the existing container style
   if (!isBuffetCategory) {
@@ -47,6 +49,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
           isDeleting={isDeleting}
           onAddItem={onAddItem}
           canReorder={canReorder}
+          showAddItemButton={showAddItemButton}
         />
       </div>
     );
@@ -69,6 +72,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
         isDeleting={isDeleting}
         onAddItem={onAddItem}
         canReorder={canReorder}
+        showAddItemButton={false} // Never show individual add buttons for buffet categories
       />
     </div>
   );
