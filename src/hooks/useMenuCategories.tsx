@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
@@ -41,7 +42,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
 
   // Determine the menu type based on the choice value
   const menuType = useMemo(() => {
-    if (items.length === 0) return null;
+    if (items.length === 0) return 'default';
     const choice = (items[0]?.choice || '').toLowerCase();
     
     if (choice.includes('karoo')) return 'karoo';
@@ -87,7 +88,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     if (!menuType) return allCategories;
     
     // Get the fixed order for this menu type or use default
-    const fixedOrder = FIXED_CATEGORY_ORDER[menuType] || FIXED_CATEGORY_ORDER['default'];
+    const fixedOrder = FIXED_CATEGORY_ORDER[menuType as keyof typeof FIXED_CATEGORY_ORDER] || FIXED_CATEGORY_ORDER['default'];
     console.log(`Applying fixed category order for ${menuType}:`, fixedOrder);
     
     // Sort based on the fixed order, keeping any categories that aren't in the fixed order at the end
@@ -96,8 +97,21 @@ export const useMenuCategories = (items: MenuItem[]) => {
       if (a === 'Uncategorized') return 1;
       if (b === 'Uncategorized') return -1;
       
-      const aIndex = fixedOrder.indexOf(a);
-      const bIndex = fixedOrder.indexOf(b);
+      // Special handling for categories that might have variations
+      const aBaseCategory = getBaseCategory(a);
+      const bBaseCategory = getBaseCategory(b);
+      
+      // Find matches in the fixed order for base categories
+      const aMatches = fixedOrder.filter(item => item.startsWith(aBaseCategory));
+      const bMatches = fixedOrder.filter(item => item.startsWith(bBaseCategory));
+      
+      const aIndex = aMatches.length > 0 ? 
+                    fixedOrder.indexOf(aMatches[0]) : 
+                    fixedOrder.findIndex(item => item.startsWith(aBaseCategory));
+      
+      const bIndex = bMatches.length > 0 ? 
+                    fixedOrder.indexOf(bMatches[0]) : 
+                    fixedOrder.findIndex(item => item.startsWith(bBaseCategory));
       
       // If both categories are in the fixed order, sort by their position
       if (aIndex !== -1 && bIndex !== -1) {
@@ -122,6 +136,12 @@ export const useMenuCategories = (items: MenuItem[]) => {
     return sorted;
   }, [allCategories, menuType]);
 
+  // Helper function to get the base category name without numbers or brackets
+  const getBaseCategory = (category: string): string => {
+    // Remove any numbers, parentheses, and extra spaces
+    return category.replace(/\s*\(\d+\)\s*$/, '').trim();
+  };
+
   // Fetch saved category order from database using React Query
   const { data: savedCategoryOrder = [], isLoading: isLoadingCategoryOrder } = useQuery({
     queryKey: ['menu-choice-category-order', choiceId],
@@ -145,7 +165,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
   // Custom category order state
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
-  // Update customCategoryOrder when savedCategoryOrder or allCategories changes
+  // Update customCategoryOrder when sortedCategories changes
   useEffect(() => {
     if (!useCategorization) {
       setCustomCategoryOrder(['Items']);

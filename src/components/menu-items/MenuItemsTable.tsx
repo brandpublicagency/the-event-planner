@@ -44,9 +44,36 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     groupedItems[category].push(item);
   });
 
-  const categories = Object.keys(groupedItems);
+  // Define the fixed category order
+  const fixedCategoryOrder = ['Meat Selection', 'Vegetables', 'Starch', 'Salad'];
   
-  console.log("Categories available:", categories);
+  // Get all categories from items and sort according to fixed order
+  const allCategories = Object.keys(groupedItems);
+  
+  // Sort categories based on the fixed order
+  const categories = allCategories.sort((a, b) => {
+    // Extract base category names without numbers or parentheses
+    const aBase = a.replace(/\s*\(\d+\)\s*$/, '').trim();
+    const bBase = b.replace(/\s*\(\d+\)\s*$/, '').trim();
+    
+    // Find positions in the fixed order
+    const aIndex = fixedCategoryOrder.findIndex(cat => aBase.includes(cat) || cat.includes(aBase));
+    const bIndex = fixedCategoryOrder.findIndex(cat => bBase.includes(cat) || cat.includes(bBase));
+    
+    // If both are in fixed order, sort by that order
+    if (aIndex >= 0 && bIndex >= 0) {
+      return aIndex - bIndex;
+    }
+    
+    // If only one is in fixed order, prioritize it
+    if (aIndex >= 0) return -1;
+    if (bIndex >= 0) return 1;
+    
+    // If neither is in fixed order (or both aren't found), use alphabetical
+    return a.localeCompare(b);
+  });
+  
+  console.log("Categories displayed in order:", categories);
 
   return (
     <div className="space-y-4">
