@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
@@ -15,8 +14,8 @@ interface MenuItemsManagerProps {
   hideChoiceLabel?: boolean;
 }
 
-// Menu types that should use the categorized layout (sec-mains and buffet menus)
-const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+// Menu types that should use the categorized layout
+const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet', 'warm-karoo-feast', 'cho-feast', 'plated-menu'];
 
 // All choices that should use the drag and drop functionality
 const DRAG_DROP_CHOICE_VALUES = [
@@ -25,15 +24,16 @@ const DRAG_DROP_CHOICE_VALUES = [
   // Buffet menus (should have categories)
   'buffet-menu', 
   'cho-buffet',
-  // Karoo feasts
+  // Karoo feasts (should have categories)
   'warm-karoo-feast',
   'cho-feast',
+  // Plated menu (should have categories)
+  'plated-menu',
   // Other main course options that use drag but NOT categories
   'sec-main',
   'sec-main-vegetarian',
   'sec-main-vegan',
   // Plated menu options
-  'plated-menu',
   'plated-main',
   'plated-starter'
 ];

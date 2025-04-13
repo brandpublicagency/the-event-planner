@@ -4,7 +4,7 @@ import { MenuItem } from '@/api/types/menuItems';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Menu types that should use categories
-  const CATEGORY_MENU_TYPES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+  const CATEGORY_MENU_TYPES = ['sec-mains', 'buffet-menu', 'cho-buffet', 'warm-karoo-feast', 'cho-feast', 'plated-menu'];
   
   // Check if this is a menu type that should use categories
   const isMainCourseMenu = useMemo(() => {

@@ -33,7 +33,7 @@ type MenuItemFormProps = {
 };
 
 // Menu types that should use categories
-const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet', 'warm-karoo-feast', 'cho-feast', 'plated-menu'];
 
 const MenuItemForm: React.FC<MenuItemFormProps> = ({ 
   initialData = {}, 
