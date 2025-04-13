@@ -105,8 +105,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
           <Input 
             placeholder="Value (auto-generated with itm- prefix)" 
             {...register("value", { required: true })}
-            className={errors.value ? "border-red-500" : "bg-gray-100"}
-            readOnly
+            className={errors.value ? "border-red-500" : "bg-gray-50"}
           />
           {errors.value && <p className="text-red-500 text-xs mt-1">Value is required</p>}
         </div>

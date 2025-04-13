@@ -48,8 +48,6 @@ export const MenuItemFormFields: React.FC<MenuItemFormFieldsProps> = ({
               <Input 
                 placeholder="Auto-generated with itm- prefix" 
                 {...field} 
-                className={!initialData ? "bg-gray-100" : ""}
-                readOnly={!initialData}
               />
             </FormControl>
             <FormMessage />
