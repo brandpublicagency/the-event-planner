@@ -1,20 +1,41 @@
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
+import { storeCategoryOrder } from '@/api/menu/menuItemsApi';
 
 interface UseDragAndDropProps {
   items: MenuItem[];
   onReorder?: (reorderedItems: MenuItem[]) => void;
   onReorderCategories?: (newCategoryOrder: string[]) => void;
   categoryOrder?: string[];
+  choiceId?: string;
 }
 
 export const useDragAndDrop = ({ 
   items, 
   onReorder,
   onReorderCategories,
-  categoryOrder 
+  categoryOrder,
+  choiceId
 }: UseDragAndDropProps) => {
+  // Save category order to database when it changes
+  useEffect(() => {
+    if (choiceId && categoryOrder && categoryOrder.length > 1) {
+      console.log(`Persisting category order for choice ${choiceId}:`, categoryOrder);
+      storeCategoryOrder(choiceId, categoryOrder)
+        .then(success => {
+          if (success) {
+            console.log('Category order saved successfully');
+          } else {
+            console.error('Failed to save category order');
+          }
+        })
+        .catch(error => {
+          console.error('Error saving category order:', error);
+        });
+    }
+  }, [categoryOrder, choiceId]);
+
   const handleDragEnd = useCallback((result: any) => {
     if (!result.destination) return;
     

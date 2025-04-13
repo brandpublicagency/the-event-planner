@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
+import { getCategoryOrder } from '@/api/menu/menuItemsApi';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Menu types that should use categories
@@ -24,6 +25,12 @@ export const useMenuCategories = (items: MenuItem[]) => {
     const choice = firstItem.choice;
     
     return CATEGORY_MENU_TYPES.includes(choice);
+  }, [items]);
+
+  // Get the choice ID for database operations
+  const choiceId = useMemo(() => {
+    if (items.length === 0) return null;
+    return items[0].choice_id;
   }, [items]);
 
   // Categorize items
@@ -58,19 +65,50 @@ export const useMenuCategories = (items: MenuItem[]) => {
       });
   }, [categorizedItems, useCategorization]);
 
-  // Custom category order (if needed)
+  // Custom category order
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
   // Update category order
   const updateCategoryOrder = (newOrder: string[]) => {
+    console.log("Setting new category order:", newOrder);
     setCustomCategoryOrder(newOrder);
   };
+
+  // Fetch saved category order from database
+  useEffect(() => {
+    if (choiceId && useCategorization) {
+      console.log(`Fetching saved category order for choice: ${choiceId}`);
+      getCategoryOrder(choiceId)
+        .then(savedOrder => {
+          if (savedOrder && savedOrder.length > 0) {
+            console.log("Found saved category order:", savedOrder);
+            
+            // Filter out any categories that no longer exist
+            const validCategories = savedOrder.filter(cat => allCategories.includes(cat));
+            
+            // Add any missing categories that weren't in the saved order
+            const missingCategories = allCategories.filter(cat => !savedOrder.includes(cat));
+            
+            const updatedOrder = [...validCategories, ...missingCategories];
+            
+            if (updatedOrder.length > 0) {
+              console.log("Using saved category order:", updatedOrder);
+              setCustomCategoryOrder(updatedOrder);
+            }
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching category order:", error);
+        });
+    }
+  }, [choiceId, useCategorization, allCategories]);
 
   return {
     categorizedItems,
     isBuffetMenu: isMainCourseMenu, // Reuse the existing property name to avoid breaking changes
     allCategories,
     updateCategoryOrder,
-    customCategoryOrder
+    customCategoryOrder,
+    choiceId
   };
 };

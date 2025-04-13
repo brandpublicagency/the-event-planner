@@ -33,14 +33,16 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     isBuffetMenu, 
     allCategories,
     updateCategoryOrder,
-    customCategoryOrder
+    customCategoryOrder,
+    choiceId
   } = useMenuCategories(items);
   
   const { handleDragEnd } = useDragAndDrop({ 
     items, 
     onReorder,
     onReorderCategories: updateCategoryOrder,
-    categoryOrder: customCategoryOrder.length > 0 ? customCategoryOrder : allCategories
+    categoryOrder: customCategoryOrder.length > 0 ? customCategoryOrder : allCategories,
+    choiceId
   });
 
   // Use the category manager hook
@@ -78,7 +80,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
               >
                 {/* Always use BuffetMenuContainer for consistent drag and drop behavior */}
                 <BuffetMenuContainer
-                  categories={allCategories}
+                  categories={customCategoryOrder.length > 0 ? customCategoryOrder : allCategories}
                   categorizedItems={categorizedItems}
                   onEdit={onEdit}
                   onDelete={onDelete}
@@ -98,7 +100,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         <div>
           {/* Always use BuffetMenuContainer for consistent drag and drop behavior */}
           <BuffetMenuContainer
-            categories={allCategories}
+            categories={customCategoryOrder.length > 0 ? customCategoryOrder : allCategories}
             categorizedItems={categorizedItems}
             onEdit={onEdit}
             onDelete={onDelete}
