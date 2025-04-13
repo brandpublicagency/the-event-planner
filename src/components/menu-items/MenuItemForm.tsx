@@ -150,7 +150,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
         </div>
         
         {!form.watch('choice_id') || 
-         !choices.find(c => c.id === form.watch('choice_id'))?.value?.includes('plated') ? (
+         (!choices.find(c => c.id === form.watch('choice_id'))?.value?.includes('plated')) ? (
           <FormField
             control={form.control}
             name="category"
