@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
@@ -128,7 +127,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
                   onEdit={item => setEditingItem(item)} 
                   onDelete={handleDeleteItem} 
                   isDeleting={isDeleting} 
-                  onReorder={handleReorderItems}
                   onAddItem={handleAddInCategory}
                 />
               ) : (
