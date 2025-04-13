@@ -13,7 +13,6 @@ interface CategoryItemsDroppableProps {
   isDeleting: boolean;
   onAddItem?: (category: string | null) => void;
   canReorder?: boolean;
-  showAddItemButton?: boolean;
 }
 
 const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
@@ -23,8 +22,7 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
   onDelete,
   isDeleting,
   onAddItem,
-  canReorder = true,
-  showAddItemButton = true
+  canReorder = true
 }) => {
   return (
     <Droppable droppableId={`category-${category}`} direction="vertical">
@@ -53,7 +51,6 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
           ))}
           {provided.placeholder}
           
-          {/* Always show Add Item button if onAddItem is provided */}
           {onAddItem && (
             <AddItemButton 
               onAddItem={onAddItem} 
