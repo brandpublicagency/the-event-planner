@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 
 interface CategoryHeaderProps {
@@ -14,36 +13,32 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   onEditCategory,
   onDeleteCategory
 }) => {
-  const isUncategorized = category === 'Uncategorized' || category === 'Items';
-  
+  // Don't show any actions for uncategorized items
+  if (category === 'Uncategorized' || category === 'Items') {
+    return null;
+  }
+
   return (
-    <div className="flex items-center justify-between px-3 py-2">
-      <div className="flex items-center">
-        <h3 className="text-md font-semibold">{category}</h3>
+    <div className="mb-1 px-1 flex items-center justify-between">
+      <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
+        {category}
       </div>
-      
-      {!isUncategorized && (
-        <div className="flex space-x-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEditCategory(category)}
-            className="h-8 w-8"
-          >
-            <Edit className="h-4 w-4" />
-            <span className="sr-only">Edit {category}</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDeleteCategory(category)}
-            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Delete {category}</span>
-          </Button>
-        </div>
-      )}
+      <div className="flex space-x-1">
+        <button
+          onClick={() => onEditCategory(category)}
+          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+          title={`Edit ${category}`}
+        >
+          <Edit className="h-3.5 w-3.5 text-gray-500" />
+        </button>
+        <button
+          onClick={() => onDeleteCategory(category)}
+          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+          title={`Delete ${category}`}
+        >
+          <Trash2 className="h-3.5 w-3.5 text-gray-500" />
+        </button>
+      </div>
     </div>
   );
 };

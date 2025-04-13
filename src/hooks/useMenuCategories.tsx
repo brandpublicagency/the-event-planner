@@ -4,10 +4,11 @@ import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-// Fixed category order by menu type
+// Fixed category order by menu type - expanded and made more specific
 const FIXED_CATEGORY_ORDER = {
   'buffet': ['Meat Selection (2)', 'Vegetables (2)', 'Starch (2)', 'Salad (1)'],
   'karoo': ['Meat Selection (1)', 'Vegetables (2)', 'Starch Selection (2)', 'Salad (1)'],
+  'sec-mains': ['Meat Selection', 'Vegetables', 'Starch', 'Salad'], // Added explicit order for sec-mains
 };
 
 export const useMenuCategories = (items: MenuItem[]) => {
@@ -44,6 +45,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     if (choice.includes('karoo')) return 'karoo';
     if (choice.includes('buffet')) return 'buffet';
+    if (choice.includes('sec-main')) return 'sec-mains'; // Improved detection for sec-mains
     return null;
   }, [items]);
 
@@ -91,6 +93,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
 
     // Get the fixed order for this menu type
     const fixedOrder = FIXED_CATEGORY_ORDER[menuType];
+    console.log(`Applying fixed category order for ${menuType}:`, fixedOrder);
     
     // Sort based on the fixed order, keeping any categories that aren't in the fixed order at the end
     const sorted = [...allCategories].sort((a, b) => {
