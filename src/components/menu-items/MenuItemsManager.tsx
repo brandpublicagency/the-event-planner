@@ -14,21 +14,13 @@ interface MenuItemsManagerProps {
   hideChoiceLabel?: boolean;
 }
 
-// Menu types that should use the categorized layout
-const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet', 'warm-karoo-feast', 'cho-feast', 'plated-menu'];
+// Menu types that should use the categorized layout - ONLY sec-mains
+const CATEGORY_CHOICE_VALUES = ['sec-mains'];
 
 // All choices that should use the drag and drop functionality
 const DRAG_DROP_CHOICE_VALUES = [
-  // Main courses (should have categories)
+  // Main courses (only sec-mains should have categories)
   'sec-mains',
-  // Buffet menus (should have categories)
-  'buffet-menu', 
-  'cho-buffet',
-  // Karoo feasts (should have categories)
-  'warm-karoo-feast',
-  'cho-feast',
-  // Plated menu (should have categories)
-  'plated-menu',
   // Other main course options that use drag but NOT categories
   'sec-main',
   'sec-main-vegetarian',

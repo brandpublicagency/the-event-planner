@@ -1,27 +1,18 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
 import { useQuery } from '@tanstack/react-query';
 
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Updated to explicitly exclude plated starter from categorization
-  const CATEGORY_MENU_TYPES = [
-    'sec-mains', 
-    'buffet-menu', 
-    'cho-buffet', 
-    'warm-karoo-feast', 
-    'cho-feast', 
-    'plated-menu'
-  ];
+  // Only sec-mains should have categorization
+  const CATEGORY_MENU_TYPES = ['sec-mains'];
   
   const useCategorization = useMemo(() => {
     if (items.length === 0) return false;
     
     const firstItem = items[0];
     const choice = firstItem.choice;
-    
-    // Explicitly return false for plated starter
-    if (choice === 'plated-starter') return false;
     
     return CATEGORY_MENU_TYPES.includes(choice);
   }, [items]);
