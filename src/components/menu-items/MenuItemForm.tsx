@@ -57,16 +57,14 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     // Get the selected choice to determine if category should be applied
     const selectedChoice = choices.find(choice => choice.id === values.choice_id);
     
-    // Hide category for plated menu types
-    const isPlatedMenu = selectedChoice?.value?.includes('plated') || 
-                         selectedChoice?.value === 'plated-starter' || 
-                         selectedChoice?.value === 'plated-main';
+    // Only apply category for sec-mains
+    const isMainCourse = selectedChoice?.value === 'sec-mains';
 
     const formData: MenuItemFormData = {
       value: values.value,
       label: values.label,
       choice_id: values.choice_id,
-      category: isPlatedMenu ? null : values.category,
+      category: isMainCourse ? values.category : null,
       image_url: values.image_url,
     };
     onSubmit(formData);
@@ -82,6 +80,10 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       }
     }
   }, [initialData.choice_id, choices]);
+
+  // Determine if we should show the category field
+  const selectedChoiceValue = choices.find(c => c.id === form.watch('choice_id'))?.value;
+  const showCategoryField = selectedChoiceValue === 'sec-mains';
 
   return (
     <Form {...form}>
@@ -149,8 +151,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
           />
         </div>
         
-        {!form.watch('choice_id') || 
-         (!choices.find(c => c.id === form.watch('choice_id'))?.value?.includes('plated')) ? (
+        {showCategoryField && (
           <FormField
             control={form.control}
             name="category"
@@ -168,7 +169,8 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          ) : null}
+          />
+        )}
 
         <div className="flex justify-end space-x-2">
           <Button variant="outline" type="button" onClick={onCancel}>

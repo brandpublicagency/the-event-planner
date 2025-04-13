@@ -49,6 +49,19 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
     }
   }, [labelValue, setValue]);
 
+  // Fetch choice value to determine if it's a main course item
+  const { data: choiceData, isLoading: isChoiceLoading } = useQuery({
+    queryKey: ['menu-choice', choiceId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('menu_choices')
+        .select('value')
+        .eq('id', choiceId)
+        .single();
+      return data;
+    }
+  });
+
   // Fetch categories specific to this choice
   const { data: categories = [], refetch: refetchCategories } = useQuery({
     queryKey: ['menu-categories-list', choiceId],
@@ -80,9 +93,10 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
   console.log("All available categories:", allCategories);
 
-  // Determine if categories should be shown
-  const showCategories = allCategories.length > 0 && 
-    !['plated-starter', 'plated-main', 'plated-menu'].includes(watch('choice') || '');
+  // Determine if categories should be shown - ONLY for sec-mains
+  const showCategories = !isChoiceLoading && 
+                        choiceData?.value === 'sec-mains' && 
+                        allCategories.length > 0;
 
   const submitWithCategory = (data: MenuItemFormData) => {
     console.log("Submitting with category:", selectedCategory);

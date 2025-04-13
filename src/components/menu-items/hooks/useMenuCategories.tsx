@@ -2,32 +2,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 
-// List of menu types that should NOT use categories
-const NO_CATEGORY_TYPES = [
-  'plated-starter', 
-  'plated-main', 
-  'plated-menu'
-];
-
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Check if this is a buffet or similar menu type that requires categorization
-  const isBuffetMenu = useMemo(() => {
+  // Check if this is a main course menu type that should use categories
+  const isMainCourseMenu = useMemo(() => {
     if (items.length === 0) return false;
     
     const firstItem = items[0];
     const choice = firstItem.choice;
     
-    // Include buffet, main courses, and feast types
-    return [
-      'buffet-menu', 
-      'cho-buffet', 
-      'warm-karoo-feast', 
-      'cho-feast', 
-      'sec-mains', 
-      'sec-main',
-      'sec-main-vegetarian',
-      'sec-main-vegan'
-    ].includes(choice);
+    // Only sec-mains should use categories
+    return choice === 'sec-mains';
   }, [items]);
 
   // Determine if categories should be used
@@ -37,8 +21,8 @@ export const useMenuCategories = (items: MenuItem[]) => {
     const firstItem = items[0];
     const choice = firstItem.choice;
     
-    // Return false for plated menu types
-    return !NO_CATEGORY_TYPES.includes(choice);
+    // Only sec-mains should use categories
+    return choice === 'sec-mains';
   }, [items]);
 
   // Categorize items
@@ -83,7 +67,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
 
   return {
     categorizedItems,
-    isBuffetMenu,
+    isBuffetMenu: isMainCourseMenu, // Reuse the existing property name to avoid breaking changes
     allCategories,
     updateCategoryOrder,
     customCategoryOrder

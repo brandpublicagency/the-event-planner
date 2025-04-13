@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
@@ -15,22 +14,27 @@ interface MenuItemsManagerProps {
   hideChoiceLabel?: boolean;
 }
 
-// All choices that should use the categorized layout with drag and drop functionality
-const MULTI_CATEGORY_CHOICE_VALUES = [
+// Only main courses (sec-mains) should use the categorized layout
+const CATEGORY_CHOICE_VALUES = ['sec-mains'];
+
+// All choices that should use the drag and drop functionality
+const DRAG_DROP_CHOICE_VALUES = [
+  // Main courses (only one that should have categories)
+  'sec-mains',
   // Buffet menus
   'buffet-menu', 
   'cho-buffet',
   // Karoo feasts
   'warm-karoo-feast',
   'cho-feast',
-  // Section mains (all main course options)
-  'sec-mains',
+  // Other main course options that use drag but NOT categories
   'sec-main',
   'sec-main-vegetarian',
   'sec-main-vegan',
   // Plated menu options
   'plated-menu',
-  'plated-main'
+  'plated-main',
+  'plated-starter'
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
@@ -70,42 +74,24 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     refetchMenuItems();
   }, [refetchMenuItems, choiceId, choiceLabel]);
 
-  const useCategories = useMemo(() => {
+  const useDragDrop = useMemo(() => {
     if (!choiceItems.length) return false;
 
     const choiceValue = choiceItems[0]?.choice;
     console.log(`Choice value for ${choiceLabel}: ${choiceValue}`);
-
-    // Check if this is a main course item (section main)
-    const isMainCourse = choiceValue?.includes('sec-main') || 
-                          choiceValue === 'sec-mains' || 
-                          choiceValue?.startsWith('sec-') ||
-                          choiceValue === 'plated-menu' ||
-                          choiceValue === 'plated-main';
-
-    // Check if this is a feast or buffet item
-    const isBuffetType = choiceValue === 'buffet-menu' || 
-                         choiceValue === 'cho-buffet';
-    const isKarooFeast = choiceValue === 'warm-karoo-feast' || 
-                         choiceValue === 'cho-feast';
-
-    // Check for menu type by label as backup
-    const isBuffetLabel = choiceLabel.toLowerCase().includes('buffet');
-    const isKarooLabel = choiceLabel.toLowerCase().includes('karoo');
-    const isMainCourseLabel = choiceLabel.toLowerCase().includes('main course') || 
-                              choiceLabel.toLowerCase().includes('section') || 
-                              choiceLabel.toLowerCase().includes('plated');
-
-    // Determine if we should use categories for this choice
-    const shouldUseCategories = MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue) || 
-                                isBuffetLabel || 
-                                isKarooLabel || 
-                                isMainCourse || 
-                                isMainCourseLabel;
-                                
-    console.log(`Should use categories for ${choiceLabel}? ${shouldUseCategories}`);
-    return shouldUseCategories;
+    
+    // Check if this choice should use drag and drop
+    return DRAG_DROP_CHOICE_VALUES.includes(choiceValue);
   }, [choiceItems, choiceLabel]);
+
+  const useCategories = useMemo(() => {
+    if (!choiceItems.length) return false;
+
+    const choiceValue = choiceItems[0]?.choice;
+    
+    // Only sec-mains should use categories
+    return CATEGORY_CHOICE_VALUES.includes(choiceValue);
+  }, [choiceItems]);
 
   const availableCategories = useMemo(() => {
     if (!useCategories || !choiceItems.length) return [];
@@ -126,52 +112,92 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     setShowInlineForm(true);
   };
 
-  return <div className="mt-2 my-[7px]">
-      {isLoading ? <div className="text-center py-4 text-sm text-gray-500">Loading items...</div> : <>
-          {choiceItems.length === 0 ? <div className="border border-dashed border-gray-300 rounded-md p-4 bg-gray-50 flex flex-col items-center justify-center space-y-2">
+  return (
+    <div className="mt-2 my-[7px]">
+      {isLoading ? (
+        <div className="text-center py-4 text-sm text-gray-500">Loading items...</div>
+      ) : (
+        <>
+          {choiceItems.length === 0 ? (
+            <div className="border border-dashed border-gray-300 rounded-md p-4 bg-gray-50 flex flex-col items-center justify-center space-y-2">
               <p className="text-sm text-gray-500">No items added yet</p>
               <Button size="sm" onClick={handleAddItemClick} className="mt-2">
                 <PlusIcon className="h-3 w-3 mr-1.5" />
                 Add Item
               </Button>
-            </div> : <>
-              {useCategories ? <MenuItemsByCategory 
-                items={choiceItems} 
-                onEdit={item => setEditingItem(item)} 
-                onDelete={handleDeleteItem} 
-                isDeleting={isDeleting} 
-                onReorder={handleReorderItems}
-                onAddItem={handleAddInCategory}
-              /> : <MenuItemsTable 
-                items={choiceItems} 
-                onEdit={item => setEditingItem(item)} 
-                onDelete={handleDeleteItem} 
-                onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
-                isDeleting={isDeleting} 
-                onAddItem={handleAddInCategory} 
-              />}
-            </>}
-        </>}
+            </div>
+          ) : (
+            <>
+              {useDragDrop ? (
+                <MenuItemsByCategory 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  isDeleting={isDeleting} 
+                  onReorder={handleReorderItems}
+                  onAddItem={handleAddInCategory}
+                />
+              ) : (
+                <MenuItemsTable 
+                  items={choiceItems} 
+                  onEdit={item => setEditingItem(item)} 
+                  onDelete={handleDeleteItem} 
+                  onReorder={reorderedItems => handleReorderItems(reorderedItems)} 
+                  isDeleting={isDeleting} 
+                  onAddItem={handleAddInCategory} 
+                />
+              )}
+            </>
+          )}
+        </>
+      )}
 
-      {showInlineForm && <MenuItemInlineForm onSubmit={data => {
-      handleAddItem({
-        ...data,
-        choice_id: choiceId
-      });
-      setShowInlineForm(false);
-      setSelectedCategory(null);
-    }} onCancel={() => {
-      setShowInlineForm(false);
-      setSelectedCategory(null);
-    }} isSubmitting={isCreating} choiceId={choiceId} availableCategories={availableCategories} preSelectedCategory={selectedCategory} />}
+      {showInlineForm && (
+        <MenuItemInlineForm 
+          onSubmit={data => {
+            handleAddItem({
+              ...data,
+              choice_id: choiceId
+            });
+            setShowInlineForm(false);
+            setSelectedCategory(null);
+          }} 
+          onCancel={() => {
+            setShowInlineForm(false);
+            setSelectedCategory(null);
+          }} 
+          isSubmitting={isCreating} 
+          choiceId={choiceId} 
+          availableCategories={availableCategories} 
+          preSelectedCategory={selectedCategory}
+        />
+      )}
 
-      <MenuItemDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSubmit={data => handleAddItem({
-      ...data,
-      choice_id: choiceId
-    })} isSubmitting={isCreating} title="Add Menu Item" choiceId={choiceId} />
+      <MenuItemDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen} 
+        onSubmit={data => handleAddItem({
+          ...data,
+          choice_id: choiceId
+        })} 
+        isSubmitting={isCreating} 
+        title="Add Menu Item" 
+        choiceId={choiceId} 
+      />
 
-      {editingItem && <MenuItemDialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)} onSubmit={data => handleUpdateItem(editingItem.id, data)} isSubmitting={isUpdating} initialData={editingItem} title="Edit Menu Item" choiceId={choiceId} />}
-    </div>;
+      {editingItem && (
+        <MenuItemDialog 
+          open={!!editingItem} 
+          onOpenChange={open => !open && setEditingItem(null)} 
+          onSubmit={data => handleUpdateItem(editingItem.id, data)} 
+          isSubmitting={isUpdating} 
+          initialData={editingItem} 
+          title="Edit Menu Item" 
+          choiceId={choiceId} 
+        />
+      )}
+    </div>
+  );
 };
 
 export default MenuItemsManager;
