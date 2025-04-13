@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
@@ -14,6 +15,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     const firstItem = items[0];
     const choice = firstItem.choice;
     
+    console.log(`useMenuCategories: Choice value for first item: ${choice}`);
     return CATEGORY_MENU_TYPES.includes(choice);
   }, [items]);
 

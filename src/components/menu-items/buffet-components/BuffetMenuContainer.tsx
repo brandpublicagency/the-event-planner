@@ -4,6 +4,7 @@ import { MenuItem } from '@/api/types/menuItems';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
 import AddItemButton from '../category-components/AddItemButton';
+import { toast } from 'sonner';
 
 interface BuffetMenuContainerProps {
   categories: string[];
@@ -28,6 +29,13 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onAddItem,
   handleDragEnd
 }) => {
+  const isSecMains = categorizedItems && 
+    Object.values(categorizedItems).length > 0 && 
+    Object.values(categorizedItems)[0]?.[0]?.choice === 'sec-mains';
+
+  console.log('BuffetMenuContainer: isSecMains=', isSecMains);
+  console.log('BuffetMenuContainer: categories=', categories);
+  
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="border border-gray-300 rounded-md p-4">
@@ -43,6 +51,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                   key={`category-draggable-${category}`} 
                   draggableId={`category-${category}`} 
                   index={index}
+                  isDragDisabled={!isSecMains}
                 >
                   {(provided) => (
                     <div
@@ -62,7 +71,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                         canReorder={!!onAddItem}
                         isBuffetCategory={true}
                         dragHandleProps={provided.dragHandleProps}
-                        showDragHandle={true}
+                        showDragHandle={isSecMains}
                         noBorder={true}
                       />
                     </div>

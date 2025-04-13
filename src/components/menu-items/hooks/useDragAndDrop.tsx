@@ -19,13 +19,30 @@ export const useDragAndDrop = ({
   choiceId
 }: UseDragAndDropProps) => {
   const handleDragEnd = useCallback((result: any) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      console.log("Drag cancelled - no destination");
+      return;
+    }
+    
+    // Log the drag event for debugging
+    console.log("Drag end event:", {
+      type: result.type,
+      source: result.source,
+      destination: result.destination,
+      draggableId: result.draggableId
+    });
     
     // Handle category reordering
     if (result.type === 'category' && onReorderCategories && categoryOrder) {
       try {
         console.log("Handling category drag end:", result);
         console.log("Current category order:", categoryOrder);
+        
+        // Check if we actually have categories to reorder
+        if (categoryOrder.length <= 1) {
+          console.log("Not enough categories to reorder");
+          return;
+        }
         
         const newCategoryOrder = [...categoryOrder];
         const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);

@@ -35,6 +35,16 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     isLoadingCategoryOrder
   } = useMenuCategories(items);
   
+  // Log for debugging
+  console.log('MenuItemsByCategory:', {
+    isBuffetMenu,
+    allCategories: allCategories,
+    customCategoryOrder: customCategoryOrder,
+    choiceId,
+    itemsCount: items.length,
+    firstItemChoice: items[0]?.choice
+  });
+  
   const { handleDragEnd } = useDragAndDrop({ 
     items, 
     onReorder,

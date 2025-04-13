@@ -26,10 +26,10 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
         {showDragHandle && (
           <div
             {...dragHandleProps}
-            className="mr-2 cursor-grab active:cursor-grabbing"
+            className="mr-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
             data-testid="category-drag-handle"
           >
-            <GripVertical className="h-5 w-5 text-gray-400" />
+            <GripVertical className="h-5 w-5" />
           </div>
         )}
         <h3 className="text-md font-semibold">{category}</h3>
