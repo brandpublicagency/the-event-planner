@@ -1,13 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import DeleteCategoryDialog from './category-components/DeleteCategoryDialog';
 import { useCategoryManager } from './hooks/useCategoryManager';
 import { useMenuCategories } from './hooks/useMenuCategories';
-import { useDragAndDrop } from './hooks/useDragAndDrop';
 import BuffetMenuContainer from './buffet-components/BuffetMenuContainer';
-import { toast } from 'sonner';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -30,7 +28,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     categorizedItems, 
     isBuffetMenu, 
     allCategories,
-    updateCategoryOrder,
     customCategoryOrder,
     choiceId,
     isLoadingCategoryOrder
@@ -45,16 +42,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     itemsCount: items.length,
     firstItemChoice: items[0]?.choice,
     firstItemID: items[0]?.id,
-    categoriesCount: Object.keys(categorizedItems).length,
-    canReorder: !!onReorder
-  });
-  
-  const { handleDragEnd } = useDragAndDrop({ 
-    items, 
-    onReorder,
-    onReorderCategories: updateCategoryOrder,
-    categoryOrder: customCategoryOrder,
-    choiceId
+    categoriesCount: Object.keys(categorizedItems).length
   });
 
   const {
@@ -71,16 +59,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     performDelete
   } = useCategoryManager({ items });
 
-  // Show toast message about drag and drop when component mounts
-  useEffect(() => {
-    if (customCategoryOrder.length > 1) {
-      toast.info("You can drag and drop categories to reorder them", {
-        id: "category-drag-hint",
-        duration: 5000
-      });
-    }
-  }, [customCategoryOrder.length]);
-
   if (isLoadingCategoryOrder) {
     return <p className="text-center py-4 text-sm text-gray-500">Loading categories...</p>;
   }
@@ -88,6 +66,9 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
+
+  // For backward compatibility, provide a no-op function
+  const handleDragEnd = () => {};
 
   return (
     <>

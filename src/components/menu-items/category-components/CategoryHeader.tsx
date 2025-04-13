@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, GripVertical } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 
 interface CategoryHeaderProps {
   category: string;
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
-  dragHandleProps?: any;
+  dragHandleProps?: any; // Keep for backward compatibility
   showDragHandle?: boolean;
 }
 
@@ -15,24 +15,13 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   category,
   onEditCategory,
   onDeleteCategory,
-  dragHandleProps,
-  showDragHandle = true  // Changed default to true to always show drag handles
+  showDragHandle = false // Default to false to hide drag handles
 }) => {
   const isUncategorized = category === 'Uncategorized' || category === 'Items';
   
   return (
     <div className="flex items-center justify-between px-3 py-2">
       <div className="flex items-center">
-        {showDragHandle && dragHandleProps && (
-          <div
-            {...dragHandleProps}
-            className="mr-2 cursor-grab active:cursor-grabbing text-zinc-500 hover:text-zinc-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition-colors"
-            data-testid="category-drag-handle"
-            title="Drag to reorder category"
-          >
-            <GripVertical className="h-4 w-4" />
-          </div>
-        )}
         <h3 className="text-md font-semibold">{category}</h3>
       </div>
       

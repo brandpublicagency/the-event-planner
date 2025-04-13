@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
 import AddItemButton from '../category-components/AddItemButton';
 import { toast } from 'sonner';
@@ -15,7 +14,7 @@ interface BuffetMenuContainerProps {
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
   onAddItem?: (category: string | null) => void;
-  handleDragEnd: (result: any) => void;
+  handleDragEnd: (result: any) => void; // Keep for backward compatibility
 }
 
 const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
@@ -26,8 +25,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   isDeleting,
   onEditCategory,
   onDeleteCategory,
-  onAddItem,
-  handleDragEnd
+  onAddItem
 }) => {
   // Check if this is a sec-mains menu by looking at any item's choice value
   // Use case-insensitive comparison to handle various formats
@@ -39,80 +37,43 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   );
 
   console.log('BuffetMenuContainer: categories=', categories);
-  console.log('BuffetMenuContainer: handleDragEnd is defined=', !!handleDragEnd);
-  
-  // Show toast hint when component mounts if we have multiple categories
-  useEffect(() => {
-    if (categories.length > 1) {
-      toast.info("Drag and drop categories to reorder them", { 
-        duration: 5000,
-        id: "category-drag-hint" 
-      });
-    }
-  }, [categories.length]);
   
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="border border-gray-300 rounded-md p-4">
-        <Droppable droppableId="categories" type="category">
-          {(provided) => (
-            <div 
-              {...provided.droppableProps} 
-              ref={provided.innerRef}
-              className="space-y-6"
-            >
-              {categories.map((category, index) => (
-                <Draggable 
-                  key={`category-${category}`} 
-                  draggableId={`category-${category}`} 
-                  index={index}
-                  isDragDisabled={false}
-                >
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className={`bg-gray-50 rounded-md border ${
-                        snapshot.isDragging 
-                          ? 'border-blue-400 shadow-lg' 
-                          : 'border-gray-200'
-                      } transition-all duration-200`}
-                    >
-                      <CategoryContainer
-                        key={`category-container-${category}`}
-                        category={category}
-                        items={categorizedItems[category] || []}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        isDeleting={isDeleting}
-                        onEditCategory={onEditCategory}
-                        onDeleteCategory={onDeleteCategory}
-                        canReorder={!!onAddItem}
-                        isBuffetCategory={true}
-                        dragHandleProps={provided.dragHandleProps}
-                        showDragHandle={true}
-                        noBorder={true}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-        
-        {/* Single Add Item button at the bottom of the container */}
-        {onAddItem && (
-          <div className="mt-4">
-            <AddItemButton 
-              onAddItem={onAddItem} 
-              category={null} 
+    <div className="border border-gray-300 rounded-md p-4">
+      <div className="space-y-6">
+        {categories.map((category) => (
+          <div 
+            key={`category-${category}`}
+            className="bg-gray-50 rounded-md border border-gray-200 transition-all duration-200"
+          >
+            <CategoryContainer
+              key={`category-container-${category}`}
+              category={category}
+              items={categorizedItems[category] || []}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
+              canReorder={!!onAddItem}
+              isBuffetCategory={true}
+              showDragHandle={false}
+              noBorder={true}
             />
           </div>
-        )}
+        ))}
       </div>
-    </DragDropContext>
+      
+      {/* Single Add Item button at the bottom of the container */}
+      {onAddItem && (
+        <div className="mt-4">
+          <AddItemButton 
+            onAddItem={onAddItem} 
+            category={null} 
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

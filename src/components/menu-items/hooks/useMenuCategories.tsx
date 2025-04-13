@@ -1,9 +1,14 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+
+// Fixed category order by menu type
+const FIXED_CATEGORY_ORDER = {
+  'buffet': ['Meat Selection (2)', 'Vegetables (2)', 'Starch (2)', 'Salad (1)'],
+  'karoo': ['Meat Selection (1)', 'Vegetables (2)', 'Starch Selection (2)', 'Salad (1)'],
+};
 
 export const useMenuCategories = (items: MenuItem[]) => {
   const queryClient = useQueryClient();
@@ -30,6 +35,16 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const choiceId = useMemo(() => {
     if (items.length === 0) return null;
     return items[0].choice_id;
+  }, [items]);
+
+  // Determine the menu type based on the choice value
+  const menuType = useMemo(() => {
+    if (items.length === 0) return null;
+    const choice = (items[0]?.choice || '').toLowerCase();
+    
+    if (choice.includes('karoo')) return 'karoo';
+    if (choice.includes('buffet')) return 'buffet';
+    return null;
   }, [items]);
 
   // Categorize items
@@ -68,6 +83,43 @@ export const useMenuCategories = (items: MenuItem[]) => {
     return categories;
   }, [categorizedItems, useCategorization]);
 
+  // If there's a fixed order for this menu type, use it to sort the categories
+  const sortedCategories = useMemo(() => {
+    if (!menuType || !FIXED_CATEGORY_ORDER[menuType]) {
+      return allCategories;
+    }
+
+    // Get the fixed order for this menu type
+    const fixedOrder = FIXED_CATEGORY_ORDER[menuType];
+    
+    // Sort based on the fixed order, keeping any categories that aren't in the fixed order at the end
+    const sorted = [...allCategories].sort((a, b) => {
+      const aIndex = fixedOrder.indexOf(a);
+      const bIndex = fixedOrder.indexOf(b);
+      
+      // If both categories are in the fixed order, sort by their position
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex;
+      }
+      
+      // If only a is in the fixed order, it comes first
+      if (aIndex !== -1) {
+        return -1;
+      }
+      
+      // If only b is in the fixed order, it comes first
+      if (bIndex !== -1) {
+        return 1;
+      }
+      
+      // If neither is in the fixed order, maintain alphabetical order
+      return a.localeCompare(b);
+    });
+    
+    console.log(`Using fixed category order for ${menuType}:`, sorted);
+    return sorted;
+  }, [allCategories, menuType]);
+
   // Fetch saved category order from database using React Query
   const { data: savedCategoryOrder = [], isLoading: isLoadingCategoryOrder } = useQuery({
     queryKey: ['menu-choice-category-order', choiceId],
@@ -98,6 +150,13 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return;
     }
     
+    // If this is a menu type with fixed categories, use the sorted categories
+    if (menuType && FIXED_CATEGORY_ORDER[menuType]) {
+      console.log(`Using fixed category order for ${menuType}`);
+      setCustomCategoryOrder(sortedCategories);
+      return;
+    }
+    
     console.log("Updating category order with saved:", savedCategoryOrder);
     console.log("All categories available:", allCategories);
     
@@ -123,7 +182,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
       console.log("No saved order, using detected categories:", allCategories);
       setCustomCategoryOrder([...allCategories]);
     }
-  }, [savedCategoryOrder, allCategories, useCategorization]);
+  }, [savedCategoryOrder, allCategories, useCategorization, menuType, sortedCategories]);
 
   // Create a mutation for updating category order
   const reorderCategoryMutation = useMutation({
@@ -145,6 +204,13 @@ export const useMenuCategories = (items: MenuItem[]) => {
   // Update category order and persist to database
   const updateCategoryOrder = async (newOrder: string[]) => {
     if (!useCategorization) return;
+    
+    // If this is a menu type with fixed categories, don't allow reordering
+    if (menuType && FIXED_CATEGORY_ORDER[menuType]) {
+      console.log(`Cannot reorder categories for ${menuType} - using fixed order`);
+      toast.info("Categories for this menu type are in a fixed order and cannot be changed");
+      return;
+    }
     
     console.log("Setting new category order:", newOrder);
     setCustomCategoryOrder(newOrder);

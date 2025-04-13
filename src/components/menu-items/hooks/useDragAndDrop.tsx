@@ -14,7 +14,6 @@ interface UseDragAndDropProps {
 export const useDragAndDrop = ({ 
   items, 
   onReorder,
-  onReorderCategories,
   categoryOrder = [],
   choiceId
 }: UseDragAndDropProps) => {
@@ -33,41 +32,10 @@ export const useDragAndDrop = ({
       reason: result.reason
     });
     
-    // Handle category reordering
-    if (result.type === 'category' && onReorderCategories && categoryOrder && categoryOrder.length > 1) {
-      try {
-        console.log("Handling category drag end:", result);
-        console.log("Current category order:", categoryOrder);
-        
-        // Make a copy of the current order for reordering
-        const newCategoryOrder = [...categoryOrder];
-        
-        // Get the category name from the draggableId
-        const categoryName = result.draggableId.replace('category-', '');
-        console.log(`Moving category "${categoryName}" from index ${result.source.index} to ${result.destination.index}`);
-        
-        // Make sure the category exists in our order
-        if (!newCategoryOrder.includes(categoryName)) {
-          console.error(`Category "${categoryName}" not found in current order`, newCategoryOrder);
-          toast.error(`Cannot reorder: Category "${categoryName}" not found`);
-          return;
-        }
-        
-        // Remove the item from its original position and insert at the new position
-        const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);
-        newCategoryOrder.splice(result.destination.index, 0, movedCategory);
-        
-        console.log("New category order after reordering:", newCategoryOrder);
-        
-        // Call the reorder function with the new order
-        onReorderCategories(newCategoryOrder);
-        
-        // Show success toast
-        toast.success(`Moved "${movedCategory}" to position ${result.destination.index + 1}`);
-      } catch (error) {
-        console.error("Error reordering categories:", error);
-        toast.error("Failed to reorder categories");
-      }
+    // Category dragging is disabled - no implementation needed
+    if (result.type === 'category') {
+      console.log("Category dragging is disabled");
+      toast.info("Category reordering is disabled. Categories are in a fixed order.");
       return;
     }
     
@@ -118,7 +86,7 @@ export const useDragAndDrop = ({
       console.error("Error reordering items:", error);
       toast.error("Failed to reorder items");
     }
-  }, [items, onReorder, onReorderCategories, categoryOrder]);
+  }, [items, onReorder]);
 
   return { handleDragEnd };
 };
