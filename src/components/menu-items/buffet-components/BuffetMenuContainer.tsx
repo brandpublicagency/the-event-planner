@@ -38,19 +38,8 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
     })
   );
 
-  console.log('BuffetMenuContainer: isSecMains=', isSecMains);
   console.log('BuffetMenuContainer: categories=', categories);
-  
-  // First few items choices for debugging
-  const firstFewChoices = Object.values(categorizedItems)
-    .flatMap(items => items.slice(0, 3))
-    .map(item => item?.choice || 'undefined')
-    .filter(Boolean);
-  
-  console.log('BuffetMenuContainer: Sample choices=', firstFewChoices);
-  
-  // Always enable drag handles for category reordering
-  const showDragHandles = true;
+  console.log('BuffetMenuContainer: handleDragEnd is defined=', !!handleDragEnd);
   
   // Show toast hint when component mounts if we have multiple categories
   useEffect(() => {
@@ -74,7 +63,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
             >
               {categories.map((category, index) => (
                 <Draggable 
-                  key={`category-draggable-${category}`} 
+                  key={`category-${category}`} 
                   draggableId={`category-${category}`} 
                   index={index}
                   isDragDisabled={false}
@@ -101,7 +90,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                         canReorder={!!onAddItem}
                         isBuffetCategory={true}
                         dragHandleProps={provided.dragHandleProps}
-                        showDragHandle={showDragHandles}
+                        showDragHandle={true}
                         noBorder={true}
                       />
                     </div>

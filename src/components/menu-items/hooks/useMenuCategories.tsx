@@ -2,10 +2,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useMenuCategories = (items: MenuItem[]) => {
+  const queryClient = useQueryClient();
+  
   // Types that should use categorization (expanded to catch more variations)
   const CATEGORY_MENU_TYPES = [
     'sec-mains', 'sec_mains', 'secondary mains', 'secondary-mains',
@@ -123,6 +125,23 @@ export const useMenuCategories = (items: MenuItem[]) => {
     }
   }, [savedCategoryOrder, allCategories, useCategorization]);
 
+  // Create a mutation for updating category order
+  const reorderCategoryMutation = useMutation({
+    mutationFn: async (newOrder: string[]) => {
+      if (!choiceId) throw new Error("No choice ID available");
+      console.log(`Saving category order for choice ${choiceId}:`, newOrder);
+      return await storeCategoryOrder(choiceId, newOrder);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu-choice-category-order', choiceId] });
+      toast.success("Category order saved");
+    },
+    onError: (error) => {
+      console.error("Failed to save category order:", error);
+      toast.error("Failed to save category order");
+    }
+  });
+
   // Update category order and persist to database
   const updateCategoryOrder = async (newOrder: string[]) => {
     if (!useCategorization) return;
@@ -133,9 +152,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     // Save to database if we have a choiceId
     if (choiceId) {
       try {
-        console.log(`Saving category order for choice ${choiceId}:`, newOrder);
-        await storeCategoryOrder(choiceId, newOrder);
-        toast.success("Category order saved");
+        reorderCategoryMutation.mutate(newOrder);
       } catch (error) {
         console.error("Failed to save category order:", error);
         toast.error("Failed to save category order");
