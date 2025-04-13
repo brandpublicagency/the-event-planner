@@ -6,14 +6,12 @@ import { toast } from 'sonner';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
-
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
 }
-
 const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   items,
   onEdit,
@@ -24,11 +22,9 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string>('');
   const [selectedChoiceLabel, setSelectedChoiceLabel] = useState<string>('');
-
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting2, setIsDeleting2] = useState(false);
-
   useEffect(() => {
     if (items.length > 0) {
       console.log("MenuItemsByCategory: Forcing refresh of menu items and categories");
@@ -41,16 +37,13 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       });
     }
   }, [items, queryClient]);
-
   const categorizedItems = useMemo(() => {
     console.log("Grouping items by category:", items);
     const grouped: Record<string, MenuItem[]> = {};
-
     const uncategorizedItems = items.filter(item => !item.category);
     if (uncategorizedItems.length > 0) {
       grouped['Uncategorized'] = uncategorizedItems;
     }
-
     items.forEach(item => {
       if (item.category) {
         console.log(`Found item with category: ${item.label} - ${item.category}`);
@@ -63,7 +56,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("Grouped items:", grouped);
     return grouped;
   }, [items]);
-
   const allCategories = useMemo(() => {
     const categories = Object.keys(categorizedItems).sort();
     if (categories.includes('Uncategorized')) {
@@ -72,41 +64,34 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("All categories detected:", categories);
     return categories;
   }, [categorizedItems]);
-
   const handleEditCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot edit the Uncategorized category');
       return;
     }
-
     const itemInCategory = items.find(item => item.category === category);
     if (!itemInCategory || !itemInCategory.choice_id) {
       toast.error('Cannot determine choice for this category');
       return;
     }
-
     setSelectedChoiceId(itemInCategory.choice_id);
     setSelectedChoiceLabel(itemInCategory.choice || 'Menu Items');
     setIsCategoryManagerOpen(true);
   };
-
   const handleDeleteCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot delete the Uncategorized category');
       return;
     }
-
     const itemInCategory = items.find(item => item.category === category);
     if (!itemInCategory || !itemInCategory.choice_id) {
       toast.error('Cannot determine choice for this category');
       return;
     }
-
     setCategoryToDelete(category);
     setSelectedChoiceId(itemInCategory.choice_id);
     setIsDeleteDialogOpen(true);
   };
-
   const performDelete = async () => {
     if (!categoryToDelete || !selectedChoiceId) {
       toast.error('Missing category or choice ID');
@@ -121,7 +106,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       }).eq('category', categoryToDelete).eq('choice_id', selectedChoiceId);
       if (error) throw error;
       toast.success(`Category "${categoryToDelete}" deleted successfully`);
-
       queryClient.invalidateQueries({
         queryKey: ['menuItems']
       });
@@ -134,7 +118,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       queryClient.invalidateQueries({
         queryKey: ['menu-categories-list', selectedChoiceId]
       });
-
       setIsDeleteDialogOpen(false);
       setCategoryToDelete(null);
       setSelectedChoiceId('');
@@ -145,15 +128,13 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       setIsDeleting2(false);
     }
   };
-
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
-
   return <div className="space-y-6">
     {allCategories.map(category => <div key={category} className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
-      <div className="flex items-center justify-between mb-2 px-3 py-2 bg-gray-50 rounded-md">
-        <h3 className="border border-black px-3 py-1 rounded text-base font-medium text-slate-500 ml-3">
+      <div className="flex items-center justify-between mb-2 py-2 bg-gray-50 px-[3px] rounded-md">
+        <h3 className="border border-slate-400 px-3 rounded text-slate-500 ml-3 text-xs font-semibold my-0 py-[6px]">
           {category}
         </h3>
         
@@ -217,5 +198,4 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     </AlertDialog>
   </div>;
 };
-
 export default MenuItemsByCategory;
