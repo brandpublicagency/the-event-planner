@@ -101,8 +101,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                               </div>
                             )}
                             <BuffetMenuContainer
-                              category={category}
-                              items={categorizedItems[category]}
+                              categories={[category]}
+                              categorizedItems={{[category]: categorizedItems[category]}}
                               onEdit={onEdit}
                               onDelete={onDelete}
                               isDeleting={isDeleting}
@@ -123,8 +123,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                               </div>
                             )}
                             <RegularMenuContainer
-                              category={category}
-                              items={categorizedItems[category]}
+                              categories={[category]}
+                              categorizedItems={{[category]: categorizedItems[category]}}
                               onEdit={onEdit}
                               onDelete={onDelete}
                               isDeleting={isDeleting}
@@ -150,8 +150,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             <div key={category}>
               {isBuffetMenu ? (
                 <BuffetMenuContainer
-                  category={category}
-                  items={categorizedItems[category]}
+                  categories={[category]}
+                  categorizedItems={{[category]: categorizedItems[category]}}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   isDeleting={isDeleting}
@@ -162,8 +162,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 />
               ) : (
                 <RegularMenuContainer
-                  category={category}
-                  items={categorizedItems[category]}
+                  categories={[category]}
+                  categorizedItems={{[category]: categorizedItems[category]}}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   isDeleting={isDeleting}
