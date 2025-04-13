@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { MenuItem } from '@/api/types/menuItems';
-import { DragDropContext } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
 import AddItemButton from '../category-components/AddItemButton';
 
@@ -31,23 +31,48 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="border border-dashed border-gray-300 rounded-md p-3">
-        <div className="space-y-4">
-          {categories.map(category => (
-            <CategoryContainer
-              key={category}
-              category={category}
-              items={categorizedItems[category]}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              isDeleting={isDeleting}
-              onEditCategory={onEditCategory}
-              onDeleteCategory={onDeleteCategory}
-              canReorder={!!onAddItem}
-              isBuffetCategory={true}
-              noBorder={true} /* This ensures no individual borders */
-            />
-          ))}
-        </div>
+        <Droppable droppableId="categories" type="category">
+          {(provided) => (
+            <div 
+              {...provided.droppableProps} 
+              ref={provided.innerRef}
+              className="space-y-4"
+            >
+              {categories.map((category, index) => (
+                <Draggable 
+                  key={`category-${category}`} 
+                  draggableId={`category-${category}`} 
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="mb-4 last:mb-0"
+                    >
+                      <CategoryContainer
+                        key={category}
+                        category={category}
+                        items={categorizedItems[category]}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        isDeleting={isDeleting}
+                        onEditCategory={onEditCategory}
+                        onDeleteCategory={onDeleteCategory}
+                        canReorder={!!onAddItem}
+                        isBuffetCategory={true}
+                        dragHandleProps={provided.dragHandleProps}
+                        showDragHandle={true}
+                        noBorder={true}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
         
         {/* Single Add Item button at the bottom of the container */}
         {onAddItem && (
