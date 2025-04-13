@@ -53,8 +53,12 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
           ))}
           {provided.placeholder}
           
-          {onAddItem && showAddItemButton && (
-            <AddItemButton onAddItem={onAddItem} category={category} />
+          {/* Always show Add Item button if onAddItem is provided */}
+          {onAddItem && (
+            <AddItemButton 
+              onAddItem={onAddItem} 
+              category={category !== 'Uncategorized' ? category : null} 
+            />
           )}
         </div>
       )}
