@@ -41,6 +41,8 @@ export const storeCategoryOrder = async (choiceId: string, categoryOrder: string
       return false;
     }
 
+    console.log(`Storing category order for choice ${choiceId}:`, categoryOrder);
+
     // Store the category order in the database
     const { error } = await supabase
       .from('menu_choice_category_order')
@@ -53,11 +55,14 @@ export const storeCategoryOrder = async (choiceId: string, categoryOrder: string
       );
     
     if (error) {
+      console.error("Error storing category order:", error);
       return handleError(error, 'storeCategoryOrder');
     }
     
+    console.log("Category order stored successfully");
     return true;
   } catch (error) {
+    console.error("Exception storing category order:", error);
     return handleError(error, 'storeCategoryOrder');
   }
 };
@@ -69,6 +74,8 @@ export const getCategoryOrder = async (choiceId: string): Promise<string[]> => {
   try {
     if (!choiceId) return [];
 
+    console.log(`Retrieving category order for choice: ${choiceId}`);
+
     const { data, error } = await supabase
       .from('menu_choice_category_order')
       .select('category_order')
@@ -76,12 +83,20 @@ export const getCategoryOrder = async (choiceId: string): Promise<string[]> => {
       .maybeSingle();
     
     if (error) {
+      console.error("Error retrieving category order:", error);
       handleError(error, 'getCategoryOrder');
       return [];
     }
     
-    return data?.category_order || [];
+    if (data && data.category_order) {
+      console.log(`Found category order for choice ${choiceId}:`, data.category_order);
+      return data.category_order;
+    }
+    
+    console.log(`No category order found for choice ${choiceId}`);
+    return [];
   } catch (error) {
+    console.error("Exception retrieving category order:", error);
     handleError(error, 'getCategoryOrder');
     return [];
   }

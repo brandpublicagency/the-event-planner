@@ -42,6 +42,9 @@ export const useMenuItemQueries = (choiceId?: string) => {
     if (choiceId) {
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
+      
+      // Also invalidate the category order queries
+      queryClient.invalidateQueries({ queryKey: ['menu-choice-category-order', choiceId] });
     }
     
     // Also invalidate with timestamps for maximum freshness
