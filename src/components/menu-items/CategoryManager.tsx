@@ -8,13 +8,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
+
 interface Category {
   name: string;
   id: string;
 }
+
 interface CategoryManagerProps {
   choiceId?: string;
 }
+
 const CategoryManager: React.FC<CategoryManagerProps> = ({
   choiceId
 }) => {
@@ -25,12 +28,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
   const [editCategoryName, setEditCategoryName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   const queryClient = useQueryClient();
 
-  // Force a refresh manually
   const forceRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
+
   const {
     data: categories = [],
     isLoading,
@@ -45,7 +49,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         return [];
       }
       try {
-        // Direct query for categories by choice_id
         const {
           data,
           error
@@ -56,13 +59,12 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
           return [];
         }
         if (data && data.length > 0) {
-          // Extract unique categories and format them
           const categoryNames = data.map(item => item.category).filter(Boolean);
           const uniqueCategories = [...new Set(categoryNames)];
           console.log(`CategoryManager: Found ${uniqueCategories.length} categories:`, uniqueCategories);
           return uniqueCategories.map(name => ({
             name,
-            id: name // Using the name as ID since categories don't have their own table
+            id: name
           }));
         }
         console.log("No categories found for this choice");
@@ -74,13 +76,10 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       }
     },
     staleTime: 0,
-    // Always fetch fresh data
     retry: 3,
-    // Retry failed requests 3 times
     refetchOnWindowFocus: true
   });
 
-  // Mutation for adding a new category
   const addCategoryMutation = useMutation({
     mutationFn: async (name: string) => {
       console.log(`CategoryManager: Adding new category: ${name}`);
@@ -88,7 +87,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         throw new Error("No choice ID provided");
       }
 
-      // Create a dummy item with the new category
       const {
         data,
         error
@@ -107,8 +105,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     },
     onSuccess: (_, newCategoryName) => {
       toast.success('Category added successfully');
-
-      // Force refresh
       forceRefresh();
       queryClient.invalidateQueries({
         queryKey: ['menu-categories-fixed']
@@ -122,7 +118,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
   });
 
-  // Mutation for editing a category
   const editCategoryMutation = useMutation({
     mutationFn: async ({
       oldName,
@@ -136,7 +131,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         throw new Error("No choice ID provided");
       }
 
-      // Update all items with the matching category
       const {
         data,
         error
@@ -156,8 +150,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       } else {
         toast.success('Category updated successfully');
       }
-
-      // Force refresh
       forceRefresh();
       queryClient.invalidateQueries({
         queryKey: ['menu-categories-fixed']
@@ -172,7 +164,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
   });
 
-  // Mutation for deleting a category
   const deleteCategoryMutation = useMutation({
     mutationFn: async (categoryName: string) => {
       console.log(`CategoryManager: Deleting category: ${categoryName}`);
@@ -180,7 +171,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         throw new Error("No choice ID provided");
       }
 
-      // Update all items with the matching category to remove the category
       const {
         data,
         error
@@ -199,8 +189,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       } else {
         toast.success('Category deleted successfully');
       }
-
-      // Force refresh
       forceRefresh();
       queryClient.invalidateQueries({
         queryKey: ['menu-categories-fixed']
@@ -213,6 +201,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       console.error("CategoryManager: Error deleting category:", error);
     }
   });
+
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) {
       toast.error('Category name cannot be empty');
@@ -220,13 +209,13 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
     addCategoryMutation.mutate(newCategoryName.trim());
   };
+
   const handleEditCategory = () => {
     if (!editCategoryName.trim() || !selectedCategory) {
       toast.error('Category name cannot be empty');
       return;
     }
 
-    // Check if name hasn't changed
     if (editCategoryName.trim() === selectedCategory.name) {
       toast.info('Category name was not changed');
       setIsEditDialogOpen(false);
@@ -237,6 +226,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       newName: editCategoryName.trim()
     });
   };
+
   const handleDeleteCategory = () => {
     if (!selectedCategory) {
       toast.error('No category selected for deletion');
@@ -244,19 +234,19 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
     deleteCategoryMutation.mutate(selectedCategory.name);
   };
+
   const openEditDialog = (category: Category) => {
     setSelectedCategory(category);
     setEditCategoryName(category.name);
     setIsEditDialogOpen(true);
   };
+
   const openDeleteDialog = (category: Category) => {
     setSelectedCategory(category);
     setIsDeleteDialogOpen(true);
   };
 
-  // Main content renderer with improved loading state
   const renderContent = () => {
-    // Show loading state
     if (isLoading) {
       return <div className="flex flex-col justify-center items-center py-6">
           <Loader2 className="h-6 w-6 text-primary animate-spin mb-2" />
@@ -264,7 +254,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         </div>;
     }
 
-    // Show empty state
     if (!categories || categories.length === 0) {
       return <div className="text-center py-6 border rounded-md bg-muted/20">
           <p className="text-sm text-muted-foreground">
@@ -277,23 +266,21 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         </div>;
     }
 
-    // Show categories list
     return <div className="grid gap-2">
         {categories.map(category => <div key={category.id} className="flex justify-between items-center p-3 border rounded-md transition-colors py-[5px] px-[10px] bg-transparent">
             <span className="text-sm font-normal">{category.name}</span>
             <div className="flex space-x-2">
               <Button variant="ghost" size="sm" onClick={() => openEditDialog(category)} disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending} className="h-9 px-2.5 text-gray-800">
-                {editCategoryMutation.isPending && selectedCategory?.id === category.id ? <Loader2 className="h-4 w-4 animate-spin text-blue-500" /> : <Edit className="h-4 w-4 text-blue-500" />}
+                {editCategoryMutation.isPending && selectedCategory?.id === category.id ? <Loader2 className="h-4 w-4 animate-spin text-gray-500" /> : <Edit className="h-4 w-4 text-gray-500" />}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(category)} disabled={editCategoryMutation.isPending || deleteCategoryMutation.isPending} className="h-9 px-2.5 text-zinc-600">
-                {deleteCategoryMutation.isPending && selectedCategory?.id === category.id ? <Loader2 className="h-4 w-4 animate-spin text-red-500" /> : <Trash2 className="h-4 w-4 text-red-500" />}
+                {deleteCategoryMutation.isPending && selectedCategory?.id === category.id ? <Loader2 className="h-4 w-4 animate-spin text-gray-500" /> : <Trash2 className="h-4 w-4 text-gray-500" />}
               </Button>
             </div>
           </div>)}
       </div>;
   };
 
-  // Show error state if there was an error fetching categories
   if (error) {
     return <div className="space-y-4">
         <div className="flex justify-between items-center">
@@ -317,7 +304,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
           </Button>
         </div>
         
-        {/* Add Category Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-white">
             <DialogHeader>
@@ -340,7 +326,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
           </DialogContent>
         </Dialog>
         
-        {/* Edit Category Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={open => {
         if (!editCategoryMutation.isPending) {
           setIsEditDialogOpen(open);
@@ -371,7 +356,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
           </DialogContent>
         </Dialog>
         
-        {/* Delete Category Dialog */}
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={open => {
         if (!deleteCategoryMutation.isPending) {
           setIsDeleteDialogOpen(open);
@@ -391,7 +375,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
             <AlertDialogFooter>
               <AlertDialogCancel disabled={deleteCategoryMutation.isPending}>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={e => {
-              e.preventDefault(); // Prevent the dialog from closing automatically
+              e.preventDefault();
               handleDeleteCategory();
             }} disabled={deleteCategoryMutation.isPending} className="bg-red-500 hover:bg-red-600">
                 {deleteCategoryMutation.isPending ? <>
@@ -404,6 +388,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
         </AlertDialog>
       </div>;
   }
+
   return <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-medium text-xs text-gray-700">Menu Categories</h3>
@@ -424,4 +409,5 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       {renderContent()}
     </div>;
 };
+
 export default CategoryManager;
