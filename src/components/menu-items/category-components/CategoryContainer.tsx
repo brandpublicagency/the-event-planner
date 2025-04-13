@@ -33,10 +33,8 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   showDragHandle = false,
   isGroupedLayout = false
 }) => {
-  // Use a conditional class for the container
-  const containerClasses = isGroupedLayout
-    ? "space-y-2 py-[10px] my-[4px]" // No border when in grouped layout
-    : "space-y-2 border border-dashed border-gray-300 rounded-md p-3 px-[2px] py-[10px] my-[4px]"; // Keep border when standalone
+  // Always use the space-y-2 class without any border
+  const containerClasses = "space-y-2 py-[10px] my-[4px]";
   
   return (
     <div className={containerClasses}>
