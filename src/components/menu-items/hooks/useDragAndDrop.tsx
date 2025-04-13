@@ -5,11 +5,32 @@ import { MenuItem } from '@/api/menuItemsApi';
 interface UseDragAndDropProps {
   items: MenuItem[];
   onReorder?: (reorderedItems: MenuItem[]) => void;
+  onReorderCategories?: (newCategoryOrder: string[]) => void;
+  categoryOrder?: string[];
 }
 
-export const useDragAndDrop = ({ items, onReorder }: UseDragAndDropProps) => {
+export const useDragAndDrop = ({ 
+  items, 
+  onReorder,
+  onReorderCategories,
+  categoryOrder 
+}: UseDragAndDropProps) => {
   const handleDragEnd = useCallback((result: any) => {
-    if (!result.destination || !onReorder) return;
+    if (!result.destination) return;
+    
+    // Handle category reordering
+    if (result.type === 'category' && onReorderCategories && categoryOrder) {
+      const newCategoryOrder = [...categoryOrder];
+      const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);
+      newCategoryOrder.splice(result.destination.index, 0, movedCategory);
+      
+      console.log("Reordering categories:", newCategoryOrder);
+      onReorderCategories(newCategoryOrder);
+      return;
+    }
+    
+    // Handle item reordering (existing functionality)
+    if (!onReorder) return;
     
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
@@ -43,7 +64,7 @@ export const useDragAndDrop = ({ items, onReorder }: UseDragAndDropProps) => {
       .concat(itemsInDestination);
     
     onReorder(updatedItems);
-  }, [items, onReorder]);
+  }, [items, onReorder, onReorderCategories, categoryOrder]);
 
   return { handleDragEnd };
 };

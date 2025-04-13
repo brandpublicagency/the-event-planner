@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 
 export const useMenuCategories = (items: MenuItem[]) => {
@@ -62,9 +62,40 @@ export const useMenuCategories = (items: MenuItem[]) => {
     return orderedCategories;
   }, [items]);
 
+  // State to track custom category ordering
+  const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
+
+  // Update custom category order
+  const updateCategoryOrder = useCallback((newOrder: string[]) => {
+    console.log("Updating custom category order:", newOrder);
+    setCustomCategoryOrder(newOrder);
+  }, []);
+
   // Get all categories with specific ordering for buffet menus
   const allCategories = useMemo(() => {
     const categories = Object.keys(categorizedItems);
+    
+    // If we have a custom category order, use it as the primary source of truth
+    if (customCategoryOrder.length > 0) {
+      console.log("Using custom category order:", customCategoryOrder);
+      
+      // Filter the custom order to only include categories that exist in our data
+      const existingCustomCategories = customCategoryOrder.filter(category => 
+        categories.includes(category)
+      );
+      
+      // Add any categories that might not be in our custom order (newly added categories)
+      const missingCategories = categories.filter(category => 
+        !customCategoryOrder.includes(category) && category !== 'Uncategorized'
+      );
+      
+      // Combine with 'Uncategorized' at the beginning if it exists
+      if (categories.includes('Uncategorized')) {
+        return ['Uncategorized', ...existingCustomCategories, ...missingCategories];
+      }
+      
+      return [...existingCustomCategories, ...missingCategories];
+    }
     
     // For section-mains, maintain the original order
     if (isSectionMain) {
@@ -115,7 +146,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     console.log("All categories detected:", categories);
     return categories.sort();
-  }, [categorizedItems, isBuffetMenu, isSectionMain, buffetCategoryOrder, originalCategoryOrder]);
+  }, [categorizedItems, isBuffetMenu, isSectionMain, buffetCategoryOrder, originalCategoryOrder, customCategoryOrder]);
 
   return {
     categorizedItems,
@@ -123,6 +154,8 @@ export const useMenuCategories = (items: MenuItem[]) => {
     allCategories,
     buffetCategoryOrder,
     isSectionMain,
-    originalCategoryOrder
+    originalCategoryOrder,
+    updateCategoryOrder,
+    customCategoryOrder
   };
 };

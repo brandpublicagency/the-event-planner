@@ -30,3 +30,18 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
     return handleError(error, 'reorderMenuItems');
   }
 };
+
+/**
+ * Stores the preferred category order for a choice
+ * Note: This doesn't affect database - it's just for UI ordering
+ */
+export const storeCategoryOrder = async (choiceId: string, categoryOrder: string[]) => {
+  try {
+    // In a real implementation, this would store the order in a database
+    // For now, we'll just log it and return success
+    console.log(`Storing category order for choice ${choiceId}:`, categoryOrder);
+    return true;
+  } catch (error) {
+    return handleError(error, 'storeCategoryOrder');
+  }
+};
