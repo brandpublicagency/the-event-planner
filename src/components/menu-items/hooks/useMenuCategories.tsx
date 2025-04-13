@@ -1,29 +1,27 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
 import { useQuery } from '@tanstack/react-query';
 
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Menu types that should use categories
-  const CATEGORY_MENU_TYPES = ['sec-mains', 'buffet-menu', 'cho-buffet', 'warm-karoo-feast', 'cho-feast', 'plated-menu'];
+  // Updated to explicitly exclude plated starter from categorization
+  const CATEGORY_MENU_TYPES = [
+    'sec-mains', 
+    'buffet-menu', 
+    'cho-buffet', 
+    'warm-karoo-feast', 
+    'cho-feast', 
+    'plated-menu'
+  ];
   
-  // Check if this is a menu type that should use categories
-  const isMainCourseMenu = useMemo(() => {
-    if (items.length === 0) return false;
-    
-    const firstItem = items[0];
-    const choice = firstItem.choice;
-    
-    return CATEGORY_MENU_TYPES.includes(choice);
-  }, [items]);
-
-  // Determine if categories should be used
   const useCategorization = useMemo(() => {
     if (items.length === 0) return false;
     
     const firstItem = items[0];
     const choice = firstItem.choice;
+    
+    // Explicitly return false for plated starter
+    if (choice === 'plated-starter') return false;
     
     return CATEGORY_MENU_TYPES.includes(choice);
   }, [items]);
@@ -59,7 +57,6 @@ export const useMenuCategories = (items: MenuItem[]) => {
     return Object.keys(categorizedItems)
       .filter(category => categorizedItems[category].length > 0)
       .sort((a, b) => {
-        // Prioritize 'Uncategorized' to be last
         if (a === 'Uncategorized') return 1;
         if (b === 'Uncategorized') return -1;
         return a.localeCompare(b);
@@ -117,7 +114,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
 
   return {
     categorizedItems,
-    isBuffetMenu: isMainCourseMenu, // Reuse the existing property name to avoid breaking changes
+    isBuffetMenu: useCategorization, // Reuse the existing property name
     allCategories,
     updateCategoryOrder,
     customCategoryOrder: finalCategoryOrder,
