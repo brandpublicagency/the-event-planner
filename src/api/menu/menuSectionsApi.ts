@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { MenuSection, MenuSectionFormData } from "../types/menuSections";
+import { handleError } from "./utils";
 
 export const fetchMenuSections = async () => {
   try {
@@ -11,14 +12,12 @@ export const fetchMenuSections = async () => {
       .order('display_order');
     
     if (error) {
-      console.error('Error fetching menu sections:', error);
-      throw error;
+      return handleError(error, 'fetchMenuSections');
     }
     
     return data as MenuSection[];
   } catch (error) {
-    console.error('Error in fetchMenuSections:', error);
-    throw error;
+    return handleError(error, 'fetchMenuSections');
   }
 };
 
@@ -31,14 +30,12 @@ export const createMenuSection = async (section: MenuSectionFormData) => {
       .single();
     
     if (error) {
-      console.error('Error creating menu section:', error);
-      throw error;
+      return handleError(error, 'createMenuSection');
     }
     
     return data as MenuSection;
   } catch (error) {
-    console.error('Error in createMenuSection:', error);
-    throw error;
+    return handleError(error, 'createMenuSection');
   }
 };
 
@@ -52,14 +49,12 @@ export const updateMenuSection = async (id: string, section: Partial<MenuSection
       .single();
     
     if (error) {
-      console.error('Error updating menu section:', error);
-      throw error;
+      return handleError(error, 'updateMenuSection');
     }
     
     return data as MenuSection;
   } catch (error) {
-    console.error('Error in updateMenuSection:', error);
-    throw error;
+    return handleError(error, 'updateMenuSection');
   }
 };
 
@@ -71,13 +66,11 @@ export const deleteMenuSection = async (id: string) => {
       .eq('id', id);
     
     if (error) {
-      console.error('Error deleting menu section:', error);
-      throw error;
+      return handleError(error, 'deleteMenuSection');
     }
     
     return true;
   } catch (error) {
-    console.error('Error in deleteMenuSection:', error);
-    throw error;
+    return handleError(error, 'deleteMenuSection');
   }
 };

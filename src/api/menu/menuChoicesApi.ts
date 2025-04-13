@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { MenuChoice, MenuChoiceFormData } from "../types/menuChoices";
+import { handleError } from "./utils";
 
 export const fetchMenuChoices = async () => {
   try {
@@ -11,14 +12,12 @@ export const fetchMenuChoices = async () => {
       .order('display_order');
     
     if (error) {
-      console.error('Error fetching menu choices:', error);
-      throw error;
+      return handleError(error, 'fetchMenuChoices');
     }
     
     return data as MenuChoice[];
   } catch (error) {
-    console.error('Error in fetchMenuChoices:', error);
-    throw error;
+    return handleError(error, 'fetchMenuChoices');
   }
 };
 
@@ -32,14 +31,12 @@ export const fetchMenuChoicesBySection = async (sectionId: string) => {
       .order('display_order');
     
     if (error) {
-      console.error('Error fetching menu choices by section:', error);
-      throw error;
+      return handleError(error, 'fetchMenuChoicesBySection');
     }
     
     return data as MenuChoice[];
   } catch (error) {
-    console.error('Error in fetchMenuChoicesBySection:', error);
-    throw error;
+    return handleError(error, 'fetchMenuChoicesBySection');
   }
 };
 
@@ -52,14 +49,12 @@ export const createMenuChoice = async (choice: MenuChoiceFormData) => {
       .single();
     
     if (error) {
-      console.error('Error creating menu choice:', error);
-      throw error;
+      return handleError(error, 'createMenuChoice');
     }
     
     return data as MenuChoice;
   } catch (error) {
-    console.error('Error in createMenuChoice:', error);
-    throw error;
+    return handleError(error, 'createMenuChoice');
   }
 };
 
@@ -73,14 +68,12 @@ export const updateMenuChoice = async (id: string, choice: Partial<MenuChoiceFor
       .single();
     
     if (error) {
-      console.error('Error updating menu choice:', error);
-      throw error;
+      return handleError(error, 'updateMenuChoice');
     }
     
     return data as MenuChoice;
   } catch (error) {
-    console.error('Error in updateMenuChoice:', error);
-    throw error;
+    return handleError(error, 'updateMenuChoice');
   }
 };
 
@@ -92,13 +85,11 @@ export const deleteMenuChoice = async (id: string) => {
       .eq('id', id);
     
     if (error) {
-      console.error('Error deleting menu choice:', error);
-      throw error;
+      return handleError(error, 'deleteMenuChoice');
     }
     
     return true;
   } catch (error) {
-    console.error('Error in deleteMenuChoice:', error);
-    throw error;
+    return handleError(error, 'deleteMenuChoice');
   }
 };

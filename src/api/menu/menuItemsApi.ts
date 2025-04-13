@@ -1,7 +1,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem, MenuItemFormData } from "../types/menuItems";
+import { handleError, transformMenuItem, getChoiceValueById, prepareMenuItemData } from "./utils";
 
+/**
+ * Fetches all menu items
+ */
 export const fetchMenuItems = async () => {
   try {
     console.log('Fetching all menu items');
@@ -12,30 +16,18 @@ export const fetchMenuItems = async () => {
       .order('label', { ascending: true });
     
     if (error) {
-      console.error('Error fetching menu items:', error);
-      throw error;
+      return handleError(error, 'fetchMenuItems');
     }
     
-    const menuItems: MenuItem[] = data.map((item: any) => ({
-      id: item.id,
-      value: item.value,
-      label: item.label,
-      category: item.category || null,
-      choice_id: item.choice_id,
-      choice: item.choice || '',
-      image_url: null, // Force null for image_url as it's been removed from the schema
-      display_order: item.display_order || 0,
-      created_at: item.created_at,
-      updated_at: item.updated_at
-    }));
-    
-    return menuItems;
+    return data.map(transformMenuItem) as MenuItem[];
   } catch (error) {
-    console.error('Error in fetchMenuItems:', error);
-    throw error;
+    return handleError(error, 'fetchMenuItems');
   }
 };
 
+/**
+ * Fetches menu items filtered by choice
+ */
 export const fetchMenuItemsByChoice = async (choiceId: string) => {
   try {
     console.log(`Fetching menu items for choice: ${choiceId}`);
@@ -48,52 +40,23 @@ export const fetchMenuItemsByChoice = async (choiceId: string) => {
       .order('label', { ascending: true });
     
     if (error) {
-      console.error('Error fetching menu items by choice:', error);
-      throw error;
+      return handleError(error, 'fetchMenuItemsByChoice');
     }
     
-    const menuItems: MenuItem[] = data.map((item: any) => ({
-      id: item.id,
-      value: item.value,
-      label: item.label,
-      category: item.category || null,
-      choice_id: item.choice_id,
-      choice: item.choice || '',
-      image_url: null, // Force null for image_url as it's been removed from the schema
-      display_order: item.display_order || 0,
-      created_at: item.created_at,
-      updated_at: item.updated_at
-    }));
-    
-    return menuItems;
+    return data.map(transformMenuItem) as MenuItem[];
   } catch (error) {
-    console.error('Error in fetchMenuItemsByChoice:', error);
-    throw error;
+    return handleError(error, 'fetchMenuItemsByChoice');
   }
 };
 
+/**
+ * Creates a new menu item
+ */
 export const createMenuItem = async (menuItem: MenuItemFormData) => {
   try {
-    const { data: choiceData, error: choiceError } = await supabase
-      .from('menu_choices')
-      .select('*')
-      .eq('id', menuItem.choice_id)
-      .single();
+    const choiceData = await getChoiceValueById(menuItem.choice_id);
+    const itemToCreate = prepareMenuItemData(menuItem, choiceData);
     
-    if (choiceError) {
-      console.error('Error fetching choice for menu item:', choiceError);
-      throw choiceError;
-    }
-    
-    const itemToCreate = {
-      value: menuItem.value,
-      label: menuItem.label,
-      category: menuItem.category,
-      choice_id: menuItem.choice_id,
-      choice: choiceData.value,
-      display_order: menuItem.display_order || 0
-    };
-
     console.log('Creating menu item with data:', itemToCreate);
     const { data, error } = await supabase
       .from('menu_items')
@@ -102,60 +65,31 @@ export const createMenuItem = async (menuItem: MenuItemFormData) => {
       .single();
     
     if (error) {
-      console.error('Error creating menu item:', error);
-      throw error;
+      return handleError(error, 'createMenuItem');
     }
     
     console.log('Created menu item:', data);
-    
-    const createdItem: MenuItem = {
-      id: data.id,
-      value: data.value,
-      label: data.label,
-      category: data.category || null,
-      choice_id: data.choice_id,
-      choice: data.choice,
-      image_url: null,
-      display_order: data.display_order || 0,
-      created_at: data.created_at,
-      updated_at: data.updated_at
-    };
-    
-    return createdItem;
+    return transformMenuItem(data);
   } catch (error) {
-    console.error('Error in createMenuItem:', error);
-    throw error;
+    return handleError(error, 'createMenuItem');
   }
 };
 
+/**
+ * Updates an existing menu item
+ */
 export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormData>) => {
   try {
     console.log(`Updating menu item ${id} with data:`, menuItem);
     
-    let itemToUpdate: any = { ...menuItem };
+    let itemToUpdate = { ...menuItem };
     
     if (menuItem.choice_id) {
-      const { data: choiceData, error: choiceError } = await supabase
-        .from('menu_choices')
-        .select('*')
-        .eq('id', menuItem.choice_id)
-        .single();
-      
-      if (choiceError) {
-        console.error('Error fetching choice for menu item update:', choiceError);
-        throw choiceError;
-      }
-      
-      itemToUpdate.choice = choiceData.value;
+      const choiceData = await getChoiceValueById(menuItem.choice_id);
+      itemToUpdate = prepareMenuItemData(menuItem, choiceData);
+    } else {
+      itemToUpdate = prepareMenuItemData(menuItem);
     }
-
-    // Explicitly handle null category
-    if (menuItem.category === null) {
-      itemToUpdate.category = null;
-    }
-
-    // Remove image_url from update payload as it no longer exists in the schema
-    delete itemToUpdate.image_url;
     
     console.log('Final update payload:', itemToUpdate);
     const { data, error } = await supabase
@@ -166,32 +100,19 @@ export const updateMenuItem = async (id: string, menuItem: Partial<MenuItemFormD
       .single();
     
     if (error) {
-      console.error('Error updating menu item:', error);
-      throw error;
+      return handleError(error, 'updateMenuItem');
     }
     
     console.log('Updated menu item:', data);
-    
-    const updatedItem: MenuItem = {
-      id: data.id,
-      value: data.value,
-      label: data.label,
-      category: data.category || null,
-      choice_id: data.choice_id,
-      choice: data.choice,
-      image_url: null,
-      display_order: data.display_order || 0,
-      created_at: data.created_at,
-      updated_at: data.updated_at
-    };
-    
-    return updatedItem;
+    return transformMenuItem(data);
   } catch (error) {
-    console.error('Error in updateMenuItem:', error);
-    throw error;
+    return handleError(error, 'updateMenuItem');
   }
 };
 
+/**
+ * Reorders menu items
+ */
 export const reorderMenuItems = async (items: MenuItem[]) => {
   try {
     const updates = items.map((item, index) => ({
@@ -208,17 +129,18 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
       .upsert(updates, { onConflict: 'id' });
     
     if (error) {
-      console.error('Error reordering menu items:', error);
-      throw error;
+      return handleError(error, 'reorderMenuItems');
     }
     
     return true;
   } catch (error) {
-    console.error('Error in reorderMenuItems:', error);
-    throw error;
+    return handleError(error, 'reorderMenuItems');
   }
 };
 
+/**
+ * Deletes a menu item
+ */
 export const deleteMenuItem = async (id: string) => {
   try {
     const { error } = await supabase
@@ -227,13 +149,11 @@ export const deleteMenuItem = async (id: string) => {
       .eq('id', id);
     
     if (error) {
-      console.error('Error deleting menu item:', error);
-      throw error;
+      return handleError(error, 'deleteMenuItem');
     }
     
     return true;
   } catch (error) {
-    console.error('Error in deleteMenuItem:', error);
-    throw error;
+    return handleError(error, 'deleteMenuItem');
   }
 };
