@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,7 +15,8 @@ export function useTaskCount() {
       
       if (error) throw error;
       return count || 0;
-    }
+    },
+    refetchInterval: 60000
   });
 
   return taskCount;

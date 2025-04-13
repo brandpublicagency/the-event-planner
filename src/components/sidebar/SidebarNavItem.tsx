@@ -54,7 +54,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           </motion.span>
         )}
         
-        {!isCollapsed && item.badge !== undefined && (
+        {!isCollapsed && item.badge !== undefined && item.badge > 0 && (
           <Badge 
             variant="secondary" 
             className="ml-auto bg-primary/10 text-primary hover:bg-primary/15 px-1.5 py-0 text-[10px]"
@@ -63,7 +63,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           </Badge>
         )}
         
-        {isCollapsed && item.badge !== undefined && (
+        {isCollapsed && item.badge !== undefined && item.badge > 0 && (
           <Badge 
             variant="secondary" 
             className="absolute -top-1 -right-1 text-[8px] px-1 min-w-[14px] h-[14px] flex items-center justify-center bg-primary text-white"
