@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, GripVertical, Plus } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { toast } from 'sonner';
 
 type MenuItemsTableProps = {
   items: MenuItem[];
@@ -32,13 +34,20 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   };
 
   const handleDragEnd = (result: any) => {
-    if (!result.destination || !onReorder) return;
+    if (!result.destination) return;
+    console.log("Drag end result:", result);
 
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
 
-    const reorderedItems = [...items];
+    // If it's a category drag
+    if (result.type === 'category') {
+      toast.info(`Category drag detected: ${result.draggableId}`);
+      return; // We need to handle category reordering differently
+    }
 
+    // Handle item reordering
+    const reorderedItems = [...items];
     const [reorderedItem] = reorderedItems.splice(result.source.index, 1);
     reorderedItems.splice(result.destination.index, 0, reorderedItem);
 
@@ -50,12 +59,18 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
         reorderedItem.category = null;
       }
     }
-    onReorder(reorderedItems);
+    
+    if (onReorder) {
+      onReorder(reorderedItems);
+      toast.success("Items reordered successfully");
+    }
   };
 
+  // Group items by category
   const groupedItems: {
     [key: string]: MenuItem[];
   } = {};
+  
   items.forEach(item => {
     const category = item.category || 'Uncategorized';
     if (!groupedItems[category]) {
@@ -64,58 +79,143 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     groupedItems[category].push(item);
   });
 
-  return <div className="space-y-4">
-      {items.length === 0 ? <div className="text-center py-4 text-gray-500">
+  // Check if we have multiple categories to enable category dragging
+  const hasMultipleCategories = Object.keys(groupedItems).length > 1;
+
+  return (
+    <div className="space-y-4">
+      {items.length === 0 ? (
+        <div className="text-center py-4 text-gray-500">
           No menu items found
-        </div> : <DragDropContext onDragEnd={handleDragEnd}>
-          {Object.entries(groupedItems).map(([category, categoryItems]) => <div key={category} className="mb-6">
-              <Droppable droppableId={`category-${category}`} direction="vertical">
-                {provided => <div ref={provided.innerRef} className="space-y-2 border border-dashed border-gray-300 rounded-md p-2">
-                    {category !== 'Uncategorized' && <div className="mb-1 px-1">
-                        <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
-                          {category}
-                        </div>
-                      </div>}
-                    
-                    {categoryItems.map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
-                        {provided => <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-start bg-white border rounded-md p-2 mb-2">
-                            {onReorder && <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
-                                <GripVertical className="h-4 w-4 text-gray-400" />
-                              </div>}
-                            
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <div className="text-sm font-medium text-gray-800">
-                                    {item.label} <span className="font-light text-xs text-gray-300">({item.value})</span>
+        </div>
+      ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="category-list" type="category">
+            {(provided) => (
+              <div 
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-4"
+              >
+                {Object.entries(groupedItems).map(([category, categoryItems], categoryIndex) => (
+                  <Draggable 
+                    key={`category-draggable-${category}`}
+                    draggableId={`category-${category}`}
+                    index={categoryIndex}
+                    isDragDisabled={!hasMultipleCategories}
+                  >
+                    {(provided, snapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`mb-6 ${snapshot.isDragging ? 'bg-gray-100 opacity-90' : ''}`}
+                      >
+                        <Droppable droppableId={`category-${category}`} direction="vertical">
+                          {(provided) => (
+                            <div 
+                              ref={provided.innerRef} 
+                              className={`space-y-2 border border-dashed ${snapshot.isDragging ? 'border-blue-400' : 'border-gray-300'} rounded-md p-2`}
+                            >
+                              {category !== 'Uncategorized' && (
+                                <div className="mb-1 px-1 flex items-center justify-between">
+                                  <div className="flex items-center">
+                                    {hasMultipleCategories && (
+                                      <div
+                                        {...provided.dragHandleProps}
+                                        className="mr-2 cursor-grab active:cursor-grabbing text-zinc-500 hover:text-zinc-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition-colors"
+                                        title="Drag to reorder category"
+                                      >
+                                        <GripVertical className="h-4 w-4" />
+                                      </div>
+                                    )}
+                                    <div className="inline-flex items-center border border-zinc-800 text-xs font-semibold py-[8px] px-[14px] rounded-lg bg-transparent my-[8px]">
+                                      {category}
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex space-x-1">
-                                  <Button variant="ghost" size="icon" onClick={() => onEdit(item)} className="h-6 w-6 text-zinc-400">
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" onClick={() => setItemToDelete(item)} className="h-6 w-6 text-zinc-400">
-                                    <Trash2 className="h-3 w-3" />
+                              )}
+                              
+                              {categoryItems.map((item, index) => (
+                                <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
+                                  {(provided) => (
+                                    <div 
+                                      ref={provided.innerRef} 
+                                      {...provided.draggableProps} 
+                                      className="flex items-start bg-white border rounded-md p-2 mb-2"
+                                    >
+                                      {onReorder && (
+                                        <div 
+                                          {...provided.dragHandleProps} 
+                                          className="cursor-grab pr-2 mt-1"
+                                        >
+                                          <GripVertical className="h-4 w-4 text-gray-400" />
+                                        </div>
+                                      )}
+                                      
+                                      <div className="flex-1">
+                                        <div className="flex items-start justify-between">
+                                          <div>
+                                            <div className="text-sm font-medium text-gray-800">
+                                              {item.label} <span className="font-light text-xs text-gray-300">({item.value})</span>
+                                            </div>
+                                          </div>
+                                          <div className="flex space-x-1">
+                                            <Button 
+                                              variant="ghost" 
+                                              size="icon" 
+                                              onClick={() => onEdit(item)} 
+                                              className="h-6 w-6 text-zinc-400"
+                                            >
+                                              <Edit className="h-3 w-3" />
+                                            </Button>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="icon" 
+                                              onClick={() => setItemToDelete(item)} 
+                                              className="h-6 w-6 text-zinc-400"
+                                            >
+                                              <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                              
+                              {onAddItem && (
+                                <div className="pt-2 py-[9px]">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} 
+                                    className="w-full flex items-center justify-center border border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-500 py-[10px]"
+                                  >
+                                    <Plus className="h-3.5 w-3.5 mr-1" />
+                                    Add Item
                                   </Button>
                                 </div>
-                              </div>
+                              )}
                             </div>
-                          </div>}
-                      </Draggable>)}
-                    {provided.placeholder}
-                    
-                    {onAddItem && <div className="pt-2 py-[9px]">
-                        <Button variant="ghost" size="sm" onClick={() => onAddItem(category !== 'Uncategorized' ? category : null)} className="w-full flex items-center justify-center border border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-500 py-[10px]">
-                          <Plus className="h-3.5 w-3.5 mr-1" />
-                          Add Item
-                        </Button>
-                      </div>}
-                  </div>}
-              </Droppable>
-            </div>)}
-        </DragDropContext>}
+                          )}
+                        </Droppable>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )}
 
-      <AlertDialog open={!!itemToDelete} onOpenChange={open => !open && setItemToDelete(null)}>
+      <AlertDialog 
+        open={!!itemToDelete} 
+        onOpenChange={open => !open && setItemToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -131,7 +231,8 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>;
+    </div>
+  );
 };
 
 export default MenuItemsTable;

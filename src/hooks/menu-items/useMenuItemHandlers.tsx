@@ -1,5 +1,6 @@
 
 import { MenuItemFormData, MenuItem } from '@/api/menuItemsApi';
+import { toast } from 'sonner';
 
 export const useMenuItemHandlers = (
   createMutation: { mutate: (data: MenuItemFormData) => void },
@@ -22,6 +23,11 @@ export const useMenuItemHandlers = (
   };
 
   const handleReorderItems = (reorderedItems: MenuItem[]) => {
+    console.log("Reordering items:", reorderedItems.length);
+    if (reorderedItems.length === 0) {
+      toast.error("Cannot reorder: No items provided");
+      return;
+    }
     reorderMutation.mutate(reorderedItems);
   };
 

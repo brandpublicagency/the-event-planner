@@ -16,14 +16,14 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   onEditCategory,
   onDeleteCategory,
   dragHandleProps,
-  showDragHandle = false
+  showDragHandle = true  // Changed default to true to always show drag handles
 }) => {
   const isUncategorized = category === 'Uncategorized' || category === 'Items';
   
   return (
     <div className="flex items-center justify-between px-3 py-2">
       <div className="flex items-center">
-        {showDragHandle && (
+        {showDragHandle && dragHandleProps && (
           <div
             {...dragHandleProps}
             className="mr-2 cursor-grab active:cursor-grabbing text-zinc-500 hover:text-zinc-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition-colors"
