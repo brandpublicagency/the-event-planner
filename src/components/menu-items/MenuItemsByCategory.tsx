@@ -65,7 +65,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
 
-  // All menu choices should use the BuffetMenuContainer for consistent UI
   return (
     <>
       <BuffetMenuContainer

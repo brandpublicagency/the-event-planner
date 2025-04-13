@@ -1,8 +1,8 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Only sec-mains should have categorization
@@ -45,19 +45,36 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const allCategories = useMemo(() => {
     if (!useCategorization) return ['Items'];
     
-    return Object.keys(categorizedItems)
+    const categories = Object.keys(categorizedItems)
       .filter(category => categorizedItems[category].length > 0)
       .sort((a, b) => {
+        // Always put Uncategorized at the end
         if (a === 'Uncategorized') return 1;
         if (b === 'Uncategorized') return -1;
+        // Otherwise, sort alphabetically
         return a.localeCompare(b);
       });
+    
+    console.log("All detected categories:", categories);
+    return categories;
   }, [categorizedItems, useCategorization]);
 
   // Fetch saved category order from database using React Query
   const { data: savedCategoryOrder = [], isLoading: isLoadingCategoryOrder } = useQuery({
     queryKey: ['menu-choice-category-order', choiceId],
-    queryFn: () => getCategoryOrder(choiceId || ''),
+    queryFn: async () => {
+      if (!choiceId || !useCategorization) return [];
+      console.log("Fetching saved category order for choice:", choiceId);
+      try {
+        const order = await getCategoryOrder(choiceId);
+        console.log("Received saved category order:", order);
+        return order;
+      } catch (error) {
+        console.error("Error fetching category order:", error);
+        toast.error("Failed to load category order");
+        return [];
+      }
+    },
     enabled: !!choiceId && useCategorization,
     staleTime: 300000, // 5 minutes
   });
@@ -65,51 +82,66 @@ export const useMenuCategories = (items: MenuItem[]) => {
   // Custom category order state
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
-  // Update customCategoryOrder when savedCategoryOrder changes
+  // Update customCategoryOrder when savedCategoryOrder or allCategories changes
   useEffect(() => {
+    if (!useCategorization) {
+      setCustomCategoryOrder(['Items']);
+      return;
+    }
+    
+    console.log("Updating category order with saved:", savedCategoryOrder);
+    console.log("All categories available:", allCategories);
+    
     if (savedCategoryOrder && savedCategoryOrder.length > 0) {
-      console.log("Setting saved category order:", savedCategoryOrder);
-      
       // Filter out any categories that no longer exist
-      const validCategories = savedCategoryOrder.filter(cat => allCategories.includes(cat));
+      const validSavedCategories = savedCategoryOrder.filter(cat => 
+        allCategories.includes(cat)
+      );
       
-      // Add any missing categories that weren't in the saved order
-      const missingCategories = allCategories.filter(cat => !savedCategoryOrder.includes(cat));
+      // Find categories that exist but aren't in the saved order
+      const missingCategories = allCategories.filter(cat => 
+        !savedCategoryOrder.includes(cat)
+      );
       
-      const updatedOrder = [...validCategories, ...missingCategories];
-      
-      if (updatedOrder.length > 0) {
-        console.log("Using saved category order:", updatedOrder);
-        setCustomCategoryOrder(updatedOrder);
+      // Combine valid saved categories with any new ones
+      if (validSavedCategories.length > 0 || missingCategories.length > 0) {
+        const combinedOrder = [...validSavedCategories, ...missingCategories];
+        console.log("Using combined category order:", combinedOrder);
+        setCustomCategoryOrder(combinedOrder);
       }
-    } else if (allCategories.length > 0 && customCategoryOrder.length === 0) {
-      // Initialize with default order if no saved order exists
-      console.log("No saved order, using default category order:", allCategories);
+    } else {
+      // If no saved order exists, use the detected categories
+      console.log("No saved order, using detected categories:", allCategories);
       setCustomCategoryOrder([...allCategories]);
     }
-  }, [savedCategoryOrder, allCategories, customCategoryOrder.length]);
+  }, [savedCategoryOrder, allCategories, useCategorization]);
 
   // Update category order and persist to database
   const updateCategoryOrder = async (newOrder: string[]) => {
+    if (!useCategorization) return;
+    
     console.log("Setting new category order:", newOrder);
     setCustomCategoryOrder(newOrder);
     
     // Save to database if we have a choiceId
     if (choiceId) {
-      console.log(`Saving category order for choice ${choiceId}:`, newOrder);
-      await storeCategoryOrder(choiceId, newOrder);
+      try {
+        console.log(`Saving category order for choice ${choiceId}:`, newOrder);
+        await storeCategoryOrder(choiceId, newOrder);
+        toast.success("Category order saved");
+      } catch (error) {
+        console.error("Failed to save category order:", error);
+        toast.error("Failed to save category order");
+      }
     }
   };
 
-  // Determine the final category order to use
-  const finalCategoryOrder = customCategoryOrder.length > 0 ? customCategoryOrder : allCategories;
-
   return {
     categorizedItems,
-    isBuffetMenu: useCategorization, // Reuse the existing property name
+    isBuffetMenu: useCategorization,
     allCategories,
     updateCategoryOrder,
-    customCategoryOrder: finalCategoryOrder,
+    customCategoryOrder: customCategoryOrder.length > 0 ? customCategoryOrder : allCategories,
     choiceId,
     isLoadingCategoryOrder
   };

@@ -17,6 +17,8 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
       category: item.category
     }));
 
+    console.log(`Reordering ${updates.length} menu items`);
+    
     const { error } = await supabase
       .from('menu_items')
       .upsert(updates, { onConflict: 'id' });

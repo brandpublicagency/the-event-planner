@@ -30,13 +30,13 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="border border-dashed border-gray-300 rounded-md p-3">
+      <div className="border border-gray-300 rounded-md p-4">
         <Droppable droppableId="categories" type="category">
           {(provided) => (
             <div 
               {...provided.droppableProps} 
               ref={provided.innerRef}
-              className="space-y-4"
+              className="space-y-6"
             >
               {categories.map((category, index) => (
                 <Draggable 
@@ -48,7 +48,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className="mb-4 last:mb-0"
+                      className="bg-gray-50 rounded-md border border-gray-200"
                     >
                       <CategoryContainer
                         key={`category-container-${category}`}
