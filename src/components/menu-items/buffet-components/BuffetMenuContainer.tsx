@@ -3,6 +3,7 @@ import React from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { DragDropContext } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
+import AddItemButton from '../category-components/AddItemButton';
 
 interface BuffetMenuContainerProps {
   categories: string[];
@@ -45,15 +46,23 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
               isDeleting={isDeleting}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
-              onAddItem={onAddItem}
               isBuffetCategory={true}
-              showAddItemButton={category === 'Uncategorized'}
               dragHandleProps={dragHandleProps}
               showDragHandle={showDragHandle}
               isGroupedLayout={true}
             />
           ))}
         </div>
+        
+        {/* Single Add Item button at the bottom of the container */}
+        {onAddItem && (
+          <div className="mt-4">
+            <AddItemButton 
+              onAddItem={onAddItem} 
+              category={null} 
+            />
+          </div>
+        )}
       </div>
     </DragDropContext>
   );

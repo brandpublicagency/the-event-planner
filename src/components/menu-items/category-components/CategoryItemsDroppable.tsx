@@ -2,7 +2,6 @@
 import React from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import MenuItemCard from './MenuItemCard';
-import AddItemButton from './AddItemButton';
 import { MenuItem } from '@/api/menuItemsApi';
 
 interface CategoryItemsDroppableProps {
@@ -11,9 +10,7 @@ interface CategoryItemsDroppableProps {
   onEdit: (item: MenuItem) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  onAddItem?: (category: string | null) => void;
   canReorder?: boolean;
-  showAddItemButton?: boolean;
 }
 
 const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
@@ -22,9 +19,7 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
   onEdit,
   onDelete,
   isDeleting,
-  onAddItem,
-  canReorder = true,
-  showAddItemButton = true
+  canReorder = true
 }) => {
   return (
     <Droppable droppableId={`category-${category}`} direction="vertical">
@@ -52,14 +47,6 @@ const CategoryItemsDroppable: React.FC<CategoryItemsDroppableProps> = ({
             </Draggable>
           ))}
           {provided.placeholder}
-          
-          {/* Always show Add Item button if onAddItem is provided */}
-          {onAddItem && (
-            <AddItemButton 
-              onAddItem={onAddItem} 
-              category={category !== 'Uncategorized' ? category : null} 
-            />
-          )}
         </div>
       )}
     </Droppable>

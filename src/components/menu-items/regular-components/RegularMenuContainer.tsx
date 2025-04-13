@@ -3,6 +3,7 @@ import React from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { DragDropContext } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
+import AddItemButton from '../category-components/AddItemButton';
 
 interface RegularMenuContainerProps {
   categories: string[];
@@ -45,7 +46,6 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
               isDeleting={isDeleting}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
-              onAddItem={onAddItem}
               canReorder={!!onAddItem}
               dragHandleProps={dragHandleProps}
               showDragHandle={showDragHandle}
@@ -53,6 +53,16 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
             />
           ))}
         </div>
+        
+        {/* Single Add Item button at the bottom of the container */}
+        {onAddItem && (
+          <div className="mt-4">
+            <AddItemButton 
+              onAddItem={onAddItem} 
+              category={null} 
+            />
+          </div>
+        )}
       </div>
     </DragDropContext>
   );
