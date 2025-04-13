@@ -29,12 +29,22 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onAddItem,
   handleDragEnd
 }) => {
+  // Check if this is a sec-mains menu by looking at the first item's choice value
+  // Use trimming and case-insensitive comparison to handle possible format variations
   const isSecMains = categorizedItems && 
     Object.values(categorizedItems).length > 0 && 
-    Object.values(categorizedItems)[0]?.[0]?.choice === 'sec-mains';
+    Object.values(categorizedItems).some(items => 
+      items.length > 0 && 
+      items[0]?.choice?.trim?.()?.toLowerCase?.() === 'sec-mains'
+    );
 
   console.log('BuffetMenuContainer: isSecMains=', isSecMains);
   console.log('BuffetMenuContainer: categories=', categories);
+  console.log('BuffetMenuContainer: First item choice=', 
+    Object.values(categorizedItems)[0]?.[0]?.choice || 'No items');
+  
+  // Force show drag handles for testing - comment this out in production
+  // const isSecMains = true;
   
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

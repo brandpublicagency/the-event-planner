@@ -6,17 +6,21 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Only sec-mains should have categorization
-  const CATEGORY_MENU_TYPES = ['sec-mains'];
+  // Types that should use categorization (sec-mains and other possible variants)
+  const CATEGORY_MENU_TYPES = ['sec-mains', 'sec_mains', 'secondary mains', 'secondary-mains'];
   
   const useCategorization = useMemo(() => {
     if (items.length === 0) return false;
     
     const firstItem = items[0];
-    const choice = firstItem.choice;
+    // Make sure to handle potential undefined or null choice values
+    const choice = firstItem.choice?.trim?.()?.toLowerCase?.() || '';
     
-    console.log(`useMenuCategories: Choice value for first item: ${choice}`);
-    return CATEGORY_MENU_TYPES.includes(choice);
+    console.log(`useMenuCategories: Choice value for first item: "${choice}"`);
+    
+    // Check if any of our known category menu types matches
+    return CATEGORY_MENU_TYPES.some(type => 
+      choice === type || choice.includes(type));
   }, [items]);
 
   // Get the choice ID for database operations

@@ -7,6 +7,7 @@ import { useCategoryManager } from './hooks/useCategoryManager';
 import { useMenuCategories } from './hooks/useMenuCategories';
 import { useDragAndDrop } from './hooks/useDragAndDrop';
 import BuffetMenuContainer from './buffet-components/BuffetMenuContainer';
+import { toast } from 'sonner';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -35,14 +36,17 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     isLoadingCategoryOrder
   } = useMenuCategories(items);
   
-  // Log for debugging
+  // Enhanced debug logging
   console.log('MenuItemsByCategory:', {
     isBuffetMenu,
     allCategories: allCategories,
     customCategoryOrder: customCategoryOrder,
     choiceId,
     itemsCount: items.length,
-    firstItemChoice: items[0]?.choice
+    firstItemChoice: items[0]?.choice,
+    firstItemID: items[0]?.id,
+    categoriesCount: Object.keys(categorizedItems).length,
+    canReorder: !!onReorder
   });
   
   const { handleDragEnd } = useDragAndDrop({ 
@@ -66,6 +70,16 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     handleDeleteCategory,
     performDelete
   } = useCategoryManager({ items });
+
+  // Show toast message about drag and drop when component mounts
+  React.useEffect(() => {
+    if (isBuffetMenu && customCategoryOrder.length > 1) {
+      toast.info("You can drag and drop categories to reorder them", {
+        id: "category-drag-hint",
+        duration: 5000
+      });
+    }
+  }, [isBuffetMenu, customCategoryOrder.length]);
 
   if (isLoadingCategoryOrder) {
     return <p className="text-center py-4 text-sm text-gray-500">Loading categories...</p>;
