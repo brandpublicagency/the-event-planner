@@ -1,4 +1,3 @@
-
 import React, { useMemo, useEffect, useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
@@ -18,7 +16,6 @@ interface MenuItemsByCategoryProps {
   onReorder?: (reorderedItems: MenuItem[]) => void;
   onAddItem?: (category: string | null) => void;
 }
-
 const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   items,
   onEdit,
@@ -34,7 +31,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting2, setIsDeleting2] = useState(false);
-
   useEffect(() => {
     if (items.length > 0) {
       console.log("MenuItemsByCategory: Forcing refresh of menu items and categories");
@@ -47,7 +43,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       });
     }
   }, [items, queryClient]);
-
   const categorizedItems = useMemo(() => {
     console.log("Grouping items by category:", items);
     const grouped: Record<string, MenuItem[]> = {};
@@ -67,7 +62,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("Grouped items:", grouped);
     return grouped;
   }, [items]);
-
   const allCategories = useMemo(() => {
     const categories = Object.keys(categorizedItems).sort();
     if (categories.includes('Uncategorized')) {
@@ -76,7 +70,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("All categories detected:", categories);
     return categories;
   }, [categorizedItems]);
-
   const handleEditCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot edit the Uncategorized category');
@@ -91,7 +84,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     setSelectedChoiceLabel(itemInCategory.choice || 'Menu Items');
     setIsCategoryManagerOpen(true);
   };
-
   const handleDeleteCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot delete the Uncategorized category');
@@ -106,7 +98,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     setSelectedChoiceId(itemInCategory.choice_id);
     setIsDeleteDialogOpen(true);
   };
-
   const performDelete = async () => {
     if (!categoryToDelete || !selectedChoiceId) {
       toast.error('Missing category or choice ID');
@@ -143,49 +134,36 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       setIsDeleting2(false);
     }
   };
-
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
-
     const sourceCategory = sourceDroppableId.replace('category-', '');
     const destinationCategory = destinationDroppableId.replace('category-', '');
-
     const reorderedItems = [...items];
-
     const draggedItem = reorderedItems.find(item => item.id === result.draggableId);
     if (!draggedItem) return;
-
     const filteredItems = reorderedItems.filter(item => item.id !== result.draggableId);
-
     if (sourceCategory !== destinationCategory) {
       draggedItem.category = destinationCategory === 'Uncategorized' ? null : destinationCategory;
     }
-
     const itemsInDestination = filteredItems.filter(item => (item.category || 'Uncategorized') === destinationCategory);
-
     let newIndex = result.destination.index;
     if (newIndex > itemsInDestination.length) {
       newIndex = itemsInDestination.length;
     }
-
     itemsInDestination.splice(newIndex, 0, draggedItem);
-
     const updatedItems = filteredItems.filter(item => (item.category || 'Uncategorized') !== destinationCategory).concat(itemsInDestination);
-
     onReorder(updatedItems);
   };
-
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
-
   return <DragDropContext onDragEnd={handleDragEnd}>
       <div className="space-y-6">
-        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md p-3 my-[2px]">
+        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md p-3 my-[2px] px-[2px]">
             <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0">
-              <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[4px]">
+              <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[7px]">
                 {category}
               </h3>
               
@@ -202,7 +180,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             </div>
             
             <Droppable droppableId={`category-${category}`} direction="vertical">
-              {provided => <div ref={provided.innerRef} className="space-y-2 mx-3 my-0">
+              {provided => <div ref={provided.innerRef} className="space-y-2 my-0 mx-[6px]">
                   {categorizedItems[category].map((item, index) => <Draggable key={item.id} draggableId={item.id} index={index} isDragDisabled={!onReorder}>
                       {(provided, snapshot) => <div ref={provided.innerRef} {...provided.draggableProps} className={`flex items-start bg-white border rounded-md p-2 mb-2 ${snapshot.isDragging ? 'opacity-70' : ''}`}>
                           <div {...provided.dragHandleProps} className="cursor-grab pr-2 mt-1">
@@ -265,5 +243,4 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       </div>
     </DragDropContext>;
 };
-
 export default MenuItemsByCategory;
