@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MenuItem } from '@/api/menuItemsApi';
+import { MenuItem } from '@/api/types/menuItems';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import DeleteCategoryDialog from './category-components/DeleteCategoryDialog';
 import { useCategoryManager } from './hooks/useCategoryManager';
@@ -65,6 +65,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   // Determine if category reordering is enabled
   const isCategoryReorderingEnabled = onReorder && allCategories.length > 1 && allCategories[0] !== 'Uncategorized';
 
+  // All items with categories should use the BuffetMenuContainer for consistent drag-drop experience
   return (
     <>
       {isCategoryReorderingEnabled ? (
@@ -75,33 +76,19 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 {...provided.droppableProps} 
                 ref={provided.innerRef}
               >
-                {isBuffetMenu ? (
-                  <BuffetMenuContainer
-                    categories={allCategories}
-                    categorizedItems={categorizedItems}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    isDeleting={isDeleting}
-                    onEditCategory={handleEditCategory}
-                    onDeleteCategory={handleDeleteCategory}
-                    onAddItem={onAddItem}
-                    handleDragEnd={handleDragEnd}
-                    showDragHandle={true}
-                  />
-                ) : (
-                  <RegularMenuContainer
-                    categories={allCategories}
-                    categorizedItems={categorizedItems}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    isDeleting={isDeleting}
-                    onEditCategory={handleEditCategory}
-                    onDeleteCategory={handleDeleteCategory}
-                    onAddItem={onAddItem}
-                    handleDragEnd={handleDragEnd}
-                    showDragHandle={true}
-                  />
-                )}
+                {/* Always use BuffetMenuContainer for consistent drag and drop behavior */}
+                <BuffetMenuContainer
+                  categories={allCategories}
+                  categorizedItems={categorizedItems}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  isDeleting={isDeleting}
+                  onEditCategory={handleEditCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onAddItem={onAddItem}
+                  handleDragEnd={handleDragEnd}
+                  showDragHandle={true}
+                />
                 {provided.placeholder}
               </div>
             )}
@@ -109,31 +96,18 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         </DragDropContext>
       ) : (
         <div>
-          {isBuffetMenu ? (
-            <BuffetMenuContainer
-              categories={allCategories}
-              categorizedItems={categorizedItems}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              isDeleting={isDeleting}
-              onEditCategory={handleEditCategory}
-              onDeleteCategory={handleDeleteCategory}
-              onAddItem={onAddItem}
-              handleDragEnd={handleDragEnd}
-            />
-          ) : (
-            <RegularMenuContainer
-              categories={allCategories}
-              categorizedItems={categorizedItems}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              isDeleting={isDeleting}
-              onEditCategory={handleEditCategory}
-              onDeleteCategory={handleDeleteCategory}
-              onAddItem={onAddItem}
-              handleDragEnd={handleDragEnd}
-            />
-          )}
+          {/* Always use BuffetMenuContainer for consistent drag and drop behavior */}
+          <BuffetMenuContainer
+            categories={allCategories}
+            categorizedItems={categorizedItems}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            isDeleting={isDeleting}
+            onEditCategory={handleEditCategory}
+            onDeleteCategory={handleDeleteCategory}
+            onAddItem={onAddItem}
+            handleDragEnd={handleDragEnd}
+          />
         </div>
       )}
       

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MenuItem } from '@/api/menuItemsApi';
+import { MenuItem } from '@/api/types/menuItems';
 import { DragDropContext } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
 import AddItemButton from '../category-components/AddItemButton';

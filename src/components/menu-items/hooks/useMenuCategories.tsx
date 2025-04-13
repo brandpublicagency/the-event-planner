@@ -34,28 +34,39 @@ export const useMenuCategories = (items: MenuItem[]) => {
     return items[0]?.choice_id || '';
   }, [items]);
 
-  // Detect if this is a buffet menu by checking the choice value
-  const isBuffetMenu = useMemo(() => {
-    if (!items.length) return false;
-    const choiceValue = items[0]?.choice;
-    return choiceValue === 'buffet-menu' || 
-           choiceValue === 'cho-buffet' || 
-           choiceValue === 'warm-karoo-feast' || 
-           choiceValue === 'cho-feast';
+  // Get the choice value from the first item (if exists)
+  const choiceValue = useMemo(() => {
+    if (!items.length) return '';
+    return items[0]?.choice || '';
   }, [items]);
+
+  // Detect menu types based on the choice value
+  const isBuffetMenu = useMemo(() => {
+    if (!choiceValue) return false;
+    return choiceValue === 'buffet-menu' || 
+           choiceValue === 'cho-buffet';
+  }, [choiceValue]);
+
+  const isKarooFeast = useMemo(() => {
+    if (!choiceValue) return false;
+    return choiceValue === 'warm-karoo-feast' || 
+           choiceValue === 'cho-feast';
+  }, [choiceValue]);
+
+  const isMainCourseMenu = useMemo(() => {
+    if (!choiceValue) return false;
+    return choiceValue.includes('sec-main') || 
+           choiceValue === 'sec-mains' || 
+           choiceValue.startsWith('sec-') ||
+           choiceValue === 'plated-menu' ||
+           choiceValue === 'plated-main';
+  }, [choiceValue]);
 
   // Define the buffet category order
   const buffetCategoryOrder = ['Meat', 'Vegetables', 'Starch', 'Salad'];
 
-  // Check if this is a section-main menu by checking the choice value
-  const isSectionMain = useMemo(() => {
-    if (!items.length) return false;
-    const choiceValue = items[0]?.choice;
-    return choiceValue === 'sec-mains' || 
-           choiceValue?.includes('sec-main') || 
-           choiceValue?.startsWith('sec-') || 
-           choiceValue?.includes('-main');
-  }, [items]);
+  // Define the main course category order (can be customized as needed)
+  const mainCourseCategoryOrder = ['Main Dish', 'Vegetarian', 'Vegan', 'Side Dish'];
 
   // Get the original order of categories as they appear in the items array
   const originalCategoryOrder = useMemo(() => {
@@ -136,8 +147,8 @@ export const useMenuCategories = (items: MenuItem[]) => {
     }
     
     // For section-mains, buffet, or karoo menus, maintain the original order
-    if (isSectionMain || isBuffetMenu) {
-      console.log(`This is a ${isSectionMain ? 'section-main' : isBuffetMenu ? 'buffet/karoo menu' : 'other'}, maintaining original category order`);
+    if (isMainCourseMenu || isBuffetMenu || isKarooFeast) {
+      console.log(`This is a ${isMainCourseMenu ? 'main course menu' : isBuffetMenu ? 'buffet menu' : 'karoo feast'}, maintaining original category order`);
       
       // Filter the original categories to only include those that exist in our data
       const existingOriginalCategories = originalCategoryOrder.filter(category => 
@@ -164,14 +175,14 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     console.log("All categories detected:", categories);
     return categories.sort();
-  }, [categorizedItems, isBuffetMenu, isSectionMain, originalCategoryOrder, customCategoryOrder]);
+  }, [categorizedItems, isBuffetMenu, isKarooFeast, isMainCourseMenu, originalCategoryOrder, customCategoryOrder]);
 
   return {
     categorizedItems,
-    isBuffetMenu,
+    isBuffetMenu: isBuffetMenu || isKarooFeast || isMainCourseMenu, // Treat all as buffet-style for drag and drop
     allCategories,
     buffetCategoryOrder,
-    isSectionMain,
+    isSectionMain: isMainCourseMenu,
     originalCategoryOrder,
     updateCategoryOrder,
     customCategoryOrder

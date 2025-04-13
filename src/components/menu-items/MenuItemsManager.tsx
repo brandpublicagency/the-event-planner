@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
@@ -14,15 +15,22 @@ interface MenuItemsManagerProps {
   hideChoiceLabel?: boolean;
 }
 
+// All choices that should use the categorized layout with drag and drop functionality
 const MULTI_CATEGORY_CHOICE_VALUES = [
+  // Buffet menus
   'buffet-menu', 
-  'warm-karoo-feast',
-  'cho-feast', 
   'cho-buffet',
+  // Karoo feasts
+  'warm-karoo-feast',
+  'cho-feast',
+  // Section mains (all main course options)
   'sec-mains',
   'sec-main',
   'sec-main-vegetarian',
-  'sec-main-vegan'
+  'sec-main-vegan',
+  // Plated menu options
+  'plated-menu',
+  'plated-main'
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
@@ -68,23 +76,32 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     const choiceValue = choiceItems[0]?.choice;
     console.log(`Choice value for ${choiceLabel}: ${choiceValue}`);
 
-    const isSectionMain = choiceValue?.includes('sec-main') || 
+    // Check if this is a main course item (section main)
+    const isMainCourse = choiceValue?.includes('sec-main') || 
                           choiceValue === 'sec-mains' || 
-                          choiceValue?.startsWith('sec-');
+                          choiceValue?.startsWith('sec-') ||
+                          choiceValue === 'plated-menu' ||
+                          choiceValue === 'plated-main';
 
+    // Check if this is a feast or buffet item
+    const isBuffetType = choiceValue === 'buffet-menu' || 
+                         choiceValue === 'cho-buffet';
     const isKarooFeast = choiceValue === 'warm-karoo-feast' || 
                          choiceValue === 'cho-feast';
 
+    // Check for menu type by label as backup
     const isBuffetLabel = choiceLabel.toLowerCase().includes('buffet');
     const isKarooLabel = choiceLabel.toLowerCase().includes('karoo');
-    const isSectionLabel = choiceLabel.toLowerCase().includes('section') || 
-                           choiceLabel.toLowerCase().includes('main');
+    const isMainCourseLabel = choiceLabel.toLowerCase().includes('main course') || 
+                              choiceLabel.toLowerCase().includes('section') || 
+                              choiceLabel.toLowerCase().includes('plated');
 
+    // Determine if we should use categories for this choice
     const shouldUseCategories = MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue) || 
                                 isBuffetLabel || 
                                 isKarooLabel || 
-                                isSectionMain || 
-                                isSectionLabel;
+                                isMainCourse || 
+                                isMainCourseLabel;
                                 
     console.log(`Should use categories for ${choiceLabel}? ${shouldUseCategories}`);
     return shouldUseCategories;
