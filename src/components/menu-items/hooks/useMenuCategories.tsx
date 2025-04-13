@@ -1,7 +1,7 @@
 
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { MenuItem } from '@/api/menuItemsApi';
-import { getCategoryOrder, storeCategoryOrder } from '@/api/menuItemsApi';
+import { MenuItem } from '@/api/types/menuItems';
+import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/operations/reorderMenuItems';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Group items by category

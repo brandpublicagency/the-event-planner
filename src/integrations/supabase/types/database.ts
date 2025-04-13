@@ -425,6 +425,38 @@ export interface Database {
         }
         Relationships: []
       }
+      menu_choice_category_order: {
+        Row: {
+          id: string;
+          choice_id: string;
+          category_order: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          choice_id: string;
+          category_order?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          choice_id?: string;
+          category_order?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "menu_choice_category_order_choice_id_fkey"
+            columns: ["choice_id"]
+            isOneToOne: true
+            referencedRelation: "menu_choices"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Functions: DatabaseFunctions;
     Enums: {};

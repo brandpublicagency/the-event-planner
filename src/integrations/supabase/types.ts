@@ -214,6 +214,38 @@ export type Database = {
           },
         ]
       }
+      menu_choice_category_order: {
+        Row: {
+          category_order: string[]
+          choice_id: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          category_order?: string[]
+          choice_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          category_order?: string[]
+          choice_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_choice_category_order_choice_id_fkey"
+            columns: ["choice_id"]
+            isOneToOne: true
+            referencedRelation: "menu_choices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_choices: {
         Row: {
           created_at: string | null
