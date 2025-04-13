@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import DeleteCategoryDialog from './category-components/DeleteCategoryDialog';
@@ -72,14 +72,14 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   } = useCategoryManager({ items });
 
   // Show toast message about drag and drop when component mounts
-  React.useEffect(() => {
-    if (isBuffetMenu && customCategoryOrder.length > 1) {
+  useEffect(() => {
+    if (customCategoryOrder.length > 1) {
       toast.info("You can drag and drop categories to reorder them", {
         id: "category-drag-hint",
         duration: 5000
       });
     }
-  }, [isBuffetMenu, customCategoryOrder.length]);
+  }, [customCategoryOrder.length]);
 
   if (isLoadingCategoryOrder) {
     return <p className="text-center py-4 text-sm text-gray-500">Loading categories...</p>;

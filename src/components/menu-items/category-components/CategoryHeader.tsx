@@ -26,8 +26,9 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
         {showDragHandle && (
           <div
             {...dragHandleProps}
-            className="mr-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded"
+            className="mr-2 cursor-grab active:cursor-grabbing text-zinc-500 hover:text-zinc-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition-colors"
             data-testid="category-drag-handle"
+            title="Drag to reorder category"
           >
             <GripVertical className="h-4 w-4" />
           </div>

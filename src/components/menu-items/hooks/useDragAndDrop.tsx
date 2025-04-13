@@ -41,16 +41,24 @@ export const useDragAndDrop = ({
         // Check if we actually have categories to reorder
         if (categoryOrder.length <= 1) {
           console.log("Not enough categories to reorder");
+          toast.error("Need at least two categories to reorder");
           return;
         }
         
+        // Get the current order and make a copy for reordering
         const newCategoryOrder = [...categoryOrder];
+        
+        // Remove the item from its original position and insert at the new position
         const [movedCategory] = newCategoryOrder.splice(result.source.index, 1);
         newCategoryOrder.splice(result.destination.index, 0, movedCategory);
         
         console.log("New category order:", newCategoryOrder);
+        
+        // Call the reorder function with the new order
         onReorderCategories(newCategoryOrder);
-        toast.success("Category order updated");
+        
+        // Show success toast
+        toast.success(`Moved "${movedCategory}" to position ${result.destination.index + 1}`);
       } catch (error) {
         console.error("Error reordering categories:", error);
         toast.error("Failed to reorder categories");

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import CategoryContainer from '../category-components/CategoryContainer';
@@ -29,23 +29,38 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onAddItem,
   handleDragEnd
 }) => {
-  // Check if this is a sec-mains menu by looking at the first item's choice value
-  // Use trimming and case-insensitive comparison to handle possible format variations
-  const isSecMains = categorizedItems && 
-    Object.values(categorizedItems).length > 0 && 
-    Object.values(categorizedItems).some(items => 
-      items.length > 0 && 
-      items[0]?.choice?.trim?.()?.toLowerCase?.() === 'sec-mains'
-    );
+  // Check if this is a sec-mains menu by looking at any item's choice value
+  // Use case-insensitive comparison to handle various formats
+  const isSecMains = Object.values(categorizedItems).some(items => 
+    items.some(item => {
+      const choice = item?.choice?.toLowerCase?.() || '';
+      return choice.includes('sec') && choice.includes('main');
+    })
+  );
 
   console.log('BuffetMenuContainer: isSecMains=', isSecMains);
   console.log('BuffetMenuContainer: categories=', categories);
-  console.log('BuffetMenuContainer: First item choice=', 
-    Object.values(categorizedItems)[0]?.[0]?.choice || 'No items');
   
-  // Force show drag handles for testing - uncomment this for troubleshooting
-  const forceShowDragHandles = true;
-  const showDragHandles = isSecMains || forceShowDragHandles;
+  // First few items choices for debugging
+  const firstFewChoices = Object.values(categorizedItems)
+    .flatMap(items => items.slice(0, 3))
+    .map(item => item?.choice || 'undefined')
+    .filter(Boolean);
+  
+  console.log('BuffetMenuContainer: Sample choices=', firstFewChoices);
+  
+  // Always enable drag handles for category reordering
+  const showDragHandles = true;
+  
+  // Show toast hint when component mounts if we have multiple categories
+  useEffect(() => {
+    if (categories.length > 1) {
+      toast.info("Drag and drop categories to reorder them", { 
+        duration: 5000,
+        id: "category-drag-hint" 
+      });
+    }
+  }, [categories.length]);
   
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -62,13 +77,17 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                   key={`category-draggable-${category}`} 
                   draggableId={`category-${category}`} 
                   index={index}
-                  isDragDisabled={!showDragHandles}
+                  isDragDisabled={false}
                 >
-                  {(provided) => (
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className="bg-gray-50 rounded-md border border-gray-200"
+                      className={`bg-gray-50 rounded-md border ${
+                        snapshot.isDragging 
+                          ? 'border-blue-400 shadow-lg' 
+                          : 'border-gray-200'
+                      } transition-all duration-200`}
                     >
                       <CategoryContainer
                         key={`category-container-${category}`}
