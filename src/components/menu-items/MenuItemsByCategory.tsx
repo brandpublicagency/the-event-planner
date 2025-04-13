@@ -134,7 +134,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   return <div className="space-y-6">
     {allCategories.map(category => <div key={category} className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
       <div className="flex items-center justify-between mb-2 py-2 bg-gray-50 px-[3px] rounded-md">
-        <h3 className="border border-slate-400 px-3 rounded text-slate-500 ml-3 text-xs font-semibold my-0 py-[6px]">
+        <h3 className="border border-slate-400 px-3 rounded ml-3 text-xs font-semibold my-0 py-[6px] text-slate-600">
           {category}
         </h3>
         
