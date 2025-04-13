@@ -80,11 +80,15 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
   console.log("All available categories:", allCategories);
 
+  // Determine if categories should be shown
+  const showCategories = allCategories.length > 0 && 
+    !['plated-starter', 'plated-main', 'plated-menu'].includes(watch('choice') || '');
+
   const submitWithCategory = (data: MenuItemFormData) => {
     console.log("Submitting with category:", selectedCategory);
     onSubmit({
       ...data,
-      category: selectedCategory,
+      category: showCategories ? selectedCategory : null,
       choice_id: choiceId
     });
   };
@@ -111,7 +115,7 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
         </div>
       </div>
       
-      {allCategories.length > 0 && (
+      {showCategories && (
         <div>
           <Select 
             value={selectedCategory || undefined} 

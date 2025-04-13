@@ -54,11 +54,19 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Get the selected choice to determine if category should be applied
+    const selectedChoice = choices.find(choice => choice.id === values.choice_id);
+    
+    // Hide category for plated menu types
+    const isPlatedMenu = selectedChoice?.value?.includes('plated') || 
+                         selectedChoice?.value === 'plated-starter' || 
+                         selectedChoice?.value === 'plated-main';
+
     const formData: MenuItemFormData = {
       value: values.value,
       label: values.label,
       choice_id: values.choice_id,
-      category: values.category,
+      category: isPlatedMenu ? null : values.category,
       image_url: values.image_url,
     };
     onSubmit(formData);
@@ -141,24 +149,26 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
           />
         </div>
         
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category (Optional)</FormLabel>
-              <FormControl>
-                <Input 
-                  {...field} 
-                  placeholder="e.g., MEAT SELECTION, VEGETABLES, etc."
-                  value={field.value || ''}
-                  onChange={e => field.onChange(e.target.value || null)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!form.watch('choice_id') || 
+         !choices.find(c => c.id === form.watch('choice_id'))?.value?.includes('plated') ? (
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    placeholder="e.g., MEAT SELECTION, VEGETABLES, etc."
+                    value={field.value || ''}
+                    onChange={e => field.onChange(e.target.value || null)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          ) : null}
 
         <div className="flex justify-end space-x-2">
           <Button variant="outline" type="button" onClick={onCancel}>

@@ -1,189 +1,90 @@
 
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
-import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/operations/reorderMenuItems';
+
+// List of menu types that should NOT use categories
+const NO_CATEGORY_TYPES = [
+  'plated-starter', 
+  'plated-main', 
+  'plated-menu'
+];
 
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Group items by category
-  const categorizedItems = useMemo(() => {
-    console.log("Grouping items by category:", items);
-    const grouped: Record<string, MenuItem[]> = {};
-    
-    const uncategorizedItems = items.filter(item => !item.category);
-    if (uncategorizedItems.length > 0) {
-      grouped['Uncategorized'] = uncategorizedItems;
-    }
-    
-    items.forEach(item => {
-      if (item.category) {
-        console.log(`Found item with category: ${item.label} - ${item.category}`);
-        if (!grouped[item.category]) {
-          grouped[item.category] = [];
-        }
-        grouped[item.category].push(item);
-      }
-    });
-    
-    console.log("Grouped items:", grouped);
-    return grouped;
-  }, [items]);
-
-  // Get the choiceId from the first item (if exists)
-  const choiceId = useMemo(() => {
-    if (!items.length) return '';
-    return items[0]?.choice_id || '';
-  }, [items]);
-
-  // Get the choice value from the first item (if exists)
-  const choiceValue = useMemo(() => {
-    if (!items.length) return '';
-    return items[0]?.choice || '';
-  }, [items]);
-
-  // Detect menu types based on the choice value
+  // Check if this is a buffet or similar menu type that requires categorization
   const isBuffetMenu = useMemo(() => {
-    if (!choiceValue) return false;
-    return choiceValue === 'buffet-menu' || 
-           choiceValue === 'cho-buffet';
-  }, [choiceValue]);
-
-  const isKarooFeast = useMemo(() => {
-    if (!choiceValue) return false;
-    return choiceValue === 'warm-karoo-feast' || 
-           choiceValue === 'cho-feast';
-  }, [choiceValue]);
-
-  const isMainCourseMenu = useMemo(() => {
-    if (!choiceValue) return false;
-    return choiceValue.includes('sec-main') || 
-           choiceValue === 'sec-mains' || 
-           choiceValue.startsWith('sec-') ||
-           choiceValue === 'plated-menu' ||
-           choiceValue === 'plated-main';
-  }, [choiceValue]);
-
-  // Define the buffet category order
-  const buffetCategoryOrder = ['Meat', 'Vegetables', 'Starch', 'Salad'];
-
-  // Define the main course category order (can be customized as needed)
-  const mainCourseCategoryOrder = ['Main Dish', 'Vegetarian', 'Vegan', 'Side Dish'];
-
-  // Get the original order of categories as they appear in the items array
-  const originalCategoryOrder = useMemo(() => {
-    if (!items.length) return [];
+    if (items.length === 0) return false;
     
-    const seenCategories = new Set<string>();
-    const orderedCategories: string[] = [];
+    const firstItem = items[0];
+    const choice = firstItem.choice;
     
-    // Add categories in the order they first appear in the items array
-    items.forEach(item => {
-      if (item.category && !seenCategories.has(item.category)) {
-        seenCategories.add(item.category);
-        orderedCategories.push(item.category);
-      }
-    });
-    
-    return orderedCategories;
+    // Include buffet, main courses, and feast types
+    return [
+      'buffet-menu', 
+      'cho-buffet', 
+      'warm-karoo-feast', 
+      'cho-feast', 
+      'sec-mains', 
+      'sec-main',
+      'sec-main-vegetarian',
+      'sec-main-vegan'
+    ].includes(choice);
   }, [items]);
 
-  // State to track custom category ordering
+  // Determine if categories should be used
+  const useCategorization = useMemo(() => {
+    if (items.length === 0) return false;
+    
+    const firstItem = items[0];
+    const choice = firstItem.choice;
+    
+    // Return false for plated menu types
+    return !NO_CATEGORY_TYPES.includes(choice);
+  }, [items]);
+
+  // Categorize items
+  const categorizedItems = useMemo(() => {
+    if (!useCategorization) {
+      // If categories are not used, return all items under a single category
+      return { 'Items': items };
+    }
+
+    // Group items by category, handling null/undefined categories
+    return items.reduce((acc, item) => {
+      const category = item.category || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {} as Record<string, MenuItem[]>);
+  }, [items, useCategorization]);
+
+  // Get all unique categories
+  const allCategories = useMemo(() => {
+    if (!useCategorization) return ['Items'];
+    
+    return Object.keys(categorizedItems)
+      .filter(category => categorizedItems[category].length > 0)
+      .sort((a, b) => {
+        // Prioritize 'Uncategorized' to be last
+        if (a === 'Uncategorized') return 1;
+        if (b === 'Uncategorized') return -1;
+        return a.localeCompare(b);
+      });
+  }, [categorizedItems]);
+
+  // Custom category order (if needed)
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
-  // Update custom category order
-  const updateCategoryOrder = useCallback(async (newOrder: string[]) => {
-    console.log("Updating custom category order:", newOrder);
+  // Update category order
+  const updateCategoryOrder = (newOrder: string[]) => {
     setCustomCategoryOrder(newOrder);
-    
-    // Persist the category order to the database
-    if (choiceId) {
-      const result = await storeCategoryOrder(choiceId, newOrder);
-      console.log("Category order saved:", result);
-    }
-  }, [choiceId]);
-
-  // Fetch saved category order when component mounts or choiceId changes
-  useEffect(() => {
-    const fetchCategoryOrder = async () => {
-      if (!choiceId) return;
-      
-      try {
-        const savedOrder = await getCategoryOrder(choiceId);
-        if (savedOrder && savedOrder.length > 0) {
-          console.log("Loaded saved category order:", savedOrder);
-          setCustomCategoryOrder(savedOrder);
-        }
-      } catch (error) {
-        console.error("Error fetching category order:", error);
-      }
-    };
-    
-    fetchCategoryOrder();
-  }, [choiceId]);
-
-  // Get all categories with specific ordering
-  const allCategories = useMemo(() => {
-    const categories = Object.keys(categorizedItems);
-    
-    // If we have a custom category order, use it as the primary source of truth
-    if (customCategoryOrder.length > 0) {
-      console.log("Using custom category order:", customCategoryOrder);
-      
-      // Filter the custom order to only include categories that exist in our data
-      const existingCustomCategories = customCategoryOrder.filter(category => 
-        categories.includes(category)
-      );
-      
-      // Add any categories that might not be in our custom order (newly added categories)
-      const missingCategories = categories.filter(category => 
-        !customCategoryOrder.includes(category) && category !== 'Uncategorized'
-      );
-      
-      // Combine with 'Uncategorized' at the beginning if it exists
-      if (categories.includes('Uncategorized')) {
-        return ['Uncategorized', ...existingCustomCategories, ...missingCategories];
-      }
-      
-      return [...existingCustomCategories, ...missingCategories];
-    }
-    
-    // For section-mains, buffet, or karoo menus, maintain the original order
-    if (isMainCourseMenu || isBuffetMenu || isKarooFeast) {
-      console.log(`This is a ${isMainCourseMenu ? 'main course menu' : isBuffetMenu ? 'buffet menu' : 'karoo feast'}, maintaining original category order`);
-      
-      // Filter the original categories to only include those that exist in our data
-      const existingOriginalCategories = originalCategoryOrder.filter(category => 
-        categories.includes(category)
-      );
-      
-      // Add any categories that might not be in our original list (should be rare)
-      const missingCategories = categories.filter(category => 
-        !originalCategoryOrder.includes(category) && category !== 'Uncategorized'
-      );
-      
-      // Combine with 'Uncategorized' at the beginning if it exists
-      if (categories.includes('Uncategorized')) {
-        return ['Uncategorized', ...existingOriginalCategories, ...missingCategories];
-      }
-      
-      return [...existingOriginalCategories, ...missingCategories];
-    }
-    
-    // For other menu types, keep the original logic
-    if (categories.includes('Uncategorized')) {
-      return ['Uncategorized', ...categories.filter(c => c !== 'Uncategorized').sort()];
-    }
-    
-    console.log("All categories detected:", categories);
-    return categories.sort();
-  }, [categorizedItems, isBuffetMenu, isKarooFeast, isMainCourseMenu, originalCategoryOrder, customCategoryOrder]);
+  };
 
   return {
     categorizedItems,
-    isBuffetMenu: isBuffetMenu || isKarooFeast || isMainCourseMenu, // Treat all as buffet-style for drag and drop
+    isBuffetMenu,
     allCategories,
-    buffetCategoryOrder,
-    isSectionMain: isMainCourseMenu,
-    originalCategoryOrder,
     updateCategoryOrder,
     customCategoryOrder
   };
