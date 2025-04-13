@@ -1,20 +1,17 @@
-
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-
 interface CategoryHeaderProps {
   category: string;
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
 }
-
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   category,
   onEditCategory,
   onDeleteCategory
 }) => {
-  return <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0 mx-[3px] my-[4px]">
-      <h3 className="border border-slate-400 rounded ml-0 text-xs font-semibold text-slate-600 py-[4px] px-[12px] my-[4px] mx-[4px]">
+  return <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0 my-[4px] mx-[9px]">
+      <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold text-slate-600 py-[4px] px-[12px] my-[4px] mx-[4px]">
         {category}
       </h3>
       
@@ -30,5 +27,4 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
         </div>}
     </div>;
 };
-
 export default CategoryHeader;
