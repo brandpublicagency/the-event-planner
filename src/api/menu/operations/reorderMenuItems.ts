@@ -37,76 +37,19 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
 };
 
 /**
- * Stores the preferred category order for a choice
+ * This function is a stub that provides compatibility with previous code.
+ * The category order functionality has been removed as we now use fixed category orders.
  */
 export const storeCategoryOrder = async (choiceId: string, categoryOrder: string[]) => {
-  try {
-    // Skip if no categories to store
-    if (!categoryOrder.length || !choiceId) {
-      console.log("No categories to store or missing choiceId");
-      return false;
-    }
-
-    console.log(`Storing category order for choice ${choiceId}:`, categoryOrder);
-
-    // Store the category order in the database
-    const { error } = await supabase
-      .from('menu_choice_category_order')
-      .upsert(
-        { 
-          choice_id: choiceId, 
-          category_order: categoryOrder 
-        },
-        { onConflict: 'choice_id' }
-      );
-    
-    if (error) {
-      console.error("Error storing category order:", error);
-      return handleError(error, 'storeCategoryOrder');
-    }
-    
-    console.log("Category order stored successfully");
-    return true;
-  } catch (error) {
-    console.error("Exception storing category order:", error);
-    return handleError(error, 'storeCategoryOrder');
-  }
+  console.log("Category order storage is no longer necessary as we use fixed orders");
+  return true;
 };
 
 /**
- * Retrieves the saved category order for a choice
+ * This function is a stub that provides compatibility with previous code.
+ * It returns an empty array as we now use fixed category orders defined in the UI code.
  */
 export const getCategoryOrder = async (choiceId: string): Promise<string[]> => {
-  try {
-    if (!choiceId) {
-      console.log("No choiceId provided, cannot retrieve category order");
-      return [];
-    }
-
-    console.log(`Retrieving category order for choice: ${choiceId}`);
-
-    const { data, error } = await supabase
-      .from('menu_choice_category_order')
-      .select('category_order')
-      .eq('choice_id', choiceId)
-      .maybeSingle();
-    
-    if (error) {
-      console.error("Error retrieving category order:", error);
-      handleError(error, 'getCategoryOrder');
-      return [];
-    }
-    
-    if (data && data.category_order) {
-      console.log(`Found category order for choice ${choiceId}:`, data.category_order);
-      return data.category_order;
-    }
-    
-    console.log(`No category order found for choice ${choiceId}`);
-    return [];
-  } catch (error) {
-    console.error("Exception retrieving category order:", error);
-    handleError(error, 'getCategoryOrder');
-    return [];
-  }
+  console.log("Using fixed category orders instead of stored orders");
+  return [];
 };

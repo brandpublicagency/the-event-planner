@@ -1,6 +1,7 @@
 
 import React from 'react';
 import MenuItemCard from './MenuItemCard';
+import { MenuItem } from '@/api/types/menuItems';
 
 interface CategoryItemsDroppableProps {
   category: string;
