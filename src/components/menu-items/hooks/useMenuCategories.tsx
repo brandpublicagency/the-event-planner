@@ -3,15 +3,17 @@ import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 
 export const useMenuCategories = (items: MenuItem[]) => {
-  // Check if this is a main course menu type that should use categories
+  // Menu types that should use categories
+  const CATEGORY_MENU_TYPES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+  
+  // Check if this is a menu type that should use categories
   const isMainCourseMenu = useMemo(() => {
     if (items.length === 0) return false;
     
     const firstItem = items[0];
     const choice = firstItem.choice;
     
-    // Only sec-mains should use categories
-    return choice === 'sec-mains';
+    return CATEGORY_MENU_TYPES.includes(choice);
   }, [items]);
 
   // Determine if categories should be used
@@ -21,8 +23,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     const firstItem = items[0];
     const choice = firstItem.choice;
     
-    // Only sec-mains should use categories
-    return choice === 'sec-mains';
+    return CATEGORY_MENU_TYPES.includes(choice);
   }, [items]);
 
   // Categorize items
@@ -55,7 +56,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
         if (b === 'Uncategorized') return -1;
         return a.localeCompare(b);
       });
-  }, [categorizedItems]);
+  }, [categorizedItems, useCategorization]);
 
   // Custom category order (if needed)
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);

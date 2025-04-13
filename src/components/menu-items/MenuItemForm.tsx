@@ -32,6 +32,9 @@ type MenuItemFormProps = {
   isSubmitting?: boolean;
 };
 
+// Menu types that should use categories
+const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+
 const MenuItemForm: React.FC<MenuItemFormProps> = ({ 
   initialData = {}, 
   onSubmit, 
@@ -57,14 +60,14 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     // Get the selected choice to determine if category should be applied
     const selectedChoice = choices.find(choice => choice.id === values.choice_id);
     
-    // Only apply category for sec-mains
-    const isMainCourse = selectedChoice?.value === 'sec-mains';
+    // Only apply category for menu types that use categories
+    const useCategory = selectedChoice && CATEGORY_CHOICE_VALUES.includes(selectedChoice.value);
 
     const formData: MenuItemFormData = {
       value: values.value,
       label: values.label,
       choice_id: values.choice_id,
-      category: isMainCourse ? values.category : null,
+      category: useCategory ? values.category : null,
       image_url: values.image_url,
     };
     onSubmit(formData);
@@ -83,7 +86,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 
   // Determine if we should show the category field
   const selectedChoiceValue = choices.find(c => c.id === form.watch('choice_id'))?.value;
-  const showCategoryField = selectedChoiceValue === 'sec-mains';
+  const showCategoryField = selectedChoiceValue && CATEGORY_CHOICE_VALUES.includes(selectedChoiceValue);
 
   return (
     <Form {...form}>

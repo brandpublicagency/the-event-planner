@@ -17,6 +17,9 @@ interface MenuItemInlineFormProps {
   preSelectedCategory?: string | null;
 }
 
+// Menu types that should use categories
+const CATEGORY_CHOICE_VALUES = ['sec-mains', 'buffet-menu', 'cho-buffet'];
+
 const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   onSubmit,
   onCancel,
@@ -93,10 +96,10 @@ const MenuItemInlineForm: React.FC<MenuItemInlineFormProps> = ({
   const allCategories = [...new Set([...availableCategories, ...categories])].filter(Boolean);
   console.log("All available categories:", allCategories);
 
-  // Determine if categories should be shown - ONLY for sec-mains
+  // Determine if categories should be shown
   const showCategories = !isChoiceLoading && 
-                        choiceData?.value === 'sec-mains' && 
-                        allCategories.length > 0;
+                        choiceData && 
+                        CATEGORY_CHOICE_VALUES.includes(choiceData.value);
 
   const submitWithCategory = (data: MenuItemFormData) => {
     console.log("Submitting with category:", selectedCategory);
