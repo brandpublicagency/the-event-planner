@@ -176,7 +176,9 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       {allCategories.map(category => (
         <div key={category} className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
           <div className="flex items-center justify-between mb-2 px-3 py-2 bg-gray-50 rounded-md">
-            <h3 className="font-medium text-sm text-zinc-900">{category}</h3>
+            <h3 className="font-medium text-base text-zinc-900 border border-black px-2 py-1 rounded">
+              {category}
+            </h3>
             
             {category !== 'Uncategorized' && (
               <div className="flex items-center space-x-1">
