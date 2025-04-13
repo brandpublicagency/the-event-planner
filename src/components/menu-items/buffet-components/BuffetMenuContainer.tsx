@@ -43,8 +43,9 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   console.log('BuffetMenuContainer: First item choice=', 
     Object.values(categorizedItems)[0]?.[0]?.choice || 'No items');
   
-  // Force show drag handles for testing - comment this out in production
-  // const isSecMains = true;
+  // Force show drag handles for testing - uncomment this for troubleshooting
+  const forceShowDragHandles = true;
+  const showDragHandles = isSecMains || forceShowDragHandles;
   
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -61,7 +62,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                   key={`category-draggable-${category}`} 
                   draggableId={`category-${category}`} 
                   index={index}
-                  isDragDisabled={!isSecMains}
+                  isDragDisabled={!showDragHandles}
                 >
                   {(provided) => (
                     <div
@@ -81,7 +82,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
                         canReorder={!!onAddItem}
                         isBuffetCategory={true}
                         dragHandleProps={provided.dragHandleProps}
-                        showDragHandle={isSecMains}
+                        showDragHandle={showDragHandles}
                         noBorder={true}
                       />
                     </div>
