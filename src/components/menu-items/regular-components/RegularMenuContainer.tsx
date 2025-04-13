@@ -15,8 +15,6 @@ interface RegularMenuContainerProps {
   onDeleteCategory: (category: string) => void;
   onAddItem?: (category: string | null) => void;
   handleDragEnd: (result: any) => void;
-  dragHandleProps?: any;
-  showDragHandle?: boolean;
 }
 
 const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
@@ -28,9 +26,7 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
   onEditCategory,
   onDeleteCategory,
   onAddItem,
-  handleDragEnd,
-  dragHandleProps,
-  showDragHandle = false
+  handleDragEnd
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -47,8 +43,6 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
               canReorder={!!onAddItem}
-              dragHandleProps={dragHandleProps}
-              showDragHandle={showDragHandle}
               isGroupedLayout={true}
               noBorder={true} /* Add this prop to avoid individual borders */
             />
