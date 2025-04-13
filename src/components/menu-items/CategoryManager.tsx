@@ -407,6 +407,89 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       </div>
       
       {renderContent()}
+      
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-white">
+          <DialogHeader>
+            <DialogTitle>Add New Category</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input placeholder="Category name" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} autoFocus />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={addCategoryMutation.isPending}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddCategory} disabled={addCategoryMutation.isPending || !newCategoryName.trim()}>
+              {addCategoryMutation.isPending ? <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </> : 'Add Category'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isEditDialogOpen} onOpenChange={open => {
+        if (!editCategoryMutation.isPending) {
+          setIsEditDialogOpen(open);
+          if (!open) {
+            setSelectedCategory(null);
+            setEditCategoryName('');
+          }
+        }
+      }}>
+        <DialogContent className="sm:max-w-[425px] bg-white">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input placeholder="Category name" value={editCategoryName} onChange={e => setEditCategoryName(e.target.value)} autoFocus />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={editCategoryMutation.isPending}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditCategory} disabled={editCategoryMutation.isPending || !editCategoryName.trim()}>
+              {editCategoryMutation.isPending ? <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </> : 'Update Category'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={open => {
+        if (!deleteCategoryMutation.isPending) {
+          setIsDeleteDialogOpen(open);
+          if (!open) {
+            setSelectedCategory(null);
+          }
+        }
+      }}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the category "{selectedCategory?.name}" from all menu items.
+              The menu items themselves will not be deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteCategoryMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={e => {
+              e.preventDefault();
+              handleDeleteCategory();
+            }} disabled={deleteCategoryMutation.isPending} className="bg-red-500 hover:bg-red-600">
+              {deleteCategoryMutation.isPending ? <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </> : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
 
