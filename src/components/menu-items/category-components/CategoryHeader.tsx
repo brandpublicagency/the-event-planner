@@ -1,8 +1,8 @@
 
 import React from 'react';
+import { Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import CategoryLabel from './CategoryLabel';
-import CategoryActions from './CategoryActions';
-import { GripVertical } from 'lucide-react';
 
 interface CategoryHeaderProps {
   category: string;
@@ -20,24 +20,37 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   showDragHandle = false
 }) => {
   return (
-    <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0 mx-[3px] my-[4px]">
-      <div className="flex items-center">
+    <div className="flex items-center justify-between py-1">
+      <div className="flex items-center gap-2">
+        {showDragHandle && dragHandleProps && (
+          <div {...dragHandleProps} className="cursor-move px-1">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+        )}
         <CategoryLabel category={category} />
-        <CategoryActions 
-          category={category} 
-          onEditCategory={onEditCategory}
-          onDeleteCategory={onDeleteCategory} 
-        />
       </div>
       
-      {showDragHandle && dragHandleProps && category !== 'Uncategorized' && (
-        <div 
-          {...dragHandleProps} 
-          className="cursor-grab opacity-40 hover:opacity-100 pr-2"
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onEditCategory(category)}
+          className="h-7 w-7"
         >
-          <GripVertical className="h-4 w-4 text-gray-500" />
-        </div>
-      )}
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        
+        {category !== 'Uncategorized' && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDeleteCategory(category)}
+            className="h-7 w-7 text-destructive"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

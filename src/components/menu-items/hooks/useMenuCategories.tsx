@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
-import { getCategoryOrder } from '@/api/menu/menuItemsApi';
+import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
+import { useQuery } from '@tanstack/react-query';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Menu types that should use categories
@@ -65,50 +66,61 @@ export const useMenuCategories = (items: MenuItem[]) => {
       });
   }, [categorizedItems, useCategorization]);
 
-  // Custom category order
+  // Fetch saved category order from database using React Query
+  const { data: savedCategoryOrder = [] } = useQuery({
+    queryKey: ['menu-choice-category-order', choiceId],
+    queryFn: () => getCategoryOrder(choiceId || ''),
+    enabled: !!choiceId && useCategorization,
+    staleTime: 300000, // 5 minutes
+  });
+
+  // Custom category order state
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
-  // Update category order
-  const updateCategoryOrder = (newOrder: string[]) => {
+  // Update customCategoryOrder when savedCategoryOrder changes
+  useEffect(() => {
+    if (savedCategoryOrder && savedCategoryOrder.length > 0) {
+      console.log("Setting saved category order:", savedCategoryOrder);
+      
+      // Filter out any categories that no longer exist
+      const validCategories = savedCategoryOrder.filter(cat => allCategories.includes(cat));
+      
+      // Add any missing categories that weren't in the saved order
+      const missingCategories = allCategories.filter(cat => !savedCategoryOrder.includes(cat));
+      
+      const updatedOrder = [...validCategories, ...missingCategories];
+      
+      if (updatedOrder.length > 0) {
+        console.log("Using saved category order:", updatedOrder);
+        setCustomCategoryOrder(updatedOrder);
+      }
+    } else if (allCategories.length > 0 && customCategoryOrder.length === 0) {
+      // Initialize with default order if no saved order exists
+      setCustomCategoryOrder([...allCategories]);
+    }
+  }, [savedCategoryOrder, allCategories, customCategoryOrder.length]);
+
+  // Update category order and persist to database
+  const updateCategoryOrder = async (newOrder: string[]) => {
     console.log("Setting new category order:", newOrder);
     setCustomCategoryOrder(newOrder);
+    
+    // Save to database if we have a choiceId
+    if (choiceId) {
+      console.log(`Saving category order for choice ${choiceId}:`, newOrder);
+      await storeCategoryOrder(choiceId, newOrder);
+    }
   };
 
-  // Fetch saved category order from database
-  useEffect(() => {
-    if (choiceId && useCategorization) {
-      console.log(`Fetching saved category order for choice: ${choiceId}`);
-      getCategoryOrder(choiceId)
-        .then(savedOrder => {
-          if (savedOrder && savedOrder.length > 0) {
-            console.log("Found saved category order:", savedOrder);
-            
-            // Filter out any categories that no longer exist
-            const validCategories = savedOrder.filter(cat => allCategories.includes(cat));
-            
-            // Add any missing categories that weren't in the saved order
-            const missingCategories = allCategories.filter(cat => !savedOrder.includes(cat));
-            
-            const updatedOrder = [...validCategories, ...missingCategories];
-            
-            if (updatedOrder.length > 0) {
-              console.log("Using saved category order:", updatedOrder);
-              setCustomCategoryOrder(updatedOrder);
-            }
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching category order:", error);
-        });
-    }
-  }, [choiceId, useCategorization, allCategories]);
+  // Determine the final category order to use
+  const finalCategoryOrder = customCategoryOrder.length > 0 ? customCategoryOrder : allCategories;
 
   return {
     categorizedItems,
     isBuffetMenu: isMainCourseMenu, // Reuse the existing property name to avoid breaking changes
     allCategories,
     updateCategoryOrder,
-    customCategoryOrder,
+    customCategoryOrder: finalCategoryOrder,
     choiceId
   };
 };

@@ -28,6 +28,8 @@ export const useMenuItemQueries = (choiceId?: string) => {
 
   // Function to invalidate all relevant queries
   const invalidateAllQueries = useCallback(() => {
+    console.log('Invalidating menu item queries...');
+    
     // Invalidate menu items queries
     queryClient.invalidateQueries({ queryKey: ['menuItems'] });
     if (choiceId) {
@@ -40,6 +42,7 @@ export const useMenuItemQueries = (choiceId?: string) => {
     
     // Invalidate with choiceId if available
     if (choiceId) {
+      console.log(`Invalidating queries for choice: ${choiceId}`);
       queryClient.invalidateQueries({ queryKey: ['menu-categories-list', choiceId] });
       queryClient.invalidateQueries({ queryKey: ['menu-categories', choiceId] });
       
@@ -54,6 +57,8 @@ export const useMenuItemQueries = (choiceId?: string) => {
     
     // Force refetch
     refetchMenuItems();
+    
+    console.log('Query invalidation complete');
   }, [queryClient, choiceId, refetchMenuItems]);
 
   return {
