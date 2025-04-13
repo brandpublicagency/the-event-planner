@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
@@ -16,6 +17,7 @@ interface MenuItemsByCategoryProps {
   onReorder?: (reorderedItems: MenuItem[]) => void;
   onAddItem?: (category: string | null) => void;
 }
+
 const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   items,
   onEdit,
@@ -31,6 +33,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting2, setIsDeleting2] = useState(false);
+
   useEffect(() => {
     if (items.length > 0) {
       console.log("MenuItemsByCategory: Forcing refresh of menu items and categories");
@@ -43,6 +46,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       });
     }
   }, [items, queryClient]);
+
   const categorizedItems = useMemo(() => {
     console.log("Grouping items by category:", items);
     const grouped: Record<string, MenuItem[]> = {};
@@ -62,6 +66,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("Grouped items:", grouped);
     return grouped;
   }, [items]);
+
   const allCategories = useMemo(() => {
     const categories = Object.keys(categorizedItems).sort();
     if (categories.includes('Uncategorized')) {
@@ -70,6 +75,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     console.log("All categories detected:", categories);
     return categories;
   }, [categorizedItems]);
+
   const handleEditCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot edit the Uncategorized category');
@@ -84,6 +90,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     setSelectedChoiceLabel(itemInCategory.choice || 'Menu Items');
     setIsCategoryManagerOpen(true);
   };
+
   const handleDeleteCategory = (category: string) => {
     if (category === 'Uncategorized') {
       toast.error('Cannot delete the Uncategorized category');
@@ -98,6 +105,7 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     setSelectedChoiceId(itemInCategory.choice_id);
     setIsDeleteDialogOpen(true);
   };
+
   const performDelete = async () => {
     if (!categoryToDelete || !selectedChoiceId) {
       toast.error('Missing category or choice ID');
@@ -134,54 +142,47 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       setIsDeleting2(false);
     }
   };
+
   const handleDragEnd = (result: any) => {
     if (!result.destination || !onReorder) return;
     const sourceDroppableId = result.source.droppableId;
     const destinationDroppableId = result.destination.droppableId;
 
-    // Get category from droppable ID
     const sourceCategory = sourceDroppableId.replace('category-', '');
     const destinationCategory = destinationDroppableId.replace('category-', '');
 
-    // Create a copy of all items
     const reorderedItems = [...items];
 
-    // Find the item being dragged
     const draggedItem = reorderedItems.find(item => item.id === result.draggableId);
     if (!draggedItem) return;
 
-    // Remove the item from its original position
     const filteredItems = reorderedItems.filter(item => item.id !== result.draggableId);
 
-    // If moving between categories, update the category
     if (sourceCategory !== destinationCategory) {
       draggedItem.category = destinationCategory === 'Uncategorized' ? null : destinationCategory;
     }
 
-    // Get the items in the destination category
     const itemsInDestination = filteredItems.filter(item => (item.category || 'Uncategorized') === destinationCategory);
 
-    // Find the new index in the filtered destination items
     let newIndex = result.destination.index;
     if (newIndex > itemsInDestination.length) {
       newIndex = itemsInDestination.length;
     }
 
-    // Insert at the correct position
     itemsInDestination.splice(newIndex, 0, draggedItem);
 
-    // Reconstruct the full list with updated item positions
     const updatedItems = filteredItems.filter(item => (item.category || 'Uncategorized') !== destinationCategory).concat(itemsInDestination);
 
-    // Call onReorder with the updated items
     onReorder(updatedItems);
   };
+
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
+
   return <DragDropContext onDragEnd={handleDragEnd}>
       <div className="space-y-6">
-        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md p-2 my-[2px]">
+        {allCategories.map(category => <div key={category} className="space-y-2 border border-dashed border-gray-300 rounded-md px-3 py-3 my-[2px]">
             <div className="flex items-center justify-between mb-2 bg-gray-50 rounded-md px-0 py-0">
               <h3 className="border border-slate-400 rounded ml-3 text-xs font-semibold my-0 text-slate-600 py-[4px] px-[12px] mx-[4px]">
                 {category}
@@ -263,4 +264,5 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
       </div>
     </DragDropContext>;
 };
+
 export default MenuItemsByCategory;
