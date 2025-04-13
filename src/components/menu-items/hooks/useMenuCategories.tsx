@@ -1,3 +1,4 @@
+
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/operations/reorderMenuItems';
@@ -37,7 +38,10 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const isBuffetMenu = useMemo(() => {
     if (!items.length) return false;
     const choiceValue = items[0]?.choice;
-    return choiceValue === 'buffet-menu' || choiceValue === 'cho-buffet';
+    return choiceValue === 'buffet-menu' || 
+           choiceValue === 'cho-buffet' || 
+           choiceValue === 'warm-karoo-feast' || 
+           choiceValue === 'cho-feast';
   }, [items]);
 
   // Define the buffet category order
@@ -131,9 +135,9 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return [...existingCustomCategories, ...missingCategories];
     }
     
-    // For section-mains or buffet menus, maintain the original order
+    // For section-mains, buffet, or karoo menus, maintain the original order
     if (isSectionMain || isBuffetMenu) {
-      console.log(`This is a ${isSectionMain ? 'section-main' : 'buffet menu'}, maintaining original category order`);
+      console.log(`This is a ${isSectionMain ? 'section-main' : isBuffetMenu ? 'buffet/karoo menu' : 'other'}, maintaining original category order`);
       
       // Filter the original categories to only include those that exist in our data
       const existingOriginalCategories = originalCategoryOrder.filter(category => 
