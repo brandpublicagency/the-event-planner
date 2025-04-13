@@ -7,9 +7,6 @@ import { useCategoryManager } from './hooks/useCategoryManager';
 import { useMenuCategories } from './hooks/useMenuCategories';
 import { useDragAndDrop } from './hooks/useDragAndDrop';
 import BuffetMenuContainer from './buffet-components/BuffetMenuContainer';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import AddItemButton from './category-components/AddItemButton';
-import CategoryContainer from './category-components/CategoryContainer';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -34,7 +31,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     allCategories,
     updateCategoryOrder,
     customCategoryOrder,
-    choiceId
+    choiceId,
+    isLoadingCategoryOrder
   } = useMenuCategories(items);
   
   const { handleDragEnd } = useDragAndDrop({ 
@@ -59,78 +57,28 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     performDelete
   } = useCategoryManager({ items });
 
+  if (isLoadingCategoryOrder) {
+    return <p className="text-center py-4 text-sm text-gray-500">Loading categories...</p>;
+  }
+
   if (allCategories.length === 0) {
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
 
-  const isCategoryReorderingEnabled = onReorder && customCategoryOrder.length > 1 && customCategoryOrder[0] !== 'Uncategorized';
-
+  // All menu choices should use the BuffetMenuContainer for consistent UI
   return (
     <>
-      {isCategoryReorderingEnabled ? (
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="categories" type="category">
-            {(provided) => (
-              <div 
-                {...provided.droppableProps} 
-                ref={provided.innerRef}
-                className="border border-dashed border-gray-300 rounded-md p-3"
-              >
-                {customCategoryOrder.map((category, index) => (
-                  <Draggable 
-                    key={`category-${category}`} 
-                    draggableId={`category-${category}`} 
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className="mb-4 last:mb-0"
-                      >
-                        <CategoryContainer
-                          category={category}
-                          items={categorizedItems[category] || []}
-                          onEdit={onEdit}
-                          onDelete={onDelete}
-                          isDeleting={isDeleting}
-                          onEditCategory={handleEditCategory}
-                          onDeleteCategory={handleDeleteCategory}
-                          dragHandleProps={provided.dragHandleProps}
-                          showDragHandle={true}
-                          noBorder={true}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                
-                {onAddItem && (
-                  <div className="mt-4">
-                    <AddItemButton 
-                      onAddItem={onAddItem} 
-                      category={null} 
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      ) : (
-        <BuffetMenuContainer
-          categories={customCategoryOrder}
-          categorizedItems={categorizedItems}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          isDeleting={isDeleting}
-          onEditCategory={handleEditCategory}
-          onDeleteCategory={handleDeleteCategory}
-          onAddItem={onAddItem}
-          handleDragEnd={handleDragEnd}
-        />
-      )}
+      <BuffetMenuContainer
+        categories={customCategoryOrder}
+        categorizedItems={categorizedItems}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        isDeleting={isDeleting}
+        onEditCategory={handleEditCategory}
+        onDeleteCategory={handleDeleteCategory}
+        onAddItem={onAddItem}
+        handleDragEnd={handleDragEnd}
+      />
       
       {selectedChoiceId && (
         <CategoryManagerDialog 

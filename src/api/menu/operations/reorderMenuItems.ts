@@ -22,11 +22,14 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
       .upsert(updates, { onConflict: 'id' });
     
     if (error) {
+      console.error("Error reordering menu items:", error);
       return handleError(error, 'reorderMenuItems');
     }
     
+    console.log("Successfully reordered menu items");
     return true;
   } catch (error) {
+    console.error("Exception reordering menu items:", error);
     return handleError(error, 'reorderMenuItems');
   }
 };
@@ -38,6 +41,7 @@ export const storeCategoryOrder = async (choiceId: string, categoryOrder: string
   try {
     // Skip if no categories to store
     if (!categoryOrder.length || !choiceId) {
+      console.log("No categories to store or missing choiceId");
       return false;
     }
 
@@ -72,7 +76,10 @@ export const storeCategoryOrder = async (choiceId: string, categoryOrder: string
  */
 export const getCategoryOrder = async (choiceId: string): Promise<string[]> => {
   try {
-    if (!choiceId) return [];
+    if (!choiceId) {
+      console.log("No choiceId provided, cannot retrieve category order");
+      return [];
+    }
 
     console.log(`Retrieving category order for choice: ${choiceId}`);
 

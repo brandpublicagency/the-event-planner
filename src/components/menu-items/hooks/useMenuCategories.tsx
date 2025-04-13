@@ -55,7 +55,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
   }, [categorizedItems, useCategorization]);
 
   // Fetch saved category order from database using React Query
-  const { data: savedCategoryOrder = [] } = useQuery({
+  const { data: savedCategoryOrder = [], isLoading: isLoadingCategoryOrder } = useQuery({
     queryKey: ['menu-choice-category-order', choiceId],
     queryFn: () => getCategoryOrder(choiceId || ''),
     enabled: !!choiceId && useCategorization,
@@ -84,6 +84,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
       }
     } else if (allCategories.length > 0 && customCategoryOrder.length === 0) {
       // Initialize with default order if no saved order exists
+      console.log("No saved order, using default category order:", allCategories);
       setCustomCategoryOrder([...allCategories]);
     }
   }, [savedCategoryOrder, allCategories, customCategoryOrder.length]);
@@ -109,6 +110,7 @@ export const useMenuCategories = (items: MenuItem[]) => {
     allCategories,
     updateCategoryOrder,
     customCategoryOrder: finalCategoryOrder,
-    choiceId
+    choiceId,
+    isLoadingCategoryOrder
   };
 };
