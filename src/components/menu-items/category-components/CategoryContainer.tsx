@@ -17,6 +17,7 @@ interface CategoryContainerProps {
   dragHandleProps?: any;
   showDragHandle?: boolean;
   isGroupedLayout?: boolean;
+  noBorder?: boolean;
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({
@@ -31,10 +32,13 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   isBuffetCategory = false,
   dragHandleProps,
   showDragHandle = false,
-  isGroupedLayout = false
+  isGroupedLayout = false,
+  noBorder = false
 }) => {
-  // Always use the space-y-2 class without any border
-  const containerClasses = "space-y-2 py-[10px] my-[4px]";
+  // Always use the space-y-2 class without any border when noBorder is true
+  const containerClasses = noBorder
+    ? "space-y-2 py-[10px] my-[4px]"
+    : "space-y-2 py-[10px] my-[4px]";
   
   return (
     <div className={containerClasses}>

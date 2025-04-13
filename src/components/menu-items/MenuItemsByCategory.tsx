@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import CategoryManagerDialog from './CategoryManagerDialog';
@@ -8,6 +7,8 @@ import { useMenuCategories } from './hooks/useMenuCategories';
 import { useDragAndDrop } from './hooks/useDragAndDrop';
 import BuffetMenuContainer from './buffet-components/BuffetMenuContainer';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import AddItemButton from './category-components/AddItemButton';
+import CategoryContainer from './category-components/CategoryContainer';
 
 interface MenuItemsByCategoryProps {
   items: MenuItem[];
@@ -26,7 +27,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   onReorder,
   onAddItem
 }) => {
-  // Use our hooks to organize the component logic
   const { 
     categorizedItems, 
     isBuffetMenu, 
@@ -44,7 +44,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     choiceId
   });
 
-  // Use the category manager hook
   const {
     isCategoryManagerOpen,
     setIsCategoryManagerOpen,
@@ -63,10 +62,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
 
-  // Determine if category reordering is enabled
   const isCategoryReorderingEnabled = onReorder && customCategoryOrder.length > 1 && customCategoryOrder[0] !== 'Uncategorized';
 
-  // Log current category order for debugging
   console.log("MenuItemsByCategory - Current category order:", customCategoryOrder);
   console.log("MenuItemsByCategory - Category reordering enabled:", isCategoryReorderingEnabled);
 
@@ -79,8 +76,8 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
               <div 
                 {...provided.droppableProps} 
                 ref={provided.innerRef}
+                className="border border-dashed border-gray-300 rounded-md p-3"
               >
-                {/* Use Draggable components for each category */}
                 {customCategoryOrder.map((category, index) => (
                   <Draggable 
                     key={`category-${category}`} 
@@ -91,32 +88,40 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
+                        className="mb-4 last:mb-0"
                       >
-                        <BuffetMenuContainer
-                          categories={[category]}
-                          categorizedItems={categorizedItems}
+                        <CategoryContainer
+                          category={category}
+                          items={categorizedItems[category] || []}
                           onEdit={onEdit}
                           onDelete={onDelete}
                           isDeleting={isDeleting}
                           onEditCategory={handleEditCategory}
                           onDeleteCategory={handleDeleteCategory}
-                          onAddItem={onAddItem}
-                          handleDragEnd={handleDragEnd}
-                          showDragHandle={true}
                           dragHandleProps={provided.dragHandleProps}
+                          showDragHandle={true}
+                          noBorder={true}
                         />
                       </div>
                     )}
                   </Draggable>
                 ))}
                 {provided.placeholder}
+                
+                {onAddItem && (
+                  <div className="mt-4">
+                    <AddItemButton 
+                      onAddItem={onAddItem} 
+                      category={null} 
+                    />
+                  </div>
+                )}
               </div>
             )}
           </Droppable>
         </DragDropContext>
       ) : (
         <div>
-          {/* Always use BuffetMenuContainer for consistent drag and drop behavior */}
           <BuffetMenuContainer
             categories={customCategoryOrder}
             categorizedItems={categorizedItems}

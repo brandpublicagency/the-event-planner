@@ -50,6 +50,7 @@ const RegularMenuContainer: React.FC<RegularMenuContainerProps> = ({
               dragHandleProps={dragHandleProps}
               showDragHandle={showDragHandle}
               isGroupedLayout={true}
+              noBorder={true} /* Add this prop to avoid individual borders */
             />
           ))}
         </div>

@@ -49,6 +49,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
               dragHandleProps={dragHandleProps}
               showDragHandle={showDragHandle}
               isBuffetCategory={true}
+              noBorder={true} /* Add this prop to avoid individual borders */
             />
           ))}
         </div>
