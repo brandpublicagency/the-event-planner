@@ -200,11 +200,11 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
             )}
           </div>
           
-          <div className="divide-y divide-gray-100 border rounded-md overflow-hidden">
+          <div className="border border-dashed border-gray-300 rounded-md p-2 space-y-2">
             {categorizedItems[category].map(item => (
               <div 
                 key={item.id} 
-                className="flex items-center justify-between p-3 bg-white hover:bg-gray-50"
+                className="flex items-center justify-between p-3 bg-white hover:bg-gray-50 border rounded-md"
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
@@ -214,16 +214,20 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => onEdit(item)}
-                    className="text-xs text-gray-600 hover:text-gray-800"
+                    className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                    title={`Edit ${item.label}`}
                   >
-                    Edit
+                    <Edit className="h-3.5 w-3.5 text-gray-500" />
+                    <span className="sr-only">Edit</span>
                   </button>
                   <button
                     onClick={() => onDelete(item.id)}
                     disabled={isDeleting}
-                    className="text-xs text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                    className="p-1 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    title={`Delete ${item.label}`}
                   >
-                    Delete
+                    <Trash2 className="h-3.5 w-3.5 text-gray-500" />
+                    <span className="sr-only">Delete</span>
                   </button>
                 </div>
               </div>
