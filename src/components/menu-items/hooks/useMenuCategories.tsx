@@ -1,6 +1,7 @@
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
+import { getCategoryOrder, storeCategoryOrder } from '@/api/menuItemsApi';
 
 export const useMenuCategories = (items: MenuItem[]) => {
   // Group items by category
@@ -25,6 +26,12 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     console.log("Grouped items:", grouped);
     return grouped;
+  }, [items]);
+
+  // Get the choiceId from the first item (if exists)
+  const choiceId = useMemo(() => {
+    if (!items.length) return '';
+    return items[0]?.choice_id || '';
   }, [items]);
 
   // Detect if this is a buffet menu by checking the choice value
@@ -66,12 +73,37 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const [customCategoryOrder, setCustomCategoryOrder] = useState<string[]>([]);
 
   // Update custom category order
-  const updateCategoryOrder = useCallback((newOrder: string[]) => {
+  const updateCategoryOrder = useCallback(async (newOrder: string[]) => {
     console.log("Updating custom category order:", newOrder);
     setCustomCategoryOrder(newOrder);
-  }, []);
+    
+    // Persist the category order to the database
+    if (choiceId) {
+      const result = await storeCategoryOrder(choiceId, newOrder);
+      console.log("Category order saved:", result);
+    }
+  }, [choiceId]);
 
-  // Get all categories with specific ordering for buffet menus
+  // Fetch saved category order when component mounts or choiceId changes
+  useEffect(() => {
+    const fetchCategoryOrder = async () => {
+      if (!choiceId) return;
+      
+      try {
+        const savedOrder = await getCategoryOrder(choiceId);
+        if (savedOrder && savedOrder.length > 0) {
+          console.log("Loaded saved category order:", savedOrder);
+          setCustomCategoryOrder(savedOrder);
+        }
+      } catch (error) {
+        console.error("Error fetching category order:", error);
+      }
+    };
+    
+    fetchCategoryOrder();
+  }, [choiceId]);
+
+  // Get all categories with specific ordering
   const allCategories = useMemo(() => {
     const categories = Object.keys(categorizedItems);
     

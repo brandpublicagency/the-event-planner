@@ -33,15 +33,56 @@ export const reorderMenuItems = async (items: MenuItem[]) => {
 
 /**
  * Stores the preferred category order for a choice
- * Note: This doesn't affect database - it's just for UI ordering
  */
 export const storeCategoryOrder = async (choiceId: string, categoryOrder: string[]) => {
   try {
-    // In a real implementation, this would store the order in a database
-    // For now, we'll just log it and return success
-    console.log(`Storing category order for choice ${choiceId}:`, categoryOrder);
+    // Skip if no categories to store
+    if (!categoryOrder.length || !choiceId) {
+      return false;
+    }
+
+    // Store the category order in the database
+    const { error } = await supabase
+      .from('menu_choice_category_order')
+      .upsert(
+        { 
+          choice_id: choiceId, 
+          category_order: categoryOrder 
+        },
+        { onConflict: 'choice_id' }
+      );
+    
+    if (error) {
+      return handleError(error, 'storeCategoryOrder');
+    }
+    
     return true;
   } catch (error) {
     return handleError(error, 'storeCategoryOrder');
+  }
+};
+
+/**
+ * Retrieves the saved category order for a choice
+ */
+export const getCategoryOrder = async (choiceId: string): Promise<string[]> => {
+  try {
+    if (!choiceId) return [];
+
+    const { data, error } = await supabase
+      .from('menu_choice_category_order')
+      .select('category_order')
+      .eq('choice_id', choiceId)
+      .maybeSingle();
+    
+    if (error) {
+      handleError(error, 'getCategoryOrder');
+      return [];
+    }
+    
+    return data?.category_order || [];
+  } catch (error) {
+    handleError(error, 'getCategoryOrder');
+    return [];
   }
 };

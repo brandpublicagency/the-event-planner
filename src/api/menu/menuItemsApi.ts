@@ -4,7 +4,7 @@ import { fetchMenuItems, fetchMenuItemsByChoice } from './operations/fetchMenuIt
 import { createMenuItem } from './operations/createMenuItem';
 import { updateMenuItem } from './operations/updateMenuItem';
 import { deleteMenuItem } from './operations/deleteMenuItem';
-import { reorderMenuItems } from './operations/reorderMenuItems';
+import { reorderMenuItems, storeCategoryOrder, getCategoryOrder } from './operations/reorderMenuItems';
 
 export {
   fetchMenuItems,
@@ -12,5 +12,7 @@ export {
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  reorderMenuItems
+  reorderMenuItems,
+  storeCategoryOrder,
+  getCategoryOrder
 };
