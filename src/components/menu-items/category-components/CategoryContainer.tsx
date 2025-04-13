@@ -14,8 +14,6 @@ interface CategoryContainerProps {
   onDeleteCategory: (category: string) => void;
   canReorder?: boolean;
   isBuffetCategory?: boolean;
-  dragHandleProps?: any;
-  showDragHandle?: boolean;
   isGroupedLayout?: boolean;
   noBorder?: boolean;
 }
@@ -30,8 +28,6 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
   onDeleteCategory,
   canReorder = true,
   isBuffetCategory = false,
-  dragHandleProps,
-  showDragHandle = false,
   isGroupedLayout = false,
   noBorder = false
 }) => {
@@ -46,8 +42,6 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
         category={category}
         onEditCategory={onEditCategory}
         onDeleteCategory={onDeleteCategory}
-        dragHandleProps={dragHandleProps}
-        showDragHandle={showDragHandle}
       />
       
       <CategoryItemsDroppable

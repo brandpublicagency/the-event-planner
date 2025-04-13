@@ -21,7 +21,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
   onEdit,
   onDelete,
   isDeleting,
-  onReorder,
   onAddItem
 }) => {
   const { 
@@ -67,9 +66,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return <p className="text-center py-4 text-sm text-gray-500">No items available</p>;
   }
 
-  // For backward compatibility, provide a no-op function
-  const handleDragEnd = () => {};
-
   return (
     <>
       <BuffetMenuContainer
@@ -81,7 +77,6 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
         onEditCategory={handleEditCategory}
         onDeleteCategory={handleDeleteCategory}
         onAddItem={onAddItem}
-        handleDragEnd={handleDragEnd}
       />
       
       {selectedChoiceId && (

@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import CategoryContainer from '../category-components/CategoryContainer';
 import AddItemButton from '../category-components/AddItemButton';
-import { toast } from 'sonner';
 
 interface BuffetMenuContainerProps {
   categories: string[];
@@ -14,7 +13,6 @@ interface BuffetMenuContainerProps {
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
   onAddItem?: (category: string | null) => void;
-  handleDragEnd: (result: any) => void; // Keep for backward compatibility
 }
 
 const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
@@ -27,15 +25,6 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onDeleteCategory,
   onAddItem
 }) => {
-  // Check if this is a sec-mains menu by looking at any item's choice value
-  // Use case-insensitive comparison to handle various formats
-  const isSecMains = Object.values(categorizedItems).some(items => 
-    items.some(item => {
-      const choice = item?.choice?.toLowerCase?.() || '';
-      return choice.includes('sec') && choice.includes('main');
-    })
-  );
-
   console.log('BuffetMenuContainer: categories=', categories);
   
   return (
@@ -57,7 +46,6 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
               onDeleteCategory={onDeleteCategory}
               canReorder={!!onAddItem}
               isBuffetCategory={true}
-              showDragHandle={false}
               noBorder={true}
             />
           </div>

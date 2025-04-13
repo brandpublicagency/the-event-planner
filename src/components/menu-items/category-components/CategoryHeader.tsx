@@ -7,15 +7,12 @@ interface CategoryHeaderProps {
   category: string;
   onEditCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
-  dragHandleProps?: any; // Keep for backward compatibility
-  showDragHandle?: boolean;
 }
 
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   category,
   onEditCategory,
-  onDeleteCategory,
-  showDragHandle = false // Default to false to hide drag handles
+  onDeleteCategory
 }) => {
   const isUncategorized = category === 'Uncategorized' || category === 'Items';
   
