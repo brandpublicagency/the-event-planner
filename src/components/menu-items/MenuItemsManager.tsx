@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Square } from 'lucide-react';
@@ -25,9 +26,9 @@ const DRAG_DROP_CHOICE_VALUES = [
   'sec-main',
   'sec-main-vegetarian',
   'sec-main-vegan',
-  // Plated menu options
-  'plated-main',
-  'plated-starter'
+  // Plated menu options (no categories)
+  'plated-main'
+  // Remove plated-starter from here to ensure it doesn't use drag and drop
 ];
 
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({

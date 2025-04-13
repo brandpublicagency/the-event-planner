@@ -15,8 +15,6 @@ interface BuffetMenuContainerProps {
   onDeleteCategory: (category: string) => void;
   onAddItem?: (category: string | null) => void;
   handleDragEnd: (result: any) => void;
-  dragHandleProps?: any;
-  showDragHandle?: boolean;
 }
 
 const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
@@ -28,9 +26,7 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
   onEditCategory,
   onDeleteCategory,
   onAddItem,
-  handleDragEnd,
-  dragHandleProps,
-  showDragHandle = false
+  handleDragEnd
 }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -40,32 +36,21 @@ const BuffetMenuContainer: React.FC<BuffetMenuContainerProps> = ({
             <CategoryContainer
               key={category}
               category={category}
-              items={categorizedItems[category] || []}
+              items={categorizedItems[category]}
               onEdit={onEdit}
               onDelete={onDelete}
               isDeleting={isDeleting}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
-              dragHandleProps={dragHandleProps}
-              showDragHandle={showDragHandle}
+              canReorder={!!onAddItem}
               isBuffetCategory={true}
-              noBorder={true} /* Add this prop to avoid individual borders */
+              noBorder={true} /* This ensures no individual borders */
             />
           ))}
         </div>
         
-        {/* Optional Add Item button for each category */}
-        {onAddItem && categories.length === 1 && (
-          <div className="mt-2">
-            <AddItemButton 
-              onAddItem={onAddItem} 
-              category={categories[0] === 'Uncategorized' ? null : categories[0]} 
-            />
-          </div>
-        )}
-        
-        {/* Single Add Item button at the bottom if showing multiple categories */}
-        {onAddItem && categories.length > 1 && (
+        {/* Single Add Item button at the bottom of the container */}
+        {onAddItem && (
           <div className="mt-4">
             <AddItemButton 
               onAddItem={onAddItem} 
