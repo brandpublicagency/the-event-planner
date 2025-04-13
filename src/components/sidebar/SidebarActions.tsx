@@ -25,8 +25,8 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
     }
   };
 
-  const navigateToMyBusiness = () => {
-    navigate('/my-business');
+  const navigateToMenuManagement = () => {
+    navigate('/menu-management');
   };
 
   return (
@@ -67,7 +67,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             <div className="my-1.5 w-6 border-t border-gray-200/50"></div>
             
             <button 
-              onClick={navigateToMyBusiness} 
+              onClick={navigateToMenuManagement} 
               className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Menu Management"
             >
@@ -111,7 +111,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             <div className="my-1.5 border-t border-gray-200/50"></div>
             
             <button 
-              onClick={navigateToMyBusiness} 
+              onClick={navigateToMenuManagement} 
               className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
             >
               <Menu className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />

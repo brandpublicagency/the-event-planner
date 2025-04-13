@@ -2,8 +2,8 @@
 import React from "react";
 import MenuManagementPage from "@/components/menu-items/MenuManagementPage";
 
-const MyBusiness = () => {
+const MenuManagement = () => {
   return <MenuManagementPage />;
 };
 
-export default MyBusiness;
+export default MenuManagement;
