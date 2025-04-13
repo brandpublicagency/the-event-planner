@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { DragDropContext } from '@hello-pangea/dnd';
@@ -49,15 +48,41 @@ const MenuItemsByCategory: React.FC<MenuItemsByCategoryProps> = ({
     return grouped;
   }, [items]);
 
-  // Get all categories
+  // Define the buffet category order
+  const buffetCategoryOrder = ['Meat', 'Vegetables', 'Starch', 'Salad'];
+
+  // Get all categories with specific ordering for buffet menus
   const allCategories = useMemo(() => {
-    const categories = Object.keys(categorizedItems).sort();
-    if (categories.includes('Uncategorized')) {
-      return ['Uncategorized', ...categories.filter(c => c !== 'Uncategorized')];
+    const categories = Object.keys(categorizedItems);
+    
+    // For buffet menus, sort categories based on predefined order
+    if (isBuffetMenu) {
+      // Filter out buffet categories that exist in our data
+      const buffetCategories = buffetCategoryOrder.filter(category => 
+        categories.includes(category)
+      );
+      
+      // Add any other categories that might not be in our predefined list
+      const otherCategories = categories.filter(category => 
+        !buffetCategoryOrder.includes(category) && category !== 'Uncategorized'
+      ).sort();
+      
+      // Combine with 'Uncategorized' at the beginning if it exists
+      if (categories.includes('Uncategorized')) {
+        return ['Uncategorized', ...buffetCategories, ...otherCategories];
+      }
+      
+      return [...buffetCategories, ...otherCategories];
     }
+    
+    // For non-buffet menus, keep the original logic
+    if (categories.includes('Uncategorized')) {
+      return ['Uncategorized', ...categories.filter(c => c !== 'Uncategorized').sort()];
+    }
+    
     console.log("All categories detected:", categories);
-    return categories;
-  }, [categorizedItems]);
+    return categories.sort();
+  }, [categorizedItems, isBuffetMenu]);
 
   // Use the category manager hook
   const {
