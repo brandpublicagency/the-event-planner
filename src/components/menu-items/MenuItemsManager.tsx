@@ -5,16 +5,26 @@ import { PlusIcon, Square } from 'lucide-react';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import MenuItemsTable from './MenuItemsTable';
 import MenuItemDialog from './MenuItemDialog';
-import { MenuItem } from '@/api/menuItemsApi';
+import { MenuItem } from '@/api/types/menuItems';
 import MenuItemInlineForm from './MenuItemInlineForm';
 import MenuItemsByCategory from './MenuItemsByCategory';
+
 interface MenuItemsManagerProps {
   choiceId: string;
   choiceLabel: string;
   hideChoiceLabel?: boolean;
 }
-const MULTI_CATEGORY_CHOICE_VALUES = ['buffet-menu', 'warm-karoo-feast', 'cho-buffet' // Added to ensure "Buffet Menu" choice is recognized
+
+const MULTI_CATEGORY_CHOICE_VALUES = [
+  'buffet-menu', 
+  'warm-karoo-feast', 
+  'cho-buffet',
+  'sec-mains',
+  'sec-main',
+  'sec-main-vegetarian',
+  'sec-main-vegan'
 ];
+
 const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
   choiceId,
   choiceLabel,
@@ -63,10 +73,23 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     const choiceValue = choiceItems[0]?.choice;
     console.log(`Choice value for ${choiceLabel}: ${choiceValue}`);
 
-    // Also check the choice label for "buffet" to catch any labeling variations
+    // Also check if it's a section-main choice
+    const isSectionMain = choiceValue?.includes('sec-main') || 
+                          choiceValue === 'sec-mains' || 
+                          choiceValue?.startsWith('sec-');
+
+    // Check the choice label for common multi-category types
     const isBuffetLabel = choiceLabel.toLowerCase().includes('buffet');
     const isKarooLabel = choiceLabel.toLowerCase().includes('karoo');
-    const shouldUseCategories = MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue) || isBuffetLabel || isKarooLabel;
+    const isSectionLabel = choiceLabel.toLowerCase().includes('section') || 
+                           choiceLabel.toLowerCase().includes('main');
+
+    const shouldUseCategories = MULTI_CATEGORY_CHOICE_VALUES.includes(choiceValue) || 
+                                isBuffetLabel || 
+                                isKarooLabel || 
+                                isSectionMain || 
+                                isSectionLabel;
+                                
     console.log(`Should use categories for ${choiceLabel}? ${shouldUseCategories}`);
     return shouldUseCategories;
   }, [choiceItems, choiceLabel]);
@@ -94,6 +117,7 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
     setSelectedCategory(null);
     setShowInlineForm(true);
   };
+  
   return <div className="mt-2 my-[7px]">
       {isLoading ? <div className="text-center py-4 text-sm text-gray-500">Loading items...</div> : <>
           {choiceItems.length === 0 ? <div className="border border-dashed border-gray-300 rounded-md p-4 bg-gray-50 flex flex-col items-center justify-center space-y-2">
@@ -121,8 +145,6 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
             </>}
         </>}
 
-      {/* Removing the redundant "Add New Item" button that was here */}
-
       {/* Inline form for adding items */}
       {showInlineForm && <MenuItemInlineForm onSubmit={data => {
       handleAddItem({
@@ -146,4 +168,5 @@ const MenuItemsManager: React.FC<MenuItemsManagerProps> = ({
       {editingItem && <MenuItemDialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)} onSubmit={data => handleUpdateItem(editingItem.id, data)} isSubmitting={isUpdating} initialData={editingItem} title="Edit Menu Item" choiceId={choiceId} />}
     </div>;
 };
+
 export default MenuItemsManager;

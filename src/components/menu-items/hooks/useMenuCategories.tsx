@@ -1,4 +1,3 @@
-
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/operations/reorderMenuItems';
@@ -48,7 +47,10 @@ export const useMenuCategories = (items: MenuItem[]) => {
   const isSectionMain = useMemo(() => {
     if (!items.length) return false;
     const choiceValue = items[0]?.choice;
-    return choiceValue === 'sec-mains' || choiceValue?.includes('sec-main');
+    return choiceValue === 'sec-mains' || 
+           choiceValue?.includes('sec-main') || 
+           choiceValue?.startsWith('sec-') || 
+           choiceValue?.includes('-main');
   }, [items]);
 
   // Get the original order of categories as they appear in the items array
@@ -129,9 +131,9 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return [...existingCustomCategories, ...missingCategories];
     }
     
-    // For section-mains, maintain the original order
-    if (isSectionMain) {
-      console.log("This is a section-main, maintaining original category order");
+    // For section-mains or buffet menus, maintain the original order
+    if (isSectionMain || isBuffetMenu) {
+      console.log(`This is a ${isSectionMain ? 'section-main' : 'buffet menu'}, maintaining original category order`);
       
       // Filter the original categories to only include those that exist in our data
       const existingOriginalCategories = originalCategoryOrder.filter(category => 
@@ -151,34 +153,14 @@ export const useMenuCategories = (items: MenuItem[]) => {
       return [...existingOriginalCategories, ...missingCategories];
     }
     
-    // For buffet menus, sort categories based on predefined order
-    if (isBuffetMenu) {
-      // Filter out buffet categories that exist in our data
-      const buffetCategories = buffetCategoryOrder.filter(category => 
-        categories.includes(category)
-      );
-      
-      // Add any other categories that might not be in our predefined list
-      const otherCategories = categories.filter(category => 
-        !buffetCategoryOrder.includes(category) && category !== 'Uncategorized'
-      ).sort();
-      
-      // Combine with 'Uncategorized' at the beginning if it exists
-      if (categories.includes('Uncategorized')) {
-        return ['Uncategorized', ...buffetCategories, ...otherCategories];
-      }
-      
-      return [...buffetCategories, ...otherCategories];
-    }
-    
-    // For non-buffet menus, keep the original logic
+    // For other menu types, keep the original logic
     if (categories.includes('Uncategorized')) {
       return ['Uncategorized', ...categories.filter(c => c !== 'Uncategorized').sort()];
     }
     
     console.log("All categories detected:", categories);
     return categories.sort();
-  }, [categorizedItems, isBuffetMenu, isSectionMain, buffetCategoryOrder, originalCategoryOrder, customCategoryOrder]);
+  }, [categorizedItems, isBuffetMenu, isSectionMain, originalCategoryOrder, customCategoryOrder]);
 
   return {
     categorizedItems,
