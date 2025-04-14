@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { MenuItem } from '@/api/types/menuItems';
 import { getCategoryOrder, storeCategoryOrder } from '@/api/menu/menuItemsApi';
@@ -8,8 +9,7 @@ import { toast } from 'sonner';
 const FIXED_CATEGORY_ORDER = {
   'buffet': ['Meat Selection (2)', 'Vegetables (2)', 'Starch (2)', 'Salad (1)'],
   'karoo': ['Meat Selection (1)', 'Vegetables (2)', 'Starch Selection (2)', 'Salad (1)'],
-  'plated': ['Plated Main Course Selection (1)', 'Salad (1)'],
-  'sec-mains': ['Meat Selection', 'Vegetables', 'Starch', 'Salad'], 
+  'sec-mains': ['Meat Selection', 'Vegetables', 'Starch', 'Salad'], // Added explicit order for sec-mains
   'default': ['Meat Selection', 'Vegetables', 'Starch', 'Salad']
 };
 
@@ -47,7 +47,6 @@ export const useMenuCategories = (items: MenuItem[]) => {
     
     if (choice.includes('karoo')) return 'karoo';
     if (choice.includes('buffet')) return 'buffet';
-    if (choice.includes('plated')) return 'plated';
     if (choice.includes('sec-main') || choice.includes('sec_main') || 
         choice.includes('secondary main') || choice.includes('secondary-main') || 
         choice.includes('secmain') || choice.includes('secondary') || 
