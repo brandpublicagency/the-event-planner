@@ -45,7 +45,18 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   });
 
   // Define the fixed category order
-  const fixedCategoryOrder = ['Meat Selection', 'Vegetables', 'Starch', 'Salad'];
+  const fixedCategoryOrder = [
+    'Plated Main Course Selection (1)', 
+    'Salad (1)', 
+    'Meat Selection', 
+    'Meat Selection (1)',
+    'Meat Selection (2)',
+    'Vegetables', 
+    'Vegetables (2)', 
+    'Starch', 
+    'Starch (2)', 
+    'Starch Selection (2)'
+  ];
   
   // Get all categories from items and sort according to fixed order
   const allCategories = Object.keys(groupedItems);
@@ -57,8 +68,15 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
     const bBase = b.replace(/\s*\(\d+\)\s*$/, '').trim();
     
     // Find positions in the fixed order
-    const aIndex = fixedCategoryOrder.findIndex(cat => aBase.includes(cat) || cat.includes(aBase));
-    const bIndex = fixedCategoryOrder.findIndex(cat => bBase.includes(cat) || cat.includes(bBase));
+    const aIndex = fixedCategoryOrder.findIndex(cat => 
+      a === cat || // Exact match
+      aBase === cat.replace(/\s*\(\d+\)\s*$/, '').trim() // Base category match
+    );
+    
+    const bIndex = fixedCategoryOrder.findIndex(cat => 
+      b === cat || // Exact match
+      bBase === cat.replace(/\s*\(\d+\)\s*$/, '').trim() // Base category match
+    );
     
     // If both are in fixed order, sort by that order
     if (aIndex >= 0 && bIndex >= 0) {
