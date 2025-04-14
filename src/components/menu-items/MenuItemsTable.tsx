@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MenuItem } from '@/api/menuItemsApi';
 import { Button } from '@/components/ui/button';
@@ -47,11 +46,33 @@ const MenuItemsTable: React.FC<MenuItemsTableProps> = ({
   // Define the fixed category order
   const fixedCategoryOrder = ['Meat Selection', 'Vegetables', 'Starch', 'Salad'];
   
+  // Define plated menu specific order
+  const platedCategoryOrder = ['Plated Main Course Selection (1)', 'Salad (1)'];
+  
   // Get all categories from items and sort according to fixed order
   const allCategories = Object.keys(groupedItems);
   
-  // Sort categories based on the fixed order
+  // Check if this is a plated menu type
+  const isPlatedMenu = allCategories.some(cat => cat.includes('Plated Main Course'));
+  
+  // Sort categories based on the appropriate fixed order
   const categories = allCategories.sort((a, b) => {
+    // First check if this is a plated menu and use that order
+    if (isPlatedMenu) {
+      // Extract base category names without numbers or parentheses
+      const aBase = a.replace(/\s*\(\d+\)\s*$/, '').trim();
+      const bBase = b.replace(/\s*\(\d+\)\s*$/, '').trim();
+      
+      // For plated menus
+      if (aBase.includes('Plated Main Course') && !bBase.includes('Plated Main Course')) return -1;
+      if (!aBase.includes('Plated Main Course') && bBase.includes('Plated Main Course')) return 1;
+      if (aBase.includes('Salad') && !bBase.includes('Salad')) return 1;
+      if (!aBase.includes('Salad') && bBase.includes('Salad')) return -1;
+      
+      return a.localeCompare(b);
+    }
+    
+    // For non-plated menus, use the regular fixed order
     // Extract base category names without numbers or parentheses
     const aBase = a.replace(/\s*\(\d+\)\s*$/, '').trim();
     const bBase = b.replace(/\s*\(\d+\)\s*$/, '').trim();
