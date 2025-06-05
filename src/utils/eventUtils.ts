@@ -4,16 +4,34 @@ import { createEvent as createEventService, deleteEvent as deleteEventService, p
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
-    const date = new Date(event.event_date || new Date());
-    const monthYear = date.toLocaleString('default', { 
+    if (!event.event_date) {
+      // Put events without a date into a dedicated group
+      if (!groups['No Date']) {
+        groups['No Date'] = [];
+      }
+      groups['No Date'].push(event);
+      return groups;
+    }
+
+    const date = new Date(event.event_date);
+    if (isNaN(date.getTime())) {
+      // Invalid dates should also fall back to the "No Date" bucket
+      if (!groups['No Date']) {
+        groups['No Date'] = [];
+      }
+      groups['No Date'].push(event);
+      return groups;
+    }
+
+    const monthYear = date.toLocaleString('default', {
       month: 'long',
       year: 'numeric'
     });
-    
+
     if (!groups[monthYear]) {
       groups[monthYear] = [];
     }
-    
+
     groups[monthYear].push(event);
     return groups;
   }, {});
