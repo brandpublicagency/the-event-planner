@@ -40,8 +40,7 @@ export const usePrintMenu = (event: Event) => {
       });
     },
     contentRef: componentRef,
-    // The line below was causing the error - removed it
-    // removeAfterPrint: false, // This property doesn't exist in the type definition
+    // Ensure only supported react-to-print options are used
     pageStyle: `
       @page {
         size: A4;
