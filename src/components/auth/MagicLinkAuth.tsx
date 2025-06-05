@@ -89,7 +89,6 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
       console.error('Auth error:', error);
       setErrorMessage('Error sending magic link. Please try again.');
     } finally {
-      setIsSubmitting(false);
       // Add a delay before allowing another submission
       setTimeout(() => setIsSubmitting(false), 15000); // 15 seconds delay
     }
