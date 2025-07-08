@@ -17,7 +17,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log("Checking authentication in ProtectedRoute");
+        
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -28,10 +28,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         }
         
         if (!session) {
-          console.log("No active session found in ProtectedRoute");
           setIsAuthenticated(false);
         } else {
-          console.log("Session found in ProtectedRoute, user is authenticated:", session.user.id);
           setIsAuthenticated(true);
         }
       } catch (error: any) {
@@ -46,13 +44,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     checkAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed in ProtectedRoute:", event);
-      
       if (event === 'SIGNED_OUT' || !session) {
-        console.log("User is no longer authenticated");
         setIsAuthenticated(false);
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        console.log("User is authenticated:", session.user.id);
         setIsAuthenticated(true);
       }
     });

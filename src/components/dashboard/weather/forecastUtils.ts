@@ -16,7 +16,6 @@ export interface ForecastDay {
 
 export const generateForecastFromWeatherData = (weatherData: any, currentDate: Date = new Date()) => {
   if (!weatherData) {
-    console.log("No weather data provided to generate forecast");
     return generateMockForecast(currentDate);
   }
 

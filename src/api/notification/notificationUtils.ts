@@ -58,7 +58,7 @@ export const notificationExistsForEvent = async (
   eventCode: string,
   notificationType: string
 ): Promise<boolean> => {
-  console.log(`Checking if notification ${notificationType} exists for event ${eventCode}`);
+  
   // Always return false for mock implementation
   return false;
 };
@@ -67,7 +67,6 @@ export const notificationExistsForEvent = async (
  * Create fallback notifications for recent events - MOCK implementation
  */
 export const createFallbackNotifications = async (recentEvents: any[]): Promise<Notification[]> => {
-  console.log('Creating fallback notifications for recent events');
   const fallbackNotifications: Notification[] = [];
   
   for (const event of recentEvents) {

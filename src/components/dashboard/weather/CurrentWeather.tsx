@@ -20,7 +20,7 @@ interface CurrentWeatherProps {
 
 const CurrentWeather: React.FC<CurrentWeatherProps> = ({ weatherData }) => {
   // Debug logging to check what data we're receiving
-  console.log("Current weather data:", weatherData);
+  
   
   // Handle null weather data with default values
   const safeData = weatherData || {

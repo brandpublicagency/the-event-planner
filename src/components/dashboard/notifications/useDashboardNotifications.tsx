@@ -43,11 +43,11 @@ export const useDashboardNotifications = () => {
     e.stopPropagation();
     
     try {
-      console.log("Dashboard viewing notification:", notification.id, "relatedId:", notification.relatedId);
+      
       await markAsRead(notification.id);
       
       if (notification.relatedId) {
-        console.log(`Dashboard navigating to: ${notification.relatedId}`);
+        
         
         if (notification.relatedId.match(/^\d+-\d+$/) || 
             notification.relatedId.startsWith('EVENT-') || 
@@ -57,27 +57,19 @@ export const useDashboardNotifications = () => {
           // Use the event code exactly as is
           const eventCode = notification.relatedId;
               
-          console.log(`Dashboard notification: navigating to event: ${eventCode}`);
-          
-          if (window.location.pathname === `/events/${eventCode}`) {
-            console.log(`Already on event page ${eventCode}, forcing reload`);
-            window.location.href = `/events/${eventCode}`;
-            return;
-          }
-          
-          console.log(`Navigating to event page ${eventCode}`);
+           if (window.location.pathname === `/events/${eventCode}`) {
+             window.location.href = `/events/${eventCode}`;
+             return;
+           }
           navigate(`/events/${eventCode}`);
         } 
         else if (notification.relatedId.startsWith('task_')) {
-          console.log(`Navigating to task: ${notification.relatedId}`);
           navigate(`/tasks?selected=${notification.relatedId}`);
         } 
         else {
-          console.log(`Navigating to general path: ${notification.relatedId}`);
           navigate(`/${notification.relatedId}`);
         }
       } else {
-        console.log("No relatedId found in notification, navigating to notifications page");
         navigate('/notifications');
       }
       

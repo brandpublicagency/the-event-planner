@@ -30,18 +30,9 @@ const DashboardMessage = () => {
     });
   }, [refreshNotifications]);
 
-  // Log dashboard message for debugging
-  useEffect(() => {
-    if (dashboardMessage) {
-      console.log("Dashboard message received:", dashboardMessage);
-      console.log("Weather data available:", !!dashboardMessage.weatherData);
-    }
-  }, [dashboardMessage]);
-
   // Show error toast only once when there's an edge function error
   useEffect(() => {
     if (error) {
-      console.log("Dashboard message error:", error);
       // Don't show error toast to user as we have fallback data
       // This keeps the UX smooth even when there are backend issues
     }

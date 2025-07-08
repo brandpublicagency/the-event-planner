@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 // Document categories API functions
 export const fetchCategories = async () => {
   try {
-    console.log('Fetching categories');
     const { data, error } = await supabase
       .from('document_categories')
       .select('*')
@@ -15,8 +14,6 @@ export const fetchCategories = async () => {
       throw error;
     }
     
-    // Log the fetched categories to help debug
-    console.log('Categories fetched:', data);
     return data;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -58,7 +55,6 @@ export const getDocumentCategories = async (documentId: string) => {
 
 export const updateDocumentCategories = async (documentId: string, categoryIds: string[]) => {
   try {
-    console.log('Updating document categories:', documentId, categoryIds);
     
     // Update the document with the category IDs
     const { error: updateError } = await supabase
@@ -81,12 +77,10 @@ export const insertPredefinedCategories = async () => {
     // Check if user is authenticated first
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session) {
-      console.log('User not authenticated, skipping category creation');
       return [];
     }
 
     const userId = session.session.user.id;
-    console.log('Creating categories for user:', userId);
     
     const categories = [
       { name: 'Weddings & Events', color: '#F97316', user_id: userId },
@@ -113,10 +107,8 @@ export const insertPredefinedCategories = async () => {
         .insert(newCategories);
       
       if (error) throw error;
-      console.log('Predefined categories added:', newCategories.length);
       return data;
     } else {
-      console.log('All predefined categories already exist');
       return [];
     }
   } catch (error) {

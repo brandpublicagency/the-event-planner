@@ -34,7 +34,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   } = useWeatherDataManager(forcedVisible, retryCount);
   
   const handleRetry = useCallback(() => {
-    console.log("Manually retrying weather data fetch");
     setRetryCount(prev => prev + 1);
   }, []);
   
@@ -47,11 +46,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   }
   
   if (!showWeather) {
-    console.log("Weather widget is not visible");
     return null;
   }
-  
-  console.log("Rendering weather widget with data:", weatherData);
   
   return (
     <WeatherWidgetContent

@@ -103,7 +103,7 @@ export const permanentlyDeleteEvent = async (eventCode) => {
         // Since this is using RPC, it might not exist, so continue anyway
       }
     } catch (e) {
-      console.log('Failed to delete event venues, table may not exist:', e);
+      // Failed to delete event venues, table may not exist
     }
     
     // Delete related event documents
@@ -131,9 +131,8 @@ export const permanentlyDeleteEvent = async (eventCode) => {
   }
 };
 
-export const createEventNotification = async (eventCode, notificationType) => {
+export const createEventNotification = async (eventCode: string, notificationType: string) => {
   // This is now a mock function that doesn't actually access the database
-  console.log(`Mock: Creating ${notificationType} notification for event ${eventCode}`);
   
   // Return mock data
   return {

@@ -23,8 +23,6 @@ export function useSidebarGradient() {
       case '/schedule/meeting':
       case '/schedule/site-visit':
         return 'bg-gradient-to-br from-purple-50 via-indigo-50/80 to-violet-100 backdrop-blur-sm border-r border-purple-100/50';
-      case '/menu-management':
-        return 'bg-gradient-to-br from-teal-50 via-emerald-50/80 to-green-100 backdrop-blur-sm border-r border-teal-100/50';
       default:
         return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
     }
