@@ -113,9 +113,7 @@ const prepareActionWithConfirmation = (actionData: any): PendingAction => {
       case 'update_event':
         actionData.confirmationMessage = `Would you like me to update the event ${actionData.event_code}?`;
         break;
-      case 'update_menu':
-        actionData.confirmationMessage = `Would you like me to update the menu for event ${actionData.event_code}?`;
-        break;
+      // Removed menu-related action handler
       case 'send_email':
         actionData.confirmationMessage = `Would you like me to send an email to ${Array.isArray(actionData.to) ? actionData.to.join(', ') : actionData.to}?`;
         break;

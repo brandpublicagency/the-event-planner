@@ -5,7 +5,7 @@ import { formatCurrency } from "./formatCurrency";
 import { formatDate } from "./formatDate";
 import { formatEventDetails } from "./formatEventDetails";
 import { formatClientDetails } from "./formatClientDetails";
-import { formatMenuDetails } from "./formatMenuDetails";
+// Removed formatMenuDetails import as it no longer exists
 // Remove the problematic import 
 // import { getSystemMessage } from "./chat";
 

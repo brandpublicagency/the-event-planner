@@ -21,7 +21,6 @@ import Notifications from "@/pages/Notifications";
 import ScheduleMeeting from "@/pages/ScheduleMeeting";
 import ScheduleSiteVisit from "@/pages/ScheduleSiteVisit";
 import NewTask from "@/pages/NewTask";
-import MenuManagement from "@/pages/MyBusiness";
 
 export const AppRoutes = () => {
   return (
@@ -53,7 +52,6 @@ export const AppRoutes = () => {
         <Route path="/documents" element={<Documents />} />
         <Route path="/schedule/meeting" element={<ScheduleMeeting />} />
         <Route path="/schedule/site-visit" element={<ScheduleSiteVisit />} />
-        <Route path="/menu-management" element={<MenuManagement />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

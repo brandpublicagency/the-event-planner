@@ -22,10 +22,7 @@ export const getEvent = async (eventCode) => {
   try {
     const { data, error } = await supabase
       .from('events')
-      .select(`
-        *,
-        menu_selections (*)
-      `)
+      .select('*')
       .eq('event_code', eventCode)
       .single();
       
@@ -93,16 +90,7 @@ export const deleteEvent = async (eventCode) => {
 
 export const permanentlyDeleteEvent = async (eventCode) => {
   try {
-    // First, delete related menu selections
-    const { error: menuError } = await supabase
-      .from('menu_selections')
-      .delete()
-      .eq('event_code', eventCode);
-    
-    if (menuError) {
-      console.error('Error deleting related menu selections:', menuError);
-      // Continue with event deletion even if menu deletion fails
-    }
+    // Menu selections table no longer exists, skip that step
     
     // Try to delete related event venues if they exist
     // Using a raw SQL query through a stored procedure to avoid type errors

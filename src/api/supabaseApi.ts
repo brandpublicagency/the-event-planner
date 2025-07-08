@@ -91,7 +91,6 @@ export const insertPredefinedCategories = async () => {
     const categories = [
       { name: 'Weddings & Events', color: '#F97316', user_id: userId },
       { name: 'Marketing & Advertising', color: '#8B5CF6', user_id: userId },
-      { name: 'Event Menus', color: '#10B981', user_id: userId },
       { name: 'Staff', color: '#EC4899', user_id: userId },
       { name: 'Finances', color: '#EF4444', user_id: userId },
       { name: 'Admin', color: '#6366F1', user_id: userId }

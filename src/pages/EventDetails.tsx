@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
@@ -6,7 +5,6 @@ import { EventDetailsLoading } from "@/components/event-details/EventDetailsLoad
 import { EventDetailsContent } from "@/components/event-details/EventDetailsContent";
 import { EventDetailsError } from "@/components/event-details/EventDetailsError";
 import { EventNotFoundHandler } from "@/components/events/event-details/EventNotFoundHandler";
-import { useEventMenu } from "@/hooks/useEventMenu";
 import { useEventDetails } from "@/hooks/useEventDetails";
 
 const EventDetails = () => {
@@ -22,17 +20,6 @@ const EventDetails = () => {
     refetch,
     formattedDate
   } = useEventDetails();
-
-  // Initialize the menu state management
-  const {
-    isCustomMenu,
-    setIsCustomMenu,
-    isSaving,
-    menuState,
-    handleSaveMenu,
-    setSaveMenuFunction,
-    setMenuState
-  } = useEventMenu(eventId);
 
   const handleBackClick = () => {
     navigate('/events');
@@ -79,15 +66,7 @@ const EventDetails = () => {
           event={event}
           eventId={eventId || ''}
           formattedDate={formattedDate}
-          isCustomMenu={isCustomMenu}
-          menuState={menuState}
-          saveMenuFunction={handleSaveMenu}
-          isSaving={isSaving}
           onEditEvent={() => navigate(`/events/${eventId}/edit`)}
-          onCustomMenuToggle={setIsCustomMenu}
-          onMenuStateChange={setMenuState}
-          onSaveMenuSelections={setSaveMenuFunction}
-          onSaveMenu={handleSaveMenu}
         />
       )}
     </div>

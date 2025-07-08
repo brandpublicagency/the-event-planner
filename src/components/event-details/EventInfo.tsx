@@ -1,11 +1,8 @@
-
 import React from 'react';
 import { format, parseISO } from "date-fns";
 import type { Event } from "@/types/event";
 import { getVenueNames } from "@/utils/venueUtils";
 import { cn } from "@/lib/utils";
-import { MenuState } from "@/hooks/menuStateTypes";
-import { PrintMenu } from '../menu/PrintMenu';
 import { Button } from "@/components/ui/button";
 import { Edit, Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -14,18 +11,12 @@ interface EventInfoProps {
   event: Event;
   formattedDate: string;
   formattedTime: string;
-  menuState?: MenuState | null;
-  isCustomMenu?: boolean;
-  onCustomMenuToggle?: (checked: boolean) => void;
   onEditEvent?: () => void;
 }
 
 export const EventInfo = ({
   event,
   formattedDate,
-  menuState,
-  isCustomMenu = false,
-  onCustomMenuToggle,
   onEditEvent
 }: EventInfoProps) => {
   const formatTimeDisplay = (timeString: string | null) => {
@@ -63,10 +54,6 @@ export const EventInfo = ({
         </div>
         
         <div className="flex items-center space-x-2 mt-2 sm:mt-0">
-          {menuState && (
-            <PrintMenu event={event} menuState={menuState} />
-          )}
-          
           {onEditEvent && (
             <Button onClick={onEditEvent} variant="outline" size="sm" className="rounded">
               <Edit className="h-4 w-4 mr-2" />
