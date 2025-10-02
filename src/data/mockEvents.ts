@@ -26,7 +26,8 @@ export const mockEvents: Event[] = [
     address: '123 Main St, Anytown, AN 12345',
     company: null,
     vat_number: null,
-    event_notes: null
+    event_notes: null,
+    overview: null
   },
   {
     event_code: 'EVENT-0215-5678',
@@ -52,7 +53,8 @@ export const mockEvents: Event[] = [
     address: '456 Business Ave, Corptown, CT 67890',
     company: 'ABC Company',
     vat_number: 'ABC123456789',
-    event_notes: null
+    event_notes: null,
+    overview: null
   },
   {
     event_code: 'EVENT-0320-9012',
@@ -78,6 +80,7 @@ export const mockEvents: Event[] = [
     address: '789 Family Circle, Hometown, HT 54321',
     company: null,
     vat_number: null,
-    event_notes: null
+    event_notes: null,
+    overview: null
   }
 ];

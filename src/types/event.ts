@@ -27,6 +27,7 @@ export interface Event {
   company: string | null;
   vat_number: string | null;
   event_notes: string | null;
+  overview: any | null; // JSONB field for event overview panels
   
   // Additional properties from joins that might be present
   event_venues?: {

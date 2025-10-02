@@ -136,6 +136,7 @@ export type Database = {
           mentioned_in: Json | null
           mentions: Json | null
           name: string
+          overview: Json | null
           package_id: string | null
           pax: number | null
           primary_email: string | null
@@ -166,6 +167,7 @@ export type Database = {
           mentioned_in?: Json | null
           mentions?: Json | null
           name: string
+          overview?: Json | null
           package_id?: string | null
           pax?: number | null
           primary_email?: string | null
@@ -196,6 +198,7 @@ export type Database = {
           mentioned_in?: Json | null
           mentions?: Json | null
           name?: string
+          overview?: Json | null
           package_id?: string | null
           pax?: number | null
           primary_email?: string | null
