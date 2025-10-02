@@ -24,17 +24,10 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
         <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
           {event && <EventInfo event={event} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
-          <Card className="mt-6">
-            <CardContent className="">
-              <h3 className="font-semibold mb-4 text-lg">Event Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Terms and Conditions:</label>
-                  <p className="text-gray-800 text-sm">{event.event_notes || "No terms and conditions provided"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-6 space-y-2">
+            <h3 className="text-sm font-medium text-foreground/70">Terms and Conditions</h3>
+            <p className="text-sm text-foreground">{event.event_notes || "No terms and conditions provided"}</p>
+          </div>
         </div>
       </div>
     </div>;
