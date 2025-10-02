@@ -1,5 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { getOverviewEditorExtensions } from './overviewEditorExtensions';
 import { Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1, Heading2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ interface RichTextCardProps {
   onImageUrlChange?: (url: string) => void;
 }
 
-export const RichTextCard = ({ 
+export const RichTextCard = memo(({ 
   title, 
   value, 
   onChange, 
@@ -25,7 +25,7 @@ export const RichTextCard = ({
 }: RichTextCardProps) => {
   const editor = useEditor({
     extensions: getOverviewEditorExtensions(),
-    content: value || '',
+    content: value || '<p></p>',
     editable: isEditing,
     editorProps: {
       attributes: {
@@ -33,25 +33,40 @@ export const RichTextCard = ({
       }
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      if (html !== value) {
+        onChange(html);
+      }
     },
-  });
+  }, []);
 
   // Update editor content when value changes externally
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || '', false);
+      const currentContent = editor.getHTML();
+      const newContent = value || '<p></p>';
+      
+      if (currentContent !== newContent) {
+        editor.commands.setContent(newContent, false);
+      }
     }
   }, [value, editor]);
 
   // Update editor editable state when isEditing changes
   useEffect(() => {
-    if (editor) {
+    if (editor && editor.isEditable !== isEditing) {
       editor.setEditable(isEditing);
     }
   }, [isEditing, editor]);
 
-  if (!editor) return null;
+  if (!editor) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <p className="text-sm text-foreground/50">Loading editor...</p>
+      </div>
+    );
+  }
 
   const sanitizedContent = DOMPurify.sanitize(value || '<p>No content</p>');
 
@@ -159,4 +174,6 @@ export const RichTextCard = ({
       )}
     </div>
   );
-};
+});
+
+RichTextCard.displayName = 'RichTextCard';

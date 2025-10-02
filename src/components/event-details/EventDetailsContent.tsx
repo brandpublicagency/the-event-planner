@@ -37,7 +37,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
         <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
           {localEvent && <EventInfo event={localEvent} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
-          {localEvent && (
+          {localEvent && eventId && (
             <EventOverviewSection 
               eventCode={eventId}
               overview={localEvent.overview}
