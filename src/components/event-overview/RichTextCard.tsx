@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect } from 'react';
 import { getOverviewEditorExtensions } from './overviewEditorExtensions';
 import { Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1, Heading2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,20 @@ export const RichTextCard = ({
       onChange(editor.getHTML());
     },
   });
+
+  // Update editor content when value changes externally
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value || '', false);
+    }
+  }, [value, editor]);
+
+  // Update editor editable state when isEditing changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(isEditing);
+    }
+  }, [isEditing, editor]);
 
   if (!editor) return null;
 

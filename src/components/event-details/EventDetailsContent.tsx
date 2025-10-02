@@ -23,6 +23,11 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
 }) => {
   const [localEvent, setLocalEvent] = useState(event);
 
+  // Sync local state with prop changes
+  React.useEffect(() => {
+    setLocalEvent(event);
+  }, [event]);
+
   const handleOverviewUpdate = (overview: EventOverview) => {
     setLocalEvent(prev => ({ ...prev, overview }));
   };
