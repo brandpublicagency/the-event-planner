@@ -29,7 +29,7 @@ export const RichTextCard = memo(({
     editable: isEditing,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none text-foreground'
+        class: 'prose prose-sm max-w-none focus:outline-none text-foreground text-sm'
       }
     },
     onUpdate: ({ editor }) => {
@@ -155,11 +155,11 @@ export const RichTextCard = memo(({
       {isEditing ? (
         <EditorContent 
           editor={editor} 
-          className="prose prose-sm max-w-none min-h-[100px] text-foreground"
+          className="prose prose-sm max-w-none min-h-[100px] text-foreground text-sm [&_*]:text-sm"
         />
       ) : (
         <div 
-          className="prose prose-sm max-w-none text-foreground"
+          className="prose prose-sm max-w-none text-foreground text-sm [&_*]:text-sm"
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       )}
