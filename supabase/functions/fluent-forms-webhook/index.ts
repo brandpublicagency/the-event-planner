@@ -20,6 +20,68 @@ const ALLOWED_VENUES = [
   "Package 3"
 ];
 
+// Input validation functions
+function validateEmail(email: string | null): boolean {
+  if (!email) return true; // Optional field
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+}
+
+function validatePhone(phone: string | null): boolean {
+  if (!phone) return true; // Optional field
+  const phoneRegex = /^[\d\s\+\-\(\)]+$/;
+  return phone.length >= 10 && phone.length <= 20 && phoneRegex.test(phone);
+}
+
+function sanitizeString(input: string | null, maxLength: number = 500): string | null {
+  if (!input) return null;
+  return input.trim().substring(0, maxLength);
+}
+
+function validateDate(dateString: string | null): boolean {
+  if (!dateString) return true; // Optional field
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()) && date.getFullYear() >= 2020 && date.getFullYear() <= 2100;
+}
+
+function validateFormData(formData: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  // Validate email fields
+  if (formData.email_bride && !validateEmail(formData.email_bride)) {
+    errors.push('Invalid bride email format');
+  }
+  if (formData.email && !validateEmail(formData.email)) {
+    errors.push('Invalid email format');
+  }
+  
+  // Validate phone fields
+  if (formData.contact_number_bride && !validatePhone(formData.contact_number_bride)) {
+    errors.push('Invalid bride contact number');
+  }
+  if (formData.groom_contact_number && !validatePhone(formData.groom_contact_number)) {
+    errors.push('Invalid groom contact number');
+  }
+  
+  // Validate date
+  if (formData.confirmed_wedding_date && !validateDate(formData.confirmed_wedding_date)) {
+    errors.push('Invalid wedding date');
+  }
+  
+  // Validate PAX
+  if (formData.number_of_guests) {
+    const pax = parseInt(formData.number_of_guests);
+    if (isNaN(pax) || pax < 1 || pax > 10000) {
+      errors.push('Invalid number of guests (must be between 1 and 10000)');
+    }
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 serve(async (req) => {
   console.log("Received request to fluent-forms-webhook");
   
@@ -40,7 +102,7 @@ serve(async (req) => {
 
     // Parse the raw request body as text first
     const rawBody = await req.text();
-    console.log('Raw request body:', rawBody);
+    console.log('Raw request body received (length):', rawBody.length);
 
     // Try to parse as JSON if possible
     let formData;
@@ -52,7 +114,35 @@ serve(async (req) => {
       formData = Object.fromEntries(formDataObj.entries());
     }
     
-    console.log('Processed form data:', formData);
+    console.log('Form data parsed successfully');
+    
+    // Validate form data
+    const validation = validateFormData(formData);
+    if (!validation.valid) {
+      console.error('Form validation failed:', validation.errors);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid form data: ' + validation.errors.join(', ')
+        }),
+        { 
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    }
+    
+    // Sanitize string inputs
+    formData.first_name_bride = sanitizeString(formData.first_name_bride, 100);
+    formData.last_name_bride = sanitizeString(formData.last_name_bride, 100);
+    formData.first_name__groom = sanitizeString(formData.first_name__groom, 100);
+    formData.last_name__groom = sanitizeString(formData.last_name__groom, 100);
+    formData.contract_signee = sanitizeString(formData.contract_signee, 200);
+    formData.city_contract = sanitizeString(formData.city_contract, 200);
+    formData.city_contract_1 = sanitizeString(formData.city_contract_1, 500);
     
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
