@@ -40,7 +40,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Terms and Conditions:</label>
-                  <p className="text-gray-800">Paragraph....</p>
+                  <p className="text-gray-800">{event.event_notes || "No terms and conditions provided"}</p>
                 </div>
               </div>
             </CardContent>
