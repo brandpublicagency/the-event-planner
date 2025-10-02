@@ -39,15 +39,9 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Description:</label>
-                  <p className="text-gray-800">{event.description || "No description provided"}</p>
+                  <label className="text-sm font-medium text-gray-600">Terms and Conditions:</label>
+                  <p className="text-gray-800">Paragraph....</p>
                 </div>
-                {event.description && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Additional Notes:</label>
-                    <p className="text-gray-800">{event.description}</p>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
