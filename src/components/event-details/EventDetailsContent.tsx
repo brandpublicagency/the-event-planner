@@ -44,7 +44,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   };
 
   return <div className="flex-1 p-6 bg-gray-100">
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <div ref={printRef} className="print-container py-[20px] px-[25px] rounded-md bg-white">
           {localEvent && <EventInfo event={localEvent} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
