@@ -25,8 +25,8 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
           {event && <EventInfo event={event} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
           <Card className="mt-6">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Event Details</h3>
+            <CardContent className="">
+              <h3 className="font-semibold mb-4 text-lg">Event Details</h3>
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Terms and Conditions:</label>
