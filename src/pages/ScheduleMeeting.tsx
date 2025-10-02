@@ -13,17 +13,9 @@ const ScheduleMeeting = () => {
         <div className="w-full h-full rounded-lg overflow-hidden border bg-background shadow-sm">
           <iframe
             src="https://cal.com/warmkaroo/management-booking"
-            width="100%"
-            height="100%"
-            frameBorder={0}
-            style={{ 
-              width: "100%", 
-              height: "100%", 
-              border: "none",
-              minHeight: "600px"
-            }}
-            allow="camera; microphone; autoplay; encrypted-media; payment"
-            loading="lazy"
+            className="w-full h-full"
+            style={{ minHeight: "700px", border: "none" }}
+            frameBorder="0"
             title="Schedule Management Meeting"
           />
         </div>
