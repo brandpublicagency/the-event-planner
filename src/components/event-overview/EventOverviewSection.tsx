@@ -101,13 +101,8 @@ export const EventOverviewSection = ({ eventCode, overview, onUpdate }: EventOve
     return panel.items && panel.items.length > 0;
   });
 
-  // Don't render if not visible or no content (unless editing)
-  if (!localOverview.visible || (!hasContent && !isEditing)) {
-    return null;
-  }
-
-  // Don't render until we have a valid eventCode
-  if (!eventCode) {
+  // Don't render if not visible or no eventCode
+  if (!eventCode || localOverview.visible === false) {
     return null;
   }
 

@@ -54,7 +54,7 @@ export const ListCard = ({ title, items, onChange, isEditing }: ListCardProps) =
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-foreground/50">No items added</p>
+        <p className="text-sm text-foreground/50">{isEditing ? 'No items added' : 'No items yet'}</p>
       )}
       
       {isEditing && (

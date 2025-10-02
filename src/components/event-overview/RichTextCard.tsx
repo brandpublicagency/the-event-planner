@@ -68,7 +68,7 @@ export const RichTextCard = memo(({
     );
   }
 
-  const sanitizedContent = DOMPurify.sanitize(value || '<p>No content</p>');
+  const sanitizedContent = DOMPurify.sanitize(value || '<p class="text-foreground/50">No content yet</p>');
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 space-y-3">
