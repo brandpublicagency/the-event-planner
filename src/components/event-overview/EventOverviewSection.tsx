@@ -113,7 +113,15 @@ export const EventOverviewSection = ({ eventCode, overview, onUpdate }: EventOve
   return (
     <div className="mt-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">Event Overview</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground">Event Overview</h2>
+          {!isEditing && (
+            <Edit 
+              className="h-4 w-4 text-foreground/70 cursor-pointer hover:text-foreground" 
+              onClick={() => setIsEditing(true)}
+            />
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {saveStatus === 'saving' && (
             <span className="text-xs text-foreground/50">Saving…</span>
@@ -122,16 +130,7 @@ export const EventOverviewSection = ({ eventCode, overview, onUpdate }: EventOve
             <span className="text-xs text-foreground/70">Saved</span>
           )}
           
-          {!isEditing ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit className="h-4 w-4 mr-1" />
-              Edit Overview
-            </Button>
-          ) : (
+          {isEditing && (
             <>
               <Button
                 size="sm"
