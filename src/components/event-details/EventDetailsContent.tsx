@@ -45,17 +45,6 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
 
   return <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-4 flex justify-end">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onPrintClick}
-            className="gap-2"
-          >
-            <Printer className="h-4 w-4" />
-            Print
-          </Button>
-        </div>
         <div ref={printRef} className="print-container py-[20px] px-[25px] rounded-md bg-white">
           {localEvent && <EventInfo event={localEvent} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
@@ -71,6 +60,17 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
             <h3 className="text-sm font-medium text-foreground/70">Terms and Conditions</h3>
             <p className="text-sm text-foreground">{localEvent.event_notes || "No terms and conditions provided"}</p>
           </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onPrintClick}
+            className="gap-2"
+          >
+            <Printer className="h-4 w-4" />
+            Print
+          </Button>
         </div>
       </div>
     </div>;
