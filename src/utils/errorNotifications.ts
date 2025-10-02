@@ -12,6 +12,7 @@ export const showSuccessNotification = (title: string, description?: string) => 
   toast({
     title,
     description,
+    variant: "success",
   });
 };
 
@@ -19,6 +20,6 @@ export const showWarningNotification = (title: string, description?: string) => 
   toast({
     title,
     description,
-    variant: "destructive",
+    variant: "warning",
   });
 };

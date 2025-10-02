@@ -26,12 +26,11 @@ export const fetchDashboardMessage = async (firstName: string): Promise<Dashboar
       });
       
       if (error) {
-        console.error('Edge function error:', error);
+        // Suppress console noise - fallback message will be used
         throw new Error(error.message || 'Failed to send a request to the Edge Function');
       }
       
       if (!data) {
-        console.error('No data returned from edge function');
         throw new Error('No data returned from edge function');
       }
       
@@ -43,12 +42,8 @@ export const fetchDashboardMessage = async (firstName: string): Promise<Dashboar
     return await Promise.race([fetchPromise, timeoutPromise]) as DashboardMessage;
     
   } catch (err: any) {
-    console.error('Error fetching dashboard message:', err);
-    
-    // Create a fallback message with time-based greeting
+    // Silently fall back to local message - no need to log since retries already logged
     const fallbackMessage = createFallbackMessage(firstName);
-    
-    // Use the fallback message instead of throwing an error
     return fallbackMessage;
   }
 };

@@ -111,7 +111,8 @@ export function NotificationDropdown() {
         }
         
         toast({
-          title: "Notification marked as read"
+          title: "Notification marked as read",
+          variant: "success"
         });
       }
     } catch (error) {
@@ -134,7 +135,8 @@ export function NotificationDropdown() {
       setFilterKey(prev => prev + 1);
       
       toast({
-        title: "Task marked as complete!"
+        title: "Task marked as complete",
+        variant: "success"
       });
     } catch (error) {
       console.error("Error marking task as complete:", error);
@@ -163,7 +165,8 @@ export function NotificationDropdown() {
         setFilterKey(prev => prev + 1);
         
         toast({
-          title: "All notifications marked as read"
+          title: "All notifications marked as read",
+          variant: "success"
         });
       }
     } catch (error) {

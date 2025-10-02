@@ -73,10 +73,10 @@ export const useDashboardNotifications = () => {
         navigate('/notifications');
       }
       
-      toast("Notification marked as read");
+      toast.success("Notification marked as read");
     } catch (error) {
       console.error('Error handling notification click:', error);
-      toast("Could not process notification");
+      toast.error("Could not process notification");
     }
   }, [markAsRead, navigate]);
 
@@ -86,20 +86,20 @@ export const useDashboardNotifications = () => {
     
     try {
       await markAsCompleted(notification.id);
-      toast("Task marked as complete");
+      toast.success("Task marked as complete");
     } catch (error) {
       console.error('Error marking notification as completed:', error);
-      toast("Could not complete notification");
+      toast.error("Could not complete notification");
     }
   }, [markAsCompleted]);
 
   const handleMarkAllAsRead = useCallback(async () => {
     try {
       await markAllAsRead();
-      toast("All notifications marked as read");
+      toast.success("All notifications marked as read");
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      toast("Could not mark all notifications as read");
+      toast.error("Could not mark all notifications as read");
     }
   }, [markAllAsRead]);
 
