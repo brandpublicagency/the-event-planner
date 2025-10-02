@@ -5,6 +5,8 @@ import { generateMockNotifications } from "@/api/notification/mockNotifications"
 import { createErrorNotification } from "@/api/notification/notificationErrors";
 import { Notification } from "@/types/notification";
 import { formatNotification } from "./notificationFormatters";
+import { retryWithBackoff } from "@/utils/retryWithBackoff";
+import { NotificationFetchError } from "@/types/errors";
 
 interface UseNotificationFetchingProps {
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
@@ -35,13 +37,11 @@ export const useNotificationFetching = ({
     
     // Skip if already refreshing
     if (isRefreshingRef.current) {
-      console.log("Already refreshing notifications, skipping");
       return;
     }
     
     // Skip if fetched recently (unless forced)
     if (!force && timeSinceLastFetch < minTimeBetweenFetches) {
-      console.log(`Skipping fetch, last one was ${timeSinceLastFetch}ms ago`);
       return;
     }
 
@@ -50,24 +50,38 @@ export const useNotificationFetching = ({
     lastFetchTimeRef.current = now;
     
     try {
-      console.log("Fetching notifications...");
       fetchAttemptsRef.current += 1;
       
       let formattedNotifications: Notification[] = [];
       
       try {
-        // First attempt to fetch from Supabase
-        const { data, error } = await supabase
-          .from('notifications')
-          .select('*')
-          .order('created_at', { ascending: false });
+        // Fetch with retry logic and exponential backoff
+        const { data, error } = await retryWithBackoff(
+          async () => {
+            const result = await supabase
+              .from('notifications')
+              .select('*')
+              .order('created_at', { ascending: false });
+            
+            if (result.error) {
+              throw new NotificationFetchError(
+                'Unable to fetch notifications. Please check your connection.',
+                { originalError: result.error }
+              );
+            }
+            
+            return result;
+          },
+          {
+            maxAttempts: 3,
+            initialDelay: 1000,
+            maxDelay: 4000,
+          }
+        );
 
         if (error) {
-          console.error("Error fetching notifications from Supabase:", error);
           throw error;
         }
-        
-        console.log("Notifications fetched from database:", data?.length || 0);
         
         if (data && data.length > 0) {
           formattedNotifications = data.map(item => {
@@ -89,26 +103,14 @@ export const useNotificationFetching = ({
             }
           });
 
-          // Log the read status distribution for debugging
-          const readCount = formattedNotifications.filter(n => n.read).length;
-          const unreadCount = formattedNotifications.filter(n => !n.read).length;
-          console.log(`Fetched notifications read status: Read: ${readCount}, Unread: ${unreadCount}, Total: ${formattedNotifications.length}`);
-        } else {
-          // If no data from Supabase, use mock data in development
-          if (process.env.NODE_ENV === 'development') {
-            console.log("No notifications found in database, using mock data");
-            formattedNotifications = generateMockNotifications();
-          }
+        } else if (process.env.NODE_ENV === 'development') {
+          formattedNotifications = generateMockNotifications();
         }
       } catch (dbError) {
-        console.warn('Database error when fetching notifications:', dbError);
-        
-        // Fallback to mock notifications in development environment
+        // Graceful degradation with fallback
         if (process.env.NODE_ENV === 'development') {
-          console.log("Using mock notifications due to database error");
           formattedNotifications = generateMockNotifications();
         } else {
-          // In production, add an error notification
           formattedNotifications = [createErrorNotification(dbError)];
         }
       }
@@ -116,25 +118,38 @@ export const useNotificationFetching = ({
       // Only update state if component is still mounted
       if (isMountedRef.current) {
         setNotifications(formattedNotifications);
-        
-        // Calculate unread count
         const unreadCount = formattedNotifications.filter(n => !n.read).length;
         setUnreadCount(unreadCount);
-        console.log(`Setting unread count to ${unreadCount}`);
-        
         setError(null);
-        fetchAttemptsRef.current = 0; // Reset counter on success
+        fetchAttemptsRef.current = 0;
+        
+        // Cache in localStorage for offline viewing
+        try {
+          localStorage.setItem('cached_notifications', JSON.stringify({
+            notifications: formattedNotifications,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          // Ignore localStorage errors
+        }
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
       if (isMountedRef.current) {
-        setError(error instanceof Error ? error : new Error('Failed to fetch notifications'));
+        setError(error instanceof Error ? error : new Error('Network error. Please try again.'));
         
-        // If we've reached max attempts, default to empty array to prevent infinite loading
-        if (fetchAttemptsRef.current >= maxFetchAttempts) {
-          console.warn('Max fetch attempts reached, defaulting to empty array');
-          setNotifications([]);
-          setUnreadCount(0);
+        // Try to load from cache
+        try {
+          const cached = localStorage.getItem('cached_notifications');
+          if (cached) {
+            const { notifications: cachedNotifs } = JSON.parse(cached);
+            setNotifications(cachedNotifs);
+            setUnreadCount(cachedNotifs.filter((n: Notification) => !n.read).length);
+          }
+        } catch (e) {
+          if (fetchAttemptsRef.current >= maxFetchAttempts) {
+            setNotifications([]);
+            setUnreadCount(0);
+          }
         }
       }
     } finally {

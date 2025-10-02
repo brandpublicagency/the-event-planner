@@ -26,6 +26,20 @@ export type NotificationContextType = {
   markAsCompleted: (id: string) => Promise<boolean>;
   markAllAsRead: () => Promise<boolean>;
   clearNotifications: () => Promise<void>;
-  refreshNotifications: () => Promise<boolean>; // Changed from Promise<void> to Promise<boolean>
+  refreshNotifications: () => Promise<boolean>;
   lastFilterRefresh?: number;
 };
+
+// Export all internal types
+export type { NotificationContextType as NotificationContext };
+export interface NotificationPreferences {
+  toastDuration: number;
+  enableSounds: boolean;
+  enableGrouping: boolean;
+  filterTypes: string[];
+}
+
+export interface NotificationFilter {
+  type: 'all' | 'unread' | 'read';
+  showCompleted?: boolean;
+}

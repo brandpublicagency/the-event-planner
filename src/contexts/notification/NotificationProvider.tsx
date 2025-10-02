@@ -6,6 +6,10 @@ import { useRealtimeNotifications } from "./useRealtimeNotifications";
 import { Notification } from "@/types/notification";
 import { toast } from "sonner";
 
+const BACKGROUND_REFRESH_INTERVAL = 300000; // 5 minutes
+const STALE_DATA_THRESHOLD = 300000; // 5 minutes
+const INACTIVE_REFRESH_INTERVAL = 600000; // 10 minutes when inactive
+
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
   const [unreadCountState, setUnreadCountState] = useState<number>(0);
@@ -14,6 +18,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const initialFetchTimeoutRef = useRef<number | null>(null);
   const lastFilterRefreshRef = useRef<number>(Date.now());
   const lastNotificationUpdateRef = useRef<number>(Date.now());
+  const lastActivityRef = useRef<number>(Date.now());
+  const isTabVisibleRef = useRef<boolean>(true);
 
   // Function to trigger filter refresh by updating the timestamp
   const triggerFilterRefresh = useCallback(() => {
@@ -87,36 +93,70 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     };
   }, [loading, notificationsState.length]);
 
-  // Periodic refetch to ensure data consistency
+  // Smart refresh based on tab visibility and user activity
   useEffect(() => {
+    // Track user activity
+    const updateActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+    
+    window.addEventListener('mousemove', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+    window.addEventListener('click', updateActivity);
+    
+    // Track tab visibility
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      isTabVisibleRef.current = isVisible;
+      
+      if (isVisible) {
+        // Refresh if data is stale when tab becomes visible
+        const timeSinceUpdate = Date.now() - lastNotificationUpdateRef.current;
+        if (timeSinceUpdate > STALE_DATA_THRESHOLD) {
+          fetchNotifications().catch(err => {
+            console.error("Error refreshing notifications on tab focus:", err);
+          });
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Smart refresh interval
     const refreshInterval = window.setInterval(() => {
-      // Only refresh if the component is mounted and we haven't updated recently
-      if (mountedRef.current && Date.now() - lastNotificationUpdateRef.current > 60000) {
-        console.log("Performing background notification refresh");
+      if (!mountedRef.current || !isTabVisibleRef.current) {
+        return;
+      }
+      
+      const timeSinceUpdate = Date.now() - lastNotificationUpdateRef.current;
+      const timeSinceActivity = Date.now() - lastActivityRef.current;
+      const isUserActive = timeSinceActivity < 60000; // Active in last minute
+      
+      // Use different intervals based on activity
+      const threshold = isUserActive ? BACKGROUND_REFRESH_INTERVAL : INACTIVE_REFRESH_INTERVAL;
+      
+      if (timeSinceUpdate > threshold) {
         fetchNotifications().catch(err => {
           console.error("Error in background notification refresh:", err);
         });
       }
-    }, 300000); // Every 5 minutes
+    }, 60000); // Check every minute
     
     return () => {
       window.clearInterval(refreshInterval);
+      window.removeEventListener('mousemove', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+      window.removeEventListener('click', updateActivity);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [fetchNotifications]);
 
   // Update local state when notifications change
   useEffect(() => {
     if (mountedRef.current) {
-      console.log("Updating local state with notifications:", notifications.length);
-      console.log("Unread count:", operationsUnreadCount);
-      
       setNotificationsState(notifications);
       setUnreadCountState(operationsUnreadCount);
-      
-      // Logging notification read status distribution for debugging
-      const readCount = notifications.filter(n => n.read).length;
-      const unreadCount = notifications.filter(n => !n.read).length;
-      console.log(`Notification status: Read: ${readCount}, Unread: ${unreadCount}, Total: ${notifications.length}`);
+      lastNotificationUpdateRef.current = Date.now();
     }
   }, [notifications, operationsUnreadCount]);
 
@@ -129,72 +169,29 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     triggerFilterRefresh
   });
 
-  // Expose notification operations with additional debug logging
+  // Wrapped operations with filter refresh
   const wrappedMarkAsRead = async (id: string) => {
-    console.log(`NotificationProvider.markAsRead called for id: ${id}`);
-    try {
-      const success = await markAsRead(id);
-      
-      // Force a refresh of the filter views with a new timestamp
-      triggerFilterRefresh();
-      
-      // Log the result of the operation
-      console.log(`markAsRead operation ${success ? 'succeeded' : 'failed'} for notification ${id}`);
-      console.log(`Current lastFilterRefresh is ${lastFilterRefreshRef.current}`);
-      
-      return success;
-    } catch (error) {
-      console.error("Error in wrappedMarkAsRead:", error);
-      return false;
-    }
+    const success = await markAsRead(id);
+    triggerFilterRefresh();
+    return success;
   };
 
   const wrappedMarkAllAsRead = async () => {
-    console.log("NotificationProvider.markAllAsRead called");
-    try {
-      const success = await markAllAsRead();
-      
-      // Force a refresh of the filter views with a new timestamp
-      triggerFilterRefresh();
-      
-      // Log the result of the operation
-      console.log(`markAllAsRead operation ${success ? 'succeeded' : 'failed'}`);
-      console.log(`Current lastFilterRefresh is ${lastFilterRefreshRef.current}`);
-      
-      return success;
-    } catch (error) {
-      console.error("Error in wrappedMarkAllAsRead:", error);
-      return false;
-    }
+    const success = await markAllAsRead();
+    triggerFilterRefresh();
+    return success;
   };
 
   const wrappedMarkAsCompleted = async (id: string) => {
-    console.log(`NotificationProvider.markAsCompleted called for id: ${id}`);
-    try {
-      const success = await markAsCompleted(id);
-      
-      // Force a refresh of the filter views
-      triggerFilterRefresh();
-      
-      return success;
-    } catch (error) {
-      console.error("Error in wrappedMarkAsCompleted:", error);
-      return false;
-    }
+    const success = await markAsCompleted(id);
+    triggerFilterRefresh();
+    return success;
   };
 
-  // Create a function to explicitly refresh notifications
   const wrappedRefreshNotifications = async () => {
-    console.log("NotificationProvider.refreshNotifications called");
-    try {
-      await fetchNotifications(true); // Force refresh
-      // Force filter refresh after fetch
-      triggerFilterRefresh();
-      return true;
-    } catch (error) {
-      console.error("Error in wrappedRefreshNotifications:", error);
-      return false;
-    }
+    await fetchNotifications(true);
+    triggerFilterRefresh();
+    return true;
   };
 
   return (
