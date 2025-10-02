@@ -7,32 +7,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { Edit } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
 export interface EventDetailsContentProps {
   event: Event;
   eventId: string;
   formattedDate: string;
   onEditEvent: () => void;
 }
-
 export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
   event,
   eventId,
   formattedDate,
-  onEditEvent,
+  onEditEvent
 }) => {
-  return (
-    <div className="flex-1 p-6 bg-gray-100">
+  return <div className="flex-1 p-6 bg-gray-100">
       <div className="max-w-4xl mx-auto">
         <div className="print-container py-[20px] px-[25px] rounded-md bg-white">
-          {event && (
-            <EventInfo 
-              event={event} 
-              formattedDate={formattedDate} 
-              formattedTime=""
-              onEditEvent={onEditEvent}
-            />
-          )}
+          {event && <EventInfo event={event} formattedDate={formattedDate} formattedTime="" onEditEvent={onEditEvent} />}
           
           <Card className="mt-6">
             <CardContent className="p-6">
@@ -40,13 +30,12 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Terms and Conditions:</label>
-                  <p className="text-gray-800">{event.event_notes || "No terms and conditions provided"}</p>
+                  <p className="text-gray-800 text-sm">{event.event_notes || "No terms and conditions provided"}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>;
+};
