@@ -123,7 +123,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Invalid form data: ' + validation.errors.join(', ')
+          error: 'Invalid form data provided'
         }),
         { 
           status: 400,
@@ -296,8 +296,12 @@ serve(async (req) => {
       .single();
 
     if (error) {
-      console.error('Error inserting event:', error);
-      throw error;
+      console.error('Error inserting event:', {
+        message: error.message,
+        code: error.code,
+        details: error.details
+      });
+      throw new Error('Database operation failed');
     }
 
     console.log('Successfully created event:', data);
@@ -313,15 +317,21 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    // Log detailed error server-side only
+    console.error('Error processing webhook:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
+    // Return sanitized error to client
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: 'Unable to process form submission. Please try again later.'
       }),
       { 
-        status: 400,
+        status: 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'

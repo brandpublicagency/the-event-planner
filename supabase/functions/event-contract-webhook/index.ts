@@ -77,15 +77,18 @@ serve(async (req) => {
       formData = await parseFormData(req);
       console.log('Parsed form data:', JSON.stringify(formData, null, 2));
     } catch (parseError) {
-      console.error('Error parsing request body:', parseError);
-      return createErrorResponse('Invalid request body format. Error: ' + parseError.message, 400);
+      console.error('Error parsing request body:', {
+        message: parseError.message,
+        stack: parseError.stack
+      });
+      return createErrorResponse('Invalid request format', 400);
     }
     
     // Validate and sanitize form data
     const validation = validateFormData(formData);
     if (!validation.valid) {
       console.error('Form validation failed:', validation.errors);
-      return createErrorResponse('Invalid form data: ' + validation.errors.join(', '), 400);
+      return createErrorResponse('Invalid form data provided', 400);
     }
     
     // Sanitize string inputs
@@ -112,7 +115,14 @@ serve(async (req) => {
     
     return createJsonResponse(result);
   } catch (error) {
-    console.error('Error in event-contract-webhook:', error);
-    return createErrorResponse(error.message || 'Internal server error processing event form', 500);
+    // Log detailed error server-side only
+    console.error('Error in event-contract-webhook:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    // Return sanitized error to client
+    return createErrorResponse('Unable to process event form. Please try again later.', 500);
   }
 });
