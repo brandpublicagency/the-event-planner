@@ -12,16 +12,47 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * Process form data and create an event in the database
  */
 export const processFormData = async (formData: any) => {
-  console.log('Processing contract form data:', formData);
+  console.log('============ PROCESS FORM DATA START ============');
+  console.log('Raw form data received:', JSON.stringify(formData, null, 2));
   
   try {
     // Normalize the form data
     const normalizedData = normalizeFormData(formData);
     
-    // Validate required fields
-    if (!normalizedData.name || !normalizedData.event_type) {
-      throw new Error('Missing required fields: name and event_type are required');
+    console.log('Normalized data returned from normalizer:', {
+      name: normalizedData.name,
+      event_type: normalizedData.event_type,
+      company: normalizedData.company,
+      primary_email: normalizedData.primary_email
+    });
+    
+    // PHASE 2: VALIDATE AND FIX NAME FIELD
+    // Validate event_type first (required for fallback name generation)
+    if (!normalizedData.event_type || normalizedData.event_type.trim() === '') {
+      console.error('CRITICAL: event_type is missing!');
+      throw new Error('Missing required field: event_type is required');
     }
+    
+    // Generate event code early so we can use it in name fallback
+    const eventCode = await generateEventCode(normalizedData.event_type);
+    console.log('Generated event code:', eventCode);
+    
+    // Validate and fix name field with ultimate fallback
+    if (!normalizedData.name || normalizedData.name.trim() === '') {
+      console.warn('WARNING: Name is empty after normalization! Applying fallback...');
+      
+      // Last resort fallback: Use event type + event code
+      normalizedData.name = `${normalizedData.event_type} Event - ${eventCode}`;
+      console.log('Applied ultimate fallback name:', normalizedData.name);
+    }
+    
+    // Final validation
+    if (!normalizedData.name || normalizedData.name.trim() === '') {
+      console.error('CRITICAL ERROR: Unable to generate event name!');
+      throw new Error('Unable to generate event name from form data');
+    }
+    
+    console.log('Final validated name:', normalizedData.name);
     
     // Check for duplicate submissions
     // Look for an event with the same name, email, and timestamp within the last 5 minutes
@@ -54,8 +85,7 @@ export const processFormData = async (formData: any) => {
       };
     }
     
-    // Generate a unique event code
-    const eventCode = await generateEventCode(normalizedData.event_type);
+    // Event code already generated above for name fallback
     
     // Format the date correctly if it exists
     let formattedDate = null;
@@ -172,8 +202,17 @@ export const processFormData = async (formData: any) => {
       vat_number: normalizedData.vat_number || null,
     };
     
-    console.log('Final event data being saved:', eventData);
-    console.log('Final venues being saved:', eventData.venues);
+    console.log('============ FINAL EVENT DATA TO INSERT ============');
+    console.log('Event data:', JSON.stringify(eventData, null, 2));
+    console.log('Venues:', eventData.venues);
+    console.log('====================================================');
+    
+    // PHASE 4: INSERT WITH VALIDATION
+    // Final check before insert
+    if (!eventData.name || eventData.name.trim() === '') {
+      console.error('CRITICAL: Event data name is empty before insert!');
+      throw new Error('Event name cannot be empty');
+    }
     
     // Insert event into database
     const { data: event, error } = await supabase
@@ -183,20 +222,34 @@ export const processFormData = async (formData: any) => {
       .single();
     
     if (error) {
-      console.error('Error inserting event:', error);
+      console.error('============ DATABASE INSERT ERROR ============');
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Event data that failed:', JSON.stringify(eventData, null, 2));
+      console.error('==============================================');
       throw error;
     }
+    
+    console.log('✅ Event successfully inserted:', event.event_code);
     
     // Create initial task for new event
     await createInitialTask(event);
     
+    console.log('============ PROCESS FORM DATA SUCCESS ============');
+    console.log('Created event code:', eventCode);
+    console.log('Event name:', event.name);
+    console.log('===================================================');
+    
     return {
       success: true,
       event_code: eventCode,
-      message: `Event created successfully with code ${eventCode}`
+      message: `Event created successfully with code ${eventCode}`,
+      event_name: event.name
     };
   } catch (error) {
-    console.error('Error processing form data:', error);
+    console.error('============ PROCESS FORM DATA ERROR ============');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('================================================');
     throw error;
   }
 };

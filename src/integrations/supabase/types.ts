@@ -422,14 +422,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      _ltree_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      _ltree_gist_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
       delete_event_venues: {
         Args: { event_code_param: string }
         Returns: undefined
@@ -439,7 +431,7 @@ export type Database = {
         Returns: string
       }
       get_pdf_content: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           content: string
           created_at: string
@@ -447,10 +439,6 @@ export type Database = {
           pdf_id: string
           updated_at: string
         }[]
-      }
-      lca: {
-        Args: { "": unknown[] }
-        Returns: unknown
       }
       log_user_activity: {
         Args: {
@@ -463,86 +451,7 @@ export type Database = {
         }
         Returns: string
       }
-      lquery_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      lquery_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      lquery_recv: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      lquery_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      ltree_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_gist_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_gist_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      ltree_gist_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_recv: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltree_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      ltree2text: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      ltxtq_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltxtq_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltxtq_recv: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ltxtq_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      nlevel: {
-        Args: { "": unknown }
-        Returns: number
-      }
-      text2ltree: {
-        Args: { "": string }
-        Returns: unknown
-      }
+      text2ltree: { Args: { "": string }; Returns: unknown }
     }
     Enums: {
       [_ in never]: never

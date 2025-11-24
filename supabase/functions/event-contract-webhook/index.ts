@@ -65,7 +65,11 @@ serve(async (req) => {
   }
   
   try {
-    console.log('Received request to event-contract-webhook');
+    console.log('============================================');
+    console.log('📥 NEW WEBHOOK REQUEST RECEIVED');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Method:', req.method);
+    console.log('============================================');
     
     if (req.method !== 'POST') {
       return createErrorResponse('Only POST requests are accepted', 405);
@@ -75,9 +79,11 @@ serve(async (req) => {
     let formData;
     try {
       formData = await parseFormData(req);
-      console.log('Parsed form data:', JSON.stringify(formData, null, 2));
+      console.log('✅ Form data parsed successfully');
+      console.log('Form data keys:', Object.keys(formData));
+      console.log('Full parsed data:', JSON.stringify(formData, null, 2));
     } catch (parseError) {
-      console.error('Error parsing request body:', {
+      console.error('❌ Error parsing request body:', {
         message: parseError.message,
         stack: parseError.stack
       });
@@ -87,9 +93,10 @@ serve(async (req) => {
     // Validate and sanitize form data
     const validation = validateFormData(formData);
     if (!validation.valid) {
-      console.error('Form validation failed:', validation.errors);
-      return createErrorResponse('Invalid form data provided', 400);
+      console.error('❌ Form validation failed:', validation.errors);
+      return createErrorResponse(`Validation errors: ${validation.errors.join(', ')}`, 400);
     }
+    console.log('✅ Form data validation passed');
     
     // Sanitize string inputs
     formData.name = sanitizeString(formData.name, 200);
@@ -102,25 +109,34 @@ serve(async (req) => {
     
     // Generate a unique request ID to track duplicate requests
     const requestId = crypto.randomUUID();
-    console.log(`Processing form submission with request ID: ${requestId}`);
+    console.log('📋 Request ID:', requestId);
     
     // Process the form data
+    console.log('🔄 Starting form data processing...');
     const result = await processFormData(formData);
     
     if (result.isDuplicate) {
-      console.log(`Duplicate submission detected. Returning existing event code: ${result.event_code}`);
+      console.log('⚠️ Duplicate submission detected');
+      console.log('Existing event code:', result.event_code);
     } else {
-      console.log(`Successfully created new event with code: ${result.event_code}`);
+      console.log('✅ Successfully created new event');
+      console.log('Event code:', result.event_code);
+      console.log('Event name:', result.event_name);
     }
+    
+    console.log('============================================');
+    console.log('✅ WEBHOOK REQUEST COMPLETED SUCCESSFULLY');
+    console.log('============================================');
     
     return createJsonResponse(result);
   } catch (error) {
     // Log detailed error server-side only
-    console.error('Error in event-contract-webhook:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
+    console.error('============================================');
+    console.error('❌ WEBHOOK REQUEST FAILED');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('============================================');
     
     // Return sanitized error to client
     return createErrorResponse('Unable to process event form. Please try again later.', 500);

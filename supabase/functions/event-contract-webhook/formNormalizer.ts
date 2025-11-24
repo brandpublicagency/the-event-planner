@@ -6,6 +6,11 @@ import { FieldMappings } from './types.ts';
 export const normalizeFormData = (formData: any) => {
   const normalized: any = {};
   
+  // PHASE 1: COMPREHENSIVE LOGGING - Log all incoming data
+  console.log('============ FORM NORMALIZER START ============');
+  console.log('Raw form data keys:', Object.keys(formData));
+  console.log('Raw form data (full):', JSON.stringify(formData, null, 2));
+  
   // Copy all fields to normalized first
   for (const key in formData) {
     // Clean up any fluentform prefixes
@@ -13,7 +18,7 @@ export const normalizeFormData = (formData: any) => {
     normalized[cleanKey] = formData[key];
   }
   
-  console.log('Original form data keys:', Object.keys(formData));
+  console.log('Normalized keys after copy:', Object.keys(normalized));
   
   // Event contract form specific fields
   const hasEventContract = formData.name_company_contact || 
@@ -75,19 +80,50 @@ export const normalizeFormData = (formData: any) => {
     console.log('Extracted venues from user_inputs.venue_choices:', normalized.venues);
   }
   
-  // Special handling for event name - combine company name and event type for corporate events
-  if (hasEventContract) {
-    if (normalized.company_name && normalized.event_type) {
-      // If company name exists, use company name + event type
-      normalized.name = `${normalized.company_name} ${normalized.event_type}`.trim();
-    } else if (normalized.name_company_contact && normalized.event_type) {
-      // If no company name, use contact person name + event type
-      const fullName = normalized.surname_company_contact ? 
-                      `${normalized.name_company_contact} ${normalized.surname_company_contact}` : 
-                      normalized.name_company_contact;
-      normalized.name = `${fullName} ${normalized.event_type}`.trim();
+  // PHASE 2: ROBUST NAME GENERATION WITH MULTIPLE FALLBACKS
+  console.log('Starting name generation...');
+  console.log('Available fields for name: company_name=', normalized.company_name, 
+              'name_company_contact=', normalized.name_company_contact,
+              'primary_name=', normalized.primary_name,
+              'primary_email=', normalized.primary_email,
+              'event_type=', normalized.event_type);
+  
+  // Try multiple strategies to generate a name
+  if (!normalized.name || normalized.name.trim() === '') {
+    if (hasEventContract && normalized.event_type) {
+      // Strategy 1: Company name + event type
+      if (normalized.company_name && normalized.company_name.trim() !== '') {
+        normalized.name = `${normalized.company_name.trim()} ${normalized.event_type}`.trim();
+        console.log('Generated name from company_name:', normalized.name);
+      }
+      // Strategy 2: Contact person name + event type
+      else if (normalized.name_company_contact && normalized.name_company_contact.trim() !== '') {
+        const fullName = normalized.surname_company_contact ? 
+                        `${normalized.name_company_contact} ${normalized.surname_company_contact}`.trim() : 
+                        normalized.name_company_contact.trim();
+        normalized.name = `${fullName} ${normalized.event_type}`.trim();
+        console.log('Generated name from contact name:', normalized.name);
+      }
+      // Strategy 3: Primary name + event type (after field mapping)
+      else if (normalized.primary_name && normalized.primary_name.trim() !== '') {
+        normalized.name = `${normalized.primary_name.trim()} ${normalized.event_type}`.trim();
+        console.log('Generated name from primary_name:', normalized.name);
+      }
+      // Strategy 4: Primary email + event type
+      else if (normalized.primary_email && normalized.primary_email.trim() !== '') {
+        const emailName = normalized.primary_email.split('@')[0].replace(/[._-]/g, ' ');
+        normalized.name = `${emailName} ${normalized.event_type}`.trim();
+        console.log('Generated name from primary_email:', normalized.name);
+      }
+      // Strategy 5: Just event type (will add event code later)
+      else {
+        normalized.name = normalized.event_type;
+        console.log('Generated name from event_type only:', normalized.name);
+      }
     }
   }
+  
+  console.log('Name after generation:', normalized.name);
   
   // Extract and format address (handle both object and string formats)
   let formattedAddress = null;
@@ -215,9 +251,24 @@ export const normalizeFormData = (formData: any) => {
     normalized.vat_number = normalized.vat_number;
   }
   
-  // Ensure company name is mapped properly
-  if (normalized.company_name) {
-    normalized.company = normalized.company_name;
+  // PHASE 3: IMPROVE COMPANY FIELD MAPPING
+  console.log('Mapping company field...');
+  console.log('Available company fields: company_name=', normalized.company_name,
+              'company=', normalized.company);
+  
+  if (normalized.company_name && normalized.company_name.trim() !== '') {
+    normalized.company = normalized.company_name.trim();
+    console.log('Mapped company from company_name:', normalized.company);
+  } else if (!normalized.company || normalized.company.trim() === '') {
+    // Try to find company from alternative fields
+    const companyAlternatives = ['organization', 'client_company', 'business_name'];
+    for (const altField of companyAlternatives) {
+      if (normalized[altField] && normalized[altField].trim() !== '') {
+        normalized.company = normalized[altField].trim();
+        console.log(`Mapped company from ${altField}:`, normalized.company);
+        break;
+      }
+    }
   }
   
   // Handle secondary phone (company phone)
@@ -272,6 +323,15 @@ export const normalizeFormData = (formData: any) => {
     normalized.pax = isNaN(parsedPax) ? null : parsedPax;
   }
   
-  console.log('Normalized form data:', normalized);
+  console.log('============ FINAL NORMALIZED DATA ============');
+  console.log('name:', normalized.name);
+  console.log('event_type:', normalized.event_type);
+  console.log('company:', normalized.company);
+  console.log('primary_name:', normalized.primary_name);
+  console.log('primary_email:', normalized.primary_email);
+  console.log('primary_phone:', normalized.primary_phone);
+  console.log('venues:', normalized.venues);
+  console.log('============ FORM NORMALIZER END ============');
+  
   return normalized;
 };
