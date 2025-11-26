@@ -144,16 +144,16 @@ serve(async (req) => {
     formData.city_contract = sanitizeString(formData.city_contract, 200);
     formData.city_contract_1 = sanitizeString(formData.city_contract_1, 500);
     
-    // Create Supabase client
+    // Create Supabase client with SERVICE_ROLE_KEY to bypass RLS
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("Missing Supabase environment variables");
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      console.error("Missing Supabase environment variables (URL or SERVICE_ROLE_KEY)");
       throw new Error('Missing Supabase environment variables');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     // Generate a unique event code
     const date = new Date();
@@ -299,9 +299,11 @@ serve(async (req) => {
       console.error('Error inserting event:', {
         message: error.message,
         code: error.code,
-        details: error.details
+        details: error.details,
+        hint: error.hint,
+        eventData: eventData
       });
-      throw new Error('Database operation failed');
+      throw new Error(`Database operation failed: ${error.message} (code: ${error.code})`);
     }
 
     console.log('Successfully created event:', data);
