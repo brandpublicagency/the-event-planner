@@ -37,7 +37,7 @@ const ContactsTable = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full rounded-lg bg-gray-50 border border-gray-100">
+      <div className="flex items-center justify-center h-full rounded-lg bg-muted border border-border">
         <p className="text-muted-foreground flex items-center gap-2">
           <span className="inline-block h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin"></span>
           Loading contacts...
