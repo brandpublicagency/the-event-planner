@@ -42,7 +42,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
         className="h-7 w-7 p-0"
         onClick={handleViewClick}
       >
-        <Eye className="h-3.5 w-3.5 text-zinc-400" />
+        <Eye className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="sr-only">View event</span>
       </Button>
     );
@@ -57,7 +57,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
           size="icon"
           className="h-7 w-7 p-0"
         >
-          <Edit className="h-3.5 w-3.5 text-zinc-400" />
+          <Edit className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="sr-only">Edit</span>
         </Button>
       )}
@@ -69,7 +69,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
           size="icon"
           className="h-7 w-7 p-0"
         >
-          <Eye className="h-3.5 w-3.5 text-zinc-400" />
+          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="sr-only">View</span>
         </Button>
       )}
@@ -81,7 +81,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
           size="icon"
           className="h-7 w-7 p-0"
         >
-          <Trash className="h-3.5 w-3.5 text-zinc-400" />
+          <Trash className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="sr-only">Delete</span>
         </Button>
       )}
