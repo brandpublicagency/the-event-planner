@@ -106,7 +106,7 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
                   <Lock className="h-4 w-4 text-muted-foreground" />
                   <FormControl>
                     <Input 

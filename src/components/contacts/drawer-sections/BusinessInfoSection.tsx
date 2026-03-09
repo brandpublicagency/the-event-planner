@@ -20,7 +20,7 @@ interface BusinessInfoSectionProps {
 const BusinessInfoSection = ({ form }: BusinessInfoSectionProps) => {
   return (
     <div className="pb-4 mb-5">
-      <h3 className="text-sm font-medium text-gray-500 mb-4">Business Information</h3>
+      <h3 className="text-sm font-medium text-muted-foreground mb-4">Business Information</h3>
       <div className="space-y-4">
         <FormField
           control={form.control}
