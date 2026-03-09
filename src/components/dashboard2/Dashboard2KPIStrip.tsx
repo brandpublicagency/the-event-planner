@@ -76,10 +76,13 @@ const Dashboard2KPIStrip = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-        {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-16 rounded-lg" />
-        ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-lg" />
+          ))}
+        </div>
+        <Skeleton className="h-16 rounded-lg" />
       </div>
     );
   }
