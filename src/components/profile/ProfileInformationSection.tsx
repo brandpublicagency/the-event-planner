@@ -73,7 +73,7 @@ const ProfileInformationSection = ({
           })} placeholder="Surname" className="border-none p-0 h-6 text-sm focus-visible:ring-0 bg-transparent" />
             </div>
 
-            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
               <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input value={editForm.mobile} onChange={e => setEditForm({
             ...editForm,
