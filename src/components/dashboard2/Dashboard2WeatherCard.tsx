@@ -62,7 +62,7 @@ const Dashboard2WeatherCard = () => {
               <span className="text-[10px] text-muted-foreground font-medium">
                 {day.day.slice(0, 3)}
               </span>
-              <Cloud className="h-3.5 w-3.5 text-muted-foreground my-1" />
+              <AnimatedWeatherIcon condition={day.condition} size={20} />
               <span className="text-[10px] text-foreground font-medium">
                 {Math.round(day.high)}°
               </span>
