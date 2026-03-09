@@ -99,7 +99,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
                       border hover:border-primary hover:shadow-sm
                       ${isSelected 
                         ? 'border-primary bg-primary/5 shadow-sm' 
-                        : 'border-gray-200 bg-white'}
+                        : 'border-border bg-background'}
                     `}
                   >
                     {isSelected && (
