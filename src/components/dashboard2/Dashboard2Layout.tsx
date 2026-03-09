@@ -79,20 +79,18 @@ const Dashboard2Layout = () => {
         <Dashboard2Greeting />
         <Dashboard2KPIStrip />
 
-        {/* Top row: Events (left) + Chat (right), equal height */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          <div className="lg:col-span-2">
+        {/* Top row: Events (60%) + Chat (40%), matched height */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mt-4">
+          <div className="lg:col-span-3">
             <Dashboard2EventsSection />
           </div>
-          <div className="lg:col-span-1 flex">
-            <div className="w-full flex">
-              <Dashboard2TeamChat className="flex-1" />
-            </div>
+          <div className="lg:col-span-2 flex">
+            <Dashboard2TeamChat className="flex-1" />
           </div>
         </div>
 
-        {/* Bottom row: Calendar, Weather, Tasks + Updates in one row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        {/* Bottom row: 2×2 grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <Dashboard2MiniCalendar />
           <Dashboard2WeatherCard />
           <Dashboard2TasksSection />
