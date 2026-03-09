@@ -65,7 +65,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
                 </div>
                 
                 {event.eventDate && (
-                  <div className="flex items-center text-xs text-gray-500">
+                  <div className="flex items-center text-xs text-muted-foreground">
                     <CalendarIcon className="h-3 w-3 mr-1" />
                     {format(new Date(event.eventDate), "dd MMM yyyy")}
                   </div>
