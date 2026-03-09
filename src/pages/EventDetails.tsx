@@ -28,7 +28,7 @@ const EventDetails = () => {
   // If loading show loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-zinc-50">
+      <div className="flex flex-col min-h-screen bg-background">
         <Header pageTitle="Event Details" showBackButton onBackButtonClick={handleBackClick} />
         <EventDetailsLoading onBackButtonClick={handleBackClick} />
       </div>
