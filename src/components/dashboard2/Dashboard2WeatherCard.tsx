@@ -1,8 +1,9 @@
 import { useWeatherDataManager } from "@/components/dashboard/weather/hooks/useWeatherDataManager";
 import { useTimeManager } from "@/components/dashboard/weather/hooks/useTimeManager";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Cloud, Droplets, Wind, MapPin } from "lucide-react";
+import { Droplets, Wind, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
+import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
 const Dashboard2WeatherCard = () => {
   const { timeOfDay } = useTimeManager();
