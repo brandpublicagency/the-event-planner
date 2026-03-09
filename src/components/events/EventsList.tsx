@@ -35,7 +35,7 @@ export const EventsList: React.FC<EventsListProps> = ({
         <div className="flex w-full sm:w-auto gap-2 items-center">
           {onSearchChange &&
           <div className="relative flex-1 sm:flex-initial">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
               type="text"
               placeholder="Search events..."
