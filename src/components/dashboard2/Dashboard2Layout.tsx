@@ -7,7 +7,7 @@ import Dashboard2TasksSection from "./Dashboard2TasksSection";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import Dashboard2CommandPalette from "./Dashboard2CommandPalette";
 import { useState, useEffect } from "react";
-import { Bell, Sun, Moon } from "lucide-react";
+import { Bell, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { Badge } from "@/components/ui/badge";
