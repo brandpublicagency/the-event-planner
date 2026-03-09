@@ -51,7 +51,7 @@ const ContactsTable = ({
       <div className="flex-1 overflow-hidden h-full rounded-lg border border-border">
         <ScrollArea className="h-full">
           <Table>
-            <TableHeader className="bg-gray-50 sticky top-0">
+            <TableHeader className="bg-muted sticky top-0">
               <TableRow>
                 <TableHead className="text-left pl-4 font-bold text-black">Name</TableHead>
                 <TableHead className="font-bold text-black">Company</TableHead>
