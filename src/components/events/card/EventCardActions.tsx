@@ -35,17 +35,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
   };
 
   if (isDashboard) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 p-0"
-        onClick={handleViewClick}
-      >
-        <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="sr-only">View event</span>
-      </Button>
-    );
+    return null;
   }
 
   return (
