@@ -28,7 +28,7 @@ export const EventsList: React.FC<EventsListProps> = ({
 
   if (!events.length) {
     return (
-      <div className="text-sm text-zinc-500 py-2">
+      <div className="text-sm text-muted-foreground py-2">
         No events scheduled for {date ? format(date, "MMMM d, yyyy") : "this date"}.
       </div>
     );
