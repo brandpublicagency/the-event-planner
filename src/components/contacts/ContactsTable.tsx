@@ -77,7 +77,7 @@ const ContactsTable = ({
                     <TableCell className="pl-4">
                       <button 
                         onClick={() => onEditContact(contact)} 
-                        className="text-left font-medium transition-colors text-gray-800 hover:text-black hover:underline"
+                        className="text-left font-medium transition-colors text-foreground hover:text-foreground hover:underline"
                       >
                         {contact.name}
                       </button>
