@@ -54,7 +54,7 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
         }} 
         className="mb-1"
       >
-        <Edit className="h-3.5 w-3.5 text-zinc-400" />
+        <Edit className="h-3.5 w-3.5 text-muted-foreground" />
       </Button>
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
