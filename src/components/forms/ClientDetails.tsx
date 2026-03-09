@@ -77,7 +77,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Mobile" className="bg-white border-zinc-200" />
+                  <Input {...field} placeholder="Mobile" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
