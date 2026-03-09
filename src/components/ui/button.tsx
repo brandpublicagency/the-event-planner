@@ -9,16 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-transparent border border-slate-400 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+        default: "bg-transparent border border-slate-300 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         destructive:
-          "bg-transparent border border-slate-400 text-destructive hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+          "bg-transparent border border-slate-300 text-destructive hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         outline:
-          "bg-transparent border border-slate-400 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+          "bg-transparent border border-slate-300 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         secondary:
-          "bg-transparent border border-slate-400 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+          "bg-transparent border border-slate-300 text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         ghost: "hover:bg-foreground hover:text-background hover:[&_svg]:text-background",
         link: "text-foreground underline-offset-4 hover:underline",
-        success: "bg-transparent border border-slate-400 text-green-800 hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+        success: "bg-transparent border border-slate-300 text-green-800 hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
       },
       size: {
         default: "h-8 px-3 py-2",
