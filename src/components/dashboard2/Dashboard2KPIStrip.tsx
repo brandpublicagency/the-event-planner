@@ -19,17 +19,15 @@ const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) =>
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4, delay }}
-    className="rounded-lg border border-border bg-card p-4 hover:border-foreground/30 transition-colors"
+    className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors"
   >
-    <div className="flex items-center gap-2 mb-2">
-      <div className="rounded-md bg-muted p-1.5">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-      </div>
-      <span className="text-xs text-muted-foreground font-medium">{label}</span>
+    <div className="flex items-center gap-1.5 mb-1">
+      <Icon className="h-3 w-3 text-muted-foreground" />
+      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
     </div>
-    <p className="text-2xl font-semibold text-foreground tracking-tight">{value}</p>
+    <p className="text-lg font-semibold text-foreground tracking-tight">{value}</p>
     {subtitle && (
-      <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>
+      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{subtitle}</p>
     )}
   </motion.div>
 );
