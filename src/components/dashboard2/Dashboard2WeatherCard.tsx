@@ -57,7 +57,7 @@ const Dashboard2WeatherCard = () => {
       {/* 7-day forecast row */}
       {forecast.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pt-3 border-t border-border -mx-1 px-1 pb-1">
-          {forecast.slice(0, 7).map((day, i) => (
+          {forecast.filter((day) => day.day !== "Now").slice(0, 7).map((day, i) => (
             <div
               key={i}
               className="flex flex-col items-center min-w-[48px] rounded-md py-1.5 px-1 hover:bg-muted transition-colors"
