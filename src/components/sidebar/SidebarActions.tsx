@@ -102,7 +102,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <ChevronLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span className="text-xs font-medium">Collapse Sidebar</span>

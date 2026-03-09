@@ -22,28 +22,28 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-6",
         caption: "relative flex justify-center items-center h-10",
-        caption_label: "text-sm font-medium text-zinc-900",
+        caption_label: "text-sm font-medium text-foreground",
         nav: "flex items-center space-x-1 absolute inset-0",
         nav_button: cn(
-          "h-7 w-7 p-0 flex items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
+          "h-7 w-7 p-0 flex items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-muted"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-2",
         head_row: "flex",
         head_cell:
-          "text-zinc-600 rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
+          "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
         row: "flex w-full mt-2",
         cell: "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20",
         day: cn(
-          "h-9 w-9 p-0 font-normal text-zinc-900 rounded-md border-transparent",
-          "hover:bg-zinc-100 hover:text-zinc-900",
-          "focus:bg-zinc-100 focus:text-zinc-900"
+          "h-9 w-9 p-0 font-normal text-foreground rounded-md border-transparent",
+          "hover:bg-muted hover:text-foreground",
+          "focus:bg-muted focus:text-foreground"
         ),
-        day_selected: "bg-zinc-50 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-900",
-        day_today: "border border-zinc-200",
-        day_outside: "text-zinc-400 opacity-50",
-        day_disabled: "text-zinc-400 opacity-50",
+        day_selected: "bg-muted text-foreground hover:bg-muted hover:text-foreground",
+        day_today: "border border-border",
+        day_outside: "text-muted-foreground opacity-50",
+        day_disabled: "text-muted-foreground opacity-50",
         day_range_middle: "rounded-none",
         day_hidden: "invisible",
         ...classNames,

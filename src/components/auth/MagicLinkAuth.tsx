@@ -126,7 +126,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
           {isSubmitting ? 'Sending Magic Link...' : 'Send Magic Link'}
         </button>
       </form>
-      <p className="text-sm text-center text-gray-500">
+      <p className="text-sm text-center text-muted-foreground">
         {isSubmitting ? 'Processing...' : 'Check your email for the magic link after submitting'}
       </p>
     </div>
