@@ -102,7 +102,7 @@ const Dashboard2EventsSection = () => {
       </div>
 
       {/* Content */}
-      <div className="p-4 max-h-[500px] overflow-y-auto">
+      <div className="p-4">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
