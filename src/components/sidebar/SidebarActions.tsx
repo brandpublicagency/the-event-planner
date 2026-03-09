@@ -56,7 +56,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Document"
             >
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
