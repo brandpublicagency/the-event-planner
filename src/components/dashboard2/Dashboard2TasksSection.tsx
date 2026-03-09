@@ -85,7 +85,7 @@ const Dashboard2TasksSection = () => {
                       <Circle className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </button>
                     <button
-                      onClick={() => navigate(`/tasks/${task.id}`)}
+                      onClick={() => navigate(`/tasks?selected=${task.id}`)}
                       className="flex-1 text-left text-xs text-foreground truncate"
                     >
                       {task.title}
