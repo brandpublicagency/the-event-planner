@@ -23,7 +23,7 @@ const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) =
     variant={active ? "default" : "ghost"}
     size="sm"
     className={cn(
-      "h-9 w-9 p-0 flex items-center justify-center",
+      "h-7 w-7 p-0 flex items-center justify-center",
       active ? 'bg-accent text-accent-foreground' : ''
     )}
     onClick={(e) => {
