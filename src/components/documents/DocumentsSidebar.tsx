@@ -2,8 +2,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import DocumentList from "@/components/documents/DocumentList";
-import { Loader2, Plus, FileText, Search } from "lucide-react";
+import { Loader2, Plus, FileText, Search, PanelLeftClose, PanelLeft } from "lucide-react";
 import type { Document } from "@/types/document";
+import { cn } from "@/lib/utils";
 
 interface DocumentsSidebarProps {
   documents: Document[] | undefined;
@@ -16,6 +17,8 @@ interface DocumentsSidebarProps {
   setSelectedDocId: (id: string) => void;
   handleNewDocument: () => void;
   createDocumentPending: boolean;
+  collapsed: boolean;
+  onToggle: () => void;
 }
 
 export function DocumentsSidebar({
@@ -28,7 +31,9 @@ export function DocumentsSidebar({
   selectedDocId,
   setSelectedDocId,
   handleNewDocument,
-  createDocumentPending
+  createDocumentPending,
+  collapsed,
+  onToggle
 }: DocumentsSidebarProps) {
   const searchFilteredDocuments = documents?.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -38,19 +43,58 @@ export function DocumentsSidebar({
     ? searchFilteredDocuments.filter(doc => doc.category_ids && doc.category_ids.includes(categoryFilter))
     : searchFilteredDocuments;
 
+  if (collapsed) {
+    return (
+      <div className="w-10 border-r border-border bg-muted/20 flex flex-col items-center py-2 gap-2 shrink-0">
+        <Button
+          onClick={onToggle}
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+          title="Show sidebar"
+        >
+          <PanelLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={handleNewDocument}
+          disabled={createDocumentPending}
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+          title="New document"
+        >
+          {createDocumentPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Plus className="h-3.5 w-3.5" />
+          )}
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-60 border-r border-border bg-muted/20 flex flex-col h-full">
-      {/* Search + New button row */}
-      <div className="px-3 pt-3 pb-2 space-y-2">
-        <div className="relative">
+    <div className="w-60 border-r border-border bg-muted/20 flex flex-col h-full shrink-0 transition-all">
+      {/* Search + collapse row */}
+      <div className="px-2 pt-2 pb-1.5 flex items-center gap-1.5">
+        <div className="relative flex-1">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" />
           <Input
-            placeholder="Search documents..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="h-8 pl-8 text-xs bg-background/80 border-border/60 rounded-md"
           />
         </div>
+        <Button
+          onClick={onToggle}
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 shrink-0 text-muted-foreground hover:text-foreground"
+          title="Hide sidebar"
+        >
+          <PanelLeftClose className="h-3.5 w-3.5" />
+        </Button>
       </div>
 
       {/* Document list */}

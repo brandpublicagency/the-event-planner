@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
@@ -16,6 +16,8 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const toggleSidebar = useCallback(() => setSidebarCollapsed(prev => !prev), []);
 
   const {
     documents,
@@ -78,6 +80,8 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           setSelectedDocId={setSelectedDocId}
           handleNewDocument={handleNewDocument}
           createDocumentPending={createDocument.isPending || isCreatingDocument}
+          collapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
         />
 
         <div className="flex-1 h-full overflow-hidden bg-background">
