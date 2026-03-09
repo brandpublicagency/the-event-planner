@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import DocumentsHeader from "./DocumentsHeader";
+import { Header } from "@/components/layout/Header";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { DocumentCreatingState } from "./DocumentCreatingState";
@@ -31,24 +31,20 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
     documentCreated
   );
 
-  // Reset document created when component unmounts
   useEffect(() => {
     return () => {
       setDocumentCreated(false);
     };
   }, []);
 
-  // Reset document created when autoCreateDocument changes
   useEffect(() => {
     if (!autoCreateDocument) {
       setDocumentCreated(false);
     }
   }, [autoCreateDocument]);
 
-  // Auto-create document if requested and not already done
   useEffect(() => {
     if (autoCreateDocument && !documentCreated && !isCreatingDocument && !createDocument.isPending && !isLoading) {
-      console.log("Auto-creating document");
       handleNewDocument();
     }
   }, [autoCreateDocument, documentCreated, createDocument.isPending, isLoading, isCreatingDocument]);
@@ -68,10 +64,10 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   return (
     <div className="flex flex-col h-screen">
-      <DocumentsHeader />
-      
+      <Header pageTitle="Documents" />
+
       <div className="flex flex-1 overflow-hidden">
-        <DocumentsSidebar 
+        <DocumentsSidebar
           documents={documents || []}
           isLoading={isLoading}
           searchQuery={searchQuery}
@@ -84,12 +80,12 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           createDocumentPending={createDocument.isPending || isCreatingDocument}
         />
 
-        <div className="flex-1 h-full overflow-hidden bg-white"> 
+        <div className="flex-1 h-full overflow-hidden bg-background">
           {createDocument.isPending || isCreatingDocument ? (
             <DocumentCreatingState />
           ) : (
-            <DocumentEditor 
-              documentId={selectedDocId} 
+            <DocumentEditor
+              documentId={selectedDocId}
               key={selectedDocId}
             />
           )}
