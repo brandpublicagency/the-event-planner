@@ -5,6 +5,7 @@ import Dashboard2EventsSection from "./Dashboard2EventsSection";
 import Dashboard2WeatherCard from "./Dashboard2WeatherCard";
 import Dashboard2TasksSection from "./Dashboard2TasksSection";
 import Dashboard2MiniCalendar from "./Dashboard2MiniCalendar";
+import Dashboard2TeamChat from "./Dashboard2TeamChat";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import Dashboard2CommandPalette from "./Dashboard2CommandPalette";
 import { useState, useEffect } from "react";
