@@ -50,7 +50,7 @@ export const EventsList: React.FC<EventsListProps> = ({
           <Button
             variant="outline"
             size="sm"
-            className="h-9 shadow-none border-solid border text-xs font-mono border-slate-400 mx-0 my-0 pl-[15px] pr-[15px] rounded-md pb-0 pt-0 font-light text-slate-900 bg-white"
+            className="h-9 shadow-none border-solid border text-xs font-mono mx-0 my-0 pl-[15px] pr-[15px] rounded-md pb-0 pt-0 font-light text-slate-900 bg-white border-slate-300"
             onClick={() => navigate(alternateLink.path)}>
             
               <Calendar className="h-4 w-4 mr-1.5" />
