@@ -80,7 +80,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
           isDashboard={isDashboard}
           onEdit={onEdit}
           onView={onView}
-          onDelete={onDelete} className="py-[11px] px-[15px] pt-[10px] pb-[15px] my-[15px] border-solid shadow rounded-xl" />
+          onDelete={onDelete} className="py-[11px] px-[15px] pt-[10px] pb-[15px] my-[15px] rounded-xl shadow-sm border-none border-0" />
 
 
         )}
