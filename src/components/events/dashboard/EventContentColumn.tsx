@@ -28,25 +28,25 @@ export const EventContentColumn: React.FC<EventContentColumnProps> = ({
   
   return <div className="flex-1 py-3 px-5">
       <div className="flex items-center">
-        <h3 className="text-base font-normal text-gray-800 mb-0.5 line-clamp-1">{event.name}</h3>
-        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-0.5 text-[10px] text-zinc-700 hover:text-zinc-900 transition-colors">
+        <h3 className="text-base font-normal text-foreground mb-0.5 line-clamp-1">{event.name}</h3>
+        <button onClick={handleCopyCode} className="ml-2 flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
           <span className="text-[10px]">{event.event_code}</span>
           <Copy className="h-2.5 w-2.5" />
         </button>
       </div>
-      <div className="flex items-center flex-wrap gap-x-3 text-xs text-gray-500">
+      <div className="flex items-center flex-wrap gap-x-3 text-xs text-muted-foreground">
         {event.event_type && <span className="flex items-center gap-1">
-            <Calendar className="h-3 w-3 text-zinc-400" />
+            <Calendar className="h-3 w-3 text-muted-foreground" />
             {event.event_type}
           </span>}
         
         {event.pax && <span className="flex items-center gap-1">
-            <Users className="h-3 w-3 text-zinc-400" />
+            <Users className="h-3 w-3 text-muted-foreground" />
             {event.pax} guests
           </span>}
         
         {venueStr && venueStr !== 'No venues selected' && <span className="flex items-center gap-1">
-            <MapPin className="h-3 w-3 text-zinc-400" />
+            <MapPin className="h-3 w-3 text-muted-foreground" />
             {venueStr}
           </span>}
       </div>

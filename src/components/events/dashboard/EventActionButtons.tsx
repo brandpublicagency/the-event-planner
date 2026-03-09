@@ -67,9 +67,9 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <Loader2 className="h-3.5 w-3.5 text-zinc-400 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
             ) : (
-              <Trash className="h-3.5 w-3.5 text-zinc-400" />
+              <Trash className="h-3.5 w-3.5 text-muted-foreground" />
             )}
           </Button>
         </AlertDialogTrigger>

@@ -81,7 +81,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
           size="icon"
           className="h-7 w-7 p-0"
         >
-          <Trash className="h-3.5 w-3.5 text-zinc-400" />
+          <Trash className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="sr-only">Delete</span>
         </Button>
       )}
