@@ -79,10 +79,10 @@ const UpcomingEventsSection = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center justify-between p-4 py-5 rounded-lg bg-gray-200">
+      <div className="flex items-center justify-between p-3 rounded-lg bg-gray-200">
         <div className="flex items-center gap-2">
-          <CalendarClock className="h-5 w-5 text-zinc-700 bg-transparent" />
-          <h3 className="text-lg font-medium text-gray-800">Upcoming Events</h3>
+          <CalendarClock className="h-4 w-4 text-zinc-700 bg-transparent" />
+          <h3 className="text-sm font-medium text-gray-800">Upcoming Events</h3>
         </div>
         <Button 
           onClick={() => navigate('/events/new')} 

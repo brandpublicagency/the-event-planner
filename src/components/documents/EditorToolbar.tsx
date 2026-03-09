@@ -49,7 +49,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   }
 
   return (
-    <div className="border rounded-lg mb-4 p-1.5 flex items-center gap-1 flex-wrap bg-background">
+    <div className="border rounded-lg mb-2 p-1 flex items-center gap-0.5 flex-wrap bg-background">
       <MenuButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         active={editor.isActive('bold')}

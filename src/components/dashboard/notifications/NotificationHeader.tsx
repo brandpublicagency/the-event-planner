@@ -16,7 +16,7 @@ export const NotificationHeader = ({
   onMarkAllAsRead,
   onRefresh
 }: NotificationHeaderProps) => {
-  return <div className="flex items-center justify-between p-3 py-4 rounded-lg bg-gray-200">
+  return <div className="flex items-center justify-between p-3 rounded-lg bg-gray-200">
       <div className="flex flex-col">
         <p className="text-sm font-medium text-gray-800">Notifications</p>
         <p className="text-xs text-muted-foreground">

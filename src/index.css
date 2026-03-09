@@ -145,11 +145,11 @@
 
 /* Toolbar button styles */
 .editor-toolbar {
-  @apply flex items-center gap-0.5 p-1 bg-white border border-zinc-200 rounded-md mb-2;
+  @apply flex items-center gap-0.5 p-0.5 bg-white border border-zinc-200 rounded-md mb-1.5;
 }
 
 .editor-toolbar button {
-  @apply h-8 w-8 p-0 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 rounded-sm;
+  @apply h-7 w-7 p-0 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 rounded-sm;
 }
 
 .editor-toolbar button.is-active {
