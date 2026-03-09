@@ -38,30 +38,30 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
             {name}
           </Link>
         </h4>
-        <div className="ml-2 text-[10px] text-zinc-700 flex items-center gap-0.5 cursor-pointer hover:text-zinc-900" onClick={(e) => copyEventCode(event_code, e)}>
+        <div className="ml-2 text-[10px] text-muted-foreground flex items-center gap-0.5 cursor-pointer hover:text-foreground" onClick={(e) => copyEventCode(event_code, e)}>
           <span className="text-[10px] mb-[3px]">{event_code}</span>
           <Copy className="h-2.5 w-2.5" />
         </div>
       </div>
       
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500 mt-1">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground mt-1">
         <div className="flex items-center">
-          <span className="font-medium text-xs text-zinc-800 font-sans">{formattedDate}</span>
+          <span className="font-medium text-xs text-foreground font-sans">{formattedDate}</span>
         </div>
         
         {event_type && <div className="flex items-center">
             {getEventTypeIcon(event_type)}
-            <span className="text-xs text-gray-500">{event_type}</span>
+            <span className="text-xs text-muted-foreground">{event_type}</span>
           </div>}
         
         {pax && <div className="flex items-center">
-            <Users className="h-3 w-3 mr-1 text-zinc-400" />
+            <Users className="h-3 w-3 mr-1 text-muted-foreground" />
             <span className="text-xs">{pax} guests</span>
             
             {venueStr && venueStr !== 'No venues selected' && <>
-                <span className="mx-1 text-zinc-300">•</span>
-                <MapPin className="h-3 w-3 mr-1 text-zinc-400" />
-                <span className="text-xs text-gray-500">{venueStr}</span>
+                <span className="mx-1 text-border">•</span>
+                <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{venueStr}</span>
               </>}
           </div>}
       </div>
