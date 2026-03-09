@@ -93,7 +93,7 @@ const Dashboard2Layout = () => {
             {/* Latest Updates trigger card */}
             <button
               onClick={() => setNotificationsOpen(true)}
-              className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/20"
+              className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-foreground/30"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

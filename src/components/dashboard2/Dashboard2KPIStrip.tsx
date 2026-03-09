@@ -19,7 +19,7 @@ const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) =>
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4, delay }}
-    className="rounded-lg border border-border bg-card p-4 hover:shadow-md transition-shadow"
+    className="rounded-lg border border-border bg-card p-4 hover:border-foreground/30 transition-colors"
   >
     <div className="flex items-center gap-2 mb-2">
       <div className="rounded-md bg-muted p-1.5">
