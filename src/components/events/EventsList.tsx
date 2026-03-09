@@ -50,9 +50,7 @@ export const EventsList: React.FC<EventsListProps> = ({
           <Button
             variant="outline"
             size="sm"
-            className="h-9 shadow-none border-solid border text-xs font-mono rounded-md font-light text-foreground bg-background border-border"
             onClick={() => navigate(alternateLink.path)}>
-            
               <Calendar className="h-4 w-4 mr-1.5" />
               {alternateLink.label}
             </Button>
@@ -60,10 +58,9 @@ export const EventsList: React.FC<EventsListProps> = ({
         </div>
         
         <Button
+          variant="outline"
           onClick={() => navigate('/events/new')}
-          size="sm"
-          className="h-9">
-          
+          size="sm">
           <Plus className="h-4 w-4 mr-1.5" />
           New Event
         </Button>
