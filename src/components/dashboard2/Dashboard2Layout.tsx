@@ -86,6 +86,7 @@ const Dashboard2Layout = () => {
 
           {/* Right sidebar: weather + tasks */}
           <div className="flex flex-col gap-4">
+            <Dashboard2MiniCalendar />
             <Dashboard2WeatherCard />
             <Dashboard2TasksSection />
 
