@@ -83,7 +83,7 @@ export function LinkPreview({ url }: { url: string }) {
         className="block no-underline text-inherit"
       >
         {preview.image && (
-          <div className="w-full h-48 overflow-hidden bg-gray-100">
+          <div className="w-full h-48 overflow-hidden bg-muted">
             <img 
               src={preview.image} 
               alt={preview.title} 
