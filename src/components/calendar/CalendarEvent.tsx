@@ -22,7 +22,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({ event }) => {
       case 'social':
         return "border-purple-500 bg-purple-50";
       default:
-        return "border-gray-500 bg-gray-50";
+        return "border-muted-foreground bg-muted";
     }
   };
 
