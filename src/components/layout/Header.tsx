@@ -76,7 +76,7 @@ export const Header = ({
             />
           )}
           
-          <SearchBar />
+          {!isDocumentsPage && <SearchBar />}
         </div>
 
         {children}
