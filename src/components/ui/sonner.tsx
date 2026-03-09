@@ -16,16 +16,26 @@ const Toaster = ({ ...props }: ToasterProps) => {
       richColors={false}
       closeButton
       toastOptions={{
-        duration: 4000,
-        className: "plain-toast",
+        duration: 3000,
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-[#f8f8f8] group-[.toaster]:text-foreground group-[.toaster]:border-[#e2e8f0]",
-          description: "group-[.toast]:text-muted-foreground",
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-sm group-[.toaster]:rounded-md group-[.toaster]:text-sm",
+          title: "group-[.toast]:font-medium group-[.toast]:text-sm",
+          description: "group-[.toast]:text-muted-foreground group-[.toast]:text-xs",
           actionButton:
-            "group-[.toast]:bg-gray-200 group-[.toast]:text-gray-800 hover:group-[.toast]:bg-gray-300",
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:text-xs",
           cancelButton:
-            "group-[.toast]:bg-gray-100 group-[.toast]:text-gray-700 hover:group-[.toast]:bg-gray-200",
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:text-xs",
+          closeButton:
+            "group-[.toast]:text-muted-foreground group-[.toast]:border-border",
+          error:
+            "group-[.toaster]:bg-background group-[.toaster]:text-destructive group-[.toaster]:border-destructive/20",
+          success:
+            "group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border",
+          warning:
+            "group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border",
+          info:
+            "group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border",
         },
       }}
       {...props}
