@@ -44,7 +44,7 @@ export const SearchBar = () => {
         onChange={e => setSearchQuery(e.target.value)} 
         onFocus={() => setIsFocused(true)} 
         onBlur={handleBlur}
-        className="pl-10 pr-8 bg-zinc-50 border-zinc-200 focus-visible:ring-0 rounded-md" 
+        className="pl-10 pr-8 bg-muted border-border focus-visible:ring-0 rounded-md" 
       />
       
       {searchQuery && (

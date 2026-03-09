@@ -24,7 +24,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ isLoading, searchR
   }, [navigate]);
   
   return (
-    <div className="absolute top-full mt-1 w-full bg-white rounded-md border border-zinc-200 shadow-md z-10 overflow-hidden">
+    <div className="absolute top-full mt-1 w-full bg-popover rounded-md border border-border shadow-md z-10 overflow-hidden">
       <div className="max-h-[300px] overflow-y-auto py-1">
         {isLoading ? (
           <div className="flex flex-col space-y-2 px-3 py-2">

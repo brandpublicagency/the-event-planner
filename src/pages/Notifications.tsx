@@ -23,7 +23,7 @@ const Notifications = () => {
   } = useNotificationPage();
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header pageTitle="Notifications" />
       
       <div className="container py-6 flex-1">

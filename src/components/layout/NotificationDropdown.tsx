@@ -179,7 +179,7 @@ export function NotificationDropdown() {
   }, [markAllAsRead, toast]);
 
   return (
-    <div className="w-full min-w-[320px] bg-white">
+    <div className="w-full min-w-[320px] bg-popover">
       <NotificationHeader 
         unreadCount={unreadCount} 
         onMarkAllAsRead={handleMarkAllAsRead} 

@@ -57,7 +57,7 @@ export const UserMenu = () => {
           ) : (
             <Avatar className="h-9 w-9">
               <AvatarImage src={userProfile?.avatarUrl} alt={userProfile?.fullName || 'User'} />
-              <AvatarFallback className="bg-zinc-100 text-zinc-800">
+              <AvatarFallback className="bg-muted text-foreground">
                 {userProfile?.initials || 'U'}
               </AvatarFallback>
             </Avatar>

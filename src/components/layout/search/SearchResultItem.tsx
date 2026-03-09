@@ -10,7 +10,7 @@ interface SearchResultItemProps {
 export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onClick }) => {
   return (
     <div 
-      className="px-3 py-2 hover:bg-zinc-50 cursor-pointer flex items-center"
+      className="px-3 py-2 hover:bg-muted cursor-pointer flex items-center"
       onMouseDown={(e) => onClick(e)}
     >
       <div className={`w-2 h-2 rounded-full mr-2 ${

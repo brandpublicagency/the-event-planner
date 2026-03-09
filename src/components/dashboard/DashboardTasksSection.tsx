@@ -22,12 +22,12 @@ const DashboardTasksSection = ({
     navigate(`/tasks?selected=${id}`);
   };
   return <div className="flex flex-col">
-      <div className="flex items-center justify-between p-3 rounded-lg bg-gray-200">
+      <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
         <div className="flex items-center gap-2">
-          <CheckSquare className="h-4 w-4 text-zinc-700" />
-          <h3 className="text-sm font-medium text-gray-800">Upcoming Tasks</h3>
+          <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-foreground">Upcoming Tasks</h3>
         </div>
-        <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="h-7 text-xs bg-white rounded-md px-2">
+        <Button onClick={() => navigate('/tasks?newTask=true')} size="sm" variant="outline" className="h-7 text-xs bg-background rounded-md px-2">
           <Plus className="h-4 w-4 mr-1.5" />
           New Task
         </Button>

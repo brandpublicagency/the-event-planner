@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const NotificationLoading = () => {
   return (
-    <div className="space-y-2 p-2 bg-white rounded-b-lg shadow-sm">
+    <div className="space-y-2 p-2 bg-card rounded-b-lg shadow-sm">
       {Array.from({ length: 2 }).map((_, index) => (
         <div key={index} className="flex items-start gap-2 p-2">
           <Skeleton className="h-7 w-7 rounded-full" />

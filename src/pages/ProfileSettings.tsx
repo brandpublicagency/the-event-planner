@@ -34,7 +34,7 @@ const ProfileSettings = () => {
       <div className="flex-1 p-6 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="max-w-xl mx-auto space-y-6">
-            <div className="rounded-lg border border-black/10 p-6 bg-white px-[18px] py-[30px]">
+            <div className="rounded-lg border border-border p-6 bg-card px-[18px] py-[30px]">
               <ProfileAvatar profile={profile} userEmail={userEmail} />
               
               <ProfileSection 

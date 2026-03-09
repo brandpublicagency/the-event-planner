@@ -71,7 +71,7 @@ const DashboardMessage = () => {
         }} transition={{
           duration: 0.7,
           delay: 0.2
-        }} className="text-gray-600 dark:text-gray-300 mt-1 text-base leading whitespace-pre-line bg-white px-[15px] my-[5px] py-[15px] rounded-md">
+        }} className="text-muted-foreground mt-1 text-base leading whitespace-pre-line bg-card px-[15px] my-[5px] py-[15px] rounded-md">
             <div style={{
             fontSize: '0.875rem',
             fontWeight: 450,

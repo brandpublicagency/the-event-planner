@@ -97,7 +97,7 @@ const PassedEvents = () => {
     <div className="flex flex-col h-full">
       <Header title="Passed Events" />
 
-      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+      <div className="flex-1 p-6 bg-muted overflow-auto">
         <EventsList 
           groupedEvents={filteredEvents} 
           isLoading={isLoading}
