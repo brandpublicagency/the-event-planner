@@ -33,7 +33,7 @@ const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) =
     title={tooltip}
     type="button"
   >
-    <Icon className="h-4 w-4" />
+    <Icon className="h-3.5 w-3.5" />
   </Button>
 );
 
