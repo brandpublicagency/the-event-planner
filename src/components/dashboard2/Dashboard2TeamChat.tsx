@@ -102,7 +102,7 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
   const stableMessageKey = useMemo(() => messageIds.join(","), [messageIds]);
   const { data: reactions = [] } = useQuery({
-    queryKey: ["chat-reactions", messageIds],
+    queryKey: ["chat-reactions", stableMessageKey],
     queryFn: async () => {
       if (messageIds.length === 0) return [];
       const { data, error } = await supabase

@@ -57,7 +57,7 @@ const Dashboard2NotificationsDrawer = ({ open, onOpenChange }: Dashboard2Notific
                   key={notification.id}
                   onClick={(e) => handleNotificationView(notification, e)}
                   className={cn(
-                    "w-full text-left p-4 hover:bg-muted/50 transition-colors flex gap-3",
+                    "group w-full text-left p-4 hover:bg-muted/50 transition-colors flex gap-3",
                     !notification.read && "bg-primary/[0.03]"
                   )}
                 >
