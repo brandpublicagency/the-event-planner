@@ -1,8 +1,9 @@
 import { useWeatherDataManager } from "@/components/dashboard/weather/hooks/useWeatherDataManager";
 import { useTimeManager } from "@/components/dashboard/weather/hooks/useTimeManager";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Cloud, Droplets, Wind, MapPin } from "lucide-react";
+import { Droplets, Wind, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
+import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
 const Dashboard2WeatherCard = () => {
   const { timeOfDay } = useTimeManager();
@@ -28,9 +29,12 @@ const Dashboard2WeatherCard = () => {
             <MapPin className="h-3 w-3 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">{weatherData.location}</span>
           </div>
-          <p className="text-3xl font-semibold text-foreground tracking-tight">
-            {Math.round(weatherData.temp)}°
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-3xl font-semibold text-foreground tracking-tight">
+              {Math.round(weatherData.temp)}°
+            </p>
+            <AnimatedWeatherIcon condition={weatherData.condition} size={40} />
+          </div>
           <p className="text-xs text-muted-foreground capitalize mt-0.5">
             {weatherData.description}
           </p>
@@ -61,7 +65,7 @@ const Dashboard2WeatherCard = () => {
               <span className="text-[10px] text-muted-foreground font-medium">
                 {day.day.slice(0, 3)}
               </span>
-              <Cloud className="h-3.5 w-3.5 text-muted-foreground my-1" />
+              <AnimatedWeatherIcon condition={day.condition} size={20} />
               <span className="text-[10px] text-foreground font-medium">
                 {Math.round(day.high)}°
               </span>
