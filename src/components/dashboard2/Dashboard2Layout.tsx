@@ -90,12 +90,6 @@ const Dashboard2Layout = () => {
             <Dashboard2MiniCalendar />
             <Dashboard2WeatherCard />
             <Dashboard2TasksSection />
-
-            {/* Latest Updates trigger card with preview */}
-            <LatestUpdatesCard
-              onOpen={() => setNotificationsOpen(true)}
-              unreadCount={unreadCount}
-            />
           </div>
         </div>
       </div>
