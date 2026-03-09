@@ -72,7 +72,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           </Badge>
         )}
         
-        {!isCollapsed && isActive && <ChevronRight className="ml-auto h-3 w-3 text-gray-500" />}
+        {!isCollapsed && isActive && <ChevronRight className="ml-auto h-3 w-3 text-muted-foreground" />}
       </div>
       
       {/* Hover indicator for collapsed state */}
