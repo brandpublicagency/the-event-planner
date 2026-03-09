@@ -30,9 +30,9 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
           onClick={(e) => e.stopPropagation()}
         >
           {isDeleting ? (
-            <Loader2 className="h-3 w-3 text-zinc-400 animate-spin" />
+            <Loader2 className="h-3 w-3 text-muted-foreground animate-spin" />
           ) : (
-            <Trash2 className="h-3 w-3 text-zinc-400" />
+            <Trash2 className="h-3 w-3 text-muted-foreground" />
           )}
         </Button>
       </AlertDialogTrigger>

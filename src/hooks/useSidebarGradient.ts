@@ -24,7 +24,7 @@ export function useSidebarGradient() {
       case '/schedule/site-visit':
         return 'bg-gradient-to-br from-purple-50 via-indigo-50/80 to-violet-100 backdrop-blur-sm border-r border-purple-100/50';
       default:
-        return 'bg-gradient-to-br from-slate-50 via-gray-50/80 to-slate-100 backdrop-blur-sm border-r border-slate-100/50';
+        return 'bg-gradient-to-br from-muted via-muted/80 to-muted backdrop-blur-sm border-r border-border/50';
     }
   };
 
