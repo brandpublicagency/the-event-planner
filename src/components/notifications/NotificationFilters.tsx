@@ -67,7 +67,7 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
           </TabsTrigger>
           <TabsTrigger value="unread" className="flex items-center justify-center gap-2">
             Unread
-            <Badge variant="secondary" className="ml-1 bg-zinc-100 text-zinc-800">
+            <Badge variant="secondary" className="ml-1 bg-muted text-foreground">
               {counts.unread}
             </Badge>
           </TabsTrigger>
