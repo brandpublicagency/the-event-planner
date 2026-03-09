@@ -14,6 +14,49 @@ import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/components/theme-provider";
+import { formatDistanceToNow } from "date-fns";
+
+const LatestUpdatesCard = ({ onOpen, unreadCount }: { onOpen: () => void; unreadCount: number }) => {
+  const { notifications } = useDashboardNotifications();
+  const latest = notifications.slice(0, 3);
+
+  return (
+    <button
+      onClick={onOpen}
+      className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-foreground/30 w-full"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Bell className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Latest Updates</span>
+        </div>
+        {unreadCount > 0 && (
+          <Badge variant="notification" className="text-[10px] h-5 min-w-[20px]">
+            {unreadCount}
+          </Badge>
+        )}
+      </div>
+      {latest.length === 0 ? (
+        <p className="text-xs text-muted-foreground">All caught up</p>
+      ) : (
+        <div className="space-y-1.5">
+          {latest.map((n) => (
+            <div key={n.id} className="flex items-start gap-2">
+              {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />}
+              {n.read && <div className="h-1.5 w-1.5 rounded-full bg-transparent mt-1.5 shrink-0" />}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-foreground truncate">{n.title}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </button>
+  );
+};
 
 const Dashboard2Layout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -92,26 +135,11 @@ const Dashboard2Layout = () => {
             <Dashboard2WeatherCard />
             <Dashboard2TasksSection />
 
-            {/* Latest Updates trigger card */}
-            <button
-              onClick={() => setNotificationsOpen(true)}
-              className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-foreground/30"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">Latest Updates</span>
-                </div>
-                {unreadCount > 0 && (
-                  <Badge variant="notification" className="text-[10px] h-5 min-w-[20px]">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
-              </p>
-            </button>
+            {/* Latest Updates trigger card with preview */}
+            <LatestUpdatesCard
+              onOpen={() => setNotificationsOpen(true)}
+              unreadCount={unreadCount}
+            />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -99,9 +99,10 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   });
 
   // Fetch all reactions for visible messages
-  const messageIds = messages.map((m) => m.id);
+  const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
+  const stableMessageKey = useMemo(() => messageIds.join(","), [messageIds]);
   const { data: reactions = [] } = useQuery({
-    queryKey: ["chat-reactions", messageIds],
+    queryKey: ["chat-reactions", stableMessageKey],
     queryFn: async () => {
       if (messageIds.length === 0) return [];
       const { data, error } = await supabase
