@@ -90,6 +90,7 @@ const Dashboard2Layout = () => {
             <Dashboard2MiniCalendar />
             <Dashboard2WeatherCard />
             <Dashboard2TasksSection />
+            <Dashboard2TeamChat />
 
             {/* Latest Updates trigger card */}
             <button
