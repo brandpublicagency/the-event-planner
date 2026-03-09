@@ -66,7 +66,7 @@ const ContactsTable = ({
                 <TableRow>
                   <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2 py-8">
-                      <User className="h-10 w-10 text-gray-300" />
+                      <User className="h-10 w-10 text-muted-foreground/40" />
                       <p>No contacts found</p>
                     </div>
                   </TableCell>
