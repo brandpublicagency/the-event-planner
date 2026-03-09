@@ -157,16 +157,16 @@
 }
 
 .editor-toolbar .divider {
-  @apply h-6 w-px mx-1 bg-zinc-200;
+  @apply h-6 w-px mx-1 bg-border;
 }
 
 /* Document list item styling */
 .document-list-item {
-  @apply p-2 rounded-md cursor-pointer hover:bg-zinc-100 transition-colors;
+  @apply p-2 rounded-md cursor-pointer hover:bg-accent transition-colors;
 }
 
 .document-list-item.selected {
-  @apply bg-white border border-zinc-900/10;
+  @apply bg-background border border-border;
 }
 
 /* Document page specific styles */
