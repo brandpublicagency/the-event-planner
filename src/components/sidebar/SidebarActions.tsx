@@ -98,7 +98,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               <span className="text-xs font-medium">Add Document</span>
             </button>
             
-            <div className="my-1.5 border-t border-gray-200/50"></div>
+            <div className="my-1.5 border-t border-border/50"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
