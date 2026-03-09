@@ -6,19 +6,31 @@ import Dashboard2WeatherCard from "./Dashboard2WeatherCard";
 import Dashboard2TasksSection from "./Dashboard2TasksSection";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/components/theme-provider";
 
 const Dashboard2Layout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { unreadCount } = useDashboardNotifications();
+  const { theme, setTheme } = useTheme();
+
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard 2">
-        <div className="ml-auto mr-2 flex items-center">
+        <div className="ml-auto mr-2 flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button
             variant="ghost"
             size="icon"
