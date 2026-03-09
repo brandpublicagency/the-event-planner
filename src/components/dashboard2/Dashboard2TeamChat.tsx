@@ -91,7 +91,7 @@ const Dashboard2TeamChat = () => {
       .channel("team-chat-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "team_chat_messages" },
+        { event: "*", schema: "public", table: "team_chat_messages" },
         () => {
           queryClient.invalidateQueries({ queryKey: ["team-chat"] });
         }
