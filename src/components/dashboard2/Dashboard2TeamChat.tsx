@@ -5,8 +5,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Send, Trash2 } from "lucide-react";
+import { MessageCircle, Send, Trash2, SmilePlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface ChatMessage {
   id: string;
@@ -20,12 +25,20 @@ interface ChatMessage {
   };
 }
 
+interface Reaction {
+  id: string;
+  message_id: string;
+  user_id: string;
+  emoji: string;
+}
+
 interface TypingUser {
   userId: string;
   name: string;
 }
 
 const TYPING_TIMEOUT = 3000;
+const EMOJI_OPTIONS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "👏", "🎉"];
 
 const Dashboard2TeamChat = () => {
   const [input, setInput] = useState("");
@@ -85,6 +98,29 @@ const Dashboard2TeamChat = () => {
     },
   });
 
+  // Fetch all reactions for visible messages
+  const messageIds = messages.map((m) => m.id);
+  const { data: reactions = [] } = useQuery({
+    queryKey: ["chat-reactions", messageIds],
+    queryFn: async () => {
+      if (messageIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("chat_message_reactions")
+        .select("id, message_id, user_id, emoji")
+        .in("message_id", messageIds);
+      if (error) throw error;
+      return data as Reaction[];
+    },
+    enabled: messageIds.length > 0,
+  });
+
+  // Group reactions by message
+  const reactionsByMessage = reactions.reduce<Record<string, Reaction[]>>((acc, r) => {
+    if (!acc[r.message_id]) acc[r.message_id] = [];
+    acc[r.message_id].push(r);
+    return acc;
+  }, {});
+
   // Realtime: DB changes + typing broadcast
   useEffect(() => {
     const channel = supabase
@@ -96,6 +132,13 @@ const Dashboard2TeamChat = () => {
           queryClient.invalidateQueries({ queryKey: ["team-chat"] });
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "chat_message_reactions" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["chat-reactions"] });
+        }
+      )
       .on("broadcast", { event: "typing" }, ({ payload }) => {
         if (!payload || payload.userId === currentUser?.id) return;
 
@@ -105,7 +148,6 @@ const Dashboard2TeamChat = () => {
           return next;
         });
 
-        // Clear after timeout
         setTimeout(() => {
           setTypingUsers((prev) => {
             const next = new Map(prev);
@@ -139,7 +181,6 @@ const Dashboard2TeamChat = () => {
   const broadcastTyping = useCallback(() => {
     if (!currentUser || !channelRef.current) return;
     const now = Date.now();
-    // Throttle: only broadcast every 2s
     if (now - lastTypingBroadcast.current < 2000) return;
     lastTypingBroadcast.current = now;
 
@@ -166,7 +207,6 @@ const Dashboard2TeamChat = () => {
 
     if (e.target.value.trim()) {
       broadcastTyping();
-      // Reset stop-typing timer
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(broadcastStopTyping, TYPING_TIMEOUT);
     } else {
@@ -202,6 +242,33 @@ const Dashboard2TeamChat = () => {
     },
   });
 
+  const toggleReaction = useMutation({
+    mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
+      if (!currentUser) throw new Error("Not authenticated");
+
+      // Check if user already reacted with this emoji
+      const existing = reactions.find(
+        (r) => r.message_id === messageId && r.user_id === currentUser.id && r.emoji === emoji
+      );
+
+      if (existing) {
+        const { error } = await supabase
+          .from("chat_message_reactions")
+          .delete()
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("chat_message_reactions")
+          .insert({ message_id: messageId, user_id: currentUser.id, emoji });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chat-reactions"] });
+    },
+  });
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
@@ -218,6 +285,18 @@ const Dashboard2TeamChat = () => {
   const getDisplayName = (p?: ChatMessage["profile"]) => {
     if (!p) return "Unknown";
     return [p.full_name, p.surname].filter(Boolean).join(" ") || "Unknown";
+  };
+
+  // Group reactions for a message: { emoji: count, hasReacted }
+  const getGroupedReactions = (messageId: string) => {
+    const msgReactions = reactionsByMessage[messageId] || [];
+    const grouped: Record<string, { count: number; hasReacted: boolean }> = {};
+    for (const r of msgReactions) {
+      if (!grouped[r.emoji]) grouped[r.emoji] = { count: 0, hasReacted: false };
+      grouped[r.emoji].count++;
+      if (r.user_id === currentUser?.id) grouped[r.emoji].hasReacted = true;
+    }
+    return grouped;
   };
 
   const typingNames = Array.from(typingUsers.values()).map((t) => t.name);
@@ -246,13 +325,16 @@ const Dashboard2TeamChat = () => {
           <div className="flex flex-col gap-2">
             {messages.map((msg) => {
               const isMe = msg.user_id === currentUser?.id;
+              const grouped = getGroupedReactions(msg.id);
+              const hasReactions = Object.keys(grouped).length > 0;
+
               return (
                 <div key={msg.id} className={`group/msg flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
                   <Avatar className="h-6 w-6 shrink-0 mt-0.5">
                     {msg.profile?.avatar_url && <AvatarImage src={msg.profile.avatar_url} />}
                     <AvatarFallback className="text-[10px]">{getInitials(msg.profile)}</AvatarFallback>
                   </Avatar>
-                  <div className={`max-w-[75%] ${isMe ? "text-right" : ""}`}>
+                  <div className={`max-w-[80%] ${isMe ? "text-right" : ""}`}>
                     <div className="flex items-baseline gap-1.5" style={{ flexDirection: isMe ? "row-reverse" : "row" }}>
                       <span className="text-[11px] font-medium text-foreground">{getDisplayName(msg.profile)}</span>
                       <span className="text-[10px] text-muted-foreground">
@@ -263,16 +345,60 @@ const Dashboard2TeamChat = () => {
                       <p className={`text-xs mt-0.5 rounded-md px-2 py-1 inline-block ${isMe ? "bg-primary/10 text-foreground" : "bg-muted text-foreground"}`}>
                         {msg.message}
                       </p>
-                      {isMe && (
-                        <button
-                          onClick={() => deleteMessage.mutate(msg.id)}
-                          className="opacity-0 group-hover/msg:opacity-100 transition-opacity mt-0.5 p-0.5 rounded hover:bg-destructive/10"
-                          title="Delete message"
-                        >
-                          <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                        </button>
-                      )}
+                      <div className="opacity-0 group-hover/msg:opacity-100 transition-opacity flex items-center gap-0.5 mt-0.5">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              className="p-0.5 rounded hover:bg-muted"
+                              title="React"
+                            >
+                              <SmilePlus className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-1.5" side="top" align="start">
+                            <div className="flex gap-1">
+                              {EMOJI_OPTIONS.map((emoji) => (
+                                <button
+                                  key={emoji}
+                                  onClick={() => toggleReaction.mutate({ messageId: msg.id, emoji })}
+                                  className="text-sm hover:bg-muted rounded p-1 transition-colors"
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        {isMe && (
+                          <button
+                            onClick={() => deleteMessage.mutate(msg.id)}
+                            className="p-0.5 rounded hover:bg-destructive/10"
+                            title="Delete message"
+                          >
+                            <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        )}
+                      </div>
                     </div>
+                    {/* Reaction badges */}
+                    {hasReactions && (
+                      <div className="flex flex-wrap gap-1 mt-1" style={{ justifyContent: isMe ? "flex-end" : "flex-start" }}>
+                        {Object.entries(grouped).map(([emoji, { count, hasReacted }]) => (
+                          <button
+                            key={emoji}
+                            onClick={() => toggleReaction.mutate({ messageId: msg.id, emoji })}
+                            className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] border transition-colors ${
+                              hasReacted
+                                ? "border-primary/40 bg-primary/10 text-foreground"
+                                : "border-border bg-muted/50 text-muted-foreground hover:border-foreground/30"
+                            }`}
+                          >
+                            <span>{emoji}</span>
+                            <span>{count}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
