@@ -51,7 +51,7 @@ export const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 border border-zinc-200">
+        <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 border border-border">
           {isLoadingProfile ? (
             <Skeleton className="h-9 w-9 rounded-full" />
           ) : (
