@@ -62,8 +62,8 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 
   return (
     <div className="bg-transparent">
-      <h3 className="text-foreground px-0 text-2xl mt-0 ml-[5px] py-[5px] font-semibold font-sans pb-0 mb-[10px]">{monthYear}</h3>
-      <div className="bg-transparent rounded-lg overflow-hidden space-y-2.5">
+      <h3 className="text-foreground text-lg font-semibold mb-2">{monthYear}</h3>
+      <div className="bg-transparent rounded-lg overflow-hidden space-y-2">
         {events.map((event) =>
         isDashboard ?
         <DashboardEventItem
