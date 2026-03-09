@@ -62,8 +62,8 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
 
   return (
     <div className="bg-transparent">
-      <h3 className="text-foreground px-0 text-2xl mt-0 mb-0 ml-[5px] py-[5px] font-semibold font-sans pb-0">{monthYear}</h3>
-      <div className="bg-transparent rounded-lg overflow-hidden space-y-2.5">
+      <h3 className="text-gray-800 px-0 text-2xl mt-0 ml-[5px] py-[5px] font-semibold font-sans pb-0 mb-[10px]">{monthYear}</h3>
+      <div className="bg-transparent divide-y divide-border rounded-lg overflow-hidden space-y-1.5">
         {events.map((event) =>
         isDashboard ?
         <DashboardEventItem
@@ -80,7 +80,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
           isDashboard={isDashboard}
           onEdit={onEdit}
           onView={onView}
-          onDelete={onDelete} />
+          onDelete={onDelete} className="shadow-sm border-none border-0 pb-[15px] pt-[11px] pl-[15px] bg-white py-[10px] px-[14px] my-[15px] mx-0 rounded-lg" />
 
 
         )}
