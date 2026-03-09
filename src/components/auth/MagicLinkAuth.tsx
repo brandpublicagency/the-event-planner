@@ -108,7 +108,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="youremail@warmkaroo.com"
-            className={`w-full px-3 py-2 border rounded-md ${errorMessage ? 'border-red-500' : 'border-gray-300'}`}
+            className={`w-full px-3 py-2 border rounded-md ${errorMessage ? 'border-destructive' : 'border-border'}`}
             required
           />
           {errorMessage && (
