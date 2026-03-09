@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { MagicLinkAuth } from "@/components/auth/MagicLinkAuth";
 import { PasswordAuth } from "@/components/auth/PasswordAuth";
 

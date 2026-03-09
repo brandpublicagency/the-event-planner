@@ -3,7 +3,7 @@ import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { Notification } from "@/types/notification";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 export const useDashboardNotifications = () => {
   const navigate = useNavigate();

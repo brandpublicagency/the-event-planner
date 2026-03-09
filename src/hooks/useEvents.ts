@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAfter, parseISO } from "date-fns";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { permanentlyDeleteEvent } from "@/utils/eventUtils";
 import type { Event } from "@/types/event";

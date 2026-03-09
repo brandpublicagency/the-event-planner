@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { 
   AlertDialog, 
   AlertDialogAction, 

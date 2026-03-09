@@ -4,7 +4,7 @@ import { NotificationContext } from "./NotificationContext";
 import { useNotificationOperations } from "./useNotificationOperations";
 import { useRealtimeNotifications } from "./useRealtimeNotifications";
 import { Notification } from "@/types/notification";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const BACKGROUND_REFRESH_INTERVAL = 300000; // 5 minutes
 const STALE_DATA_THRESHOLD = 300000; // 5 minutes

@@ -3,7 +3,7 @@ import React from "react";
 import { EventCard } from "@/components/events/EventCard";
 import { DashboardEventItem } from "@/components/events/DashboardEventItem";
 import type { Event } from "@/types/event";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { deleteEvent, permanentlyDeleteEvent } from "@/utils/eventUtils";
 
 interface EventMonthGroupProps {
