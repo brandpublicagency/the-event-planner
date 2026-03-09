@@ -47,7 +47,7 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
       
       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500 mt-1">
         <div className="flex items-center">
-          <span className="font-medium text-xs text-zinc-800">{formattedDate}</span>
+          <span className="font-medium text-xs text-zinc-800 font-sans">{formattedDate}</span>
         </div>
         
         {event_type && <div className="flex items-center">
