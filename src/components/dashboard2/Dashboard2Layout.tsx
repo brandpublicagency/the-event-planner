@@ -9,6 +9,7 @@ import Dashboard2TeamChat from "./Dashboard2TeamChat";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import Dashboard2CommandPalette from "./Dashboard2CommandPalette";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
