@@ -62,7 +62,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
