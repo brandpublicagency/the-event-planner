@@ -33,7 +33,7 @@ export const NotificationHeader = ({
           onClick={onMarkAllAsRead}
           variant="default"
           size="sm"
-          className="h-6 px-1.5 text-[10px]"
+          className="px-1.5"
           disabled={!unreadCount || loading || isRefreshing}
         >
           Mark all read
