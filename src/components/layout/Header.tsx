@@ -41,6 +41,7 @@ export const Header = ({
   onBackButtonClick
 }: HeaderProps = {}) => {
   const location = useLocation();
+  const isDocumentsPage = location.pathname.startsWith('/documents');
 
   const getDefaultPageTitle = () => {
     const path = location.pathname;
