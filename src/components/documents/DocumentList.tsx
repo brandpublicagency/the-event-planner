@@ -30,24 +30,24 @@ const DocumentList: React.FC<DocumentListProps> = ({
   };
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-px">
       {documents.map((doc) => (
         <div
           key={doc.id}
           className={cn(
-            "group flex items-start gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors",
+            "group flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer transition-colors",
             selectedId === doc.id
               ? "bg-accent text-accent-foreground"
-              : "hover:bg-accent/50"
+              : "hover:bg-accent/50 text-foreground"
           )}
           onClick={() => onSelect(doc.id)}
         >
-          <FileText className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+          <FileText className="h-4 w-4 shrink-0 text-muted-foreground/50" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium truncate">
+            <p className="text-[13px] font-normal truncate leading-tight">
               {doc.title || "Untitled"}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate">
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5">
               {format(new Date(doc.updated_at), "MMM d, yyyy")}
             </p>
           </div>
