@@ -94,10 +94,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
                 <div 
                   key={dayIndex}
                   className={cn(
-                    "p-1 border-r last:border-r-0 border-zinc-200 overflow-hidden",
-                    isCurrentMonth ? "bg-white" : "bg-zinc-50",
-                    isCurrentDay && "bg-blue-50",
-                    weekIndex > 0 && "border-t border-zinc-200"
+                    "p-1 border-r last:border-r-0 border-border overflow-hidden",
+                    isCurrentMonth ? "bg-background" : "bg-muted",
+                    isCurrentDay && "bg-primary/10",
+                    weekIndex > 0 && "border-t border-border"
                   )}
                 >
                   <div className="flex justify-between items-start">
