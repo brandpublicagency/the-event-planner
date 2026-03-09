@@ -35,7 +35,7 @@ export const EventsList: React.FC<EventsListProps> = ({
         <div className="flex w-full sm:w-auto gap-2 items-center">
           {onSearchChange &&
           <div className="relative flex-1 sm:flex-initial">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
               type="text"
               placeholder="Search events..."
@@ -50,7 +50,7 @@ export const EventsList: React.FC<EventsListProps> = ({
           <Button
             variant="outline"
             size="sm"
-            className="h-9 shadow-none border-solid border text-xs font-mono mx-0 my-0 pl-[15px] pr-[15px] rounded-md pb-0 pt-0 font-light text-slate-900 bg-white border-primary-400"
+            className="h-9 shadow-none border-solid border text-xs font-mono rounded-md font-light text-foreground bg-background border-border"
             onClick={() => navigate(alternateLink.path)}>
             
               <Calendar className="h-4 w-4 mr-1.5" />

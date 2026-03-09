@@ -68,7 +68,7 @@ const EventsTable: React.FC<EventsTableProps> = ({
   if (isDashboard) {
     // Keep the dashboard view unchanged but reduce spacing between cards
     return (
-      <div className="space-y-2.5 pt-2">
+      <div className="space-y-6">
         {Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
           <EventMonthGroup 
             key={monthYear} 
@@ -91,7 +91,7 @@ const EventsTable: React.FC<EventsTableProps> = ({
 
   return (
     <ScrollArea className={cn(isDashboard ? "h-auto" : "h-full", className)}>
-      <div className="space-y-4 pb-4 bg-transparent">
+      <div className="space-y-6 pb-4 bg-transparent">
         {isLoading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
