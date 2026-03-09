@@ -53,7 +53,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
           contact.events.map((event, index) => {
             const status = getEventStatus(event);
             return (
-              <div key={event.eventCode} className={`flex flex-col gap-2 ${index !== 0 ? "pt-3 border-t border-gray-100" : ""}`}>
+              <div key={event.eventCode} className={`flex flex-col gap-2 ${index !== 0 ? "pt-3 border-t border-border" : ""}`}>
                 <div className="flex items-center justify-between">
                   <Link 
                     to={`/events/${event.eventCode}`}
