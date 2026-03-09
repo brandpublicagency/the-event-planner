@@ -60,10 +60,10 @@ export function NoteItem({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+          className="h-8 w-8 bg-background border-border hover:bg-muted hover:text-foreground"
           onClick={onDelete}
         >
-          <X className="h-4 w-4 text-zinc-700" />
+          <X className="h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
     </div>

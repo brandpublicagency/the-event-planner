@@ -61,7 +61,7 @@ export const NotificationsList = memo(({
       onClick={(e) => e.stopPropagation()} // Prevent click propagation at the container level
     >
       {notifications.length === 0 ? (
-        <div className="p-3 text-center text-sm text-zinc-500">
+        <div className="p-3 text-center text-sm text-muted-foreground">
           No notifications to display
         </div>
       ) : (

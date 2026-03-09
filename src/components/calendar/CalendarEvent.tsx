@@ -38,7 +38,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({ event }) => {
       )}
     >
       <div className="flex flex-col">
-        <div className="text-zinc-500 text-[0.65rem]">{eventTime}</div>
+        <div className="text-muted-foreground text-[0.65rem]">{eventTime}</div>
         <div className="font-medium truncate text-xs" title={event.name}>
           {event.name}
         </div>

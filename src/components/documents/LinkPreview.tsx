@@ -107,7 +107,7 @@ export function LinkPreview({ url }: { url: string }) {
             </p>
           )}
           
-          <div className="flex items-center mt-2 text-xs text-gray-500">
+          <div className="flex items-center mt-2 text-xs text-muted-foreground">
             {preview.favicon && (
               <img 
                 src={preview.favicon} 

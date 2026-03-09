@@ -9,7 +9,7 @@ interface NotificationEmptyStateProps {
 export const NotificationEmptyState = ({ onRefresh }: NotificationEmptyStateProps) => {
   return (
     <div className="p-3 text-center">
-      <p className="text-sm text-zinc-500">No notifications to display</p>
+      <p className="text-sm text-muted-foreground">No notifications to display</p>
       <Button
         variant="default"
         size="sm"
