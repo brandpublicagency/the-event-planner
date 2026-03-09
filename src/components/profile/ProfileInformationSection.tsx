@@ -39,10 +39,10 @@ const ProfileInformationSection = ({
   return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-medium">Personal Information</h3>
-        {isEditing ? <Button onClick={handleSave} size="sm" variant="default" className="h-8">
+        {isEditing ? <Button onClick={handleSave} size="sm" variant="default">
             <Save className="h-3.5 w-3.5 mr-1.5" />
             Save
-          </Button> : <Button variant="outline" onClick={handleEdit} size="sm" className="h-8">
+          </Button> : <Button variant="outline" onClick={handleEdit} size="sm">
             <Edit className="h-3.5 w-3.5 mr-1.5" />
             Edit
           </Button>}

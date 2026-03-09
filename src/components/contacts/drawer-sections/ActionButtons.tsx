@@ -16,14 +16,14 @@ const ActionButtons = ({
         type="button" 
         variant="outline" 
         onClick={onClose} 
-        className="w-20 rounded-[4px] ml-0"
+        className="w-20 ml-0"
       >
         Cancel
       </Button>
       <Button 
         type="submit" 
         disabled={isSubmitting} 
-        className="w-28 rounded-[4px] ml-[10px]"
+        className="w-28 ml-[10px]"
       >
         {isSubmitting ? "Saving..." : "Save changes"}
       </Button>

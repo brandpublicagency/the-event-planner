@@ -33,7 +33,7 @@ export const NotificationHeader = ({
           onClick={onMarkAllAsRead}
           variant="default"
           size="sm"
-          className="h-6 px-1.5 text-[10px]"
+          className="px-1.5"
           disabled={!unreadCount || loading || isRefreshing}
         >
           Mark all read
@@ -42,7 +42,7 @@ export const NotificationHeader = ({
           onClick={onRefresh}
           variant="default"
           size="sm"
-          className="h-6 w-6 p-0"
+          className="p-0"
           disabled={loading || isRefreshing}
         >
           <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />

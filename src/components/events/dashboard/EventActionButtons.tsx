@@ -52,7 +52,7 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
           e.stopPropagation();
           navigate(`/events/${eventCode}/edit`);
         }} 
-        className="h-7 w-7 rounded-full mb-1"
+        className="mb-1"
       >
         <Edit className="h-3.5 w-3.5 text-zinc-400" />
       </Button>
@@ -63,7 +63,7 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
             variant="ghost" 
             size="icon" 
             onClick={e => e.stopPropagation()} 
-            className="h-7 w-7 rounded-full"
+            className=""
             disabled={isDeleting}
           >
             {isDeleting ? (
