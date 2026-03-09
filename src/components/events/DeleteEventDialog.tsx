@@ -46,7 +46,7 @@ export const DeleteEventDialog: React.FC<DeleteEventDialogProps> = ({
               {event?.name || "Unknown Event"}".
             </p>
             
-            <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md">
+            <div className="flex items-center space-x-2 bg-muted p-3 rounded-md">
               <Switch 
                 id="permanent-delete" 
                 checked={isPermanentDelete}

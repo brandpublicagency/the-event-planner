@@ -35,11 +35,11 @@ export const EventInfo = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center">
-            <h1 className="tracking-normal px-0 -tracking-normal text-lg font-semibold text-zinc-900">
-              {event.name} <span className="text-xs font-normal text-zinc-400">{event.event_code}</span>
+            <h1 className="tracking-normal px-0 -tracking-normal text-lg font-semibold text-foreground">
+              {event.name} <span className="text-xs font-normal text-muted-foreground">{event.event_code}</span>
             </h1>
           </div>
-          <div className="text-xs font-normal text-zinc-800 bg-transparent px-0 py-0 mx-[2px] my-[3px]">
+          <div className="text-xs font-normal text-foreground/80 bg-transparent px-0 py-0 mx-[2px] my-[3px]">
             {currentFormattedDate}, {timeDisplay} / {event.pax || 0} Guests / {event.event_type} / {venueNames}
           </div>
         </div>

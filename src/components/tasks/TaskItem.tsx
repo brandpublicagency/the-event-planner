@@ -79,7 +79,7 @@ export function TaskItem({
             }} 
             className="h-6 w-6"
           >
-            <Edit className="h-3 w-3 text-zinc-400" />
+            <Edit className="h-3 w-3 text-muted-foreground" />
           </Button>
           <TaskActions 
             isDeleting={false} 

@@ -43,7 +43,7 @@ export const EventDeleteDialog: React.FC<EventDeleteDialogProps> = ({
           <AlertDialogDescription className="text-muted-foreground">
             <p className="mb-2">Are you sure you want to delete <span className="font-semibold">{eventName}</span>?</p>
             
-            <div className="flex items-center space-x-2 bg-gray-50 p-3 mt-3 rounded-md">
+            <div className="flex items-center space-x-2 bg-muted p-3 mt-3 rounded-md">
               <Switch 
                 id={`permanent-delete-${eventCode}`}
                 checked={isPermanentDelete}

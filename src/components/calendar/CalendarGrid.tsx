@@ -103,8 +103,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
                   <div className="flex justify-between items-start">
                     <div className={cn(
                       "text-sm font-medium p-1",
-                      isCurrentMonth ? "text-zinc-900" : "text-zinc-400",
-                      isCurrentDay && "bg-blue-100 rounded-full h-7 w-7 flex items-center justify-center"
+                      isCurrentMonth ? "text-foreground" : "text-muted-foreground",
+                      isCurrentDay && "bg-primary/20 rounded-full h-7 w-7 flex items-center justify-center"
                     )}>
                       {dayNumber}{monthLabel}
                     </div>
