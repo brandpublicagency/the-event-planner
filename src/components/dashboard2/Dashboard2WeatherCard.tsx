@@ -29,9 +29,12 @@ const Dashboard2WeatherCard = () => {
             <MapPin className="h-3 w-3 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">{weatherData.location}</span>
           </div>
-          <p className="text-3xl font-semibold text-foreground tracking-tight">
-            {Math.round(weatherData.temp)}°
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-3xl font-semibold text-foreground tracking-tight">
+              {Math.round(weatherData.temp)}°
+            </p>
+            <AnimatedWeatherIcon condition={weatherData.condition} size={40} />
+          </div>
           <p className="text-xs text-muted-foreground capitalize mt-0.5">
             {weatherData.description}
           </p>
