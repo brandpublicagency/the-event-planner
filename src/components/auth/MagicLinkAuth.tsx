@@ -121,7 +121,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2 px-4 bg-black hover:bg-gray-800 text-white rounded-md transition-colors disabled:opacity-50"
+          className="w-full py-2 px-4 bg-foreground hover:bg-foreground/90 text-background rounded-md transition-colors disabled:opacity-50"
         >
           {isSubmitting ? 'Sending Magic Link...' : 'Send Magic Link'}
         </button>
