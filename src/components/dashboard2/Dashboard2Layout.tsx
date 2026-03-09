@@ -79,42 +79,44 @@ const Dashboard2Layout = () => {
         <Dashboard2Greeting />
         <Dashboard2KPIStrip />
 
-        {/* Top row: Events (60%) + Chat (40%), matched height */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mt-4">
-          <div className="lg:col-span-3">
+        {/* Main grid: Events (left) + Sidebar (right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+          <div className="lg:col-span-2">
             <Dashboard2EventsSection />
           </div>
-          <div className="lg:col-span-2 flex">
-            <Dashboard2TeamChat className="flex-1" />
+
+          {/* Right sidebar */}
+          <div className="flex flex-col gap-4">
+            <Dashboard2MiniCalendar />
+            <Dashboard2WeatherCard />
+            <Dashboard2TasksSection />
+
+            {/* Latest Updates trigger card */}
+            <button
+              onClick={() => setNotificationsOpen(true)}
+              className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-foreground/30"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Latest Updates</span>
+                </div>
+                {unreadCount > 0 && (
+                  <Badge variant="notification" className="text-[10px] h-5 min-w-[20px]">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
+              </p>
+            </button>
           </div>
         </div>
 
-        {/* Bottom row: 2×2 grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <Dashboard2MiniCalendar />
-          <Dashboard2WeatherCard />
-          <Dashboard2TasksSection />
-
-          {/* Latest Updates trigger card */}
-          <button
-            onClick={() => setNotificationsOpen(true)}
-            className="group rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-foreground/30 h-full"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Latest Updates</span>
-              </div>
-              {unreadCount > 0 && (
-                <Badge variant="notification" className="text-[10px] h-5 min-w-[20px]">
-                  {unreadCount}
-                </Badge>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
-            </p>
-          </button>
+        {/* Full-width Team Chat */}
+        <div className="mt-4">
+          <Dashboard2TeamChat className="h-[320px]" />
         </div>
       </div>
 

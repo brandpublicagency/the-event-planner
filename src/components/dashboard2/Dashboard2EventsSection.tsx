@@ -28,10 +28,33 @@ const Dashboard2EventsSection = () => {
         .is('deleted_at', null)
         .gte('event_date', today.toISOString().split('T')[0])
         .order('event_date', { ascending: true })
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
-      return (data || []) as Event[];
+      const allEvents = (data || []) as Event[];
+
+      // Filter: all events in current month + first 2 from next month
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      const currentMonthEvents = allEvents.filter((e) => {
+        if (!e.event_date) return false;
+        const d = new Date(e.event_date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+
+      let nextMonthCount = 0;
+      const nextMonthEvents = allEvents.filter((e) => {
+        if (!e.event_date) return false;
+        const d = new Date(e.event_date);
+        const isNextMonth = !(d.getMonth() === currentMonth && d.getFullYear() === currentYear);
+        if (isNextMonth && nextMonthCount < 2) {
+          nextMonthCount++;
+          return true;
+        }
+        return false;
+      });
+
+      return [...currentMonthEvents, ...nextMonthEvents];
     },
     refetchOnMount: true,
   });
@@ -79,7 +102,7 @@ const Dashboard2EventsSection = () => {
       </div>
 
       {/* Content */}
-      <div className="p-4 max-h-[500px] overflow-y-auto">
+      <div className="p-4">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
