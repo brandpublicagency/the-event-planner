@@ -48,7 +48,7 @@ const EditEventForm = ({ form, onSubmit, onCancel, isSubmitting = false }: EditE
           <ContactDetails form={form} eventType={eventType} />
         </FormSection>
 
-        <div className="flex justify-end space-x-4 sticky bottom-0 bg-zinc-50/80 backdrop-blur-sm p-4 -mx-4">
+        <div className="flex justify-end space-x-4 sticky bottom-0 bg-muted/80 backdrop-blur-sm p-4 -mx-4">
           <Button 
             variant="outline" 
             onClick={onCancel}
