@@ -42,7 +42,7 @@ export const NotificationHeader = ({
           onClick={onRefresh}
           variant="default"
           size="sm"
-          className="h-6 w-6 p-0"
+          className="p-0"
           disabled={loading || isRefreshing}
         >
           <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />

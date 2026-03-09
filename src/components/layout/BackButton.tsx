@@ -40,7 +40,7 @@ export const BackButton = ({ path = "/", onClick }: BackButtonProps) => {
     <Button
       variant="ghost"
       size="sm"
-      className="rounded-full h-7 mr-2"
+      className="mr-2"
       onClick={handleClick}
     >
       <ChevronLeft className="h-3.5 w-3.5 mr-1" />

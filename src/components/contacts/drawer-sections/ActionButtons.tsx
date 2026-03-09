@@ -23,7 +23,7 @@ const ActionButtons = ({
       <Button 
         type="submit" 
         disabled={isSubmitting} 
-        className="w-28 rounded-[4px] ml-[10px]"
+        className="w-28 ml-[10px]"
       >
         {isSubmitting ? "Saving..." : "Save changes"}
       </Button>

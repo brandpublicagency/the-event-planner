@@ -67,7 +67,7 @@ export const EventDeleteDialog: React.FC<EventDeleteDialogProps> = ({
         <AlertDialogCancel className="rounded-[5px]" onClick={e => e.stopPropagation()}>Cancel</AlertDialogCancel>
         <AlertDialogAction 
           onClick={onDelete} 
-          className={`${isPermanentDelete ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} rounded-full text-white`}
+          className={`${isPermanentDelete ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} rounded-[5px] text-white`}
           disabled={isDeleting}
         >
           {isDeleting ? (

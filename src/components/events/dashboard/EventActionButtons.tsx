@@ -63,7 +63,7 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
             variant="ghost" 
             size="icon" 
             onClick={e => e.stopPropagation()} 
-            className="h-7 w-7 rounded-full"
+            className=""
             disabled={isDeleting}
           >
             {isDeleting ? (
