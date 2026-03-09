@@ -33,7 +33,7 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-50">
+    <div className="flex h-screen overflow-hidden bg-background">
       <div className="flex-shrink-0 z-30">
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
