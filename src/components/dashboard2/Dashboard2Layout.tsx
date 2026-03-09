@@ -116,6 +116,10 @@ const Dashboard2Layout = () => {
         open={notificationsOpen}
         onOpenChange={setNotificationsOpen}
       />
+      <Dashboard2CommandPalette
+        open={commandOpen}
+        onOpenChange={setCommandOpen}
+      />
     </div>
   );
 };
