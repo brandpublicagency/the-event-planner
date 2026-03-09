@@ -51,7 +51,7 @@ const OffCanvasDrawer: React.FC<OffCanvasDrawerProps> = ({
           <h2 className="text-xl font-semibold">{title}</h2>
           <button 
             onClick={onClose} 
-            className="rounded-full p-2 hover:bg-gray-100 transition-colors"
+            className="rounded-full p-2 hover:bg-muted transition-colors"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
