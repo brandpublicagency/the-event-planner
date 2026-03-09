@@ -90,7 +90,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
       </div>
 
       <div className="space-y-4 mt-4">
-        <h4 className="text-sm font-medium text-zinc-500">Address Details</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">Address Details</h4>
         <FormField
           control={form.control}
           name="company_address"
