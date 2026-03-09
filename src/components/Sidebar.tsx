@@ -34,7 +34,7 @@ const Sidebar = ({
   return (
     <motion.div 
       className={cn(
-        "relative h-full transition-all duration-300 ease-in-out overflow-hidden",
+        "relative h-full overflow-hidden",
         getGradientByPath(),
         className
       )}
