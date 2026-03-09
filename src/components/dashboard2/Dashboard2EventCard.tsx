@@ -26,7 +26,7 @@ const Dashboard2EventCard = ({ event }: Dashboard2EventCardProps) => {
   return (
     <button
       onClick={() => navigate(`/events/${event.event_code}`)}
-      className="w-full text-left rounded-lg border border-border bg-card p-3.5 transition-all hover:shadow-md hover:border-primary/20 group"
+      className="w-full text-left rounded-lg border border-border bg-card p-3.5 transition-all hover:border-foreground/30 group"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1">
