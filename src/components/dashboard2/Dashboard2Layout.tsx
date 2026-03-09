@@ -79,10 +79,11 @@ const Dashboard2Layout = () => {
         <Dashboard2Greeting />
         <Dashboard2KPIStrip />
 
-        {/* Main grid: Events (left) + Sidebar (right) */}
+        {/* Main grid: Events + Chat (left) + Sidebar (right) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex flex-col gap-4">
             <Dashboard2EventsSection />
+            <Dashboard2TeamChat className="h-[300px]" />
           </div>
 
           {/* Right sidebar */}
@@ -112,11 +113,6 @@ const Dashboard2Layout = () => {
               </p>
             </button>
           </div>
-        </div>
-
-        {/* Full-width Team Chat */}
-        <div className="mt-4">
-          <Dashboard2TeamChat className="h-[320px]" />
         </div>
       </div>
 
