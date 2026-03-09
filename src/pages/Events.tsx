@@ -21,10 +21,6 @@ const Events = () => {
     refetch
   } = useEvents();
   
-  // Add effect to refetch when component mounts
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
   
   // Filter events based on search query
   const filteredEvents = Object.entries(groupedUpcomingEvents).reduce(
