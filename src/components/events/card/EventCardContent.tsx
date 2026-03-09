@@ -33,14 +33,14 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
     return <Calendar className="h-3 w-3 mr-1 text-zinc-400" />;
   };
   return <div className="space-y-0.5 flex-1">
-      <div className="flex items-center my-0 py-px">
+      <div className="my-0 py-px flex items-end justify-start">
         <h4 className="text-foreground font-normal text-base">
-          <Link to={`/events/${event_code}`} className="hover:text-primary cursor-pointer">
+          <Link to={`/events/${event_code}`} className="hover:text-primary cursor-pointer text-base font-medium">
             {name}
           </Link>
         </h4>
-        <div className="ml-2 text-[10px] text-zinc-700 flex items-center gap-0.5 cursor-pointer hover:text-zinc-900" onClick={e => copyEventCode(event_code, e)}>
-          <span className="text-[10px]">{event_code}</span>
+        <div className="ml-2 text-[10px] text-zinc-700 flex items-center gap-0.5 cursor-pointer hover:text-zinc-900" onClick={(e) => copyEventCode(event_code, e)}>
+          <span className="text-[10px] mb-[3px]">{event_code}</span>
           <Copy className="h-2.5 w-2.5" />
         </div>
       </div>
