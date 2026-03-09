@@ -82,10 +82,10 @@ const ContactsTable = ({
                         {contact.name}
                       </button>
                     </TableCell>
-                    <TableCell className="text-gray-600">{contact.company || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.email || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.phone || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.events.length}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.company || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.email || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.phone || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.events.length}</TableCell>
                     <TableCell className="text-right pr-2">
                       <div className="flex justify-end space-x-1">
                         <Button 
