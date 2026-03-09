@@ -40,7 +40,7 @@ interface TypingUser {
 const TYPING_TIMEOUT = 3000;
 const EMOJI_OPTIONS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "👏", "🎉"];
 
-const Dashboard2TeamChat = () => {
+const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState<Map<string, TypingUser>>(new Map());
   const queryClient = useQueryClient();
