@@ -16,7 +16,7 @@ const ActionButtons = ({
         type="button" 
         variant="outline" 
         onClick={onClose} 
-        className="w-20 rounded-[4px] ml-0"
+        className="w-20 ml-0"
       >
         Cancel
       </Button>
