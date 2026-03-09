@@ -15,9 +15,9 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
         name="bride_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Name</FormLabel>
+            <FormLabel className="text-muted-foreground">Name</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>
