@@ -72,7 +72,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
   return (
     <div className={cn(
-      "h-[65px] w-full flex items-center backdrop-blur-md bg-white/80 border-b border-gray-200/70 transition-all duration-200",
+      "h-[65px] w-full flex items-center backdrop-blur-md bg-background/80 border-b border-border/70 transition-all duration-200",
       isCollapsed ? "justify-center px-0" : "px-3"
     )}>
       <div className={cn(
@@ -106,10 +106,10 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
               </>
             ) : (
               <>
-                <div className="text-xs font-medium truncate text-gray-900">
+                <div className="text-xs font-medium truncate text-foreground">
                   {userInfo?.name || 'User'} {userInfo?.surname || ''}
                 </div>
-                <div className="text-[10px] text-gray-500 truncate">
+                <div className="text-[10px] text-muted-foreground truncate">
                   {userInfo?.email || 'user@example.com'}
                 </div>
               </>

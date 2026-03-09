@@ -25,7 +25,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
       className={cn(
         "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-blue-400 transition-all duration-200", 
         isCollapsed ? "justify-center w-9 mx-auto" : "px-3", 
-        isActive ? "bg-white/60 text-gray-900 shadow-sm" : "text-gray-700 hover:bg-white/40 hover:text-gray-900"
+        isActive ? "bg-background/60 text-foreground shadow-sm" : "text-foreground/70 hover:bg-background/40 hover:text-foreground"
       )}
     >
       <div className={cn("flex items-center", isCollapsed ? "justify-center" : "w-full")}>
@@ -35,7 +35,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
         )}>
           <Icon className={cn(
             "flex-shrink-0 transition-transform", 
-            isActive ? "text-primary" : "text-gray-500 group-hover:text-gray-700", 
+            isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground/70", 
             isCollapsed ? "h-4 w-4 group-hover:scale-110" : "h-4 w-4"
           )} />
         </div>
@@ -44,7 +44,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           <motion.span 
             className={cn(
               "ml-3 text-xs font-medium whitespace-nowrap", 
-              isActive ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+              isActive ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
             )} 
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
@@ -72,13 +72,13 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           </Badge>
         )}
         
-        {!isCollapsed && isActive && <ChevronRight className="ml-auto h-3 w-3 text-gray-500" />}
+        {!isCollapsed && isActive && <ChevronRight className="ml-auto h-3 w-3 text-muted-foreground" />}
       </div>
       
       {/* Hover indicator for collapsed state */}
       {isCollapsed && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="h-7 w-1 rounded-l-full bg-gray-300/50"></div>
+          <div className="h-7 w-1 rounded-l-full bg-border/50"></div>
         </div>
       )}
     </Link>

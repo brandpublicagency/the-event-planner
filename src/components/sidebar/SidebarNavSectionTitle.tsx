@@ -11,7 +11,7 @@ const SidebarNavSectionTitle = ({ title, isCollapsed }: SidebarNavSectionTitlePr
   
   return (
     <div className={cn(
-      "text-xs font-medium text-gray-500 uppercase tracking-wider px-3 mt-6 mb-2", 
+      "text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 mt-6 mb-2", 
       isCollapsed ? "text-center w-full" : ""
     )}>
       {title}

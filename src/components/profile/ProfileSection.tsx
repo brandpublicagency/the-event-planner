@@ -210,9 +210,9 @@ const ProfileSection = ({
                 </> : !hasPassword ? 'Set Password' : 'Update Password'}
             </Button>
             
-            {!hasPassword && <div className="flex items-start mt-4 p-3 bg-white rounded-lg border border-black/20 py-[10px] px-[8px]">
-                <Info className="h-5 w-5 text-zinc-700 mr-3 mt-0.5 shrink-0" />
-                <p className="text-zinc-700 text-xs my-[3px]">
+            {!hasPassword && <div className="flex items-start mt-4 p-3 bg-card rounded-lg border border-border py-[10px] px-[8px]">
+                <Info className="h-5 w-5 text-muted-foreground mr-3 mt-0.5 shrink-0" />
+                <p className="text-muted-foreground text-xs my-[3px]">
                   Setting a password will allow you to login with your email and password in the future.
                 </p>
               </div>}

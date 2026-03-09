@@ -37,7 +37,7 @@ const ContactsTable = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full rounded-lg bg-gray-50 border border-gray-100">
+      <div className="flex items-center justify-center h-full rounded-lg bg-muted border border-border">
         <p className="text-muted-foreground flex items-center gap-2">
           <span className="inline-block h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin"></span>
           Loading contacts...
@@ -48,10 +48,10 @@ const ContactsTable = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden h-full rounded-lg border border-gray-100">
+      <div className="flex-1 overflow-hidden h-full rounded-lg border border-border">
         <ScrollArea className="h-full">
           <Table>
-            <TableHeader className="bg-gray-50 sticky top-0">
+            <TableHeader className="bg-muted sticky top-0">
               <TableRow>
                 <TableHead className="text-left pl-4 font-bold text-black">Name</TableHead>
                 <TableHead className="font-bold text-black">Company</TableHead>
@@ -66,35 +66,35 @@ const ContactsTable = ({
                 <TableRow>
                   <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2 py-8">
-                      <User className="h-10 w-10 text-gray-300" />
+                      <User className="h-10 w-10 text-muted-foreground/40" />
                       <p>No contacts found</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
                 contacts.map(contact => (
-                  <TableRow key={contact.id} className="border-b hover:bg-gray-50">
+                  <TableRow key={contact.id} className="border-b hover:bg-muted">
                     <TableCell className="pl-4">
                       <button 
                         onClick={() => onEditContact(contact)} 
-                        className="text-left font-medium transition-colors text-gray-800 hover:text-black hover:underline"
+                        className="text-left font-medium transition-colors text-foreground hover:text-foreground hover:underline"
                       >
                         {contact.name}
                       </button>
                     </TableCell>
-                    <TableCell className="text-gray-600">{contact.company || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.email || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.phone || "-"}</TableCell>
-                    <TableCell className="text-gray-600">{contact.events.length}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.company || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.email || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.phone || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{contact.events.length}</TableCell>
                     <TableCell className="text-right pr-2">
                       <div className="flex justify-end space-x-1">
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => onEditContact(contact)}
-                          className="h-8 w-8 rounded-full hover:bg-gray-100"
+                          className="h-8 w-8 rounded-full hover:bg-muted"
                         >
-                          <Edit className="h-4 w-4 text-gray-500" />
+                          <Edit className="h-4 w-4 text-muted-foreground" />
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -102,7 +102,7 @@ const ContactsTable = ({
                           onClick={() => handleDeleteClick(contact)}
                           className="h-8 w-8 rounded-full hover:bg-red-50"
                         >
-                          <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
+                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                         </Button>
                       </div>
                     </TableCell>

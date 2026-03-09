@@ -61,19 +61,19 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
         <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="all" className="flex items-center justify-center gap-2">
             All
-            <Badge variant="secondary" className="ml-1 bg-zinc-100 text-zinc-800">
+            <Badge variant="secondary" className="ml-1 bg-muted text-foreground">
               {counts.all}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="unread" className="flex items-center justify-center gap-2">
             Unread
-            <Badge variant="secondary" className="ml-1 bg-zinc-100 text-zinc-800">
+            <Badge variant="secondary" className="ml-1 bg-muted text-foreground">
               {counts.unread}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="read" className="flex items-center justify-center gap-2">
             Read
-            <Badge variant="secondary" className="ml-1 bg-zinc-100 text-zinc-800">
+            <Badge variant="secondary" className="ml-1 bg-muted text-foreground">
               {counts.read}
             </Badge>
           </TabsTrigger>

@@ -99,7 +99,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
                       border hover:border-primary hover:shadow-sm
                       ${isSelected 
                         ? 'border-primary bg-primary/5 shadow-sm' 
-                        : 'border-gray-200 bg-white'}
+                        : 'border-border bg-background'}
                     `}
                   >
                     {isSelected && (
@@ -109,7 +109,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
                     )}
                     <div className="flex flex-col h-full">
                       <h3 className="font-medium text-sm">{venue.name}</h3>
-                      <p className="mt-1 text-xs text-gray-500">{venue.description}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{venue.description}</p>
                     </div>
                   </div>
                 );

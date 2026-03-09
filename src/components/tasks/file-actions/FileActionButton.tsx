@@ -34,7 +34,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
       disabled={disabled}
       className={cn("h-5 w-5", className)}
     >
-      <Icon className="h-2.5 w-2.5 text-zinc-400" />
+      <Icon className="h-2.5 w-2.5 text-muted-foreground" />
     </Button>
   );
 });

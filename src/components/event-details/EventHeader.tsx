@@ -14,7 +14,7 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-muted-foreground">
         Event Code: {eventCode}
       </div>
     </div>

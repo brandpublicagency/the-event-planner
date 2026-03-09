@@ -29,7 +29,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   return (
     <div className={cn(
-      "border-t border-gray-200/50 backdrop-blur-sm bg-white/20 pt-2 pb-3",
+      "border-t border-border/50 backdrop-blur-sm bg-background/20 pt-2 pb-3",
       isCollapsed ? "px-2" : "px-3"
     )}>
       <div className={cn(
@@ -40,7 +40,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Event"
             >
               <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -48,7 +48,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Task"
             >
               <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -56,17 +56,17 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Add Document"
             >
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
-            <div className="my-1.5 w-6 border-t border-gray-200/50"></div>
+            <div className="my-1.5 w-6 border-t border-border/50"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex justify-center items-center text-gray-600 hover:text-gray-900 hover:bg-white/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
               title="Expand Sidebar"
             >
               <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -76,7 +76,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <Plus className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Add Event</span>
@@ -84,7 +84,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <CheckSquare className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Add Task</span>
@@ -92,17 +92,17 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <FilePlus className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Add Document</span>
             </button>
             
-            <div className="my-1.5 border-t border-gray-200/50"></div>
+            <div className="my-1.5 border-t border-border/50"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <ChevronLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span className="text-xs font-medium">Collapse Sidebar</span>

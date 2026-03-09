@@ -62,7 +62,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -70,7 +70,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
   return (
     <div className="calendar-grid h-full flex flex-col">
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 text-sm font-medium text-zinc-500 border-b py-2 px-2">
+      <div className="grid grid-cols-7 text-sm font-medium text-muted-foreground border-b py-2 px-2">
         {WEEKDAYS.map((day) => (
           <div key={day} className="text-center">
             {day}
@@ -94,17 +94,17 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
                 <div 
                   key={dayIndex}
                   className={cn(
-                    "p-1 border-r last:border-r-0 border-zinc-200 overflow-hidden",
-                    isCurrentMonth ? "bg-white" : "bg-zinc-50",
-                    isCurrentDay && "bg-blue-50",
-                    weekIndex > 0 && "border-t border-zinc-200"
+                    "p-1 border-r last:border-r-0 border-border overflow-hidden",
+                    isCurrentMonth ? "bg-background" : "bg-muted",
+                    isCurrentDay && "bg-primary/10",
+                    weekIndex > 0 && "border-t border-border"
                   )}
                 >
                   <div className="flex justify-between items-start">
                     <div className={cn(
                       "text-sm font-medium p-1",
-                      isCurrentMonth ? "text-zinc-900" : "text-zinc-400",
-                      isCurrentDay && "bg-blue-100 rounded-full h-7 w-7 flex items-center justify-center"
+                      isCurrentMonth ? "text-foreground" : "text-muted-foreground",
+                      isCurrentDay && "bg-primary/20 rounded-full h-7 w-7 flex items-center justify-center"
                     )}>
                       {dayNumber}{monthLabel}
                     </div>

@@ -83,7 +83,7 @@ export function LinkPreview({ url }: { url: string }) {
         className="block no-underline text-inherit"
       >
         {preview.image && (
-          <div className="w-full h-48 overflow-hidden bg-gray-100">
+          <div className="w-full h-48 overflow-hidden bg-muted">
             <img 
               src={preview.image} 
               alt={preview.title} 
@@ -98,16 +98,16 @@ export function LinkPreview({ url }: { url: string }) {
         <div className="p-3">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base font-medium line-clamp-2 m-0">{preview.title}</h3>
-            <ExternalLink size={16} className="flex-shrink-0 text-gray-500" />
+            <ExternalLink size={16} className="flex-shrink-0 text-muted-foreground" />
           </div>
           
           {preview.description && (
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2 m-0">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2 m-0">
               {preview.description}
             </p>
           )}
           
-          <div className="flex items-center mt-2 text-xs text-gray-500">
+          <div className="flex items-center mt-2 text-xs text-muted-foreground">
             {preview.favicon && (
               <img 
                 src={preview.favicon} 

@@ -57,7 +57,7 @@ const ProfileInformationSection = ({
         </div>
 
         {isEditing ? <div className="grid gap-3">
-            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input value={editForm.full_name} onChange={e => setEditForm({
             ...editForm,
@@ -65,7 +65,7 @@ const ProfileInformationSection = ({
           })} placeholder="First name" className="border-none p-0 h-6 text-sm focus-visible:ring-0 bg-transparent" />
             </div>
 
-            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input value={editForm.surname} onChange={e => setEditForm({
             ...editForm,
@@ -73,7 +73,7 @@ const ProfileInformationSection = ({
           })} placeholder="Surname" className="border-none p-0 h-6 text-sm focus-visible:ring-0 bg-transparent" />
             </div>
 
-            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
               <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input value={editForm.mobile} onChange={e => setEditForm({
             ...editForm,
@@ -88,7 +88,7 @@ const ProfileInformationSection = ({
               </div>
             </div>
             
-            <div className="flex items-center space-x-3 p-2.5 rounded-md bg-gray-100">
+            <div className="flex items-center space-x-3 p-2.5 rounded-md bg-muted/25">
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex-1">
                 <p className="font-medium text-sm">{profile?.surname || 'Not set'}</p>

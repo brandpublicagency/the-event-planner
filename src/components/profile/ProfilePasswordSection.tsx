@@ -74,7 +74,7 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
   };
 
   return (
-    <div className="pt-5 mt-5 border-t border-zinc-100">
+    <div className="pt-5 mt-5 border-t border-border">
       <h3 className="text-base font-medium mb-4">
         {!hasPassword ? 'Set Password' : 'Password Settings'}
       </h3>
@@ -86,7 +86,7 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
             name="password"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
                   <Lock className="h-4 w-4 text-muted-foreground" />
                   <FormControl>
                     <Input 
@@ -106,7 +106,7 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+                <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
                   <Lock className="h-4 w-4 text-muted-foreground" />
                   <FormControl>
                     <Input 

@@ -21,7 +21,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="Company Name" 
-                  className="bg-white border-zinc-200" 
+                  className="bg-background border-border" 
                   disabled={!isEditing}
                   value={field.value || ''}
                 />
@@ -40,7 +40,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="VAT Number" 
-                  className="bg-white border-zinc-200"
+                  className="bg-background border-border"
                   disabled={!isEditing}
                   value={field.value || ''}
                 />
@@ -59,7 +59,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="Contact Person" 
-                  className="bg-white border-zinc-200"
+                  className="bg-background border-border"
                   disabled={!isEditing}
                   value={field.value || ''}
                 />
@@ -78,7 +78,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="Contact Number" 
-                  className="bg-white border-zinc-200"
+                  className="bg-background border-border"
                   disabled={!isEditing}
                   value={field.value || ''}
                 />
@@ -90,7 +90,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
       </div>
 
       <div className="space-y-4 mt-4">
-        <h4 className="text-sm font-medium text-zinc-500">Address Details</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">Address Details</h4>
         <FormField
           control={form.control}
           name="company_address"
@@ -100,7 +100,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="Company Address" 
-                  className="bg-white border-zinc-200"
+                  className="bg-background border-border"
                   disabled={!isEditing}
                   value={field.value || ''}
                 />

@@ -9,8 +9,8 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ refreshWithState }: EmptyStateProps) => {
   return (
-    <div className="bg-white shadow rounded-lg text-center py-16 px-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+    <div className="bg-card shadow rounded-lg text-center py-16 px-6">
+      <h3 className="text-lg font-medium text-foreground mb-2">No notifications</h3>
       <p className="text-muted-foreground mb-6">You don't have any notifications at the moment</p>
       <Button 
         size="sm" 

@@ -43,7 +43,7 @@ const OffCanvasDrawer: React.FC<OffCanvasDrawerProps> = ({
       {/* Drawer */}
       <div 
         className={cn(
-          "fixed inset-y-0 right-0 w-[30rem] max-w-[90vw] bg-white shadow-lg z-[70] transition-transform duration-300 ease-in-out will-change-transform",
+          "fixed inset-y-0 right-0 w-[30rem] max-w-[90vw] bg-background shadow-lg z-[70] transition-transform duration-300 ease-in-out will-change-transform",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
@@ -51,7 +51,7 @@ const OffCanvasDrawer: React.FC<OffCanvasDrawerProps> = ({
           <h2 className="text-xl font-semibold">{title}</h2>
           <button 
             onClick={onClose} 
-            className="rounded-full p-2 hover:bg-gray-100 transition-colors"
+            className="rounded-full p-2 hover:bg-muted transition-colors"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

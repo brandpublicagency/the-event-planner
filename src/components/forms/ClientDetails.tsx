@@ -20,7 +20,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Name" className="bg-white border-zinc-200" />
+                  <Input {...field} placeholder="Name" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -33,7 +33,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Mobile" className="bg-white border-zinc-200" />
+                  <Input {...field} placeholder="Mobile" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -46,7 +46,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input type="email" {...field} placeholder="Email" className="bg-white border-zinc-200" />
+                  <Input type="email" {...field} placeholder="Email" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -64,7 +64,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Name" className="bg-white border-zinc-200" />
+                  <Input {...field} placeholder="Name" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,7 +77,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Mobile" className="bg-white border-zinc-200" />
+                  <Input {...field} placeholder="Mobile" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,7 +90,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input type="email" {...field} placeholder="Email" className="bg-white border-zinc-200" />
+                  <Input type="email" {...field} placeholder="Email" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -105,7 +105,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Input {...field} placeholder="Address" className="bg-white border-zinc-200" />
+              <Input {...field} placeholder="Address" className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>

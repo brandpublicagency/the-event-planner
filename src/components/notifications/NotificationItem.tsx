@@ -46,12 +46,12 @@ export const NotificationItem = memo(({
   
   return (
     <div 
-      className={`rounded-md transition-all duration-300 hover:bg-gray-50 ${
+      className={`rounded-md transition-all duration-300 hover:bg-muted ${
         notification.read ? 'opacity-60' : 'opacity-100 animate-in fade-in slide-in-from-top-2'
       } ${isDropdown ? 'p-3 cursor-pointer' : ''}`}
     >
       <div 
-        className={`${isDropdown ? 'mx-0 my-0 border-b border-gray-100 pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-white border border-gray-100 hover:border-gray-200 transition-colors shadow-sm'}`}
+        className={`${isDropdown ? 'mx-0 my-0 border-b border-border pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-card border border-border hover:border-border/80 transition-colors shadow-sm'}`}
         onClick={handleClick}
         role="button"
         tabIndex={0}
@@ -59,17 +59,17 @@ export const NotificationItem = memo(({
       >
         <div className="flex flex-col mb-1">
           <h4 
-            className={`text-gray-800 font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}
+            className={`text-foreground font-medium text-sm ${isDropdown ? 'cursor-pointer' : ''}`}
           >
             {notification.title}
           </h4>
-          <p className={`text-xs ${!notification.read ? 'text-gray-700' : 'text-gray-500'} line-clamp-2`}>
+          <p className={`text-xs ${!notification.read ? 'text-foreground/80' : 'text-muted-foreground'} line-clamp-2`}>
             {notification.description}
           </p>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">{formattedTime}</span>
+          <span className="text-xs text-muted-foreground/70">{formattedTime}</span>
           {!isDropdown && <NotificationActions notification={notification} onView={onView} onComplete={onComplete} />}
         </div>
       </div>

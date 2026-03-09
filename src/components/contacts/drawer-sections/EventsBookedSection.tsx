@@ -53,11 +53,11 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
           contact.events.map((event, index) => {
             const status = getEventStatus(event);
             return (
-              <div key={event.eventCode} className={`flex flex-col gap-2 ${index !== 0 ? "pt-3 border-t border-gray-100" : ""}`}>
+              <div key={event.eventCode} className={`flex flex-col gap-2 ${index !== 0 ? "pt-3 border-t border-border" : ""}`}>
                 <div className="flex items-center justify-between">
                   <Link 
                     to={`/events/${event.eventCode}`}
-                    className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
+                    className="text-muted-foreground hover:text-foreground hover:underline text-sm py-1"
                   >
                     {event.eventName} {event.eventType}
                   </Link>
@@ -65,13 +65,13 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
                 </div>
                 
                 {event.eventDate && (
-                  <div className="flex items-center text-xs text-gray-500">
+                  <div className="flex items-center text-xs text-muted-foreground">
                     <CalendarIcon className="h-3 w-3 mr-1" />
                     {format(new Date(event.eventDate), "dd MMM yyyy")}
                   </div>
                 )}
                 
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   Venue: {event.venue}
                 </div>
               </div>

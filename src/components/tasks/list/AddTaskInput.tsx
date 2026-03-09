@@ -40,9 +40,9 @@ export function AddTaskInput({
         disabled={!value.trim()}
         size="icon"
         variant="outline"
-        className="h-7 w-7 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+        className="h-7 w-7 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
       >
-        <Plus className="h-3.5 w-3.5 text-zinc-700" />
+        <Plus className="h-3.5 w-3.5 text-muted-foreground" />
       </Button>
     </div>
   );

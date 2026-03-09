@@ -108,7 +108,7 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="youremail@warmkaroo.com"
-            className={`w-full px-3 py-2 border rounded-md ${errorMessage ? 'border-red-500' : 'border-gray-300'}`}
+            className={`w-full px-3 py-2 border rounded-md ${errorMessage ? 'border-destructive' : 'border-border'}`}
             required
           />
           {errorMessage && (
@@ -121,12 +121,12 @@ export const MagicLinkAuth = ({ supabaseClient, defaultEmail }: MagicLinkAuthPro
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2 px-4 bg-black hover:bg-gray-800 text-white rounded-md transition-colors disabled:opacity-50"
+          className="w-full py-2 px-4 bg-foreground hover:bg-foreground/90 text-background rounded-md transition-colors disabled:opacity-50"
         >
           {isSubmitting ? 'Sending Magic Link...' : 'Send Magic Link'}
         </button>
       </form>
-      <p className="text-sm text-center text-gray-500">
+      <p className="text-sm text-center text-muted-foreground">
         {isSubmitting ? 'Processing...' : 'Check your email for the magic link after submitting'}
       </p>
     </div>

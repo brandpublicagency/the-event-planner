@@ -21,7 +21,7 @@ export const NotificationHeader = ({
   return (
     <div className="flex items-center justify-between p-2.5 border-b">
       <div className="flex flex-col">
-        <p className="text-xs font-medium text-zinc-900">Notifications</p>
+        <p className="text-xs font-medium text-foreground">Notifications</p>
         <p className="text-[10px] text-muted-foreground">
           {unreadCount > 0 
             ? `You have ${unreadCount} unread notifications` 

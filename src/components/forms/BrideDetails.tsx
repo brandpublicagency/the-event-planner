@@ -15,9 +15,9 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
         name="bride_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Name</FormLabel>
+            <FormLabel className="text-muted-foreground">Name</FormLabel>
             <FormControl>
-              <Input {...field} className="bg-white border-zinc-200" />
+              <Input {...field} className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -29,9 +29,9 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
         name="bride_mobile"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Mobile</FormLabel>
+            <FormLabel className="text-muted-foreground">Mobile</FormLabel>
             <FormControl>
-              <Input {...field} type="tel" className="bg-white border-zinc-200" />
+              <Input {...field} type="tel" className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -43,9 +43,9 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
         name="bride_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Email</FormLabel>
+            <FormLabel className="text-muted-foreground">Email</FormLabel>
             <FormControl>
-              <Input type="email" {...field} className="bg-white border-zinc-200" />
+              <Input type="email" {...field} className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>

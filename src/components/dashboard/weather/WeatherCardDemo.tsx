@@ -30,7 +30,7 @@ const WeatherCardDemo = () => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100"
+        className="text-2xl font-bold mb-6 text-center text-foreground"
       >
         Enhanced Weather Cards
       </motion.h2>
