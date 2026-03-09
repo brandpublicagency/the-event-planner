@@ -97,10 +97,10 @@ const EventsTable: React.FC<EventsTableProps> = ({
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : Object.keys(filteredGroupedEvents).length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-zinc-500 bg-transparent rounded-lg">
-            <CalendarX className="h-12 w-12 mb-3 text-zinc-300" />
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground bg-transparent rounded-lg">
+            <CalendarX className="h-12 w-12 mb-3 text-muted-foreground/40" />
             <p className="text-base">No events found</p>
-            <p className="text-sm text-zinc-400 mt-1">Create your first event to get started</p>
+            <p className="text-sm text-muted-foreground mt-1">Create your first event to get started</p>
           </div>
         ) : (
           Object.entries(filteredGroupedEvents).map(([monthYear, monthEvents]) => (
