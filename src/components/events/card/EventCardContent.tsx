@@ -34,7 +34,7 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
   };
   return <div className="space-y-0.5 flex-1">
       <div className="flex items-center my-0 py-px">
-        <h4 className="text-gray-800 font-normal text-sm">
+        <h4 className="text-foreground font-normal text-base">
           <Link to={`/events/${event_code}`} className="hover:text-primary cursor-pointer">
             {name}
           </Link>
