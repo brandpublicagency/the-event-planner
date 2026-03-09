@@ -42,7 +42,7 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
           >
             <EditorContent 
               editor={editor} 
-              className="flex-1 px-6 py-3 h-full document-content max-w-none"
+              className="flex-1 px-5 py-2.5 h-full document-content max-w-none"
             />
           </div>
         </div>

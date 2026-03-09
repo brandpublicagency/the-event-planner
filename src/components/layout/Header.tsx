@@ -64,7 +64,7 @@ export const Header = ({
   
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
-      <div className="flex items-center h-16 px-6">
+      <div className="flex items-center h-12 px-4">
         <div className="flex gap-4 items-center">
           <MobileMenuToggle onClick={handleToggleMobileMenu} />
           

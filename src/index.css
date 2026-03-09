@@ -70,31 +70,31 @@
 
 /* Custom document content styles */
 .document-content {
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.5;
 }
 
 .document-content h1 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  margin: 0.5em 0;
+  margin: 0.4em 0;
 }
 
 .document-content h2 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
-  margin: 0.5em 0;
+  margin: 0.4em 0;
 }
 
 .document-content h3 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  margin: 0.5em 0;
+  margin: 0.4em 0;
 }
 
 .document-content p {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  margin-top: 0.35em;
+  margin-bottom: 0.35em;
 }
 
 .document-content blockquote {
@@ -145,11 +145,11 @@
 
 /* Toolbar button styles */
 .editor-toolbar {
-  @apply flex items-center gap-0.5 p-1 bg-white border border-zinc-200 rounded-md mb-2;
+  @apply flex items-center gap-0.5 p-0.5 bg-white border border-zinc-200 rounded-md mb-1.5;
 }
 
 .editor-toolbar button {
-  @apply h-8 w-8 p-0 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 rounded-sm;
+  @apply h-7 w-7 p-0 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 rounded-sm;
 }
 
 .editor-toolbar button.is-active {

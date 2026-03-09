@@ -53,7 +53,7 @@ const DashboardMessage = () => {
   const messageLines = message.split('\n');
   const firstLine = messageLines[0];
   const remainingLines = messageLines.slice(1).join('\n');
-  return <div className="mb-6 mt-4">
+  return <div className="mb-4 mt-2">
       <motion.div initial={{
       opacity: 0,
       y: -10
@@ -73,20 +73,19 @@ const DashboardMessage = () => {
           delay: 0.2
         }} className="text-gray-600 dark:text-gray-300 mt-1 text-base leading whitespace-pre-line bg-white px-[15px] my-[5px] py-[15px] rounded-md">
             <div style={{
-            fontSize: '1.05rem',
+            fontSize: '0.875rem',
             fontWeight: 450,
-            lineHeight: 1.6,
+            lineHeight: 1.5,
             letterSpacing: '0.01em'
           }}>
               {firstLine}
             </div>
             {remainingLines && <div style={{
-            fontSize: '1.05rem',
+            fontSize: '0.875rem',
             fontWeight: 300,
-            // Lighter weight for the second line
-            lineHeight: 1.6,
+            lineHeight: 1.5,
             letterSpacing: '0.01em',
-            marginTop: '0.25rem'
+            marginTop: '0.15rem'
           }}>
                 {remainingLines}
               </div>}

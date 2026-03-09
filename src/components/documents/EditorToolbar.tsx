@@ -23,7 +23,7 @@ const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) =
     variant={active ? "default" : "ghost"}
     size="sm"
     className={cn(
-      "h-9 w-9 p-0 flex items-center justify-center",
+      "h-7 w-7 p-0 flex items-center justify-center",
       active ? 'bg-accent text-accent-foreground' : ''
     )}
     onClick={(e) => {
@@ -33,7 +33,7 @@ const MenuButton = ({ onClick, active, icon: Icon, tooltip }: MenuButtonProps) =
     title={tooltip}
     type="button"
   >
-    <Icon className="h-4 w-4" />
+    <Icon className="h-3.5 w-3.5" />
   </Button>
 );
 
@@ -49,7 +49,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   }
 
   return (
-    <div className="border rounded-lg mb-4 p-1.5 flex items-center gap-1 flex-wrap bg-background">
+    <div className="border rounded-lg mb-2 p-1 flex items-center gap-0.5 flex-wrap bg-background">
       <MenuButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         active={editor.isActive('bold')}
