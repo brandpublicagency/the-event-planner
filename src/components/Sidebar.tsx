@@ -1,7 +1,5 @@
 
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
