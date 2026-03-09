@@ -36,7 +36,7 @@ export function TaskItem({
   return (
     <div 
       className={cn(
-        "group flex items-center px-4 py-3 bg-white border border-zinc-100 rounded-lg hover:border-primary/30 transition-colors cursor-pointer", 
+        "group flex items-center px-4 py-3 bg-card border border-border rounded-lg hover:border-primary/30 transition-colors cursor-pointer", 
         isSelected && "border-primary"
       )} 
       onClick={onClick}
