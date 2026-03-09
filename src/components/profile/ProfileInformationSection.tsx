@@ -57,7 +57,7 @@ const ProfileInformationSection = ({
         </div>
 
         {isEditing ? <div className="grid gap-3">
-            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-zinc-200">
+            <div className="flex items-center space-x-3 p-2.5 border rounded-md border-border">
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input value={editForm.full_name} onChange={e => setEditForm({
             ...editForm,
