@@ -53,7 +53,7 @@ const DashboardMessage = () => {
   const messageLines = message.split('\n');
   const firstLine = messageLines[0];
   const remainingLines = messageLines.slice(1).join('\n');
-  return <div className="mb-6 mt-4">
+  return <div className="mb-4 mt-2">
       <motion.div initial={{
       opacity: 0,
       y: -10
