@@ -81,7 +81,7 @@ const Dashboard2NotificationsDrawer = ({ open, onOpenChange }: Dashboard2Notific
                     <div className="flex items-center gap-2 mt-1.5">
                       <Clock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-[10px] text-muted-foreground">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                       </span>
                     </div>
                   </div>

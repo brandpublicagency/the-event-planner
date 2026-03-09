@@ -36,7 +36,7 @@ const Dashboard2EventsSection = () => {
     refetchOnMount: true,
   });
 
-  const groupedEvents = groupEventsByMonth(events);
+  const groupedEvents = Object.entries(groupEventsByMonth(events));
 
   return (
     <motion.div
