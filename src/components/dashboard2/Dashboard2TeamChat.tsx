@@ -99,7 +99,8 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   });
 
   // Fetch all reactions for visible messages
-  const messageIds = messages.map((m) => m.id);
+  const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
+  const stableMessageKey = useMemo(() => messageIds.join(","), [messageIds]);
   const { data: reactions = [] } = useQuery({
     queryKey: ["chat-reactions", messageIds],
     queryFn: async () => {
