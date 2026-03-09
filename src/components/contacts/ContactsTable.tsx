@@ -48,7 +48,7 @@ const ContactsTable = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden h-full rounded-lg border border-gray-100">
+      <div className="flex-1 overflow-hidden h-full rounded-lg border border-border">
         <ScrollArea className="h-full">
           <Table>
             <TableHeader className="bg-gray-50 sticky top-0">
