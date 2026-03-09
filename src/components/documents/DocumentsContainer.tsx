@@ -16,6 +16,8 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const toggleSidebar = useCallback(() => setSidebarCollapsed(prev => !prev), []);
 
   const {
     documents,
