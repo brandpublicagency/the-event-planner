@@ -15,6 +15,9 @@ import { useTheme } from "@/components/theme-provider";
 const Dashboard2Layout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { unreadCount } = useDashboardNotifications();
+  const { theme, setTheme } = useTheme();
+
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <div className="flex flex-col h-full">
