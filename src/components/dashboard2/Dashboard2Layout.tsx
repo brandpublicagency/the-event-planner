@@ -6,10 +6,11 @@ import Dashboard2WeatherCard from "./Dashboard2WeatherCard";
 import Dashboard2TasksSection from "./Dashboard2TasksSection";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/components/theme-provider";
 
 const Dashboard2Layout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
