@@ -40,7 +40,7 @@ interface TypingUser {
 const TYPING_TIMEOUT = 3000;
 const EMOJI_OPTIONS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "👏", "🎉"];
 
-const Dashboard2TeamChat = () => {
+const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState<Map<string, TypingUser>>(new Map());
   const queryClient = useQueryClient();
@@ -310,13 +310,13 @@ const Dashboard2TeamChat = () => {
           : null;
 
   return (
-    <div className="rounded-lg border border-border bg-card transition-all hover:border-foreground/30">
-      <div className="flex items-center gap-2 p-3 border-b border-border">
+    <div className={`rounded-lg border border-border bg-card transition-all hover:border-foreground/30 flex flex-col ${className || ""}`}>
+      <div className="flex items-center gap-2 p-3 border-b border-border shrink-0">
         <MessageCircle className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium text-foreground">Team Chat</span>
       </div>
 
-      <ScrollArea className="h-[280px] px-3 py-2">
+      <ScrollArea className="flex-1 min-h-0 px-3 py-2">
         {isLoading ? (
           <p className="text-xs text-muted-foreground text-center py-4">Loading...</p>
         ) : messages.length === 0 ? (
