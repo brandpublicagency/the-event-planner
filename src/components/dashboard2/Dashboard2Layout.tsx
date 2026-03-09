@@ -22,7 +22,15 @@ const Dashboard2Layout = () => {
   return (
     <div className="flex flex-col h-full">
       <Header pageTitle="Dashboard 2">
-        <div className="ml-auto mr-2 flex items-center">
+        <div className="ml-auto mr-2 flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button
             variant="ghost"
             size="icon"
