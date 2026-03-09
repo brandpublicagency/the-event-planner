@@ -35,7 +35,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
         )}>
           <Icon className={cn(
             "flex-shrink-0 transition-transform", 
-            isActive ? "text-primary" : "text-gray-500 group-hover:text-gray-700", 
+            isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground/70", 
             isCollapsed ? "h-4 w-4 group-hover:scale-110" : "h-4 w-4"
           )} />
         </div>
