@@ -43,7 +43,7 @@ const EventDetails = () => {
   // If there was an error fetching the event
   if (isError) {
     return (
-      <div className="flex flex-col min-h-screen bg-zinc-50">
+      <div className="flex flex-col min-h-screen bg-background">
         <Header pageTitle="Event Details" showBackButton onBackButtonClick={handleBackClick} />
         <EventDetailsError 
           error={error as Error} 
