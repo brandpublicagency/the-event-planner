@@ -98,7 +98,7 @@ export function LinkPreview({ url }: { url: string }) {
         <div className="p-3">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base font-medium line-clamp-2 m-0">{preview.title}</h3>
-            <ExternalLink size={16} className="flex-shrink-0 text-gray-500" />
+            <ExternalLink size={16} className="flex-shrink-0 text-muted-foreground" />
           </div>
           
           {preview.description && (
