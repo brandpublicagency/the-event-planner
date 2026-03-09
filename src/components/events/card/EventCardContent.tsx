@@ -26,11 +26,11 @@ export const EventCardContent: React.FC<EventCardContentProps> = ({
   // Get appropriate icon based on event type
   const getEventTypeIcon = (type: string) => {
     const lowerType = type?.toLowerCase() || '';
-    if (lowerType.includes('wedding')) return <Award className="h-3 w-3 mr-1 text-zinc-400" />;
-    if (lowerType.includes('corporate')) return <Briefcase className="h-3 w-3 mr-1 text-zinc-400" />;
-    if (lowerType.includes('birthday')) return <Star className="h-3 w-3 mr-1 text-zinc-400" />;
+    if (lowerType.includes('wedding')) return <Award className="h-3 w-3 mr-1 text-muted-foreground" />;
+    if (lowerType.includes('corporate')) return <Briefcase className="h-3 w-3 mr-1 text-muted-foreground" />;
+    if (lowerType.includes('birthday')) return <Star className="h-3 w-3 mr-1 text-muted-foreground" />;
     // Default icon for other event types
-    return <Calendar className="h-3 w-3 mr-1 text-zinc-400" />;
+    return <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />;
   };
   return <div className="space-y-0.5 flex-1">
       <div className="my-0 py-px flex items-end justify-start">
