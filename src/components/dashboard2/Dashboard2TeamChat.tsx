@@ -189,6 +189,19 @@ const Dashboard2TeamChat = () => {
     },
   });
 
+  const deleteMessage = useMutation({
+    mutationFn: async (messageId: string) => {
+      const { error } = await supabase
+        .from("team_chat_messages")
+        .delete()
+        .eq("id", messageId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team-chat"] });
+    },
+  });
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
