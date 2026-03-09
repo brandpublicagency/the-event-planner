@@ -124,9 +124,9 @@ export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
             disabled={!newTodo.trim()}
             size="icon"
             variant="outline"
-            className="h-8 w-8 rounded-full bg-white border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
+            className="h-8 w-8 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
           >
-            <Plus className="h-4 w-4 text-zinc-700" />
+            <Plus className="h-4 w-4 text-muted-foreground" />
           </Button>
         </div>
       </div>

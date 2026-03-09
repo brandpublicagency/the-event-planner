@@ -73,7 +73,7 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
           </TabsTrigger>
           <TabsTrigger value="read" className="flex items-center justify-center gap-2">
             Read
-            <Badge variant="secondary" className="ml-1 bg-zinc-100 text-zinc-800">
+            <Badge variant="secondary" className="ml-1 bg-muted text-foreground">
               {counts.read}
             </Badge>
           </TabsTrigger>
