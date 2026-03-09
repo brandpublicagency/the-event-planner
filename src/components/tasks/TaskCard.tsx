@@ -72,7 +72,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   return (
     <Card
       className={cn(
-        "bg-white border border-zinc-100 cursor-pointer transition-all duration-200 hover:border-primary/30 shadow-none",
+        "bg-card border border-border cursor-pointer transition-all duration-200 hover:border-primary/30 shadow-none",
         isSelected && "border-primary"
       )}
       onClick={onClick}
