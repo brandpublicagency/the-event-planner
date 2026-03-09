@@ -9,6 +9,7 @@ import Dashboard2TeamChat from "./Dashboard2TeamChat";
 import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
 import Dashboard2CommandPalette from "./Dashboard2CommandPalette";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
@@ -53,10 +54,18 @@ const Dashboard2Layout = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 relative overflow-hidden"
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <motion.div
+              key={isDark ? 'sun' : 'moon'}
+              initial={{ rotate: -90, scale: 0, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: 90, scale: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </motion.div>
           </Button>
           <Button
             variant="ghost"
