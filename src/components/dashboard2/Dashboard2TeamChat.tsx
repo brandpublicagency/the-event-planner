@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle, Send, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface ChatMessage {
@@ -91,7 +91,7 @@ const Dashboard2TeamChat = () => {
       .channel("team-chat-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "team_chat_messages" },
+        { event: "*", schema: "public", table: "team_chat_messages" },
         () => {
           queryClient.invalidateQueries({ queryKey: ["team-chat"] });
         }
@@ -189,6 +189,19 @@ const Dashboard2TeamChat = () => {
     },
   });
 
+  const deleteMessage = useMutation({
+    mutationFn: async (messageId: string) => {
+      const { error } = await supabase
+        .from("team_chat_messages")
+        .delete()
+        .eq("id", messageId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team-chat"] });
+    },
+  });
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
@@ -234,7 +247,7 @@ const Dashboard2TeamChat = () => {
             {messages.map((msg) => {
               const isMe = msg.user_id === currentUser?.id;
               return (
-                <div key={msg.id} className={`flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
+                <div key={msg.id} className={`group/msg flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
                   <Avatar className="h-6 w-6 shrink-0 mt-0.5">
                     {msg.profile?.avatar_url && <AvatarImage src={msg.profile.avatar_url} />}
                     <AvatarFallback className="text-[10px]">{getInitials(msg.profile)}</AvatarFallback>
@@ -246,9 +259,20 @@ const Dashboard2TeamChat = () => {
                         {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                       </span>
                     </div>
-                    <p className={`text-xs mt-0.5 rounded-md px-2 py-1 inline-block ${isMe ? "bg-primary/10 text-foreground" : "bg-muted text-foreground"}`}>
-                      {msg.message}
-                    </p>
+                    <div className="flex items-center gap-1" style={{ flexDirection: isMe ? "row-reverse" : "row" }}>
+                      <p className={`text-xs mt-0.5 rounded-md px-2 py-1 inline-block ${isMe ? "bg-primary/10 text-foreground" : "bg-muted text-foreground"}`}>
+                        {msg.message}
+                      </p>
+                      {isMe && (
+                        <button
+                          onClick={() => deleteMessage.mutate(msg.id)}
+                          className="opacity-0 group-hover/msg:opacity-100 transition-opacity mt-0.5 p-0.5 rounded hover:bg-destructive/10"
+                          title="Delete message"
+                        >
+                          <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
