@@ -73,7 +73,7 @@ const ContactsTable = ({
                 </TableRow>
               ) : (
                 contacts.map(contact => (
-                  <TableRow key={contact.id} className="border-b hover:bg-gray-50">
+                  <TableRow key={contact.id} className="border-b hover:bg-muted">
                     <TableCell className="pl-4">
                       <button 
                         onClick={() => onEditContact(contact)} 
