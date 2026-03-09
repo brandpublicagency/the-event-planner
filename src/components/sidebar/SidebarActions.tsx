@@ -76,7 +76,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex items-center text-gray-700 hover:text-gray-900 h-8 px-3 rounded-lg gap-2 hover:bg-white/50 transition-all duration-200"
+              className="group flex items-center text-foreground/70 hover:text-foreground h-8 px-3 rounded-lg gap-2 hover:bg-background/50 transition-all duration-200"
             >
               <Plus className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
               <span className="text-xs font-medium">Add Event</span>
