@@ -44,7 +44,7 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
   };
 
   return (
-    <div className="flex flex-col justify-center px-3 border-l border-zinc-50">
+    <div className="flex flex-col justify-center px-3 border-l border-border">
       <Button 
         variant="ghost" 
         size="icon" 
