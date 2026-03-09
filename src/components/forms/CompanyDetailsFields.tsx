@@ -59,7 +59,7 @@ const CompanyDetailsFields = ({ form, isEditing }: CompanyDetailsFieldsProps) =>
                 <Input 
                   {...field} 
                   placeholder="Contact Person" 
-                  className="bg-white border-zinc-200"
+                  className="bg-background border-border"
                   disabled={!isEditing}
                   value={field.value || ''}
                 />
