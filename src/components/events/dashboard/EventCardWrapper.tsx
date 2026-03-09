@@ -19,13 +19,13 @@ export const EventCardWrapper: React.FC<EventCardWrapperProps> = ({
   return (
     <button onClick={() => navigate(`/events/${eventCode}`)} className="text-left w-full">
       {eventIsToday ? (
-        <AnimatedBorder borderWidth={3} borderRadius={12} className="mb-1.5">
-          <div className="rounded-xl bg-white border border-zinc-100 overflow-hidden">
+        <AnimatedBorder borderWidth={3} borderRadius={12}>
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
             {children}
           </div>
         </AnimatedBorder>
       ) : (
-        <div className="rounded-xl mb-1.5 bg-white border border-black/10 overflow-hidden">
+        <div className="rounded-xl bg-card border border-border overflow-hidden">
           {children}
         </div>
       )}

@@ -56,7 +56,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
   
   return (
-    <div className="p-2.5 transition-colors w-full bg-white rounded-lg mb-1.5 border border-gray-100">
+    <div className="p-2.5 transition-colors w-full bg-card rounded-lg border border-border">
       <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between w-full">
         <EventCardContent event={event} venueStr={venueStr} />
         
