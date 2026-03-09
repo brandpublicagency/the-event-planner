@@ -109,7 +109,7 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
                     )}
                     <div className="flex flex-col h-full">
                       <h3 className="font-medium text-sm">{venue.name}</h3>
-                      <p className="mt-1 text-xs text-gray-500">{venue.description}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{venue.description}</p>
                     </div>
                   </div>
                 );

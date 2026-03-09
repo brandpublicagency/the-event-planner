@@ -78,7 +78,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
       {/* Hover indicator for collapsed state */}
       {isCollapsed && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="h-7 w-1 rounded-l-full bg-gray-300/50"></div>
+          <div className="h-7 w-1 rounded-l-full bg-border/50"></div>
         </div>
       )}
     </Link>
