@@ -29,9 +29,9 @@ const BrideDetails = ({ form }: BrideDetailsProps) => {
         name="bride_mobile"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-600">Mobile</FormLabel>
+            <FormLabel className="text-muted-foreground">Mobile</FormLabel>
             <FormControl>
-              <Input {...field} type="tel" className="bg-white border-zinc-200" />
+              <Input {...field} type="tel" className="bg-background border-border" />
             </FormControl>
             <FormMessage />
           </FormItem>
