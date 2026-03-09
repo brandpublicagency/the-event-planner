@@ -90,7 +90,7 @@ const ClientDetails = ({ form }: ClientDetailsProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input type="email" {...field} placeholder="Email" className="bg-white border-zinc-200" />
+                  <Input type="email" {...field} placeholder="Email" className="bg-background border-border" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
