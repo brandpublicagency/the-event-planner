@@ -80,6 +80,8 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
           setSelectedDocId={setSelectedDocId}
           handleNewDocument={handleNewDocument}
           createDocumentPending={createDocument.isPending || isCreatingDocument}
+          collapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
         />
 
         <div className="flex-1 h-full overflow-hidden bg-background">
