@@ -51,7 +51,7 @@ export const NotificationItem = memo(({
       } ${isDropdown ? 'p-3 cursor-pointer' : ''}`}
     >
       <div 
-        className={`${isDropdown ? 'mx-0 my-0 border-b border-border pb-3 last:border-0 last:pb-0' : 'px-3 py-2.5 mx-0 rounded-md my-[10px] bg-card border border-border hover:border-border/80 transition-colors shadow-sm'}`}
+        className={`${isDropdown ? 'mx-0 my-0 border-b border-border pb-3 last:border-0 last:pb-0' : 'p-2.5 mx-0 rounded-lg my-1.5 bg-card border border-border hover:border-border/80 transition-colors'}`}
         onClick={handleClick}
         role="button"
         tabIndex={0}
