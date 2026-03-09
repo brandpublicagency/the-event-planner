@@ -92,9 +92,9 @@ const ContactsTable = ({
                           variant="ghost" 
                           size="icon" 
                           onClick={() => onEditContact(contact)}
-                          className="h-8 w-8 rounded-full hover:bg-gray-100"
+                          className="h-8 w-8 rounded-full hover:bg-muted"
                         >
-                          <Edit className="h-4 w-4 text-gray-500" />
+                          <Edit className="h-4 w-4 text-muted-foreground" />
                         </Button>
                         <Button 
                           variant="ghost" 
