@@ -9,16 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-transparent border border-foreground text-foreground hover:bg-foreground hover:text-background hover:border-foreground [&_svg]:hover:text-background",
+        default: "bg-transparent border border-foreground text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         destructive:
-          "bg-transparent border border-destructive text-destructive hover:bg-foreground hover:text-background hover:border-foreground [&_svg]:hover:text-background",
+          "bg-transparent border border-destructive text-destructive hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         outline:
-          "bg-transparent border border-border text-foreground hover:bg-foreground hover:text-background hover:border-foreground [&_svg]:hover:text-background",
+          "bg-transparent border border-border text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
         secondary:
-          "bg-transparent border border-foreground text-foreground hover:bg-foreground hover:text-background hover:border-foreground [&_svg]:hover:text-background",
-        ghost: "hover:bg-foreground hover:text-background [&_svg]:hover:text-background",
+          "bg-transparent border border-foreground text-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
+        ghost: "hover:bg-foreground hover:text-background hover:[&_svg]:text-background",
         link: "text-foreground underline-offset-4 hover:underline",
-        success: "bg-transparent border border-green-800 text-green-800 hover:bg-foreground hover:text-background hover:border-foreground [&_svg]:hover:text-background",
+        success: "bg-transparent border border-green-800 text-green-800 hover:bg-foreground hover:text-background hover:border-foreground hover:[&_svg]:text-background",
       },
       size: {
         default: "h-8 px-3 py-1.5",
