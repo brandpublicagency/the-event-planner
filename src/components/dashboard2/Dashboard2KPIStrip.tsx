@@ -98,26 +98,30 @@ const Dashboard2KPIStrip = () => {
   const countdown = getCountdown();
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-      <KPICard
-        icon={CalendarDays}
-        label="Events This Month"
-        value={monthlyData?.eventsCount ?? 0}
-        delay={0}
-      />
-      <KPICard
-        icon={Users}
-        label="Total Guests"
-        value={monthlyData?.totalGuests ?? 0}
-        subtitle="This month"
-        delay={0.05}
-      />
-      <KPICard
-        icon={ListTodo}
-        label="Pending Tasks"
-        value={pendingTasks}
-        delay={0.1}
-      />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-4">
+      {/* First 3 KPIs aligned with events (2/3 width) */}
+      <div className="lg:col-span-2 grid grid-cols-3 gap-3">
+        <KPICard
+          icon={CalendarDays}
+          label="Events This Month"
+          value={monthlyData?.eventsCount ?? 0}
+          delay={0}
+        />
+        <KPICard
+          icon={Users}
+          label="Total Guests"
+          value={monthlyData?.totalGuests ?? 0}
+          subtitle="This month"
+          delay={0.05}
+        />
+        <KPICard
+          icon={ListTodo}
+          label="Pending Tasks"
+          value={pendingTasks}
+          delay={0.1}
+        />
+      </div>
+      {/* 4th KPI aligned with sidebar (1/3 width) */}
       <KPICard
         icon={Clock}
         label="Next Event"
