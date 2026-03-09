@@ -18,7 +18,6 @@ const Events = () => {
     isDeleting,
     isPermanentDelete,
     setIsPermanentDelete,
-    refetch
   } = useEvents();
   
   
