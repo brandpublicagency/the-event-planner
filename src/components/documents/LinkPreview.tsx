@@ -102,7 +102,7 @@ export function LinkPreview({ url }: { url: string }) {
           </div>
           
           {preview.description && (
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2 m-0">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2 m-0">
               {preview.description}
             </p>
           )}
