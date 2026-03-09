@@ -18,7 +18,6 @@ const Sidebar = ({
   isCollapsed,
   setIsCollapsed
 }: SidebarProps) => {
-  const { toast } = useToast();
   const { getGradientByPath } = useSidebarGradient();
   const taskCount = useTaskCount();
   
