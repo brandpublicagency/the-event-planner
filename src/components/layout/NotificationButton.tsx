@@ -29,7 +29,7 @@ export const NotificationButton = () => {
           className="relative inline-flex items-center cursor-pointer"
           onClick={handleTriggerClick}
         >
-          <span className="relative inline-flex items-center px-3 py-1.5 rounded-md hover:bg-zinc-100 transition-colors">
+          <span className="relative inline-flex items-center px-3 py-1.5 rounded-md hover:bg-muted transition-colors">
             <span className="relative">
               <Bell className="h-5 w-5" />
               <AnimatePresence>

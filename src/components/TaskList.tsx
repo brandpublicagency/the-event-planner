@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TaskListContent } from "./tasks/list/TaskListContent";
 import { AddTaskInput } from "./tasks/list/AddTaskInput";
 import { TaskListHeader } from "./tasks/list/TaskListHeader";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 

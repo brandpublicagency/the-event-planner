@@ -2,7 +2,7 @@
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Notification, NotificationStatus } from "@/types/notification";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { retryWithBackoff } from "@/utils/retryWithBackoff";
 import { NotificationUpdateError } from "@/types/errors";
 

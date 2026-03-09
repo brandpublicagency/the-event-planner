@@ -106,7 +106,7 @@ const Calendar = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-background">
       <Header
         pageTitle={format(currentDate, "MMMM yyyy")}
         children={headerContent}

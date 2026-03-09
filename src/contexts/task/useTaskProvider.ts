@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Task } from "./taskTypes";
 import { useTaskQuery } from "./useTaskQuery";
 import { useTaskMutations } from "./useTaskMutations";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 export const useTaskProvider = () => {
   const queryClient = useQueryClient();

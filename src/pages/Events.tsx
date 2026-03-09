@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { useEvents } from "@/hooks/useEvents";
 import { EventsList } from "@/components/events/EventsList";
@@ -18,13 +18,8 @@ const Events = () => {
     isDeleting,
     isPermanentDelete,
     setIsPermanentDelete,
-    refetch
   } = useEvents();
   
-  // Add effect to refetch when component mounts
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
   
   // Filter events based on search query
   const filteredEvents = Object.entries(groupedUpcomingEvents).reduce(
@@ -51,7 +46,7 @@ const Events = () => {
     <div className="flex flex-col h-full">
       <Header title="Upcoming Events" />
 
-      <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+      <div className="flex-1 p-6 bg-muted overflow-auto">
         <EventsList 
           groupedEvents={filteredEvents} 
           isLoading={isLoading}

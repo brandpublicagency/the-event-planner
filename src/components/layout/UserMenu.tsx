@@ -51,13 +51,13 @@ export const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 border border-zinc-200">
+        <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 border border-border">
           {isLoadingProfile ? (
             <Skeleton className="h-9 w-9 rounded-full" />
           ) : (
             <Avatar className="h-9 w-9">
               <AvatarImage src={userProfile?.avatarUrl} alt={userProfile?.fullName || 'User'} />
-              <AvatarFallback className="bg-zinc-100 text-zinc-800">
+              <AvatarFallback className="bg-muted text-foreground">
                 {userProfile?.initials || 'U'}
               </AvatarFallback>
             </Avatar>
