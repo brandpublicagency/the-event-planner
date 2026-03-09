@@ -57,7 +57,7 @@ const EventsBookedSection = ({ contact }: EventsBookedSectionProps) => {
                 <div className="flex items-center justify-between">
                   <Link 
                     to={`/events/${event.eventCode}`}
-                    className="text-gray-600 hover:text-gray-900 hover:underline text-sm py-1"
+                    className="text-muted-foreground hover:text-foreground hover:underline text-sm py-1"
                   >
                     {event.eventName} {event.eventType}
                   </Link>
