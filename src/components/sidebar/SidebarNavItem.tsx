@@ -44,7 +44,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           <motion.span 
             className={cn(
               "ml-3 text-xs font-medium whitespace-nowrap", 
-              isActive ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+              isActive ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
             )} 
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
