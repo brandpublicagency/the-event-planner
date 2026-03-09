@@ -330,10 +330,6 @@ const Dashboard2TeamChat = () => {
 
               return (
                 <div key={msg.id} className={`group/msg flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
-                  <Avatar className="h-6 w-6 shrink-0 mt-0.5">
-                    {msg.profile?.avatar_url && <AvatarImage src={msg.profile.avatar_url} />}
-                    <AvatarFallback className="text-[10px]">{getInitials(msg.profile)}</AvatarFallback>
-                  </Avatar>
                   <div className={`max-w-[80%] ${isMe ? "text-right" : ""}`}>
                     <div className="flex items-baseline gap-1.5" style={{ flexDirection: isMe ? "row-reverse" : "row" }}>
                       <span className="text-[11px] font-medium text-foreground">{getDisplayName(msg.profile)}</span>
