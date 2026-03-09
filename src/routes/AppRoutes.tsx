@@ -21,6 +21,7 @@ import Notifications from "@/pages/Notifications";
 import ScheduleMeeting from "@/pages/ScheduleMeeting";
 import ScheduleSiteVisit from "@/pages/ScheduleSiteVisit";
 import NewTask from "@/pages/NewTask";
+import Dashboard2 from "@/pages/Dashboard2";
 
 export const AppRoutes = () => {
   return (
