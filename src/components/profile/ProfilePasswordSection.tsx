@@ -74,7 +74,7 @@ const ProfilePasswordSection = ({ hasPassword }: ProfilePasswordSectionProps) =>
   };
 
   return (
-    <div className="pt-5 mt-5 border-t border-zinc-100">
+    <div className="pt-5 mt-5 border-t border-border">
       <h3 className="text-base font-medium mb-4">
         {!hasPassword ? 'Set Password' : 'Password Settings'}
       </h3>
