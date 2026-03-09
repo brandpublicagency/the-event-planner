@@ -70,7 +70,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events,
   return (
     <div className="calendar-grid h-full flex flex-col">
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 text-sm font-medium text-zinc-500 border-b py-2 px-2">
+      <div className="grid grid-cols-7 text-sm font-medium text-muted-foreground border-b py-2 px-2">
         {WEEKDAYS.map((day) => (
           <div key={day} className="text-center">
             {day}
