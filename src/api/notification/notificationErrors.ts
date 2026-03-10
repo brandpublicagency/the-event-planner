@@ -1,10 +1,9 @@
 
 import { Notification } from "@/types/notification";
+import { formatTitleFromType } from "@/contexts/notification/notificationFormatters";
 
 /**
  * Creates an error notification to display to the user
- * @param error The error that occurred
- * @returns A notification object representing the error
  */
 export const createErrorNotification = (error: unknown): Notification => {
   return {
@@ -20,13 +19,11 @@ export const createErrorNotification = (error: unknown): Notification => {
 
 /**
  * Creates a set of fallback notifications from original data
- * Used to ensure UI doesn't break when there's a partial error
  */
 export const createBasicNotifications = (notificationsData: any[]): Notification[] => {
   return notificationsData
     .filter(item => item && typeof item === 'object')
     .map(item => {
-      // Ensure status is one of the allowed values
       const status: "completed" | "read" | "sent" = 
         item.is_completed ? 'completed' : 
         item.is_read ? 'read' : 
@@ -44,32 +41,4 @@ export const createBasicNotifications = (notificationsData: any[]): Notification
         status: status
       };
     });
-};
-
-/**
- * Simple utility to format title from notification type
- * Duplicated here to avoid circular dependencies
- */
-const formatTitleFromType = (type: string): string => {
-  switch (type) {
-    case 'event_created':
-      return 'New Event Created';
-    case 'event_created_unified':
-      return 'New Event';
-    case 'task_overdue':
-      return 'Task Overdue';
-    case 'task_upcoming':
-      return 'Upcoming Task';
-    case 'event_incomplete':
-      return 'Incomplete Event';
-    case 'final_payment_reminder':
-    case 'payment_reminder':
-      return 'Payment Reminder';
-    case 'document_due_reminder':
-      return 'Document Due';
-    case 'task_created':
-      return 'New Task';
-    default:
-      return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  }
 };
