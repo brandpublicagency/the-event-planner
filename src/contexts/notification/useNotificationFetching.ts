@@ -8,6 +8,8 @@ import { formatNotification } from "./notificationFormatters";
 import { retryWithBackoff } from "@/utils/retryWithBackoff";
 import { NotificationFetchError } from "@/types/errors";
 
+const NOTIFICATION_LIMIT = 50;
+
 interface UseNotificationFetchingProps {
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
@@ -28,22 +30,14 @@ export const useNotificationFetching = ({
   const fetchAttemptsRef = useRef(0);
   const maxFetchAttempts = 3;
   const lastFetchTimeRef = useRef<number>(0);
-  const minTimeBetweenFetches = 2000; // Minimum 2 seconds between fetches
+  const minTimeBetweenFetches = 2000;
 
-  // Fetch notifications from Supabase with debouncing
   const fetchNotifications = useCallback(async (force = false) => {
     const now = Date.now();
     const timeSinceLastFetch = now - lastFetchTimeRef.current;
     
-    // Skip if already refreshing
-    if (isRefreshingRef.current) {
-      return;
-    }
-    
-    // Skip if fetched recently (unless forced)
-    if (!force && timeSinceLastFetch < minTimeBetweenFetches) {
-      return;
-    }
+    if (isRefreshingRef.current) return;
+    if (!force && timeSinceLastFetch < minTimeBetweenFetches) return;
 
     isRefreshingRef.current = true;
     setLoading(true);
@@ -55,13 +49,13 @@ export const useNotificationFetching = ({
       let formattedNotifications: Notification[] = [];
       
       try {
-        // Fetch with retry logic and exponential backoff
         const { data, error } = await retryWithBackoff(
           async () => {
             const result = await supabase
               .from('notifications')
               .select('*')
-              .order('created_at', { ascending: false });
+              .order('created_at', { ascending: false })
+              .limit(NOTIFICATION_LIMIT);
             
             if (result.error) {
               throw new NotificationFetchError(
@@ -79,9 +73,7 @@ export const useNotificationFetching = ({
           }
         );
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
         
         if (data && data.length > 0) {
           formattedNotifications = data.map(item => {
@@ -89,7 +81,6 @@ export const useNotificationFetching = ({
               return formatNotification(item);
             } catch (itemError) {
               console.warn("Error formatting notification item:", itemError);
-              // Provide a fallback formatted notification
               return {
                 id: item.id || `error-${Date.now()}`,
                 title: item.title || 'Notification',
@@ -102,12 +93,10 @@ export const useNotificationFetching = ({
               };
             }
           });
-
         } else if (process.env.NODE_ENV === 'development') {
           formattedNotifications = generateMockNotifications();
         }
       } catch (dbError) {
-        // Graceful degradation with fallback
         if (process.env.NODE_ENV === 'development') {
           formattedNotifications = generateMockNotifications();
         } else {
@@ -115,7 +104,6 @@ export const useNotificationFetching = ({
         }
       }
 
-      // Only update state if component is still mounted
       if (isMountedRef.current) {
         setNotifications(formattedNotifications);
         const unreadCount = formattedNotifications.filter(n => !n.read).length;
@@ -123,7 +111,6 @@ export const useNotificationFetching = ({
         setError(null);
         fetchAttemptsRef.current = 0;
         
-        // Cache in localStorage for offline viewing
         try {
           localStorage.setItem('cached_notifications', JSON.stringify({
             notifications: formattedNotifications,
@@ -137,7 +124,6 @@ export const useNotificationFetching = ({
       if (isMountedRef.current) {
         setError(error instanceof Error ? error : new Error('Network error. Please try again.'));
         
-        // Try to load from cache
         try {
           const cached = localStorage.getItem('cached_notifications');
           if (cached) {
@@ -153,11 +139,9 @@ export const useNotificationFetching = ({
         }
       }
     } finally {
-      // Important: Always set loading to false regardless of outcome
       if (isMountedRef.current) {
         setLoading(false);
       }
-      // Small timeout to prevent immediate re-fetching
       setTimeout(() => {
         isRefreshingRef.current = false;
       }, 300);

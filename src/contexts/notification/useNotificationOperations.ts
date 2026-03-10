@@ -12,15 +12,11 @@ export const useNotificationOperations = () => {
   const [error, setError] = useState<Error | null>(null);
   const isMountedRef = useRef(true);
   const isRefreshingRef = useRef(false);
-  const lastFilterRefreshRef = useRef<number>(Date.now());
 
-  // Function to trigger a filter refresh
   const triggerFilterRefresh = useCallback(() => {
-    lastFilterRefreshRef.current = Date.now();
-    console.log(`useNotificationOperations: Filter refresh triggered, timestamp: ${lastFilterRefreshRef.current}`);
+    // No-op here; the provider manages filter refresh state
   }, []);
 
-  // Import functionality from separate hooks
   const { fetchNotifications } = useNotificationFetching({
     setNotifications,
     setUnreadCount,
@@ -53,10 +49,8 @@ export const useNotificationOperations = () => {
     clearNotifications,
     fetchNotifications,
     isMountedRef,
-    lastFilterRefreshRef,
     triggerFilterRefresh
   };
 };
 
-// Re-export the formatNotification function to maintain backward compatibility
 export { formatNotification } from "./notificationFormatters";

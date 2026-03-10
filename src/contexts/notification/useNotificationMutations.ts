@@ -19,10 +19,8 @@ export const useNotificationMutations = ({
   fetchNotifications,
   triggerFilterRefresh
 }: UseNotificationMutationsProps) => {
-  // Mark a notification as read with retry logic
   const markAsRead = useCallback(async (id: string) => {
     try {
-      // Optimistic update
       let notificationUpdated = false;
       
       setNotifications(prev => {
@@ -45,7 +43,6 @@ export const useNotificationMutations = ({
         triggerFilterRefresh();
       }
       
-      // Update in database with retry
       await retryWithBackoff(
         async () => {
           const { error } = await supabase
@@ -71,10 +68,8 @@ export const useNotificationMutations = ({
     }
   }, [setNotifications, setUnreadCount, fetchNotifications, triggerFilterRefresh]);
 
-  // Mark a notification as completed (we'll just mark it as read for simplicity)
   const markAsCompleted = useCallback(async (id: string) => {
     try {
-      console.log('Marking notification as completed:', id);
       return await markAsRead(id);
     } catch (error) {
       console.error('Error in markAsCompleted:', error);
@@ -82,10 +77,8 @@ export const useNotificationMutations = ({
     }
   }, [markAsRead]);
 
-  // Mark all notifications as read with retry logic
   const markAllAsRead = useCallback(async () => {
     try {
-      // Optimistic update
       setNotifications(prev => {
         const hadUnread = prev.some(n => !n.read);
         if (hadUnread) {
@@ -101,7 +94,6 @@ export const useNotificationMutations = ({
       setUnreadCount(0);
       triggerFilterRefresh();
       
-      // Update in database with retry
       await retryWithBackoff(
         async () => {
           const { data: unreadNotifications } = await supabase
@@ -109,9 +101,7 @@ export const useNotificationMutations = ({
             .select('id')
             .eq('read', false);
           
-          if (!unreadNotifications || unreadNotifications.length === 0) {
-            return;
-          }
+          if (!unreadNotifications || unreadNotifications.length === 0) return;
           
           const { error } = await supabase
             .from('notifications')
@@ -136,14 +126,28 @@ export const useNotificationMutations = ({
     }
   }, [setNotifications, setUnreadCount, fetchNotifications, triggerFilterRefresh]);
 
-  // Clear all notifications (not implemented in database, just visual)
   const clearNotifications = useCallback(async () => {
-    // In a real implementation, we would delete notifications from the database
-    // For now, we'll just clear them from state
-    setNotifications([]);
-    setUnreadCount(0);
-    triggerFilterRefresh();
-  }, [setNotifications, setUnreadCount, triggerFilterRefresh]);
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('read', true);
+      
+      if (error) {
+        console.error("Error deleting read notifications:", error);
+        toast.error("Could not clear notifications");
+        return;
+      }
+      
+      // Remove read notifications from state
+      setNotifications(prev => prev.filter(n => !n.read));
+      triggerFilterRefresh();
+      toast.success("Read notifications cleared");
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+      toast.error("Could not clear notifications");
+    }
+  }, [setNotifications, triggerFilterRefresh]);
 
   return {
     markAsRead,

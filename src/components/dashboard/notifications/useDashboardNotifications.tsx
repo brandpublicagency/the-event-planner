@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { Notification } from "@/types/notification";
 import { toast } from "@/hooks/use-toast";
+import { navigateToNotificationTarget } from "@/utils/notificationNavigation";
 
 export const useDashboardNotifications = () => {
   const navigate = useNavigate();
@@ -43,36 +44,8 @@ export const useDashboardNotifications = () => {
     e.stopPropagation();
     
     try {
-      
       await markAsRead(notification.id);
-      
-      if (notification.relatedId) {
-        
-        
-        if (notification.relatedId.match(/^\d+-\d+$/) || 
-            notification.relatedId.startsWith('EVENT-') || 
-            notification.relatedId.startsWith('event_') ||
-            notification.relatedId.match(/^[A-Z]+-\d+-\d+$/)) {  // Added pattern for COR-2503-780
-          
-          // Use the event code exactly as is
-          const eventCode = notification.relatedId;
-              
-           if (window.location.pathname === `/events/${eventCode}`) {
-             window.location.href = `/events/${eventCode}`;
-             return;
-           }
-          navigate(`/events/${eventCode}`);
-        } 
-        else if (notification.relatedId.startsWith('task_')) {
-          navigate(`/tasks?selected=${notification.relatedId}`);
-        } 
-        else {
-          navigate(`/${notification.relatedId}`);
-        }
-      } else {
-        navigate('/notifications');
-      }
-      
+      navigateToNotificationTarget(notification, navigate);
       toast.success("Notification marked as read");
     } catch (error) {
       console.error('Error handling notification click:', error);
@@ -109,7 +82,6 @@ export const useDashboardNotifications = () => {
     navigate('/notifications');
   }, [navigate]);
 
-  // Get limited notifications for dashboard display
   const limitedNotifications = notifications.slice(0, 3);
   
   return {
