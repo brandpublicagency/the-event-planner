@@ -13,19 +13,17 @@ const INACTIVE_REFRESH_INTERVAL = 600000; // 10 minutes when inactive
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
   const [unreadCountState, setUnreadCountState] = useState<number>(0);
+  const [lastFilterRefresh, setLastFilterRefresh] = useState<number>(Date.now());
   const initialFetchDoneRef = useRef(false);
   const mountedRef = useRef(true);
   const initialFetchTimeoutRef = useRef<number | null>(null);
-  const lastFilterRefreshRef = useRef<number>(Date.now());
   const lastNotificationUpdateRef = useRef<number>(Date.now());
   const lastActivityRef = useRef<number>(Date.now());
   const isTabVisibleRef = useRef<boolean>(true);
 
-  // Function to trigger filter refresh by updating the timestamp
   const triggerFilterRefresh = useCallback(() => {
-    lastFilterRefreshRef.current = Date.now();
+    setLastFilterRefresh(Date.now());
     lastNotificationUpdateRef.current = Date.now();
-    console.log(`NotificationProvider: Triggered filter refresh, timestamp: ${lastFilterRefreshRef.current}`);
   }, []);
 
   const {
@@ -41,16 +39,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     isMountedRef
   } = useNotificationOperations();
 
-  // Set up cleanup function
   useEffect(() => {
-    console.log("NotificationProvider mounted");
     mountedRef.current = true;
     isMountedRef.current = true;
     
-    // Fetch notifications immediately when component mounts
     if (!initialFetchDoneRef.current) {
       initialFetchDoneRef.current = true;
-      console.log("Initial notifications fetch");
       fetchNotifications().catch((err) => {
         console.error("Error in initial notification fetch:", err);
         if (mountedRef.current) {
@@ -60,26 +54,18 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     }
     
     return () => {
-      console.log("NotificationProvider unmounted");
       mountedRef.current = false;
       isMountedRef.current = false;
-      
-      // Clear any lingering timeouts
       if (initialFetchTimeoutRef.current) {
         window.clearTimeout(initialFetchTimeoutRef.current);
       }
     };
   }, [fetchNotifications]);
 
-  // Set up initial fetch with a timeout to prevent blocking the UI
   useEffect(() => {
-    // Set a fallback timeout to ensure we show something even if fetch is slow
     const fallbackTimeout = window.setTimeout(() => {
       if (mountedRef.current && notificationsState.length === 0 && loading) {
-        console.log("Fallback timeout triggered for notifications");
-        // Force loading to false after 5 seconds
         if (isMountedRef.current) {
-          // Set empty notifications if nothing loaded after timeout
           setNotificationsState([]);
           setUnreadCountState(0);
         }
@@ -95,7 +81,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Smart refresh based on tab visibility and user activity
   useEffect(() => {
-    // Track user activity
     const updateActivity = () => {
       lastActivityRef.current = Date.now();
     };
@@ -104,13 +89,11 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     window.addEventListener('keydown', updateActivity);
     window.addEventListener('click', updateActivity);
     
-    // Track tab visibility
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
       isTabVisibleRef.current = isVisible;
       
       if (isVisible) {
-        // Refresh if data is stale when tab becomes visible
         const timeSinceUpdate = Date.now() - lastNotificationUpdateRef.current;
         if (timeSinceUpdate > STALE_DATA_THRESHOLD) {
           fetchNotifications().catch(err => {
@@ -122,17 +105,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Smart refresh interval
     const refreshInterval = window.setInterval(() => {
-      if (!mountedRef.current || !isTabVisibleRef.current) {
-        return;
-      }
+      if (!mountedRef.current || !isTabVisibleRef.current) return;
       
       const timeSinceUpdate = Date.now() - lastNotificationUpdateRef.current;
       const timeSinceActivity = Date.now() - lastActivityRef.current;
-      const isUserActive = timeSinceActivity < 60000; // Active in last minute
-      
-      // Use different intervals based on activity
+      const isUserActive = timeSinceActivity < 60000;
       const threshold = isUserActive ? BACKGROUND_REFRESH_INTERVAL : INACTIVE_REFRESH_INTERVAL;
       
       if (timeSinceUpdate > threshold) {
@@ -140,7 +118,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           console.error("Error in background notification refresh:", err);
         });
       }
-    }, 60000); // Check every minute
+    }, 60000);
     
     return () => {
       window.clearInterval(refreshInterval);
@@ -169,7 +147,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     triggerFilterRefresh
   });
 
-  // Wrapped operations with filter refresh
   const wrappedMarkAsRead = async (id: string) => {
     const success = await markAsRead(id);
     triggerFilterRefresh();
@@ -206,7 +183,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         markAllAsRead: wrappedMarkAllAsRead,
         clearNotifications,
         refreshNotifications: wrappedRefreshNotifications,
-        lastFilterRefresh: lastFilterRefreshRef.current,
+        lastFilterRefresh,
       }}
     >
       {children}
