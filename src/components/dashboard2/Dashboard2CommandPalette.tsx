@@ -191,7 +191,7 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
                 <CommandItem
                   key={task.id}
                   value={`task-${task.id}-${task.title}`}
-                  onSelect={() => runCommand(() => navigate(`/tasks/${task.id}`))}
+                  onSelect={() => runCommand(() => navigate(`/tasks?selected=${task.id}`))}
                 >
                   <ListTodo className="mr-2 h-4 w-4 text-muted-foreground" />
                   <div className="flex flex-col">
