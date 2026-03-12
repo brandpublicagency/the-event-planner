@@ -101,7 +101,7 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md space-y-8 p-8">
+      <Card className="w-full max-w-md space-y-8 p-8 rounded-2xl shadow-sm">
         <div className="text-center">
           <h2 className="text-2xl font-bold tracking-tight">
             {email ? 'Accept Team Invitation' : 'Welcome to Warm Karoo'}
