@@ -17,7 +17,7 @@ const DashboardWeatherCard = () => {
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30">
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <div className="flex items-center gap-1.5 mb-1">
             <MapPin className="h-3 w-3 text-muted-foreground" />
