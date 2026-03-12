@@ -21,7 +21,7 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md p-0">
-        <SheetHeader className="p-4 border-b border-border">
+        <SheetHeader className="p-4 pr-12 border-b border-border">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-sm font-medium flex items-center gap-2">
               <Bell className="h-4 w-4" />
