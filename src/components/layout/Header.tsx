@@ -123,7 +123,6 @@ export const Header = ({
                 {actionButton.label}
               </Button>
             )}
-            <UserMenu />
           </div>
         </div>
       </header>
