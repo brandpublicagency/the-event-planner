@@ -2,7 +2,7 @@ import { useDashboardMessage } from "@/hooks/useDashboardMessage";
 import { useProfile } from "@/hooks/useProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
 import WeatherWidget from "./weather/WeatherWidget";
 import { useToast } from "@/hooks/use-toast";
