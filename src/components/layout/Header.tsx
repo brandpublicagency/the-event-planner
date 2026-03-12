@@ -20,13 +20,14 @@ export interface ActionButtonProps {
 export interface HeaderProps {
   contextTitle?: string;
   pageTitle?: string;
-  title?: string; // Added for backward compatibility
+  title?: string;
   actionButton?: ActionButtonProps;
   secondaryAction?: React.ReactNode;
   children?: React.ReactNode;
   showBackButton?: boolean;
   backButtonPath?: string;
   onBackButtonClick?: () => void;
+  hideSearchBar?: boolean;
 }
 
 export const Header = ({
