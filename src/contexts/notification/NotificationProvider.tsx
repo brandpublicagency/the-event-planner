@@ -147,45 +147,45 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     triggerFilterRefresh
   });
 
-  const wrappedMarkAsRead = async (id: string) => {
+  const wrappedMarkAsRead = useCallback(async (id: string) => {
     const success = await markAsRead(id);
     triggerFilterRefresh();
     return success;
-  };
+  }, [markAsRead, triggerFilterRefresh]);
 
-  const wrappedMarkAllAsRead = async () => {
+  const wrappedMarkAllAsRead = useCallback(async () => {
     const success = await markAllAsRead();
     triggerFilterRefresh();
     return success;
-  };
+  }, [markAllAsRead, triggerFilterRefresh]);
 
-  const wrappedMarkAsCompleted = async (id: string) => {
+  const wrappedMarkAsCompleted = useCallback(async (id: string) => {
     const success = await markAsCompleted(id);
     triggerFilterRefresh();
     return success;
-  };
+  }, [markAsCompleted, triggerFilterRefresh]);
 
-  const wrappedRefreshNotifications = async () => {
+  const wrappedRefreshNotifications = useCallback(async () => {
     await fetchNotifications(true);
     triggerFilterRefresh();
     return true;
-  };
+  }, [fetchNotifications, triggerFilterRefresh]);
+
+  const contextValue = React.useMemo(() => ({
+    notifications: notificationsState,
+    unreadCount: unreadCountState,
+    loading,
+    error,
+    markAsRead: wrappedMarkAsRead,
+    markAsCompleted: wrappedMarkAsCompleted,
+    markAllAsRead: wrappedMarkAllAsRead,
+    clearNotifications,
+    refreshNotifications: wrappedRefreshNotifications,
+    lastFilterRefresh,
+  }), [notificationsState, unreadCountState, loading, error, wrappedMarkAsRead, wrappedMarkAsCompleted, wrappedMarkAllAsRead, clearNotifications, wrappedRefreshNotifications, lastFilterRefresh]);
 
   return (
-    <NotificationContext.Provider
-      value={{
-        notifications: notificationsState,
-        unreadCount: unreadCountState,
-        loading,
-        error,
-        markAsRead: wrappedMarkAsRead,
-        markAsCompleted: wrappedMarkAsCompleted,
-        markAllAsRead: wrappedMarkAllAsRead,
-        clearNotifications,
-        refreshNotifications: wrappedRefreshNotifications,
-        lastFilterRefresh,
-      }}
-    >
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   );
