@@ -62,36 +62,30 @@ const DashboardTasksSection = () => {
                   {config.label}
                 </span>
               </div>
-              <AnimatePresence mode="popLayout">
-                {pTasks.map(task => (
-                  <motion.div
-                    key={task.id}
-                    layout
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 8, transition: { duration: 0.2 } }}
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted transition-colors group"
+              {pTasks.map(task => (
+                <div
+                  key={task.id}
+                  className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted transition-colors group"
+                >
+                  <button
+                    onClick={() => toggleTask(task.id, true)}
+                    className="shrink-0"
                   >
-                    <button
-                      onClick={() => toggleTask(task.id, true)}
-                      className="shrink-0"
-                    >
-                      <Circle className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </button>
-                    <button
-                      onClick={() => navigate(`/tasks?selected=${task.id}`)}
-                      className="flex-1 text-left text-xs text-foreground truncate"
-                    >
-                      {task.title}
-                    </button>
-                    {task.priority && task.priority !== 'normal' && (
-                      <Badge className={cn('text-[9px] h-4 px-1 border-0', config.color)}>
-                        {config.label}
-                      </Badge>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                    <Circle className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                  <button
+                    onClick={() => navigate(`/tasks?selected=${task.id}`)}
+                    className="flex-1 text-left text-xs text-foreground truncate"
+                  >
+                    {task.title}
+                  </button>
+                  {task.priority && task.priority !== 'normal' && (
+                    <Badge className={cn('text-[9px] h-4 px-1 border-0', config.color)}>
+                      {config.label}
+                    </Badge>
+                  )}
+                </div>
+              ))}
             </div>
           );
         })}
