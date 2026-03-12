@@ -214,9 +214,10 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
 
   const sendMessage = useMutation({
     mutationFn: async (text: string) => {
-      if (!currentUser) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No active session. Please log in again.");
       const { error } = await supabase.from("team_chat_messages").insert({
-        user_id: currentUser.id,
+        user_id: session.user.id,
         message: text,
       });
       if (error) throw error;
@@ -224,6 +225,9 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
     onSuccess: () => {
       setInput("");
       broadcastStopTyping();
+    },
+    onError: (error) => {
+      toast.error(`Failed to send message: ${error.message}`);
     },
   });
 
