@@ -2,7 +2,7 @@ import { useWeatherDataManager } from "@/components/dashboard/weather/hooks/useW
 import { useTimeManager } from "@/components/dashboard/weather/hooks/useTimeManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Droplets, Wind, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
+
 import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
 const DashboardWeatherCard = () => {
@@ -16,12 +16,7 @@ const DashboardWeatherCard = () => {
   if (!showWeather || !weatherData) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30"
-    >
+    <div className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30">
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-1.5 mb-1">
@@ -74,7 +69,7 @@ const DashboardWeatherCard = () => {
           ))}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

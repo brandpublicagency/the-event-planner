@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { motion } from "framer-motion";
+
 import { CalendarDays, Users, ListTodo, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { differenceInDays, differenceInHours } from "date-fns";
@@ -15,12 +15,7 @@ interface KPICardProps {
 }
 
 const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.4, delay }}
-    className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors"
-  >
+  <div className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors">
     <div className="flex items-center gap-1.5 mb-1">
       <Icon className="h-3 w-3 text-muted-foreground" />
       <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
@@ -29,7 +24,7 @@ const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) =>
     {subtitle && (
       <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{subtitle}</p>
     )}
-  </motion.div>
+  </div>
 );
 
 const DashboardKPIStrip = () => {

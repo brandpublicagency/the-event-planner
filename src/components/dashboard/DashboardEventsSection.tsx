@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, CalendarDays, List, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
+
 import { format } from "date-fns";
 import { useState } from "react";
 import DashboardEventCard from "./DashboardEventCard";
@@ -61,11 +61,7 @@ const DashboardEventsSection = () => {
   const groupedEvents = Object.entries(groupEventsByMonth(events));
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-xl border border-border bg-card/50">
+    <div className="rounded-xl border border-border bg-card/50">
       
       <div className="flex items-center justify-between p-4 border-b border-border rounded-t-xl">
         <div className="flex items-center gap-2">
@@ -167,7 +163,7 @@ const DashboardEventsSection = () => {
           </div>
         }
       </div>
-    </motion.div>
+    </div>
   );
 };
 
