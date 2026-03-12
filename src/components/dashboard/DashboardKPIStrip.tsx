@@ -25,7 +25,7 @@ const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) =>
     {subtitle && (
       <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{subtitle}</p>
     )}
-  </motion.div>
+  </div>
 );
 
 const DashboardKPIStrip = () => {

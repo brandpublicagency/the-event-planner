@@ -123,7 +123,7 @@ const DashboardTasksSection = () => {
           </Button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

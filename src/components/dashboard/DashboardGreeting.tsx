@@ -77,7 +77,7 @@ const DashboardGreeting = () => {
           </>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

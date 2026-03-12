@@ -70,7 +70,7 @@ const DashboardWeatherCard = () => {
           ))}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

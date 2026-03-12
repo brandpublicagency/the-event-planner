@@ -163,7 +163,7 @@ const DashboardEventsSection = () => {
           </div>
         }
       </div>
-    </motion.div>
+    </div>
   );
 };
 
