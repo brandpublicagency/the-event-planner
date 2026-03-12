@@ -36,8 +36,8 @@ const DashboardTasksSection = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.15 }}
       className="rounded-xl border border-border bg-card"
     >
