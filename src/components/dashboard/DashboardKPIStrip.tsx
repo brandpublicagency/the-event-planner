@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskContext } from "@/contexts/TaskContext";
-import { motion } from "framer-motion";
+
 import { CalendarDays, Users, ListTodo, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { differenceInDays, differenceInHours } from "date-fns";

@@ -2,7 +2,7 @@ import { useWeatherDataManager } from "@/components/dashboard/weather/hooks/useW
 import { useTimeManager } from "@/components/dashboard/weather/hooks/useTimeManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Droplets, Wind, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
+
 import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
 const DashboardWeatherCard = () => {

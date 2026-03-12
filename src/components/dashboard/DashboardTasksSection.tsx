@@ -1,5 +1,5 @@
 import { useTaskContext } from "@/contexts/TaskContext";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { ListTodo, Plus, CheckCircle2, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

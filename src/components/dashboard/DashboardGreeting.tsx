@@ -2,7 +2,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useTaskContext } from "@/contexts/TaskContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 

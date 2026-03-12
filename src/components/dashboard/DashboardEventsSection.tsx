@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, CalendarDays, List, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
+
 import { format } from "date-fns";
 import { useState } from "react";
 import DashboardEventCard from "./DashboardEventCard";
