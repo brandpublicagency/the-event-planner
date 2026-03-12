@@ -57,8 +57,8 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           className={cn(
             "ml-auto px-1.5 py-0 text-[10px]",
             isActive ?
-            "bg-white/25 text-foreground hover:bg-white/30" :
-            "bg-white/20 text-foreground/80 hover:bg-white/25"
+            "bg-white/25 dark:bg-white/10 text-foreground hover:bg-white/30 dark:hover:bg-white/15" :
+            "bg-white/20 dark:bg-white/10 text-foreground/80 hover:bg-white/25 dark:hover:bg-white/15"
           )}>
           
             {item.badge > 99 ? "99+" : item.badge}
