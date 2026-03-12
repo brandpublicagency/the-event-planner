@@ -17,6 +17,7 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <App />
     </BrowserRouter>
   </React.StrictMode>
