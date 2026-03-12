@@ -42,21 +42,9 @@ const DashboardLayout = () => {
         secondaryAction={
           <div className="flex items-center gap-1">
             <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-2 text-xs text-muted-foreground px-3"
-              onClick={() => setCommandOpen(true)}
-            >
-              <Search className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Search...</span>
-              <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                ⌘K
-              </kbd>
-            </Button>
-            <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 relative overflow-hidden"
+              className="h-8 w-8 relative"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
             >
               <motion.div
@@ -84,7 +72,20 @@ const DashboardLayout = () => {
             </Button>
           </div>
         }
-      />
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-2 text-xs text-muted-foreground px-3 ml-4"
+          onClick={() => setCommandOpen(true)}
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Search...</span>
+          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            ⌘K
+          </kbd>
+        </Button>
+      </Header>
 
       <div className="flex-1 overflow-auto px-4 pb-6">
         <DashboardGreeting />
