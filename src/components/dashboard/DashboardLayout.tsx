@@ -17,22 +17,8 @@ import { useTheme } from "@/components/theme-provider";
 
 const DashboardLayout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
   const { unreadCount } = useDashboardNotifications();
   const { theme, setTheme } = useTheme();
-
-  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setCommandOpen((prev) => !prev);
-      }
-    };
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, []);
 
   return (
     <div className="flex flex-col h-full">
