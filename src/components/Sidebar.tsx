@@ -51,7 +51,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
       </AnimatePresence>
 
       {/* Liquid glass overlay */}
-      <div className="absolute inset-0 bg-white/15 backdrop-blur-md ring-1 ring-inset ring-white/30 shadow-inner pointer-events-none" />
+      <div className="absolute inset-0 bg-white/8 backdrop-blur-sm ring-1 ring-inset ring-white/20 shadow-inner pointer-events-none" />
 
       <div className="flex flex-col h-full relative z-10">
         <SidebarProfile isCollapsed={isCollapsed} />
