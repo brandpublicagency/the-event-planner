@@ -67,7 +67,7 @@ const DashboardLayout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
           <div className="lg:col-span-2 flex flex-col gap-4">
             <DashboardEventsSection />
-            <DashboardTeamChat className="h-[300px]" />
+            <DashboardTeamChat className="flex-1 min-h-[300px]" />
           </div>
 
           <div className="flex flex-col gap-4">
