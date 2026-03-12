@@ -36,8 +36,7 @@ export const AppRoutes = () => {
           </RootLayout>
         </ProtectedRoute>
       }>
-        <Route path="/" element={<Index />} />
-        <Route path="/dashboard-2" element={<Dashboard2 />} />
+        <Route path="/" element={<Dashboard2 />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/passed" element={<PassedEvents />} />
         <Route path="/calendar" element={<Calendar />} />

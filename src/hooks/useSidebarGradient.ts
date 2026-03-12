@@ -7,7 +7,6 @@ export function useSidebarGradient() {
   const getGradientByPath = () => {
     switch (location.pathname) {
       case '/':
-      case '/dashboard-2':
         return 'bg-gradient-to-br from-[hsl(210,55%,90%)] via-[hsl(330,45%,92%)] to-[hsl(190,48%,88%)]';
       case '/events':
         return 'bg-gradient-to-br from-[hsl(145,35%,88%)] via-[hsl(155,30%,90%)] to-[hsl(140,32%,86%)]';

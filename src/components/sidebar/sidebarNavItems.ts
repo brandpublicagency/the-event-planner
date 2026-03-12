@@ -25,11 +25,6 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
       label: "Dashboard"
     },
     {
-      icon: LayoutGrid,
-      path: "/dashboard-2",
-      label: "Dashboard 2"
-    },
-    {
       icon: FileText,
       path: "/events",
       label: "Upcoming Events"
