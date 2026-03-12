@@ -39,16 +39,22 @@ interface SearchContact {
 interface DashboardCommandPaletteProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialQuery?: string;
 }
 
-const DashboardCommandPalette = ({ open, onOpenChange }: DashboardCommandPaletteProps) => {
+const DashboardCommandPalette = ({ open, onOpenChange, initialQuery = "" }: DashboardCommandPaletteProps) => {
   const navigate = useNavigate();
   const { tasks } = useTaskContext();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const debouncedQuery = useDebounce(query, 200);
   const [events, setEvents] = useState<SearchEvent[]>([]);
   const [contacts, setContacts] = useState<SearchContact[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open && initialQuery) setQuery(initialQuery);
+    if (!open) setQuery("");
+  }, [open, initialQuery]);
 
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
