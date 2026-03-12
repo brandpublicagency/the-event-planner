@@ -311,7 +311,7 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
         <span className="text-sm font-medium text-foreground">Team Chat</span>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0 px-3 py-2">
+      <ScrollArea className="flex-1 min-h-0 px-4 py-3">
         {isLoading ? (
           <p className="text-xs text-muted-foreground text-center py-4">Loading...</p>
         ) : messages.length === 0 ? (
