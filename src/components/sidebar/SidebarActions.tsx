@@ -27,7 +27,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   return (
     <div className={cn(
-      "border-t border-white/20 pt-2 pb-3",
+      "border-t border-sidebar-border pt-2 pb-3",
       isCollapsed ? "px-2" : "px-3"
     )}>
       <div className={cn(
@@ -60,7 +60,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
-            <div className="my-1.5 w-6 border-t border-white/20"></div>
+            <div className="my-1.5 w-6 border-t border-sidebar-border"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
@@ -96,7 +96,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               <span className="text-xs font-medium">Add Document</span>
             </button>
             
-            <div className="my-1.5 border-t border-white/20"></div>
+            <div className="my-1.5 border-t border-sidebar-border"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
