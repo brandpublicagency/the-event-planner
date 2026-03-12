@@ -70,7 +70,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
   return (
     <div className={cn(
-      "h-[65px] w-full flex items-center border-b border-border bg-background transition-all duration-200",
+      "h-[65px] w-full flex items-center border-b border-border bg-white/30 transition-all duration-200",
       isCollapsed ? "justify-center px-0" : "px-3"
     )}>
       <div className={cn(
