@@ -61,11 +61,7 @@ const DashboardEventsSection = () => {
   const groupedEvents = Object.entries(groupEventsByMonth(events));
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-xl border border-border bg-card/50">
+    <div className="rounded-xl border border-border bg-card/50">
       
       <div className="flex items-center justify-between p-4 border-b border-border rounded-t-xl">
         <div className="flex items-center gap-2">
