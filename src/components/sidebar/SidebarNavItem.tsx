@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 interface NavItemProps {
   item: {
     icon: React.ElementType;
-    x;
     path: string;
     label: string;
     badge?: number;
