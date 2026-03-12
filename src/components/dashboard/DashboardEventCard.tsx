@@ -32,7 +32,7 @@ const DashboardEventCard = ({ event }: DashboardEventCardProps) => {
         <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {event.name}
         </h4>
-        <Badge className={cn('text-[10px] font-medium px-1.5 py-0 h-5 border-0 shrink-0', colorClass)}>
+        <Badge className={cn('text-[10px] font-medium px-1.5 py-0 h-5 border-0 shrink-0 hover:bg-inherit', colorClass)}>
           {event.event_type}
         </Badge>
       </div>
