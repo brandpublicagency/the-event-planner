@@ -40,7 +40,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
           <>
             <button 
               onClick={() => navigate('/events/new')} 
-              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-hover h-8 w-8 rounded-full transition-all duration-200"
               title="Add Event"
             >
               <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -48,7 +48,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={() => navigate('/tasks?newTask=true')} 
-              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-hover h-8 w-8 rounded-full transition-all duration-200"
               title="Add Task"
             >
               <CheckSquare className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -56,7 +56,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
             
             <button 
               onClick={handleAddDocument} 
-              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-hover h-8 w-8 rounded-full transition-all duration-200"
               title="Add Document"
             >
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
