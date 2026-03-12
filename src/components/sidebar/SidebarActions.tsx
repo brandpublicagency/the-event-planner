@@ -62,11 +62,11 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
-            <div className="my-1.5 w-6 border-t border-border/50"></div>
+            <div className="my-1.5 w-6 border-t border-sidebar-border/50"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="group flex justify-center items-center text-muted-foreground hover:text-foreground hover:bg-background/50 h-8 w-8 rounded-full transition-all duration-200"
+              className="group flex justify-center items-center text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-hover h-8 w-8 rounded-full transition-all duration-200"
               title="Expand Sidebar"
             >
               <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
