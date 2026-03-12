@@ -65,9 +65,9 @@ const DashboardEventsSection = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-xl border border-border bg-muted/60">
+      className="rounded-xl border border-border bg-card">
       
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background/80 rounded-t-xl">
+      <div className="flex items-center justify-between p-4 border-b border-border rounded-t-xl">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-medium text-foreground">Upcoming Events</h3>
