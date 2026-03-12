@@ -10,7 +10,7 @@ import DashboardNotificationsDrawer from "./DashboardNotificationsDrawer";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Bell, Sun, Moon, Search } from "lucide-react";
+import { Bell, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { useTheme } from "@/components/theme-provider";
