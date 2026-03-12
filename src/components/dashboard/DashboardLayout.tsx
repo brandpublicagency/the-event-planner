@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import DashboardGreeting from "./DashboardGreeting";
 import DashboardKPIStrip from "./DashboardKPIStrip";
 import DashboardEventsSection from "./DashboardEventsSection";
-import DashboardWeatherCard from "./DashboardWeatherCard";
+import WeatherWidget from "./weather/WeatherWidget";
 import DashboardTasksSection from "./DashboardTasksSection";
 import DashboardMiniCalendar from "./DashboardMiniCalendar";
 import DashboardTeamChat from "./DashboardTeamChat";
