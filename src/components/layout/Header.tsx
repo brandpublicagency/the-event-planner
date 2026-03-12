@@ -140,7 +140,11 @@ export const Header = ({
       </header>
       <DashboardCommandPalette
         open={commandOpen}
-        onOpenChange={setCommandOpen}
+        onOpenChange={(open) => {
+          setCommandOpen(open);
+          if (!open) setSearchQuery("");
+        }}
+        initialQuery={searchQuery}
       />
     </>
   );
