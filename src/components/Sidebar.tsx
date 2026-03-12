@@ -46,12 +46,12 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
         />
       </AnimatePresence>
 
       {/* Liquid glass overlay */}
-      <div className="absolute inset-0 bg-white/8 backdrop-blur-sm ring-1 ring-inset ring-white/20 shadow-inner pointer-events-none" />
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] ring-1 ring-inset ring-white/15 pointer-events-none" />
 
       <div className="flex flex-col h-full relative z-10">
         <SidebarProfile isCollapsed={isCollapsed} />
