@@ -29,7 +29,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
 
   return (
     <div className={cn(
-      "border-t border-border/50 backdrop-blur-sm bg-background/20 pt-2 pb-3",
+      "border-t border-sidebar-border pt-2 pb-3",
       isCollapsed ? "px-2" : "px-3"
     )}>
       <div className={cn(
