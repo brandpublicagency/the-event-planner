@@ -76,7 +76,7 @@ const DashboardLayout = () => {
         <Button
           variant="outline"
           size="sm"
-          className="h-8 gap-2 text-xs text-muted-foreground px-3 ml-4"
+          className="h-8 gap-2 text-xs text-muted-foreground px-3"
           onClick={() => setCommandOpen(true)}
         >
           <Search className="h-3.5 w-3.5" />
