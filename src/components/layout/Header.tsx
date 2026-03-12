@@ -61,7 +61,7 @@ export const Header = ({
     const path = location.pathname;
     if (path === '/') return 'Dashboard';
     if (path === '/events') return 'Events';
-    if (path === '/passed-events') return 'Passed Events';
+    if (path === '/events/passed') return 'Passed Events';
     if (path === '/calendar') return 'Calendar';
     if (path === '/tasks') return 'Tasks';
     if (path === '/contacts') return 'Contacts';

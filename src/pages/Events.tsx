@@ -44,7 +44,7 @@ const Events = () => {
   
   return (
     <div className="flex flex-col h-full">
-      <Header title="Upcoming Events" />
+      <Header pageTitle="Events" />
 
       <div className="flex-1 p-6 bg-muted overflow-auto">
         <EventsList 
