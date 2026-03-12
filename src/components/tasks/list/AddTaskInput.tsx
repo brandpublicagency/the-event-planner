@@ -33,16 +33,16 @@ export function AddTaskInput({
             onSubmit();
           }
         }}
-        className="text-xs h-7"
+        className="text-xs h-9"
       />
       <Button 
         onClick={onSubmit} 
         disabled={!value.trim()}
         size="icon"
         variant="outline"
-        className="h-7 w-7 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
+        className="h-9 w-9 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
       >
-        <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+        <Plus className="h-3.5 w-3.5 text-foreground" />
       </Button>
     </div>
   );
