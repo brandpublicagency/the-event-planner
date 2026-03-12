@@ -92,8 +92,9 @@ const Dashboard2EventsSection = () => {
           </div>
           <Button
             onClick={() => navigate('/events/new')}
+            variant="outline"
             size="sm"
-            className="h-7 text-xs gap-1">
+            className="h-7 text-xs gap-1 bg-card">
             
             <Plus className="h-3.5 w-3.5" />
             New Event
