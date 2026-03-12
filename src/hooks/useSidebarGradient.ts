@@ -25,7 +25,7 @@ export function useSidebarGradient() {
       case '/schedule/site-visit':
         return 'bg-gradient-to-br from-[hsl(260,40%,90%)] via-[hsl(250,35%,92%)] to-[hsl(270,38%,88%)]';
       default:
-        return 'bg-gradient-to-br from-[hsl(18,55%,90%)] via-[hsl(25,48%,92%)] to-[hsl(12,52%,88%)]';
+        return 'bg-gradient-to-br from-[hsl(14,65%,88%)] via-[hsl(20,60%,90%)] to-[hsl(8,58%,85%)]';
     }
   };
 
