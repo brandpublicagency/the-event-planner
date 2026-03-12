@@ -69,7 +69,7 @@ const Dashboard2EventsSection = () => {
       className="rounded-xl border border-border bg-muted/60">
       
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background/60 rounded-t-xl">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-background/80 rounded-t-xl">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-medium text-foreground">Upcoming Events</h3>
