@@ -39,7 +39,7 @@ const Dashboard2TasksSection = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="rounded-xl border border-border bg-muted/40"
+      className="rounded-xl border border-border bg-card"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
