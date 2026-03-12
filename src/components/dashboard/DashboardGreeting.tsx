@@ -51,11 +51,7 @@ const DashboardGreeting = () => {
   const firstName = profile?.full_name || 'there';
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="mt-4 mb-2"
+    <div className="mt-4 mb-2">
     >
       <h1 className="text-xl font-semibold text-foreground tracking-tight">
         {getGreeting()}, {firstName}
