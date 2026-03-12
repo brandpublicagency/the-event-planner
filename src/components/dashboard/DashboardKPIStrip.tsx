@@ -16,8 +16,8 @@ interface KPICardProps {
 
 const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
     transition={{ duration: 0.4, delay }}
     className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors"
   >
