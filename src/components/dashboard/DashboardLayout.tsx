@@ -7,38 +7,24 @@ import DashboardTasksSection from "./DashboardTasksSection";
 import DashboardMiniCalendar from "./DashboardMiniCalendar";
 import DashboardTeamChat from "./DashboardTeamChat";
 import DashboardNotificationsDrawer from "./DashboardNotificationsDrawer";
-import DashboardCommandPalette from "./DashboardCommandPalette";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Sun, Moon, Search } from "lucide-react";
+import { Bell, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
 import { useTheme } from "@/components/theme-provider";
 
 const DashboardLayout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
   const { unreadCount } = useDashboardNotifications();
   const { theme, setTheme } = useTheme();
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setCommandOpen((prev) => !prev);
-      }
-    };
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, []);
-
   return (
     <div className="flex flex-col h-full">
       <Header
         pageTitle="Dashboard"
-        hideSearchBar
         secondaryAction={
           <div className="flex items-center gap-1">
             <Button
@@ -72,20 +58,7 @@ const DashboardLayout = () => {
             </Button>
           </div>
         }
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-2 text-xs text-muted-foreground px-3"
-          onClick={() => setCommandOpen(true)}
-        >
-          <Search className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Search...</span>
-          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-            ⌘K
-          </kbd>
-        </Button>
-      </Header>
+      />
 
       <div className="flex-1 overflow-auto px-4 pb-6">
         <DashboardGreeting />
@@ -108,10 +81,6 @@ const DashboardLayout = () => {
       <DashboardNotificationsDrawer
         open={notificationsOpen}
         onOpenChange={setNotificationsOpen}
-      />
-      <DashboardCommandPalette
-        open={commandOpen}
-        onOpenChange={setCommandOpen}
       />
     </div>
   );
