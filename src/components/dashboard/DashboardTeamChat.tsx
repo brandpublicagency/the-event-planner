@@ -305,7 +305,7 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
           : null;
 
   return (
-    <div className={`rounded-xl border border-border bg-card transition-all hover:border-foreground/30 flex flex-col ${className || ""}`}>
+    <div className={`rounded-xl border border-border bg-card/50 transition-all hover:border-foreground/30 flex flex-col ${className || ""}`}>
       <div className="flex items-center gap-2 p-3 border-b border-border shrink-0 rounded-t-xl">
         <MessageCircle className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium text-foreground">Team Chat</span>
