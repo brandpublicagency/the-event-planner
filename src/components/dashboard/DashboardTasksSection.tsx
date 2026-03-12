@@ -35,11 +35,7 @@ const DashboardTasksSection = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.15 }}
-      className="rounded-xl border border-border bg-card"
+    <div className="rounded-xl border border-border bg-card"
     >
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-2">
