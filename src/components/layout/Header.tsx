@@ -92,18 +92,19 @@ export const Header = ({
 
 
             {!isDocumentsPage && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 gap-2 text-xs text-muted-foreground px-4 hover:bg-transparent hover:text-muted-foreground hover:border-foreground/30"
-                onClick={() => setCommandOpen(true)}
-              >
-                <Search className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Search...</span>
-                <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <div className="relative w-[280px] sm:w-[320px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full h-9 rounded-md border border-border bg-background pl-9 pr-12 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                  onFocus={() => setCommandOpen(true)}
+                  readOnly
+                />
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                   ⌘K
                 </kbd>
-              </Button>
+              </div>
             )}
           </div>
 
