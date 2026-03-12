@@ -41,7 +41,7 @@ const Dashboard2MiniCalendar = () => {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-muted/40 p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">
