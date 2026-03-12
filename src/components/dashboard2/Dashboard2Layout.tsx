@@ -37,7 +37,7 @@ const Dashboard2Layout = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <Header pageTitle="Dashboard 2">
+      <Header pageTitle="Dashboard">
         <div className="ml-auto mr-2 flex items-center gap-1">
           <Button
             variant="outline"
