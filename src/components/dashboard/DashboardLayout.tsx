@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import DashboardGreeting from "./DashboardGreeting";
 import DashboardKPIStrip from "./DashboardKPIStrip";
 import DashboardEventsSection from "./DashboardEventsSection";
-import DashboardWeatherCard from "./DashboardWeatherCard";
+import WeatherWidget from "./weather/WeatherWidget";
 import DashboardTasksSection from "./DashboardTasksSection";
 import DashboardMiniCalendar from "./DashboardMiniCalendar";
 import DashboardTeamChat from "./DashboardTeamChat";
@@ -83,6 +83,7 @@ const DashboardLayout = () => {
       </Header>
 
       <div className="flex-1 overflow-auto px-4 pb-6">
+        <WeatherWidget forcedVisible />
         <DashboardGreeting />
         <DashboardKPIStrip />
 
@@ -94,7 +95,6 @@ const DashboardLayout = () => {
 
           <div className="flex flex-col gap-4">
             <DashboardMiniCalendar />
-            <DashboardWeatherCard />
             <DashboardTasksSection />
           </div>
         </div>
