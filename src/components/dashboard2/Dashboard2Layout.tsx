@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
-import { Badge } from "@/components/ui/badge";
+
 import { useTheme } from "@/components/theme-provider";
 const Dashboard2Layout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
