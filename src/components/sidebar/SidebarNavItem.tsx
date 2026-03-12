@@ -77,7 +77,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
 
       {isCollapsed &&
       <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="h-7 w-1 rounded-l-full bg-white/40"></div>
+          <div className="h-7 w-1 rounded-l-full bg-white/40 dark:bg-white/20"></div>
         </div>
       }
     </Link>);

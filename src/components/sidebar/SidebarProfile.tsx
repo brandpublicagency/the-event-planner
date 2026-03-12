@@ -132,8 +132,8 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           >
             {isLoading ? (
               <>
-                <Skeleton className="h-3 w-20 mb-1 bg-white/20" />
-                <Skeleton className="h-2.5 w-16 bg-white/15" />
+                <Skeleton className="h-3 w-20 mb-1 bg-white/20 dark:bg-white/10" />
+                <Skeleton className="h-2.5 w-16 bg-white/15 dark:bg-white/5" />
               </>
             ) : (
               <>
