@@ -33,13 +33,14 @@ export interface HeaderProps {
 export const Header = ({
   contextTitle,
   pageTitle,
-  title, // Support the old title prop
+  title,
   actionButton,
   secondaryAction,
   children,
   showBackButton,
   backButtonPath = "/",
-  onBackButtonClick
+  onBackButtonClick,
+  hideSearchBar
 }: HeaderProps = {}) => {
   const location = useLocation();
   const isDocumentsPage = location.pathname.startsWith('/documents');
