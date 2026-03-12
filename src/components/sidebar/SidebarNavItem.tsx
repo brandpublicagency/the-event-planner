@@ -24,7 +24,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
         "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white/50 transition-colors duration-200",
         isCollapsed ? "justify-center w-9 mx-auto" : "px-3",
         isActive
-          ? "bg-white/40 text-foreground shadow-sm ring-1 ring-white/40"
+          ? "bg-white/40 text-foreground ring-1 ring-white/40"
           : "text-foreground/70 hover:bg-white/15 hover:text-foreground",
       )}
     >
