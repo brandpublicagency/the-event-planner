@@ -5,6 +5,7 @@ import SidebarNavigation from "./sidebar/SidebarNavigation";
 import SidebarActions from "./sidebar/SidebarActions";
 import { useTaskCount } from "@/hooks/useTaskCount";
 import { getSidebarNavItems } from "./sidebar/sidebarNavItems";
+import { useSidebarGradient } from "@/hooks/useSidebarGradient";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -13,6 +14,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const taskCount = useTaskCount();
+  const { getGradientByPath } = useSidebarGradient();
 
   const sidebarVariants = {
     expanded: { width: 256 },
@@ -23,7 +25,7 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <motion.div
-      className={cn("relative h-full overflow-hidden bg-sidebar border-r border-sidebar-border", className)}
+      className={cn("relative h-full overflow-hidden", getGradientByPath(), className)}
       initial={isCollapsed ? "collapsed" : "expanded"}
       animate={isCollapsed ? "collapsed" : "expanded"}
       variants={sidebarVariants}
@@ -33,7 +35,10 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         damping: 30,
       }}
     >
-      <div className="flex flex-col h-full">
+      {/* Liquid glass overlay */}
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-xl ring-1 ring-inset ring-white/40 shadow-inner pointer-events-none" />
+
+      <div className="flex flex-col h-full relative z-10">
         <SidebarProfile isCollapsed={isCollapsed} />
 
         <div className={cn("flex-1 overflow-y-auto overflow-x-hidden py-4", isCollapsed ? "px-2" : "px-3")}>

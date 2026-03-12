@@ -21,18 +21,18 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
     <Link
       to={item.path}
       className={cn(
-        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sidebar-active/50 transition-colors duration-200",
+        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white/50 transition-colors duration-200",
         isCollapsed ? "justify-center w-9 mx-auto" : "px-3",
         isActive
-          ? "bg-sidebar-active text-sidebar-active-fg shadow-sm"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-hover hover:text-sidebar-foreground",
+          ? "bg-white/25 text-foreground shadow-sm ring-1 ring-white/30"
+          : "text-foreground/70 hover:bg-white/15 hover:text-foreground",
       )}
     >
       <div className={cn("flex items-center", isCollapsed ? "justify-center" : "w-full")}>
         <Icon
           className={cn(
             "flex-shrink-0 transition-transform",
-            isActive ? "text-sidebar-active-fg" : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80",
+            isActive ? "text-foreground" : "text-foreground/50 group-hover:text-foreground/80",
             isCollapsed ? "h-4 w-4 group-hover:scale-110" : "h-4 w-4",
           )}
         />
@@ -41,7 +41,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
           <motion.span
             className={cn(
               "ml-3 text-xs font-medium whitespace-nowrap",
-              isActive ? "text-sidebar-active-fg" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
+              isActive ? "text-foreground" : "text-foreground/70 group-hover:text-foreground",
             )}
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
@@ -57,8 +57,8 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
             className={cn(
               "ml-auto px-1.5 py-0 text-[10px]",
               isActive
-                ? "bg-white/20 text-sidebar-active-fg hover:bg-white/25"
-                : "bg-sidebar-active/10 text-sidebar-foreground hover:bg-sidebar-active/15",
+                ? "bg-white/25 text-foreground hover:bg-white/30"
+                : "bg-white/20 text-foreground/80 hover:bg-white/25",
             )}
           >
             {item.badge > 99 ? "99+" : item.badge}
@@ -68,17 +68,16 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
         {isCollapsed && item.badge !== undefined && item.badge > 0 && (
           <Badge
             variant="secondary"
-            className="absolute -top-1 -right-1 text-[8px] px-1 min-w-[14px] h-[14px] flex items-center justify-center bg-sidebar-active text-sidebar-active-fg"
+            className="absolute -top-1 -right-1 text-[8px] px-1 min-w-[14px] h-[14px] flex items-center justify-center bg-foreground/80 text-background"
           >
             {item.badge > 99 ? "99+" : item.badge}
           </Badge>
         )}
       </div>
 
-      {/* Hover indicator for collapsed state */}
       {isCollapsed && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="h-7 w-1 rounded-l-full bg-sidebar-active/30"></div>
+          <div className="h-7 w-1 rounded-l-full bg-white/40"></div>
         </div>
       )}
     </Link>

@@ -31,7 +31,6 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           .single();
           
         if (error) {
-          // Return basic information from auth even if profile fetch fails
           return {
             email: user.email,
             name: 'User',
@@ -54,7 +53,6 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
     },
   });
 
-  // Get user initials for avatar fallback
   const getUserInitials = () => {
     if (!userInfo) return "WK";
     
@@ -72,22 +70,22 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
 
   return (
     <div className={cn(
-      "h-[65px] w-full flex items-center border-b border-sidebar-border transition-all duration-200",
+      "h-[65px] w-full flex items-center border-b border-white/20 transition-all duration-200",
       isCollapsed ? "justify-center px-0" : "px-3"
     )}>
       <div className={cn(
-        "flex items-center w-[260px]", // Changed from w-[259px] to w-[260px]
+        "flex items-center w-[260px]",
         isCollapsed ? "justify-center" : "gap-2"
       )}>
         <Avatar 
-          className="h-8 w-8 cursor-pointer ring-2 ring-white/80 shadow-sm hover:shadow-md transition-shadow duration-200"
+          className="h-8 w-8 cursor-pointer ring-2 ring-white/60 shadow-sm hover:shadow-md transition-shadow duration-200"
           onClick={() => navigate('/profile')}
         >
           <AvatarImage 
             src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
             alt="Warm Karoo Logo" 
           />
-          <AvatarFallback className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white text-xs font-medium">
+          <AvatarFallback className="bg-white/30 text-foreground text-xs font-medium">
             {getUserInitials()}
           </AvatarFallback>
         </Avatar>
@@ -101,15 +99,15 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           >
             {isLoading ? (
               <>
-                <Skeleton className="h-3 w-20 mb-1" />
-                <Skeleton className="h-2.5 w-16" />
+                <Skeleton className="h-3 w-20 mb-1 bg-white/20" />
+                <Skeleton className="h-2.5 w-16 bg-white/15" />
               </>
             ) : (
               <>
-                <div className="text-xs font-medium truncate text-sidebar-foreground">
+                <div className="text-xs font-medium truncate text-foreground">
                   {userInfo?.name || 'User'} {userInfo?.surname || ''}
                 </div>
-                <div className="text-[10px] text-sidebar-foreground/50 truncate">
+                <div className="text-[10px] text-foreground/50 truncate">
                   {userInfo?.email || 'user@example.com'}
                 </div>
               </>
