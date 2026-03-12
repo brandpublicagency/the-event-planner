@@ -90,6 +90,10 @@ export const Header = ({
               />
             )}
 
+            <h1 className="text-sm font-medium text-foreground">
+              {finalPageTitle}
+            </h1>
+
             {!isDocumentsPage && (
               <Button
                 variant="outline"
