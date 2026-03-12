@@ -60,7 +60,7 @@ const SidebarActions = ({ isCollapsed, setIsCollapsed }: SidebarActionsProps) =>
               <FilePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
             
-            <div className="my-1.5 w-6 border-t border-white/20"></div>
+            <div className="my-1.5 w-6 border-t border-sidebar-border"></div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)} 
