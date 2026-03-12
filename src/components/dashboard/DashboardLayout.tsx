@@ -46,7 +46,7 @@ const DashboardLayout = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="relative h-8 w-8"
+              className="relative h-8 w-8 overflow-visible"
               onClick={() => setNotificationsOpen(true)}
             >
               <Bell className="h-4 w-4" />
