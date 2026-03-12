@@ -21,11 +21,11 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
     <Link
       to={item.path}
       className={cn(
-        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white/50 transition-colors duration-200",
+        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-white/50 transition-all duration-200",
         isCollapsed ? "justify-center w-9 mx-auto" : "px-3",
         isActive
           ? "bg-white/40 text-foreground ring-1 ring-white/40"
-          : "text-foreground/70 hover:bg-white/30 hover:text-foreground",
+          : "text-foreground/70 hover:bg-white/30 hover:text-foreground hover:scale-[1.02] hover:-translate-y-[1px] hover:shadow-sm",
       )}
     >
       <div className={cn("flex items-center", isCollapsed ? "justify-center" : "w-full")}>
