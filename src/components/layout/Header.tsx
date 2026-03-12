@@ -96,8 +96,6 @@ export const Header = ({
               {actionButton.label}
             </Button>
           )}
-          
-          <NotificationButton />
           <UserMenu />
         </div>
       </div>
