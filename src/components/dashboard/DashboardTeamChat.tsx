@@ -411,22 +411,22 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
         )}
       </div>
 
-      <div className="flex gap-1.5 p-2 border-t border-border">
+      <div className="flex gap-2 p-3 border-t border-border">
         <Input
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder="Type a message..."
-          className="h-7 text-xs"
+          className="h-9 text-xs"
         />
         <Button
           size="icon"
           variant="outline"
-          className="h-7 w-7 shrink-0 bg-card"
+          className="h-9 w-9 shrink-0 bg-card"
           onClick={handleSend}
           disabled={!input.trim() || sendMessage.isPending}
         >
-          <Send className="h-3.5 w-3.5" />
+          <Send className="h-4 w-4" />
         </Button>
       </div>
     </div>
