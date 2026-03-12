@@ -7,7 +7,7 @@ import DashboardTasksSection from "./DashboardTasksSection";
 import DashboardMiniCalendar from "./DashboardMiniCalendar";
 import DashboardTeamChat from "./DashboardTeamChat";
 import DashboardNotificationsDrawer from "./DashboardNotificationsDrawer";
-import DashboardCommandPalette from "./DashboardCommandPalette";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bell, Sun, Moon, Search } from "lucide-react";

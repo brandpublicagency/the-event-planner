@@ -1,13 +1,13 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { UserMenu } from "./UserMenu";
-import { SearchBar } from "./SearchBar";
-
 import { BackButton } from "./BackButton";
 import { MobileMenuToggle } from "./MobileMenuToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
+import DashboardCommandPalette from "@/components/dashboard/DashboardCommandPalette";
 
 export interface ActionButtonProps {
   label: string;
@@ -44,6 +44,18 @@ export const Header = ({
 }: HeaderProps = {}) => {
   const location = useLocation();
   const isDocumentsPage = location.pathname.startsWith('/documents');
+  const [commandOpen, setCommandOpen] = useState(false);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
 
   const getDefaultPageTitle = () => {
     const path = location.pathname;
@@ -58,7 +70,6 @@ export const Header = ({
     return 'Event Management';
   };
   
-  // Use title as fallback for pageTitle for backward compatibility
   const finalPageTitle = pageTitle || title || getDefaultPageTitle();
   
   const handleToggleMobileMenu = () => {
@@ -66,41 +77,60 @@ export const Header = ({
   };
   
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b border-border h-[65px]">
-      <div className="flex items-center h-full px-4">
-        <div className="flex gap-4 items-center">
-          <MobileMenuToggle onClick={handleToggleMobileMenu} />
-          
-          {showBackButton && (
-            <BackButton 
-              path={backButtonPath} 
-              onClick={onBackButtonClick} 
-            />
-          )}
-          
-          {!isDocumentsPage && !hideSearchBar && <SearchBar />}
-        </div>
+    <>
+      <header className="sticky top-0 z-50 w-full bg-background border-b border-border h-[65px]">
+        <div className="flex items-center h-full px-4">
+          <div className="flex gap-4 items-center">
+            <MobileMenuToggle onClick={handleToggleMobileMenu} />
+            
+            {showBackButton && (
+              <BackButton 
+                path={backButtonPath} 
+                onClick={onBackButtonClick} 
+              />
+            )}
 
-        {children}
+            {!isDocumentsPage && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2 text-xs text-muted-foreground px-3"
+                onClick={() => setCommandOpen(true)}
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Search...</span>
+                <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                  ⌘K
+                </kbd>
+              </Button>
+            )}
+          </div>
 
-        <div className="ml-auto flex items-center gap-6">
-          {secondaryAction}
-          
-          {actionButton && (
-            <Button 
-              variant={actionButton.variant || "default"} 
-              size="sm" 
-              onClick={actionButton.onClick} 
-              disabled={actionButton.disabled} 
-              className="gap-1"
-            >
-              {actionButton.icon}
-              {actionButton.label}
-            </Button>
-          )}
-          <UserMenu />
+          {children}
+
+          <div className="ml-auto flex items-center gap-6">
+            {secondaryAction}
+            
+            {actionButton && (
+              <Button 
+                variant={actionButton.variant || "default"} 
+                size="sm" 
+                onClick={actionButton.onClick} 
+                disabled={actionButton.disabled} 
+                className="gap-1"
+              >
+                {actionButton.icon}
+                {actionButton.label}
+              </Button>
+            )}
+            <UserMenu />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <DashboardCommandPalette
+        open={commandOpen}
+        onOpenChange={setCommandOpen}
+      />
+    </>
   );
 };
