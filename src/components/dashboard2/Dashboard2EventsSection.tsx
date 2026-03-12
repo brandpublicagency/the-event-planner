@@ -126,7 +126,7 @@ const Dashboard2EventsSection = () => {
         <div className="space-y-5">
             {groupedEvents.map(([monthLabel, monthEvents]) =>
           <div key={monthLabel}>
-                <div className="sticky top-0 z-10 bg-card pb-2">
+                <div className="sticky top-0 z-10 pb-2">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {monthLabel}
                   </h4>
