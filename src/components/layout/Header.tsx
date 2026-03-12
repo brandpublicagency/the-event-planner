@@ -3,7 +3,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { UserMenu } from "./UserMenu";
 import { SearchBar } from "./SearchBar";
-import { NotificationButton } from "./NotificationButton";
+
 import { BackButton } from "./BackButton";
 import { MobileMenuToggle } from "./MobileMenuToggle";
 import { Button } from "@/components/ui/button";
