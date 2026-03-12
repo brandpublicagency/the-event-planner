@@ -94,7 +94,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
           <DropdownMenuTrigger asChild>
             <button className="focus:outline-none">
               <Avatar 
-                className="h-8 w-8 cursor-pointer ring-2 ring-white/60 dark:ring-white/20 shadow-sm hover:shadow-md transition-shadow duration-200"
+                className="h-10 w-10 cursor-pointer bg-white ring-2 ring-white/60 dark:ring-white/20 shadow-sm hover:shadow-md transition-shadow duration-200"
               >
                 <AvatarImage 
                   src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
