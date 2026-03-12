@@ -61,6 +61,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-bg))',
+          foreground: 'hsl(var(--sidebar-fg))',
+          border: 'hsl(var(--sidebar-border))',
+          active: 'hsl(var(--sidebar-active))',
+          'active-fg': 'hsl(var(--sidebar-active-fg))',
+          hover: 'hsl(var(--sidebar-hover))',
+        },
       },
       borderRadius: {
         lg: "7px",
