@@ -4,6 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, Settings, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -68,6 +76,11 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
     return "WK";
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   return (
     <div className={cn(
       "h-[65px] w-full flex items-center border-b border-border bg-white/60 transition-all duration-200",
@@ -77,18 +90,38 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
         "flex items-center w-[260px]",
         isCollapsed ? "justify-center" : "gap-2"
       )}>
-        <Avatar 
-          className="h-8 w-8 cursor-pointer ring-2 ring-white/60 shadow-sm hover:shadow-md transition-shadow duration-200"
-          onClick={() => navigate('/profile')}
-        >
-          <AvatarImage 
-            src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
-            alt="Warm Karoo Logo" 
-          />
-          <AvatarFallback className="bg-white/30 text-foreground text-xs font-medium">
-            {getUserInitials()}
-          </AvatarFallback>
-        </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="focus:outline-none">
+              <Avatar 
+                className="h-8 w-8 cursor-pointer ring-2 ring-white/60 shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <AvatarImage 
+                  src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
+                  alt="Warm Karoo Logo" 
+                />
+                <AvatarFallback className="bg-white/30 text-foreground text-xs font-medium">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" align="start" className="w-48 p-1.5">
+            <DropdownMenuItem className="cursor-pointer text-xs" onClick={() => navigate('/profile')}>
+              <User className="mr-2 h-3.5 w-3.5" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer text-xs" onClick={() => navigate('/settings')}>
+              <Settings className="mr-2 h-3.5 w-3.5" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer text-xs" onClick={handleLogout}>
+              <LogOut className="mr-2 h-3.5 w-3.5" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {!isCollapsed && (
           <motion.div 
