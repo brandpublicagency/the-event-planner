@@ -130,7 +130,7 @@ const Dashboard2TasksSection = () => {
             disabled={!newTaskTitle.trim()}
             size="icon"
             variant="outline"
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 bg-card"
           >
             <Plus className="h-3.5 w-3.5" />
           </Button>

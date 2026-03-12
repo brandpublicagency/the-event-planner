@@ -424,8 +424,8 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
         />
         <Button
           size="icon"
-          variant="ghost"
-          className="h-7 w-7 shrink-0"
+          variant="outline"
+          className="h-7 w-7 shrink-0 bg-card"
           onClick={handleSend}
           disabled={!input.trim() || sendMessage.isPending}
         >
