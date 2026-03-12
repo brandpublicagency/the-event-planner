@@ -100,7 +100,7 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
                   src="https://www.warmkaroo.com/wp-content/uploads/2023/03/Warm-Karoo-Logo-Black.svg" 
                   alt="Warm Karoo Logo" 
                 />
-                <AvatarFallback className="bg-white/30 text-foreground text-xs font-medium">
+                <AvatarFallback className="bg-white/30 dark:bg-white/10 text-foreground text-xs font-medium">
                   {getUserInitials()}
                 </AvatarFallback>
               </Avatar>
