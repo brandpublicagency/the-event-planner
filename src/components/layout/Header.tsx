@@ -45,6 +45,7 @@ export const Header = ({
   const location = useLocation();
   const isDocumentsPage = location.pathname.startsWith('/documents');
   const [commandOpen, setCommandOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
