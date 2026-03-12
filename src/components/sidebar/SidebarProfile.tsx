@@ -106,10 +106,10 @@ const SidebarProfile = ({ isCollapsed }: SidebarProfileProps) => {
               </>
             ) : (
               <>
-                <div className="text-xs font-medium truncate text-foreground">
+                <div className="text-xs font-medium truncate text-sidebar-foreground">
                   {userInfo?.name || 'User'} {userInfo?.surname || ''}
                 </div>
-                <div className="text-[10px] text-muted-foreground truncate">
+                <div className="text-[10px] text-sidebar-foreground/50 truncate">
                   {userInfo?.email || 'user@example.com'}
                 </div>
               </>
