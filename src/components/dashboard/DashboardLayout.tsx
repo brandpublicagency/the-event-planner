@@ -83,6 +83,7 @@ const DashboardLayout = () => {
       </Header>
 
       <div className="flex-1 overflow-auto px-4 pb-6">
+        <WeatherWidget forcedVisible />
         <DashboardGreeting />
         <DashboardKPIStrip />
 
@@ -94,7 +95,6 @@ const DashboardLayout = () => {
 
           <div className="flex flex-col gap-4">
             <DashboardMiniCalendar />
-            <DashboardWeatherCard />
             <DashboardTasksSection />
           </div>
         </div>
