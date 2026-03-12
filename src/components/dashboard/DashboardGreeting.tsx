@@ -52,7 +52,6 @@ const DashboardGreeting = () => {
 
   return (
     <div className="mt-4 mb-2">
-    >
       <h1 className="text-xl font-semibold text-foreground tracking-tight">
         {getGreeting()}, {firstName}
       </h1>

@@ -16,7 +16,6 @@ interface KPICardProps {
 
 const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) => (
   <div className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors">
-  >
     <div className="flex items-center gap-1.5 mb-1">
       <Icon className="h-3 w-3 text-muted-foreground" />
       <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
