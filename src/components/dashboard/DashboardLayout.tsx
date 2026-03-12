@@ -36,51 +36,55 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <Header pageTitle="Dashboard">
-        <div className="ml-auto mr-2 flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-2 text-xs text-muted-foreground px-3 mr-1"
-            onClick={() => setCommandOpen(true)}
-          >
-            <Search className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Search...</span>
-            <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-              ⌘K
-            </kbd>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 relative overflow-hidden"
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          >
-            <motion.div
-              key={isDark ? 'sun' : 'moon'}
-              initial={{ rotate: -90, scale: 0, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              exit={{ rotate: 90, scale: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+      <Header
+        pageTitle="Dashboard"
+        hideSearchBar
+        secondaryAction={
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-2 text-xs text-muted-foreground px-3"
+              onClick={() => setCommandOpen(true)}
             >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </motion.div>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-8 w-8"
-            onClick={() => setNotificationsOpen(true)}
-          >
-            <Bell className="h-4 w-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
-                {unreadCount}
-              </span>
-            )}
-          </Button>
-        </div>
-      </Header>
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Search...</span>
+              <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                ⌘K
+              </kbd>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 relative overflow-hidden"
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            >
+              <motion.div
+                key={isDark ? 'sun' : 'moon'}
+                initial={{ rotate: -90, scale: 0, opacity: 0 }}
+                animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                exit={{ rotate: 90, scale: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </motion.div>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-8 w-8"
+              onClick={() => setNotificationsOpen(true)}
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </div>
+        }
+      />
 
       <div className="flex-1 overflow-auto px-4 pb-6">
         <DashboardGreeting />

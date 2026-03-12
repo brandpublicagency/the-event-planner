@@ -20,25 +20,27 @@ export interface ActionButtonProps {
 export interface HeaderProps {
   contextTitle?: string;
   pageTitle?: string;
-  title?: string; // Added for backward compatibility
+  title?: string;
   actionButton?: ActionButtonProps;
   secondaryAction?: React.ReactNode;
   children?: React.ReactNode;
   showBackButton?: boolean;
   backButtonPath?: string;
   onBackButtonClick?: () => void;
+  hideSearchBar?: boolean;
 }
 
 export const Header = ({
   contextTitle,
   pageTitle,
-  title, // Support the old title prop
+  title,
   actionButton,
   secondaryAction,
   children,
   showBackButton,
   backButtonPath = "/",
-  onBackButtonClick
+  onBackButtonClick,
+  hideSearchBar
 }: HeaderProps = {}) => {
   const location = useLocation();
   const isDocumentsPage = location.pathname.startsWith('/documents');
@@ -76,7 +78,7 @@ export const Header = ({
             />
           )}
           
-          {!isDocumentsPage && <SearchBar />}
+          {!isDocumentsPage && !hideSearchBar && <SearchBar />}
         </div>
 
         {children}
