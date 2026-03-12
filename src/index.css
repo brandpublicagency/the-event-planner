@@ -29,6 +29,13 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --sidebar-bg: 120 8% 94%;
+    --sidebar-fg: 220 15% 28%;
+    --sidebar-border: 120 6% 88%;
+    --sidebar-active: 220 20% 16%;
+    --sidebar-active-fg: 0 0% 98%;
+    --sidebar-hover: 120 6% 89%;
   }
 
   .dark {
