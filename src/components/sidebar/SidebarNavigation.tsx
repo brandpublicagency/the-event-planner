@@ -26,7 +26,7 @@ const SidebarNavigation = ({
       <SidebarNavSectionTitle title={sectionTitle || ""} isCollapsed={isCollapsed} />
       
       <nav className="my-2 py-0">
-        <SidebarNavList items={items} isCollapsed={isCollapsed} className="py-0 my-0" />
+        <SidebarNavList items={items} isCollapsed={isCollapsed} />
       </nav>
     </div>);
 
