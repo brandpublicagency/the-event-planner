@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Send, Trash2, SmilePlus } from "lucide-react";
+import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import {
   Popover,
@@ -213,9 +214,10 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
 
   const sendMessage = useMutation({
     mutationFn: async (text: string) => {
-      if (!currentUser) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No active session. Please log in again.");
       const { error } = await supabase.from("team_chat_messages").insert({
-        user_id: currentUser.id,
+        user_id: session.user.id,
         message: text,
       });
       if (error) throw error;
@@ -223,6 +225,9 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
     onSuccess: () => {
       setInput("");
       broadcastStopTyping();
+    },
+    onError: (error) => {
+      toast.error(`Failed to send message: ${error.message}`);
     },
   });
 
@@ -406,22 +411,22 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
         )}
       </div>
 
-      <div className="flex gap-1.5 p-2 border-t border-border">
+      <div className="flex gap-2 p-3 border-t border-border">
         <Input
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder="Type a message..."
-          className="h-7 text-xs"
+          className="h-9 text-xs"
         />
         <Button
           size="icon"
           variant="outline"
-          className="h-7 w-7 shrink-0 bg-card"
+          className="h-9 w-9 shrink-0 bg-card"
           onClick={handleSend}
           disabled={!input.trim() || sendMessage.isPending}
         >
-          <Send className="h-3.5 w-3.5" />
+          <Send className="h-4 w-4" />
         </Button>
       </div>
     </div>
