@@ -52,6 +52,11 @@ const DashboardCommandPalette = ({ open, onOpenChange, initialQuery = "" }: Dash
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (open && initialQuery) setQuery(initialQuery);
+    if (!open) setQuery("");
+  }, [open, initialQuery]);
+
+  useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
       setEvents([]);
       setContacts([]);
