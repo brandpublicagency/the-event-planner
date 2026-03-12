@@ -98,7 +98,7 @@ export const Header = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-2 text-xs text-muted-foreground px-3"
+                className="h-9 gap-2 text-xs text-muted-foreground px-4 hover:bg-transparent hover:text-muted-foreground hover:border-foreground/30"
                 onClick={() => setCommandOpen(true)}
               >
                 <Search className="h-3.5 w-3.5" />
