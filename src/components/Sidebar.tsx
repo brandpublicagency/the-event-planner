@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import SidebarProfile from "./sidebar/SidebarProfile";
 import SidebarNavigation from "./sidebar/SidebarNavigation";
 import SidebarActions from "./sidebar/SidebarActions";
 import { useTaskCount } from "@/hooks/useTaskCount";
 import { getSidebarNavItems } from "./sidebar/sidebarNavItems";
 import { useSidebarGradient } from "@/hooks/useSidebarGradient";
+import { useLocation } from "react-router-dom";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
@@ -15,6 +16,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const taskCount = useTaskCount();
   const { getGradientByPath } = useSidebarGradient();
+  const location = useLocation();
 
   const sidebarVariants = {
     expanded: { width: 256 },
@@ -22,10 +24,11 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
   };
 
   const mainNavItems = getSidebarNavItems(taskCount);
+  const gradient = getGradientByPath();
 
   return (
     <motion.div
-      className={cn("relative h-full overflow-hidden", getGradientByPath(), className)}
+      className={cn("relative h-full overflow-hidden", className)}
       initial={isCollapsed ? "collapsed" : "expanded"}
       animate={isCollapsed ? "collapsed" : "expanded"}
       variants={sidebarVariants}
@@ -35,6 +38,18 @@ const Sidebar = ({ className, isCollapsed, setIsCollapsed }: SidebarProps) => {
         damping: 30,
       }}
     >
+      {/* Animated gradient background */}
+      <AnimatePresence mode="sync">
+        <motion.div
+          key={location.pathname}
+          className={cn("absolute inset-0", gradient)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
+
       {/* Liquid glass overlay */}
       <div className="absolute inset-0 bg-white/30 backdrop-blur-xl ring-1 ring-inset ring-white/40 shadow-inner pointer-events-none" />
 
