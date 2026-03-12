@@ -66,7 +66,7 @@ const Dashboard2EventsSection = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-lg border border-border bg-card">
+      className="rounded-xl border border-border bg-muted/40">
       
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-white">
