@@ -23,11 +23,16 @@ const DashboardMessage = () => {
     toast
   } = useToast();
 
-  // Refresh notifications when the dashboard loads
+  const hasRefreshedRef = useRef(false);
+
+  // Refresh notifications once when the dashboard loads
   useEffect(() => {
-    refreshNotifications().catch(err => {
-      console.error('Error refreshing notifications from dashboard:', err);
-    });
+    if (!hasRefreshedRef.current) {
+      hasRefreshedRef.current = true;
+      refreshNotifications().catch(err => {
+        console.error('Error refreshing notifications from dashboard:', err);
+      });
+    }
   }, [refreshNotifications]);
 
   // Show error toast only once when there's an edge function error

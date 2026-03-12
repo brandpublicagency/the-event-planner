@@ -21,7 +21,7 @@ const SidebarNavItem = ({ item, isCollapsed, isActive }: NavItemProps) => {
     <Link
       to={item.path}
       className={cn(
-        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sidebar-active/50 transition-all duration-200",
+        "group flex items-center h-9 rounded-lg relative outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sidebar-active/50 transition-colors duration-200",
         isCollapsed ? "justify-center w-9 mx-auto" : "px-3",
         isActive
           ? "bg-sidebar-active text-sidebar-active-fg shadow-sm"
