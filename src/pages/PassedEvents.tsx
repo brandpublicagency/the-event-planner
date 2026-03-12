@@ -95,7 +95,7 @@ const PassedEvents = () => {
   
   return (
     <div className="flex flex-col h-full">
-      <Header title="Passed Events" />
+      <Header pageTitle="Passed Events" />
 
       <div className="flex-1 p-6 bg-muted overflow-auto">
         <EventsList 
