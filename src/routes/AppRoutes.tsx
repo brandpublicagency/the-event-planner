@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { RootLayout } from "@/layouts/RootLayout";
 import { Outlet } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import Index from "@/pages/Index";
+
 import Login from "@/pages/Login";
 import Events from "@/pages/Events";
 import PassedEvents from "@/pages/PassedEvents";
