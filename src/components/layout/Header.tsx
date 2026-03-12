@@ -98,11 +98,20 @@ export const Header = ({
                 <input
                   type="text"
                   placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (e.target.value.length > 0) setCommandOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (searchQuery.length > 0) setCommandOpen(true);
+                  }}
                   className="w-full h-9 rounded-md border border-border bg-background pl-9 pr-12 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
-                  onFocus={() => setCommandOpen(true)}
-                  readOnly
                 />
-                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <kbd
+                  className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground cursor-pointer"
+                  onClick={() => setCommandOpen(true)}
+                >
                   ⌘K
                 </kbd>
               </div>
