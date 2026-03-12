@@ -21,7 +21,7 @@ import Notifications from "@/pages/Notifications";
 import ScheduleMeeting from "@/pages/ScheduleMeeting";
 import ScheduleSiteVisit from "@/pages/ScheduleSiteVisit";
 import NewTask from "@/pages/NewTask";
-import Dashboard2 from "@/pages/Dashboard2";
+import Dashboard from "@/pages/Dashboard";
 
 export const AppRoutes = () => {
   return (
@@ -36,7 +36,7 @@ export const AppRoutes = () => {
           </RootLayout>
         </ProtectedRoute>
       }>
-        <Route path="/" element={<Dashboard2 />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/passed" element={<PassedEvents />} />
         <Route path="/calendar" element={<Calendar />} />

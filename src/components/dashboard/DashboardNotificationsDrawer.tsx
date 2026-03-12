@@ -5,12 +5,12 @@ import { Bell, CheckCheck, Eye, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
-interface Dashboard2NotificationsDrawerProps {
+interface DashboardNotificationsDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const Dashboard2NotificationsDrawer = ({ open, onOpenChange }: Dashboard2NotificationsDrawerProps) => {
+const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificationsDrawerProps) => {
   const {
     notifications,
     handleNotificationView,
@@ -98,4 +98,4 @@ const Dashboard2NotificationsDrawer = ({ open, onOpenChange }: Dashboard2Notific
   );
 };
 
-export default Dashboard2NotificationsDrawer;
+export default DashboardNotificationsDrawer;

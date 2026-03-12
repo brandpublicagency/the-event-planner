@@ -32,11 +32,11 @@ const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) =>
   </motion.div>
 );
 
-const Dashboard2KPIStrip = () => {
+const DashboardKPIStrip = () => {
   const { tasks } = useTaskContext();
 
   const { data: monthlyData, isLoading } = useQuery({
-    queryKey: ['dashboard2_kpi'],
+    queryKey: ['dashboard_kpi'],
     queryFn: async () => {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -102,7 +102,6 @@ const Dashboard2KPIStrip = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-      {/* First 3 KPIs aligned with events (2/3 width) */}
       <div className="lg:col-span-2 grid grid-cols-3 gap-4">
         <KPICard
           icon={CalendarDays}
@@ -124,7 +123,6 @@ const Dashboard2KPIStrip = () => {
           delay={0.1}
         />
       </div>
-      {/* 4th KPI aligned with sidebar (1/3 width) */}
       <KPICard
         icon={Clock}
         label="Next Event"
@@ -136,4 +134,4 @@ const Dashboard2KPIStrip = () => {
   );
 };
 
-export default Dashboard2KPIStrip;
+export default DashboardKPIStrip;

@@ -40,7 +40,7 @@ interface TypingUser {
 const TYPING_TIMEOUT = 3000;
 const EMOJI_OPTIONS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "👏", "🎉"];
 
-const Dashboard2TeamChat = ({ className }: { className?: string }) => {
+const DashboardTeamChat = ({ className }: { className?: string }) => {
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState<Map<string, TypingUser>>(new Map());
   const queryClient = useQueryClient();
@@ -98,7 +98,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
     },
   });
 
-  // Fetch all reactions for visible messages
   const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
   const stableMessageKey = useMemo(() => messageIds.join(","), [messageIds]);
   const { data: reactions = [] } = useQuery({
@@ -115,14 +114,12 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
     enabled: messageIds.length > 0,
   });
 
-  // Group reactions by message
   const reactionsByMessage = reactions.reduce<Record<string, Reaction[]>>((acc, r) => {
     if (!acc[r.message_id]) acc[r.message_id] = [];
     acc[r.message_id].push(r);
     return acc;
   }, {});
 
-  // Realtime: DB changes + typing broadcast
   useEffect(() => {
     const channel = supabase
       .channel("team-chat-realtime")
@@ -174,7 +171,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
     };
   }, [queryClient, currentUser?.id]);
 
-  // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -247,7 +243,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
     mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
       if (!currentUser) throw new Error("Not authenticated");
 
-      // Check if user already reacted with this emoji
       const existing = reactions.find(
         (r) => r.message_id === messageId && r.user_id === currentUser.id && r.emoji === emoji
       );
@@ -288,7 +283,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
     return [p.full_name, p.surname].filter(Boolean).join(" ") || "Unknown";
   };
 
-  // Group reactions for a message: { emoji: count, hasReacted }
   const getGroupedReactions = (messageId: string) => {
     const msgReactions = reactionsByMessage[messageId] || [];
     const grouped: Record<string, { count: number; hasReacted: boolean }> = {};
@@ -377,7 +371,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
                         )}
                       </div>
                     </div>
-                    {/* Reaction badges */}
                     {hasReactions && (
                       <div className="flex flex-wrap gap-1 mt-1" style={{ justifyContent: isMe ? "flex-end" : "flex-start" }}>
                         {Object.entries(grouped).map(([emoji, { count, hasReacted }]) => (
@@ -405,7 +398,6 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
         )}
       </ScrollArea>
 
-      {/* Typing indicator */}
       <div className="h-5 px-3 flex items-center">
         {typingText && (
           <span className="text-[10px] text-muted-foreground animate-pulse">
@@ -436,4 +428,4 @@ const Dashboard2TeamChat = ({ className }: { className?: string }) => {
   );
 };
 
-export default Dashboard2TeamChat;
+export default DashboardTeamChat;

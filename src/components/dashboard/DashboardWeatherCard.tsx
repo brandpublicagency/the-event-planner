@@ -5,7 +5,7 @@ import { Droplets, Wind, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
-const Dashboard2WeatherCard = () => {
+const DashboardWeatherCard = () => {
   const { timeOfDay } = useTimeManager();
   const { weatherData, forecast, isLoading, showWeather } = useWeatherDataManager(true);
 
@@ -22,7 +22,6 @@ const Dashboard2WeatherCard = () => {
       transition={{ duration: 0.4, delay: 0.1 }}
       className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30"
     >
-      {/* Current conditions */}
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-1.5 mb-1">
@@ -54,7 +53,6 @@ const Dashboard2WeatherCard = () => {
         </div>
       </div>
 
-      {/* 7-day forecast row */}
       {forecast.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pt-3 border-t border-border -mx-1 px-1 pb-1">
           {forecast.filter((day) => day.day !== "Now").slice(0, 7).map((day, i) => (
@@ -80,4 +78,4 @@ const Dashboard2WeatherCard = () => {
   );
 };
 
-export default Dashboard2WeatherCard;
+export default DashboardWeatherCard;

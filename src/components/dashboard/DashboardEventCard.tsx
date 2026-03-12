@@ -12,11 +12,11 @@ const eventTypeColors: Record<string, string> = {
   corporate: 'bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300',
 };
 
-interface Dashboard2EventCardProps {
+interface DashboardEventCardProps {
   event: Event;
 }
 
-const Dashboard2EventCard = ({ event }: Dashboard2EventCardProps) => {
+const DashboardEventCard = ({ event }: DashboardEventCardProps) => {
   const navigate = useNavigate();
   const typeKey = event.event_type?.toLowerCase() || '';
   const colorClass = eventTypeColors[typeKey] || eventTypeColors.corporate;
@@ -58,4 +58,4 @@ const Dashboard2EventCard = ({ event }: Dashboard2EventCardProps) => {
   );
 };
 
-export default Dashboard2EventCard;
+export default DashboardEventCard;

@@ -14,7 +14,7 @@ const priorityConfig: Record<string, { label: string; color: string; dotColor: s
   normal: { label: 'Normal', color: 'bg-muted text-muted-foreground', dotColor: 'bg-muted-foreground' },
 };
 
-const Dashboard2TasksSection = () => {
+const DashboardTasksSection = () => {
   const { tasks, addTask, toggleTask } = useTaskContext();
   const navigate = useNavigate();
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -41,7 +41,6 @@ const Dashboard2TasksSection = () => {
       transition={{ duration: 0.4, delay: 0.15 }}
       className="rounded-xl border border-border bg-card"
     >
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-2">
           <ListTodo className="h-4 w-4 text-muted-foreground" />
@@ -55,7 +54,6 @@ const Dashboard2TasksSection = () => {
         </span>
       </div>
 
-      {/* Task groups */}
       <div className="p-3 max-h-[360px] overflow-y-auto space-y-3">
         {Object.entries(groupedTasks).map(([priority, pTasks]) => {
           if (pTasks.length === 0) return null;
@@ -110,7 +108,6 @@ const Dashboard2TasksSection = () => {
         )}
       </div>
 
-      {/* Add task input */}
       <div className="p-3 border-t border-border">
         <div className="flex gap-1.5">
           <Input
@@ -140,4 +137,4 @@ const Dashboard2TasksSection = () => {
   );
 };
 
-export default Dashboard2TasksSection;
+export default DashboardTasksSection;

@@ -1,21 +1,21 @@
 import { Header } from "@/components/layout/Header";
-import Dashboard2Greeting from "./Dashboard2Greeting";
-import Dashboard2KPIStrip from "./Dashboard2KPIStrip";
-import Dashboard2EventsSection from "./Dashboard2EventsSection";
-import Dashboard2WeatherCard from "./Dashboard2WeatherCard";
-import Dashboard2TasksSection from "./Dashboard2TasksSection";
-import Dashboard2MiniCalendar from "./Dashboard2MiniCalendar";
-import Dashboard2TeamChat from "./Dashboard2TeamChat";
-import Dashboard2NotificationsDrawer from "./Dashboard2NotificationsDrawer";
-import Dashboard2CommandPalette from "./Dashboard2CommandPalette";
+import DashboardGreeting from "./DashboardGreeting";
+import DashboardKPIStrip from "./DashboardKPIStrip";
+import DashboardEventsSection from "./DashboardEventsSection";
+import DashboardWeatherCard from "./DashboardWeatherCard";
+import DashboardTasksSection from "./DashboardTasksSection";
+import DashboardMiniCalendar from "./DashboardMiniCalendar";
+import DashboardTeamChat from "./DashboardTeamChat";
+import DashboardNotificationsDrawer from "./DashboardNotificationsDrawer";
+import DashboardCommandPalette from "./DashboardCommandPalette";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Bell, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardNotifications } from "@/components/dashboard/notifications/useDashboardNotifications";
-
 import { useTheme } from "@/components/theme-provider";
-const Dashboard2Layout = () => {
+
+const DashboardLayout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const { unreadCount } = useDashboardNotifications();
@@ -23,7 +23,6 @@ const Dashboard2Layout = () => {
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  // CMD+K keyboard shortcut
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -84,30 +83,28 @@ const Dashboard2Layout = () => {
       </Header>
 
       <div className="flex-1 overflow-auto px-4 pb-6">
-        <Dashboard2Greeting />
-        <Dashboard2KPIStrip />
+        <DashboardGreeting />
+        <DashboardKPIStrip />
 
-        {/* Main grid: Events + Chat (left) + Sidebar (right) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <Dashboard2EventsSection />
-            <Dashboard2TeamChat className="h-[300px]" />
+            <DashboardEventsSection />
+            <DashboardTeamChat className="h-[300px]" />
           </div>
 
-          {/* Right sidebar */}
           <div className="flex flex-col gap-4">
-            <Dashboard2MiniCalendar />
-            <Dashboard2WeatherCard />
-            <Dashboard2TasksSection />
+            <DashboardMiniCalendar />
+            <DashboardWeatherCard />
+            <DashboardTasksSection />
           </div>
         </div>
       </div>
 
-      <Dashboard2NotificationsDrawer
+      <DashboardNotificationsDrawer
         open={notificationsOpen}
         onOpenChange={setNotificationsOpen}
       />
-      <Dashboard2CommandPalette
+      <DashboardCommandPalette
         open={commandOpen}
         onOpenChange={setCommandOpen}
       />
@@ -115,4 +112,4 @@ const Dashboard2Layout = () => {
   );
 };
 
-export default Dashboard2Layout;
+export default DashboardLayout;

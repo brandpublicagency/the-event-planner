@@ -6,12 +6,12 @@ import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
-const Dashboard2Greeting = () => {
+const DashboardGreeting = () => {
   const { profile, isLoading: profileLoading } = useProfile();
   const { tasks } = useTaskContext();
 
   const { data: eventsThisMonth = 0 } = useQuery({
-    queryKey: ['dashboard2_events_count'],
+    queryKey: ['dashboard_events_count'],
     queryFn: async () => {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -85,4 +85,4 @@ const Dashboard2Greeting = () => {
   );
 };
 
-export default Dashboard2Greeting;
+export default DashboardGreeting;

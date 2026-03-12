@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
-const Dashboard2MiniCalendar = () => {
+const DashboardMiniCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ const Dashboard2MiniCalendar = () => {
   const monthEnd = endOfMonth(currentMonth);
 
   const { data: eventDates } = useQuery({
-    queryKey: ["dashboard2-calendar-events", format(monthStart, "yyyy-MM")],
+    queryKey: ["dashboard-calendar-events", format(monthStart, "yyyy-MM")],
     queryFn: async () => {
       const { data } = await supabase
         .from("events")
@@ -42,7 +42,6 @@ const Dashboard2MiniCalendar = () => {
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">
           {format(currentMonth, "MMMM yyyy")}
@@ -57,7 +56,6 @@ const Dashboard2MiniCalendar = () => {
         </div>
       </div>
 
-      {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-1">
         {WEEKDAYS.map((d) => (
           <div key={d} className="text-[10px] font-medium text-muted-foreground text-center py-1">
@@ -66,7 +64,6 @@ const Dashboard2MiniCalendar = () => {
         ))}
       </div>
 
-      {/* Days grid */}
       <div className="grid grid-cols-7">
         {days.map((day) => {
           const inMonth = isSameMonth(day, currentMonth);
@@ -99,4 +96,4 @@ const Dashboard2MiniCalendar = () => {
   );
 };
 
-export default Dashboard2MiniCalendar;
+export default DashboardMiniCalendar;

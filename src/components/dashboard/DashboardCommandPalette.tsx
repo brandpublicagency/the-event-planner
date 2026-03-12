@@ -36,12 +36,12 @@ interface SearchContact {
   company: string | null;
 }
 
-interface Dashboard2CommandPaletteProps {
+interface DashboardCommandPaletteProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPaletteProps) => {
+const DashboardCommandPalette = ({ open, onOpenChange }: DashboardCommandPaletteProps) => {
   const navigate = useNavigate();
   const { tasks } = useTaskContext();
   const [query, setQuery] = useState("");
@@ -50,7 +50,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
   const [contacts, setContacts] = useState<SearchContact[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Search Supabase for events and contacts
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
       setEvents([]);
@@ -82,7 +81,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
 
       setEvents(eventsRes.data || []);
 
-      // Deduplicate contacts by primary_name
       const seen = new Set<string>();
       const uniqueContacts = (contactsRes.data || []).filter((c) => {
         const key = c.primary_name || c.primary_email || c.event_code;
@@ -97,7 +95,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
     search();
   }, [debouncedQuery]);
 
-  // Filter tasks client-side
   const filteredTasks = query.length >= 2
     ? tasks.filter((t) => t.title.toLowerCase().includes(query.toLowerCase())).slice(0, 6)
     : [];
@@ -123,7 +120,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
           {loading ? "Searching..." : "No results found."}
         </CommandEmpty>
 
-        {/* Quick actions — always visible */}
         {query.length < 2 && (
           <CommandGroup heading="Quick Actions">
             <CommandItem onSelect={() => runCommand(() => navigate("/events/new"))}>
@@ -157,7 +153,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
           </CommandGroup>
         )}
 
-        {/* Events results */}
         {events.length > 0 && (
           <>
             <CommandSeparator />
@@ -182,7 +177,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
           </>
         )}
 
-        {/* Tasks results */}
         {filteredTasks.length > 0 && (
           <>
             <CommandSeparator />
@@ -206,7 +200,6 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
           </>
         )}
 
-        {/* Contacts results */}
         {contacts.length > 0 && (
           <>
             <CommandSeparator />
@@ -234,4 +227,4 @@ const Dashboard2CommandPalette = ({ open, onOpenChange }: Dashboard2CommandPalet
   );
 };
 
-export default Dashboard2CommandPalette;
+export default DashboardCommandPalette;
