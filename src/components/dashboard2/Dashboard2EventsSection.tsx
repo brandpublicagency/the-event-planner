@@ -66,7 +66,7 @@ const Dashboard2EventsSection = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-xl border border-border bg-muted/25">
+      className="rounded-xl border border-border bg-muted/60">
       
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-background/60 rounded-t-xl">
