@@ -17,6 +17,7 @@ interface DocumentsContainerProps {
 }
 
 export function DocumentsContainer({ autoCreateDocument = false, initialDocId = null }: DocumentsContainerProps) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
