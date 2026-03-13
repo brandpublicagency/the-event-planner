@@ -13,6 +13,10 @@ import { DocumentActions } from "./DocumentActions";
 import { CategorySelector } from "./CategorySelector";
 import { SaveButton } from "@/components/ui/save-button";
 import { EditorToolbar } from "./EditorToolbar";
+import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -24,6 +28,7 @@ export default function DocumentEditor({
   const { isAuthenticated } = useDocumentAuth();
   const contentRef = useRef<HTMLDivElement>(null);
   const [localTitle, setLocalTitle] = useState("");
+  const navigate = useNavigate();
   
   const editor = useEditor({
     extensions: useMemo(() => getEditorExtensions(), []),
@@ -50,7 +55,6 @@ export default function DocumentEditor({
     handleUpdateCategories
   } = useDocumentCategoriesState(documentId);
 
-  // Sync local title with document title
   useEffect(() => {
     if (document?.title) {
       setLocalTitle(document.title);
@@ -66,8 +70,7 @@ export default function DocumentEditor({
   };
 
   const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setLocalTitle(newTitle);
+    setLocalTitle(e.target.value);
   }, []);
 
   const handleTitleBlur = useCallback(() => {
@@ -104,17 +107,20 @@ export default function DocumentEditor({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Minimal top bar: category + actions */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-1.5 shrink-0">
+      <Header pageTitle="Documents">
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/documents")}>
+            <ArrowLeft className="h-4 w-4" />
+            Library
+          </Button>
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
           <CategorySelector
             selectedCategory={selectedCategoryId}
             onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
-            placeholder="Add category"
+            placeholder="Category"
+            className="w-[140px]"
           />
-        </div>
-
-        <div className="flex items-center gap-1.5">
           <SaveButton
             onClick={handleSave}
             disabled={isSaving}
@@ -123,7 +129,7 @@ export default function DocumentEditor({
             successText="Saved!"
             timeout={2000}
             size="sm"
-            className="h-6 text-[11px] px-2 bg-foreground text-background hover:bg-foreground/90"
+            className="h-7 text-[11px] px-2 bg-foreground text-background hover:bg-foreground/90"
             variant="secondary"
           />
           <DocumentActions
@@ -133,17 +139,16 @@ export default function DocumentEditor({
             onDelete={() => {}}
           />
         </div>
-      </div>
+      </Header>
 
       {/* Editor toolbar */}
       <div className="px-4 pt-2 shrink-0">
         <EditorToolbar editor={editor} />
       </div>
 
-      {/* Inline title + content */}
+      {/* Inline title + content — full width */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-3xl mx-auto px-6 py-4">
-          {/* Notion-style inline title */}
+        <div className="px-6 py-4">
           <input
             value={localTitle}
             onChange={handleTitleChange}
@@ -153,8 +158,6 @@ export default function DocumentEditor({
             className="w-full text-2xl font-semibold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/40 mb-1"
           />
           <div className="h-px bg-border/50 mb-4" />
-
-          {/* Document content */}
           <DocumentContent editor={editor} ref={contentRef} />
         </div>
       </div>
