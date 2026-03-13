@@ -13,7 +13,7 @@ interface DocumentsContainerProps {
   initialDocId?: string | null;
 }
 
-export function DocumentsContainer({ autoCreateDocument = false }: DocumentsContainerProps) {
+export function DocumentsContainer({ autoCreateDocument = false, initialDocId = null }: DocumentsContainerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
