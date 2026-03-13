@@ -36,7 +36,7 @@ export function DocumentActions({
     iframe.style.width = '0';
     iframe.style.height = '0';
     iframe.style.border = '0';
-    document.body.appendChild(iframe);
+    window.document.body.appendChild(iframe);
     const doc = iframe.contentDocument;
     if (!doc) return;
     doc.write(`<!DOCTYPE html><html><head><title>${document.title}</title><style>
