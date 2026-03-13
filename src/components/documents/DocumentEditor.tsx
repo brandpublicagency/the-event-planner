@@ -143,7 +143,6 @@ export default function DocumentEditor({
             <DocumentActions
               document={document}
               content={editor?.getHTML()}
-              printRef={contentRef}
               onDelete={() => {}}
             />
           </div>
