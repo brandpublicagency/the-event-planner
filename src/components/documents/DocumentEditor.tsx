@@ -30,6 +30,7 @@ export default function DocumentEditor({
   const { isAuthenticated } = useDocumentAuth();
   const contentRef = useRef<HTMLDivElement>(null);
   const [localTitle, setLocalTitle] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const navigate = useNavigate();
   
   const editor = useEditor({
