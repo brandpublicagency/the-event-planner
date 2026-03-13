@@ -85,11 +85,7 @@ export const DragHandle = Extension.create({
 
             // Set drag data
             const slice = view.state.selection.content();
-            const { dom, text } = view.domSerializer
-              ? { dom: null, text: node.textContent }
-              : { dom: null, text: node.textContent };
-            
-            event.dataTransfer?.setData('text/plain', text || '');
+            event.dataTransfer?.setData('text/plain', node.textContent || '');
             if (dragHandleElement) {
               event.dataTransfer?.setDragImage(dragHandleElement, 0, 0);
             }
