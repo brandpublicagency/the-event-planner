@@ -164,15 +164,29 @@ export default function DocumentEditor({
       {editor && <ImageUploadListener editor={editor} />}
 
       {/* Inline title + content — full width */}
-      <div className="flex-1 overflow-auto">
-        <div className="px-6 py-4">
+      <div
+        className="flex-1 overflow-auto cursor-text"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            editor?.commands.focus('end');
+          }
+        }}
+      >
+        <div
+          className="px-6 py-4 flex flex-col min-h-full"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              editor?.commands.focus('end');
+            }
+          }}
+        >
           <input
             value={localTitle}
             onChange={handleTitleChange}
             onBlur={handleTitleBlur}
             onKeyDown={handleTitleKeyDown}
             placeholder="Untitled"
-            className="w-full text-2xl font-semibold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/40 mb-1"
+            className="w-full text-2xl font-semibold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/40 mb-1 cursor-text"
           />
           <div className="h-px bg-border/50 mb-4" />
           <DocumentContent editor={editor} ref={contentRef} />
