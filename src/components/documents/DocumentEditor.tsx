@@ -14,6 +14,7 @@ import { CategorySelector } from "./CategorySelector";
 import { SaveButton } from "@/components/ui/save-button";
 import { EditorToolbar } from "./EditorToolbar";
 import { BubbleToolbar } from "./BubbleToolbar";
+import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
