@@ -53,9 +53,9 @@ export default function DocumentEditor({
             const { supabase } = await import('@/integrations/supabase/client');
             const { v4: uuid } = await import('uuid');
             const filePath = `document-images/${uuid()}-${file.name}`;
-            const { data, error } = await supabase.storage
+              const { data, error } = await supabase.storage
               .from('taskmanager-files')
-              .upload(filePath, file);
+              .upload(filePath, file, { contentType: file.type });
             if (error) {
               console.error('Drop upload failed:', error);
               toast.error(`Upload failed: ${error.message}`);
@@ -87,7 +87,7 @@ export default function DocumentEditor({
             const filePath = `document-images/${uuid()}-${file.name}`;
             const { data, error } = await supabase.storage
               .from('taskmanager-files')
-              .upload(filePath, file);
+              .upload(filePath, file, { contentType: file.type });
             if (error) {
               console.error('Paste upload failed:', error);
               toast.error(`Upload failed: ${error.message}`);

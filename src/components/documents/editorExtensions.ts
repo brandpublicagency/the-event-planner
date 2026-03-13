@@ -57,7 +57,7 @@ export const getEditorExtensions = () => [
     types: ['heading', 'paragraph'],
   }),
   Placeholder.configure({
-    placeholder: "Type '/' for commands...",
+    placeholder: "Type '/' for commands, '@' to mention...",
   }),
   TaskList,
   TaskItem.configure({ nested: true }),
