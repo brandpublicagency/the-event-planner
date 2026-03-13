@@ -52,6 +52,7 @@ export const AppRoutes = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/documents" element={<Documents />} />
+        <Route path="/documents/:id" element={<DocumentDetail />} />
         <Route path="/schedule/meeting" element={<ScheduleMeeting />} />
         <Route path="/schedule/site-visit" element={<ScheduleSiteVisit />} />
         <Route path="*" element={<Navigate to="/" replace />} />

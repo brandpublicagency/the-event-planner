@@ -31,7 +31,8 @@ export function DocumentsContainer({ autoCreateDocument = false, initialDocId = 
   const { selectedDocId, setSelectedDocId } = useDocumentSelection(
     documents,
     autoCreateDocument,
-    documentCreated
+    documentCreated,
+    initialDocId
   );
 
   useEffect(() => {
