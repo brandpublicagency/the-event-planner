@@ -122,7 +122,7 @@ export default function DocumentEditor({
     <div className="h-full flex flex-col">
       <Header pageTitle="Documents">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/documents")}>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground h-9" onClick={() => navigate("/documents")}>
             <ArrowLeft className="h-4 w-4" />
             Library
           </Button>
@@ -132,7 +132,7 @@ export default function DocumentEditor({
             selectedCategory={selectedCategoryId}
             onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
             placeholder="Category"
-            className="w-[140px]"
+            className="w-[140px] h-9"
           />
           <SaveButton
             onClick={handleSave}
@@ -141,9 +141,8 @@ export default function DocumentEditor({
             defaultText="Save"
             successText="Saved!"
             timeout={2000}
-            size="sm"
-            className="h-7 text-[11px] px-2 bg-foreground text-background hover:bg-foreground/90"
-            variant="secondary"
+            size="default"
+            className="h-9"
           />
           <DocumentActions
             document={document}
