@@ -161,6 +161,7 @@ export default function DocumentEditor({
 
       {/* Bubble toolbar for text selection */}
       {editor && <BubbleToolbar editor={editor} />}
+      {editor && <ImageUploadListener editor={editor} />}
 
       {/* Inline title + content — full width */}
       <div className="flex-1 overflow-auto">
