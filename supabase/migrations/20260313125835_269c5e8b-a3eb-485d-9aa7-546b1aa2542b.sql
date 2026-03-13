@@ -1,0 +1,1 @@
+UPDATE storage.buckets SET public = true, allowed_mime_types = NULL WHERE id = 'taskmanager-files';

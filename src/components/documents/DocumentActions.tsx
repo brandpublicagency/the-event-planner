@@ -5,7 +5,6 @@ import {
   Download, Printer, Trash2
 } from "lucide-react";
 import { Document } from '@/types/document';
-import { exportDocument } from '@/utils/documentUtils';
 import { exportAsPdf, exportAsDocx } from '@/utils/exportUtils';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Editor } from '@tiptap/react';
@@ -18,6 +17,53 @@ export interface DocumentActionsProps {
   onDelete?: () => void;
 }
 
+/**
+ * Pre-process HTML for print/export:
+ * - Replace empty link-preview divs with styled cards
+ */
+function preprocessHtmlForPrint(html: string): string {
+  const container = window.document.createElement('div');
+  container.innerHTML = html;
+
+  // Replace link-preview nodes (empty divs with url attr)
+  container.querySelectorAll('[data-link-preview]').forEach(el => {
+    const url = el.getAttribute('url') || el.getAttribute('href') || '';
+    if (!url) { el.remove(); return; }
+    const card = window.document.createElement('div');
+    card.style.cssText = 'border:1px solid #ddd;border-radius:6px;padding:10px 14px;margin:8px 0;background:#f9f9f9;';
+    card.innerHTML = `<a href="${url}" style="color:#2563eb;text-decoration:underline;word-break:break-all;font-size:11pt;">${url}</a>`;
+    el.replaceWith(card);
+  });
+
+  return container.innerHTML;
+}
+
+/**
+ * Wait for all images inside an element to load (or fail), with a timeout.
+ */
+function waitForImages(root: HTMLElement, timeoutMs = 5000): Promise<void> {
+  const imgs = Array.from(root.querySelectorAll('img'));
+  if (imgs.length === 0) return Promise.resolve();
+
+  return new Promise(resolve => {
+    let settled = 0;
+    const total = imgs.length;
+    const done = () => { settled++; if (settled >= total) resolve(); };
+    const timer = setTimeout(resolve, timeoutMs);
+
+    imgs.forEach(img => {
+      if (img.complete) { done(); return; }
+      img.onload = () => done();
+      img.onerror = () => done();
+    });
+
+    // Clear timer if all resolved early
+    const check = setInterval(() => {
+      if (settled >= total) { clearTimeout(timer); clearInterval(check); }
+    }, 100);
+  });
+}
+
 export function DocumentActions({ 
   document, 
   content,
@@ -26,9 +72,12 @@ export function DocumentActions({
 }: DocumentActionsProps) {
   const getContent = () => editor?.getHTML() || content || '';
 
-  const handlePrint = () => {
-    const html = getContent();
-    if (!html) return;
+  const handlePrint = async () => {
+    const rawHtml = getContent();
+    if (!rawHtml) return;
+
+    const processedHtml = preprocessHtmlForPrint(rawHtml);
+
     const iframe = window.document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.top = '-10000px';
@@ -37,8 +86,10 @@ export function DocumentActions({
     iframe.style.height = '0';
     iframe.style.border = '0';
     window.document.body.appendChild(iframe);
+
     const doc = iframe.contentDocument;
     if (!doc) return;
+
     doc.write(`<!DOCTYPE html><html><head><title>${document.title}</title><style>
       @page { size: A4; margin: 1cm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,8 +113,13 @@ export function DocumentActions({
       mark { background-color: #fef08a; padding: 0.1em 0.15em; border-radius: 2px; }
       ul[data-type="taskList"] { list-style: none; padding-left: 0; }
       ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 0.5em; }
-    </style></head><body><h1>${document.title}</h1>${html}</body></html>`);
+      a { color: #2563eb; text-decoration: underline; }
+    </style></head><body><h1>${document.title}</h1>${processedHtml}</body></html>`);
     doc.close();
+
+    // Wait for images to load before printing
+    await waitForImages(doc.body);
+
     iframe.contentWindow?.focus();
     iframe.contentWindow?.print();
     setTimeout(() => window.document.body.removeChild(iframe), 1000);
@@ -71,12 +127,12 @@ export function DocumentActions({
 
   const handleExportAsPdf = () => {
     const html = getContent();
-    if (html) exportAsPdf(html, document.title);
+    if (html) exportAsPdf(preprocessHtmlForPrint(html), document.title);
   };
 
   const handleExportAsDocx = () => {
     const html = getContent();
-    if (html) exportAsDocx(html, document.title);
+    if (html) exportAsDocx(preprocessHtmlForPrint(html), document.title);
   };
 
   const hasContent = !!editor || !!content;

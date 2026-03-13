@@ -1,20 +1,23 @@
 
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-const htmlToPlainText = (html: string) => {
+/** Parse HTML into a temporary DOM element */
+const parseHtml = (html: string): HTMLElement => {
   const temp = document.createElement('div');
   temp.innerHTML = html;
-  return temp.textContent || temp.innerText || '';
+  return temp;
+};
+
+const htmlToPlainText = (html: string) => {
+  return parseHtml(html).textContent || '';
 };
 
 export const exportAsPdf = async (html: string, title: string) => {
-  // Create a temporary container to render the HTML
   const container = document.createElement('div');
   container.innerHTML = html;
   
-  // Add custom styles to match editor formatting
   const style = document.createElement('style');
   style.textContent = `
     .pdf-content {
@@ -37,24 +40,31 @@ export const exportAsPdf = async (html: string, title: string) => {
       border-left: 2pt solid #666;
       font-style: italic;
     }
+    img { max-width: 100%; height: auto; }
+    a { color: #2563eb; text-decoration: underline; }
   `;
   
   container.appendChild(style);
   container.className = 'pdf-content';
   document.body.appendChild(container);
 
-  // Initialize PDF with A4 format
+  // Wait for images to load
+  const imgs = Array.from(container.querySelectorAll('img'));
+  await Promise.all(imgs.map(img => new Promise<void>(resolve => {
+    if (img.complete) { resolve(); return; }
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+  })));
+
   const doc = new jsPDF({
     unit: 'pt',
     format: 'a4',
     orientation: 'portrait'
   });
 
-  // Set title
   doc.setFontSize(16);
   doc.text(title, 40, 40);
 
-  // Convert HTML content to PDF
   await doc.html(container, {
     callback: function (doc) {
       doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
@@ -62,9 +72,9 @@ export const exportAsPdf = async (html: string, title: string) => {
     },
     x: 40,
     y: 80,
-    width: doc.internal.pageSize.getWidth() - 80, // 40pt margins on each side
+    width: doc.internal.pageSize.getWidth() - 80,
     autoPaging: 'text',
-    windowWidth: 794, // A4 width in points
+    windowWidth: 794,
     margin: [40, 40, 40, 40],
     html2canvas: {
       scale: 0.7,
@@ -74,30 +84,103 @@ export const exportAsPdf = async (html: string, title: string) => {
   });
 };
 
+/** Parse HTML nodes into docx Paragraph elements with basic formatting */
+function htmlToDocxParagraphs(container: HTMLElement): Paragraph[] {
+  const paragraphs: Paragraph[] = [];
+
+  const processNode = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        paragraphs.push(new Paragraph({ children: [new TextRun({ text, size: 24 })] }));
+      }
+      return;
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const el = node as HTMLElement;
+    const tag = el.tagName.toLowerCase();
+
+    if (tag === 'h1') {
+      paragraphs.push(new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: el.textContent || '', bold: true, size: 32 })],
+      }));
+    } else if (tag === 'h2') {
+      paragraphs.push(new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        children: [new TextRun({ text: el.textContent || '', bold: true, size: 28 })],
+      }));
+    } else if (tag === 'h3') {
+      paragraphs.push(new Paragraph({
+        heading: HeadingLevel.HEADING_3,
+        children: [new TextRun({ text: el.textContent || '', bold: true, size: 26 })],
+      }));
+    } else if (tag === 'p' || tag === 'div') {
+      const runs = inlineRuns(el);
+      if (runs.length > 0) {
+        paragraphs.push(new Paragraph({ children: runs }));
+      }
+    } else if (tag === 'blockquote') {
+      paragraphs.push(new Paragraph({
+        indent: { left: 720 },
+        children: [new TextRun({ text: el.textContent || '', italics: true, size: 24 })],
+      }));
+    } else if (tag === 'ul' || tag === 'ol') {
+      el.querySelectorAll(':scope > li').forEach(li => {
+        const bullet = tag === 'ul' ? '• ' : '';
+        paragraphs.push(new Paragraph({
+          indent: { left: 720 },
+          children: [new TextRun({ text: `${bullet}${li.textContent || ''}`, size: 24 })],
+        }));
+      });
+    } else if (tag === 'hr') {
+      paragraphs.push(new Paragraph({ children: [] }));
+    } else {
+      // Recurse for wrappers
+      Array.from(el.childNodes).forEach(processNode);
+    }
+  };
+
+  Array.from(container.childNodes).forEach(processNode);
+  return paragraphs;
+}
+
+/** Extract inline runs from an element, preserving bold/italic */
+function inlineRuns(el: HTMLElement): TextRun[] {
+  const runs: TextRun[] = [];
+  const walk = (node: Node, bold = false, italic = false, underline = false) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      if (text) {
+        runs.push(new TextRun({ text, bold, italics: italic, underline: underline ? {} : undefined, size: 24 } as any));
+      }
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = (node as HTMLElement).tagName.toLowerCase();
+    const b = bold || tag === 'strong' || tag === 'b';
+    const i = italic || tag === 'em' || tag === 'i';
+    const u = underline || tag === 'u';
+    Array.from(node.childNodes).forEach(child => walk(child, b, i, u));
+  };
+  walk(el);
+  return runs;
+}
+
 export const exportAsDocx = async (html: string, title: string) => {
-  const text = htmlToPlainText(html);
-  
+  const container = parseHtml(html);
+  const bodyParagraphs = htmlToDocxParagraphs(container);
+
   const doc = new Document({
     sections: [{
       properties: {},
       children: [
         new Paragraph({
-          children: [
-            new TextRun({
-              text: title,
-              bold: true,
-              size: 32,
-            }),
-          ],
+          heading: HeadingLevel.HEADING_1,
+          children: [new TextRun({ text: title, bold: true, size: 32 })],
         }),
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: text,
-              size: 24,
-            }),
-          ],
-        }),
+        ...bodyParagraphs,
       ],
     }],
   });
