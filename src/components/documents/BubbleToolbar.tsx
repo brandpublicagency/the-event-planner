@@ -1,7 +1,6 @@
 import { BubbleMenu, Editor } from '@tiptap/react';
 import {
-  Bold, Italic, Underline, Strikethrough, Code, Link, Highlighter,
-  AlignLeft, AlignCenter, AlignRight
+  Bold, Italic, Underline, Strikethrough, Code, Link, Highlighter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -91,27 +90,6 @@ export function BubbleToolbar({ editor }: BubbleToolbarProps) {
         active={editor.isActive('highlight')}
         icon={Highlighter}
         tooltip="Highlight"
-      />
-
-      <Divider />
-
-      <BubbleButton
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
-        active={editor.isActive({ textAlign: 'left' })}
-        icon={AlignLeft}
-        tooltip="Align Left"
-      />
-      <BubbleButton
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-        active={editor.isActive({ textAlign: 'center' })}
-        icon={AlignCenter}
-        tooltip="Align Center"
-      />
-      <BubbleButton
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-        active={editor.isActive({ textAlign: 'right' })}
-        icon={AlignRight}
-        tooltip="Align Right"
       />
     </BubbleMenu>
   );
