@@ -76,7 +76,7 @@ export function DocumentActions({
       {content && (
         <Popover>
           <PopoverTrigger asChild>
-            <Button size="sm" variant="outline" className="p-1.5 h-7 w-7">
+            <Button size="default" variant="outline" className="p-2 h-9 w-9">
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only">Export</span>
             </Button>
