@@ -10,7 +10,7 @@ export const MentionSuggestionConfig = {
   allowSpaces: true,
   
   items: async ({ query }) => {
-    if (query.length < 2) {
+    if (query.length < 1) {
       return [];
     }
     
