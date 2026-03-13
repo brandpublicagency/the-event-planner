@@ -176,6 +176,8 @@ export default function DocumentEditor({
           <DocumentContent editor={editor} ref={contentRef} />
         </div>
       </div>
+
+      <KeyboardShortcutsOverlay open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </div>
   );
 }

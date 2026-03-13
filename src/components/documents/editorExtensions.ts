@@ -71,6 +71,7 @@ export const getEditorExtensions = () => [
   SlashCommandExtension.configure({
     suggestion: slashCommandSuggestion,
   }),
+  DragHandle,
 ];
 
 export const isHeadingActive = (editor: any, level: number) => {
