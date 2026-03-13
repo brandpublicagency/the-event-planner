@@ -1,27 +1,24 @@
 
-import { DocumentsContainer } from "@/components/documents/DocumentsContainer";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { DocumentLibrary } from "@/components/documents/DocumentLibrary";
+import { useDocumentsData } from "@/hooks/useDocumentsData";
 
 export default function Documents() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const newDocument = searchParams.get("newDocument");
-  
-  // Clear the newDocument parameter after it's been processed
+  const { createDocument } = useDocumentsData();
+
   useEffect(() => {
     if (newDocument === "true") {
-      // Remove the newDocument parameter after a delay
-      // This allows DocumentsContainer to process it first
-      const timeoutId = setTimeout(() => {
-        navigate('/documents', { replace: true });
-      }, 2000); // Increased timeout to ensure DocumentsContainer has time to process
-      
-      return () => clearTimeout(timeoutId);
+      createDocument.mutate(undefined, {
+        onSuccess: (newDoc) => {
+          navigate(`/documents/${newDoc.id}`, { replace: true });
+        }
+      });
     }
-  }, [newDocument, navigate]);
-  
-  return (
-    <DocumentsContainer autoCreateDocument={newDocument === "true"} />
-  );
+  }, []);
+
+  return <DocumentLibrary />;
 }
