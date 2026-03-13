@@ -27,8 +27,18 @@ export const DocumentContent = forwardRef<HTMLDivElement, DocumentContentProps>(
       );
     }
 
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget) {
+        editor?.commands.focus('end');
+      }
+    };
+
     return (
-      <div ref={ref} className="document-content min-h-[200px]">
+      <div
+        ref={ref}
+        className="document-content flex-1 min-h-[500px] cursor-text"
+        onClick={handleClick}
+      >
         <EditorContent
           editor={editor}
           className="h-full max-w-none focus:outline-none"
