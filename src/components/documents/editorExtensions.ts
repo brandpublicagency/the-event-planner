@@ -15,7 +15,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Color from '@tiptap/extension-color';
-import TextStyle from '@tiptap/extension-text-style';
+import { TextStyle } from '@tiptap/extension-text-style';
 import Typography from '@tiptap/extension-typography';
 import { LinkPreviewExtension } from './extensions/LinkPreviewExtension';
 import { LinkPasteHandler } from './extensions/LinkPasteHandler';
