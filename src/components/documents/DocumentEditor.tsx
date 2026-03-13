@@ -4,7 +4,7 @@ import { useDocumentState } from "@/hooks/useDocumentState";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
@@ -20,6 +20,7 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface DocumentEditorProps {
   documentId: string | null;
@@ -33,6 +34,7 @@ export default function DocumentEditor({
   const [localTitle, setLocalTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const navigate = useNavigate();
+  const lastSavedContentRef = useRef<string>("");
   
   const editor = useEditor({
     extensions: useMemo(() => getEditorExtensions(), []),
@@ -54,14 +56,22 @@ export default function DocumentEditor({
             const { data, error } = await supabase.storage
               .from('taskmanager-files')
               .upload(filePath, file);
-            if (error) { console.error('Drop upload failed:', error); return; }
+            if (error) {
+              console.error('Drop upload failed:', error);
+              toast.error(`Upload failed: ${error.message}`);
+              return;
+            }
             const { data: urlData } = supabase.storage
               .from('taskmanager-files')
               .getPublicUrl(data.path);
             const node = view.state.schema.nodes.image.create({ src: urlData.publicUrl });
             const pos = coords?.pos ?? view.state.doc.content.size;
             view.dispatch(view.state.tr.insert(pos, node));
-          } catch (err) { console.error('Drop image error:', err); }
+            toast.success("Image uploaded");
+          } catch (err: any) {
+            console.error('Drop image error:', err);
+            toast.error(`Image upload failed: ${err?.message || 'Unknown error'}`);
+          }
         });
         return true;
       },
@@ -78,14 +88,22 @@ export default function DocumentEditor({
             const { data, error } = await supabase.storage
               .from('taskmanager-files')
               .upload(filePath, file);
-            if (error) { console.error('Paste upload failed:', error); return; }
+            if (error) {
+              console.error('Paste upload failed:', error);
+              toast.error(`Upload failed: ${error.message}`);
+              return;
+            }
             const { data: urlData } = supabase.storage
               .from('taskmanager-files')
               .getPublicUrl(data.path);
             const node = view.state.schema.nodes.image.create({ src: urlData.publicUrl });
             const pos = view.state.selection.anchor;
             view.dispatch(view.state.tr.insert(pos, node));
-          } catch (err) { console.error('Paste image error:', err); }
+            toast.success("Image uploaded");
+          } catch (err: any) {
+            console.error('Paste image error:', err);
+            toast.error(`Image upload failed: ${err?.message || 'Unknown error'}`);
+          }
         });
         return true;
       },
@@ -113,6 +131,28 @@ export default function DocumentEditor({
       setLocalTitle(document.title);
     }
   }, [document?.title]);
+
+  // Track last saved content for autosave change detection
+  useEffect(() => {
+    if (document?.content && typeof document.content === 'object' && 'html' in document.content) {
+      lastSavedContentRef.current = (document.content as any).html || '';
+    }
+  }, [document?.content]);
+
+  // Autosave every 30 seconds
+  useEffect(() => {
+    if (!editor || !documentId) return;
+
+    const interval = setInterval(() => {
+      const currentHtml = editor.getHTML();
+      if (currentHtml && currentHtml !== lastSavedContentRef.current) {
+        lastSavedContentRef.current = currentHtml;
+        saveDocument({ showToast: false });
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [editor, documentId, saveDocument]);
 
   // Cmd+S to save, Cmd+/ for shortcuts overlay
   useEffect(() => {
