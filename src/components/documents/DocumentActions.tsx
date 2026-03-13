@@ -66,7 +66,7 @@ export function DocumentActions({
     doc.close();
     iframe.contentWindow?.focus();
     iframe.contentWindow?.print();
-    setTimeout(() => document.body.removeChild(iframe), 1000);
+    setTimeout(() => window.document.body.removeChild(iframe), 1000);
   };
 
   const handleExportAsPdf = () => {
