@@ -88,14 +88,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         icon={Table}
         tooltip="Insert Table"
       />
-      <MenuButton
-        onClick={() => {
-          const url = window.prompt('Enter image URL');
-          if (url) editor.chain().focus().setImage({ src: url }).run();
-        }}
-        icon={ImageIcon}
-        tooltip="Insert Image"
-      />
+      <ImageUploadButton editor={editor} />
       <MenuButton
         onClick={() => {
           const url = window.prompt('Enter URL');
