@@ -120,36 +120,40 @@ export default function DocumentEditor({
 
   return (
     <div className="h-full flex flex-col">
-      <Header pageTitle="Documents">
+      <Header
+        pageTitle="Documents"
+        secondaryAction={
+          <div className="flex items-center gap-2">
+            <CategorySelector
+              selectedCategory={selectedCategoryId}
+              onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
+              placeholder="Category"
+              className="w-[140px] h-9"
+            />
+            <SaveButton
+              onClick={handleSave}
+              disabled={isSaving}
+              loadingText="Saving..."
+              defaultText="Save"
+              successText="Saved!"
+              timeout={2000}
+              size="default"
+              className="h-9"
+            />
+            <DocumentActions
+              document={document}
+              content={editor?.getHTML()}
+              printRef={contentRef}
+              onDelete={() => {}}
+            />
+          </div>
+        }
+      >
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground h-9" onClick={() => navigate("/documents")}>
             <ArrowLeft className="h-4 w-4" />
             Library
           </Button>
-        </div>
-        <div className="flex items-center gap-2 ml-auto">
-          <CategorySelector
-            selectedCategory={selectedCategoryId}
-            onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
-            placeholder="Category"
-            className="w-[140px] h-9"
-          />
-          <SaveButton
-            onClick={handleSave}
-            disabled={isSaving}
-            loadingText="Saving..."
-            defaultText="Save"
-            successText="Saved!"
-            timeout={2000}
-            size="default"
-            className="h-9"
-          />
-          <DocumentActions
-            document={document}
-            content={editor?.getHTML()}
-            printRef={contentRef}
-            onDelete={() => {}}
-          />
         </div>
       </Header>
 
