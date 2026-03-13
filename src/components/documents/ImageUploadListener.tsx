@@ -42,9 +42,9 @@ export function ImageUploadListener({ editor }: ImageUploadListenerProps) {
 
       editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
       toast.success("Image uploaded");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Image upload failed:", err);
-      toast.error("Failed to upload image");
+      toast.error(`Upload failed: ${err?.message || 'Unknown error'}`);
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
