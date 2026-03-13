@@ -29,7 +29,7 @@ export function DocumentActions({
   const handlePrint = () => {
     const html = getContent();
     if (!html) return;
-    const iframe = document.createElement('iframe');
+    const iframe = window.document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.top = '-10000px';
     iframe.style.left = '-10000px';
