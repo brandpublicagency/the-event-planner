@@ -10,6 +10,7 @@ import { useDocumentSelection } from "@/hooks/useDocumentSelection";
 
 interface DocumentsContainerProps {
   autoCreateDocument?: boolean;
+  initialDocId?: string | null;
 }
 
 export function DocumentsContainer({ autoCreateDocument = false }: DocumentsContainerProps) {
