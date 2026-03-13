@@ -4,6 +4,7 @@ import { SlashCommandMenu } from './SlashCommandMenu';
 import { slashCommandItems, SlashCommandItem } from './SlashCommandExtension';
 
 export const slashCommandSuggestion = {
+  pluginKey: 'slashCommand',
   items: ({ query }: { query: string }): SlashCommandItem[] => {
     return slashCommandItems.filter((item) =>
       item.title.toLowerCase().includes(query.toLowerCase())
