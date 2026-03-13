@@ -57,7 +57,7 @@ export function DocumentActions({
     <div className="flex items-center gap-1.5">
       {printRef && (
         <Button 
-          size="sm" 
+          size="default" 
           variant="outline" 
           onClick={() => {
             if (printRef.current) {
@@ -66,7 +66,7 @@ export function DocumentActions({
               console.warn("Print reference is not available");
             }
           }} 
-          className="p-1.5 h-7 w-7"
+          className="p-2 h-9 w-9"
         >
           <Printer className="h-3.5 w-3.5" />
           <span className="sr-only">Print</span>
@@ -76,7 +76,7 @@ export function DocumentActions({
       {content && (
         <Popover>
           <PopoverTrigger asChild>
-            <Button size="sm" variant="outline" className="p-1.5 h-7 w-7">
+            <Button size="default" variant="outline" className="p-2 h-9 w-9">
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only">Export</span>
             </Button>
@@ -92,7 +92,7 @@ export function DocumentActions({
       )}
       
       {onDelete && (
-        <Button size="sm" variant="outline" onClick={onDelete} className="p-1.5 h-7 w-7 text-destructive">
+        <Button size="default" variant="outline" onClick={onDelete} className="p-2 h-9 w-9 text-destructive">
           <Trash2 className="h-3.5 w-3.5" />
           <span className="sr-only">Delete</span>
         </Button>
