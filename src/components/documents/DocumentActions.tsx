@@ -105,7 +105,6 @@ export function DocumentActions({
           </PopoverTrigger>
           <PopoverContent className="w-40">
             <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={handleExport}>HTML</Button>
               <Button size="sm" onClick={handleExportAsPdf}>PDF</Button>
               <Button size="sm" onClick={handleExportAsDocx}>DOCX</Button>
             </div>
