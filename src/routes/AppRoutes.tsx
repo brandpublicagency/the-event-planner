@@ -14,6 +14,7 @@ import ProfileSettings from "@/pages/ProfileSettings";
 import Settings from "@/pages/Settings";
 import Contacts from "@/pages/Contacts";
 import Documents from "@/pages/Documents";
+import DocumentDetail from "@/pages/DocumentDetail";
 import EventDetails from "@/pages/EventDetails";
 import EditEvent from "@/pages/EditEvent";
 import TaskDetails from "@/pages/TaskDetails";
