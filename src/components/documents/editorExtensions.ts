@@ -23,6 +23,7 @@ import { MentionExtension } from './extensions/mention';
 import { MentionNode } from './extensions/MentionNode';
 import { SlashCommandExtension } from './SlashCommandExtension';
 import { slashCommandSuggestion } from './slashCommandSuggestion';
+import { DragHandle } from './extensions/DragHandle';
 import './styles/mention/index.css';
 
 const lowlight = createLowlight(common);
