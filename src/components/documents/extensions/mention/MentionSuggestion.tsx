@@ -10,16 +10,14 @@ export const MentionSuggestionConfig = {
   allowSpaces: true,
   
   items: async ({ query }) => {
-    if (query.length < 1) {
-      return [];
-    }
+    const normalizedQuery = query.trim();
     
     try {
       // Search for documents
       const { data: documents } = await supabase
         .from('documents')
         .select('id, title')
-        .ilike('title', `%${query}%`)
+        .ilike('title', `%${normalizedQuery}%`)
         .is('deleted_at', null)
         .limit(5);
 
@@ -27,14 +25,14 @@ export const MentionSuggestionConfig = {
       const { data: tasks } = await supabase
         .from('tasks')
         .select('id, title')
-        .ilike('title', `%${query}%`)
+        .ilike('title', `%${normalizedQuery}%`)
         .limit(5);
 
       // Search for events
       const { data: events } = await supabase
         .from('events')
         .select('event_code, name')
-        .ilike('name', `%${query}%`)
+        .ilike('name', `%${normalizedQuery}%`)
         .is('deleted_at', null)
         .limit(5);
 
@@ -42,7 +40,7 @@ export const MentionSuggestionConfig = {
       const { data: users } = await supabase
         .from('profiles')
         .select('id, full_name')
-        .ilike('full_name', `%${query}%`)
+        .ilike('full_name', `%${normalizedQuery}%`)
         .limit(5);
 
       // Format results
