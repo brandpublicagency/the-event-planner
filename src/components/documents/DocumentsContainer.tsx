@@ -1,6 +1,9 @@
 
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { DocumentCreatingState } from "./DocumentCreatingState";
@@ -10,9 +13,11 @@ import { useDocumentSelection } from "@/hooks/useDocumentSelection";
 
 interface DocumentsContainerProps {
   autoCreateDocument?: boolean;
+  initialDocId?: string | null;
 }
 
-export function DocumentsContainer({ autoCreateDocument = false }: DocumentsContainerProps) {
+export function DocumentsContainer({ autoCreateDocument = false, initialDocId = null }: DocumentsContainerProps) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [documentCreated, setDocumentCreated] = useState(false);
@@ -30,7 +35,8 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
   const { selectedDocId, setSelectedDocId } = useDocumentSelection(
     documents,
     autoCreateDocument,
-    documentCreated
+    documentCreated,
+    initialDocId
   );
 
   useEffect(() => {
@@ -66,7 +72,12 @@ export function DocumentsContainer({ autoCreateDocument = false }: DocumentsCont
 
   return (
     <div className="flex flex-col h-screen">
-      <Header pageTitle="Documents" />
+      <Header pageTitle="Documents">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/documents")}>
+          <ArrowLeft className="h-4 w-4" />
+          Library
+        </Button>
+      </Header>
 
       <div className="flex flex-1 overflow-hidden">
         <DocumentsSidebar

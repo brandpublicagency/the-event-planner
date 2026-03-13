@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import type { Document } from "@/types/document";
 
-export function useDocumentSelection(documents: Document[] | undefined, autoCreateDocument: boolean, documentCreated: boolean) {
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+export function useDocumentSelection(documents: Document[] | undefined, autoCreateDocument: boolean, documentCreated: boolean, initialDocId?: string | null) {
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(initialDocId || null);
   
   // Reset document created when component unmounts
   useEffect(() => {
