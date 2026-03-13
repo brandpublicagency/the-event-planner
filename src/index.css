@@ -1,9 +1,8 @@
+@import "./toast.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "./toast.css";
 
 /* Global styles */
 @layer base {
@@ -340,4 +339,29 @@
   .print-hidden {
     display: none !important;
   }
+}
+
+/* Drag handle */
+.drag-handle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: grab;
+  color: hsl(var(--muted-foreground) / 0.5);
+  transition: color 0.15s, background-color 0.15s;
+  z-index: 50;
+  user-select: none;
+}
+
+.drag-handle:hover {
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted));
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }

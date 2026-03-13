@@ -14,6 +14,7 @@ import { CategorySelector } from "./CategorySelector";
 import { SaveButton } from "@/components/ui/save-button";
 import { EditorToolbar } from "./EditorToolbar";
 import { BubbleToolbar } from "./BubbleToolbar";
+import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -29,6 +30,7 @@ export default function DocumentEditor({
   const { isAuthenticated } = useDocumentAuth();
   const contentRef = useRef<HTMLDivElement>(null);
   const [localTitle, setLocalTitle] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const navigate = useNavigate();
   
   const editor = useEditor({
@@ -61,6 +63,23 @@ export default function DocumentEditor({
       setLocalTitle(document.title);
     }
   }, [document?.title]);
+
+  // Cmd+S to save, Cmd+/ for shortcuts overlay
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 's') {
+        e.preventDefault();
+        saveDocument({ showToast: true });
+      }
+      if (mod && e.key === '/') {
+        e.preventDefault();
+        setShortcutsOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saveDocument]);
 
   const handleSave = async () => {
     try {
@@ -157,6 +176,8 @@ export default function DocumentEditor({
           <DocumentContent editor={editor} ref={contentRef} />
         </div>
       </div>
+
+      <KeyboardShortcutsOverlay open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </div>
   );
 }
