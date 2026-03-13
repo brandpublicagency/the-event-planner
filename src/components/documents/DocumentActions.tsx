@@ -57,7 +57,7 @@ export function DocumentActions({
     <div className="flex items-center gap-1.5">
       {printRef && (
         <Button 
-          size="sm" 
+          size="default" 
           variant="outline" 
           onClick={() => {
             if (printRef.current) {
@@ -66,7 +66,7 @@ export function DocumentActions({
               console.warn("Print reference is not available");
             }
           }} 
-          className="p-1.5 h-7 w-7"
+          className="p-2 h-9 w-9"
         >
           <Printer className="h-3.5 w-3.5" />
           <span className="sr-only">Print</span>
