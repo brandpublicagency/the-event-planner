@@ -191,7 +191,7 @@ export default function DocumentEditor({
             />
             <DocumentActions
               document={document}
-              content={editor?.getHTML()}
+              editor={editor}
               onDelete={() => {}}
             />
           </div>
