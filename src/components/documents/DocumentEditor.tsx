@@ -39,7 +39,56 @@ export default function DocumentEditor({
     editorProps: {
       attributes: {
         class: 'prose prose-sm focus:outline-none max-w-none'
-      }
+      },
+      handleDrop: (view, event, _slice, moved) => {
+        if (moved || !event.dataTransfer) return false;
+        const files = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length === 0) return false;
+        event.preventDefault();
+        const coords = view.posAtCoords({ left: event.clientX, top: event.clientY });
+        files.forEach(async (file) => {
+          try {
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { v4: uuid } = await import('uuid');
+            const filePath = `document-images/${uuid()}-${file.name}`;
+            const { data, error } = await supabase.storage
+              .from('taskmanager-files')
+              .upload(filePath, file);
+            if (error) { console.error('Drop upload failed:', error); return; }
+            const { data: urlData } = supabase.storage
+              .from('taskmanager-files')
+              .getPublicUrl(data.path);
+            const node = view.state.schema.nodes.image.create({ src: urlData.publicUrl });
+            const pos = coords?.pos ?? view.state.doc.content.size;
+            view.dispatch(view.state.tr.insert(pos, node));
+          } catch (err) { console.error('Drop image error:', err); }
+        });
+        return true;
+      },
+      handlePaste: (view, event) => {
+        if (!event.clipboardData) return false;
+        const files = Array.from(event.clipboardData.files).filter(f => f.type.startsWith('image/'));
+        if (files.length === 0) return false;
+        event.preventDefault();
+        files.forEach(async (file) => {
+          try {
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { v4: uuid } = await import('uuid');
+            const filePath = `document-images/${uuid()}-${file.name}`;
+            const { data, error } = await supabase.storage
+              .from('taskmanager-files')
+              .upload(filePath, file);
+            if (error) { console.error('Paste upload failed:', error); return; }
+            const { data: urlData } = supabase.storage
+              .from('taskmanager-files')
+              .getPublicUrl(data.path);
+            const node = view.state.schema.nodes.image.create({ src: urlData.publicUrl });
+            const pos = view.state.selection.anchor;
+            view.dispatch(view.state.tr.insert(pos, node));
+          } catch (err) { console.error('Paste image error:', err); }
+        });
+        return true;
+      },
     }
   });
   
