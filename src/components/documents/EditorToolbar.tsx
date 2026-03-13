@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Underline, Heading1, Heading2, Heading3,
   Link, List, ListOrdered, SeparatorHorizontal, Code,
-  Highlighter, Quote, ExternalLink, ImageIcon, Table,
+  Highlighter, Quote, ExternalLink, Table,
   CheckSquare, Undo, Redo
 } from "lucide-react";
 import { Editor } from '@tiptap/react';
@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { LinkPreviewDialog } from "./LinkPreviewDialog";
+import { ImageUploadButton } from "./ImageUploadButton";
 
 interface MenuButtonProps {
   onClick: () => void;
@@ -87,14 +88,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         icon={Table}
         tooltip="Insert Table"
       />
-      <MenuButton
-        onClick={() => {
-          const url = window.prompt('Enter image URL');
-          if (url) editor.chain().focus().setImage({ src: url }).run();
-        }}
-        icon={ImageIcon}
-        tooltip="Insert Image"
-      />
+      <ImageUploadButton editor={editor} />
       <MenuButton
         onClick={() => {
           const url = window.prompt('Enter URL');

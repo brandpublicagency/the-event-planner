@@ -5,6 +5,7 @@ import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
 import { DocumentEditorError } from "./DocumentEditorError";
@@ -160,6 +161,7 @@ export default function DocumentEditor({
 
       {/* Bubble toolbar for text selection */}
       {editor && <BubbleToolbar editor={editor} />}
+      {editor && <ImageUploadListener editor={editor} />}
 
       {/* Inline title + content — full width */}
       <div className="flex-1 overflow-auto">

@@ -6,7 +6,7 @@ import { createMentionTooltipPlugin } from './MentionTooltipPlugin';
 import { MentionSuggestionConfig } from './MentionSuggestion';
 
 export const MentionExtension = Extension.create({
-  name: 'mention',
+  name: 'mentionSuggestion',
 
   addOptions() {
     return {

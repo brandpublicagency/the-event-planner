@@ -93,14 +93,15 @@ export const slashCommandItems: SlashCommandItem[] = [
   },
   {
     title: 'Image',
-    description: 'Insert image from URL',
+    description: 'Upload or insert image',
     icon: 'ImageIcon',
     category: 'Media',
     command: ({ editor, range }) => {
-      const url = window.prompt('Enter image URL');
-      if (url) {
-        editor.chain().focus().deleteRange(range).setImage({ src: url }).run();
-      }
+      editor.chain().focus().deleteRange(range).run();
+      // Dispatch custom event to trigger file picker
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('editor-image-upload'));
+      }, 100);
     },
   },
   {
