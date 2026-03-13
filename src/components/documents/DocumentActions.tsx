@@ -92,7 +92,7 @@ export function DocumentActions({
       )}
       
       {onDelete && (
-        <Button size="sm" variant="outline" onClick={onDelete} className="p-1.5 h-7 w-7 text-destructive">
+        <Button size="default" variant="outline" onClick={onDelete} className="p-2 h-9 w-9 text-destructive">
           <Trash2 className="h-3.5 w-3.5" />
           <span className="sr-only">Delete</span>
         </Button>
