@@ -28,7 +28,7 @@ interface DocumentEditorHeaderProps {
 export default function DocumentEditorHeader({
   document,
   content,
-  printRef,
+  
   onTitleChange,
   selectedCategories = [],
   isLoadingDocumentCategories = false,
