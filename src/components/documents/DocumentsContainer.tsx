@@ -72,7 +72,12 @@ export function DocumentsContainer({ autoCreateDocument = false, initialDocId = 
 
   return (
     <div className="flex flex-col h-screen">
-      <Header pageTitle="Documents" />
+      <Header pageTitle="Documents">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/documents")}>
+          <ArrowLeft className="h-4 w-4" />
+          Library
+        </Button>
+      </Header>
 
       <div className="flex flex-1 overflow-hidden">
         <DocumentsSidebar
