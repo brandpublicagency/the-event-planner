@@ -10,9 +10,7 @@ export const MentionSuggestionConfig = {
   allowSpaces: true,
   
   items: async ({ query }) => {
-    if (query.length < 1) {
-      return [];
-    }
+    const normalizedQuery = query.trim();
     
     try {
       // Search for documents
