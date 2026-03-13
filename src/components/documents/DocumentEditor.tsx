@@ -13,6 +13,7 @@ import { DocumentActions } from "./DocumentActions";
 import { CategorySelector } from "./CategorySelector";
 import { SaveButton } from "@/components/ui/save-button";
 import { EditorToolbar } from "./EditorToolbar";
+import { BubbleToolbar } from "./BubbleToolbar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -86,17 +87,9 @@ export default function DocumentEditor({
     }
   }, [editor]);
 
-  if (!documentId) {
-    return <DocumentEditorEmpty />;
-  }
-
-  if (isLoading) {
-    return <DocumentEditorLoading />;
-  }
-
-  if (error || !document) {
-    return <DocumentEditorError error={error} />;
-  }
+  if (!documentId) return <DocumentEditorEmpty />;
+  if (isLoading) return <DocumentEditorLoading />;
+  if (error || !document) return <DocumentEditorError error={error} />;
 
   const selectedCategoryId =
     selectedCategories && selectedCategories.length > 0
@@ -145,6 +138,9 @@ export default function DocumentEditor({
       <div className="px-4 pt-2 shrink-0">
         <EditorToolbar editor={editor} />
       </div>
+
+      {/* Bubble toolbar for text selection */}
+      {editor && <BubbleToolbar editor={editor} />}
 
       {/* Inline title + content — full width */}
       <div className="flex-1 overflow-auto">
