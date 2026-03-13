@@ -29,92 +29,44 @@ export function DocumentActions({
   const handlePrint = () => {
     const html = getContent();
     if (!html) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${document.title}</title>
-        <style>
-          @page { size: A4; margin: 1cm; }
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 12pt;
-            line-height: 1.6;
-            color: #000;
-          }
-          h1 { font-size: 20pt; font-weight: 600; margin: 0 0 0.5em; }
-          h2 { font-size: 16pt; font-weight: 600; margin: 0.8em 0 0.3em; }
-          h3 { font-size: 14pt; font-weight: 600; margin: 0.6em 0 0.25em; }
-          p { margin: 0.35em 0; }
-          ul { list-style-type: disc; padding-left: 1.5em; }
-          ol { list-style-type: decimal; padding-left: 1.5em; }
-          li { margin: 0.2em 0; }
-          blockquote {
-            border-left: 3px solid #333;
-            padding-left: 1em;
-            margin: 0.5em 0;
-            font-style: italic;
-            color: #555;
-          }
-          table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 1em 0;
-          }
-          th, td {
-            border: 1px solid #ccc;
-            padding: 0.4em 0.6em;
-            text-align: left;
-            vertical-align: top;
-          }
-          th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-            font-size: 0.9em;
-            text-transform: uppercase;
-          }
-          code {
-            background: #f0f0f0;
-            padding: 0.1em 0.3em;
-            border-radius: 3px;
-            font-family: monospace;
-            font-size: 0.9em;
-          }
-          pre {
-            background: #1a1a1a;
-            color: #f0f0f0;
-            padding: 0.75em 1em;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 0.5em 0;
-          }
-          pre code { background: none; color: inherit; padding: 0; }
-          hr { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
-          img { max-width: 100%; height: auto; }
-          mark { background-color: #fef08a; padding: 0.1em 0.15em; border-radius: 2px; }
-          ul[data-type="taskList"] { list-style: none; padding-left: 0; }
-          ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 0.5em; }
-        </style>
-      </head>
-      <body>
-        <h1>${document.title}</h1>
-        ${html}
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-      printWindow.close();
-    };
-  };
-
-  const handleExport = () => {
-    const html = getContent();
-    if (html) exportDocument(html, document.title);
+    const iframe = window.document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.top = '-10000px';
+    iframe.style.left = '-10000px';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    window.document.body.appendChild(iframe);
+    const doc = iframe.contentDocument;
+    if (!doc) return;
+    doc.write(`<!DOCTYPE html><html><head><title>${document.title}</title><style>
+      @page { size: A4; margin: 1cm; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12pt; line-height: 1.6; color: #000; }
+      h1 { font-size: 20pt; font-weight: 600; margin: 0 0 0.5em; }
+      h2 { font-size: 16pt; font-weight: 600; margin: 0.8em 0 0.3em; }
+      h3 { font-size: 14pt; font-weight: 600; margin: 0.6em 0 0.25em; }
+      p { margin: 0.35em 0; }
+      ul { list-style-type: disc; padding-left: 1.5em; }
+      ol { list-style-type: decimal; padding-left: 1.5em; }
+      li { margin: 0.2em 0; }
+      blockquote { border-left: 3px solid #333; padding-left: 1em; margin: 0.5em 0; font-style: italic; color: #555; }
+      table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+      th, td { border: 1px solid #ccc; padding: 0.4em 0.6em; text-align: left; }
+      th { background-color: #f5f5f5; font-weight: 600; }
+      code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+      pre { background: #1a1a1a; color: #f0f0f0; padding: 0.75em 1em; border-radius: 6px; overflow-x: auto; margin: 0.5em 0; }
+      pre code { background: none; color: inherit; padding: 0; }
+      hr { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
+      img { max-width: 100%; height: auto; }
+      mark { background-color: #fef08a; padding: 0.1em 0.15em; border-radius: 2px; }
+      ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+      ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 0.5em; }
+    </style></head><body><h1>${document.title}</h1>${html}</body></html>`);
+    doc.close();
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+    setTimeout(() => window.document.body.removeChild(iframe), 1000);
   };
 
   const handleExportAsPdf = () => {
@@ -153,7 +105,6 @@ export function DocumentActions({
           </PopoverTrigger>
           <PopoverContent className="w-40">
             <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={handleExport}>HTML</Button>
               <Button size="sm" onClick={handleExportAsPdf}>PDF</Button>
               <Button size="sm" onClick={handleExportAsDocx}>DOCX</Button>
             </div>
