@@ -2,7 +2,7 @@
 import { 
   Bold, Italic, Underline, Heading1, Heading2, Heading3,
   Link, List, ListOrdered, SeparatorHorizontal, Code,
-  Highlighter, Quote, ExternalLink, ImageIcon, Table,
+  Highlighter, Quote, ExternalLink, Table,
   CheckSquare, Undo, Redo
 } from "lucide-react";
 import { Editor } from '@tiptap/react';
@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { LinkPreviewDialog } from "./LinkPreviewDialog";
+import { ImageUploadButton } from "./ImageUploadButton";
 
 interface MenuButtonProps {
   onClick: () => void;
