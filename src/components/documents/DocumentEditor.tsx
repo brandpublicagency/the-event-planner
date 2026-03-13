@@ -191,7 +191,7 @@ export default function DocumentEditor({
             className="w-full text-2xl font-semibold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/40 mb-1 cursor-text"
           />
           <div className="h-px bg-border/50 mb-4" />
-          <DocumentContent editor={editor} ref={contentRef} />
+          <DocumentContent editor={editor} />
         </div>
       </div>
 

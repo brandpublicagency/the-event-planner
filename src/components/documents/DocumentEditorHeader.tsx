@@ -86,7 +86,6 @@ export default function DocumentEditorHeader({
         <DocumentActions 
           document={document}
           content={content}
-          printRef={printRef}
           onDelete={() => setIsDeleteDialogOpen(true)}
         />
         
