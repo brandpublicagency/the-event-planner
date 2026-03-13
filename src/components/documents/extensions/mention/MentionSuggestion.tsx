@@ -5,7 +5,7 @@ import MentionList from '../../MentionList';
 import tippy from 'tippy.js';
 
 export const MentionSuggestionConfig = {
-  char: '/',
+  char: '@',
   startOfLine: false,
   allowSpaces: true,
   
