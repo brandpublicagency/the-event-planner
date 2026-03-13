@@ -40,8 +40,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
     },
     // Use custom fetch with increased timeout
     fetch: (url, options) => fetchWithTimeout(url, options, 30000)

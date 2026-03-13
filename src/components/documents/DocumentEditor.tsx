@@ -1,4 +1,3 @@
-
 import { useEditor } from '@tiptap/react';
 import { useDocumentState } from "@/hooks/useDocumentState";
 import { DocumentContent } from "./DocumentContent";
@@ -35,6 +34,7 @@ export default function DocumentEditor({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const navigate = useNavigate();
   const lastSavedContentRef = useRef<string>("");
+  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const editor = useEditor({
     extensions: useMemo(() => getEditorExtensions(), []),
@@ -53,7 +53,7 @@ export default function DocumentEditor({
             const { supabase } = await import('@/integrations/supabase/client');
             const { v4: uuid } = await import('uuid');
             const filePath = `document-images/${uuid()}-${file.name}`;
-              const { data, error } = await supabase.storage
+            const { data, error } = await supabase.storage
               .from('taskmanager-files')
               .upload(filePath, file, { contentType: file.type });
             if (error) {
@@ -107,8 +107,35 @@ export default function DocumentEditor({
         });
         return true;
       },
-    }
+    },
+    onUpdate: ({ editor: e }) => {
+      // Debounced autosave: 2s after last edit
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+      }
+      autosaveTimerRef.current = setTimeout(() => {
+        const currentHtml = e.getHTML();
+        if (currentHtml && currentHtml !== lastSavedContentRef.current) {
+          triggerAutosave();
+        }
+      }, 2000);
+    },
   });
+
+  // We need a ref to saveDocument so onUpdate callback can call it
+  const saveDocumentRef = useRef<((opts?: any) => Promise<void>) | null>(null);
+
+  const triggerAutosave = useCallback(() => {
+    if (saveDocumentRef.current) {
+      saveDocumentRef.current({ showToast: false }).then(() => {
+        if (editor && !editor.isDestroyed) {
+          lastSavedContentRef.current = editor.getHTML();
+        }
+      }).catch(() => {
+        // Don't update lastSavedContentRef on failure
+      });
+    }
+  }, [editor]);
   
   const {
     document,
@@ -117,6 +144,11 @@ export default function DocumentEditor({
     saveDocument,
     isSaving
   } = useDocumentState(documentId, editor, isAuthenticated);
+
+  // Keep ref in sync
+  useEffect(() => {
+    saveDocumentRef.current = saveDocument;
+  }, [saveDocument]);
 
   const {
     selectedCategories,
@@ -139,20 +171,14 @@ export default function DocumentEditor({
     }
   }, [document?.content]);
 
-  // Autosave every 30 seconds
+  // Cleanup autosave timer
   useEffect(() => {
-    if (!editor || !documentId) return;
-
-    const interval = setInterval(() => {
-      const currentHtml = editor.getHTML();
-      if (currentHtml && currentHtml !== lastSavedContentRef.current) {
-        lastSavedContentRef.current = currentHtml;
-        saveDocument({ showToast: false });
+    return () => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
       }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [editor, documentId, saveDocument]);
+    };
+  }, []);
 
   // Cmd+S to save, Cmd+/ for shortcuts overlay
   useEffect(() => {

@@ -41,7 +41,7 @@ export function ImageUploadButton({ editor, variant = "toolbar" }: ImageUploadBu
       const filePath = `document-images/${uuid()}-${file.name}`;
       const { data, error } = await supabase.storage
         .from("taskmanager-files")
-        .upload(filePath, file);
+        .upload(filePath, file, { contentType: file.type });
 
       if (error) throw error;
 
