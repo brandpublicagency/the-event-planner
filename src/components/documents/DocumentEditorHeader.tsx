@@ -12,7 +12,7 @@ import { Category } from "@/types/category";
 interface DocumentEditorHeaderProps {
   document: Document;
   content?: string;
-  printRef?: React.RefObject<HTMLDivElement>;
+  
   onTitleChange?: (title: string) => void;
   selectedCategories?: Category[];
   setSelectedCategories?: (categories: Category[]) => void;
