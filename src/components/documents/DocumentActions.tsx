@@ -69,11 +69,6 @@ export function DocumentActions({
     setTimeout(() => document.body.removeChild(iframe), 1000);
   };
 
-  const handleExport = () => {
-    const html = getContent();
-    if (html) exportDocument(html, document.title);
-  };
-
   const handleExportAsPdf = () => {
     const html = getContent();
     if (html) exportAsPdf(html, document.title);
