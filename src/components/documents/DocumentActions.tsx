@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { 
   Download, Printer, Trash2
 } from "lucide-react";
-import { useReactToPrint } from 'react-to-print';
 import { Document } from '@/types/document';
 import { exportDocument } from '@/utils/documentUtils';
 import { exportAsPdf, exportAsDocx } from '@/utils/exportUtils';
@@ -15,25 +14,97 @@ export interface DocumentActionsProps {
   content?: string;
   onEdit?: () => void;
   onDelete?: () => void;
-  printRef?: React.RefObject<HTMLDivElement>;
 }
 
 export function DocumentActions({ 
   document, 
   content, 
   onDelete,
-  printRef 
 }: DocumentActionsProps) {
-  // Configure the print function with proper typing
-  const handlePrint = useReactToPrint({
-    documentTitle: document.title,
-    onBeforePrint: () => {
-      console.log('Printing document:', document.title);
-      return Promise.resolve();
-    },
-    // Only provide content if printRef is defined
-    ...(printRef && { content: () => printRef.current })
-  });
+  const handlePrint = () => {
+    if (!content) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${document.title}</title>
+        <style>
+          @page { size: A4; margin: 1cm; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+          }
+          h1 { font-size: 20pt; font-weight: 600; margin: 0 0 0.5em; }
+          h2 { font-size: 16pt; font-weight: 600; margin: 0.8em 0 0.3em; }
+          h3 { font-size: 14pt; font-weight: 600; margin: 0.6em 0 0.25em; }
+          p { margin: 0.35em 0; }
+          ul { list-style-type: disc; padding-left: 1.5em; }
+          ol { list-style-type: decimal; padding-left: 1.5em; }
+          li { margin: 0.2em 0; }
+          blockquote {
+            border-left: 3px solid #333;
+            padding-left: 1em;
+            margin: 0.5em 0;
+            font-style: italic;
+            color: #555;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+          }
+          th, td {
+            border: 1px solid #ccc;
+            padding: 0.4em 0.6em;
+            text-align: left;
+            vertical-align: top;
+          }
+          th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+          }
+          code {
+            background: #f0f0f0;
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+          }
+          pre {
+            background: #1a1a1a;
+            color: #f0f0f0;
+            padding: 0.75em 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.5em 0;
+          }
+          pre code { background: none; color: inherit; padding: 0; }
+          hr { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
+          img { max-width: 100%; height: auto; }
+          mark { background-color: #fef08a; padding: 0.1em 0.15em; border-radius: 2px; }
+          ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+          ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 0.5em; }
+        </style>
+      </head>
+      <body>
+        <h1>${document.title}</h1>
+        ${content}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  };
 
   const handleExport = () => {
     if (content) {
@@ -55,17 +126,11 @@ export function DocumentActions({
 
   return (
     <div className="flex items-center gap-1.5">
-      {printRef && (
+      {content && (
         <Button 
           size="default" 
           variant="outline" 
-          onClick={() => {
-            if (printRef.current) {
-              handlePrint();
-            } else {
-              console.warn("Print reference is not available");
-            }
-          }} 
+          onClick={handlePrint}
           className="p-2 h-9 w-9"
         >
           <Printer className="h-3.5 w-3.5" />

@@ -4,7 +4,7 @@ import { useDocumentState } from "@/hooks/useDocumentState";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
-import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
@@ -29,7 +29,7 @@ export default function DocumentEditor({
   documentId
 }: DocumentEditorProps) {
   const { isAuthenticated } = useDocumentAuth();
-  const contentRef = useRef<HTMLDivElement>(null);
+  
   const [localTitle, setLocalTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const navigate = useNavigate();
@@ -143,7 +143,6 @@ export default function DocumentEditor({
             <DocumentActions
               document={document}
               content={editor?.getHTML()}
-              printRef={contentRef}
               onDelete={() => {}}
             />
           </div>
@@ -192,7 +191,7 @@ export default function DocumentEditor({
             className="w-full text-2xl font-semibold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/40 mb-1 cursor-text"
           />
           <div className="h-px bg-border/50 mb-4" />
-          <DocumentContent editor={editor} ref={contentRef} />
+          <DocumentContent editor={editor} />
         </div>
       </div>
 

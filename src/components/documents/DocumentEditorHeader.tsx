@@ -12,7 +12,7 @@ import { Category } from "@/types/category";
 interface DocumentEditorHeaderProps {
   document: Document;
   content?: string;
-  printRef?: React.RefObject<HTMLDivElement>;
+  
   onTitleChange?: (title: string) => void;
   selectedCategories?: Category[];
   setSelectedCategories?: (categories: Category[]) => void;
@@ -28,7 +28,7 @@ interface DocumentEditorHeaderProps {
 export default function DocumentEditorHeader({
   document,
   content,
-  printRef,
+  
   onTitleChange,
   selectedCategories = [],
   isLoadingDocumentCategories = false,
@@ -86,7 +86,6 @@ export default function DocumentEditorHeader({
         <DocumentActions 
           document={document}
           content={content}
-          printRef={printRef}
           onDelete={() => setIsDeleteDialogOpen(true)}
         />
         
