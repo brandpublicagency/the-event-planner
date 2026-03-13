@@ -64,6 +64,23 @@ export default function DocumentEditor({
     }
   }, [document?.title]);
 
+  // Cmd+S to save, Cmd+/ for shortcuts overlay
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 's') {
+        e.preventDefault();
+        saveDocument({ showToast: true });
+      }
+      if (mod && e.key === '/') {
+        e.preventDefault();
+        setShortcutsOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saveDocument]);
+
   const handleSave = async () => {
     try {
       await saveDocument({ showToast: true });
