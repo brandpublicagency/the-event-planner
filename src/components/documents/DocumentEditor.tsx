@@ -4,7 +4,7 @@ import { useDocumentState } from "@/hooks/useDocumentState";
 import { DocumentContent } from "./DocumentContent";
 import { getEditorExtensions } from "./editorExtensions";
 import { useDocumentAuth } from "@/hooks/useDocumentAuth";
-import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
