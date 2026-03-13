@@ -1,9 +1,8 @@
+@import "./toast.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "./toast.css";
 
 /* Global styles */
 @layer base {
