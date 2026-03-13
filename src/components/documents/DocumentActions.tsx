@@ -8,21 +8,27 @@ import { Document } from '@/types/document';
 import { exportDocument } from '@/utils/documentUtils';
 import { exportAsPdf, exportAsDocx } from '@/utils/exportUtils';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Editor } from '@tiptap/react';
 
 export interface DocumentActionsProps {
   document: Document;
   content?: string;
+  editor?: Editor | null;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
 export function DocumentActions({ 
   document, 
-  content, 
+  content,
+  editor,
   onDelete,
 }: DocumentActionsProps) {
+  const getContent = () => editor?.getHTML() || content || '';
+
   const handlePrint = () => {
-    if (!content) return;
+    const html = getContent();
+    if (!html) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     printWindow.document.write(`
@@ -95,7 +101,7 @@ export function DocumentActions({
       </head>
       <body>
         <h1>${document.title}</h1>
-        ${content}
+        ${html}
       </body>
       </html>
     `);
@@ -107,26 +113,25 @@ export function DocumentActions({
   };
 
   const handleExport = () => {
-    if (content) {
-      exportDocument(content, document.title);
-    }
+    const html = getContent();
+    if (html) exportDocument(html, document.title);
   };
 
   const handleExportAsPdf = () => {
-    if (content) {
-      exportAsPdf(content, document.title);
-    }
+    const html = getContent();
+    if (html) exportAsPdf(html, document.title);
   };
 
   const handleExportAsDocx = () => {
-    if (content) {
-      exportAsDocx(content, document.title);
-    }
+    const html = getContent();
+    if (html) exportAsDocx(html, document.title);
   };
+
+  const hasContent = !!editor || !!content;
 
   return (
     <div className="flex items-center gap-1.5">
-      {content && (
+      {hasContent && (
         <Button 
           size="default" 
           variant="outline" 
@@ -138,7 +143,7 @@ export function DocumentActions({
         </Button>
       )}
       
-      {content && (
+      {hasContent && (
         <Popover>
           <PopoverTrigger asChild>
             <Button size="default" variant="outline" className="p-2 h-9 w-9">
