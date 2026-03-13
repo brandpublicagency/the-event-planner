@@ -1,6 +1,9 @@
 
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import { DocumentsSidebar } from "./DocumentsSidebar";
 import DocumentEditor from "@/components/documents/DocumentEditor";
 import { DocumentCreatingState } from "./DocumentCreatingState";
