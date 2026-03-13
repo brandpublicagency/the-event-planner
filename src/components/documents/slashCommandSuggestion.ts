@@ -1,5 +1,6 @@
 import { ReactRenderer } from '@tiptap/react';
 import tippy, { Instance } from 'tippy.js';
+import { PluginKey } from '@tiptap/pm/state';
 import { SlashCommandMenu } from './SlashCommandMenu';
 import { slashCommandItems, SlashCommandItem } from './SlashCommandExtension';
 
