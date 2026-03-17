@@ -21,7 +21,7 @@ export const EventTypeSelect = ({ form }: EventTypeSelectProps) => {
             defaultValue={field.value}
           >
             <FormControl>
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="bg-background">
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
             </FormControl>
