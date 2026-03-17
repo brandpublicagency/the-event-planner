@@ -96,7 +96,7 @@ export function DocumentLibrary() {
           ) : (
             <div className="border border-border/60 rounded-lg overflow-hidden">
               {/* Table header */}
-              <div className="grid grid-cols-[1fr_130px_130px_150px] bg-muted/30 border-b border-border/40 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+              <div className="grid grid-cols-[2fr_130px_130px_200px] bg-muted/30 border-b border-border/40 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
                 <div className="px-4 py-2.5">Name</div>
                 <div className="px-4 py-2.5">Created</div>
                 <div className="px-4 py-2.5">Updated</div>
