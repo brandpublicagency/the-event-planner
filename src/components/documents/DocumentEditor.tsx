@@ -239,12 +239,6 @@ export default function DocumentEditor({
         pageTitle="Documents"
         secondaryAction={
           <div className="flex items-center gap-2">
-            <CategorySelector
-              selectedCategory={selectedCategoryId}
-              onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
-              placeholder="Category"
-              className="w-[140px] h-9"
-            />
             <SaveButton
               onClick={handleSave}
               disabled={isSaving}
@@ -268,6 +262,11 @@ export default function DocumentEditor({
             <ArrowLeft className="h-4 w-4" />
             Library
           </Button>
+          <CategorySelector
+            selectedCategory={selectedCategoryId}
+            onChange={(categoryId) => document.id && handleUpdateCategories(categoryId)}
+            placeholder="Category"
+          />
         </div>
       </Header>
 
