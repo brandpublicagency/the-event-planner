@@ -17,6 +17,7 @@ export interface DocumentContent {
   type: "doc";
   html: string;
   text: string;
+  whiteboard?: string;
 }
 
 export function isDocumentContent(content: Json | DocumentContent): content is DocumentContent {

@@ -6,6 +6,7 @@ import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
+import { Whiteboard } from "./Whiteboard";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
 import { DocumentEditorError } from "./DocumentEditorError";
 import { useDocumentCategoriesState } from "@/hooks/useDocumentCategoriesState";
@@ -306,6 +307,16 @@ export default function DocumentEditor({
           />
           <div className="h-px bg-border/50 mb-4" />
           <DocumentContent editor={editor} />
+          <div className="mt-6">
+            <Whiteboard
+              initialData={
+                document?.content && typeof document.content === 'object' && 'whiteboard' in document.content
+                  ? (document.content as any).whiteboard
+                  : undefined
+              }
+              onSave={(dataUrl) => saveDocument({ whiteboard: dataUrl, showToast: false })}
+            />
+          </div>
         </div>
       </div>
 
