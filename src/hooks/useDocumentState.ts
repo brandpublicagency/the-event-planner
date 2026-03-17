@@ -9,6 +9,7 @@ import { isDocumentContent } from "@/types/document";
 interface SaveDocumentOptions {
   title?: string;
   content?: string;
+  whiteboard?: string;
   showToast?: boolean;
 }
 
