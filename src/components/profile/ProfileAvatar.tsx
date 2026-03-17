@@ -85,7 +85,7 @@ const ProfileAvatar = ({ profile, userEmail }: ProfileAvatarProps) => {
     <div className="flex flex-col items-center mb-8">
       <div className="relative mb-4 group">
         <Avatar 
-          className="h-20 w-20 border-2 border-black/10 cursor-pointer" 
+          className="h-20 w-20 border-2 border-border cursor-pointer" 
           onClick={handleAvatarClick}
         >
           <AvatarImage src={profile?.avatar_url || ''} alt="Profile" />

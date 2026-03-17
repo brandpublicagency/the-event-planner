@@ -59,7 +59,7 @@ export default function DocumentEditorHeader({
         : null;
   
   return (
-    <div className="flex items-center border-b border-black/10 px-3 py-1.5 gap-3">
+    <div className="flex items-center border-b border-border px-3 py-1.5 gap-3">
       <CategorySelector 
         selectedCategory={selectedCategoryId}
         onChange={handleCategoryChange}

@@ -46,7 +46,7 @@ const EnhancedWeatherCard: React.FC<WeatherCardProps> = ({
 
   return (
     <div 
-      className={`rounded-xl overflow-hidden h-full border border-black/10 ${className}`}
+      className={`rounded-xl overflow-hidden h-full border border-border ${className}`}
       tabIndex={0}
       aria-label={`Weather forecast for ${location}, high temperature ${displayHighTemp}°, low temperature ${displayLowTemp}°, ${weatherType || weatherData?.description || ''}`}
     >

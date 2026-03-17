@@ -12,24 +12,24 @@ export function useSidebarGradient() {
     if (isDark) {
       switch (location.pathname) {
         case '/':
-          return 'bg-gradient-to-br from-[hsl(210,40%,14%)] via-[hsl(330,25%,14%)] to-[hsl(190,30%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(210,15%,9%)] via-[hsl(330,10%,9%)] to-[hsl(190,12%,8%)]';
         case '/events':
-          return 'bg-gradient-to-br from-[hsl(145,25%,14%)] via-[hsl(155,20%,13%)] to-[hsl(140,22%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(145,12%,9%)] via-[hsl(155,10%,9%)] to-[hsl(140,10%,8%)]';
         case '/events/passed':
-          return 'bg-gradient-to-br from-[hsl(275,25%,14%)] via-[hsl(285,20%,13%)] to-[hsl(270,22%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(275,12%,9%)] via-[hsl(285,10%,9%)] to-[hsl(270,10%,8%)]';
         case '/calendar':
-          return 'bg-gradient-to-br from-[hsl(15,35%,14%)] via-[hsl(20,30%,13%)] to-[hsl(10,28%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(15,15%,9%)] via-[hsl(20,12%,9%)] to-[hsl(10,12%,8%)]';
         case '/tasks':
-          return 'bg-gradient-to-br from-[hsl(30,30%,14%)] via-[hsl(25,25%,13%)] to-[hsl(35,28%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(30,12%,9%)] via-[hsl(25,10%,9%)] to-[hsl(35,10%,8%)]';
         case '/contacts':
-          return 'bg-gradient-to-br from-[hsl(20,28%,14%)] via-[hsl(25,24%,13%)] to-[hsl(15,26%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(20,12%,9%)] via-[hsl(25,10%,9%)] to-[hsl(15,10%,8%)]';
         case '/documents':
-          return 'bg-gradient-to-br from-[hsl(195,30%,14%)] via-[hsl(200,25%,13%)] to-[hsl(190,28%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(195,12%,9%)] via-[hsl(200,10%,9%)] to-[hsl(190,10%,8%)]';
         case '/schedule/meeting':
         case '/schedule/site-visit':
-          return 'bg-gradient-to-br from-[hsl(260,28%,14%)] via-[hsl(250,22%,13%)] to-[hsl(270,25%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(260,12%,9%)] via-[hsl(250,10%,9%)] to-[hsl(270,10%,8%)]';
         default:
-          return 'bg-gradient-to-br from-[hsl(14,35%,14%)] via-[hsl(20,30%,13%)] to-[hsl(8,28%,12%)]';
+          return 'bg-gradient-to-br from-[hsl(14,15%,9%)] via-[hsl(20,12%,9%)] to-[hsl(8,12%,8%)]';
       }
     }
 
