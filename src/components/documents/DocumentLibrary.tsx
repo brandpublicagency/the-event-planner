@@ -96,7 +96,7 @@ export function DocumentLibrary() {
           ) : (
             <div className="border border-border/60 rounded-lg overflow-hidden">
               {/* Table header */}
-              <div className="grid grid-cols-[1fr_130px_130px_150px] bg-muted/30 border-b border-border/40 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+              <div className="grid grid-cols-[2fr_130px_130px_200px] bg-muted/30 border-b border-border/40 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
                 <div className="px-4 py-2.5">Name</div>
                 <div className="px-4 py-2.5">Created</div>
                 <div className="px-4 py-2.5">Updated</div>
@@ -120,7 +120,7 @@ export function DocumentLibrary() {
               <button
                 onClick={handleNewDocument}
                 disabled={createDocument.isPending || isCreatingDocument}
-                className="w-full grid grid-cols-[1fr_130px_130px_150px] text-left hover:bg-muted/20 transition-colors group"
+                className="w-full grid grid-cols-[2fr_130px_130px_200px] text-left hover:bg-muted/20 transition-colors group"
               >
                 <div className="px-4 py-2.5 flex items-center gap-2 text-sm text-muted-foreground/50 group-hover:text-muted-foreground transition-colors">
                   {createDocument.isPending || isCreatingDocument ? (
@@ -164,7 +164,7 @@ function DocumentRow({
   return (
     <div
       className={cn(
-        "group grid grid-cols-[1fr_130px_130px_150px] cursor-pointer hover:bg-muted/20 transition-colors relative",
+        "group grid grid-cols-[2fr_130px_130px_200px] cursor-pointer hover:bg-muted/20 transition-colors relative",
         !isLast && "border-b border-border/30"
       )}
       onClick={onClick}
