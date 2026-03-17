@@ -115,7 +115,7 @@ const ContactsTable = ({
       </div>
       
       <AlertDialog open={!!contactToDelete} onOpenChange={open => !open && setContactToDelete(null)}>
-        <AlertDialogContent className="max-w-md rounded-xl border border-black/10">
+        <AlertDialogContent className="max-w-md rounded-xl border border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact</AlertDialogTitle>
             <AlertDialogDescription>
