@@ -120,7 +120,7 @@ export function DocumentLibrary() {
               <button
                 onClick={handleNewDocument}
                 disabled={createDocument.isPending || isCreatingDocument}
-                className="w-full grid grid-cols-[1fr_140px_140px_120px] text-left hover:bg-muted/20 transition-colors group"
+                className="w-full grid grid-cols-[1fr_130px_130px_150px] text-left hover:bg-muted/20 transition-colors group"
               >
                 <div className="px-4 py-2.5 flex items-center gap-2 text-sm text-muted-foreground/50 group-hover:text-muted-foreground transition-colors">
                   {createDocument.isPending || isCreatingDocument ? (
