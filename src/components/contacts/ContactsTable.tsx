@@ -123,9 +123,9 @@ const ContactsTable = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="rounded-lg border border-black/10">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-lg border border-border">Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              className="bg-red-500 hover:bg-red-600 text-white rounded-lg border border-black/10" 
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg border border-border"
               onClick={handleConfirmDelete}
             >
               Delete
