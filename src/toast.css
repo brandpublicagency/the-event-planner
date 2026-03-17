@@ -93,6 +93,33 @@
   color: rgba(0, 0, 0, 0.7) !important;
 }
 
+/* Dark mode toast overrides */
+.dark [data-sonner-toast] {
+  background-color: hsl(220 18% 12%) !important;
+  color: hsl(210 20% 85%) !important;
+  border: 1px solid hsl(220 12% 20%) !important;
+}
+
+.dark [data-sonner-toast] [data-title] {
+  color: hsl(210 20% 90%) !important;
+}
+
+.dark [data-sonner-toast] [data-description] {
+  color: hsl(215 15% 60%) !important;
+}
+
+.dark [data-sonner-toast] [data-close-button] {
+  color: hsl(210 15% 50%) !important;
+}
+
+.dark [data-sonner-toast] [data-close-button]:hover {
+  color: hsl(210 15% 70%) !important;
+}
+
+.dark [data-sonner-toast]::after {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
 /* Clean title and description styling */
 [data-sonner-toast] [data-title] {
   font-weight: 500 !important;
