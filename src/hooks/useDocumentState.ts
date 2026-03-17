@@ -70,6 +70,12 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
       text: editor ? editor.getText() : '',
     };
 
+    if (options.whiteboard !== undefined) {
+      content.whiteboard = options.whiteboard;
+    } else if (document && isDocumentContent(document.content) && document.content.whiteboard) {
+      content.whiteboard = document.content.whiteboard;
+    }
+
     setIsSaving(true);
     try {
       const updateParams: any = { 
