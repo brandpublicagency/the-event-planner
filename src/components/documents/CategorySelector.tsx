@@ -33,7 +33,7 @@ export function CategorySelector({
           onChange(value === "all" || value === "" ? null : value);
         }}
       >
-        <SelectTrigger className={cn("w-full h-9 bg-white", className)}>
+        <SelectTrigger className={cn("w-auto min-w-[140px] h-9 bg-white whitespace-nowrap", className)}>
           <div className="flex items-center gap-2">
             {isLoadingCategories ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
