@@ -145,24 +145,25 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    const pos = getCanvasPos(e);
     if (activeTool === "text") {
-      const pos = getCanvasPos(e);
       const text = prompt("Enter text:");
       if (!text) return;
       pushUndo();
       const ctx = getCtx();
       if (!ctx) return;
+      const dpr = window.devicePixelRatio || 1;
       ctx.save();
       ctx.font = "14px sans-serif";
       ctx.fillStyle = activeColor;
-      ctx.fillText(text, pos.x, pos.y);
+      ctx.fillText(text, pos.x * dpr, pos.y * dpr);
       ctx.restore();
       debouncedSave();
       return;
     }
     pushUndo();
     setIsDrawing(true);
-    setStartPos(getCanvasPos(e));
+    setStartPos(pos);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
