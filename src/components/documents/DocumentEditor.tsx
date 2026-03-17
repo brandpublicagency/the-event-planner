@@ -6,6 +6,7 @@ import { useDocumentAuth } from "@/hooks/useDocumentAuth";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { ImageUploadListener } from "./ImageUploadListener";
 import { DocumentEditorEmpty } from "./DocumentEditorEmpty";
+import { Whiteboard } from "./Whiteboard";
 import { DocumentEditorLoading } from "./DocumentEditorLoading";
 import { DocumentEditorError } from "./DocumentEditorError";
 import { useDocumentCategoriesState } from "@/hooks/useDocumentCategoriesState";
