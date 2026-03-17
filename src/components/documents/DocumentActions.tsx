@@ -25,6 +25,15 @@ function preprocessHtmlForPrint(html: string): string {
   const container = window.document.createElement('div');
   container.innerHTML = html;
 
+  // Fix mention icons: TipTap renderHTML outputs SVG as escaped text.
+  // Re-parse the text content of .mention-icon spans so SVG renders properly.
+  container.querySelectorAll('.mention-icon').forEach(iconEl => {
+    const text = iconEl.textContent || '';
+    if (text.includes('<svg')) {
+      iconEl.innerHTML = text;
+    }
+  });
+
   // Replace link-preview nodes (empty divs with url attr)
   container.querySelectorAll('[data-link-preview]').forEach(el => {
     const url = el.getAttribute('url') || el.getAttribute('href') || '';
