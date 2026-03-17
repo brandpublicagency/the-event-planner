@@ -164,7 +164,7 @@ function DocumentRow({
   return (
     <div
       className={cn(
-        "group grid grid-cols-[1fr_130px_130px_150px] cursor-pointer hover:bg-muted/20 transition-colors relative",
+        "group grid grid-cols-[2fr_130px_130px_200px] cursor-pointer hover:bg-muted/20 transition-colors relative",
         !isLast && "border-b border-border/30"
       )}
       onClick={onClick}
