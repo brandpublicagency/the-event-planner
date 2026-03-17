@@ -114,6 +114,18 @@ export function DocumentActions({
       ul[data-type="taskList"] { list-style: none; padding-left: 0; }
       ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 0.5em; }
       a { color: #2563eb; text-decoration: underline; }
+      .mention { border-radius: 4px; padding: 2px 4px 2px 2px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; border: 1px solid; line-height: 1.2; vertical-align: middle; margin: 0 1px; background-color: rgba(255,255,255,0.8); color: #000; white-space: nowrap; }
+      .mention .mention-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; }
+      .mention .mention-icon svg { width: 16px; height: 16px; }
+      .mention .mention-title { font-weight: normal; }
+      .mention-document { border-color: #FFA245; }
+      .mention-document .mention-icon { color: #FFA245; }
+      .mention-task { border-color: #F70848; }
+      .mention-task .mention-icon { color: #F70848; }
+      .mention-event { border-color: #0EC392; }
+      .mention-event .mention-icon { color: #0EC392; }
+      .mention-user { border-color: #1414DE; }
+      .mention-user .mention-icon { color: #1414DE; }
     </style></head><body><h1>${document.title}</h1>${processedHtml}</body></html>`);
     doc.close();
 
