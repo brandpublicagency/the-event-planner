@@ -62,8 +62,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
 
     const currentContent = contentOverride || editor?.getHTML() || '';
-    const lines = editor ? editor.getText().split('\n') : [];
-    const firstLine = title || lines[0] || 'Untitled Document';
 
     const content: DocumentContent = {
       type: "doc",
@@ -73,11 +71,14 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
 
     setIsSaving(true);
     try {
-      await updateDocument.mutateAsync({ 
-        title: firstLine,
+      const updateParams: any = { 
         content: content,
-        showToast 
-      });
+        showToast
+      };
+      if (title !== undefined) {
+        updateParams.title = title;
+      }
+      await updateDocument.mutateAsync(updateParams);
       console.log("Document saved successfully");
     } catch (error) {
       console.error("Error saving document:", error);
