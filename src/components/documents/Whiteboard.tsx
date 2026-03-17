@@ -180,37 +180,40 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
 
     const cur = getCanvasPos(e);
     const dpr = window.devicePixelRatio || 1;
-    ctx.save();
-    ctx.scale(dpr, dpr);
+    // Draw in raw pixel space (no ctx.scale since putImageData resets transform)
+    const sx = startPos.x * dpr;
+    const sy = startPos.y * dpr;
+    const cx = cur.x * dpr;
+    const cy = cur.y * dpr;
+
+    ctx.fillStyle = activeColor;
     ctx.strokeStyle = activeColor;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * dpr;
 
     if (activeTool === "rectangle") {
-      ctx.strokeRect(startPos.x, startPos.y, cur.x - startPos.x, cur.y - startPos.y);
+      ctx.fillRect(sx, sy, cx - sx, cy - sy);
     } else if (activeTool === "circle") {
-      const rx = Math.abs(cur.x - startPos.x) / 2;
-      const ry = Math.abs(cur.y - startPos.y) / 2;
-      const cx = startPos.x + (cur.x - startPos.x) / 2;
-      const cy = startPos.y + (cur.y - startPos.y) / 2;
+      const rx = Math.abs(cx - sx) / 2;
+      const ry = Math.abs(cy - sy) / 2;
+      const midX = sx + (cx - sx) / 2;
+      const midY = sy + (cy - sy) / 2;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.ellipse(midX, midY, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
     } else if (activeTool === "arrow") {
       ctx.beginPath();
-      ctx.moveTo(startPos.x, startPos.y);
-      ctx.lineTo(cur.x, cur.y);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(cx, cy);
       ctx.stroke();
-      // Arrowhead
-      const angle = Math.atan2(cur.y - startPos.y, cur.x - startPos.x);
-      const headLen = 12;
+      const angle = Math.atan2(cy - sy, cx - sx);
+      const headLen = 12 * dpr;
       ctx.beginPath();
-      ctx.moveTo(cur.x, cur.y);
-      ctx.lineTo(cur.x - headLen * Math.cos(angle - Math.PI / 6), cur.y - headLen * Math.sin(angle - Math.PI / 6));
-      ctx.moveTo(cur.x, cur.y);
-      ctx.lineTo(cur.x - headLen * Math.cos(angle + Math.PI / 6), cur.y - headLen * Math.sin(angle + Math.PI / 6));
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx - headLen * Math.cos(angle - Math.PI / 6), cy - headLen * Math.sin(angle - Math.PI / 6));
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx - headLen * Math.cos(angle + Math.PI / 6), cy - headLen * Math.sin(angle + Math.PI / 6));
       ctx.stroke();
     }
-    ctx.restore();
   };
 
   const handleMouseUp = () => {
