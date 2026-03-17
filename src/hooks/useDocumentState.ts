@@ -79,8 +79,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
         updateParams.title = title;
       }
       await updateDocument.mutateAsync(updateParams);
-        showToast 
-      });
       console.log("Document saved successfully");
     } catch (error) {
       console.error("Error saving document:", error);
