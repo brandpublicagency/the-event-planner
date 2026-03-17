@@ -65,9 +65,9 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
   }, []);
 
   const drawDotGrid = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    ctx.fillStyle = "hsl(var(--muted))";
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = "hsl(var(--border))";
+    ctx.fillStyle = "#d1d5db";
     for (let x = DOT_SPACING; x < w; x += DOT_SPACING) {
       for (let y = DOT_SPACING; y < h; y += DOT_SPACING) {
         ctx.beginPath();
