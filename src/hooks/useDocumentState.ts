@@ -62,8 +62,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     }
 
     const currentContent = contentOverride || editor?.getHTML() || '';
-    const lines = editor ? editor.getText().split('\n') : [];
-    const firstLine = title || lines[0] || 'Untitled Document';
 
     const content: DocumentContent = {
       type: "doc",
