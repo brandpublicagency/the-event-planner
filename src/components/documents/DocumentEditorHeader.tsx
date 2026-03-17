@@ -59,16 +59,14 @@ export default function DocumentEditorHeader({
         : null;
   
   return (
-    <div className="flex items-center justify-between border-b border-black/10 px-3 py-1.5">
-      <div className="flex items-center gap-4 flex-1 min-w-0">
-        <CategorySelector 
-          selectedCategory={selectedCategoryId}
-          onChange={handleCategoryChange}
-          placeholder="Select category"
-        />
-      </div>
+    <div className="flex items-center border-b border-black/10 px-3 py-1.5 gap-3">
+      <CategorySelector 
+        selectedCategory={selectedCategoryId}
+        onChange={handleCategoryChange}
+        placeholder="Select category"
+      />
       
-      <div className="flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2">
         {handleSave && (
           <SaveButton
             onClick={handleSave}
