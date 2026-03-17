@@ -35,7 +35,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                   placeholder="Event Name" 
                   aria-label="Event Name"
                   {...field} 
-                  className="bg-white"
+                  className="bg-background"
                 />
               </FormControl>
               <FormMessage />
@@ -53,7 +53,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                   type="number" 
                   placeholder="Number of Guests"
                   aria-label="Guest Count"
-                  className="bg-white"
+                  className="bg-background"
                   value={field.value === null ? '' : field.value}
                   onChange={e => {
                     const value = e.target.value;
@@ -79,7 +79,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <FormItem>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-white" aria-label="Start Time">
+                      <SelectTrigger className="bg-background" aria-label="Start Time">
                         <SelectValue placeholder="Select start time" />
                       </SelectTrigger>
                     </FormControl>
@@ -105,7 +105,7 @@ const EventBasicInfo = ({ form }: EventBasicInfoProps) => {
                 <FormItem>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-white" aria-label="End Time">
+                      <SelectTrigger className="bg-background" aria-label="End Time">
                         <SelectValue placeholder="Select end time" />
                       </SelectTrigger>
                     </FormControl>

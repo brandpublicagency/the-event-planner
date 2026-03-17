@@ -26,7 +26,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   placeholder={isWedding ? "Bride's Name" : "Contact Name"} 
                   aria-label={isWedding ? "Bride's Name" : "Contact Name"}
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -45,7 +45,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   aria-label={isWedding ? "Bride's Email" : "Contact Email"}
                   type="email"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -64,7 +64,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   aria-label={isWedding ? "Bride's Phone" : "Contact Phone"}
                   type="tel"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -83,7 +83,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   placeholder={isWedding ? "Groom's Name" : "Secondary Contact Name (Optional)"} 
                   aria-label={isWedding ? "Groom's Name" : "Secondary Contact Name (Optional)"}
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -102,7 +102,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   aria-label={isWedding ? "Groom's Email" : "Secondary Contact Email (Optional)"}
                   type="email"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -121,7 +121,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   aria-label={isWedding ? "Groom's Phone" : "Secondary Contact Phone (Optional)"}
                   type="tel"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -140,7 +140,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   placeholder="Company Name" 
                   aria-label="Company Name"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -158,7 +158,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                   placeholder="VAT Number" 
                   aria-label="VAT Number"
                   {...field} 
-                  className="bg-white" 
+                  className="bg-background" 
                 />
               </FormControl>
               <FormMessage />
@@ -177,7 +177,7 @@ const ContactDetails = ({ form, eventType }: ContactDetailsProps) => {
                 placeholder="Address" 
                 aria-label="Address"
                 {...field} 
-                className="resize-none bg-white"
+                className="resize-none bg-background"
               />
             </FormControl>
             <FormMessage />

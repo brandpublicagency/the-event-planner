@@ -53,12 +53,12 @@ const ContactsTable = ({
           <Table>
             <TableHeader className="bg-muted sticky top-0">
               <TableRow>
-                <TableHead className="text-left pl-4 font-bold text-black">Name</TableHead>
-                <TableHead className="font-bold text-black">Company</TableHead>
-                <TableHead className="font-bold text-black">Email</TableHead>
-                <TableHead className="font-bold text-black">Phone</TableHead>
-                <TableHead className="font-bold text-black">Events</TableHead>
-                <TableHead className="w-[100px] text-right pr-4 font-bold text-black">Actions</TableHead>
+                <TableHead className="text-left pl-4 font-bold text-foreground">Name</TableHead>
+                <TableHead className="font-bold text-foreground">Company</TableHead>
+                <TableHead className="font-bold text-foreground">Email</TableHead>
+                <TableHead className="font-bold text-foreground">Phone</TableHead>
+                <TableHead className="font-bold text-foreground">Events</TableHead>
+                <TableHead className="w-[100px] text-right pr-4 font-bold text-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
