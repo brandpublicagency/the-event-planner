@@ -183,7 +183,7 @@ function DocumentRow({
         {categoryName ? (
           <Badge
             variant="outline"
-            className="text-[11px] px-2 py-0.5 rounded-sm font-normal border-border/40"
+            className="text-[11px] px-2 py-0.5 rounded-sm font-normal border-border/40 whitespace-nowrap truncate max-w-[130px]"
             style={categoryColor ? {
               backgroundColor: `${categoryColor}20`,
               borderColor: `${categoryColor}40`,
