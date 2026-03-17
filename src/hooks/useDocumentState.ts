@@ -71,9 +71,14 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
 
     setIsSaving(true);
     try {
-      await updateDocument.mutateAsync({ 
-        title: firstLine,
+      const updateParams: any = { 
         content: content,
+        showToast
+      };
+      if (title !== undefined) {
+        updateParams.title = title;
+      }
+      await updateDocument.mutateAsync(updateParams);
         showToast 
       });
       console.log("Document saved successfully");
