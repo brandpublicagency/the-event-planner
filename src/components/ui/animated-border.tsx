@@ -13,7 +13,7 @@ interface AnimatedBorderProps {
 
 export const AnimatedBorder = ({ 
   children, 
-  borderWidth = 1.5, 
+  borderWidth = 1, 
   animationDuration = 6,
   className = '',
   borderRadius = 8,
