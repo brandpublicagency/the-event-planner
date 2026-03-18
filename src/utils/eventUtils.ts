@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 import { createEvent as createEventService, deleteEvent as deleteEventService, permanentlyDeleteEvent as permanentlyDeleteEventService } from "@/services/eventService";
+import { addActivityLogEntry, getActorName } from "@/utils/activityLogUtils";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
