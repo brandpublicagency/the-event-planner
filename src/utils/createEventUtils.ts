@@ -41,7 +41,7 @@ export const createNewEvent = async (data: EventFormData) => {
       company: normalizeField(data.company),
       vat_number: normalizeField(data.vat_number),
       address: normalizeField(data.address),
-      created_by: null, // Add proper user ID when authentication is implemented
+      created_by: null as string | null, // Will be set below
     };
 
     console.log("Sending to database:", JSON.stringify(eventData, null, 2));
