@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { EventOverviewSection } from "@/components/event-overview/EventOverviewSection";
+import { EventActivityLog } from "@/components/event-details/EventActivityLog";
 import { Edit, Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EventOverview } from "@/types/eventOverview";
