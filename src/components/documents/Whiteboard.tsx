@@ -447,6 +447,9 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
             <Button variant="ghost" size="sm" onClick={undo} disabled={undoStack.length === 0} className="gap-1 text-xs h-7">
               <Undo2 className="h-3.5 w-3.5" /> Undo
             </Button>
+            <Button variant="ghost" size="sm" onClick={duplicateSelected} disabled={!selectedNodeId} className="gap-1 text-xs h-7">
+              <Copy className="h-3.5 w-3.5" /> Duplicate
+            </Button>
             <div className="flex-1" />
             <Button variant="ghost" size="sm" onClick={exportPng} disabled={nodes.length === 0} className="gap-1 text-xs h-7">
               <Download className="h-3.5 w-3.5" /> PNG
