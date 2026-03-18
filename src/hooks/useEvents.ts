@@ -81,6 +81,9 @@ export function useEvents() {
           duration: 3000
         });
       } else {
+        // Log soft delete
+        const actorName = await getActorName();
+        await addActivityLogEntry(eventToDelete.event_code, actorName, "Deleted this event");
         // Soft delete
         const { error } = await supabase
           .from("events")
