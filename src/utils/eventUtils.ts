@@ -67,7 +67,8 @@ export const createEvent = async (data: EventCreate, userId: string) => {
     
     const eventData = {
       ...cleanedData,
-      completed: false
+      completed: false,
+      created_by: userId,
     };
 
     const createdEvent = await createEventService(eventData);
