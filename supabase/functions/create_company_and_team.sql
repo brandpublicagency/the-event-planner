@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION create_company_and_team(p_company_name TEXT, p_user_i
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_company_id UUID;
