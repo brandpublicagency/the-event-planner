@@ -71,6 +71,9 @@ export function useEvents() {
     
     try {
       if (isPermanentDelete) {
+        // Log before permanent delete
+        const actorName = await getActorName();
+        await addActivityLogEntry(eventToDelete.event_code, actorName, "Permanently deleted this event");
         // Permanent delete
         await permanentlyDeleteEvent(eventToDelete.event_code);
         toast.success("Event permanently deleted", {
