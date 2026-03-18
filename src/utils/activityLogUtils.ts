@@ -36,7 +36,7 @@ export const addActivityLogEntry = async (
       .single();
 
     const currentLog: ActivityLogEntry[] = Array.isArray(event?.activity_log)
-      ? (event.activity_log as ActivityLogEntry[])
+      ? (event.activity_log as unknown as ActivityLogEntry[])
       : [];
 
     const newEntry: ActivityLogEntry = {
