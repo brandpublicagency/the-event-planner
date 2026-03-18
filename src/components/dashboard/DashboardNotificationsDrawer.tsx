@@ -4,6 +4,7 @@ import { useDashboardNotifications } from "@/components/dashboard/notifications/
 import { Bell, CheckCheck, Eye, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { extractActorFromDescription } from "@/utils/notificationActorUtils";
 
 interface DashboardNotificationsDrawerProps {
   open: boolean;
@@ -53,12 +54,12 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
           ) : (
             <div className="divide-y divide-border">
               {notifications.map(notification => (
-                 <button
-                   key={notification.id}
-                   onClick={(e) => {
-                     handleNotificationView(notification, e);
-                     onOpenChange(false);
-                   }}
+                <button
+                  key={notification.id}
+                  onClick={(e) => {
+                    handleNotificationView(notification, e);
+                    onOpenChange(false);
+                  }}
                   className={cn(
                     "group w-full text-left p-4 hover:bg-muted/50 transition-colors flex gap-3",
                     !notification.read && "bg-primary/[0.03]"
@@ -86,20 +87,12 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
                       <span>
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                       </span>
-                      {notification.description && (() => {
-                        const match = notification.description.match(/^(.+?)\s+(created|updated|cancelled|deleted|marked)/i);
-                        const rawActor = match ? match[1]?.trim() : null;
-                        const actor = !rawActor || rawActor.toLowerCase().startsWith('a new') || rawActor.length > 30
-                          ? 'System'
-                          : rawActor;
-
-                        return (
-                          <>
-                            <span className="text-muted-foreground/50">·</span>
-                            <span>Added by {actor}</span>
-                          </>
-                        );
-                      })()}
+                      {notification.description && (
+                        <>
+                          <span className="text-muted-foreground/50">·</span>
+                          <span>Added by {extractActorFromDescription(notification.description)}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="shrink-0">
