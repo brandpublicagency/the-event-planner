@@ -9,7 +9,7 @@ export const generateEventCode = (type: string) => {
   return `${prefix}-${uuidv4().substring(0, 8)}-${randomDigits}`;
 };
 
-const normalizeField = (value: unknown) => {
+const normalizeField = <T>(value: T): T | null => {
   if (value === '') return null;
   return value;
 };
