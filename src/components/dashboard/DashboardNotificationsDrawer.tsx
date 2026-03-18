@@ -84,14 +84,17 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                       </span>
                       {notification.description && (() => {
-                        const match = notification.description.match(/^(\S+)\s/);
+                        // Match actor from format: "ActorName created ..." or "ActorName updated ..."
+                        const match = notification.description.match(/^(.+?)\s+(created|updated|cancelled|deleted|marked)/i);
                         const actor = match ? match[1] : null;
-                        return actor ? (
+                        // Skip if actor looks like a generic phrase (e.g. "A new event")
+                        if (!actor || actor.toLowerCase().startsWith('a new') || actor.length > 30) return null;
+                        return (
                           <>
                             <span className="text-muted-foreground/50">·</span>
                             <span>Added by {actor}</span>
                           </>
-                        ) : null;
+                        );
                       })()}
                     </div>
                   </div>
