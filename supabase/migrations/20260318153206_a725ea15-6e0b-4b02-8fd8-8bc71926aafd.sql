@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS activity_log jsonb DEFAULT '[]'::jsonb;

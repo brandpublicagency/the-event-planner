@@ -152,6 +152,7 @@ export type Database = {
       }
       events: {
         Row: {
+          activity_log: Json | null
           address: string | null
           company: string | null
           completed: boolean | null
@@ -183,6 +184,7 @@ export type Database = {
           venues: string[] | null
         }
         Insert: {
+          activity_log?: Json | null
           address?: string | null
           company?: string | null
           completed?: boolean | null
@@ -214,6 +216,7 @@ export type Database = {
           venues?: string[] | null
         }
         Update: {
+          activity_log?: Json | null
           address?: string | null
           company?: string | null
           completed?: boolean | null
