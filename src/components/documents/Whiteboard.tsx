@@ -163,6 +163,17 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
     setNodes(prev => [...prev, { id: uuid(), x: cx, y: cy, width: w, height: h, label: "Node", shape }]);
   }, [pushUndo, panOffset]);
 
+  const duplicateSelected = useCallback(() => {
+    const selNode = selectedNodeIdRef.current;
+    if (!selNode) return;
+    const node = nodesRef.current.find(n => n.id === selNode);
+    if (!node) return;
+    pushUndo();
+    const newId = uuid();
+    setNodes(prev => [...prev, { ...node, id: newId, x: node.x + 20, y: node.y + 20 }]);
+    setSelectedNodeId(newId);
+  }, [pushUndo]);
+
   const deleteSelected = useCallback(() => {
     const selNode = selectedNodeIdRef.current;
     const selConn = selectedConnIdRef.current;
