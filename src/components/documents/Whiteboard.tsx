@@ -327,6 +327,10 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
         e.preventDefault();
         undo();
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "d") {
+        e.preventDefault();
+        duplicateSelected();
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
