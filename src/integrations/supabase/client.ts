@@ -50,8 +50,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 });
 
 // Log initialization for debugging
-console.log('Supabase client initialized');
-
 // Add a retry mechanism for database operations
 export const retryOperation = async <T>(
   operation: () => Promise<T>,
@@ -64,14 +62,12 @@ export const retryOperation = async <T>(
     try {
       return await operation();
     } catch (error: any) {
-      console.log(`Operation failed (attempt ${attempt}/${maxRetries}):`, error.message);
       lastError = error;
       
       // Don't wait on the last attempt
       if (attempt < maxRetries) {
         // Add exponential backoff
         const backoffDelay = delay * Math.pow(2, attempt - 1);
-        console.log(`Retrying in ${backoffDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, backoffDelay));
       }
     }

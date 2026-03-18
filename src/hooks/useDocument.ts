@@ -19,12 +19,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
     queryKey: ["document", documentId],
     queryFn: async () => {
       if (!documentId) {
-        console.log("No document ID provided");
         return null;
       }
-
-      console.log("Fetching document:", documentId);
-      
       try {
         const { data, error } = await supabase
           .from("documents")
@@ -39,11 +35,8 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         }
 
         if (!data) {
-          console.log("Document not found:", documentId);
           return null;
         }
-
-        console.log("Document fetch successful");
         return data as Document;
       } catch (error: any) {
         console.error("Document fetch failed:", error.message);
@@ -61,9 +54,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
       if (!documentId) {
         throw new Error("Document ID is required for updates");
       }
-
-      console.log("Updating document:", documentId);
-
       // First fetch the document to ensure it exists
       const { data: existingDoc, error: fetchError } = await supabase
         .from("documents")
@@ -107,8 +97,6 @@ export function useDocument(documentId: string | null, isAuthenticated: boolean)
         console.error("Document update error:", error);
         throw error;
       }
-
-      console.log("Document updated successfully");
       return data;
     },
     onSuccess: (_, variables) => {

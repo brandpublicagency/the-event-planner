@@ -25,7 +25,6 @@ const ContactsPage = () => {
     try {
       await deleteContact(contact);
       refetch();
-      console.log(`Contact ${contact.name} has been deleted`);
     } catch (error: any) {
       console.error('Error deleting contact:', error);
     }

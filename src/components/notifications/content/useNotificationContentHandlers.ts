@@ -13,12 +13,10 @@ export const useNotificationContentHandlers = ({
 }: UseNotificationContentHandlersProps) => {
   
   const handleViewDetail = useCallback((notification: Notification, e: React.MouseEvent) => {
-    console.log("useNotificationContentHandlers handleViewDetail called for:", notification.id);
     onViewDetail(notification, e);
   }, [onViewDetail]);
 
   const handleCompleteTask = useCallback((notification: Notification, e: React.MouseEvent) => {
-    console.log("useNotificationContentHandlers handleCompleteTask called for:", notification.id);
     onCompleteTask(notification, e);
   }, [onCompleteTask]);
 

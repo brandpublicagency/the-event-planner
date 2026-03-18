@@ -16,12 +16,10 @@ export const NotificationListWrapper = ({
 }: NotificationListWrapperProps) => {
   
   const handleViewDetail = (notification: Notification, e: React.MouseEvent) => {
-    console.log("NotificationListWrapper handleViewDetail called for:", notification.id);
     onViewDetail(notification, e);
   };
 
   const handleCompleteTask = (notification: Notification, e: React.MouseEvent) => {
-    console.log("NotificationListWrapper handleCompleteTask called for:", notification.id);
     onCompleteTask(notification, e);
   };
 

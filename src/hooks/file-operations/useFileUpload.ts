@@ -53,16 +53,10 @@ export function useFileUpload() {
         console.error('Supabase REST API error:', errorData);
         throw new Error(`Upload failed: ${errorData.error || response.statusText}`);
       }
-      
-      console.log('Upload successful via direct API call');
-
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from("taskmanager-files")
         .getPublicUrl(filePath);
-
-      console.log('Public URL:', publicUrl);
-
       // Add record to the task_files table
       const { error: dbError } = await supabase
         .from("task_files")

@@ -41,7 +41,6 @@ const ContactEditDrawer = ({
       await updateContact(contact, values);
       
       onUpdateSuccess();
-      console.log("Contact updated successfully");
       onClose();
     } catch (error: any) {
       console.error("Failed to update contact:", error.message);

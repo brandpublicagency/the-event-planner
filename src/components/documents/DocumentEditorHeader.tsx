@@ -46,7 +46,6 @@ export default function DocumentEditorHeader({
   };
 
   const handleDeleteConfirmed = () => {
-    console.log("Document deleted, navigating to documents page");
     navigate("/documents");
   };
   

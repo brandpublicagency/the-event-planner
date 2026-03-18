@@ -31,8 +31,6 @@ export function useEventDetails() {
     queryKey: ['event', normalizedId],
     queryFn: async () => {
       if (!normalizedId) return null;
-
-      console.log(`Fetching event with ID: ${normalizedId}`);
       try {
         // First attempt: try exact match on event_code
         let { data, error } = await supabase
@@ -42,8 +40,6 @@ export function useEventDetails() {
           .single();
 
         if (error || !data) {
-          console.log(`No exact match found for event_code: ${normalizedId}, trying with EVENT- prefix`);
-          
           // Second attempt: try with EVENT- prefix
           const prefixedId = normalizedId.startsWith('EVENT-') ? normalizedId : `EVENT-${normalizedId}`;
           
@@ -57,8 +53,6 @@ export function useEventDetails() {
             // Third attempt: if prefixed ID contains dashes, try without EVENT- prefix
             if (normalizedId.includes('-') && normalizedId.startsWith('EVENT-')) {
               const unprefixedId = normalizedId.replace('EVENT-', '');
-              console.log(`Trying without EVENT- prefix: ${unprefixedId}`);
-              
               ({ data, error } = await supabase
                 .from("events")
                 .select("*")
@@ -74,11 +68,8 @@ export function useEventDetails() {
         }
 
         if (!data) {
-          console.log(`No event found with any of the attempted IDs`);
           throw new Error(`Event not found`);
         }
-
-        console.log(`Event found:`, data);
         return data as Event;
       } catch (error) {
         console.error("Error fetching event:", error);
@@ -92,7 +83,6 @@ export function useEventDetails() {
   // Trigger a refetch if coming from edit or with refresh parameter
   useEffect(() => {
     if (shouldRefetch) {
-      console.log('Forced refresh or return from edit detected, refetching event data');
       refetch();
     }
   }, [location.search, refetch, shouldRefetch]);

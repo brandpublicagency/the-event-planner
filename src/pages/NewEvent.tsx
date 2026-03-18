@@ -59,8 +59,6 @@ const NewEvent = () => {
   const handleSubmit = async (data: EventFormData) => {
     try {
       setIsSubmitting(true);
-      console.log("Submitting form data:", JSON.stringify(data, null, 2));
-      
       // Make sure venues is always an array
       if (!Array.isArray(data.venues)) {
         data.venues = [];

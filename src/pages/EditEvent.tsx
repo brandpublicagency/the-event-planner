@@ -32,8 +32,6 @@ const EditEvent = () => {
 
       if (eventError) throw eventError;
       if (!eventData) throw new Error('Event not found');
-      
-      console.log("Fetched event data:", eventData);
       return eventData;
     },
     enabled: !!id,
@@ -49,8 +47,6 @@ const EditEvent = () => {
       };
 
       const venues = Array.isArray(event.venues) ? event.venues : (event.venues ? [event.venues] : []);
-      console.log("Initial venues from database:", venues);
-
       form.reset({
         name: event.name,
         description: event.description || '',
@@ -90,9 +86,6 @@ const EditEvent = () => {
   const onSubmit = async (data: EventFormData) => {
     try {
       if (!id) throw new Error('Event ID is required');
-      
-      console.log("Submitting form with venues:", data.venues);
-      
       const updateData = {
         ...data,
         description: data.description || '',

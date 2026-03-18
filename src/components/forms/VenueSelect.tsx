@@ -58,7 +58,6 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
     const currentVenues = form.getValues("venues");
     if (!currentVenues || !Array.isArray(currentVenues)) {
       form.setValue("venues", [], { shouldValidate: false });
-      console.log("Initialized venues to empty array");
     }
   }, [form]);
   
@@ -75,8 +74,6 @@ export const VenueSelect = ({ form }: VenueSelectProps) => {
       const index = currentVenues.indexOf(venue);
       currentVenues.splice(index, 1);
     }
-    
-    console.log(`Updated venue selection: ${venue} to ${checked}, new venues:`, currentVenues);
     form.setValue("venues", currentVenues, { shouldValidate: true });
   };
 

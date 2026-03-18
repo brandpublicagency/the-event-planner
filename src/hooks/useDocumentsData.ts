@@ -17,8 +17,6 @@ export function useDocumentsData() {
   } = useQuery({
     queryKey: ["documents"],
     queryFn: async () => {
-      console.log("Fetching documents list");
-      
       const { data, error } = await supabase
         .from("documents")
         .select("*")
@@ -34,8 +32,6 @@ export function useDocumentsData() {
         });
         throw error;
       }
-
-      console.log("Documents fetched successfully:", data?.length || 0);
       return data as Document[];
     },
     retry: 1,
@@ -46,17 +42,12 @@ export function useDocumentsData() {
       setIsCreatingDocument(true);
       
       try {
-        console.log("Creating new document");
-        
         // Get the user session first
         const { data: sessionData } = await supabase.auth.getSession();
         
         // Use the actual user ID if available, otherwise use a placeholder
         // Since RLS is disabled as per project instructions, this will work either way
         const userId = sessionData?.session?.user?.id || "00000000-0000-0000-0000-000000000000";
-        
-        console.log("Using user ID for document creation:", userId);
-        
         const { data, error } = await supabase
           .from("documents")
           .insert({
@@ -76,15 +67,12 @@ export function useDocumentsData() {
           });
           throw error;
         }
-        
-        console.log("New document created:", data);
         return data as Document;
       } finally {
         setIsCreatingDocument(false);
       }
     },
     onSuccess: (newDoc) => {
-      console.log("Document created successfully, selecting document ID:", newDoc.id);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       
       toast({
@@ -104,8 +92,6 @@ export function useDocumentsData() {
 
   const deleteDocument = useMutation({
     mutationFn: async (documentId: string) => {
-      console.log("Deleting document:", documentId);
-      
       const { error } = await supabase
         .from("documents")
         .update({ 
@@ -121,7 +107,6 @@ export function useDocumentsData() {
       return documentId;
     },
     onSuccess: (documentId) => {
-      console.log("Document deleted successfully:", documentId);
       // Invalidate and refetch the documents query to update the UI
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       

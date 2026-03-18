@@ -12,8 +12,6 @@ export const generateEventCode = (type: string) => {
 
 export const createNewEvent = async (data: EventFormData) => {
   try {
-    console.log("Creating new event with data:", data);
-    
     // Get the authenticated user's ID
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -47,9 +45,6 @@ export const createNewEvent = async (data: EventFormData) => {
       address: normalizeField(data.address),
       created_by: user?.id || null,
     };
-
-    console.log("Sending to database:", JSON.stringify(eventData, null, 2));
-    
     const { data: result, error: eventError } = await supabase
       .from('events')
       .insert(eventData)
@@ -60,8 +55,6 @@ export const createNewEvent = async (data: EventFormData) => {
       console.error("Database error:", eventError);
       throw new Error(`Error creating event: ${eventError.message}`);
     }
-    
-    console.log("Event created successfully:", result);
     return eventCode;
   } catch (error) {
     console.error("Error in createNewEvent:", error);
