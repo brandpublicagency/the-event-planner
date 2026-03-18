@@ -43,7 +43,7 @@ export const createNewEvent = async (data: EventFormData) => {
 
   const { error: eventError } = await supabase
     .from('events')
-    .insert(eventData)
+    .insert([eventData])
     .select('event_code')
     .single();
 
