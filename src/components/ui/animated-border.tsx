@@ -13,11 +13,11 @@ interface AnimatedBorderProps {
 
 export const AnimatedBorder = ({ 
   children, 
-  borderWidth = 4, 
+  borderWidth = 2, 
   animationDuration = 4,
   className = '',
   borderRadius = 8,
-  colors = ['#FFA500', '#FF6347', '#FF4500', '#FF1493', '#FF00FF', '#8A2BE2', '#4169E1', '#1E90FF', '#00BFFF'],
+  colors = ['#FACC15', '#F97316', '#EC4899', '#A855F7', '#3B82F6', '#06B6D4', '#10B981', '#FACC15'],
   isActive = true
 }: AnimatedBorderProps) => {
   const [angle, setAngle] = useState(0);
@@ -25,14 +25,14 @@ export const AnimatedBorder = ({
   useEffect(() => {
     if (!isActive) return;
     
+    const step = 360 / (animationDuration * 50);
     const intervalId = setInterval(() => {
-      setAngle(prevAngle => (prevAngle + 1) % 360);
+      setAngle(prev => (prev + step) % 360);
     }, 20);
     
     return () => clearInterval(intervalId);
-  }, [isActive]);
+  }, [isActive, animationDuration]);
   
-  // Create the gradient string
   const gradientString = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
   
   if (!isActive) {
@@ -41,18 +41,14 @@ export const AnimatedBorder = ({
   
   return (
     <div className={`relative ${className}`} style={{ padding: borderWidth }}>
-      {/* Animated border background */}
       <div 
-        className="absolute inset-0 animate-pulse"
+        className="absolute inset-0"
         style={{ 
           background: gradientString,
           borderRadius: borderRadius + borderWidth,
-          animation: `pulse ${animationDuration}s infinite`
         }}
       />
-      
-      {/* Content container */}
-      <div className="relative bg-white h-full w-full" style={{ borderRadius }}>
+      <div className="relative bg-card h-full w-full" style={{ borderRadius }}>
         {children}
       </div>
     </div>
