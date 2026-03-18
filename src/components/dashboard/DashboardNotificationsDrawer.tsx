@@ -78,11 +78,21 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                       {notification.description}
                     </p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                       </span>
+                      {notification.description && (() => {
+                        const match = notification.description.match(/^(\S+)\s/);
+                        const actor = match ? match[1] : null;
+                        return actor ? (
+                          <>
+                            <span className="text-muted-foreground/50">·</span>
+                            <span>Added by {actor}</span>
+                          </>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                   <div className="shrink-0">
