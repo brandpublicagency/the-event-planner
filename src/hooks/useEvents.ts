@@ -122,7 +122,7 @@ export function useEvents() {
   // Process events data
   const upcomingEvents = events.filter(event => {
     if (!event.event_date) return true;
-    return isAfter(parseISO(event.event_date), new Date());
+    return !isAfter(startOfDay(new Date()), parseISO(event.event_date));
   });
   
   const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
