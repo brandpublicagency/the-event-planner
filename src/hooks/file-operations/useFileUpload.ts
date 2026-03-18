@@ -14,12 +14,6 @@ export function useFileUpload() {
       setIsLoading(true);
       setProgress(0);
       
-      console.log('[Upload] Starting file upload:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-
       // First check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
