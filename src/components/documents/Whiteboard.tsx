@@ -1,905 +1,450 @@
-import { useRef, useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { v4 as uuid } from "uuid";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Square,
-  Circle,
-  ArrowRight,
-  Type,
-  Move,
-  Undo2,
-  Trash2,
-  Download,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Trash2, Undo2, Download } from "lucide-react";
 
-type Tool = "rectangle" | "circle" | "arrow" | "text" | "move";
-
-interface Shape {
+// --- Data model ---
+interface LayoutNode {
   id: string;
-  type: "rectangle" | "circle" | "arrow" | "text";
   x: number;
   y: number;
   width: number;
   height: number;
-  color: string;
-  text?: string;
+  label: string;
 }
 
-interface Connector {
+type Side = "top" | "right" | "bottom" | "left";
+
+interface Connection {
   id: string;
-  fromShapeId: string;
-  toShapeId: string;
-  color: string;
+  fromNodeId: string;
+  fromSide: Side;
+  toNodeId: string;
+  toSide: Side;
 }
 
-interface WhiteboardData {
-  shapes: Shape[];
-  connectors?: Connector[];
-  png?: string;
+interface LayoutData {
+  nodes: LayoutNode[];
+  connections: Connection[];
 }
-
-const COLORS = [
-  { value: "#000000", label: "Black" },
-  { value: "#ffffff", label: "White" },
-  { value: "#ef4444", label: "Red" },
-  { value: "#f97316", label: "Orange" },
-  { value: "#22c55e", label: "Green" },
-  { value: "#3b82f6", label: "Blue" },
-];
-
-const CANVAS_HEIGHT = 500;
-const MAX_UNDO = 20;
-const DOT_SPACING = 20;
-const DOT_RADIUS = 1;
-const ANCHOR_RADIUS = 8;
-const ANCHOR_HIT_RADIUS = 12;
-const RECT_RADIUS = 7;
 
 interface WhiteboardProps {
   initialData?: string;
-  onSave: (dataUrl: string) => void;
+  onSave?: (data: string) => void;
 }
 
-let shapeIdCounter = 0;
-const genId = (prefix = "s") => `${prefix}_${Date.now()}_${++shapeIdCounter}`;
+const DEFAULT_W = 120;
+const DEFAULT_H = 60;
+const HANDLE_R = 5;
+const SIDES: Side[] = ["top", "right", "bottom", "left"];
 
-interface UndoSnapshot {
-  shapes: Shape[];
-  connectors: Connector[];
-}
-
-function parseInitialData(data?: string): { shapes: Shape[]; connectors: Connector[] } {
-  if (!data) return { shapes: [], connectors: [] };
-  try {
-    const parsed = JSON.parse(data) as WhiteboardData;
-    return {
-      shapes: Array.isArray(parsed.shapes) ? parsed.shapes : [],
-      connectors: Array.isArray(parsed.connectors) ? parsed.connectors : [],
-    };
-  } catch {
-    return { shapes: [], connectors: [] };
+function getHandlePos(node: LayoutNode, side: Side): { x: number; y: number } {
+  switch (side) {
+    case "top": return { x: node.x + node.width / 2, y: node.y };
+    case "bottom": return { x: node.x + node.width / 2, y: node.y + node.height };
+    case "left": return { x: node.x, y: node.y + node.height / 2 };
+    case "right": return { x: node.x + node.width, y: node.y + node.height / 2 };
   }
 }
 
-type AnchorSide = "top" | "right" | "bottom" | "left";
-
-function getShapeCenter(s: Shape): { x: number; y: number } {
-  if (s.type === "text") {
-    const tw = (s.text?.length || 1) * 8;
-    return { x: s.x + tw / 2, y: s.y + 9 };
-  }
-  if (s.type === "arrow") {
-    return { x: s.x + s.width / 2, y: s.y + s.height / 2 };
-  }
-  return { x: s.x + s.width / 2, y: s.y + s.height / 2 };
-}
-
-function getAnchorPoints(s: Shape): Record<AnchorSide, { x: number; y: number }> {
-  const c = getShapeCenter(s);
-  let hw: number, hh: number;
-
-  if (s.type === "text") {
-    const tw = (s.text?.length || 1) * 8;
-    hw = tw / 2;
-    hh = 9;
-  } else if (s.type === "arrow") {
-    hw = Math.abs(s.width) / 2;
-    hh = Math.abs(s.height) / 2;
-  } else {
-    hw = Math.abs(s.width) / 2;
-    hh = Math.abs(s.height) / 2;
-  }
-
-  return {
-    top: { x: c.x, y: c.y - hh },
-    bottom: { x: c.x, y: c.y + hh },
-    left: { x: c.x - hw, y: c.y },
-    right: { x: c.x + hw, y: c.y },
+function bezierPath(from: { x: number; y: number }, fromSide: Side, to: { x: number; y: number }, toSide: Side): string {
+  const offset = 80;
+  const dir: Record<Side, { dx: number; dy: number }> = {
+    top: { dx: 0, dy: -offset },
+    bottom: { dx: 0, dy: offset },
+    left: { dx: -offset, dy: 0 },
+    right: { dx: offset, dy: 0 },
   };
+  const c1 = { x: from.x + dir[fromSide].dx, y: from.y + dir[fromSide].dy };
+  const c2 = { x: to.x + dir[toSide].dx, y: to.y + dir[toSide].dy };
+  return `M ${from.x} ${from.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${to.x} ${to.y}`;
 }
 
-function getClosestAnchors(from: Shape, to: Shape): { from: { x: number; y: number }; to: { x: number; y: number } } {
-  const fa = getAnchorPoints(from);
-  const ta = getAnchorPoints(to);
-  const sides: AnchorSide[] = ["top", "right", "bottom", "left"];
-  let bestDist = Infinity;
-  let bestFrom = fa.right;
-  let bestTo = ta.left;
-
-  for (const fs of sides) {
-    for (const ts of sides) {
-      const dx = fa[fs].x - ta[ts].x;
-      const dy = fa[fs].y - ta[ts].y;
-      const d = dx * dx + dy * dy;
-      if (d < bestDist) {
-        bestDist = d;
-        bestFrom = fa[fs];
-        bestTo = ta[ts];
-      }
+function parseInitialData(raw?: string): LayoutData {
+  if (!raw) return { nodes: [], connections: [] };
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed.nodes && Array.isArray(parsed.nodes)) {
+      return {
+        nodes: parsed.nodes,
+        connections: Array.isArray(parsed.connections) ? parsed.connections : [],
+      };
     }
-  }
-  return { from: bestFrom, to: bestTo };
+  } catch {}
+  return { nodes: [], connections: [] };
 }
 
 export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const initial = useMemo(() => parseInitialData(initialData), [initialData]);
+  const [nodes, setNodes] = useState<LayoutNode[]>(initial.nodes);
+  const [connections, setConnections] = useState<Connection[]>(initial.connections);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedConnId, setSelectedConnId] = useState<string | null>(null);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [undoStack, setUndoStack] = useState<LayoutData[]>([]);
+
+  const dragging = useRef<{ nodeId: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const panning = useRef<{ startX: number; startY: number; origPanX: number; origPanY: number } | null>(null);
+  const [connectingFrom, setConnectingFrom] = useState<{ nodeId: string; side: Side } | null>(null);
+  const [connectCursor, setConnectCursor] = useState<{ x: number; y: number } | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState<Tool>("rectangle");
-  const [activeColor, setActiveColor] = useState("#000000");
 
-  const initialParsed = parseInitialData(initialData);
-  const [shapes, setShapes] = useState<Shape[]>(initialParsed.shapes);
-  const [connectors, setConnectors] = useState<Connector[]>(initialParsed.connectors);
-  const undoStackRef = useRef<UndoSnapshot[]>([]);
-  const [canUndo, setCanUndo] = useState(false);
+  // Refs for latest state in event handlers
+  const nodesRef = useRef(nodes);
+  const connectionsRef = useRef(connections);
+  const selectedNodeIdRef = useRef(selectedNodeId);
+  const selectedConnIdRef = useRef(selectedConnId);
+  const editingNodeIdRef = useRef(editingNodeId);
+  const undoStackRef = useRef(undoStack);
 
-  const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
-  const [selectedConnectorId, setSelectedConnectorId] = useState<string | null>(null);
+  useEffect(() => { nodesRef.current = nodes; }, [nodes]);
+  useEffect(() => { connectionsRef.current = connections; }, [connections]);
+  useEffect(() => { selectedNodeIdRef.current = selectedNodeId; }, [selectedNodeId]);
+  useEffect(() => { selectedConnIdRef.current = selectedConnId; }, [selectedConnId]);
+  useEffect(() => { editingNodeIdRef.current = editingNodeId; }, [editingNodeId]);
+  useEffect(() => { undoStackRef.current = undoStack; }, [undoStack]);
 
-  // Drawing state
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
-  const [previewShape, setPreviewShape] = useState<Shape | null>(null);
+  const pushUndo = useCallback(() => {
+    setUndoStack(prev => [...prev.slice(-19), { nodes: structuredClone(nodesRef.current), connections: structuredClone(connectionsRef.current) }]);
+  }, []);
 
-  // Move state
-  const [dragShapeId, setDragShapeId] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Debounced save
+  useEffect(() => {
+    if (!onSave) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      onSave(JSON.stringify({ nodes, connections }));
+    }, 1000);
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
+  }, [nodes, connections, onSave]);
 
-  // Connector dragging state
-  const [connectingFrom, setConnectingFrom] = useState<{ shapeId: string } | null>(null);
-  const [connectingCursor, setConnectingCursor] = useState<{ x: number; y: number } | null>(null);
+  const addNode = useCallback(() => {
+    pushUndo();
+    const cx = (containerRef.current?.clientWidth || 600) / 2 - panOffset.x - DEFAULT_W / 2;
+    const cy = 200 - panOffset.y;
+    setNodes(prev => [...prev, { id: uuid(), x: cx, y: cy, width: DEFAULT_W, height: DEFAULT_H, label: "Node" }]);
+  }, [pushUndo, panOffset]);
 
-  // Hovered shape (for showing anchors)
-  const [hoveredShapeId, setHoveredShapeId] = useState<string | null>(null);
+  const deleteSelected = useCallback(() => {
+    const selNode = selectedNodeIdRef.current;
+    const selConn = selectedConnIdRef.current;
+    if (selNode) {
+      pushUndo();
+      setNodes(prev => prev.filter(n => n.id !== selNode));
+      setConnections(prev => prev.filter(c => c.fromNodeId !== selNode && c.toNodeId !== selNode));
+      setSelectedNodeId(null);
+    } else if (selConn) {
+      pushUndo();
+      setConnections(prev => prev.filter(c => c.id !== selConn));
+      setSelectedConnId(null);
+    }
+  }, [pushUndo]);
 
-  // Text editing state
-  const [editingShape, setEditingShape] = useState<{ id: string; x: number; y: number } | null>(null);
-  const [textValue, setTextValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const undo = useCallback(() => {
+    const stack = undoStackRef.current;
+    if (stack.length === 0) return;
+    const last = stack[stack.length - 1];
+    setUndoStack(prev => prev.slice(0, -1));
+    setNodes(last.nodes);
+    setConnections(last.connections);
+    setSelectedNodeId(null);
+    setSelectedConnId(null);
+  }, []);
 
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hasInitializedRef = useRef(false);
-
-  // ---- Canvas drawing ----
-
-  const drawDotGrid = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    ctx.fillStyle = "#ffffff";
+  const exportPng = useCallback(() => {
+    const n = nodesRef.current;
+    const c = connectionsRef.current;
+    if (n.length === 0) return;
+    const padding = 40;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    n.forEach(nd => {
+      minX = Math.min(minX, nd.x);
+      minY = Math.min(minY, nd.y);
+      maxX = Math.max(maxX, nd.x + nd.width);
+      maxY = Math.max(maxY, nd.y + nd.height);
+    });
+    const w = maxX - minX + padding * 2;
+    const h = maxY - minY + padding * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = w * 2; canvas.height = h * 2;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(2, 2);
+    ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = "#d1d5db";
-    for (let x = DOT_SPACING; x < w; x += DOT_SPACING) {
-      for (let y = DOT_SPACING; y < h; y += DOT_SPACING) {
-        ctx.beginPath();
-        ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    ctx.fillStyle = "#e2e8f0";
+    for (let x = 0; x < w; x += 20) for (let y = 0; y < h; y += 20) {
+      ctx.beginPath(); ctx.arc(x, y, 0.8, 0, Math.PI * 2); ctx.fill();
     }
-  }, []);
-
-  const drawShape = useCallback((ctx: CanvasRenderingContext2D, shape: Shape) => {
-    ctx.fillStyle = shape.color;
-    ctx.strokeStyle = shape.color;
-
-    if (shape.type === "rectangle") {
-      const x = Math.min(shape.x, shape.x + shape.width);
-      const y = Math.min(shape.y, shape.y + shape.height);
-      const w = Math.abs(shape.width);
-      const h = Math.abs(shape.height);
+    c.forEach(conn => {
+      const fromNode = n.find(nd => nd.id === conn.fromNodeId);
+      const toNode = n.find(nd => nd.id === conn.toNodeId);
+      if (!fromNode || !toNode) return;
+      const from = getHandlePos({ ...fromNode, x: fromNode.x - minX + padding, y: fromNode.y - minY + padding }, conn.fromSide);
+      const to = getHandlePos({ ...toNode, x: toNode.x - minX + padding, y: toNode.y - minY + padding }, conn.toSide);
+      const offset = 80;
+      const dir: Record<Side, { dx: number; dy: number }> = {
+        top: { dx: 0, dy: -offset }, bottom: { dx: 0, dy: offset },
+        left: { dx: -offset, dy: 0 }, right: { dx: offset, dy: 0 },
+      };
       ctx.beginPath();
-      ctx.roundRect(x, y, w, h, RECT_RADIUS);
-      ctx.fill();
-    } else if (shape.type === "circle") {
-      const rx = Math.abs(shape.width) / 2;
-      const ry = Math.abs(shape.height) / 2;
-      const cx = shape.x + shape.width / 2;
-      const cy = shape.y + shape.height / 2;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (shape.type === "arrow") {
-      const x2 = shape.x + shape.width;
-      const y2 = shape.y + shape.height;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(shape.x, shape.y);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-      const angle = Math.atan2(shape.height, shape.width);
-      const headLen = 12;
-      ctx.beginPath();
-      ctx.moveTo(x2, y2);
-      ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
-      ctx.moveTo(x2, y2);
-      ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
-      ctx.stroke();
-    } else if (shape.type === "text" && shape.text) {
-      ctx.font = "14px sans-serif";
-      ctx.fillText(shape.text, shape.x, shape.y + 14);
-    }
-  }, []);
-
-  const drawConnectorLine = useCallback((ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }, color: string, isSelected: boolean) => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = isSelected ? 3 : 2;
-    if (isSelected) {
-      ctx.setLineDash([6, 3]);
-    }
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Arrowhead
-    const angle = Math.atan2(to.y - from.y, to.x - from.x);
-    const headLen = 10;
-    ctx.beginPath();
-    ctx.moveTo(to.x, to.y);
-    ctx.lineTo(to.x - headLen * Math.cos(angle - Math.PI / 6), to.y - headLen * Math.sin(angle - Math.PI / 6));
-    ctx.moveTo(to.x, to.y);
-    ctx.lineTo(to.x - headLen * Math.cos(angle + Math.PI / 6), to.y - headLen * Math.sin(angle + Math.PI / 6));
-    ctx.stroke();
-  }, []);
-
-  const drawSelectionIndicator = useCallback((ctx: CanvasRenderingContext2D, shape: Shape) => {
-    ctx.strokeStyle = "#3b82f6";
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 3]);
-
-    const pad = 4;
-    if (shape.type === "rectangle") {
-      const x = Math.min(shape.x, shape.x + shape.width) - pad;
-      const y = Math.min(shape.y, shape.y + shape.height) - pad;
-      const w = Math.abs(shape.width) + pad * 2;
-      const h = Math.abs(shape.height) + pad * 2;
-      ctx.beginPath();
-      ctx.roundRect(x, y, w, h, RECT_RADIUS + 2);
-      ctx.stroke();
-    } else if (shape.type === "circle") {
-      const rx = Math.abs(shape.width) / 2 + pad;
-      const ry = Math.abs(shape.height) / 2 + pad;
-      const cx = shape.x + shape.width / 2;
-      const cy = shape.y + shape.height / 2;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.stroke();
-    } else if (shape.type === "text") {
-      const tw = (shape.text?.length || 1) * 8;
-      ctx.strokeRect(shape.x - pad, shape.y - pad, tw + pad * 2, 18 + pad * 2);
-    } else if (shape.type === "arrow") {
-      // Just highlight the line thicker — already handled by selection state
-    }
-
-    ctx.setLineDash([]);
-  }, []);
-
-  const drawAnchorPoints = useCallback((ctx: CanvasRenderingContext2D, shape: Shape) => {
-    const anchors = getAnchorPoints(shape);
-    const sides: AnchorSide[] = ["top", "right", "bottom", "left"];
-
-    for (const side of sides) {
-      const pt = anchors[side];
-      // Outer circle
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#3b82f6";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, ANCHOR_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Plus icon
-      ctx.strokeStyle = "#3b82f6";
-      ctx.lineWidth = 1.5;
-      const s = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(pt.x - s, pt.y);
-      ctx.lineTo(pt.x + s, pt.y);
-      ctx.moveTo(pt.x, pt.y - s);
-      ctx.lineTo(pt.x, pt.y + s);
-      ctx.stroke();
-    }
-  }, []);
-
-  const renderAll = useCallback(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    const w = container.clientWidth;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    ctx.save();
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    drawDotGrid(ctx, w, CANVAS_HEIGHT);
-
-    // Draw connectors
-    connectors.forEach(conn => {
-      const fromShape = shapes.find(s => s.id === conn.fromShapeId);
-      const toShape = shapes.find(s => s.id === conn.toShapeId);
-      if (fromShape && toShape) {
-        const pts = getClosestAnchors(fromShape, toShape);
-        drawConnectorLine(ctx, pts.from, pts.to, conn.color, conn.id === selectedConnectorId);
-      }
+      ctx.moveTo(from.x, from.y);
+      ctx.bezierCurveTo(from.x + dir[conn.fromSide].dx, from.y + dir[conn.fromSide].dy, to.x + dir[conn.toSide].dx, to.y + dir[conn.toSide].dy, to.x, to.y);
+      ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1.5; ctx.stroke();
     });
+    n.forEach(nd => {
+      const nx = nd.x - minX + padding, ny = nd.y - minY + padding;
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "#e5e7eb"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect(nx, ny, nd.width, nd.height, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#374151"; ctx.font = "12px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(nd.label, nx + nd.width / 2, ny + nd.height / 2, nd.width - 16);
+    });
+    const a = document.createElement("a");
+    a.download = "layout.png"; a.href = canvas.toDataURL("image/png"); a.click();
+  }, []);
 
-    // Draw shapes
-    shapes.forEach(s => drawShape(ctx, s));
-    if (previewShape) drawShape(ctx, previewShape);
+  // Container mouse down: deselect or start panning
+  const onContainerMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.target !== e.currentTarget && !(e.target as HTMLElement).classList.contains("layout-canvas-inner")) return;
+    setSelectedNodeId(null);
+    setSelectedConnId(null);
+    if (connectingFrom) { setConnectingFrom(null); setConnectCursor(null); return; }
+    panning.current = { startX: e.clientX, startY: e.clientY, origPanX: panOffset.x, origPanY: panOffset.y };
+  }, [connectingFrom, panOffset]);
 
-    // Selection indicator
-    if (selectedShapeId) {
-      const sel = shapes.find(s => s.id === selectedShapeId);
-      if (sel) drawSelectionIndicator(ctx, sel);
+  const onMouseMove = useCallback((e: MouseEvent) => {
+    if (dragging.current) {
+      const dx = e.clientX - dragging.current.startX;
+      const dy = e.clientY - dragging.current.startY;
+      const id = dragging.current.nodeId;
+      const ox = dragging.current.origX;
+      const oy = dragging.current.origY;
+      setNodes(prev => prev.map(n => n.id === id ? { ...n, x: ox + dx, y: oy + dy } : n));
+    } else if (panning.current) {
+      setPanOffset({
+        x: panning.current.origPanX + (e.clientX - panning.current.startX),
+        y: panning.current.origPanY + (e.clientY - panning.current.startY),
+      });
+    } else if (connectingFrom && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setConnectCursor({ x: e.clientX - rect.left - panOffset.x, y: e.clientY - rect.top - panOffset.y });
     }
+  }, [connectingFrom, panOffset]);
 
-    // Anchor points on hovered or selected shape (only in move mode)
-    if (activeTool === "move") {
-      const anchorTargetId = hoveredShapeId || selectedShapeId;
-      if (anchorTargetId) {
-        const target = shapes.find(s => s.id === anchorTargetId);
-        if (target) drawAnchorPoints(ctx, target);
-      }
-    }
-
-    // Connector drag preview
-    if (connectingFrom && connectingCursor) {
-      const fromShape = shapes.find(s => s.id === connectingFrom.shapeId);
-      if (fromShape) {
-        const anchors = getAnchorPoints(fromShape);
-        // Find closest anchor to cursor for origin
-        const sides: AnchorSide[] = ["top", "right", "bottom", "left"];
-        let bestPt = anchors.right;
-        let bestD = Infinity;
-        for (const side of sides) {
-          const dx = anchors[side].x - connectingCursor.x;
-          const dy = anchors[side].y - connectingCursor.y;
-          const d = dx * dx + dy * dy;
-          if (d < bestD) { bestD = d; bestPt = anchors[side]; }
-        }
-        drawConnectorLine(ctx, bestPt, connectingCursor, activeColor, false);
-      }
-    }
-
-    ctx.restore();
-  }, [shapes, connectors, previewShape, drawDotGrid, drawShape, drawConnectorLine, drawSelectionIndicator, drawAnchorPoints, selectedShapeId, selectedConnectorId, hoveredShapeId, activeTool, connectingFrom, connectingCursor, activeColor]);
-
-  // ---- Canvas setup ----
-
-  const initCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    const w = container.clientWidth;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = CANVAS_HEIGHT * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${CANVAS_HEIGHT}px`;
-
-    hasInitializedRef.current = true;
+  const onMouseUp = useCallback(() => {
+    dragging.current = null;
+    panning.current = null;
   }, []);
 
   useEffect(() => {
-    if (!isOpen) return;
-    const timer = setTimeout(() => {
-      initCanvas();
-      renderAll();
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [isOpen, initCanvas, renderAll]);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => { window.removeEventListener("mousemove", onMouseMove); window.removeEventListener("mouseup", onMouseUp); };
+  }, [onMouseMove, onMouseUp]);
 
+  // Keyboard
   useEffect(() => {
-    if (!isOpen) return;
-    const handleResize = () => {
-      initCanvas();
-      renderAll();
+    const handler = (e: KeyboardEvent) => {
+      if (editingNodeIdRef.current) return;
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        deleteSelected();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+        e.preventDefault();
+        undo();
+      }
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isOpen, initCanvas, renderAll]);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [deleteSelected, undo]);
 
-  useEffect(() => {
-    if (!isOpen || !hasInitializedRef.current) return;
-    renderAll();
-  }, [isOpen, renderAll]);
-
-  // ---- Persistence ----
-
-  const debouncedSave = useCallback((currentShapes: Shape[], currentConnectors: Connector[]) => {
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const data: WhiteboardData = {
-        shapes: currentShapes,
-        connectors: currentConnectors,
-        png: canvas.toDataURL("image/png"),
-      };
-      onSave(JSON.stringify(data));
-    }, 1500);
-  }, [onSave]);
-
-  // ---- Undo ----
-
-  const pushUndo = useCallback((currentShapes: Shape[], currentConnectors: Connector[]) => {
-    undoStackRef.current.push({
-      shapes: JSON.parse(JSON.stringify(currentShapes)),
-      connectors: JSON.parse(JSON.stringify(currentConnectors)),
-    });
-    if (undoStackRef.current.length > MAX_UNDO) undoStackRef.current.shift();
-    setCanUndo(true);
-  }, []);
-
-  const handleUndo = () => {
-    if (undoStackRef.current.length === 0) return;
-    const prev = undoStackRef.current.pop()!;
-    setShapes(prev.shapes);
-    setConnectors(prev.connectors);
-    setSelectedShapeId(null);
-    setSelectedConnectorId(null);
-    setCanUndo(undoStackRef.current.length > 0);
-    debouncedSave(prev.shapes, prev.connectors);
-  };
-
-  // ---- Hit testing ----
-
-  const hitTest = (x: number, y: number): Shape | null => {
-    for (let i = shapes.length - 1; i >= 0; i--) {
-      const s = shapes[i];
-      if (s.type === "rectangle") {
-        const sx = Math.min(s.x, s.x + s.width);
-        const sy = Math.min(s.y, s.y + s.height);
-        const sw = Math.abs(s.width);
-        const sh = Math.abs(s.height);
-        if (x >= sx && x <= sx + sw && y >= sy && y <= sy + sh) return s;
-      } else if (s.type === "circle") {
-        const cx = s.x + s.width / 2;
-        const cy = s.y + s.height / 2;
-        const rx = Math.abs(s.width) / 2;
-        const ry = Math.abs(s.height) / 2;
-        if (rx > 0 && ry > 0) {
-          const dx = (x - cx) / rx;
-          const dy = (y - cy) / ry;
-          if (dx * dx + dy * dy <= 1) return s;
-        }
-      } else if (s.type === "arrow") {
-        const x1 = s.x, y1 = s.y, x2 = s.x + s.width, y2 = s.y + s.height;
-        const len = Math.sqrt(s.width * s.width + s.height * s.height);
-        if (len === 0) continue;
-        const dist = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / len;
-        const t = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / (len * len);
-        if (dist < 8 && t >= 0 && t <= 1) return s;
-      } else if (s.type === "text") {
-        const tw = (s.text?.length || 1) * 8;
-        if (x >= s.x && x <= s.x + tw && y >= s.y && y <= s.y + 18) return s;
-      }
-    }
-    return null;
-  };
-
-  const hitTestConnector = (x: number, y: number): Connector | null => {
-    for (let i = connectors.length - 1; i >= 0; i--) {
-      const conn = connectors[i];
-      const fromShape = shapes.find(s => s.id === conn.fromShapeId);
-      const toShape = shapes.find(s => s.id === conn.toShapeId);
-      if (!fromShape || !toShape) continue;
-      const pts = getClosestAnchors(fromShape, toShape);
-      const x1 = pts.from.x, y1 = pts.from.y, x2 = pts.to.x, y2 = pts.to.y;
-      const len = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-      if (len === 0) continue;
-      const dist = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / len;
-      const t = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / (len * len);
-      if (dist < 8 && t >= 0 && t <= 1) return conn;
-    }
-    return null;
-  };
-
-  const hitTestAnchor = (x: number, y: number): { shapeId: string; side: AnchorSide } | null => {
-    const targetId = hoveredShapeId || selectedShapeId;
-    if (!targetId) return null;
-    const shape = shapes.find(s => s.id === targetId);
-    if (!shape) return null;
-
-    const anchors = getAnchorPoints(shape);
-    const sides: AnchorSide[] = ["top", "right", "bottom", "left"];
-    for (const side of sides) {
-      const dx = x - anchors[side].x;
-      const dy = y - anchors[side].y;
-      if (dx * dx + dy * dy <= ANCHOR_HIT_RADIUS * ANCHOR_HIT_RADIUS) {
-        return { shapeId: shape.id, side };
-      }
-    }
-    return null;
-  };
-
-  // ---- Mouse handlers ----
-
-  const getCanvasPos = (e: React.MouseEvent): { x: number; y: number } => {
-    const rect = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const pos = getCanvasPos(e);
-
-    // Focus the wrapper for keyboard events
-    wrapperRef.current?.focus();
-
-    if (editingShape) {
-      commitText();
-    }
-
-    if (activeTool === "move") {
-      // Check anchor hit first (for connector creation)
-      const anchorHit = hitTestAnchor(pos.x, pos.y);
-      if (anchorHit) {
-        pushUndo(shapes, connectors);
-        setConnectingFrom({ shapeId: anchorHit.shapeId });
-        setConnectingCursor(pos);
-        return;
-      }
-
-      const hit = hitTest(pos.x, pos.y);
-      if (hit) {
-        setSelectedShapeId(hit.id);
-        setSelectedConnectorId(null);
-        pushUndo(shapes, connectors);
-        setDragShapeId(hit.id);
-        setDragOffset({ x: pos.x - hit.x, y: pos.y - hit.y });
-      } else {
-        // Check connector hit
-        const connHit = hitTestConnector(pos.x, pos.y);
-        if (connHit) {
-          setSelectedConnectorId(connHit.id);
-          setSelectedShapeId(null);
-        } else {
-          setSelectedShapeId(null);
-          setSelectedConnectorId(null);
-        }
-      }
-      return;
-    }
-
-    if (activeTool === "text") {
-      pushUndo(shapes, connectors);
-      const id = genId();
-      const newShape: Shape = {
-        id, type: "text", x: pos.x, y: pos.y,
-        width: 0, height: 18, color: activeColor, text: "",
-      };
-      setShapes(prev => [...prev, newShape]);
-      setEditingShape({ id, x: pos.x, y: pos.y });
-      setTextValue("");
-      setTimeout(() => inputRef.current?.focus(), 0);
-      return;
-    }
-
-    // Shape drawing
-    pushUndo(shapes, connectors);
-    setIsDrawing(true);
-    setDrawStart(pos);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const pos = getCanvasPos(e);
-
-    // Connector dragging
+  const onHandleMouseDown = useCallback((e: React.MouseEvent, nodeId: string, side: Side) => {
+    e.stopPropagation();
     if (connectingFrom) {
-      setConnectingCursor(pos);
-      return;
-    }
-
-    if (activeTool === "move" && dragShapeId) {
-      setShapes(prev => prev.map(s =>
-        s.id === dragShapeId ? { ...s, x: pos.x - dragOffset.x, y: pos.y - dragOffset.y } : s
-      ));
-      return;
-    }
-
-    // Hover detection for anchor display (move tool only)
-    if (activeTool === "move" && !dragShapeId) {
-      const hit = hitTest(pos.x, pos.y);
-      setHoveredShapeId(hit?.id || null);
-    }
-
-    if (!isDrawing || !drawStart) return;
-
-    const preview: Shape = {
-      id: "_preview",
-      type: activeTool as "rectangle" | "circle" | "arrow",
-      x: drawStart.x,
-      y: drawStart.y,
-      width: pos.x - drawStart.x,
-      height: pos.y - drawStart.y,
-      color: activeColor,
-    };
-    setPreviewShape(preview);
-  };
-
-  const handleMouseUp = () => {
-    // Connector drag end
-    if (connectingFrom && connectingCursor) {
-      const hit = hitTest(connectingCursor.x, connectingCursor.y);
-      if (hit && hit.id !== connectingFrom.shapeId) {
-        const newConn: Connector = {
-          id: genId("c"),
-          fromShapeId: connectingFrom.shapeId,
-          toShapeId: hit.id,
-          color: activeColor,
-        };
-        const nextConnectors = [...connectors, newConn];
-        setConnectors(nextConnectors);
-        debouncedSave(shapes, nextConnectors);
+      if (connectingFrom.nodeId !== nodeId) {
+        const exists = connectionsRef.current.some(c =>
+          (c.fromNodeId === connectingFrom.nodeId && c.toNodeId === nodeId) ||
+          (c.fromNodeId === nodeId && c.toNodeId === connectingFrom.nodeId)
+        );
+        if (!exists) {
+          pushUndo();
+          setConnections(prev => [...prev, {
+            id: uuid(),
+            fromNodeId: connectingFrom.nodeId,
+            fromSide: connectingFrom.side,
+            toNodeId: nodeId,
+            toSide: side,
+          }]);
+        }
       }
       setConnectingFrom(null);
-      setConnectingCursor(null);
-      return;
-    }
-
-    if (activeTool === "move" && dragShapeId) {
-      setDragShapeId(null);
-      debouncedSave(shapes, connectors);
-      return;
-    }
-
-    if (isDrawing && previewShape) {
-      const newShape: Shape = { ...previewShape, id: genId() };
-      const next = [...shapes, newShape];
-      setShapes(next);
-      setPreviewShape(null);
-      setIsDrawing(false);
-      setDrawStart(null);
-      debouncedSave(next, connectors);
+      setConnectCursor(null);
     } else {
-      setIsDrawing(false);
-      setDrawStart(null);
-      setPreviewShape(null);
+      setConnectingFrom({ nodeId, side });
+      const node = nodesRef.current.find(n => n.id === nodeId)!;
+      const pos = getHandlePos(node, side);
+      setConnectCursor(pos);
     }
-  };
+  }, [connectingFrom, pushUndo]);
 
-  // ---- Keyboard handler (Delete/Backspace) ----
+  const onNodeMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+    if (editingNodeIdRef.current === nodeId) return;
+    e.stopPropagation();
+    if (connectingFrom) return;
+    pushUndo();
+    setSelectedNodeId(nodeId);
+    setSelectedConnId(null);
+    const node = nodesRef.current.find(n => n.id === nodeId)!;
+    dragging.current = { nodeId, startX: e.clientX, startY: e.clientY, origX: node.x, origY: node.y };
+  }, [connectingFrom, pushUndo]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (editingShape) return; // Don't intercept text editing
+  const startEdit = useCallback((nodeId: string) => {
+    setEditingNodeId(nodeId);
+    setSelectedNodeId(nodeId);
+  }, []);
 
-    if (e.key === "Delete" || e.key === "Backspace") {
-      e.preventDefault();
+  const commitEdit = useCallback((nodeId: string, newLabel: string) => {
+    setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, label: newLabel || "Node" } : n));
+    setEditingNodeId(null);
+  }, []);
 
-      if (selectedShapeId) {
-        pushUndo(shapes, connectors);
-        const nextShapes = shapes.filter(s => s.id !== selectedShapeId);
-        const nextConnectors = connectors.filter(c => c.fromShapeId !== selectedShapeId && c.toShapeId !== selectedShapeId);
-        setShapes(nextShapes);
-        setConnectors(nextConnectors);
-        setSelectedShapeId(null);
-        debouncedSave(nextShapes, nextConnectors);
-      } else if (selectedConnectorId) {
-        pushUndo(shapes, connectors);
-        const nextConnectors = connectors.filter(c => c.id !== selectedConnectorId);
-        setConnectors(nextConnectors);
-        setSelectedConnectorId(null);
-        debouncedSave(shapes, nextConnectors);
-      }
-    }
-  }, [selectedShapeId, selectedConnectorId, shapes, connectors, pushUndo, debouncedSave, editingShape]);
+  const onConnectionClick = useCallback((e: React.MouseEvent, connId: string) => {
+    e.stopPropagation();
+    setSelectedConnId(connId);
+    setSelectedNodeId(null);
+  }, []);
 
-  // ---- Text editing ----
+  const tempLine = useMemo(() => {
+    if (!connectingFrom || !connectCursor) return null;
+    const node = nodes.find(n => n.id === connectingFrom.nodeId);
+    if (!node) return null;
+    const from = getHandlePos(node, connectingFrom.side);
+    return bezierPath(from, connectingFrom.side, connectCursor, "left");
+  }, [connectingFrom, connectCursor, nodes]);
 
-  const commitText = () => {
-    if (!editingShape) return;
-    const text = textValue.trim();
-    if (!text) {
-      setShapes(prev => prev.filter(s => s.id !== editingShape.id));
-    } else {
-      setShapes(prev => prev.map(s =>
-        s.id === editingShape.id ? { ...s, text, width: text.length * 8 } : s
-      ));
-    }
-    setEditingShape(null);
-    setTextValue("");
-    debouncedSave(shapes, connectors);
-  };
-
-  const handleTextKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commitText();
-    }
-  };
-
-  // ---- Actions ----
-
-  const handleClear = () => {
-    pushUndo(shapes, connectors);
-    setShapes([]);
-    setConnectors([]);
-    setSelectedShapeId(null);
-    setSelectedConnectorId(null);
-    debouncedSave([], []);
-  };
-
-  const handleDownload = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = "event-layout.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-
-  // Clear selection when switching tools
-  useEffect(() => {
-    if (activeTool !== "move") {
-      setSelectedShapeId(null);
-      setSelectedConnectorId(null);
-      setHoveredShapeId(null);
-    }
-  }, [activeTool]);
-
-  // ---- Toolbar ----
-
-  const toolButtons: { tool: Tool; icon: React.ReactNode; label: string }[] = [
-    { tool: "move", icon: <Move className="h-4 w-4" />, label: "Move" },
-    { tool: "rectangle", icon: <Square className="h-4 w-4" />, label: "Rectangle" },
-    { tool: "circle", icon: <Circle className="h-4 w-4" />, label: "Circle" },
-    { tool: "arrow", icon: <ArrowRight className="h-4 w-4" />, label: "Arrow" },
-    { tool: "text", icon: <Type className="h-4 w-4" />, label: "Text" },
-  ];
+  const hasSelection = selectedNodeId || selectedConnId;
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border-border">
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer py-3 px-4">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              Whiteboard
-            </CardTitle>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="px-4 pb-4 pt-0">
-            {/* Toolbar */}
-            <div className="flex items-center gap-1 flex-wrap mb-2">
-              {toolButtons.map(({ tool, icon, label }) => (
-                <Button
-                  key={tool}
-                  variant={activeTool === tool ? "default" : "ghost"}
-                  size="icon"
-                  title={label}
-                  onClick={() => setActiveTool(tool)}
-                >
-                  {icon}
-                </Button>
-              ))}
+    <div className="border border-border rounded-lg overflow-hidden bg-background">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-mono text-muted-foreground hover:bg-muted/50 transition-colors"
+      >
+        <span>Layout Builder</span>
+        <span className="text-[10px]">{isOpen ? "▼" : "▶"}</span>
+      </button>
 
-              <div className="w-px h-5 bg-border mx-1" />
+      {isOpen && (
+        <div className="border-t border-border">
+          <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border bg-muted/30">
+            <Button variant="ghost" size="sm" onClick={addNode} className="gap-1 text-xs h-7">
+              <Plus className="h-3.5 w-3.5" /> Add Node
+            </Button>
+            <Button variant="ghost" size="sm" onClick={deleteSelected} disabled={!hasSelection} className="gap-1 text-xs h-7">
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </Button>
+            <Button variant="ghost" size="sm" onClick={undo} disabled={undoStack.length === 0} className="gap-1 text-xs h-7">
+              <Undo2 className="h-3.5 w-3.5" /> Undo
+            </Button>
+            <div className="flex-1" />
+            <Button variant="ghost" size="sm" onClick={exportPng} disabled={nodes.length === 0} className="gap-1 text-xs h-7">
+              <Download className="h-3.5 w-3.5" /> PNG
+            </Button>
+          </div>
 
-              {COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  title={c.label}
-                  className={cn(
-                    "h-6 w-6 rounded-full border-2 transition-transform",
-                    activeColor === c.value ? "border-foreground scale-110" : "border-border"
-                  )}
-                  style={{ backgroundColor: c.value }}
-                  onClick={() => setActiveColor(c.value)}
-                />
-              ))}
-
-              <div className="w-px h-5 bg-border mx-1" />
-
-              <Button variant="ghost" size="icon" title="Undo" onClick={handleUndo} disabled={!canUndo}>
-                <Undo2 className="h-4 w-4" />
-              </Button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Clear all">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Clear whiteboard?</AlertDialogTitle>
-                    <AlertDialogDescription>This will erase everything on the canvas. This action can be undone.</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleClear}>Clear</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <Button variant="ghost" size="icon" title="Download as PNG" onClick={handleDownload}>
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Canvas */}
+          <div
+            ref={containerRef}
+            className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+            style={{ height: 500 }}
+            onMouseDown={onContainerMouseDown}
+          >
             <div
-              ref={wrapperRef}
-              tabIndex={0}
-              onKeyDown={handleKeyDown}
-              className="outline-none"
+              className="layout-canvas-inner absolute"
+              style={{
+                width: 4000,
+                height: 4000,
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
+                backgroundImage: "radial-gradient(circle, hsl(var(--border)) 0.8px, transparent 0.8px)",
+                backgroundSize: "20px 20px",
+              }}
+              onMouseDown={onContainerMouseDown}
             >
-              <div ref={containerRef} className="w-full rounded-md overflow-hidden border border-border relative">
-                <canvas
-                  ref={canvasRef}
-                  className={cn(
-                    "block",
-                    activeTool === "move" ? "cursor-grab" : "cursor-crosshair"
-                  )}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                />
-                {editingShape && (
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={textValue}
-                    onChange={(e) => setTextValue(e.target.value)}
-                    onKeyDown={handleTextKeyDown}
-                    onBlur={commitText}
-                    className="absolute bg-transparent border-none outline-none text-sm"
-                    style={{
-                      left: `${editingShape.x}px`,
-                      top: `${editingShape.y}px`,
-                      color: activeColor,
-                      font: "14px sans-serif",
-                      minWidth: "60px",
-                    }}
-                  />
+              <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }}>
+                {connections.map(c => {
+                  const fromNode = nodes.find(n => n.id === c.fromNodeId);
+                  const toNode = nodes.find(n => n.id === c.toNodeId);
+                  if (!fromNode || !toNode) return null;
+                  const from = getHandlePos(fromNode, c.fromSide);
+                  const to = getHandlePos(toNode, c.toSide);
+                  const d = bezierPath(from, c.fromSide, to, c.toSide);
+                  const isSelected = selectedConnId === c.id;
+                  return (
+                    <g key={c.id}>
+                      <path d={d} fill="none" stroke="transparent" strokeWidth={14} style={{ pointerEvents: "stroke", cursor: "pointer" }} onMouseDown={(e) => onConnectionClick(e, c.id)} />
+                      <path d={d} fill="none" stroke={isSelected ? "hsl(var(--primary))" : "#CBD5E1"} strokeWidth={isSelected ? 2 : 1.5} style={{ pointerEvents: "none" }} />
+                    </g>
+                  );
+                })}
+                {tempLine && (
+                  <path d={tempLine} fill="none" stroke="hsl(var(--primary))" strokeWidth={1.5} strokeDasharray="6 4" style={{ pointerEvents: "none" }} />
                 )}
-              </div>
+              </svg>
+
+              {nodes.map(node => {
+                const isSelected = selectedNodeId === node.id;
+                const showHandles = isSelected || connectingFrom !== null;
+                return (
+                  <div
+                    key={node.id}
+                    className={`absolute flex items-center justify-center bg-background border shadow-sm rounded-lg cursor-move transition-shadow ${
+                      isSelected ? "ring-2 ring-primary border-primary/30 shadow-md" : "border-border hover:shadow-md"
+                    }`}
+                    style={{ left: node.x, top: node.y, width: node.width, height: node.height, zIndex: isSelected ? 10 : 1 }}
+                    onMouseDown={(e) => onNodeMouseDown(e, node.id)}
+                    onDoubleClick={() => startEdit(node.id)}
+                  >
+                    {editingNodeId === node.id ? (
+                      <input
+                        autoFocus
+                        defaultValue={node.label}
+                        className="w-full text-center text-xs font-mono bg-transparent outline-none border-none text-foreground px-1"
+                        onBlur={(e) => commitEdit(node.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") commitEdit(node.id, (e.target as HTMLInputElement).value);
+                          if (e.key === "Escape") setEditingNodeId(null);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className="text-xs font-mono text-foreground select-none truncate px-2">{node.label}</span>
+                    )}
+
+                    {showHandles && SIDES.map(side => {
+                      const pos = side === "top" ? { left: "50%", top: -HANDLE_R, transform: "translateX(-50%)" }
+                        : side === "bottom" ? { left: "50%", bottom: -HANDLE_R, transform: "translateX(-50%)" }
+                        : side === "left" ? { top: "50%", left: -HANDLE_R, transform: "translateY(-50%)" }
+                        : { top: "50%", right: -HANDLE_R, transform: "translateY(-50%)" };
+                      return (
+                        <div
+                          key={side}
+                          className="absolute w-2.5 h-2.5 rounded-full bg-primary border-2 border-background cursor-crosshair z-20 hover:scale-125 transition-transform"
+                          style={{ ...pos }}
+                          onMouseDown={(e) => onHandleMouseDown(e, node.id, side)}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
