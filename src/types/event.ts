@@ -34,7 +34,7 @@ export interface Event {
   vat_number: string | null;
   event_notes: string | null;
   overview: any | null;
-  activity_log: ActivityLogEntry[] | null;
+  activity_log: any | null;
   
   // Additional properties from joins that might be present
   event_venues?: {
