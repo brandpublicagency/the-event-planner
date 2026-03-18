@@ -1,4 +1,10 @@
 
+export interface ActivityLogEntry {
+  actor: string;
+  action: string;
+  timestamp: string;
+}
+
 export interface Event {
   // Database fields
   event_code: string;
