@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { isAfter, parseISO } from "date-fns";
+import { isAfter, parseISO, startOfDay } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { permanentlyDeleteEvent } from "@/utils/eventUtils";
@@ -122,7 +122,7 @@ export function useEvents() {
   // Process events data
   const upcomingEvents = events.filter(event => {
     if (!event.event_date) return true;
-    return isAfter(parseISO(event.event_date), new Date());
+    return !isAfter(startOfDay(new Date()), parseISO(event.event_date));
   });
   
   const groupedUpcomingEvents = upcomingEvents.reduce((groups, event) => {
