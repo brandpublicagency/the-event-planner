@@ -57,6 +57,13 @@ const ALLOWED_VENUES = [
 
 export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
   try {
+    // Fetch old event data for change detection
+    const { data: oldEvent } = await supabase
+      .from("events")
+      .select("name, description, event_type, event_date, start_time, end_time, pax, venues, primary_name, primary_email, primary_phone, secondary_name, secondary_email, secondary_phone, address, company, vat_number")
+      .eq("event_code", eventCode)
+      .single();
+
     console.log("Updating event with venues:", data.venues);
     
     // Validate that venues are in the allowed list
