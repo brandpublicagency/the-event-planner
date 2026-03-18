@@ -13,6 +13,10 @@ export const generateEventCode = (type: string) => {
 export const createNewEvent = async (data: EventFormData) => {
   try {
     console.log("Creating new event with data:", data);
+    
+    // Get the authenticated user's ID
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const eventCode = generateEventCode(data.event_type || 'Event');
     
     // Normalize empty strings to null for database storage
