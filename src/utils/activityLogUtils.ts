@@ -8,7 +8,7 @@ export const getActorName = async (): Promise<string> => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("full_name, surname")
+      .select("full_name")
       .eq("id", user.id)
       .single();
 

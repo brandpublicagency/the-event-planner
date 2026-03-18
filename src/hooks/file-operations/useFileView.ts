@@ -8,8 +8,6 @@ export function useFileView() {
   const viewFile = async (filePath: string, contentType: string) => {
     try {
       setIsLoading(true);
-      console.log('[View] Getting file URL for:', filePath, 'Content-Type:', contentType);
-      
       // Get the public URL
       const { data } = supabase.storage
         .from("taskmanager-files")

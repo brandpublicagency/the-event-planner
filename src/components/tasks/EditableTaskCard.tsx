@@ -38,7 +38,6 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      console.log("Task updated successfully");
       onSave();
     },
     onError: (error: Error) => {
@@ -47,8 +46,6 @@ export function EditableTaskCard({ task, onCancel, onSave }: EditableTaskCardPro
   });
 
   const handleSave = () => {
-    console.log("Saving task...");
-    
     updateTaskMutation.mutate({
       title,
       due_date: dueDate?.toISOString(),

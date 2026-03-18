@@ -8,8 +8,6 @@ export function useFileDownload() {
   const downloadFile = async (filePath: string, fileName: string, contentType: string) => {
     try {
       setIsLoading(true);
-      console.log('[Download] Getting file:', filePath);
-
       // Get public URL for the file
       const { data } = supabase.storage
         .from("taskmanager-files")
@@ -39,8 +37,6 @@ export function useFileDownload() {
       // Clean up
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
-
-      console.log("File download started");
     } catch (error: any) {
       console.error('[Download] Error:', error);
       throw error;

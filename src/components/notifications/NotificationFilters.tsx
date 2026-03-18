@@ -29,25 +29,21 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
   useEffect(() => {
     // When filter refresh is explicitly triggered via lastFilterRefresh
     if (lastFilterRefresh && lastFilterRefresh > lastRefreshRef.current) {
-      console.log(`NotificationFilters: Detected filter refresh trigger: ${lastFilterRefresh}`);
       lastRefreshRef.current = lastFilterRefresh;
       
       // Force a filter change to refresh the view with the same filter
       if (currentFilter) {
-        console.log(`NotificationFilters: Refreshing "${currentFilter}" tab view`);
         onFilterChange(currentFilter);
       }
     }
     
     // When currentFilter changes between renders, update the ref
     if (currentFilter !== previousFilterRef.current) {
-      console.log(`NotificationFilters: Filter changed from ${previousFilterRef.current} to ${currentFilter}`);
       previousFilterRef.current = currentFilter;
     }
   }, [lastFilterRefresh, currentFilter, onFilterChange]);
 
   const handleFilterChange = (value: string) => {
-    console.log(`NotificationFilters: Changing filter to ${value}`);
     onFilterChange(value as FilterType);
   };
 

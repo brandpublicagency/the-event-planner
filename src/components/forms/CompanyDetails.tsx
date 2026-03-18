@@ -37,8 +37,6 @@ const CompanyDetails = ({
         ...data,
         venues: formValues.venues || []
       };
-      
-      console.log("Submitting company details with venues:", dataWithVenues.venues);
       await onSubmit(dataWithVenues);
       setInternalIsEditing(false);
     } catch (error) {

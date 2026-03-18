@@ -11,8 +11,6 @@ import { createFallbackMessage } from "./createFallbackMessage";
  */
 export const fetchDashboardMessage = async (firstName: string): Promise<DashboardMessage> => {
   try {
-    console.log('Fetching dashboard message from edge function');
-    
     // Create a timeout promise to abort the request if it takes too long
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout: Edge function took longer than 10 seconds')), 10000);
@@ -33,8 +31,6 @@ export const fetchDashboardMessage = async (firstName: string): Promise<Dashboar
       if (!data) {
         throw new Error('No data returned from edge function');
       }
-      
-      console.log('Dashboard message received successfully', data);
       return data as DashboardMessage;
     });
     

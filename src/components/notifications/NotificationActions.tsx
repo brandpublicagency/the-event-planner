@@ -22,9 +22,6 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
     // Prevent default behavior and stop propagation to prevent parent clicks
     e.preventDefault(); 
     e.stopPropagation();
-    
-    console.log("NotificationAction view clicked for:", notification.id, "relatedId:", notification.relatedId);
-    
     // Call the parent component's view handler
     onView(notification, e);
   };
@@ -33,9 +30,6 @@ export const NotificationActions: React.FC<NotificationActionsProps> = ({
     // Prevent default behavior and stop propagation
     e.preventDefault();
     e.stopPropagation();
-    
-    console.log("NotificationAction complete clicked for:", notification.id);
-    
     // Call the parent component's complete handler
     onComplete(notification, e);
   };

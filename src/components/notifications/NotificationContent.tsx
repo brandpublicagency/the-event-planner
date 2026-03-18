@@ -5,7 +5,9 @@ import { Notification } from '@/types/notification';
 import { NotificationLoadingState } from './content/NotificationLoadingState';
 import { NotificationErrorState } from './content/NotificationErrorState';
 import { NotificationEmptyState } from './content/NotificationEmptyState';
-import { NotificationListWrapper } from './content/NotificationListWrapper';
+import { NotificationsList } from './NotificationList';
+
+const MAX_DROPDOWN_NOTIFICATIONS = 5;
 
 interface NotificationContentProps {
   notifications: Notification[];
@@ -26,8 +28,7 @@ export const NotificationContent = ({
   onCompleteTask,
   onRefresh
 }: NotificationContentProps) => {
-  // Take only the first 5 notifications for dropdowns
-  const limitedNotifications = notifications.slice(0, 5);
+  const limitedNotifications = notifications.slice(0, MAX_DROPDOWN_NOTIFICATIONS);
   
   return (
     <ScrollArea className="h-[350px] w-full px-3 pt-2">
@@ -36,10 +37,11 @@ export const NotificationContent = ({
       ) : error ? (
         <NotificationErrorState onRefresh={onRefresh} />
       ) : limitedNotifications.length > 0 ? (
-        <NotificationListWrapper
+        <NotificationsList
           notifications={limitedNotifications}
           onViewDetail={onViewDetail}
           onCompleteTask={onCompleteTask}
+          listType="dropdown"
         />
       ) : (
         <NotificationEmptyState onRefresh={onRefresh} />

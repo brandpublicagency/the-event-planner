@@ -38,12 +38,8 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
   // Load initial document content
   useEffect(() => {
     if (!editorReady || !document?.content || contentSet) return;
-
-    console.log("Loading document content:", document.content);
-
     try {
       if (isDocumentContent(document.content)) {
-        console.log("Setting editor content to:", document.content.html?.substring(0, 100));
         editor?.commands.setContent(document.content.html || '');
         setContentSet(true);
       } else {
@@ -58,7 +54,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
     const { title, content: contentOverride, showToast = true } = options;
     
     if (!editor && !contentOverride || !documentId) {
-      console.log("Cannot save: editor or documentId is missing");
       return;
     }
 
@@ -86,7 +81,6 @@ export function useDocumentState(documentId: string | null, editor: Editor | nul
         updateParams.title = title;
       }
       await updateDocument.mutateAsync(updateParams);
-      console.log("Document saved successfully");
     } catch (error) {
       console.error("Error saving document:", error);
     } finally {

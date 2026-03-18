@@ -27,7 +27,6 @@ const AddTeamMemberForm = ({ onAddMember }: AddTeamMemberFormProps) => {
     try {
       await onAddMember(email);
       setEmail("");
-      console.log("Team member invitation sent successfully");
     } catch (error) {
       console.error('Error adding team member:', error);
       setErrorMessage("Failed to send invitation. Please try again.");

@@ -14,12 +14,6 @@ export function useFileUpload() {
       setIsLoading(true);
       setProgress(0);
       
-      console.log('[Upload] Starting file upload:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-
       // First check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -53,16 +47,10 @@ export function useFileUpload() {
         console.error('Supabase REST API error:', errorData);
         throw new Error(`Upload failed: ${errorData.error || response.statusText}`);
       }
-      
-      console.log('Upload successful via direct API call');
-
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from("taskmanager-files")
         .getPublicUrl(filePath);
-
-      console.log('Public URL:', publicUrl);
-
       // Add record to the task_files table
       const { error: dbError } = await supabase
         .from("task_files")

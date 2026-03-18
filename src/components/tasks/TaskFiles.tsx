@@ -12,8 +12,6 @@ export function TaskFiles({ taskId }: TaskFilesProps) {
   const { data: files, isLoading, error } = useQuery({
     queryKey: ["task-files", taskId],
     queryFn: async () => {
-      console.log("Fetching files for task:", taskId);
-      
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session) {
         throw new Error("Authentication required");

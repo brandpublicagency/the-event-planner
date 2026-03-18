@@ -63,9 +63,6 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       .select("name, description, event_type, event_date, start_time, end_time, pax, venues, primary_name, primary_email, primary_phone, secondary_name, secondary_email, secondary_phone, address, company, vat_number")
       .eq("event_code", eventCode)
       .single();
-
-    console.log("Updating event with venues:", data.venues);
-    
     // Validate that venues are in the allowed list
     if (data.venues && data.venues.length > 0) {
       // Filter out any invalid venues

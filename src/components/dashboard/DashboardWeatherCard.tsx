@@ -1,12 +1,10 @@
 import { useWeatherDataManager } from "@/components/dashboard/weather/hooks/useWeatherDataManager";
-import { useTimeManager } from "@/components/dashboard/weather/hooks/useTimeManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Droplets, Wind, MapPin } from "lucide-react";
 
 import AnimatedWeatherIcon from "./AnimatedWeatherIcon";
 
 const DashboardWeatherCard = () => {
-  const { timeOfDay } = useTimeManager();
   const { weatherData, forecast, isLoading, showWeather } = useWeatherDataManager(true);
 
   if (isLoading) {

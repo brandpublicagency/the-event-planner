@@ -10,8 +10,6 @@ export function useFileDelete() {
   const deleteFile = async (filePath: string, fileId: string, taskId: string) => {
     try {
       setIsLoading(true);
-      console.log('[Delete] Starting file deletion:', { filePath, fileId, taskId });
-
       // Delete from database first to maintain referential integrity
       const { error: dbError } = await supabase
         .from("task_files")
@@ -22,9 +20,6 @@ export function useFileDelete() {
         console.error('[Delete] Database deletion error:', dbError);
         throw dbError;
       }
-
-      console.log('[Delete] Database deletion successful');
-
       // Then delete from storage
       const { error: storageError } = await supabase.storage
         .from("taskmanager-files")
@@ -35,14 +30,10 @@ export function useFileDelete() {
         // Don't throw here as the database record is already deleted
         console.warn(`File record deleted but error removing file: ${storageError.message}`);
       } else {
-        console.log('[Delete] Storage deletion successful');
       }
 
       // Always invalidate queries regardless of storage deletion success
       queryClient.invalidateQueries({ queryKey: ["task-files", taskId] });
-      
-      console.log("File deleted successfully");
-      
       return true;
     } catch (error: any) {
       console.error('[Delete] Error:', error);

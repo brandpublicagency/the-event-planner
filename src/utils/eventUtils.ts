@@ -40,7 +40,6 @@ export const groupEventsByMonth = (events: Event[]) => {
 
 export const deleteEvent = async (eventCode: string) => {
   try {
-    console.log('Soft deleting event with code:', eventCode);
     return await deleteEventService(eventCode);
   } catch (error: any) {
     console.error('Delete event error:', error);
@@ -50,7 +49,6 @@ export const deleteEvent = async (eventCode: string) => {
 
 export const permanentlyDeleteEvent = async (eventCode: string) => {
   try {
-    console.log('Permanently deleting event with code:', eventCode);
     return await permanentlyDeleteEventService(eventCode);
   } catch (error: any) {
     console.error('Permanent delete event error:', error);
@@ -60,8 +58,6 @@ export const permanentlyDeleteEvent = async (eventCode: string) => {
 
 export const createEvent = async (data: EventCreate, userId: string) => {
   try {
-    console.log('Creating event with data:', data);
-    
     // Remove client_address field if it exists
     const { client_address, ...cleanedData } = data;
     
@@ -78,8 +74,6 @@ export const createEvent = async (data: EventCreate, userId: string) => {
     }
 
     // Log successful creation to help with debugging
-    console.log('Event created successfully with event_code:', createdEvent.event_code);
-
     // Log activity
     const actorName = await getActorName();
     await addActivityLogEntry(createdEvent.event_code, actorName, "Created this event");
@@ -105,7 +99,6 @@ export const ensureUserProfile = async (userId: string) => {
     }
 
     if (!data) {
-      console.log('Creating new profile for user:', userId);
       const { error: createError } = await supabase
         .from('profiles')
         .insert({ id: userId });

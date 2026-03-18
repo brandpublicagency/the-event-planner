@@ -59,7 +59,6 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      console.log(`Task "${task.title}" has been deleted.`);
     },
     onError: (error: Error) => {
       console.error("Delete error:", error);

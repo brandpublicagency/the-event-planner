@@ -11,9 +11,6 @@ export function useReliableFileUpload() {
     try {
       setIsLoading(true);
       setProgress(0);
-      
-      console.log('Starting file upload for:', file.name, 'type:', file.type);
-      
       // Check that the file is actually an image
       if (!file.type.startsWith('image/')) {
         throw new Error('Only image files are supported');
@@ -54,16 +51,10 @@ export function useReliableFileUpload() {
         console.error('Supabase REST API error:', errorData);
         throw new Error(`Upload failed: ${errorData.error || response.statusText}`);
       }
-      
-      console.log('Upload successful via direct API call');
-      
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
-
-      console.log('Public URL:', publicUrl);
-      
       // Update user profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')

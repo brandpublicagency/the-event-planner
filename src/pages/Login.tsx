@@ -50,8 +50,6 @@ const Login = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event);
-      
       if (event === 'SIGNED_IN' && session) {
         try {
           const { data: profile } = await supabase

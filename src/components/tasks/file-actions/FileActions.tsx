@@ -28,7 +28,6 @@ export function FileActions({ file }: FileActionsProps) {
     e.stopPropagation();
     try {
       setIsViewLoading(true);
-      console.log("Viewing file with content type:", file.content_type);
       await viewFile(file.file_path, file.content_type);
     } catch (error) {
       console.error("Error viewing file:", error);
@@ -53,9 +52,7 @@ export function FileActions({ file }: FileActionsProps) {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      console.log("Starting delete operation for file:", file);
       await deleteFile(file.file_path, file.id, file.task_id);
-      console.log("Delete operation completed successfully");
     } catch (error) {
       console.error("Error deleting file:", error);
     } finally {

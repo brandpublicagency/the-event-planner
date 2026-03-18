@@ -22,7 +22,6 @@ export function useTaskMutation(taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      console.log("Task updated successfully");
     },
     onError: (error: Error) => {
       console.error("Error updating task:", error.message);

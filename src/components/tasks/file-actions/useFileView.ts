@@ -8,8 +8,6 @@ export function useFileView() {
   const handleView = async (filePath: string) => {
     try {
       setIsLoading(true);
-      console.log('[View] Getting file URL for:', filePath);
-      
       const { data } = supabase.storage
         .from("taskmanager-files")
         .getPublicUrl(filePath);
@@ -17,8 +15,6 @@ export function useFileView() {
       if (!data?.publicUrl) {
         throw new Error('Could not generate view URL');
       }
-
-      console.log('[View] Opening file:', data.publicUrl);
       window.open(data.publicUrl, '_blank', 'noopener,noreferrer');
       
     } catch (error: any) {

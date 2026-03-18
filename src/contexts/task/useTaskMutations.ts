@@ -9,8 +9,6 @@ export const useTaskMutations = () => {
 
   const addTaskMutation = useMutation({
     mutationFn: async (title: string) => {
-      console.log("Adding task:", title);
-      
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -22,9 +20,6 @@ export const useTaskMutations = () => {
         console.error("No active session found");
         throw new Error("Authentication required");
       }
-      
-      console.log("User authenticated, creating task for user:", sessionData.session.user.id);
-      
       const { error } = await supabase.from("tasks").insert([
         { 
           title,
@@ -37,8 +32,6 @@ export const useTaskMutations = () => {
         console.error("Task insert error:", error);
         throw error;
       }
-      
-      console.log("Task created successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -52,8 +45,6 @@ export const useTaskMutations = () => {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
-      console.log("Updating task:", id, updates);
-      
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -65,9 +56,6 @@ export const useTaskMutations = () => {
         console.error("No active session found");
         throw new Error("Authentication required");
       }
-      
-      console.log("User authenticated, updating task");
-      
       const { error } = await supabase
         .from("tasks")
         .update(updates)
@@ -77,8 +65,6 @@ export const useTaskMutations = () => {
         console.error("Task update error:", error);
         throw error;
       }
-      
-      console.log("Task updated successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -92,8 +78,6 @@ export const useTaskMutations = () => {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log("Deleting task:", id);
-      
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -105,9 +89,6 @@ export const useTaskMutations = () => {
         console.error("No active session found");
         throw new Error("Authentication required");
       }
-      
-      console.log("User authenticated, deleting task");
-      
       const { error } = await supabase
         .from("tasks")
         .delete()
@@ -117,8 +98,6 @@ export const useTaskMutations = () => {
         console.error("Task delete error:", error);
         throw error;
       }
-      
-      console.log("Task deleted successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });

@@ -8,8 +8,6 @@ export const useTaskQuery = (enabled: boolean) => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      console.log("Executing tasks query function...");
-      
       try {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
@@ -20,13 +18,8 @@ export const useTaskQuery = (enabled: boolean) => {
         }
         
         if (!sessionData.session) {
-          console.log("No active session found in useTaskQuery");
           return [];
         }
-        
-        console.log("Session found, user:", sessionData.session.user.id);
-        console.log("Fetching tasks...");
-        
         const { data, error } = await supabase
           .from("tasks")
           .select("*")
@@ -37,9 +30,6 @@ export const useTaskQuery = (enabled: boolean) => {
           toast.error("Failed to load tasks");
           throw error;
         }
-
-        console.log("Tasks fetched successfully, count:", data?.length || 0);
-        console.log("Tasks data:", data);
         return data as Task[];
       } catch (error: any) {
         console.error("Task query error:", error);
