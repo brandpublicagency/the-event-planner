@@ -62,6 +62,9 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
             <p className="text-sm text-foreground">{localEvent.event_notes || "No terms and conditions provided"}</p>
           </div>
         </div>
+
+        <EventActivityLog activityLog={localEvent?.activity_log ?? null} />
+
         <div className="mt-4 flex justify-end">
           <Button
             size="sm"

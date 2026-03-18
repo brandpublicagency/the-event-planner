@@ -148,4 +148,7 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
     console.error('Error marking event as completed:', error);
     throw new Error(`Failed to mark event as completed: ${error.message}`);
   }
+
+  const actorName = await getActorName();
+  await addActivityLogEntry(eventCode, actorName, "Marked event as completed");
 };
