@@ -290,9 +290,12 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
       const dx = e.clientX - dragging.current.startX;
       const dy = e.clientY - dragging.current.startY;
       const id = dragging.current.nodeId;
-      const ox = dragging.current.origX;
-      const oy = dragging.current.origY;
-      setNodes(prev => prev.map(n => n.id === id ? { ...n, x: ox + dx, y: oy + dy } : n));
+      const rawX = dragging.current.origX + dx;
+      const rawY = dragging.current.origY + dy;
+      const snap = 20;
+      const sx = Math.round(rawX / snap) * snap;
+      const sy = Math.round(rawY / snap) * snap;
+      setNodes(prev => prev.map(n => n.id === id ? { ...n, x: sx, y: sy } : n));
     } else if (panning.current) {
       setPanOffset({
         x: panning.current.origPanX + (e.clientX - panning.current.startX),
