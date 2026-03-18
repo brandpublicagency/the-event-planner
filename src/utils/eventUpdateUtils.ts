@@ -1,6 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/react-query";
+import { addActivityLogEntry, getActorName } from "@/utils/activityLogUtils";
+import { format } from "date-fns";
 
 interface EventUpdateData {
   name: string;
