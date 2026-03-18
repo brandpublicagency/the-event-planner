@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { v4 as uuid } from "uuid";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Undo2, Download, Circle } from "lucide-react";
+import { Plus, Trash2, Undo2, Download, Circle, Copy } from "lucide-react";
 
 // --- Data model ---
 type NodeShape = "rectangle" | "pill";
@@ -163,6 +163,17 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
     setNodes(prev => [...prev, { id: uuid(), x: cx, y: cy, width: w, height: h, label: "Node", shape }]);
   }, [pushUndo, panOffset]);
 
+  const duplicateSelected = useCallback(() => {
+    const selNode = selectedNodeIdRef.current;
+    if (!selNode) return;
+    const node = nodesRef.current.find(n => n.id === selNode);
+    if (!node) return;
+    pushUndo();
+    const newId = uuid();
+    setNodes(prev => [...prev, { ...node, id: newId, x: node.x + 20, y: node.y + 20 }]);
+    setSelectedNodeId(newId);
+  }, [pushUndo]);
+
   const deleteSelected = useCallback(() => {
     const selNode = selectedNodeIdRef.current;
     const selConn = selectedConnIdRef.current;
@@ -316,10 +327,14 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
         e.preventDefault();
         undo();
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "d") {
+        e.preventDefault();
+        duplicateSelected();
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [deleteSelected, undo]);
+  }, [deleteSelected, undo, duplicateSelected]);
 
   const onHandleMouseDown = useCallback((e: React.MouseEvent, nodeId: string, side: Side) => {
     e.stopPropagation();
@@ -431,6 +446,9 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
             </Button>
             <Button variant="ghost" size="sm" onClick={undo} disabled={undoStack.length === 0} className="gap-1 text-xs h-7">
               <Undo2 className="h-3.5 w-3.5" /> Undo
+            </Button>
+            <Button variant="ghost" size="sm" onClick={duplicateSelected} disabled={!selectedNodeId} className="gap-1 text-xs h-7">
+              <Copy className="h-3.5 w-3.5" /> Duplicate
             </Button>
             <div className="flex-1" />
             <Button variant="ghost" size="sm" onClick={exportPng} disabled={nodes.length === 0} className="gap-1 text-xs h-7">
