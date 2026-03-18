@@ -61,7 +61,7 @@ const DashboardEventCard = ({ event }: DashboardEventCardProps) => {
 
   if (eventIsToday) {
     return (
-      <AnimatedBorder borderWidth={1.5} borderRadius={8}>
+      <AnimatedBorder borderWidth={1} borderRadius={8}>
         {card}
       </AnimatedBorder>
     );

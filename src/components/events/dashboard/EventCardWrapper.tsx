@@ -19,7 +19,7 @@ export const EventCardWrapper: React.FC<EventCardWrapperProps> = ({
   return (
     <button onClick={() => navigate(`/events/${eventCode}`)} className="text-left w-full">
       {eventIsToday ? (
-        <AnimatedBorder borderWidth={1.5} borderRadius={12}>
+        <AnimatedBorder borderWidth={1} borderRadius={12}>
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             {children}
           </div>
