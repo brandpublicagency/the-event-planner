@@ -5,6 +5,7 @@ import { isAfter, parseISO } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { permanentlyDeleteEvent } from "@/utils/eventUtils";
+import { addActivityLogEntry, getActorName } from "@/utils/activityLogUtils";
 import type { Event } from "@/types/event";
 
 export function useEvents() {
