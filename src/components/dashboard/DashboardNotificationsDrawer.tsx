@@ -53,9 +53,12 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
           ) : (
             <div className="divide-y divide-border">
               {notifications.map(notification => (
-                <button
-                  key={notification.id}
-                  onClick={(e) => handleNotificationView(notification, e)}
+                 <button
+                   key={notification.id}
+                   onClick={(e) => {
+                     handleNotificationView(notification, e);
+                     onOpenChange(false);
+                   }}
                   className={cn(
                     "group w-full text-left p-4 hover:bg-muted/50 transition-colors flex gap-3",
                     !notification.read && "bg-primary/[0.03]"
