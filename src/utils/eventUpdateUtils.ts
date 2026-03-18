@@ -135,6 +135,60 @@ export const updateEvent = async (eventCode: string, data: EventUpdateData) => {
       throw eventError;
     }
 
+    // Log field-level changes
+    const actorName = await getActorName();
+    const changes: string[] = [];
+
+    if (oldEvent) {
+      const fieldLabels: Record<string, string> = {
+        name: "Name", event_type: "Event type", pax: "Pax",
+        primary_name: "Primary contact name", primary_email: "Primary email",
+        primary_phone: "Primary phone", secondary_name: "Secondary contact name",
+        secondary_email: "Secondary email", secondary_phone: "Secondary phone",
+        address: "Address", company: "Company", vat_number: "VAT number",
+        description: "Description",
+      };
+
+      for (const [key, label] of Object.entries(fieldLabels)) {
+        const oldVal = (oldEvent as any)?.[key] ?? "";
+        const newVal = (data as any)?.[key] ?? "";
+        if (String(oldVal) !== String(newVal)) {
+          changes.push(`${label} changed to "${newVal || "(empty)"}"`);
+        }
+      }
+
+      // Date
+      if (String(oldEvent.event_date ?? "") !== String(data.event_date ?? "")) {
+        const formatted = data.event_date
+          ? format(new Date(data.event_date), "dd MMMM yyyy")
+          : "(empty)";
+        changes.push(`Date changed to ${formatted}`);
+      }
+
+      // Times
+      if (String(oldEvent.start_time ?? "") !== String(data.start_time ?? "")) {
+        changes.push(`Start time changed to ${data.start_time || "(empty)"}`);
+      }
+      if (String(oldEvent.end_time ?? "") !== String(data.end_time ?? "")) {
+        changes.push(`End time changed to ${data.end_time || "(empty)"}`);
+      }
+
+      // Venues
+      const oldVenues = JSON.stringify(oldEvent.venues ?? []);
+      const newVenues = JSON.stringify(data.venues ?? []);
+      if (oldVenues !== newVenues) {
+        changes.push(`Venues changed to ${(data.venues ?? []).join(", ") || "(none)"}`);
+      }
+    }
+
+    if (changes.length === 0) {
+      changes.push("Updated event details");
+    }
+
+    for (const change of changes) {
+      await addActivityLogEntry(eventCode, actorName, change);
+    }
+
     // Invalidate queries
     await queryClient.invalidateQueries({ queryKey: ['events'] });
     await queryClient.invalidateQueries({ queryKey: ['upcoming_events'] });
