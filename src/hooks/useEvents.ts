@@ -5,6 +5,7 @@ import { isAfter, parseISO } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { permanentlyDeleteEvent } from "@/utils/eventUtils";
+import { addActivityLogEntry, getActorName } from "@/utils/activityLogUtils";
 import type { Event } from "@/types/event";
 
 export function useEvents() {
@@ -70,6 +71,9 @@ export function useEvents() {
     
     try {
       if (isPermanentDelete) {
+        // Log before permanent delete
+        const actorName = await getActorName();
+        await addActivityLogEntry(eventToDelete.event_code, actorName, "Permanently deleted this event");
         // Permanent delete
         await permanentlyDeleteEvent(eventToDelete.event_code);
         toast.success("Event permanently deleted", {
@@ -77,6 +81,9 @@ export function useEvents() {
           duration: 3000
         });
       } else {
+        // Log soft delete
+        const actorName = await getActorName();
+        await addActivityLogEntry(eventToDelete.event_code, actorName, "Deleted this event");
         // Soft delete
         const { error } = await supabase
           .from("events")

@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Event, EventCreate } from "@/types/event";
 import { createEvent as createEventService, deleteEvent as deleteEventService, permanentlyDeleteEvent as permanentlyDeleteEventService } from "@/services/eventService";
+import { addActivityLogEntry, getActorName } from "@/utils/activityLogUtils";
 
 export const groupEventsByMonth = (events: Event[]) => {
   return events.reduce((groups: Record<string, Event[]>, event) => {
@@ -78,6 +79,10 @@ export const createEvent = async (data: EventCreate, userId: string) => {
     // Log successful creation to help with debugging
     console.log('Event created successfully with event_code:', createdEvent.event_code);
 
+    // Log activity
+    const actorName = await getActorName();
+    await addActivityLogEntry(createdEvent.event_code, actorName, "Created this event");
+
     return createdEvent.event_code;
   } catch (error: any) {
     console.error('Error creating event:', error);
@@ -143,4 +148,7 @@ export const markEventAsCompleted = async (eventCode: string): Promise<void> => 
     console.error('Error marking event as completed:', error);
     throw new Error(`Failed to mark event as completed: ${error.message}`);
   }
+
+  const actorName = await getActorName();
+  await addActivityLogEntry(eventCode, actorName, "Marked event as completed");
 };

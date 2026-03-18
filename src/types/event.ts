@@ -1,4 +1,10 @@
 
+export interface ActivityLogEntry {
+  actor: string;
+  action: string;
+  timestamp: string;
+}
+
 export interface Event {
   // Database fields
   event_code: string;
@@ -27,7 +33,8 @@ export interface Event {
   company: string | null;
   vat_number: string | null;
   event_notes: string | null;
-  overview: any | null; // JSONB field for event overview panels
+  overview: any | null;
+  activity_log: any | null;
   
   // Additional properties from joins that might be present
   event_venues?: {

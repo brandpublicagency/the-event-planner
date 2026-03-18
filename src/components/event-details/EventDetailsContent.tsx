@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EventInfo } from "@/components/event-details/EventInfo";
 import { EventOverviewSection } from "@/components/event-overview/EventOverviewSection";
+import { EventActivityLog } from "@/components/event-details/EventActivityLog";
 import { Edit, Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EventOverview } from "@/types/eventOverview";
@@ -61,6 +62,9 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
             <p className="text-sm text-foreground">{localEvent.event_notes || "No terms and conditions provided"}</p>
           </div>
         </div>
+
+        <EventActivityLog activityLog={localEvent?.activity_log ?? null} />
+
         <div className="mt-4 flex justify-end">
           <Button
             size="sm"
