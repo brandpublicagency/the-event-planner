@@ -79,6 +79,10 @@ export const createEvent = async (data: EventCreate, userId: string) => {
     // Log successful creation to help with debugging
     console.log('Event created successfully with event_code:', createdEvent.event_code);
 
+    // Log activity
+    const actorName = await getActorName();
+    await addActivityLogEntry(createdEvent.event_code, actorName, "Created this event");
+
     return createdEvent.event_code;
   } catch (error: any) {
     console.error('Error creating event:', error);
