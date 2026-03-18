@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { v4 as uuid } from "uuid";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Undo2, Download, Circle } from "lucide-react";
+import { Plus, Trash2, Undo2, Download, Circle, Copy } from "lucide-react";
 
 // --- Data model ---
 type NodeShape = "rectangle" | "pill";
