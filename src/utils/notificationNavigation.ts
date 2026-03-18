@@ -17,11 +17,12 @@ export const navigateToNotificationTarget = (
 
   const { relatedId } = notification;
 
-  // Event code patterns: "123-456", "EVENT-xxx", "event_xxx", "COR-2503-780"
+  // Event code patterns: "123-456", "EVENT-xxx", "event_xxx", "COR-2503-780", "PRI-4460a858-3208"
   if (
     relatedId.match(/^\d+-\d+$/) ||
     relatedId.startsWith('EVENT-') ||
     relatedId.startsWith('event_') ||
+    relatedId.match(/^[A-Z]+-[\da-f]+-[\da-f]+$/i) ||
     relatedId.match(/^[A-Z]+-\d+-\d+$/)
   ) {
     if (window.location.pathname === `/events/${relatedId}`) {
