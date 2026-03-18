@@ -13,6 +13,10 @@ export const generateEventCode = (type: string) => {
 export const createNewEvent = async (data: EventFormData) => {
   try {
     console.log("Creating new event with data:", data);
+    
+    // Get the authenticated user's ID
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const eventCode = generateEventCode(data.event_type || 'Event');
     
     // Normalize empty strings to null for database storage
@@ -41,7 +45,7 @@ export const createNewEvent = async (data: EventFormData) => {
       company: normalizeField(data.company),
       vat_number: normalizeField(data.vat_number),
       address: normalizeField(data.address),
-      created_by: null, // Add proper user ID when authentication is implemented
+      created_by: user?.id || null,
     };
 
     console.log("Sending to database:", JSON.stringify(eventData, null, 2));

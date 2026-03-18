@@ -13,9 +13,7 @@ export const getActorName = async (): Promise<string> => {
       .single();
 
     if (profile?.full_name) {
-      return profile.surname
-        ? `${profile.full_name} ${profile.surname}`
-        : profile.full_name;
+      return profile.full_name;
     }
     return user.email || "Unknown user";
   } catch {
