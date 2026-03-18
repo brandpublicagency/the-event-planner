@@ -334,7 +334,7 @@ export function Whiteboard({ initialData, onSave }: WhiteboardProps) {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [deleteSelected, undo]);
+  }, [deleteSelected, undo, duplicateSelected]);
 
   const onHandleMouseDown = useCallback((e: React.MouseEvent, nodeId: string, side: Side) => {
     e.stopPropagation();
