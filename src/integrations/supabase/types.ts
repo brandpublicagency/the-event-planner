@@ -478,6 +478,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_company_and_team: {
+        Args: { p_company_name: string; p_user_id: string }
+        Returns: Json
+      }
       delete_event_venues: {
         Args: { event_code_param: string }
         Returns: undefined
