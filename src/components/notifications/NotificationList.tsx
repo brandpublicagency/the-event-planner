@@ -31,30 +31,12 @@ export const NotificationsList = memo(({
     );
   }
 
-  const handleView = (notification: Notification, e: React.MouseEvent) => {
-    // Ensure event doesn't propagate up
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Pass the event to the parent handler
-    onViewDetail(notification, e);
-  };
-
-  const handleComplete = (notification: Notification, e: React.MouseEvent) => {
-    // Ensure event doesn't propagate up
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Pass the event to the parent handler
-    onCompleteTask(notification, e);
-  };
-
   const isDropdown = listType === 'dropdown';
 
   return (
     <div 
-      className={`${isDropdown ? 'space-y-0' : 'space-y-2'}`}
-      onClick={(e) => e.stopPropagation()} // Prevent click propagation at the container level
+      className={isDropdown ? 'space-y-0' : 'space-y-2'}
+      onClick={(e) => e.stopPropagation()}
     >
       {notifications.length === 0 ? (
         <div className="p-3 text-center text-sm text-muted-foreground">
@@ -65,8 +47,8 @@ export const NotificationsList = memo(({
           <NotificationItem 
             key={notification.id} 
             notification={notification} 
-            onView={handleView} 
-            onComplete={handleComplete}
+            onView={onViewDetail} 
+            onComplete={onCompleteTask}
             showIcon={!isDropdown}
             isDropdown={isDropdown}
           />
