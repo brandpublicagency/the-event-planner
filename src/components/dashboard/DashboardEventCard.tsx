@@ -1,8 +1,9 @@
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Users, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { AnimatedBorder } from "@/components/ui/animated-border";
 import type { Event } from "@/types/event";
 
 const eventTypeColors: Record<string, string> = {
@@ -22,8 +23,9 @@ const DashboardEventCard = ({ event }: DashboardEventCardProps) => {
   const colorClass = eventTypeColors[typeKey] || eventTypeColors.corporate;
 
   const venue = event.venues?.[0] || null;
+  const eventIsToday = event.event_date ? isToday(new Date(event.event_date)) : false;
 
-  return (
+  const card = (
     <button
       onClick={() => navigate(`/events/${event.event_code}`)}
       className="w-full text-left rounded-lg border border-border bg-card p-3.5 transition-all hover:border-foreground/30 group"
@@ -56,6 +58,16 @@ const DashboardEventCard = ({ event }: DashboardEventCardProps) => {
       </div>
     </button>
   );
+
+  if (eventIsToday) {
+    return (
+      <AnimatedBorder borderWidth={2} borderRadius={8}>
+        {card}
+      </AnimatedBorder>
+    );
+  }
+
+  return card;
 };
 
 export default DashboardEventCard;

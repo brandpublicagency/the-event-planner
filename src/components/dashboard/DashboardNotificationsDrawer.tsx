@@ -63,7 +63,7 @@ const DashboardNotificationsDrawer = ({ open, onOpenChange }: DashboardNotificat
                 >
                   <div className="shrink-0 mt-0.5">
                     {!notification.read ? (
-                      <div className="h-2 w-2 rounded-full bg-destructive" />
+                      <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
                     ) : (
                       <div className="h-2 w-2 rounded-full bg-transparent" />
                     )}
