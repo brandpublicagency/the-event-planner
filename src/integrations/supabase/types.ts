@@ -112,6 +112,38 @@ export type Database = {
         }
         Relationships: []
       }
+      event_activity_log: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          event_code: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string
+          created_at?: string
+          event_code: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          event_code?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_activity_log_event_code_fkey"
+            columns: ["event_code"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_code"]
+          },
+        ]
+      }
       event_documents: {
         Row: {
           content_type: string | null
