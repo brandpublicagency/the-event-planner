@@ -8,10 +8,11 @@ import ContactDetails from "./ContactDetails";
 import { VenueSelect } from "./VenueSelect";
 import { EventTypeSelect } from "./EventTypeSelect";
 import { Loader2 } from "lucide-react";
+import type { EventFormData } from "@/types/eventForm";
 
 interface EditEventFormProps {
-  form: UseFormReturn<any>;
-  onSubmit: (data: any) => Promise<void>;
+  form: UseFormReturn<EventFormData>;
+  onSubmit: (data: EventFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }

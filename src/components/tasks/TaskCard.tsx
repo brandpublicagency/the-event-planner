@@ -36,7 +36,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
 
       if (files && files.length > 0) {
         const { error: storageError } = await supabase.storage
-          .from("task-files")
+          .from("taskmanager-files")
           .remove(files.map(file => file.file_path));
 
         if (storageError) throw storageError;

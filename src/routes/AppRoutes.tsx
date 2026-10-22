@@ -1,31 +1,39 @@
 
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+
+const PageLoader = () => (
+  <div className="flex flex-1 items-center justify-center p-6" role="status" aria-label="Loading page">
+    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+  </div>
+);
 import { RootLayout } from "@/layouts/RootLayout";
 import { Outlet } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-import Login from "@/pages/Login";
-import Events from "@/pages/Events";
-import PassedEvents from "@/pages/PassedEvents";
-import Calendar from "@/pages/Calendar";
-import Tasks from "@/pages/Tasks";
-import NewEvent from "@/pages/NewEvent";
-import ProfileSettings from "@/pages/ProfileSettings";
-import Settings from "@/pages/Settings";
-import Contacts from "@/pages/Contacts";
-import Documents from "@/pages/Documents";
-import DocumentDetail from "@/pages/DocumentDetail";
-import EventDetails from "@/pages/EventDetails";
-import EditEvent from "@/pages/EditEvent";
-import TaskDetails from "@/pages/TaskDetails";
-import Notifications from "@/pages/Notifications";
-import ScheduleMeeting from "@/pages/ScheduleMeeting";
-import ScheduleSiteVisit from "@/pages/ScheduleSiteVisit";
-import NewTask from "@/pages/NewTask";
-import Dashboard from "@/pages/Dashboard";
+const Login = lazy(() => import("@/pages/Login"));
+const Events = lazy(() => import("@/pages/Events"));
+const Calendar = lazy(() => import("@/pages/Calendar"));
+const Tasks = lazy(() => import("@/pages/Tasks"));
+const NewEvent = lazy(() => import("@/pages/NewEvent"));
+const ProfileSettings = lazy(() => import("@/pages/ProfileSettings"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Contacts = lazy(() => import("@/pages/Contacts"));
+const Documents = lazy(() => import("@/pages/Documents"));
+const DocumentDetail = lazy(() => import("@/pages/DocumentDetail"));
+const EventDetails = lazy(() => import("@/pages/EventDetails"));
+const EditEvent = lazy(() => import("@/pages/EditEvent"));
+const TaskDetails = lazy(() => import("@/pages/TaskDetails"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
+const ScheduleMeeting = lazy(() => import("@/pages/ScheduleMeeting"));
+const ScheduleSiteVisit = lazy(() => import("@/pages/ScheduleSiteVisit"));
+const NewTask = lazy(() => import("@/pages/NewTask"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
 
 export const AppRoutes = () => {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/login" element={<Login />} />
       
@@ -33,13 +41,15 @@ export const AppRoutes = () => {
       <Route element={
         <ProtectedRoute>
           <RootLayout>
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </RootLayout>
         </ProtectedRoute>
       }>
         <Route path="/" element={<Dashboard />} />
         <Route path="/events" element={<Events />} />
-        <Route path="/events/passed" element={<PassedEvents />} />
+        <Route path="/events/passed" element={<Navigate to="/events?tab=passed" replace />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/tasks" element={<Tasks />} />
@@ -58,5 +68,6 @@ export const AppRoutes = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 };

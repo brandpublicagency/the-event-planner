@@ -20,7 +20,10 @@ const SidebarNavList = ({ items, isCollapsed }: SidebarNavListProps) => {
   return (
     <div className="space-y-2">
       {items.map(item => {
-        const isActive = location.pathname === item.path;
+        const isPassedTab = location.search.includes("tab=passed");
+        const isActive = item.path.includes("?")
+          ? `${location.pathname}${location.search}` === item.path
+          : location.pathname === item.path && !(item.path === "/events" && isPassedTab);
         
         return (
           <SidebarNavItem 

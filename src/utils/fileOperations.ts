@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export async function checkFileExists(filePath: string) {
   try {
     const { data, error } = await supabase.storage
-      .from("task-files")
+      .from("taskmanager-files")
       .list('', {
         search: filePath
       });
@@ -25,7 +25,7 @@ export async function deleteFile(filePath: string, fileId: string, taskId: strin
   try {
     // First delete from storage
     const { error: storageError } = await supabase.storage
-      .from("task-files")
+      .from("taskmanager-files")
       .remove([filePath]);
 
     if (storageError) {

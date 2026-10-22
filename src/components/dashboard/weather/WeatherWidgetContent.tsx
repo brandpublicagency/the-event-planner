@@ -5,10 +5,11 @@ import WeatherBackground from './WeatherBackground';
 import { generateForecastFromWeatherData } from './forecastUtils';
 import { getWeatherGradientStyles } from "./weatherGradientStyles";
 import { TimePeriod } from './utils/timeUtils';
+import type { WeatherData, ForecastItem } from '@/types/weather';
 
 interface WeatherWidgetContentProps {
-  weatherData: any;
-  forecast: any[];
+  weatherData: WeatherData | null;
+  forecast: ForecastItem[];
   timeOfDay: TimePeriod;
   currentDateTime: Date;
 }
