@@ -7,9 +7,6 @@ export const normalizeFormData = (formData: any) => {
   const normalized: any = {};
   
   // PHASE 1: COMPREHENSIVE LOGGING - Log all incoming data
-  console.log('============ FORM NORMALIZER START ============');
-  console.log('Raw form data keys:', Object.keys(formData));
-  console.log('Raw form data (full):', JSON.stringify(formData, null, 2));
   
   // Copy all fields to normalized first
   for (const key in formData) {
@@ -18,7 +15,6 @@ export const normalizeFormData = (formData: any) => {
     normalized[cleanKey] = formData[key];
   }
   
-  console.log('Normalized keys after copy:', Object.keys(normalized));
   
   // Event contract form specific fields
   const hasEventContract = formData.name_company_contact || 
@@ -26,7 +22,6 @@ export const normalizeFormData = (formData: any) => {
                          formData.confirmed_event_date || 
                          formData.corporate_venues;
                          
-  console.log('Is Event Contract form:', hasEventContract);
   
   // Extract venues (specifically for corporate events)
   // Handle different possible formats for venues data
@@ -35,58 +30,42 @@ export const normalizeFormData = (formData: any) => {
     const venueKeys = Object.keys(formData).filter(key => key.startsWith('corporate_venues['));
     if (venueKeys.length > 0) {
       normalized.venues = venueKeys.map(key => formData[key]);
-      console.log('Extracted venues from indexed corporate_venues:', normalized.venues);
     } else if (Array.isArray(formData.corporate_venues)) {
       // If venues is already an array, use it directly
       normalized.venues = formData.corporate_venues;
-      console.log('Extracted venues from corporate_venues array:', normalized.venues);
     } else {
       // If it's a single value, make it an array
       normalized.venues = [formData.corporate_venues];
-      console.log('Extracted venues from corporate_venues single value:', normalized.venues);
     }
   } else if (formData.venue_choices || Object.keys(formData).some(key => key.startsWith('venue_choices['))) {
     // Handle array format with indices like venue_choices[0], venue_choices[1]
     const venueKeys = Object.keys(formData).filter(key => key.startsWith('venue_choices['));
     if (venueKeys.length > 0) {
       normalized.venues = venueKeys.map(key => formData[key]);
-      console.log('Extracted venues from indexed venue_choices:', normalized.venues);
     } else if (Array.isArray(formData.venue_choices)) {
       normalized.venues = formData.venue_choices;
-      console.log('Extracted venues from venue_choices array:', normalized.venues);
     } else if (typeof formData.venue_choices === 'string') {
       normalized.venues = [formData.venue_choices];
-      console.log('Extracted venues from venue_choices string:', normalized.venues);
     }
   } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.corporate_venues) {
     // Handle the 'user_inputs' format with comma-separated values
     normalized.venues = formData.__submission.user_inputs.corporate_venues.split(', ');
-    console.log('Extracted venues from __submission.user_inputs.corporate_venues:', normalized.venues);
   } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.venue_choices) {
     // Handle the 'user_inputs' format with comma-separated values
     const venueString = formData.__submission.user_inputs.venue_choices;
     // Split by comma or other potential separators
     normalized.venues = venueString.split(/,|\+|;|\s+\|\s+/).map(v => v.trim()).filter(Boolean);
-    console.log('Extracted venues from __submission.user_inputs.venue_choices:', normalized.venues);
   } else if (formData.user_inputs && formData.user_inputs.corporate_venues) {
     // Direct user_inputs object
     normalized.venues = formData.user_inputs.corporate_venues.split(', ');
-    console.log('Extracted venues from user_inputs.corporate_venues:', normalized.venues);
   } else if (formData.user_inputs && formData.user_inputs.venue_choices) {
     // Direct user_inputs object with venue_choices
     const venueString = formData.user_inputs.venue_choices;
     // Split by comma or other potential separators
     normalized.venues = venueString.split(/,|\+|;|\s+\|\s+/).map(v => v.trim()).filter(Boolean);
-    console.log('Extracted venues from user_inputs.venue_choices:', normalized.venues);
   }
   
   // PHASE 2: ROBUST NAME GENERATION WITH MULTIPLE FALLBACKS
-  console.log('Starting name generation...');
-  console.log('Available fields for name: company_name=', normalized.company_name, 
-              'name_company_contact=', normalized.name_company_contact,
-              'primary_name=', normalized.primary_name,
-              'primary_email=', normalized.primary_email,
-              'event_type=', normalized.event_type);
   
   // Try multiple strategies to generate a name
   if (!normalized.name || normalized.name.trim() === '') {
@@ -94,7 +73,6 @@ export const normalizeFormData = (formData: any) => {
       // Strategy 1: Company name + event type
       if (normalized.company_name && normalized.company_name.trim() !== '') {
         normalized.name = `${normalized.company_name.trim()} ${normalized.event_type}`.trim();
-        console.log('Generated name from company_name:', normalized.name);
       }
       // Strategy 2: Contact person name + event type
       else if (normalized.name_company_contact && normalized.name_company_contact.trim() !== '') {
@@ -102,28 +80,23 @@ export const normalizeFormData = (formData: any) => {
                         `${normalized.name_company_contact} ${normalized.surname_company_contact}`.trim() : 
                         normalized.name_company_contact.trim();
         normalized.name = `${fullName} ${normalized.event_type}`.trim();
-        console.log('Generated name from contact name:', normalized.name);
       }
       // Strategy 3: Primary name + event type (after field mapping)
       else if (normalized.primary_name && normalized.primary_name.trim() !== '') {
         normalized.name = `${normalized.primary_name.trim()} ${normalized.event_type}`.trim();
-        console.log('Generated name from primary_name:', normalized.name);
       }
       // Strategy 4: Primary email + event type
       else if (normalized.primary_email && normalized.primary_email.trim() !== '') {
         const emailName = normalized.primary_email.split('@')[0].replace(/[._-]/g, ' ');
         normalized.name = `${emailName} ${normalized.event_type}`.trim();
-        console.log('Generated name from primary_email:', normalized.name);
       }
       // Strategy 5: Just event type (will add event code later)
       else {
         normalized.name = normalized.event_type;
-        console.log('Generated name from event_type only:', normalized.name);
       }
     }
   }
   
-  console.log('Name after generation:', normalized.name);
   
   // Extract and format address (handle both object and string formats)
   let formattedAddress = null;
@@ -148,7 +121,6 @@ export const normalizeFormData = (formData: any) => {
     ].filter(part => part && part.trim() !== '');
     
     formattedAddress = addressParts.join(', ');
-    console.log('Extracted address from flat address fields:', formattedAddress);
   } else if (formData.address_1) {
     if (typeof formData.address_1 === 'object') {
       // Format address from object components
@@ -164,15 +136,12 @@ export const normalizeFormData = (formData: any) => {
       // Use address as is if it's a string
       formattedAddress = formData.address_1;
     }
-    console.log('Extracted address from address_1 object/string:', formattedAddress);
   } else if (formData.__submission && formData.__submission.user_inputs && formData.__submission.user_inputs.address_1) {
     // Get from user_inputs structure
     formattedAddress = formData.__submission.user_inputs.address_1;
-    console.log('Extracted address from __submission.user_inputs.address_1:', formattedAddress);
   } else if (formData.user_inputs && formData.user_inputs.address_1) {
     // Direct user_inputs object
     formattedAddress = formData.user_inputs.address_1;
-    console.log('Extracted address from user_inputs.address_1:', formattedAddress);
   }
   
   if (formattedAddress) {
@@ -189,7 +158,6 @@ export const normalizeFormData = (formData: any) => {
       } else if (normalized.city_contract && normalized.city_contract_1) {
         // Use city_contract and city_contract_1 as fallback address components
         normalized.address = `${normalized.city_contract_1}, ${normalized.city_contract}`;
-        console.log('Created fallback address from city_contract fields:', normalized.address);
       }
     }
   }
@@ -237,7 +205,6 @@ export const normalizeFormData = (formData: any) => {
   // Handle confirmed event date
   if (normalized.confirmed_event_date) {
     normalized.event_date = normalized.confirmed_event_date;
-    console.log('Found confirmed event date:', normalized.event_date);
   }
   
   // Handle number of guests as pax
@@ -252,20 +219,15 @@ export const normalizeFormData = (formData: any) => {
   }
   
   // PHASE 3: IMPROVE COMPANY FIELD MAPPING
-  console.log('Mapping company field...');
-  console.log('Available company fields: company_name=', normalized.company_name,
-              'company=', normalized.company);
   
   if (normalized.company_name && normalized.company_name.trim() !== '') {
     normalized.company = normalized.company_name.trim();
-    console.log('Mapped company from company_name:', normalized.company);
   } else if (!normalized.company || normalized.company.trim() === '') {
     // Try to find company from alternative fields
     const companyAlternatives = ['organization', 'client_company', 'business_name'];
     for (const altField of companyAlternatives) {
       if (normalized[altField] && normalized[altField].trim() !== '') {
         normalized.company = normalized[altField].trim();
-        console.log(`Mapped company from ${altField}:`, normalized.company);
         break;
       }
     }
@@ -323,15 +285,6 @@ export const normalizeFormData = (formData: any) => {
     normalized.pax = isNaN(parsedPax) ? null : parsedPax;
   }
   
-  console.log('============ FINAL NORMALIZED DATA ============');
-  console.log('name:', normalized.name);
-  console.log('event_type:', normalized.event_type);
-  console.log('company:', normalized.company);
-  console.log('primary_name:', normalized.primary_name);
-  console.log('primary_email:', normalized.primary_email);
-  console.log('primary_phone:', normalized.primary_phone);
-  console.log('venues:', normalized.venues);
-  console.log('============ FORM NORMALIZER END ============');
   
   return normalized;
 };

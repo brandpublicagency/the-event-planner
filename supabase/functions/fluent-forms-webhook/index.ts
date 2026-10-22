@@ -83,11 +83,9 @@ function validateFormData(formData: any): { valid: boolean; errors: string[] } {
 }
 
 serve(async (req) => {
-  console.log("Received request to fluent-forms-webhook");
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log("Handling OPTIONS request with CORS headers");
     return new Response(null, { 
       status: 204,
       headers: corsHeaders 
@@ -96,13 +94,11 @@ serve(async (req) => {
 
   try {
     if (req.method !== 'POST') {
-      console.log(`Method not allowed: ${req.method}`);
       throw new Error('Method not allowed');
     }
 
     // Parse the raw request body as text first
     const rawBody = await req.text();
-    console.log('Raw request body received (length):', rawBody.length);
 
     // Try to parse as JSON if possible
     let formData;
@@ -114,7 +110,6 @@ serve(async (req) => {
       formData = Object.fromEntries(formDataObj.entries());
     }
     
-    console.log('Form data parsed successfully');
     
     // Validate form data
     const validation = validateFormData(formData);
@@ -226,7 +221,6 @@ serve(async (req) => {
 
     // Get venues and validate them
     const venues = extractVenues();
-    console.log('Extracted venues:', venues);
     
     // Explicit mapping for Wedding Confirmation Contract form
     const eventData = {
@@ -255,7 +249,6 @@ serve(async (req) => {
       description: `Contract signed by ${formData.contract_signee || 'Unknown'} on ${formData.terms_date || new Date().toISOString().split('T')[0]}` || null,
     }
 
-    console.log('Mapped event data:', eventData);
 
     // Check for duplicates within the last 5 minutes
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
@@ -270,7 +263,6 @@ serve(async (req) => {
         .gte('created_at', fiveMinutesAgo);
       
       if (existingEvents && existingEvents.length > 0) {
-        console.log('Duplicate submission detected:', existingEvents[0]);
         
         return new Response(
           JSON.stringify({ 
@@ -306,7 +298,6 @@ serve(async (req) => {
       throw new Error(`Database operation failed: ${error.message} (code: ${error.code})`);
     }
 
-    console.log('Successfully created event:', data);
 
     return new Response(
       JSON.stringify({ success: true, data }),

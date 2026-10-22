@@ -65,11 +65,6 @@ serve(async (req) => {
   }
   
   try {
-    console.log('============================================');
-    console.log('📥 NEW WEBHOOK REQUEST RECEIVED');
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('Method:', req.method);
-    console.log('============================================');
     
     if (req.method !== 'POST') {
       return createErrorResponse('Only POST requests are accepted', 405);
@@ -79,9 +74,6 @@ serve(async (req) => {
     let formData;
     try {
       formData = await parseFormData(req);
-      console.log('✅ Form data parsed successfully');
-      console.log('Form data keys:', Object.keys(formData));
-      console.log('Full parsed data:', JSON.stringify(formData, null, 2));
     } catch (parseError) {
       console.error('❌ Error parsing request body:', {
         message: parseError.message,
@@ -96,7 +88,6 @@ serve(async (req) => {
       console.error('❌ Form validation failed:', validation.errors);
       return createErrorResponse(`Validation errors: ${validation.errors.join(', ')}`, 400);
     }
-    console.log('✅ Form data validation passed');
     
     // Sanitize string inputs
     formData.name = sanitizeString(formData.name, 200);
@@ -109,24 +100,14 @@ serve(async (req) => {
     
     // Generate a unique request ID to track duplicate requests
     const requestId = crypto.randomUUID();
-    console.log('📋 Request ID:', requestId);
     
     // Process the form data
-    console.log('🔄 Starting form data processing...');
     const result = await processFormData(formData);
     
     if (result.isDuplicate) {
-      console.log('⚠️ Duplicate submission detected');
-      console.log('Existing event code:', result.event_code);
     } else {
-      console.log('✅ Successfully created new event');
-      console.log('Event code:', result.event_code);
-      console.log('Event name:', result.event_name);
     }
     
-    console.log('============================================');
-    console.log('✅ WEBHOOK REQUEST COMPLETED SUCCESSFULLY');
-    console.log('============================================');
     
     return createJsonResponse(result);
   } catch (error) {

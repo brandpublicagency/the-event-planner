@@ -22,7 +22,6 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const emailRequest: EmailRequest = await req.json();
-    console.log("Sending team invitation email:", emailRequest);
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -45,7 +44,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (res.ok) {
       const data = await res.json();
-      console.log("Email sent successfully:", data);
       return new Response(JSON.stringify(data), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

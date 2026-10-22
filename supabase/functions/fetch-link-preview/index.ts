@@ -8,17 +8,14 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  console.log('Function called with request:', req.method);
 
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('Handling CORS preflight request');
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const { url } = await req.json();
-    console.log('Processing URL:', url);
 
     if (!url) {
       throw new Error('URL is required');
@@ -31,27 +28,23 @@ serve(async (req) => {
       throw new Error('Invalid URL format');
     }
 
-    console.log('Fetching URL:', url);
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
       },
     });
 
-    console.log('Response status:', response.status);
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.status}`);
     }
 
     const contentType = response.headers.get('content-type');
-    console.log('Content-Type:', contentType);
     
     if (!contentType?.includes('text/html')) {
       throw new Error('URL does not point to an HTML page');
     }
 
     const html = await response.text();
-    console.log('Successfully fetched HTML, length:', html.length);
 
     // Extract metadata
     const title = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() ||
@@ -87,7 +80,6 @@ serve(async (req) => {
       favicon: normalizedFavicon
     };
 
-    console.log('Generated preview:', preview);
 
     return new Response(
       JSON.stringify(preview),
