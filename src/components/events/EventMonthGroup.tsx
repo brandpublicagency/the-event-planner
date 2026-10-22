@@ -50,7 +50,7 @@ export const EventMonthGroup: React.FC<EventMonthGroupProps> = ({
       }
 
       // If this component is rendered on the events page, refetch the events
-      if (window.location.pathname === "/events" || window.location.pathname === "/events/passed") {
+      if (window.location.pathname === "/events") {
         window.location.reload();
       }
     } catch (error) {

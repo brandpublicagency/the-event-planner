@@ -62,7 +62,7 @@ export function getSidebarNavItems(taskCount: number): NavItem[] {
     },
     {
       icon: Archive,
-      path: "/events/passed",
+      path: "/events?tab=passed",
       label: "Past Events"
     }
   ];
