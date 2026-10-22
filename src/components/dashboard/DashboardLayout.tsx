@@ -60,21 +60,23 @@ const DashboardLayout = () => {
         }
       />
 
-      <div className="flex-1 overflow-auto px-4 pb-6">
+      <div className="flex-1 overflow-auto px-4 sm:px-6 pb-8">
+        <div className="mx-auto w-full max-w-7xl">
         <DashboardGreeting />
         <DashboardKPIStrip />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <DashboardEventsSection />
-            <DashboardTeamChat className="flex-1 min-h-[300px]" />
+          <div className="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-4">
+            <div className="order-1"><DashboardEventsSection /></div>
+            <DashboardTeamChat className="order-3 lg:order-none flex-1 min-h-[300px]" />
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="order-2 lg:order-none flex flex-col gap-4">
             <DashboardMiniCalendar />
             <DashboardWeatherCard />
             <DashboardTasksSection />
           </div>
+        </div>
         </div>
       </div>
 

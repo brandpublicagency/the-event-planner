@@ -26,7 +26,7 @@ const DashboardEventsSection = () => {
       select('*').
       eq('completed', false).
       is('deleted_at', null).
-      gte('event_date', today.toISOString().split('T')[0]).
+      gte('event_date', format(today, 'yyyy-MM-dd')).
       order('event_date', { ascending: true }).
       limit(50);
 
