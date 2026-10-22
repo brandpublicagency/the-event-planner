@@ -62,7 +62,7 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
           {isButton ? (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Delete"
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
@@ -70,7 +70,7 @@ export const DocumentDeleteDialog: React.FC<DocumentDeleteDialogProps> = ({
           ) : (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Delete"
               className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 ml-auto"
             >
               <Trash2 className="h-4 w-4 text-muted-foreground" />

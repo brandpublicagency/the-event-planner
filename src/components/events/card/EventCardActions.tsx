@@ -44,7 +44,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
         <Button
           onClick={handleEditClick}
           variant="ghost"
-          size="icon"
+          size="icon" aria-label="Edit"
           className="h-7 w-7 p-0"
         >
           <Edit className="h-3.5 w-3.5 text-muted-foreground" />
@@ -56,7 +56,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
         <Button
           onClick={handleViewClick}
           variant="ghost"
-          size="icon"
+          size="icon" aria-label="View"
           className="h-7 w-7 p-0"
         >
           <Eye className="h-3.5 w-3.5 text-muted-foreground" />
@@ -68,7 +68,7 @@ export const EventCardActions: React.FC<EventCardActionsProps> = ({
         <Button
           onClick={handleDeleteClick}
           variant="ghost"
-          size="icon"
+          size="icon" aria-label="Delete"
           className="h-7 w-7 p-0"
         >
           <Trash className="h-3.5 w-3.5 text-muted-foreground" />

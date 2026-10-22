@@ -420,7 +420,7 @@ const DashboardTeamChat = ({ className }: { className?: string }) => {
           className="h-9 text-xs"
         />
         <Button
-          size="icon"
+          size="icon" aria-label="Send"
           variant="outline"
           className="h-9 w-9 shrink-0 bg-card"
           onClick={handleSend}

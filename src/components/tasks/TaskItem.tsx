@@ -72,7 +72,7 @@ export function TaskItem({
           )}
           <Button 
             variant="ghost" 
-            size="icon" 
+            size="icon" aria-label="Edit" 
             onClick={(e) => {
               e.stopPropagation();
               onEdit();

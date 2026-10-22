@@ -35,7 +35,7 @@ export function NoteItem({
         />
         <Button
           variant="outline"
-          size="icon"
+          size="icon" aria-label="Close"
           className="h-[60px] w-[60px] rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
           onClick={onEditCancel}
         >
@@ -51,7 +51,7 @@ export function NoteItem({
       <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           variant="outline"
-          size="icon"
+          size="icon" aria-label="Edit"
           className="h-8 w-8 bg-background border-border hover:bg-muted hover:text-foreground"
           onClick={onEditStart}
         >
@@ -59,7 +59,7 @@ export function NoteItem({
         </Button>
         <Button
           variant="outline"
-          size="icon"
+          size="icon" aria-label="Close"
           className="h-8 w-8 bg-background border-border hover:bg-muted hover:text-foreground"
           onClick={onDelete}
         >

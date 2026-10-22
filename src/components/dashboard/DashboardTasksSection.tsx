@@ -115,7 +115,7 @@ const DashboardTasksSection = () => {
           <Button
             onClick={handleAddTask}
             disabled={!newTaskTitle.trim()}
-            size="icon"
+            size="icon" aria-label="Add"
             variant="outline"
             className="h-8 w-8 shrink-0 bg-card"
           >

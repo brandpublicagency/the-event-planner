@@ -65,7 +65,7 @@ export function TaskNotes({ taskId }: TaskNotesProps) {
         <Button 
           onClick={handleAddNote} 
           disabled={!newNote.trim()}
-          size="icon"
+          size="icon" aria-label="Add"
           variant="outline"
           className="h-8 w-8 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
         >
@@ -80,7 +80,7 @@ export function TaskNotes({ taskId }: TaskNotesProps) {
               <p className="text-sm flex-1 whitespace-pre-line">{note}</p>
               <Button
                 variant="outline"
-                size="icon"
+                size="icon" aria-label="Delete"
                 className="h-8 w-8 shrink-0 bg-background border-border hover:bg-muted hover:text-foreground"
                 onClick={() => handleRemoveNote(index)}
               >
