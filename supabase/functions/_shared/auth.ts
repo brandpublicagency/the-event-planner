@@ -12,7 +12,7 @@ export const getAuthenticatedUserId = async (req: Request): Promise<string | nul
     { global: { headers: { Authorization: authHeader } } },
   );
   const token = authHeader.replace("Bearer ", "");
-  const { data, error } = await client.auth.getClaims(token);
-  if (error || !data?.claims?.sub) return null;
-  return data.claims.sub as string;
+  const { data, error } = await client.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user.id;
 };
