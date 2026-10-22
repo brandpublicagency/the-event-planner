@@ -40,7 +40,12 @@ function preprocessHtmlForPrint(html: string): string {
     if (!url) { el.remove(); return; }
     const card = window.document.createElement('div');
     card.style.cssText = 'border:1px solid #ddd;border-radius:6px;padding:10px 14px;margin:8px 0;background:#f9f9f9;';
-    card.innerHTML = `<a href="${url}" style="color:#2563eb;text-decoration:underline;word-break:break-all;font-size:11pt;">${url}</a>`;
+    const link = window.document.createElement('a');
+    const isSafeUrl = /^https?:\/\//i.test(url);
+    if (isSafeUrl) link.href = url;
+    link.textContent = url;
+    link.style.cssText = 'color:#2563eb;text-decoration:underline;word-break:break-all;font-size:11pt;';
+    card.appendChild(link);
     el.replaceWith(card);
   });
 
