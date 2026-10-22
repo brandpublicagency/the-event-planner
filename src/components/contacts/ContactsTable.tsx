@@ -90,7 +90,7 @@ const ContactsTable = ({
                       <div className="flex justify-end space-x-1">
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="icon" aria-label="Edit" 
                           onClick={() => onEditContact(contact)}
                           className="h-8 w-8 rounded-full hover:bg-muted"
                         >
@@ -98,7 +98,7 @@ const ContactsTable = ({
                         </Button>
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="icon" aria-label="Delete" 
                           onClick={() => handleDeleteClick(contact)}
                           className="h-8 w-8 rounded-full hover:bg-red-50"
                         >

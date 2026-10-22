@@ -8,7 +8,7 @@ interface DocumentsContainerProps {
 
 export function DocumentsContainer({ initialDocId = null }: DocumentsContainerProps) {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-dvh">
       <div className="flex-1 overflow-hidden bg-background">
         {initialDocId ? (
           <DocumentEditor

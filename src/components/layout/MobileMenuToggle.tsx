@@ -11,7 +11,7 @@ export const MobileMenuToggle = ({ onClick }: MobileMenuToggleProps) => {
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="icon" aria-label="Toggle menu"
       className="md:hidden h-6 w-6"
       onClick={onClick}
     >

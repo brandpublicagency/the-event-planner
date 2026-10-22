@@ -25,6 +25,7 @@ export function TaskActions({ isDeleting, onDelete }: TaskActionsProps) {
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Delete task"
           className="h-6 w-6"
           disabled={isDeleting}
           onClick={(e) => e.stopPropagation()}

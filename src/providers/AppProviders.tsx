@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/toast";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+    <div className="flex flex-col items-center justify-center min-h-dvh p-4 text-center">
       <h2 className="text-xl font-bold text-red-600 mb-4">Something went wrong:</h2>
       <pre className="bg-muted p-4 rounded mb-4 overflow-auto max-w-lg text-sm">
         {error.message}

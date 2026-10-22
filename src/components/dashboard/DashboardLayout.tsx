@@ -29,7 +29,7 @@ const DashboardLayout = () => {
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Toggle theme"
               className="h-8 w-8 relative"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
             >
@@ -45,7 +45,7 @@ const DashboardLayout = () => {
             </Button>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Notifications"
               className="relative h-8 w-8 overflow-visible"
               onClick={() => setNotificationsOpen(true)}
             >

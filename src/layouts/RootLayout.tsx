@@ -3,6 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Sidebar from "@/components/Sidebar";
 import { useState, ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import { PageErrorFallback } from "@/components/layout/PageErrorFallback";
 
 export const RootLayout = ({ children }: { children: ReactNode }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -33,12 +35,14 @@ export const RootLayout = ({ children }: { children: ReactNode }) => {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       <div className="flex-shrink-0 w-auto z-30 relative pointer-events-auto">
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
       <main className="flex-1 min-w-0 overflow-auto bg-background relative flex flex-col">
-        {children}
+        <ErrorBoundary FallbackComponent={PageErrorFallback} resetKeys={[location.pathname]}>
+          {children}
+        </ErrorBoundary>
       </main>
     </div>
   );

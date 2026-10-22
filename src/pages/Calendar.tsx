@@ -81,7 +81,7 @@ const Calendar = () => {
     <div className="flex items-center gap-2 ml-4">
       <Button 
         variant="outline" 
-        size="icon"
+        size="icon" aria-label="Previous"
         onClick={previousMonth}
         className="rounded-full h-8 w-8"
       >
@@ -96,7 +96,7 @@ const Calendar = () => {
       </Button>
       <Button 
         variant="outline" 
-        size="icon"
+        size="icon" aria-label="Next"
         onClick={nextMonth}
         className="rounded-full h-8 w-8"
       >

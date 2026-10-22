@@ -103,7 +103,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
                 />
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="icon" aria-label="Edit" 
                   className="h-6 w-6"
                   onClick={(e) => {
                     e.stopPropagation();

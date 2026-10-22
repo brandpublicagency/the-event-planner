@@ -38,7 +38,7 @@ export function AddTaskInput({
       <Button 
         onClick={onSubmit} 
         disabled={!value.trim()}
-        size="icon"
+        size="icon" aria-label="Add"
         variant="outline"
         className="h-9 w-9 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
       >

@@ -10,6 +10,7 @@ interface FileActionButtonProps {
   disabled?: boolean;
   variant?: "ghost" | "destructive" | "default";
   className?: string;
+  label?: string;
 }
 
 export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonProps>(({ 
@@ -18,6 +19,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
   disabled, 
   variant = "ghost",
   className, 
+  label,
 }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ export const FileActionButton = forwardRef<HTMLButtonElement, FileActionButtonPr
       ref={ref}
       variant={variant}
       size="icon"
+      aria-label={label ?? Icon.displayName ?? "File action"}
       onClick={handleClick}
       disabled={disabled}
       className={cn("h-5 w-5", className)}

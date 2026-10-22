@@ -37,7 +37,7 @@ export function NoteInput({
       <Button 
         onClick={onSubmit} 
         disabled={!value.trim()}
-        size="icon"
+        size="icon" aria-label="Add"
         variant="outline"
         className="h-7 w-7 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
       >

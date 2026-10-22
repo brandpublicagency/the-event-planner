@@ -18,10 +18,10 @@ const ProfileSettings = () => {
     handleSave
   } = useProfileData();
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center h-dvh">Loading...</div>;
   }
   if (error) {
-    return <div className="flex items-center justify-center h-screen">
+    return <div className="flex items-center justify-center h-dvh">
         <div className="text-center">
           <h3 className="text-lg font-medium">Error loading profile</h3>
           <p className="text-sm text-muted-foreground">Please try refreshing the page</p>

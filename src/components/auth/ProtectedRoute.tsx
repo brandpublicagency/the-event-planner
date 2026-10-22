@@ -58,7 +58,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Spinner className="h-8 w-8 text-primary" />
           <p>Checking authentication...</p>

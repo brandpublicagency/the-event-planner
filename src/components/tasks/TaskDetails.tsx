@@ -57,7 +57,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
             </div>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
+        <Button variant="ghost" size="icon" aria-label="Close" onClick={onClose} className="shrink-0">
           <X className="h-4 w-4" />
         </Button>
       </div>

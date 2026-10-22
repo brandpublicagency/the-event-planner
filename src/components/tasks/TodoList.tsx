@@ -99,7 +99,7 @@ export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
             />
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Close"
               className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={() => handleDeleteTodo(index)}
             >
@@ -122,7 +122,7 @@ export function TodoList({ todos = [], onTodosChange, taskId }: TodoListProps) {
           <Button 
             onClick={handleAddTodo} 
             disabled={!newTodo.trim()}
-            size="icon"
+            size="icon" aria-label="Add"
             variant="outline"
             className="h-8 w-8 rounded-full bg-background border-border hover:bg-muted hover:text-foreground"
           >

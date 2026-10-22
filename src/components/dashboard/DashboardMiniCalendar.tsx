@@ -47,10 +47,10 @@ const DashboardMiniCalendar = () => {
           {format(currentMonth, "MMMM yyyy")}
         </h3>
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+          <Button variant="ghost" size="icon" aria-label="Previous" className="h-6 w-6" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
             <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+          <Button variant="ghost" size="icon" aria-label="Next" className="h-6 w-6" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
