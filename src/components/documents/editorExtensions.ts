@@ -32,6 +32,8 @@ export const getEditorExtensions = () => [
   StarterKit.configure({
     heading: { levels: [1, 2, 3] },
     codeBlock: false,
+    link: false,
+    underline: false,
   }),
   Underline,
   Link.configure({
