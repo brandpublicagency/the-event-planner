@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 
 const ScheduleMeeting = () => {
   return (
-    <div className="container-fluid h-screen flex flex-col">
+    <div className="container-fluid h-dvh flex flex-col">
       <Header 
         pageTitle="Schedule Meeting" 
         contextTitle="Book a management meeting with our team"

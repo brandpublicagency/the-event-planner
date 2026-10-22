@@ -91,14 +91,14 @@ const Login = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-dvh items-center justify-center bg-muted px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md space-y-8 p-8 rounded-2xl shadow-sm">
         <div className="text-center">
           <h2 className="text-2xl font-bold tracking-tight">

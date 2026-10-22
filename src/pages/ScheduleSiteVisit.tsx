@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 
 const ScheduleSiteVisit = () => {
   return (
-    <div className="container-fluid h-screen flex flex-col">
+    <div className="container-fluid h-dvh flex flex-col">
       <Header 
         pageTitle="Schedule Site Visit" 
         contextTitle="Book a site visit with our team"
