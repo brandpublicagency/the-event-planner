@@ -1,19 +1,15 @@
 
 import { useState } from "react";
-import { Header } from "@/components/layout/Header";
 import { useEvents } from "@/hooks/useEvents";
 import { EventsList } from "@/components/events/EventsList";
 import { DeleteEventDialog } from "@/components/events/DeleteEventDialog";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import type { Event } from "@/types/event";
-import { groupEventsByMonth } from "@/utils/eventUtils";
 
-const PassedEvents = () => {
-  const navigate = useNavigate();
+export const PassedEventsTab = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const { 
@@ -94,10 +90,8 @@ const PassedEvents = () => {
   );
   
   return (
-    <div className="flex flex-col h-full">
-      <Header pageTitle="Passed Events" />
-
-      <div className="flex-1 p-6 bg-muted overflow-auto">
+    <>
+      <div>
         <EventsList 
           groupedEvents={filteredEvents} 
           isLoading={isLoading}
@@ -107,10 +101,6 @@ const PassedEvents = () => {
           }}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          alternateLink={{
-            path: "/events",
-            label: "Upcoming Events"
-          }}
         />
       </div>
 
@@ -123,8 +113,6 @@ const PassedEvents = () => {
         onPermanentDeleteChange={setIsPermanentDelete}
         isDeleting={isDeleting}
       />
-    </div>
+    </>
   );
 };
-
-export default PassedEvents;
