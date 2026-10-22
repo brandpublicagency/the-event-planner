@@ -2,29 +2,36 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskContext } from "@/contexts/TaskContext";
 
-import { CalendarDays, Users, ListTodo, Clock } from "lucide-react";
+import { CalendarDays, Users, ListTodo, Clock, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { differenceInDays, differenceInHours } from "date-fns";
+import { differenceInCalendarDays, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 
 interface KPICardProps {
   icon: React.ElementType;
   label: string;
   value: string | number;
   subtitle?: string;
-  delay: number;
+  to: string;
 }
 
-const KPICard = ({ icon: Icon, label, value, subtitle, delay }: KPICardProps) => (
-  <div className="rounded-lg border border-border bg-card px-3 py-2.5 hover:border-foreground/30 transition-colors">
-    <div className="flex items-center gap-1.5 mb-1">
-      <Icon className="h-3 w-3 text-muted-foreground" />
-      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+const KPICard = ({ icon: Icon, label, value, subtitle, to }: KPICardProps) => (
+  <Link
+    to={to}
+    className="group rounded-lg border border-border bg-card px-3 py-3 min-h-[76px] transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    <div className="flex items-center justify-between gap-1.5 mb-1">
+      <span className="flex items-center gap-1.5 min-w-0">
+        <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <span className="text-xs text-muted-foreground font-medium truncate">{label}</span>
+      </span>
+      <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
     </div>
-    <p className="text-lg font-semibold text-foreground tracking-tight">{value}</p>
+    <p className="text-xl font-semibold text-foreground tracking-tight tabular-nums">{value}</p>
     {subtitle && (
-      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+      <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
     )}
-  </div>
+  </Link>
 );
 
 const DashboardKPIStrip = () => {
@@ -34,20 +41,20 @@ const DashboardKPIStrip = () => {
     queryKey: ['dashboard_kpi'],
     queryFn: async () => {
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-      const today = now.toISOString().split('T')[0];
+      const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
+      const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
+      const today = format(now, 'yyyy-MM-dd');
 
       const [eventsRes, nextEventRes] = await Promise.all([
         supabase
           .from('events')
           .select('pax')
           .is('deleted_at', null)
-          .gte('event_date', startOfMonth)
-          .lte('event_date', endOfMonth),
+          .gte('event_date', monthStart)
+          .lte('event_date', monthEnd),
         supabase
           .from('events')
-          .select('event_date, name')
+          .select('event_date, name, event_code')
           .is('deleted_at', null)
           .eq('completed', false)
           .gte('event_date', today)
@@ -71,59 +78,56 @@ const DashboardKPIStrip = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-lg" />
-          ))}
-        </div>
-        <Skeleton className="h-16 rounded-lg" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-[76px] rounded-lg" />
+        ))}
       </div>
     );
   }
 
   const getCountdown = () => {
-    if (!monthlyData?.nextEvent?.event_date) return { value: '—', subtitle: 'No upcoming events' };
-    const eventDate = new Date(monthlyData.nextEvent.event_date);
-    const now = new Date();
-    const days = differenceInDays(eventDate, now);
-    if (days > 0) return { value: `${days}d`, subtitle: monthlyData.nextEvent.name };
-    const hours = differenceInHours(eventDate, now);
-    if (hours > 0) return { value: `${hours}h`, subtitle: monthlyData.nextEvent.name };
-    return { value: 'Today', subtitle: monthlyData.nextEvent.name };
+    const next = monthlyData?.nextEvent;
+    if (!next?.event_date) return { value: '—', subtitle: 'No upcoming events' };
+    const days = differenceInCalendarDays(parseISO(next.event_date), new Date());
+    if (days <= 0) return { value: 'Today', subtitle: next.name };
+    if (days === 1) return { value: 'Tomorrow', subtitle: next.name };
+    return { value: `${days} days`, subtitle: next.name };
   };
 
   const countdown = getCountdown();
 
+  const nextEventCode = monthlyData?.nextEvent?.event_code;
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-      <div className="lg:col-span-2 grid grid-cols-3 gap-4">
-        <KPICard
-          icon={CalendarDays}
-          label="Events This Month"
-          value={monthlyData?.eventsCount ?? 0}
-          delay={0}
-        />
-        <KPICard
-          icon={Users}
-          label="Total Guests"
-          value={monthlyData?.totalGuests ?? 0}
-          subtitle="This month"
-          delay={0.05}
-        />
-        <KPICard
-          icon={ListTodo}
-          label="Pending Tasks"
-          value={pendingTasks}
-          delay={0.1}
-        />
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4">
+      <KPICard
+        icon={CalendarDays}
+        label="Events this month"
+        value={monthlyData?.eventsCount ?? 0}
+        subtitle={format(new Date(), 'MMMM')}
+        to="/calendar"
+      />
+      <KPICard
+        icon={Users}
+        label="Total guests"
+        value={(monthlyData?.totalGuests ?? 0).toLocaleString()}
+        subtitle="This month"
+        to="/events"
+      />
+      <KPICard
+        icon={ListTodo}
+        label="Pending tasks"
+        value={pendingTasks}
+        subtitle={pendingTasks === 0 ? "All caught up" : "Open in Tasks"}
+        to="/tasks"
+      />
       <KPICard
         icon={Clock}
-        label="Next Event"
+        label="Next event"
         value={countdown.value}
         subtitle={countdown.subtitle}
-        delay={0.15}
+        to={nextEventCode ? `/events/${nextEventCode}` : "/events"}
       />
     </div>
   );

@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const DashboardGreeting = () => {
   const { profile, isLoading: profileLoading } = useProfile();
@@ -14,15 +17,15 @@ const DashboardGreeting = () => {
     queryKey: ['dashboard_events_count'],
     queryFn: async () => {
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
+      const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
 
       const { count, error } = await supabase
         .from('events')
         .select('*', { count: 'exact', head: true })
         .is('deleted_at', null)
-        .gte('event_date', startOfMonth)
-        .lte('event_date', endOfMonth);
+        .gte('event_date', monthStart)
+        .lte('event_date', monthEnd);
 
       if (error) throw error;
       return count || 0;
@@ -51,11 +54,12 @@ const DashboardGreeting = () => {
   const firstName = profile?.full_name || 'there';
 
   return (
-    <div className="mt-4 mb-2">
+    <div className="mt-4 mb-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
       <h1 className="text-xl font-semibold text-foreground tracking-tight">
         {getGreeting()}, {firstName}
       </h1>
-      <div className="flex items-center gap-1.5 mt-1">
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
         <span className="text-xs text-muted-foreground">
           {format(new Date(), 'EEEE, d MMMM yyyy')}
         </span>
@@ -70,11 +74,20 @@ const DashboardGreeting = () => {
         {highPriority > 0 && (
           <>
             <span className="text-xs text-muted-foreground">·</span>
-            <span className="text-xs text-destructive font-medium">
+            <Link to="/tasks" className="text-xs text-destructive font-medium hover:underline">
               {highPriority} high priority
-            </span>
+            </Link>
           </>
         )}
+      </div>
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <Button asChild size="sm" variant="outline" className="h-9">
+          <Link to="/tasks/new"><Plus className="h-4 w-4" />New task</Link>
+        </Button>
+        <Button asChild size="sm" className="h-9">
+          <Link to="/events/new"><Plus className="h-4 w-4" />New event</Link>
+        </Button>
       </div>
     </div>
   );
