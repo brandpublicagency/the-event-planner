@@ -109,11 +109,11 @@ const EditEvent = () => {
 
       // Navigate back to event details with parameter indicating we came from edit
       navigate(`/events/${id}?from=edit`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update event",
+        description: error instanceof Error ? error.message : "Failed to update event",
         variant: "destructive",
       });
     }
