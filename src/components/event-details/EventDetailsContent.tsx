@@ -63,7 +63,7 @@ export const EventDetailsContent: React.FC<EventDetailsContentProps> = ({
           </div>
         </div>
 
-        <EventActivityLog activityLog={localEvent?.activity_log ?? null} />
+        {localEvent?.event_code && <EventActivityLog eventCode={localEvent.event_code} />}
 
         <div className="mt-4 flex justify-end">
           <Button

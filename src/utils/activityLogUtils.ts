@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { ActivityLogEntry } from "@/types/event";
 
 export const getActorName = async (): Promise<string> => {
   try {
@@ -27,28 +26,10 @@ export const addActivityLogEntry = async (
   action: string
 ): Promise<void> => {
   try {
-    const { data: event } = await supabase
-      .from("events")
-      .select("activity_log")
-      .eq("event_code", eventCode)
-      .single();
-
-    const currentLog: ActivityLogEntry[] = Array.isArray(event?.activity_log)
-      ? (event.activity_log as unknown as ActivityLogEntry[])
-      : [];
-
-    const newEntry: ActivityLogEntry = {
-      actor,
-      action,
-      timestamp: new Date().toISOString(),
-    };
-
-    const updatedLog = [newEntry, ...currentLog];
-
-    await supabase
-      .from("events")
-      .update({ activity_log: updatedLog } as any)
-      .eq("event_code", eventCode);
+    const { error } = await supabase
+      .from("event_activity_log")
+      .insert({ event_code: eventCode, actor, action });
+    if (error) throw error;
   } catch (error) {
     console.error("Failed to add activity log entry:", error);
   }
