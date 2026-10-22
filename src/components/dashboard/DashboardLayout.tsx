@@ -66,7 +66,7 @@ const DashboardLayout = () => {
         <DashboardKPIStrip />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          <div className="lg:col-span-2 flex flex-col gap-4 contents lg:flex">
+          <div className="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-4">
             <div className="order-1"><DashboardEventsSection /></div>
             <DashboardTeamChat className="order-3 lg:order-none flex-1 min-h-[300px]" />
           </div>
