@@ -49,7 +49,7 @@ export const processFormData = async (formData: any) => {
     
     const { data: existingEvents, error: searchError } = await supabase
       .from('events')
-      .select('event_code, name, primary_email, created_at')
+      .select('event_code')
       .eq('name', normalizedData.name)
       .eq('primary_email', normalizedData.primary_email)
       .gte('created_at', fiveMinutesAgo)
@@ -63,8 +63,7 @@ export const processFormData = async (formData: any) => {
       // Return the existing event code instead of creating a new one
       return {
         success: true,
-        event_code: existingEvents[0].event_code,
-        message: `Event already exists with code ${existingEvents[0].event_code}`,
+        message: 'Duplicate submission detected; this form was already received.',
         isDuplicate: true
       };
     }

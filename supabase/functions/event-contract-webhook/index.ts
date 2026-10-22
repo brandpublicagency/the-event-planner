@@ -104,9 +104,6 @@ serve(async (req) => {
     // Process the form data
     const result = await processFormData(formData);
     
-    if (result.isDuplicate) {
-    } else {
-    }
     
     
     return createJsonResponse(result);

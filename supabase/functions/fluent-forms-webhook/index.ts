@@ -267,8 +267,8 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             success: true, 
-            data: existingEvents[0],
-            message: 'Duplicate submission detected, returning existing event'
+            duplicate: true,
+            message: 'Duplicate submission detected; this form was already received.'
           }),
           { 
             headers: { 
@@ -293,7 +293,6 @@ serve(async (req) => {
         code: error.code,
         details: error.details,
         hint: error.hint,
-        eventData: eventData
       });
       throw new Error(`Database operation failed: ${error.message} (code: ${error.code})`);
     }
