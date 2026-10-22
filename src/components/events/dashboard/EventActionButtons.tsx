@@ -61,7 +61,8 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
         <AlertDialogTrigger asChild>
           <Button 
             variant="ghost" 
-            size="icon" 
+            size="icon"
+            aria-label="Delete event" 
             onClick={e => e.stopPropagation()} 
             className=""
             disabled={isDeleting}
