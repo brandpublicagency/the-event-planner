@@ -12,19 +12,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * Process form data and create an event in the database
  */
 export const processFormData = async (formData: any) => {
-  console.log('============ PROCESS FORM DATA START ============');
-  console.log('Raw form data received:', JSON.stringify(formData, null, 2));
   
   try {
     // Normalize the form data
     const normalizedData = normalizeFormData(formData);
     
-    console.log('Normalized data returned from normalizer:', {
-      name: normalizedData.name,
-      event_type: normalizedData.event_type,
-      company: normalizedData.company,
-      primary_email: normalizedData.primary_email
-    });
     
     // PHASE 2: VALIDATE AND FIX NAME FIELD
     // Validate event_type first (required for fallback name generation)
@@ -35,7 +27,6 @@ export const processFormData = async (formData: any) => {
     
     // Generate event code early so we can use it in name fallback
     const eventCode = await generateEventCode(normalizedData.event_type);
-    console.log('Generated event code:', eventCode);
     
     // Validate and fix name field with ultimate fallback
     if (!normalizedData.name || normalizedData.name.trim() === '') {
@@ -43,7 +34,6 @@ export const processFormData = async (formData: any) => {
       
       // Last resort fallback: Use event type + event code
       normalizedData.name = `${normalizedData.event_type} Event - ${eventCode}`;
-      console.log('Applied ultimate fallback name:', normalizedData.name);
     }
     
     // Final validation
@@ -52,7 +42,6 @@ export const processFormData = async (formData: any) => {
       throw new Error('Unable to generate event name from form data');
     }
     
-    console.log('Final validated name:', normalizedData.name);
     
     // Check for duplicate submissions
     // Look for an event with the same name, email, and timestamp within the last 5 minutes
@@ -60,7 +49,7 @@ export const processFormData = async (formData: any) => {
     
     const { data: existingEvents, error: searchError } = await supabase
       .from('events')
-      .select('event_code, name, primary_email, created_at')
+      .select('event_code')
       .eq('name', normalizedData.name)
       .eq('primary_email', normalizedData.primary_email)
       .gte('created_at', fiveMinutesAgo)
@@ -70,17 +59,11 @@ export const processFormData = async (formData: any) => {
       console.error('Error checking for duplicates:', searchError);
       // Continue with event creation even if duplicate check fails
     } else if (existingEvents && existingEvents.length > 0) {
-      console.log('Duplicate submission detected:', {
-        existing_event: existingEvents[0],
-        submitted_name: normalizedData.name,
-        submitted_email: normalizedData.primary_email
-      });
       
       // Return the existing event code instead of creating a new one
       return {
         success: true,
-        event_code: existingEvents[0].event_code,
-        message: `Event already exists with code ${existingEvents[0].event_code}`,
+        message: 'Duplicate submission detected; this form was already received.',
         isDuplicate: true
       };
     }
@@ -112,7 +95,7 @@ export const processFormData = async (formData: any) => {
           if (!isNaN(date.getTime())) {
             formattedDate = date.toISOString().split('T')[0];
           } else {
-            console.error('Invalid date format:', normalizedData.event_date);
+            console.error("Invalid date format received");
             formattedDate = null;
           }
         }
@@ -121,8 +104,6 @@ export const processFormData = async (formData: any) => {
         formattedDate = null;
       }
       
-      console.log('Original date:', normalizedData.event_date);
-      console.log('Formatted date:', formattedDate);
     }
     
     // Validate and normalize venues
@@ -135,7 +116,6 @@ export const processFormData = async (formData: any) => {
         'Package 1', 'Package 2', 'Package 3'
       ];
       
-      console.log('Pre-normalized venues:', venues);
       
       // Normalize venue names (first character uppercase, rest lowercase)
       venues = venues.map(venue => {
@@ -160,7 +140,6 @@ export const processFormData = async (formData: any) => {
       
       // Filter to only include valid venues
       venues = venues.filter(venue => validVenues.includes(venue));
-      console.log('Post-normalized venues:', venues);
     }
     
     // Ensure address is set for non-wedding events
@@ -172,7 +151,6 @@ export const processFormData = async (formData: any) => {
                (normalizedData.user_inputs && normalizedData.user_inputs.address_1) || 
                null;
       
-      console.log('Setting address for non-wedding event:', address);
     }
     
     // Extract core event data
@@ -202,10 +180,6 @@ export const processFormData = async (formData: any) => {
       vat_number: normalizedData.vat_number || null,
     };
     
-    console.log('============ FINAL EVENT DATA TO INSERT ============');
-    console.log('Event data:', JSON.stringify(eventData, null, 2));
-    console.log('Venues:', eventData.venues);
-    console.log('====================================================');
     
     // PHASE 4: INSERT WITH VALIDATION
     // Final check before insert
@@ -224,20 +198,14 @@ export const processFormData = async (formData: any) => {
     if (error) {
       console.error('============ DATABASE INSERT ERROR ============');
       console.error('Error details:', JSON.stringify(error, null, 2));
-      console.error('Event data that failed:', JSON.stringify(eventData, null, 2));
       console.error('==============================================');
       throw error;
     }
     
-    console.log('✅ Event successfully inserted:', event.event_code);
     
     // Create initial task for new event
     await createInitialTask(event);
     
-    console.log('============ PROCESS FORM DATA SUCCESS ============');
-    console.log('Created event code:', eventCode);
-    console.log('Event name:', event.name);
-    console.log('===================================================');
     
     return {
       success: true,
