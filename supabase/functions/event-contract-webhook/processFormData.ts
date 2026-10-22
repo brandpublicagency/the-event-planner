@@ -96,7 +96,7 @@ export const processFormData = async (formData: any) => {
           if (!isNaN(date.getTime())) {
             formattedDate = date.toISOString().split('T')[0];
           } else {
-            console.error('Invalid date format:', normalizedData.event_date);
+            console.error("Invalid date format received");
             formattedDate = null;
           }
         }
@@ -199,7 +199,6 @@ export const processFormData = async (formData: any) => {
     if (error) {
       console.error('============ DATABASE INSERT ERROR ============');
       console.error('Error details:', JSON.stringify(error, null, 2));
-      console.error('Event data that failed:', JSON.stringify(eventData, null, 2));
       console.error('==============================================');
       throw error;
     }
