@@ -41,7 +41,7 @@ export function BubbleToolbar({ editor }: BubbleToolbarProps) {
   return (
     <BubbleMenu
       editor={editor}
-      tippyOptions={{ duration: 150, placement: 'top' }}
+      options={{ placement: 'top' }}
       className="flex items-center gap-0.5 rounded-lg bg-foreground px-1.5 py-1 shadow-xl border border-foreground"
     >
       <BubbleButton

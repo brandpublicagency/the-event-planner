@@ -47,7 +47,7 @@ export const RichTextCard = memo(({
       const newContent = value || '<p></p>';
       
       if (currentContent !== newContent) {
-        editor.commands.setContent(newContent, false);
+        editor.commands.setContent(newContent, { emitUpdate: false });
       }
     }
   }, [value, editor]);
