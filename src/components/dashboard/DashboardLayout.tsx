@@ -5,7 +5,6 @@ import DashboardEventsSection from "./DashboardEventsSection";
 import DashboardWeatherCard from "./DashboardWeatherCard";
 import DashboardTasksSection from "./DashboardTasksSection";
 import DashboardMiniCalendar from "./DashboardMiniCalendar";
-import DashboardTeamChat from "./DashboardTeamChat";
 import DashboardNotificationsDrawer from "./DashboardNotificationsDrawer";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -65,17 +64,16 @@ const DashboardLayout = () => {
         <DashboardGreeting />
         <DashboardKPIStrip />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          <div className="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-4">
-            <div className="order-1"><DashboardEventsSection /></div>
-            <DashboardTeamChat className="order-3 lg:order-none flex-1 min-h-[300px]" />
-          </div>
-
-          <div className="order-2 lg:order-none flex flex-col gap-4">
-            <DashboardMiniCalendar />
-            <DashboardWeatherCard />
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            <DashboardEventsSection />
             <DashboardTasksSection />
           </div>
+
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-4">
+            <DashboardMiniCalendar />
+            <DashboardWeatherCard />
+          </aside>
         </div>
         </div>
       </div>
